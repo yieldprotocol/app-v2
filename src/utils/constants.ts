@@ -27,6 +27,7 @@ export const stETH = '0x303400000000';
 export const wstETH = '0x303500000000';
 export const LINK = '0x303600000000';
 
+export const BLANK_ADDRESS = ethers.constants.AddressZero;
 export const BLANK_VAULT = '0x000000000000000000000000';
 export const BLANK_SERIES = '0x000000000000'
 

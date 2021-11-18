@@ -9,7 +9,11 @@ import {
   RoutedActions,
   IVault,
   ISettingsContext,
+  IStrategy,
   IAsset,
+  IUserContext,
+  IUserContextState,
+  IUserContextActions,
 } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
@@ -18,6 +22,7 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -52,8 +57,10 @@ export const useRemoveLiquidity = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, assetMap, selectedStrategyAddr, strategyMap } = userState;
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;
+  const { activeAccount: account, assetMap, selectedStrategy } = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -71,8 +78,8 @@ export const useRemoveLiquidity = () => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
-    const _base: IAsset = assetMap.get(series.baseId);
-    const _strategy = strategyMap.get(selectedStrategyAddr);
+    const _base: IAsset = assetMap.get(series.baseId)!;
+    const _strategy: any = selectedStrategy!; 
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
     const ladleAddress = contractMap.get('Ladle').address;
@@ -142,16 +149,17 @@ export const useRemoveLiquidity = () => {
 
     const alreadyApprovedStrategy =
       approveMax && !!_strategy
-        ? (await _strategy.strategyContract.allowance(account, ladleAddress)).gt(_input)
+        ? (await _strategy.strategyContract.allowance(account!, ladleAddress)).gt(_input)
         : false;
     const alreadyApprovedPool =
-      approveMax && !_strategy ? (await series.poolContract.allowance(account, ladleAddress)).gt(_input) : false;
+      approveMax && !_strategy ? (await series.poolContract.allowance(account!, ladleAddress)).gt(_input) : false;
+
 
     const permits: ICallData[] = await sign(
       [
         /* give strategy permission to sell tokens to pool */
         {
-          target: _strategy!,
+          target: _strategy,
           spender: 'LADLE',
           amount: _input,
           ignoreIf: !_strategy || alreadyApprovedStrategy === true,
@@ -173,13 +181,15 @@ export const useRemoveLiquidity = () => {
       txCode
     );
 
+    // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
+
     const calls: ICallData[] = [
       ...permits,
 
       /* FOR ALL REMOVES (when using a strategy) > move tokens from strategy to pool tokens  */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [selectedStrategyAddr, selectedStrategyAddr, _input] as LadleActions.Args.TRANSFER,
+        args: [_strategy.address, _strategy.address, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: !_strategy,
       },
       {
@@ -247,14 +257,7 @@ export const useRemoveLiquidity = () => {
         args: [matchingVaultId, account] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
-      // {
-      //   operation: LadleActions.Fn.ROUTE,
-      //   args: [account, ethers.constants.Zero] as RoutedActions.Args.SELL_FYTOKEN,
-      //   fnName: RoutedActions.Fn.SELL_FYTOKEN,
-      //   targetContract: series.poolContract,
-      //   ignoreIf:
-      //     true || series.seriesIsMature || !extraTradeSupported || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
-      // },
+
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY +  NO VAULT */
 
@@ -303,6 +306,7 @@ export const useRemoveLiquidity = () => {
         args: [series.id, account, '0'] as LadleActions.Args.REDEEM,
         ignoreIf: !series.seriesIsMature,
       },
+
     ];
 
     await transact(calls, txCode);

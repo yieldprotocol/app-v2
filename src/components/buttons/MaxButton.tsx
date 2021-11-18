@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Box, Text } from 'grommet';
 import { UserContext } from '../../contexts/UserContext';
-import { IUserContext } from '../../types';
+import { IUserContext, IUserContextState } from '../../types';
 
 interface IMaxButtonProps {
   /* select series locally filters out the global selection from the list and returns the selected ISeries */
@@ -28,7 +28,7 @@ const StyledBox = styled(Box)`
 
 function MaxButton({ action, clearAction, showingMax, disabled, customText }: IMaxButtonProps) {
   /* state from context */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount } = userState;
 
   return (

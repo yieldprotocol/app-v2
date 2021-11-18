@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ContractFactory, ethers } from 'ethers';
+import { ContractFactory, Contract, ethers } from 'ethers';
 
 import { format } from 'date-fns';
 
@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
+import { IAssetHandling, IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
 
 import { ETH_BASED_ASSETS, USDC } from '../utils/constants';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
@@ -32,7 +32,8 @@ const markMap = new Map([
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
   ['LINK', <LINKMark key="link" />],
-  ['wstETH', <StEthMark key="steth" />],
+  ['wstETH', <StEthMark key="wsteth" />],
+  ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
 ]);
 
@@ -43,6 +44,7 @@ const assetDigitFormatMap = new Map([
   ['USDC', 2],
   ['USDT', 2],
   ['wstETH', 6],
+  ['stETH', 6],
   ['LINK', 2],
   ['ENS', 2],
 ]);
@@ -71,7 +73,7 @@ const initState = {
   chainLoading: true,
 
   /* Connected Contract Maps */
-  contractMap: new Map<string, ContractFactory>(),
+  contractMap: new Map<string, Contract>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
@@ -146,6 +148,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
+      const assetHandling = yieldEnv.assetHandling as any;
 
       let Cauldron: any;
       let Ladle: any;
@@ -180,6 +183,7 @@ const ChainProvider = ({ children }: any) => {
           ChainlinkUSDOracle = '';
           AccumulatorMultiOracle = '';
         }
+
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
       }
@@ -212,20 +216,27 @@ const ChainProvider = ({ children }: any) => {
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = (yieldEnv.strategies as any)[fallbackChainId];
 
-      /* add on extra/calculated ASSET info  and contract instances */
+      /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
+        /* attach either contract, (or contract of the wrappedToken ) */
+        let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+        if (asset.wrappedTokenAddress) {
+          baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
+        }
         const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+
         return {
           ...asset,
           digitFormat: assetDigitFormatMap.has(asset.symbol) ? assetDigitFormatMap.get(asset.symbol) : 6,
-          image: markMap.get(asset.symbol),
+          image: markMap.get(asset.displaySymbol),
           color: (yieldEnv.assetColors as any)[asset.symbol],
-          baseContract: ERC20Permit,
-
+          baseContract,
           /* baked in token fns */
           getBalance: async (acc: string) =>
-            ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
+            /* if eth based get provider balance, if token based, get token balance (NOT of wrappedToken ) */
+            ETH_BASED_ASSETS.includes(asset.idToUse) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+          getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
+          // getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
         };
       };
 
@@ -250,6 +261,8 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           assetAddedEvents.map(async (x: any) => {
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
+
+            /* Get the basic token info */
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
             const [name, symbol, decimals, version] = await Promise.all([
               ERC20.name(),
@@ -258,24 +271,38 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
-            const symbolSwitch = (sym: string) => {
-              switch (sym) {
-                case 'WETH':
-                  return 'ETH';
-                default:
-                  return sym;
-              }
-            };
+            /* bring in any extra hardcoded handling info required */
+            const {
+              showToken,
+              isWrappedToken,
+              wrapHandlerAddress,
+              wrappedTokenId,
+              wrappedTokenAddress,
+              displaySymbol,
+            } = assetHandling[symbol] as IAssetHandling;
+
+            const idToUse = wrappedTokenId || id;
 
             const newAsset = {
               id,
               address,
               name,
-              symbol: symbolSwitch(symbol),
+              displaySymbol: displaySymbol || symbol,
+              symbol,
               decimals,
               version,
-              joinAddress: joinMap.get(id),
+
+              joinAddress: joinMap.get(idToUse),
+              idToUse,
+
+              isWrappedToken,
+              wrapHandlerAddress,
+              wrappedTokenId,
+              wrappedTokenAddress,
+
+              showToken,
             };
+
             // Update state and cache
             updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
             newAssetList.push(newAsset);
@@ -284,6 +311,7 @@ const ChainProvider = ({ children }: any) => {
 
         // set the 'last checked' block
         setLastAssetUpdate(blockNum);
+
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
         console.log('Yield Protocol Asset data updated.');
@@ -363,7 +391,6 @@ const ChainProvider = ({ children }: any) => {
                 const poolAddress: string = poolMap.get(id) as string;
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-                // const baseContract = contracts.ERC20__factory.connect(fyToken, fallbackLibrary);
                 const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol] = await Promise.all([
                   fyTokenContract.name(),
                   fyTokenContract.symbol(),

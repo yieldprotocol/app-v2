@@ -3,7 +3,8 @@ import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IStrategy, IUserContext } from '../../types';
+import { IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
+
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
@@ -11,10 +12,10 @@ import DashButton from '../buttons/DashButton';
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, strategyMap, selectedBaseId } = userState;
 
-  const selectedBase = assetMap.get(selectedBaseId!);
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, strategyMap, selectedBase } =
+    userState;
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
@@ -109,7 +110,7 @@ function StrategyPositionSelector() {
             <Box align="end" onClick={() => setShowAllPositions(!showAllPositions)}>
               <Text size="xsmall" color="text-weak">
                 {showAllPositions
-                  ? `Show suggested ${selectedBase?.symbol || ''} positions only`
+                  ? `Show suggested ${selectedBase?.displaySymbol || ''} positions only`
                   : `Show all ${allPositions.length} positions`}
               </Text>
             </Box>

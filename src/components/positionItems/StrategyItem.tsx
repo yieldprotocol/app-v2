@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Text } from 'grommet';
-import { ActionType, IStrategy, IUserContext } from '../../types';
+
+import { ActionType, ISeries, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -10,13 +11,18 @@ import ItemWrap from '../wraps/ItemWrap';
 function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const history = useHistory();
 
-  const { userActions } = useContext(UserContext) as IUserContext;
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;
+
+
+  const base = userState.assetMap.get(strategy.baseId) || null ;
+  const series = userState.seriesMap.get(strategy.currentSeriesId) || null;
 
   const handleSelect = (_series: IStrategy) => {
-    userActions.setSelectedBase(strategy.baseId);
-    userActions.setSelectedSeries(strategy.currentSeriesId);
-    userActions.setSelectedStrategy(strategy.address);
-
+    userActions.setSelectedBase(base);
+    userActions.setSelectedSeries(series);
+    userActions.setSelectedStrategy(strategy);
     history.push(`/poolposition/${strategy.address}`);
   };
 

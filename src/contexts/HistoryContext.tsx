@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset, IStrategy } from '../types';
+import { ISeries, IVault, IHistItemPosition, ActionCodes, IBaseHistItem, IAsset, IStrategy, IUserContextState } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
@@ -77,7 +77,7 @@ const HistoryProvider = ({ children }: any) => {
     assetRootMap,
   } = chainState;
 
-  const { userState } = useContext(UserContext);
+  const { userState } : { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
   const blockNumForUse = Number(useBlockNum()) - 10000;
   const [historyState, updateState] = useReducer(historyReducer, initState);

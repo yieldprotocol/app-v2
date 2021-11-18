@@ -3,7 +3,7 @@ import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { ActionType, ISeries } from '../../types';
+import { ActionType, ISeries, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { maxBaseIn, maxBaseOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
@@ -76,16 +76,7 @@ const AprText = ({
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   const baseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, series.getTimeTillMaturity(), series.decimals);
-
-  const baseOut = maxBaseOut(
-    series.baseReserves,
-    series.fyTokenReserves,
-    series.getTimeTillMaturity(),
-    series.decimals
-  );
-
-  diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
-  diagnostics && console.log(series.id, ' maxbaseOut', baseOut.toString());
+  // diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
@@ -96,7 +87,6 @@ const AprText = ({
     _inputValue,
     actionType,
     baseIn,
-    baseOut,
     series.baseReserves,
     series?.decimals,
     series?.seriesIsMature,
@@ -140,16 +130,16 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
-  const { selectedSeriesId, selectedBaseId, seriesMap, assetMap, seriesLoading } = userState;
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } =
+    useContext(UserContext);
+  const { selectedSeries, selectedBase, seriesMap, seriesLoading } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
-  const selectedSeries = selectSeriesLocally ? localSeries : seriesMap.get(selectedSeriesId!);
-  const selectedBase = assetMap.get(selectedBaseId!);
+  const _selectedSeries = selectSeriesLocally ? localSeries : selectedSeries;
 
   /* prevent underflow */
-  const _inputValue = cleanValue(inputValue, selectedSeries?.decimals);
+  const _inputValue = cleanValue(inputValue, _selectedSeries?.decimals);
 
   const optionText = (_series: ISeries | undefined) => {
     if (_series) {
@@ -180,32 +170,31 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     /* filter out options based on base Id and if mature */
     let filteredOpts = opts
       .filter(
-        (_series: ISeries) => _series.baseId === selectedBaseId && !_series.seriesIsMature
+        (_series: ISeries) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
         // !ignoredSeries?.includes(_series.baseId)
       )
       .sort((a: ISeries, b: ISeries) => b.maturity! - a.maturity!);
 
     /* if required, filter out the globally selected asset and */
     if (selectSeriesLocally) {
-      filteredOpts = filteredOpts.filter((_series: ISeries) => _series.id !== selectedSeriesId);
+      filteredOpts = filteredOpts.filter((_series: ISeries) => _series.id !== _selectedSeries?.id);
     }
 
     /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
     set the selected series to null. */
     if (
-      selectedSeries &&
-      // (filteredOpts.findIndex((_series: ISeries) => _series.id !== selectedSeriesId) < 0 ||
-      selectedSeries.baseId !== selectedBaseId // )
+      _selectedSeries &&
+      _selectedSeries.baseId !== selectedBase?.idToUse // )
     )
       userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, selectedSeries, userActions, selectedBaseId, selectedSeriesId]);
+  }, [seriesMap, selectedBase, selectSeriesLocally, _selectedSeries, userActions ]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
       diagnostics && console.log('Series selected globally: ', _series.id);
-      userActions.setSelectedSeries(_series.id);
+      userActions.setSelectedSeries(_series);
     } else {
       /* used for passing a selected series to the parent component */
       diagnostics && console.log('Series set locally: ', _series.id);
@@ -228,12 +217,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             name="seriesSelect"
             placeholder="Select Series"
             options={options}
-            value={selectedSeries}
+            value={_selectedSeries!}
             labelKey={(x: any) => optionText(x)}
             valueLabel={
               options.length ? (
                 <Box pad={mobile ? 'medium' : '0.55em'}>
-                  <Text color="text"> {optionExtended(selectedSeries)}</Text>
+                  <Text color="text"> {optionExtended(_selectedSeries!)}</Text>
                 </Box>
               ) : (
                 <Box pad={mobile ? 'medium' : '0.55em'}>
@@ -274,23 +263,22 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             ) : (
               options.map((series: ISeries) => (
                 <StyledBox
-                  // border={series.id === selectedSeriesId}
                   key={series.id}
                   pad="xsmall"
                   round="xsmall"
                   onClick={() => handleSelect(series)}
-                  background={series.id === selectedSeriesId ? series?.color : 'hoverBackground'}
+                  background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
                   elevation="xsmall"
                   align="center"
                 >
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
                       background={
-                        series.id === selectedSeriesId ? 'lightBackground' : series.endColor.toString().concat('20')
+                        series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
                       }
                       style={{
                         boxShadow:
-                          series.id === selectedSeriesId
+                          series.id === _selectedSeries?.id
                             ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
                             : undefined,
                       }}
@@ -299,10 +287,10 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                     </Avatar>
 
                     <Box>
-                      <Text size="medium" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                      <Text size="medium" color={series.id === _selectedSeries?.id ? series.textColor : undefined}>
                         <AprText inputValue={_inputValue} series={series} actionType={actionType} />
                       </Text>
-                      <Text size="small" color={series.id === selectedSeriesId ? series.textColor : undefined}>
+                      <Text size="small" color={series.id === _selectedSeries?.id ? series.textColor : undefined}>
                         {series.displayName}
                       </Text>
                     </Box>

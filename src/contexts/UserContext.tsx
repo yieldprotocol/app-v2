@@ -29,7 +29,9 @@ import {
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
+
 import { useBlockNum } from '../hooks/useBlockNum';
+import { SettingsContext } from './SettingsContext';
 
 const UserContext = React.createContext<any>({});
 
@@ -56,11 +58,11 @@ const initState: IUserContextState = {
   limitsLoading: true as boolean,
 
   /* Current User selections */
-  selectedSeriesId: null,
-  selectedIlkId: null, // initial ilk
-  selectedBaseId: null, // initial base
-  selectedVaultId: null,
-  selectedStrategyAddr: null,
+  selectedSeries: null,
+  selectedIlk: null, // initial ilk
+  selectedBase: null, // initial base
+  selectedVault: null,
+  selectedStrategy: null,
 };
 
 function userReducer(state: any, action: any) {
@@ -75,17 +77,6 @@ function userReducer(state: any, action: any) {
 
     case 'activeAccount':
       return { ...state, activeAccount: onlyIfChanged(action) };
-
-    case 'selectedVaultId':
-      return { ...state, selectedVaultId: onlyIfChanged(action) };
-    case 'selectedSeriesId':
-      return { ...state, selectedSeriesId: onlyIfChanged(action) };
-    case 'selectedIlkId':
-      return { ...state, selectedIlkId: onlyIfChanged(action) };
-    case 'selectedBaseId':
-      return { ...state, selectedBaseId: onlyIfChanged(action) };
-    case 'selectedStrategyAddr':
-      return { ...state, selectedStrategyAddr: onlyIfChanged(action) };
 
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
@@ -109,6 +100,17 @@ function userReducer(state: any, action: any) {
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
 
+    case 'selectedVault':
+      return { ...state, selectedVault: onlyIfChanged(action) };
+    case 'selectedSeries':
+      return { ...state, selectedSeries: onlyIfChanged(action) };
+    case 'selectedIlk':
+      return { ...state, selectedIlk: onlyIfChanged(action) };
+    case 'selectedBase':
+      return { ...state, selectedBase: onlyIfChanged(action) };
+    case 'selectedStrategy':
+      return { ...state, selectedStrategy: onlyIfChanged(action) };
+
     default:
       return state;
   }
@@ -126,6 +128,8 @@ const UserProvider = ({ children }: any) => {
     strategyRootMap,
   } = chainState;
 
+  const { showWrappedTokens } = useContext(SettingsContext);
+
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
@@ -136,8 +140,8 @@ const UserProvider = ({ children }: any) => {
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
-    pathname && setVaultFromUrl(pathname.split('/')[2]);
-  }, [pathname]);
+    pathname && setVaultFromUrl(userState.vaultMap.get(pathname.split('/')[2]));
+  }, [pathname, userState.vaultMap]);
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(
@@ -213,20 +217,14 @@ const UserProvider = ({ children }: any) => {
 
       _publicData = await Promise.all(
         assetList.map(async (asset: IAssetRoot): Promise<IAssetRoot> => {
-          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.id);
-
-          const hasActiveJoin =
-            ethers.utils.isAddress(asset.joinAddress) && asset.joinAddress !== ethers.constants.AddressZero;
-
+          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x: any) => x.baseId === asset.idToUse);
           return {
             ...asset,
             isYieldBase,
-            hasActiveJoin,
+            displaySymbol: showWrappedTokens ? asset.symbol : asset.displaySymbol, // if showing wrapped tokens, show the true token names
           };
         })
       );
-
-      console.log('PUBLIC DATA', _publicData);
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
@@ -251,13 +249,11 @@ const UserProvider = ({ children }: any) => {
 
       /* get the previous version (Map) of the vaultMap and update it */
       const newAssetMap = new Map(
-        _combinedData
-          .filter((asset: IAssetRoot) => asset.hasActiveJoin)
-          .reduce((acc: any, item: any) => {
-            const _map = acc;
-            _map.set(item.id, item);
-            return _map;
-          }, userState.assetMap)
+        _combinedData.reduce((acc: any, item: any) => {
+          const _map = acc;
+          _map.set(item.id, item);
+          return _map;
+        }, userState.assetMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -495,7 +491,7 @@ const UserProvider = ({ children }: any) => {
 
       /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
-      vaultFromUrl && updateState({ type: 'selectedVaultId', payload: vaultFromUrl });
+      vaultFromUrl && updateState({ type: 'selectedVault', payload: vaultFromUrl });
       updateState({ type: 'vaultsLoading', payload: false });
 
       console.log('VAULTS: ', combinedVaultMap);
@@ -649,6 +645,25 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
+  useEffect(() => {
+    /* Update selected base if asset map changes */
+    userState.selectedBase &&
+      updateState({ type: 'selectedBase', payload: userState.assetMap.get(userState.selectedBase.id) as IAsset });
+  }, [userState.assetMap, userState.selectedBase]);
+
+  useEffect(() => {
+    /* Update selected ilk if asset map changes */
+    userState.selectedIlk &&
+      updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
+  }, [userState.assetMap, userState.selectedIlk]);
+
+  useEffect(() => {
+    /* Update selected vault if vault map changes */
+    userState.selectedVault &&
+      updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
+  }, [userState.vaultMap, userState.selectedVault]);
+
+
   /* Exposed userActions */
   const userActions = {
     updateSeries,
@@ -658,12 +673,17 @@ const UserProvider = ({ children }: any) => {
     updatePrice,
     updateLimit,
 
-    setSelectedVault: (vaultId: string | null) => updateState({ type: 'selectedVaultId', payload: vaultId }),
-    setSelectedIlk: (assetId: string | null) => updateState({ type: 'selectedIlkId', payload: assetId }),
-    setSelectedSeries: (seriesId: string | null) => updateState({ type: 'selectedSeriesId', payload: seriesId }),
-    setSelectedBase: (assetId: string | null) => updateState({ type: 'selectedBaseId', payload: assetId }),
-    setSelectedStrategy: (strategyAddr: string | null) =>
-      updateState({ type: 'selectedStrategyAddr', payload: strategyAddr }),
+    setSelectedVault: useCallback((vault: IVault | null) => updateState({ type: 'selectedVault', payload: vault }), []),
+    setSelectedIlk: useCallback((asset: IAsset | null) => updateState({ type: 'selectedIlk', payload: asset }), []),
+    setSelectedSeries: useCallback(
+      (series: ISeries | null) => updateState({ type: 'selectedSeries', payload: series }),
+      []
+    ),
+    setSelectedBase: useCallback((asset: IAsset | null) => updateState({ type: 'selectedBase', payload: asset }), []),
+    setSelectedStrategy: useCallback(
+      (strategy: IStrategy | null) => updateState({ type: 'selectedStrategy', payload: strategy }),
+      []
+    ),
   };
 
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
