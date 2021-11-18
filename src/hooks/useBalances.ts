@@ -168,10 +168,6 @@ const useBalances = () => {
     strategyPositions,
   ]);
 
-  useEffect(() => {
-    console.log('price map', priceMap);
-  }, [priceMap]);
-
   return {
     vaultPositions,
     lendPositions,
