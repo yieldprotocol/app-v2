@@ -60,7 +60,7 @@ const VaultPosition = () => {
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
   const _selectedVault: IVault = selectedVault! || vaultMap.get(idFromUrl)!;
-  
+
   const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
   const vaultSeries: ISeries | undefined = seriesMap.get(_selectedVault?.seriesId!);
@@ -284,7 +284,9 @@ const VaultPosition = () => {
                       />
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(_selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.displaySymbol}`}
+                        value={`${cleanValue(_selectedVault?.art_, vaultBase?.digitFormat!)} ${
+                          vaultBase?.displaySymbol
+                        }`}
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading}
                       />
@@ -299,7 +301,7 @@ const VaultPosition = () => {
                     </Box>
                   </SectionWrap>
                 )}
-                {unhealthyCollatRatio && (
+                {unhealthyCollatRatio && !vaultsLoading && (
                   <Text size="xsmall" color="red">
                     Vault is in danger of liquidation. Minimum collateralization needed is {minCollatRatioPct}%
                   </Text>
@@ -579,7 +581,8 @@ const VaultPosition = () => {
                             !removeCollatInput ? (
                               <InputInfoWrap action={() => setRemoveCollatInput(maxRemovableCollateral)}>
                                 <Text size="xsmall" color="text-weak">
-                                  Max removable collateral: {cleanValue(maxRemovableCollateral, 6)} {vaultIlk?.displaySymbol!}
+                                  Max removable collateral: {cleanValue(maxRemovableCollateral, 6)}{' '}
+                                  {vaultIlk?.displaySymbol!}
                                 </Text>
                               </InputInfoWrap>
                             ) : (
@@ -621,7 +624,9 @@ const VaultPosition = () => {
                           <InfoBite
                             label="Remove Collateral"
                             icon={<FiArrowRight />}
-                            value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.displaySymbol}`}
+                            value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${
+                              vaultIlk?.displaySymbol
+                            }`}
                           />
                         </Box>
                       </ActiveTransaction>

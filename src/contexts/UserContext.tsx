@@ -218,7 +218,7 @@ const UserProvider = ({ children }: any) => {
           return {
             ...asset,
             isYieldBase,
-            displaySymbol : showWrappedTokens? asset.symbol : asset.displaySymbol, // if showing wrapped tokens, show the true token names
+            displaySymbol: showWrappedTokens ? asset.symbol : asset.displaySymbol, // if showing wrapped tokens, show the true token names
           };
         })
       );
@@ -627,6 +627,25 @@ const UserProvider = ({ children }: any) => {
     /* keep checking the active account when it changes/ chainlaoding */
     updateState({ type: 'activeAccount', payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
+
+  useEffect(() => {
+    /* Update selected base if asset map changes */
+    userState.selectedBase &&
+      updateState({ type: 'selectedBase', payload: userState.assetMap.get(userState.selectedBase.id) as IAsset });
+  }, [userState.assetMap, userState.selectedBase]);
+
+  useEffect(() => {
+    /* Update selected ilk if asset map changes */
+    userState.selectedIlk &&
+      updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
+  }, [userState.assetMap, userState.selectedIlk]);
+
+  useEffect(() => {
+    /* Update selected vault if vault map changes */
+    userState.selectedVault &&
+      updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
+  }, [userState.vaultMap, userState.selectedVault]);
+
 
   /* Exposed userActions */
   const userActions = {
