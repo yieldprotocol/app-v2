@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { ethers } from 'ethers';
 import { useHistory, useParams } from 'react-router-dom';
-import { FiArrowRight, FiPercent, FiSlash, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiPercent, FiSlash } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
@@ -36,14 +35,19 @@ const PoolPosition = () => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedStrategyAddr, strategyMap, assetMap, seriesLoading } = userState;
+  const {
+    userState,
+    userActions: { setSelectedStrategy },
+  } = useContext(UserContext) as IUserContext;
+  const { activeAccount, selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
   // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
   // const selectedBase = assetMap.get(selectedSeries?.baseId!);
-  const selectedStrategy = strategyMap.get(selectedStrategyAddr || idFromUrl);
-  const selectedSeries = selectedStrategy?.currentSeries;
-  const selectedBase = assetMap.get(selectedStrategy?.baseId!);
+
+  const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl);
+
+  const selectedSeries = _selectedStrategy?.currentSeries;
+  const selectedBase = assetMap.get(_selectedStrategy?.baseId!);
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
@@ -58,22 +62,17 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
-  const {
-    matchingVault,
-    maxRemoveWithVault,
-    maxRemoveNoVault,
-    removeBaseReceived_,
-    partialRemoveRequired,
-  } = usePoolHelpers(removeInput, true);
+  const { matchingVault, maxRemoveWithVault, maxRemoveNoVault, removeBaseReceived_, partialRemoveRequired } =
+    usePoolHelpers(removeInput, true);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
-    selectedSeries?.id
+    selectedSeries?.id!
   );
 
   /* input validation hooks */
-  const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries, [
+  const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries!, [
     0,
     matchingVault ? maxRemoveWithVault : maxRemoveNoVault,
   ]);
@@ -102,8 +101,8 @@ const PoolPosition = () => {
   /* SET MAX VALUES */
   useEffect(() => {
     /* Checks the max available to remove */
-    selectedStrategy && matchingVault ? setMaxRemove(maxRemoveWithVault) : setMaxRemove(maxRemoveNoVault);
-  }, [selectedStrategy, matchingVault, maxRemoveNoVault, maxRemoveWithVault, setMaxRemove]);
+    _selectedStrategy && matchingVault ? setMaxRemove(maxRemoveWithVault) : setMaxRemove(maxRemoveNoVault);
+  }, [_selectedStrategy, matchingVault, maxRemoveNoVault, maxRemoveWithVault, setMaxRemove]);
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
@@ -111,8 +110,9 @@ const PoolPosition = () => {
   }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
 
   useEffect(() => {
-    !selectedStrategyAddr && idFromUrl && userActions.setSelectedStrategy(idFromUrl);
-  }, [selectedStrategyAddr, idFromUrl, userActions.setSelectedStrategy]);
+    const _strategy = strategyMap.get(idFromUrl) || null;
+    idFromUrl && setSelectedStrategy(_strategy);
+  }, [idFromUrl, setSelectedStrategy, strategyMap]);
 
   /* watch process timeouts */
   useEffect(() => {
@@ -135,7 +135,7 @@ const PoolPosition = () => {
 
   return (
     <>
-      {selectedStrategy && (
+      {_selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
@@ -150,9 +150,9 @@ const PoolPosition = () => {
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
                     <Box>
-                      <Text size={mobile ? 'medium' : 'large'}> {selectedStrategy?.name} </Text>
-                      <CopyWrap hash={selectedStrategyAddr}>
-                        <Text size="small"> {abbreviateHash(selectedStrategyAddr!, 6)}</Text>
+                      <Text size={mobile ? 'medium' : 'large'}> {_selectedStrategy?.name} </Text>
+                      <CopyWrap hash={_selectedStrategy.address}>
+                        <Text size="small"> {abbreviateHash(_selectedStrategy.address!, 6)}</Text>
                       </CopyWrap>
                     </Box>
                   </Box>
@@ -163,12 +163,12 @@ const PoolPosition = () => {
                   <Box gap="small">
                     <InfoBite
                       label="Strategy Token Balance"
-                      value={cleanValue(selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)}
+                      value={cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
 
-                    {!selectedStrategy.currentSeries && (
+                    {!_selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Strategy is currently inactive"
                         value="Only token removal allowed"
@@ -177,11 +177,11 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {selectedStrategy.currentSeries && (
+                    {_selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Strategy Token Ownership"
-                        value={`${cleanValue(selectedStrategy?.accountStrategyPercent, 2)} %  of ${nFormatter(
-                          parseFloat(selectedStrategy?.strategyTotalSupply_!),
+                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)} %  of ${nFormatter(
+                          parseFloat(_selectedStrategy?.strategyTotalSupply_!),
                           2
                         )}`}
                         icon={<FiPercent />}
@@ -192,7 +192,7 @@ const PoolPosition = () => {
                     {/* {selectedStrategy.currentSeries && accountTradeValue && (
                       <InfoBite
                         label="Strategy Token Value"
-                        value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.displaySymbol}`}
                         icon={<FiTrendingUp />}
                         loading={seriesLoading}
                       />
@@ -245,7 +245,7 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
                                     Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
-                                    {selectedBase?.symbol}
+                                    {selectedBase?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
                               )}
@@ -254,7 +254,7 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Removing that amount of tokens and trading immediately for {selectedBase?.symbol}{' '}
+                                      Removing that amount of tokens and trading immediately for {selectedBase?.displaySymbol}{' '}
                                       is currently not possible due to liquidity limitations.
                                     </Text>
                                   </Box>
@@ -298,7 +298,7 @@ const PoolPosition = () => {
                     )}
                   </>
                 )}
-                {actionActive.index === 1 && <YieldHistory seriesOrVault={selectedStrategy!} view={['POOL']} />}
+                {actionActive.index === 1 && <YieldHistory seriesOrVault={_selectedStrategy!} view={['POOL']} />}
               </Box>
             </Box>
 
@@ -311,14 +311,14 @@ const PoolPosition = () => {
                         {/* <Text size="xsmall">Force Removal: </Text> */}
                         {/* <Text size="xsmall">
                             {`( You will receive `}
-                            {cleanValue(removeFyTokenReceived_, 2)} fy{selectedBase?.symbol}{' '}
+                            {cleanValue(removeFyTokenReceived_, 2)} fy{selectedBase?.displaySymbol}{' '}
                             {removeFyTokenReceived?.gt(ethers.constants.Zero) &&
-                              ` and ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.symbol} )`}
+                              ` and ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} )`}
                           </Text> */}
                         <Text size="xsmall">
                           Force Removal:
-                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.symbol} `}
-                          {`and then rest will be in redeemable fy${selectedBase?.symbol})`}
+                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} `}
+                          {`and then rest will be in redeemable fy${selectedBase?.displaySymbol})`}
                         </Text>
                       </Box>
                     }

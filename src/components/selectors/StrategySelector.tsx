@@ -1,12 +1,11 @@
-import React, { useContext, useEffect, createRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { formatDistanceStrict } from 'date-fns';
 import { Avatar, Box, Grid, ResponsiveContext, Text, Tip } from 'grommet';
 import { toast } from 'react-toastify';
 import { FiInfo, FiSlash } from 'react-icons/fi';
 
 import styled from 'styled-components';
-import { ISeries, IStrategy } from '../../types';
+import { IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
 import { cleanValue, formatStrategyName } from '../../utils/appUtils';
@@ -32,19 +31,8 @@ const ShadeBox = styled(Box)`
   box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
 `;
 
-const InsetBox = styled(Box)`
-  border-radius: 8px;
-  box-shadow: inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd;
-`;
-
 const CardSkeleton = () => (
-  <StyledBox
-    // border={series.id === selectedSeriesId}
-    pad="xsmall"
-    round="xsmall"
-    elevation="xsmall"
-    align="center"
-  >
+  <StyledBox pad="xsmall" round="xsmall" elevation="xsmall" align="center">
     <Box pad="small" width="small" direction="row" align="center" gap="small">
       <Skeleton circle width={45} height={45} />
       <Box>
@@ -67,11 +55,12 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
-  const { selectedStrategyAddr, selectedBaseId, strategiesLoading, strategyMap, seriesMap, selectedSeriesId } =
-    userState;
-  const selectedStrategy: IStrategy = strategyMap.get(selectedStrategyAddr);
-  const { strategyReturns, secondsToDays } = useStrategyReturns(selectedStrategy, 45000); // previous 45k blocks is around 7 days
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;
+  const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
+
+  const { strategyReturns } = useStrategyReturns(selectedStrategy!, 45000);
 
   const [options, setOptions] = useState<IStrategy[]>([]);
 
@@ -79,18 +68,18 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
     const filteredOpts = opts
-      .filter((_st: IStrategy) => _st.baseId === selectedBaseId && !_st.currentSeries?.seriesIsMature)
+      .filter((_st: IStrategy) => _st.baseId === selectedBase?.idToUse && !_st.currentSeries?.seriesIsMature)
       .sort((a: IStrategy, b: IStrategy) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
 
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
-  }, [selectedBaseId, strategyMap]);
+  }, [selectedBase, strategyMap]);
 
   const handleSelect = (_strategy: IStrategy) => {
     if (_strategy.active) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
-      userActions.setSelectedStrategy(_strategy.address);
-      userActions.setSelectedSeries(_strategy.currentSeries?.id);
+      userActions.setSelectedStrategy(_strategy);
+      userActions.setSelectedSeries(_strategy.currentSeries!);
     } else {
       toast.info('Strategy coming soon');
     }
@@ -122,7 +111,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                   round="xsmall"
                   onClick={() => handleSelect(strategy)}
                   background={
-                    strategy.address === selectedStrategyAddr ? strategy.currentSeries?.color : 'hoverBackground'
+                    strategy.address === selectedStrategy?.address ? strategy.currentSeries?.color : 'hoverBackground'
                   }
                   elevation="xsmall"
                   align="center"
@@ -130,13 +119,13 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                   <Box pad="small" width="small" direction="row" align="center" gap="small">
                     <Avatar
                       background={
-                        strategy.address === selectedStrategyAddr
+                        strategy.address === selectedStrategy?.address
                           ? 'lightBackground'
                           : strategy.currentSeries?.endColor.toString().concat('10')
                       }
                       style={{
                         boxShadow:
-                          strategy.address === selectedStrategyAddr
+                          strategy.address === selectedStrategy?.address
                             ? `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`
                             : undefined,
                       }}
@@ -144,12 +133,14 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                       {strategy.currentSeries?.seriesMark || <FiSlash />}
                     </Avatar>
                     <Box>
-                      {(!selectedStrategyAddr || !inputValue) && (
+                      {(!selectedStrategy || !inputValue) && (
                         <>
                           <Text
                             size="small"
                             color={
-                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                              strategy.address === selectedStrategy?.address
+                                ? strategy.currentSeries?.textColor
+                                : undefined
                             }
                           >
                             {formatStrategyName(strategy.name)}
@@ -157,7 +148,9 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                           <Text
                             size="xsmall"
                             color={
-                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                              strategy.address === selectedStrategy?.address
+                                ? strategy.currentSeries?.textColor
+                                : undefined
                             }
                           >
                             Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
@@ -165,12 +158,14 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                         </>
                       )}
 
-                      {selectedStrategyAddr && inputValue && (
+                      {selectedStrategy && inputValue && (
                         <>
                           <Text
                             size="small"
                             color={
-                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                              strategy.address === selectedStrategy?.address
+                                ? strategy.currentSeries?.textColor
+                                : undefined
                             }
                           >
                             {cleanValue(
@@ -185,12 +180,14 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                           <Text
                             size="xsmall"
                             color={
-                              strategy.address === selectedStrategyAddr ? strategy.currentSeries?.textColor : undefined
+                              strategy.address === selectedStrategy?.address
+                                ? strategy.currentSeries?.textColor
+                                : undefined
                             }
                           >
                             of strategy
                           </Text>
-                          {strategy.address === selectedStrategyAddr && strategyReturns && (
+                          {strategy.address === selectedStrategy.address && strategyReturns && (
                             <Box direction="row">
                               <Text size="small" color={strategy.currentSeries?.textColor}>
                                 {cleanValue(strategyReturns, 2)}% APY

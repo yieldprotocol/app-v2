@@ -1,21 +1,21 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ISeries, IUserContext, IVault } from '../types';
+import { ActionCodes, ISeries, IUserContext, IUserContextState, IVault } from '../types';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
   input: string | undefined,
   actionCode: ActionCodes,
-  series: ISeries | undefined,
+  series: ISeries | null,
   limits: (number | string | undefined)[],
   vault?: IVault | undefined
 ) => {
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, selectedSeriesId, selectedBaseId, activeAccount } = userState;
-  const selectedSeries = series || seriesMap.get(selectedSeriesId!);
-  const selectedBase = assetMap.get(series?.baseId!) || assetMap.get(selectedBaseId!);
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { assetMap, seriesMap, selectedSeries, selectedBase, activeAccount } = userState;
+  const _selectedSeries = series || selectedSeries;
+  const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;
 
   /* LOCAL STATE */
   const [inputError, setInputError] = useState<string | null>();
@@ -41,11 +41,11 @@ export const useInputValidation = (
       switch (actionCode) {
         case ActionCodes.BORROW:
           input &&
-            selectedSeries &&
-            ethers.utils.parseUnits(input, selectedSeries.decimals).gt(selectedSeries.baseReserves) &&
-            setInputError(`Amount exceeds the ${selectedBase?.symbol} currently available in pool`);
+            _selectedSeries &&
+            ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.baseReserves) &&
+            setInputError(`Amount exceeds the ${_selectedBase?.symbol} currently available in pool`);
           aboveMax && setInputError('Exceeds the max allowable debt for this series');
-          belowMin && setInputError(`A minimum debt of ${limits[0]} ${selectedBase?.symbol} is required for this series`);
+          belowMin && setInputError(`A minimum debt of ${limits[0]} ${_selectedBase?.symbol} is required for this series`);
           break;
 
         case ActionCodes.REPAY:
@@ -91,7 +91,7 @@ export const useInputValidation = (
           break;
       }
     } else setInputError(null);
-  }, [actionCode, activeAccount, input, limits, selectedBase?.symbol, selectedSeries]);
+  }, [actionCode, activeAccount, input, limits, _selectedBase?.symbol, _selectedSeries]);
 
   return {
     inputError,

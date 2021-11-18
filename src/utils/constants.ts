@@ -23,10 +23,15 @@ export const WETH =  '0x303000000000' // '0x455448000000';
 export const DAI = '0x303100000000'; // 0x444149000000';
 export const USDC = '0x303200000000'; // '0x555344430000';
 export const WBTC = '0x303300000000';
+export const stETH = '0x303400000000';
+export const wstETH = '0x303500000000';
+export const LINK = '0x303600000000';
 
+export const BLANK_ADDRESS = ethers.constants.AddressZero;
 export const BLANK_VAULT = '0x000000000000000000000000';
 export const BLANK_SERIES = '0x000000000000'
 
 export const ETH_BASED_ASSETS = [WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14), '0x455448000000'];
-export const DAI_BASED_ASSETS = [DAI, '0x444149000000'];
-export const NON_PERMIT_ASSETS = ['WBTC'];
+
+export const DAI_PERMIT_ASSETS = [DAI, '0x444149000000'];
+export const NON_PERMIT_ASSETS = ['WBTC', 'LINK'];

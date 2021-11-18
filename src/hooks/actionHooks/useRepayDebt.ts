@@ -1,7 +1,17 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset } from '../../types';
+import {
+  ICallData,
+  IVault,
+  ISeries,
+  ActionCodes,
+  LadleActions,
+  IAsset,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
+} from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
@@ -9,32 +19,34 @@ import { useRemoveCollateral } from './useRemoveCollateral';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 export const useRepayDebt = () => {
-
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance, approveMax, unwrapTokens },
   } = useContext(SettingsContext);
-  
-  const { userState, userActions } = useContext(UserContext);
+
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  
 
   const { removeEth } = useRemoveCollateral();
+  const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
-
     const ladleAddress = contractMap.get('Ladle').address;
-    
+
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
-    const series: ISeries = seriesMap.get(vault.seriesId);
-    const base: IAsset = assetMap.get(vault.baseId);
+    const series: ISeries = seriesMap.get(vault.seriesId)!;
+    const base: IAsset = assetMap.get(vault.baseId)!;
+    const ilk: IAsset = assetMap.get(vault.ilkId)!;
 
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
@@ -67,9 +79,18 @@ export const useRepayDebt = () => {
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
+    let reclaimToAddress = reclaimCollateral && isEthBased ? ladleAddress : account
+    
+    /* handle wrapped tokens:  */
+    let unwrap: ICallData[] = [];
+    if (ilk.wrapHandlerAddress && unwrapTokens && reclaimCollateral ) {
+      reclaimToAddress = ilk.wrapHandlerAddress;
+      unwrap = await unwrapAsset(ilk, account!);
+    }
+
     const alreadyApproved = approveMax
-    ? (await base.baseContract.allowance(account, series.seriesIsMature ? base.joinAddress : ladleAddress) ).gt(_input)
-    : false;
+      ? (await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress)).gt(_input)
+      : false;
 
     const permits: ICallData[] = await sign(
       [
@@ -78,14 +99,14 @@ export const useRepayDebt = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: series.seriesIsMature || alreadyApproved===true,
+          ignoreIf: series.seriesIsMature || alreadyApproved === true,
         },
         {
           // after maturity
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: !series.seriesIsMature || alreadyApproved===true,
+          ignoreIf: !series.seriesIsMature || alreadyApproved === true,
         },
       ],
       txCode
@@ -114,7 +135,7 @@ export const useRepayDebt = () => {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [
           vault.id,
-          reclaimCollateral && isEthBased ? ladleAddress : account,
+          reclaimToAddress,
           _collateralToRemove,
           _input,
         ] as LadleActions.Args.REPAY_VAULT,
@@ -129,7 +150,7 @@ export const useRepayDebt = () => {
         operation: LadleActions.Fn.CLOSE,
         args: [
           vault.id,
-          reclaimCollateral && isEthBased ? ladleAddress : account,
+          reclaimToAddress,
           _collateralToRemove,
           _input.mul(-1),
         ] as LadleActions.Args.CLOSE,
@@ -137,10 +158,11 @@ export const useRepayDebt = () => {
       },
 
       ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the collateral (if requested).
+      ...unwrap,
     ];
     await transact(calls, txCode);
     updateVaults([vault]);
-    updateAssets([base]);
+    updateAssets([base, ilk]);
   };
 
   return repay;

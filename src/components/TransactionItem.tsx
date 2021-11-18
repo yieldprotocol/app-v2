@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom';
 import styled, { ThemeContext } from 'styled-components';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import { ActionCodes, ProcessStage, TxState } from '../types';
+import { ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 import { getPositionPath } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { UserContext } from '../contexts/UserContext';
 import { SettingsContext } from '../contexts/SettingsContext';
 
 interface ITransactionItem {
