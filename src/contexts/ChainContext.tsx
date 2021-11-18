@@ -175,7 +175,6 @@ const ChainProvider = ({ children }: any) => {
             addrs.CompositeMultiOracle,
             fallbackProvider
           );
-          LidoWrapHandler = contracts.LidoWrapHandler__factory.connect(addrs.LidoWrapHandler, fallbackProvider);
         }
 
         // arbitrum
