@@ -12,7 +12,7 @@ import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../utils/constants';
 import SettingsBalances from './SettingsBalances';
-import { useEnsName } from '../hooks/useEnsName';
+import { useEns } from '../hooks/useEns';
 
 const StyledText = styled(Text)`
   svg,
@@ -44,7 +44,7 @@ const YieldAccount = (props: any) => {
     userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
-  const ensName = useEnsName();
+  const { ensName } = useEns();
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
 

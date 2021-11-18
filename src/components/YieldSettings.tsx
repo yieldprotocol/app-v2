@@ -7,7 +7,7 @@ import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
 import CopyWrap from './wraps/CopyWrap';
 import TransactionItem from './TransactionItem';
-import { useEnsName } from '../hooks/useEnsName';
+import { useEns } from '../hooks/useEns';
 import BoxWrap from './wraps/BoxWrap';
 import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
@@ -26,7 +26,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     txState: { transactions },
   } = useContext(TxContext);
 
-  const ensName = useEnsName();
+  const { ensName } = useEns();
 
   const [transactionsOpen, setTransactionsOpen] = useState<boolean>(false);
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState<boolean>(false);
