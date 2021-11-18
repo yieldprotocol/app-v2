@@ -9,8 +9,8 @@ import TransactionItem from './TransactionItem';
 // look to see if there is a better way
 const StyledBox = styled(Box)`
   position: absolute;
-  top: 6rem;
-  right: 0rem;
+  bottom: 10rem;
+  left: 0rem;
   min-width: 350px;
   z-index: 500;
 `;
@@ -38,9 +38,9 @@ const TransactionWidget = () => {
                 pad="medium"
                 elevation="small"
                 // background='gradient-transparent'
-                animation={{ type: 'slideLeft', size: 'large' }}
+                animation={{ type: 'slideRight', size: 'large' }}
                 background="hoverBackground"
-                round={{ size: 'xsmall', corner: 'left' }}
+                round={{ size: 'xsmall', corner: 'right' }}
               >
                 <Box width="3rem" align="center">
                   <FiAlertTriangle size="1.5rem" color="#D97706" />
