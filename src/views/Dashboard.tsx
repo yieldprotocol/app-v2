@@ -85,7 +85,7 @@ const Dashboard = () => {
               </Box>
               {!dashHideVaults && (
                 <>
-                  {vaultsLoading || pricesLoading ? (
+                  {vaultsLoading ? (
                     <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
                   ) : (
                     <DashboardPositionList
