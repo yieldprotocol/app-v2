@@ -1,26 +1,44 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions } from '../../types';
+import {
+  ICallData,
+  IVault,
+  ActionCodes,
+  LadleActions,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
+  ISettingsContext,
+} from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS } from '../../utils/constants';
 import { useChain } from '../useChain';
+import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 // TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const { userState, userActions } = useContext(UserContext);
-  const { activeAccount: account, selectedIlkId, assetMap } = userState;
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;
+  const { activeAccount: account, selectedIlk, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
+  const {
+    settingsState: { unwrapTokens },
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const { transact } = useChain();
 
-  const removeEth = (value: BigNumber ): ICallData[] => {
+  const { unwrapAsset } = useWrapUnwrapAsset();
+
+  const removeEth = (value: BigNumber): ICallData[] => {
     /* First check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlkId)) {
+    if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!)) {
       /* return the remove ETH OP */
       return [
         {
@@ -39,14 +57,21 @@ export const useRemoveCollateral = () => {
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
     /* get associated series and ilk */
-    const ilk = assetMap.get(vault.ilkId);
+    const ilk = assetMap.get(vault.ilkId)!;
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
     const cleanedInput = cleanValue(input, ilk.decimals);
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1);
 
-    /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
+    /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
+    let _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
+
+    /* handle wrapped tokens:  */
+    let unwrap: ICallData[] = [];
+    if (ilk.wrapHandlerAddress && unwrapTokens) {
+      _pourTo = ilk.wrapHandlerAddress;
+      unwrap = await unwrapAsset(ilk, account!);
+    }
 
     const calls: ICallData[] = [
       {
@@ -60,11 +85,12 @@ export const useRemoveCollateral = () => {
         ignoreIf: false,
       },
       ...removeEth(_input),
+      ...unwrap,
     ];
 
     await transact(calls, txCode);
     updateVaults([vault]);
-    updateAssets([ilk]);
+    updateAssets([ilk, selectedIlk!]);
   };
 
   return {

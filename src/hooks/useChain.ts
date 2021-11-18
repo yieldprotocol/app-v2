@@ -3,8 +3,11 @@ import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
+
+import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions } from '../types';
 import { DAI_PERMIT_ASSETS, MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
-import { ApprovalType, ICallData, ISignData, LadleActions } from '../types';
+
+
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
@@ -18,8 +21,8 @@ const _getCallValue = (calls: ICallData[]): BigNumber => {
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
-    settingsState: { approveMax },
-  } = useContext(SettingsContext);
+    settingsState: { approveMax, forceTransactions, diagnostics },
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const {
     chainState: {
@@ -38,6 +41,8 @@ export const useChain = () => {
    * TRANSACTING
    * @param { ICallsData[] } calls list of callData as ICallData
    * @param { string } txCode internal transaction code
+   * 
+   * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
@@ -76,12 +81,15 @@ export const useChain = () => {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
       console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
     } catch (e) {
+
+      gasEst= BigNumber.from(500000);
       console.log('Failed to get gas estimate', e);
       // toast.warning('It appears the transaction will likely fail. Proceed with caution...');
       gasEstFail = true;
     }
 
-    if (gasEstFail) {
+    /* handle if the tx if going to fail and transactions aren't forced */
+    if (gasEstFail && !forceTransactions) {
       return handleTxWillFail(txCode);
     }
 
@@ -99,7 +107,6 @@ export const useChain = () => {
    * 2. Sends off the approval tx, on completion of all txs, returns an empty array.
    * @param { ISignData[] } requestedSignatures
    * @param { string } txCode
-   * @param { boolean } viaPoolRouter DEFAULT: false
    *
    * @returns { Promise<ICallData[]> }
    */
@@ -120,11 +127,16 @@ export const useChain = () => {
 
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
+
         const _spender = getSpender(reqSig.spender);
         /* set as MAX if apporve max is selected */
         const _amount = approveMax ? MAX_256 : reqSig.amount?.toString();
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
+
+        diagnostics && console.log('Sign: Target',  reqSig.target.symbol);
+        diagnostics && console.log('Sign: Spender',  _spender);
+        diagnostics && console.log('Sign: Amount',  _amount?.toString());
 
         /* Request the signature if using DaiType permit style */
         if (DAI_PERMIT_ASSETS.includes( reqSig.target.symbol)) {
@@ -145,7 +157,6 @@ export const useChain = () => {
               ),
             /* This is the function  to call if using fallback approvals */
             () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
-            reqSig,
             txCode,
             approvalMethod
           );
@@ -161,15 +172,6 @@ export const useChain = () => {
             s,
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
 
-          if (reqSig.asRoute) {
-            return {
-              operation: 'route',
-              args: [account, _spender, nonce, expiry, allowed, v, r, s],
-              fnName: 'permit',
-              targetContract: tokenContract,
-              ignoreIf: !(v && r && s),
-            };
-          }
           return {
             operation: LadleActions.Fn.FORWARD_DAI_PERMIT,
             args,
@@ -199,9 +201,7 @@ export const useChain = () => {
             ),
           /* this is the function for if using fallback approvals */
           () => handleTx(() => tokenContract.approve(_spender, _amount), txCode, true),
-          reqSig,
           txCode,
-          // TODO extract this out to ( also possibly use asset id)
           NON_PERMIT_ASSETS.includes(reqSig.target.symbol) ? ApprovalType.TX : approvalMethod
         );
 
@@ -215,15 +215,6 @@ export const useChain = () => {
           s,
         ] as LadleActions.Args.FORWARD_PERMIT;
 
-        if (reqSig.asRoute) {
-          return {
-            operation: 'route',
-            args: [account, _spender, value, deadline, v, r, s],
-            fnName: 'permit',
-            targetContract: tokenContract,
-            ignoreIf: !(v && r && s),
-          };
-        }
         return {
           operation: LadleActions.Fn.FORWARD_PERMIT,
           args,

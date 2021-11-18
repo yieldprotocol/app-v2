@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { Anchor, Box, Button, Collapsible, DropButton, ResponsiveContext, Text, Tip } from 'grommet';
-import { FiChevronUp, FiChevronDown, FiExternalLink, FiX, FiMoreVertical, FiMenu } from 'react-icons/fi';
-import styled from 'styled-components';
+import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
+import { FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
@@ -14,19 +13,6 @@ import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
-
-const StyledButton = styled(Button)`
-  /* background: #dbeafe;
-  border: 2px solid #3b82f6; */
-  border-radius: 6px;
-  font-size: 0.6rem;
-  text-align: center;
-  color: #2563eb;
-  width: 4rem;
-  :hover {
-    border: 2px solid #1d4ed8;
-  }
-`;
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -113,7 +99,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             margin={{ top: 'large' }}
           >
             <BoxWrap direction="row" gap="small">
-              {connectionName && <Text size="xsmall">Connected with {CONNECTOR_INFO.get(connectionName).displayName}</Text>}
+              {connectionName && (
+                <Text size="xsmall">Connected with {CONNECTOR_INFO.get(connectionName).displayName}</Text>
+              )}
               {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
             </BoxWrap>
           </Box>

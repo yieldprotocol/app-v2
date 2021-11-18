@@ -137,11 +137,11 @@ const Dashboard = () => {
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const getPositionValue = useCallback(
-    (baseOrIlkId: string, value: string, assetId = DAI) => {
+    (baseOrIlkId: string, value: string, id = DAI) => {
       const base = assetMap?.get(baseOrIlkId);
       try {
-        if (!priceMap.get(baseOrIlkId)?.has(assetId)) updatePrice(baseOrIlkId, assetId, base?.decimals!);
-        const assetPrice = priceMap.get(baseOrIlkId)?.get(assetId);
+        if (!priceMap.get(baseOrIlkId)?.has(id)) updatePrice(baseOrIlkId, id, base?.decimals!);
+        const assetPrice = priceMap.get(baseOrIlkId)?.get(id);
         const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
         return assetValue;
       } catch (e) {

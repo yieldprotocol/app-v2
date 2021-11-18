@@ -69,7 +69,7 @@ function VaultDropSelector({
                   <Box direction="row" gap="small">
                     <Text size="xsmall"> {x.art_} Debt</Text>
                     <Text size="xsmall">
-                      {x.ink_} {selectedIlk?.symbol} posted
+                      {x.ink_} {selectedIlk?.displaySymbol} posted
                     </Text>
                   </Box>
                 </Box>

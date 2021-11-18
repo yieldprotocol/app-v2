@@ -1,22 +1,16 @@
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import {
-  InjectedConnector,
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
-import {
-  WalletConnectConnector,
-  UserRejectedRequestError as UserRejectedRequestErrorWalletConnect,
-} from '@web3-react/walletconnect-connector';
+import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector';
 
 import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
-
-import MetamaskMark from '../components/logos/MetamaskMark';
-import LedgerMark from '../components/logos/LedgerMark';
-import WalletconnectMark from '../components/logos/WalletconnectMark';
+import { CHAIN_INFO, SUPPORTED_RPC_URLS } from '../config/chainData';
+import { CONNECTORS, CONNECTOR_INFO, INIT_INJECTED } from '../config/connectors';
 import { clearCachedItems } from '../utils/appUtils';
 // import TrezorMark from '../components/logos/TrezorMark';
 
@@ -25,50 +19,6 @@ const NO_BROWSER_EXT =
 const UNSUPPORTED_NETWORK = 'Your Wallet or Browser is connected to an unsupported network.';
 const UNAUTHORISED_SITE = 'Please authorize this website to access your Ethereum account.';
 const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more details.';
-
-/* Set up web3react config */
-const RPC_URLS: { [chainId: number]: string } = {
-  1: process.env.REACT_APP_RPC_URL_1 as string,
-  42: process.env.REACT_APP_RPC_URL_42 as string,
-};
-
-const CHAIN_INFO = new Map<number, { name: string; color: string }>();
-CHAIN_INFO.set(1, { name: 'Mainnet', color: '#29b6af' });
-CHAIN_INFO.set(3, { name: 'Ropsten', color: '#ff4a8d' });
-CHAIN_INFO.set(4, { name: 'Rinkeby', color: '#f6c343' });
-CHAIN_INFO.set(5, { name: 'Goerli', color: '#3099f2' });
-CHAIN_INFO.set(10, { name: 'Optimism', color: '#EB0822' });
-CHAIN_INFO.set(42, { name: 'Kovan', color: '#7F7FFE' });
-
-const CONNECTOR_INFO = new Map<string, { displayName: string; image: any }>();
-CONNECTOR_INFO.set('metamask', { displayName: 'Metamask', image: MetamaskMark });
-CONNECTOR_INFO.set('ledgerWithMetamask', { displayName: 'Hardware Wallet (with Metamask)', image: LedgerMark });
-CONNECTOR_INFO.set('ledger', { displayName: 'Ledger', image: LedgerMark });
-CONNECTOR_INFO.set('walletconnect', { displayName: 'WalletConnect', image: WalletconnectMark });
-
-const INIT_INJECTED = (JSON.parse(localStorage.getItem('connectionName')!) as string) || 'metamask';
-
-const CONNECTORS = new Map();
-CONNECTORS.set(
-  'metamask',
-  new InjectedConnector({
-    supportedChainIds: [1, 42],
-  })
-);
-CONNECTORS.set(
-  'walletconnect',
-  new WalletConnectConnector({
-    rpc: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
-    bridge: 'https://bridge.walletconnect.org',
-    qrcode: true,
-  })
-);
-CONNECTORS.set(
-  'ledgerWithMetamask',
-  new InjectedConnector({
-    supportedChainIds: [1, 42],
-  })
-);
 
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
@@ -82,16 +32,10 @@ export const useConnection = () => {
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const { connector, library: provider, chainId, account, activate, deactivate, active, error } = primaryConnection;
+  const { connector, library: provider, chainId, account, activate, deactivate, active } = primaryConnection;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
-  const {
-    library: fallbackProvider,
-    chainId: fallbackChainId,
-    activate: fallbackActivate,
-    active: fallbackActive,
-    error: fallbackError,
-  } = fallbackConnection;
+  const { library: fallbackProvider, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
 
   /* extra hooks */
   const { handleErrorMessage } = useWeb3Errors();
@@ -152,7 +96,7 @@ export const useConnection = () => {
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
+          urls: SUPPORTED_RPC_URLS,
           defaultChainId: lastChainId,
         }),
         (e: Error) => {
@@ -168,7 +112,7 @@ export const useConnection = () => {
       setFallbackErrorMessage(undefined);
       fallbackActivate(
         new NetworkConnector({
-          urls: { 1: RPC_URLS[1], 42: RPC_URLS[42] },
+          urls: SUPPORTED_RPC_URLS,
           defaultChainId: chainId,
         }),
         (e: Error) => {

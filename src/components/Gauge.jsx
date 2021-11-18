@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { arc } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 
@@ -34,16 +34,16 @@ export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1e
     return arc().innerRadius(0.65).outerRadius(1).startAngle(angles[i][0]).endAngle(angles[i][1]).cornerRadius(0.05)();
   };
 
-  const _color = () => {
+  const _color = useCallback(() => {
     if (percent < 0.15) return '#EF4444';
     if (percent >= 0.15 && percent < 0.5) return '#FCD34D';
     if (percent >= 0.5 && percent < 0.9) return '#10B981';
     return '#3B82F6';
-  };
+  }, [percent]);
 
   useEffect(() => {
     setColor(_color());
-  }, [_color]);
+  }, [_color, setColor]);
 
   return (
     <svg style={{ overflow: 'visible' }} width={size} viewBox={[-1, -1, 2, 1].join(' ')}>

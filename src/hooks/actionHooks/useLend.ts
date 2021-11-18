@@ -4,7 +4,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
@@ -19,7 +19,9 @@ export const useLend = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
@@ -33,9 +35,9 @@ export const useLend = () => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
 
-    const base = assetMap.get(series.baseId);
-    const cleanedInput = cleanValue(input, base.decimals);
-    const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
+    const base = assetMap.get(series.baseId)!;
+    const cleanedInput = cleanValue(input, base?.decimals);
+    const _input = input ? ethers.utils.parseUnits(cleanedInput, base?.decimals) : ethers.constants.Zero;
 
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -49,7 +51,7 @@ export const useLend = () => {
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = approveMax ? (await base.allowance(account, ladleAddress)).gt(_input) : false;
+    const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gt(_input) : false;
 
     const permits: ICallData[] = await sign(
       [

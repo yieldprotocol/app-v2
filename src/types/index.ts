@@ -38,24 +38,30 @@ export interface IUserContextState {
   pricesLoading: boolean;
   limitsLoading: boolean;
 
-  selectedSeriesId: string | null;
-  selectedIlkId: string | null;
-  selectedBaseId: string | null;
-  selectedVaultId: string | null;
-  selectedStrategyAddr: string | null;
+  selectedSeries: ISeries | null;
+  selectedIlk: IAsset | null;
+  selectedBase: IAsset | null;
+  selectedVault: IVault | null;
+  selectedStrategy: IStrategy | null;
+
 }
 
 export interface IUserContextActions {
   updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
+  updateStrategies: (strategyList: IStrategy[]) => void;
+
   updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
   updateLimit: (ilkId: string, baseId: string) => void;
-  setSelectedSeries: (seriesId: string) => void;
-  setSelectedIlk: (ilkId: string | null) => void;
-  setSelectedBase: (baseId: string | null) => void;
-  setSelectedVault: (vaultId: string | null) => void;
-  setSelectedStrategy: (strategyAddr: string | null) => void;
+
+  
+  setSelectedSeries: (series: ISeries | null) => void;
+  setSelectedIlk: (ilk: IAsset | null) => void;
+  setSelectedBase: (base: IAsset | null) => void;
+  setSelectedVault: (vault: IVault | IDummyVault | null) => void;
+  setSelectedStrategy: (strategy: IStrategy | null) => void;
+
 }
 
 export interface ISettingsContext {
@@ -64,16 +70,18 @@ export interface ISettingsContext {
 }
 export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */
-  approvalMethod: ApprovalType;
   slippageTolerance: number;
-  diagnostics: boolean;
-  dudeSalt: number;
   darkMode: boolean;
-  autoTheme:boolean;
+  autoTheme: boolean;
+  forceTransactions: boolean;
+  approvalMethod: ApprovalType;
   approveMax: boolean;
   disclaimerChecked: boolean;
   powerUser: boolean;
-
+  diagnostics: boolean;
+  /* Token wrapping */
+  showWrappedTokens: boolean;
+  unwrapTokens: boolean; 
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
@@ -125,7 +133,21 @@ export interface ISeriesRoot extends ISignable {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
-export interface IAssetRoot extends ISignable {
+export interface IAssetHandling {
+
+  displaySymbol: string; // alternative symbol for UI display
+  showToken: boolean; // should it be displayed on the app
+
+  isWrappedToken: boolean // is the token a wrapped version of another token
+  
+  wrappedTokenId: string; // wrapped token Id 
+  wrappedTokenAddress: string; // wrapped token address
+  wrapHandlerAddress: string;
+
+}
+
+export interface IAssetRoot extends IAssetHandling, ISignable {
+  
   // fixed/static:
   id: string;
   decimals: number;
@@ -134,12 +156,12 @@ export interface IAssetRoot extends ISignable {
   displayName: string;
   displayNameMobile: string;
   joinAddress: string;
-  digitFormat: number;
 
+  digitFormat: number;
   baseContract: ERC20Permit;
 
   isYieldBase: boolean;
-  hasActiveJoin: boolean;
+  idToUse: string;
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
@@ -186,6 +208,7 @@ export interface IAsset extends IAssetRoot {
   balance_: string;
 }
 
+export interface IDummyVault extends IVaultRoot {}
 export interface IVault extends IVaultRoot {
   owner: string;
   isWitchOwner: boolean;
@@ -236,7 +259,7 @@ export interface ICallData {
   operation: string | [number, string[]];
 
   /* optionals */
-  targetContract?: Strategy | Pool | ERC20Permit;
+  targetContract?: ethers.Contract;
   fnName?: string;
   ignoreIf?: boolean;
   overrides?: ethers.CallOverrides;
@@ -244,14 +267,13 @@ export interface ICallData {
 
 export interface ISignData {
   target: ISignable;
-  spender: 'LADLE' | string;
+  spender: string;
 
   /* optional Extention/advanced use-case options */
   amount?: BigNumberish;
   message?: string; // optional messaging for UI
   domain?: IDomain; // optional Domain if required
   ignoreIf?: boolean; // conditional for ignoring
-  asRoute?: boolean; // is the sign via a route call
 }
 
 export interface IDaiPermitMessage {

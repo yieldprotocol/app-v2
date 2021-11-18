@@ -17,27 +17,18 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* STATE FROM CONTEXT */
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext) ;
+  } = useContext(SettingsContext);
 
   const {
-    userState: {
-      selectedSeries,
-      selectedBaseId,
-      selectedStrategyAddr,
-      strategyMap,
-      seriesMap,
-      vaultMap,
-      assetMap,
-      activeAccount
-    },
+    userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
   } = useContext(UserContext);
 
-  const strategy: IStrategy | undefined = strategyMap?.get(selectedStrategyAddr);
+  const strategy: IStrategy | undefined = selectedStrategy;
   const strategySeries: ISeries | undefined = seriesMap?.get(
-    selectedStrategyAddr ? strategy?.currentSeriesId : selectedSeries
+    selectedStrategy ? strategy?.currentSeriesId : selectedSeries
   );
-  const selectedBase: IAsset | undefined = assetMap?.get(selectedBaseId);
-  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategyAddr ? strategy?.baseId : selectedBaseId);
+
+  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.idToUse);
 
   /* LOCAL STATE */
 
@@ -77,8 +68,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
         .find(
           (v: IVault) =>
-            v.ilkId === strategyBase.id &&
-            v.baseId === strategyBase.id &&
+            v.ilkId === strategyBase.idToUse &&
+            v.baseId === strategyBase.idToUse &&
             v.seriesId === strategySeries.id &&
             v.isActive
         );
