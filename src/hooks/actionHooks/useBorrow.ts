@@ -77,7 +77,8 @@ export const useBorrow = () => {
           ignoreIf:
             alreadyApproved === true ||
             ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ||
-            _collInput.eq(ethers.constants.Zero),
+            _collInput.eq(ethers.constants.Zero) ||
+            wrapping.length > 0,
         },
       ],
       txCode
