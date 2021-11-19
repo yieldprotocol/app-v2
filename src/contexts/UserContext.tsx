@@ -133,7 +133,7 @@ const UserProvider = ({ children }: any) => {
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
-  const blockNumForUse = Number(useBlockNum()) - 10000;
+  // const blockNumForUse = Number(useBlockNum()) - 10000;
 
   /* HOOKS */
   const { pathname } = useLocation();
@@ -441,10 +441,7 @@ const UserProvider = ({ children }: any) => {
       const Witch = contractMap.get('Witch');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0)
-        _vaultList = Array.from(
-          (await _getVaults([1, 42].includes(chainState.connection.fallbackChainId) ? 0 : blockNumForUse)).values()
-        );
+      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
@@ -645,23 +642,23 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
-  useEffect(() => {
-    /* Update selected base if asset map changes */
-    userState.selectedBase &&
-      updateState({ type: 'selectedBase', payload: userState.assetMap.get(userState.selectedBase.id) as IAsset });
-  }, [userState.assetMap, userState.selectedBase]);
+  // useEffect(() => {
+  //   /* Update selected base if asset map changes */
+  //   userState.selectedBase &&
+  //     updateState({ type: 'selectedBase', payload: userState.assetMap.get(userState.selectedBase.id) as IAsset });
+  // }, [userState.assetMap, userState.selectedBase]);
 
-  useEffect(() => {
-    /* Update selected ilk if asset map changes */
-    userState.selectedIlk &&
-      updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
-  }, [userState.assetMap, userState.selectedIlk]);
+  // useEffect(() => {
+  //   /* Update selected ilk if asset map changes */
+  //   userState.selectedIlk &&
+  //     updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
+  // }, [userState.assetMap, userState.selectedIlk]);
 
-  useEffect(() => {
-    /* Update selected vault if vault map changes */
-    userState.selectedVault &&
-      updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
-  }, [userState.vaultMap, userState.selectedVault]);
+  // useEffect(() => {
+  //   /* Update selected vault if vault map changes */
+  //   userState.selectedVault &&
+  //     updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
+  // }, [userState.vaultMap, userState.selectedVault]);
 
   /* Exposed userActions */
   const userActions = {
