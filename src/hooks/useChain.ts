@@ -156,7 +156,7 @@ export const useChain = () => {
                 _spender
               ),
             /* This is the function  to call if using fallback approvals */
-            () => handleTx(() => tokenContract.approve(_spender, MAX_256), txCode, true),
+            () => handleTx(() => tokenContract.approve(_spender, _amount), txCode, true),
             txCode,
             approvalMethod
           );
