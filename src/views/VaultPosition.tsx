@@ -56,7 +56,15 @@ const VaultPosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVault, vaultsLoading } = userState;
+  const {
+    activeAccount: account,
+    assetMap,
+    seriesMap,
+    vaultMap,
+    selectedVault,
+    vaultsLoading,
+    selectedIlk,
+  } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
   const _selectedVault: IVault = selectedVault! || vaultMap.get(idFromUrl)!;
@@ -236,10 +244,11 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
+    const _ilkToUse = _ilk?.isWrappedToken ? assetMap.get(_ilk.unwrappedTokenId) : _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);
     _selectedVault && setSelectedBase(_base);
-    _selectedVault && setSelectedIlk(_ilk);
+    _selectedVault && setSelectedIlk(_ilkToUse!);
   }, [vaultMap, _selectedVault, seriesMap, assetMap, setSelectedSeries, setSelectedBase, setSelectedIlk]);
 
   useEffect(() => {
@@ -530,7 +539,7 @@ const VaultPosition = () => {
                             !addCollatInput ? (
                               <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                                 <Text size="xsmall" color="text-weak">
-                                  Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
+                                  Max collateral available: {selectedIlk?.balance_!} {selectedIlk?.displaySymbol!}{' '}
                                 </Text>
                               </InputInfoWrap>
                             ) : (
