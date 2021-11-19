@@ -10,7 +10,7 @@ import ConnectButton from './buttons/ConnectButton';
 import SidebarSettings from './Sidebar';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
-import { WETH } from '../utils/constants';
+import { WETH } from '../config/assetData';
 import SettingsBalances from './SettingsBalances';
 import { useEnsName } from '../hooks/useEnsName';
 

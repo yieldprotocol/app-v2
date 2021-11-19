@@ -4,9 +4,9 @@ import { useLocation } from 'react-router-dom';
 
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { WETH } from '../utils/constants';
+import { WETH } from '../config/assetData';
 import Skeleton from './wraps/SkeletonWrap';
-import { IAsset } from '../types';
+
 
 const StyledText = styled(Text)`
   svg,

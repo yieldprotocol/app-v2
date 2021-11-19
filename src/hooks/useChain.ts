@@ -5,8 +5,8 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
 import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions } from '../types';
-import { DAI_PERMIT_ASSETS, MAX_256, NON_PERMIT_ASSETS } from '../utils/constants';
-
+import { MAX_256 } from '../utils/constants'; 
+import { DAI_PERMIT_ASSETS, NON_PERMIT_ASSETS } from '../config/assetData';
 
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';

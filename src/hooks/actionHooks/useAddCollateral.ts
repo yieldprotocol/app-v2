@@ -13,13 +13,13 @@ import {
   ISettingsContext,
   IUserContext,
   IAsset,
-  RoutedActions,
   IUserContextState,
   IUserContextActions,
 } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ETH_BASED_ASSETS } from '../../utils/constants';
+import { BLANK_VAULT } from '../../utils/constants';
+import { ETH_BASED_ASSETS } from '../../config/assetData';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
@@ -67,7 +67,7 @@ export const useAddCollateral = () => {
     const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
     
-    const ilkForWrap: IAsset | null | undefined = ilk?.isWrappedToken
+    const ilkForWrap: IAsset | null | undefined = ilk?.isWrappedToken && ilk.unwrappedTokenId
       ? assetMap.get(ilk.unwrappedTokenId)
       : selectedIlk; // use the unwrapped token as ilk
     

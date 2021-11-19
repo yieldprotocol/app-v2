@@ -34,7 +34,7 @@ export const useWrapUnwrapAsset = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
     
-    if (asset.wrappedTokenId) {
+    if (asset.wrappedTokenId && asset.wrapHandlerAddress ) {
       const wraphandlerContract: Contract = new Contract(
         asset.wrapHandlerAddress,
         wrapHandlerAbi,
@@ -80,16 +80,16 @@ export const useWrapUnwrapAsset = () => {
     asset: IAsset,
     receiver: string
   ) : Promise<ICallData[]> => {
-
-    const wraphandlerContract: Contract = new Contract(
-      asset.wrapHandlerAddress,
-      wrapHandlerAbi,
-      signer
-    );
     
-    if (asset.wrapHandlerAddress && unwrapTokens) {
+    if (unwrapTokens && asset.wrapHandlerAddress ) {
       diagnostics && console.log('Unwrapping tokens before return');
-      /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
+
+      const wraphandlerContract: Contract = new Contract(
+        asset.wrapHandlerAddress,
+        wrapHandlerAbi,
+        signer
+      );
+
       return [
         {
           operation: LadleActions.Fn.ROUTE,
