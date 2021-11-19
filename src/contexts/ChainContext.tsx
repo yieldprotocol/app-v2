@@ -9,7 +9,7 @@ import { useConnection } from '../hooks/useConnection';
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetInfo, IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
-import { ASSET_INFO, ETH_BASED_ASSETS, USDC } from '../config/assetData';
+import { ASSET_INFO, ETH_BASED_ASSETS, USDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
@@ -22,7 +22,7 @@ import YieldMark from '../components/logos/YieldMark';
 import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
 import ENSMark from '../components/logos/ENSMark';
-import { seasonColorMap } from '../config/colorData';
+import { seasonColorMap } from '../config/colors';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],

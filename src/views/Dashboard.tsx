@@ -11,7 +11,7 @@ import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
 import { ZERO_BN} from '../utils/constants';
-import { DAI, WETH } from '../config/assetData';
+import { DAI, WETH } from '../config/assets';
 import { cleanValue } from '../utils/appUtils';
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';

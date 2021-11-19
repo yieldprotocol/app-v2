@@ -6,7 +6,7 @@ import { TxContext } from '../contexts/TxContext';
 
 import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions } from '../types';
 import { MAX_256 } from '../utils/constants'; 
-import { DAI_PERMIT_ASSETS, NON_PERMIT_ASSETS } from '../config/assetData';
+import { DAI_PERMIT_ASSETS, NON_PERMIT_ASSETS } from '../config/assets';
 
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';

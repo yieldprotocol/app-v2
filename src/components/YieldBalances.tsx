@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { WETH } from '../config/assetData';
+import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
 
 
