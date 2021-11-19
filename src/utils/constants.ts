@@ -32,7 +32,7 @@ export const BLANK_ADDRESS = ethers.constants.AddressZero;
 export const BLANK_VAULT = '0x000000000000000000000000';
 export const BLANK_SERIES = '0x000000000000'
 
-export const ETH_BASED_ASSETS = [WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14), '0x455448000000'];
+export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14) ];
 
-export const DAI_PERMIT_ASSETS = [ 'DAI' ];
-export const NON_PERMIT_ASSETS = ['WBTC', 'LINK'];
+export const DAI_PERMIT_ASSETS = [ 'DAI', DAI ];
+export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK];
