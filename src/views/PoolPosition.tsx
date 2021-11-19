@@ -41,9 +41,6 @@ const PoolPosition = () => {
   } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
-  // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
-  // const selectedBase = assetMap.get(selectedSeries?.baseId!);
-
   const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl);
 
   const selectedSeries = _selectedStrategy?.currentSeries;

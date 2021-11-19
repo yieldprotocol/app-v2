@@ -16,7 +16,7 @@ export const useLendHelpers = (
   } = useContext(SettingsContext);
 
   const { userState } : { userState: IUserContextState } = useContext(UserContext);
-  const { assetMap, activeAccount, selectedBase } = userState;
+  const { activeAccount, selectedBase } = userState;
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);

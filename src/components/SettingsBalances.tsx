@@ -38,7 +38,9 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
         </TableRow>
       </TableHeader>
       <TableBody>
-        {[...assetMap.values()].map((asset: IAsset) => (
+        {[...assetMap.values()]
+        .filter((asset: IAsset) => asset.showToken )
+        .map((asset: IAsset) => (
           <TableRow key={asset.address}>
             <StyledTableCell plain>
               <Text size="medium">{asset.image}</Text>
