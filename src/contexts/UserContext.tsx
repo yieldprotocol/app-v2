@@ -29,8 +29,6 @@ import {
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
-
-import { useBlockNum } from '../hooks/useBlockNum';
 import { SettingsContext } from './SettingsContext';
 
 const UserContext = React.createContext<any>({});
@@ -77,7 +75,7 @@ function userReducer(state: any, action: any) {
 
     case 'activeAccount':
       return { ...state, activeAccount: onlyIfChanged(action) };
-
+      
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap':
@@ -132,6 +130,7 @@ const UserProvider = ({ children }: any) => {
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
+
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
   // const blockNumForUse = Number(useBlockNum()) - 10000;
 
@@ -253,14 +252,15 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.assetMap)
+        }, assetRootMap )
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
+
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: 'assetsLoading', payload: false });
     },
-    [account]
+    [account, assetRootMap, seriesRootMap, showWrappedTokens]
   );
 
   /* Updates the prices from the oracle with latest data */
