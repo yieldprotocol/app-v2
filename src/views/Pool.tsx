@@ -11,7 +11,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, AddLiquidityType, IUserContext, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, AddLiquidityType, IUserContext, IUserContextState, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -39,11 +39,8 @@ function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, selectedBaseId, selectedStrategyAddr, strategyMap } = userState;
-  
-  const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -63,11 +60,11 @@ function Pool() {
   const { inputError: poolError } = useInputValidation(
     poolInput,
     ActionCodes.ADD_LIQUIDITY,
-    selectedStrategy?.currentSeries,
+    selectedStrategy?.currentSeries || null,
     [0, maxPool]
   );
 
-  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id);
+  const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id!);
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
@@ -173,7 +170,7 @@ function Pool() {
                 ) : (
                   <SectionWrap
                     title={
-                      strategyMap.size > 0 ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} strategy` : ''
+                      strategyMap.size > 0 ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy` : ''
                     }
                   >
                     <StrategySelector inputValue={poolInput} />
@@ -205,7 +202,7 @@ function Pool() {
                       <InfoBite
                         label="Maximum Amount to Pool"
                         icon={<BiMessageSquareAdd />}
-                        value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                        value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                       />
                       <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
                       {/* <InfoBite
@@ -290,7 +287,7 @@ function Pool() {
                   <Text size={mobile ? 'small' : undefined}>
                     {`Pool${poolProcess?.processActive ? `ing` : ''} ${
                       nFormatter(Number(poolInput), selectedBase?.digitFormat!) || ''
-                    } ${selectedBase?.symbol || ''}`}
+                    } ${selectedBase?.displaySymbol || ''}`}
                   </Text>
                 )
               }

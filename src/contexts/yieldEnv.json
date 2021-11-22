@@ -5,15 +5,24 @@
       "Ladle": "0x6cB18fF2A33e981D1e38A663Ca056c0a5265066A",
       "ChainlinkMultiOracle": "0xcDCe5C87f691058B61f3A65913f1a3cBCbAd9F52",
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
-      "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061"
+      "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061",
+      "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1"
     },
     "42": {
-      "Cauldron": "0xE490E62520B5798E01F7543D9B83f1243d4da11B",
-      "Ladle": "0x655dbA2509fB82f8aE962891427Ac6A17bb3fED7",
+      "Cauldron": "0xacb1fb5E88ba69E12BDE76A4c373F1935d9fe912",
+      "Ladle": "0xe7bae0445B9a1DBE834a7379fbE23C6d2Bd61C59",
       "ChainlinkMultiOracle": "0xBcdc8bad83ca8053DFA6B1CBAEB7E71699254a3b",
-      "CompositeMultiOracle": "0x4a7e8eb5f3872974ffb5021ADCbe34affe4bc81A",
-      "LidoOracle": "0xE1697f685Ce360231742C586A6774E94F29Bc0ff",
-      "Witch": "0x4552dCA91a4e2213EEd67A6981a63B1D39Ec2Eaf"
+      "CompositeMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
+      "LidoOracle": "0x30A947446FF5fC99ff8BAAa05688A0e57102bF61",
+      "Witch": "0xA421B81481e0d150740f8F137FB10b1b747974a8",
+      "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1"
+    },
+    "421611": {
+      "Cauldron": "0x589fb605D165D0cd32608cC44dAcB87151d3B913",
+      "Ladle": "0x75aD7c0461eE87Ca87D86DD1F33C7419c11f5b05",
+      "ChainlinkUSDOracle": "0x2c6966F0CeEb633ce8ece0972f4c4d28841dBbDD",
+      "AccumulatorMultiOracle": "0x7eD45E73A6c6381a7F6E9778643134f0a8E07Abc",
+      "Witch": "0x7257575992431d7e55F0ccCD4253e7D77b6CD7E4"
     }
   },
   "strategies": {
@@ -24,10 +33,16 @@
       "0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39"
     ],
     "42": [
-      "0x44B905D4F71e680F742Cddca0Db2CD43dDD8c21b",
-      "0xDD10BB22CC52A0599Dd996c27F5302131aC88E4A",
-      "0xb31364B01298113145d04ed311C1D73AE9303521",
-      "0x3cc008C2586E39AbC5D1BF1C25ef5C2648A4532D"
+      "0xad1fBd05f4FDB81C1bAE82172E9913a7c4152154",
+      "0xa2C7Fe53e34d3DCBD1FaeFd733fE72e35E10BbE5",
+      "0x643cD6a25fb477Bb083313c0A180f41EAaEb4C5D",
+      "0x59378E0B5de37c7Cd0D9E21e54e9d2e7506BCe68"
+    ],
+    "421611": [
+      "0x0F97c13Ce038f67F5811935198fA2b850C3FBf4D",
+      "0xBACd09F2709D01409Dd02b6612A7454264379CAd",
+      "0xAc45d3C681fF93031dFdE6d3081dFB633F9b0874",
+      "0x9cF9B79AC34CB4d7dcf37Eb18A48689b7d4bdD39"
     ]
   },
 
@@ -38,8 +53,43 @@
     "TST": "#D15034",
     "WETH": "#FFFFFF",
     "USDT": "#50af95",
-    "wstETH": "#00A3FF"
+    "stETH": "#00A3FF",
+    "wstETH": "#00A3FF",
+    "LINK": "#2A5ADA",
+    "ENS": "#000000"
   },
+
+  "assetHandling": {
+    "DAI": { "showToken": true },
+    "USDC": { "showToken": true },
+    "WBTC": { "showToken": true },
+    "TST": { "showToken": true },
+    "USDT": { "showToken": true },
+    "LINK": { "showToken": true },
+    "ENS": { "showToken": false },
+
+    "WETH": { "displaySymbol": "ETH", "showToken": true },
+
+    "wstETH": {
+      "displaySymbol": "stETH",
+      "showToken": true,
+      "isWrappedToken": true,
+      "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
+      "wrappedTokenId": "",
+      "wrappedTokenAddress": "",
+      "unwrappedTokenId": "0x303500000000"
+    },
+
+    "stETH": {
+      "showToken": true,
+      "isWrappedToken": false,
+      "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
+      "wrappedTokenId": "0x303400000000",
+      "wrappedTokenAddress": "0xB12C63eD91e901995E68023293AC1A308ffA6c3c",
+      "unwrappedTokenId": "0x303500000000"
+    }
+  },
+
   "seasonColors": {
     "WINTER": ["#D9D9D9", "#67F2FC", "#333333"],
     "SPRING": ["#6AD99E", "#FF6BE4", "#333333"],

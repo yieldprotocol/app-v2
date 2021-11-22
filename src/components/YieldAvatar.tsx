@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import multiavatar from '@multiavatar/multiavatar';
-import { Avatar, Box, Image } from 'grommet';
+import { Avatar, Box } from 'grommet';
+
 import { SettingsContext } from '../contexts/SettingsContext';
 import { useColorScheme } from '../hooks/useColorScheme';
 
@@ -15,12 +16,9 @@ const StyledBox = styled(Box)`
 `;
 
 function YieldAvatar(props: any) {
-  const {
-    settingsState: { dudeSalt },
-  } = useContext(SettingsContext);
-  const colorScheme = useColorScheme();
 
-  const _avatar = multiavatar(props.address.concat(dudeSalt));
+  const colorScheme = useColorScheme();
+  const _avatar = multiavatar(props.address.concat(21));
   const _size = props.size.toString().concat('em');
 
   return (

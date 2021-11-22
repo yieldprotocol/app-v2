@@ -221,7 +221,6 @@ const TxProvider = ({ children }: any) => {
   const handleSign = async (
     signFn: () => Promise<any>,
     fallbackFn: () => Promise<any>,
-    sigData: ISignData,
     txCode: string,
     approvalMethod: ApprovalType
   ) => {

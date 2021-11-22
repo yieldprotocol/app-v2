@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IUserContext, IVault } from '../../types';
+import { IAsset, ISeries, ISettingsContext, IUserContext, IUserContextState, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import DashButton from '../buttons/DashButton';
@@ -18,18 +18,13 @@ function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
 
   const { settingsState: { dashHideInactiveVaults } } = useContext(SettingsContext) as ISettingsContext;
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const {
     activeAccount: account,
-    assetMap,
     vaultMap,
-    seriesMap,
-    selectedSeriesId,
-    selectedBaseId,
+    selectedSeries,
+    selectedBase,
   } = userState;
-
-  const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
@@ -42,9 +37,9 @@ function VaultPositionSelector(target: any) {
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
         .filter((vault: IVault) => !dashHideInactiveVaults || vault.isActive)
-        .filter((vault: IVault) => (base ? vault.baseId === base.id : true))
+        .filter((vault: IVault) => (base ? vault.baseId === base.idToUse : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
-        .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.id : true))
+        .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.idToUse: true))
         .filter((vault: IVault) => vault.baseId !== vault.ilkId)
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
@@ -121,7 +116,7 @@ function VaultPositionSelector(target: any) {
                       pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
                       animation={{ type: 'zoomIn', duration: 1500 }}
                     >
-                      <Text size="xsmall">{filter.base.symbol}-based</Text>
+                      <Text size="xsmall">{filter.base.displaySymbol}-based</Text>
                       <Text
                         size="xsmall"
                         onClick={() =>

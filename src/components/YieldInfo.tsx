@@ -99,14 +99,8 @@ const YieldInfo = () => {
           <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
             {CHAIN_INFO.get(fallbackChainId)?.name}
           </Text>
-          {blockNum && currentChainInfo?.name && (
-            <Anchor
-              style={{ lineHeight: '0' }}
-              href={`https://${
-                currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
-              }etherscan.io/block/${blockNum}`}
-              target="_blank"
-            >
+          {blockNum && currentChainInfo?.explorer && !currentChainInfo.name.includes('Optimism') && (
+            <Anchor style={{ lineHeight: '0' }} href={`${currentChainInfo.explorer}/block/${blockNum}`} target="_blank">
               <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
                 {blockNum}
               </Text>

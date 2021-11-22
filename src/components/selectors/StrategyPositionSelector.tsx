@@ -1,37 +1,27 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
-import { useHistory } from 'react-router-dom';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IStrategy, IUserContext } from '../../types';
+import { IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
+
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
 import DashButton from '../buttons/DashButton';
 
-interface IStrategyFilter {
-  base: IAsset | undefined;
-  series: ISeries | undefined;
-  strategy: IStrategy | undefined;
-}
-
 function StrategyPositionSelector() {
-
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, strategyMap, selectedBaseId, selectedStrategyAddr } =
-    userState;
 
-  const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedStrategy = strategyMap.get(selectedStrategyAddr!);
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, strategyMap, selectedBase } =
+    userState;
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
 
-  const [currentFilter, setCurrentFilter] = useState<IStrategyFilter>();
-  const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
-  const [filteredSeries, setFilteredSeries] = useState<IStrategy[]>([]);
+  const [filterLabels] = useState<(string | undefined)[]>([]);
+  const [filteredSeries] = useState<IStrategy[]>([]);
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
@@ -94,12 +84,7 @@ function StrategyPositionSelector() {
                   pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
                 >
                   <Text size="xsmall">{filterLabels[0]}</Text>
-                  <Text
-                    size="xsmall"
-                    onClick={
-                      () => null
-                    }
-                  >
+                  <Text size="xsmall" onClick={() => null}>
                     <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
                   </Text>
                 </Box>
@@ -113,12 +98,7 @@ function StrategyPositionSelector() {
                   pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
                 >
                   <Text size="xsmall">{filterLabels[1]}</Text>
-                  <Text
-                    size="xsmall"
-                    onClick={
-                      () => null
-                    }
-                  >
+                  <Text size="xsmall" onClick={() => null}>
                     <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
                   </Text>
                 </Box>
@@ -130,7 +110,7 @@ function StrategyPositionSelector() {
             <Box align="end" onClick={() => setShowAllPositions(!showAllPositions)}>
               <Text size="xsmall" color="text-weak">
                 {showAllPositions
-                  ? `Show suggested ${selectedBase?.symbol || ''} positions only`
+                  ? `Show suggested ${selectedBase?.displaySymbol || ''} positions only`
                   : `Show all ${allPositions.length} positions`}
               </Text>
             </Box>

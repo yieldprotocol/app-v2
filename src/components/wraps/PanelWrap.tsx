@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
-import { Box, BoxTypes, Heading, ResponsiveContext, Text } from 'grommet';
-import { BorderType } from 'grommet/utils';
+import React from 'react';
+import { Box, BoxTypes } from 'grommet';
 
 interface IPanelWrap extends BoxTypes {
   basis?: string;
@@ -9,7 +8,6 @@ interface IPanelWrap extends BoxTypes {
 }
 
 function PanelWrap({ background, basis, right, children }: IPanelWrap) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   return (
     <Box
       basis={basis || '33%'}

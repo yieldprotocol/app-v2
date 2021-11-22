@@ -7,7 +7,7 @@ import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ISeries } from '../../types';
+import { ISeries, IUserContextState } from '../../types';
 import YieldHeader from '../YieldHeader';
 import ItemWrap from './ItemWrap';
 import YieldMobileMenu from '../YieldMobileMenu';
@@ -22,10 +22,10 @@ function ModalWrap({ children, series }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    userState: { selectedSeriesId, seriesMap },
-  } = useContext(UserContext);
+    userState: { selectedSeries, seriesMap },
+  }: { userState: IUserContextState } = useContext(UserContext);
 
-  const _series = series || seriesMap.get(selectedSeriesId);
+  const _series: ISeries = series! || seriesMap.get(selectedSeries?.id!);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
@@ -34,7 +34,7 @@ function ModalWrap({ children, series }: IModalWrap) {
     <Keyboard onEsc={() => history.goBack()}>
       <Layer
         full
-        background={`linear-gradient( 45deg ,  ${_series?.startColor?.toString()} , ${_series?.endColor
+        background={`linear-gradient( 45deg ,  ${_series?.startColor.toString()} , ${_series?.endColor
           ?.toString()
           .concat('80')} )`}
         animation="fadeIn"
@@ -66,7 +66,7 @@ function ModalWrap({ children, series }: IModalWrap) {
             </Header>
 
             <Box flex={!mobile} overflow="auto">
-              <MainViewWrap >
+              <MainViewWrap>
                 <PanelWrap>
                   <Box />
                 </PanelWrap>

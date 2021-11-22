@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Box, Text } from 'grommet';
 import { UserContext } from '../../contexts/UserContext';
-import { IUserContext } from '../../types';
+import { IUserContext, IUserContextState } from '../../types';
 
 interface IMaxButtonProps {
   /* select series locally filters out the global selection from the list and returns the selected ISeries */
@@ -28,7 +28,7 @@ const StyledBox = styled(Box)`
 
 function MaxButton({ action, clearAction, showingMax, disabled, customText }: IMaxButtonProps) {
   /* state from context */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount } = userState;
 
   return (
@@ -42,7 +42,7 @@ function MaxButton({ action, clearAction, showingMax, disabled, customText }: IM
           width="xxsmall"
         >
           <Text size="xsmall" color={disabled ? 'text-weak' : 'text'}>
-            {showingMax ? 'Clear' : customText || 'Max' }
+            {showingMax ? 'Clear' : customText || 'Max'}
           </Text>
         </StyledBox>
       )}
@@ -50,6 +50,6 @@ function MaxButton({ action, clearAction, showingMax, disabled, customText }: IM
   );
 }
 
-MaxButton.defaultProps = { disabled: false, clearAction: () => null, showingMax: false , customText: undefined};
+MaxButton.defaultProps = { disabled: false, clearAction: () => null, showingMax: false, customText: undefined };
 
 export default MaxButton;
