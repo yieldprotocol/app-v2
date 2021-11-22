@@ -275,11 +275,6 @@ function Pool() {
                 <StrategyItem strategy={selectedStrategy!} index={0} condensed />
               </Box>
             )}
-
-          <Box pad="large" gap="small">
-            <Text size="small"> View strategy Position: </Text>
-            {selectedStrategy && <StrategyItem strategy={selectedStrategy!} index={0} condensed />}
-          </Box>
         </Box>
 
         <ActionButtonGroup pad>
