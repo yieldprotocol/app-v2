@@ -267,6 +267,7 @@ const ChainProvider = ({ children }: any) => {
               wrappedTokenId,
               wrappedTokenAddress,
               displaySymbol,
+              unwrappedTokenId,
             } = assetHandling[symbol] as IAssetHandling;
 
             const idToUse = wrappedTokenId || id;
@@ -287,6 +288,7 @@ const ChainProvider = ({ children }: any) => {
               wrapHandlerAddress,
               wrappedTokenId,
               wrappedTokenAddress,
+              unwrappedTokenId,
 
               showToken,
             };
