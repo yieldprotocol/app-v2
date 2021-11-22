@@ -13,7 +13,8 @@ import {
   IVault,
 } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { DAI, WETH, ZERO_BN } from '../../utils/constants';
+import { DAI, WETH } from '../../config/assets';
+import { ZERO_BN } from '../../utils/constants';
 import { sellFYToken, strategyTokenValue } from '../../utils/yieldMath';
 
 export const useDashboardHelpers = () => {
