@@ -120,7 +120,6 @@ const Lend = () => {
               </YieldCardHeader>
 
               <Box gap="large">
-                {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>

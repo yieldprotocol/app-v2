@@ -8,6 +8,7 @@ import YieldInfo from '../components/YieldInfo';
 import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
 import MainViewWrap from '../components/wraps/MainViewWrap';
 import PanelWrap from '../components/wraps/PanelWrap';
+
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
 import YieldNavigation from '../components/YieldNavigation';

@@ -14,7 +14,8 @@ import {
   IUserContextState,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS, BLANK_VAULT } from '../../utils/constants';
+import { BLANK_VAULT } from '../../utils/constants';
+import { ETH_BASED_ASSETS } from '../../config/assets';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';

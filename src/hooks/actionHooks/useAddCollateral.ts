@@ -13,13 +13,13 @@ import {
   ISettingsContext,
   IUserContext,
   IAsset,
-  RoutedActions,
   IUserContextState,
   IUserContextActions,
 } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ETH_BASED_ASSETS } from '../../utils/constants';
+import { BLANK_VAULT } from '../../utils/constants';
+import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
@@ -66,9 +66,11 @@ export const useAddCollateral = () => {
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
-    const ilkForWrap: IAsset | null | undefined = ilk?.isWrappedToken
+    
+    const ilkForWrap: IAsset | null | undefined = ilk?.isWrappedToken && ilk.unwrappedTokenId
       ? assetMap.get(ilk.unwrappedTokenId)
       : selectedIlk; // use the unwrapped token as ilk
+    
     const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -96,7 +98,7 @@ export const useAddCollateral = () => {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthBased || alreadyApproved === true,
+          ignoreIf: _isEthBased || alreadyApproved === true || wrapping.length>0,
         },
       ],
       txCode
@@ -112,10 +114,11 @@ export const useAddCollateral = () => {
         args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
-
       /* handle wrapped token deposit, if required */
       ...wrapping,
+      /* handle adding eth if required */
       ...addEth(_input, series!),
+      /* handle permits if required */
       ...permits,
       {
         operation: LadleActions.Fn.POUR,

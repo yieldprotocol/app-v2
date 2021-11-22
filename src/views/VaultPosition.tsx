@@ -67,7 +67,7 @@ const VaultPosition = () => {
   } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
-  const _selectedVault: IVault = selectedVault! || vaultMap.get(idFromUrl)!;
+  const _selectedVault: IVault = vaultMap.get(selectedVault?.id! || idFromUrl)!;
 
   const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
@@ -244,7 +244,7 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
-    const _ilkToUse = _ilk?.isWrappedToken ? assetMap.get(_ilk.unwrappedTokenId) : _ilk; // use the unwrapped token if applicable
+    const _ilkToUse = (_ilk?.isWrappedToken && _ilk.unwrappedTokenId) ? assetMap.get(_ilk.unwrappedTokenId ) : _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);
     _selectedVault && setSelectedBase(_base);

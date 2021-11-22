@@ -107,8 +107,8 @@ export const useCollateralHelpers = (
       );
 
       /* Check max collateral that is removable (based on exisiting debt) */
-      const _max = existingCollateralAsWei.sub(min);
-      setMaxRemovableCollateral(ethers.utils.formatUnits(_max, 18).toString());
+      const _maxRemove = existingCollateralAsWei.sub(min).mul(99).div(100);
+      setMaxRemovableCollateral(ethers.utils.formatUnits(_maxRemove, 18).toString());
 
       // factor in the current collateral input if there is a valid chosen vault
       const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateralAsWei);

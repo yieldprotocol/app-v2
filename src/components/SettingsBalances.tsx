@@ -38,7 +38,9 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
         </TableRow>
       </TableHeader>
       <TableBody>
-        {[...assetMap.values()].map((asset: IAsset) => (
+        {[...assetMap.values()]
+        .filter((asset: IAsset) => asset.showToken )
+        .map((asset: IAsset) => (
           <TableRow key={asset.address}>
             <StyledTableCell plain>
               <Text size="medium">{asset.image}</Text>
@@ -67,24 +69,17 @@ const SettingsBalances = () => {
   } = useContext(UserContext);
 
   const [open, setOpen] = useState<boolean>(false);
-
-  const onOpen = () => {
-    setOpen(true);
-  };
-  const onClose = () => {
-    setOpen(false);
-  };
-
   return (
     <Box pad="medium">
       <BoxWrap>
         <DropButton
           open={open}
-          onOpen={onOpen}
-          onClose={onClose}
+          onOpen={()=>setOpen(true)}
+          onClose={()=>setOpen(false)}
           dropContent={<DropContent assetMap={assetMap} />}
           dropProps={{ align: { top: 'bottom', right: 'right' } }}
-          style={{ borderRadius: '6px' }}
+          // style={{ borderRadius: '8px' }}
+          
         >
           <YieldBalances />
         </DropButton>

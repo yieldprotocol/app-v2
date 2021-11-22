@@ -30,7 +30,7 @@ const initState: ISettingsContextState = {
   powerUser: (JSON.parse(localStorage.getItem('powerUser')!) as boolean) || (false as boolean),
 
   /* Always force transctions to the chain -> even if they will likely fail */
-  forceTransactions: (JSON.parse(localStorage.getItem('forceTransactions')!) as boolean) || (true as boolean),
+  forceTransactions: (JSON.parse(localStorage.getItem('forceTransactions')!) as boolean) || (false as boolean),
 
   /* Show wrapped tokens */
   showWrappedTokens: (JSON.parse(localStorage.getItem('showWrappedTokens')!) as boolean) || (false as boolean),
