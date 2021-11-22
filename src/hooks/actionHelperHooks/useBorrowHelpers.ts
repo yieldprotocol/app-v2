@@ -130,6 +130,7 @@ export const useBorrowHelpers = (
     if (input && futureSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, futureSeries?.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries?.decimals);
+
       const estimate = sellBase(
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
@@ -137,10 +138,12 @@ export const useBorrowHelpers = (
         futureSeries.getTimeTillMaturity(),
         futureSeries.decimals
       );
-      setBorrowEstimate(estimate);
-      setBorrowEstimate_(ethers.utils.formatUnits(estimate, futureSeries.decimals).toString());
+
+      const estimatePlusVaultUsed = vault?.art.gt(ethers.constants.Zero) ? estimate.add(vault.art) : estimate;
+      setBorrowEstimate(estimatePlusVaultUsed);
+      setBorrowEstimate_(ethers.utils.formatUnits(estimatePlusVaultUsed, futureSeries.decimals).toString());
     }
-  }, [input, futureSeries]);
+  }, [input, futureSeries, vault]);
 
   /* Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {
