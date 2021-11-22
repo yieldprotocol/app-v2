@@ -30,7 +30,7 @@ import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
-import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useLendHelpers } from '../hooks/viewHelperHooks/useLendHelpers';
 import { useLend } from '../hooks/actionHooks/useLend';
 
 import ColorText from '../components/texts/ColorText';

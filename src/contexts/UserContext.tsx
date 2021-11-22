@@ -307,7 +307,7 @@ const UserProvider = ({ children }: any) => {
         return ethers.constants.Zero;
       }
     },
-    [contractMap, userState.priceMap]
+    [contractMap, userState.priceMap, chainState.connection.fallbackChainId]
   );
 
   /* Updates the prices from the oracle with latest data */
