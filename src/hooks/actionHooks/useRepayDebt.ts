@@ -152,7 +152,7 @@ export const useRepayDebt = () => {
     ];
     await transact(calls, txCode);
     updateVaults([vault]);
-    updateAssets([base, ilk]);
+    updateAssets([base, ilk, userState.selectedIlk!]);
   };
 
   return repay;
