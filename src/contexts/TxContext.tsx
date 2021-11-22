@@ -146,7 +146,7 @@ const TxProvider = ({ children }: any) => {
     updateState({ type: 'transactions', payload: _tx });
     console.log('txHash: ', tx?.hash);
 
-    chainId === 1 && analyticsLogEvent('TX_FAILED', { txCode });
+    analyticsLogEvent('TX_FAILED', { txCode }, chainId);
   };
 
   const handleTxWillFail = (txCode?: string | undefined) => {
@@ -158,7 +158,7 @@ const TxProvider = ({ children }: any) => {
       txCode && updateState({ type: 'resetProcess', payload: txCode });
     } else {
       updateState({ type: 'txWillFail', payload: false });
-      chainId === 1 && analyticsLogEvent('TX_WILL_FAIL', { txCode });
+      analyticsLogEvent('TX_WILL_FAIL', { txCode }, chainId);
     }
   };
 
@@ -186,7 +186,7 @@ const TxProvider = ({ children }: any) => {
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
-        chainId === 1 && analyticsLogEvent('TX_REJECTED', { txCode });
+        analyticsLogEvent('TX_REJECTED', { txCode }, chainId);
         return null;
       }
 
@@ -202,7 +202,7 @@ const TxProvider = ({ children }: any) => {
       if (_isfallback === false) {
         /* transaction completion : success OR failure */
         _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
-        chainId === 1 &&  analyticsLogEvent('TX_COMPLETE', { txCode });
+        analyticsLogEvent('TX_COMPLETE', { txCode }, chainId);
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */

@@ -240,8 +240,8 @@ export const getStrategySymbol = (name: string) => name.slice(2).slice(0, -2);
 
 
 /* google analytics log event */
-export const analyticsLogEvent = (eventName: string, eventParams: any ) => {
-  if (eventName) {
+export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number ) => {
+  if (eventName && chainId === 1) {
     try {
     window?.gtag('event', eventName, eventParams);
     } catch (e) {
