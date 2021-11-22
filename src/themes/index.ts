@@ -14,16 +14,15 @@ export const yieldTheme = {
       },
     },
     colors: {
-
-      error : { 
+      error: {
         light: '#ffcccc',
         dark: '#ff8080',
       },
-      success : { 
+      success: {
         light: '#00cc44',
         dark: '#10B981',
       },
-      warning : { 
+      warning: {
         light: '#F59E0B',
         dark: '#red',
       },
@@ -68,16 +67,11 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
     },
-    // input: { weight: 400 },
+
+    drop: { border: { radius: '6px' }, elevation : 'xlarge' },
+    anchor: { color: 'brand' },
   },
 
-  anchor: { color: 'brand' },
-
-  select: {
-    // options: {
-    //   container: { align:"end" }
-    // }
-  },
 
   grommet: {
     // @ts-ignore
