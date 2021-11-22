@@ -24,7 +24,7 @@ function YieldAvatar(props: any) {
   return (
     <StyledBox>
       <Avatar border={{ color: colorScheme === 'dark' ? '#FFF' : '#000' }} size={_size || '2em'}>
-        <Box width="100%" height="100%" pad="2px">
+        <Box width="100%" height="100%" pad={ensAvatarUrl ? undefined : '2px'}>
           {
             // eslint-disable-next-line react/no-danger
             ensAvatarUrl ? <Image src={ensAvatarUrl} /> : <span dangerouslySetInnerHTML={{ __html: _avatar }} />
