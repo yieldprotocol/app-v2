@@ -88,7 +88,7 @@ const HistoryProvider = ({ children }: any) => {
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
-  const blockNumForUse = Number(useBlockNum()) - 10000;
+  const blockNumForUse = 0;
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
   const {
