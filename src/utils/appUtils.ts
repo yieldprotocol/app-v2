@@ -241,4 +241,4 @@ export const getStrategySymbol = (name: string) => name.slice(2).slice(0, -2);
 export const numberWithCommas = (x: number) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 export const formatValue = (x: string | number, decimals: number) =>
-  numberWithCommas(Number(cleanValue(x.toString(), decimals)));
+  numberWithCommas(Number(cleanValue(x?.toString(), decimals)));

@@ -12,7 +12,7 @@ import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
 import YieldNavigation from '../components/YieldNavigation';
 import { SettingsContext } from '../contexts/SettingsContext';
-import useBalances from '../hooks/useBalances';
+import { useDashboardHelpers }  from '../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../contexts/UserContext';
 import { formatValue } from '../utils/appUtils';
 
@@ -55,7 +55,7 @@ const Dashboard = () => {
     totalStrategyBalance,
     currencySettingDigits,
     currencySettingSymbol,
-  } = useBalances();
+  } = useDashboardHelpers();
 
   return (
     <MainViewWrap>

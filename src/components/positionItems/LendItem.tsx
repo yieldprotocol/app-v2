@@ -6,7 +6,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
-import { useLendHelpers } from '../../hooks/actionHelperHooks/useLendHelpers';
+import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 
 function LendItem({
   series,

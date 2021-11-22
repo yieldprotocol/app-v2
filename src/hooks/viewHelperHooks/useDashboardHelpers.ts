@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { UserContext } from '../contexts/UserContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { UserContext } from '../../contexts/UserContext';
 import {
   IAsset,
   ISeries,
@@ -11,12 +11,12 @@ import {
   IUserContextActions,
   IUserContextState,
   IVault,
-} from '../types';
-import { cleanValue } from '../utils/appUtils';
-import { DAI, WETH, ZERO_BN } from '../utils/constants';
-import { sellFYToken, strategyTokenValue } from '../utils/yieldMath';
+} from '../../types';
+import { cleanValue } from '../../utils/appUtils';
+import { DAI, WETH, ZERO_BN } from '../../utils/constants';
+import { sellFYToken, strategyTokenValue } from '../../utils/yieldMath';
 
-const useBalances = () => {
+export const useDashboardHelpers = () => {
   /* STATE FROM CONTEXT */
   const {
     settingsState: { dashHideEmptyVaults, dashHideInactiveVaults, dashCurrency },
@@ -180,5 +180,3 @@ const useBalances = () => {
     currencySettingSymbol,
   };
 };
-
-export default useBalances;

@@ -27,7 +27,7 @@ import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
-import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
+import { usePoolHelpers } from '../hooks/viewHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
