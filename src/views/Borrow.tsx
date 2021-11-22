@@ -480,7 +480,7 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
-                  {vaultToUse && <VaultItem vault={vaultToUse!} condensed index={1} />}
+                  {vaultToUse && <VaultItem vault={vaultMap.get(vaultToUse.id)!} condensed index={1} />}
                   {!vaultToUse && newVaultId && (
                     <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
                   )}
