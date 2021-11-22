@@ -67,7 +67,7 @@ const VaultPosition = () => {
   } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
-  const _selectedVault: IVault = selectedVault! || vaultMap.get(idFromUrl)!;
+  const _selectedVault: IVault = vaultMap.get(selectedVault?.id! || idFromUrl)!;
 
   const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
