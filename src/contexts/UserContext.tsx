@@ -75,7 +75,7 @@ function userReducer(state: any, action: any) {
 
     case 'activeAccount':
       return { ...state, activeAccount: onlyIfChanged(action) };
-      
+
     case 'assetMap':
       return { ...state, assetMap: onlyIfChanged(action) };
     case 'seriesMap':
@@ -99,15 +99,15 @@ function userReducer(state: any, action: any) {
       return { ...state, strategiesLoading: onlyIfChanged(action) };
 
     case 'selectedVault':
-      return { ...state, selectedVault: onlyIfChanged(action) };
+      return { ...state, selectedVault: action.payload };
     case 'selectedSeries':
-      return { ...state, selectedSeries: onlyIfChanged(action) };
+      return { ...state, selectedSeries: action.payload };
     case 'selectedIlk':
-      return { ...state, selectedIlk: onlyIfChanged(action) };
+      return { ...state, selectedIlk: action.payload };
     case 'selectedBase':
-      return { ...state, selectedBase: onlyIfChanged(action) };
+      return { ...state, selectedBase: action.payload };
     case 'selectedStrategy':
-      return { ...state, selectedStrategy: onlyIfChanged(action) };
+      return { ...state, selectedStrategy: action.payload };
 
     default:
       return state;
@@ -252,7 +252,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, assetRootMap )
+        }, assetRootMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -646,13 +646,10 @@ const UserProvider = ({ children }: any) => {
   //   /* Update selected base if asset map changes */
   //   userState.selectedBase &&
   //     updateState({ type: 'selectedBase', payload: userState.assetMap.get(userState.selectedBase.id) as IAsset });
-  // }, [userState.assetMap, userState.selectedBase]);
-
-  // useEffect(() => {
   //   /* Update selected ilk if asset map changes */
   //   userState.selectedIlk &&
   //     updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
-  // }, [userState.assetMap, userState.selectedIlk]);
+  // }, [userState.assetMap, userState.selectedBase, userState.selectedIlk]);
 
   // useEffect(() => {
   //   /* Update selected vault if vault map changes */

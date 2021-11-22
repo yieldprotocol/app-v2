@@ -46,11 +46,11 @@ function LendItem({
             {series.displayName}
           </Text>
           <Box direction="row" gap="small">
-            {actionType === 'LEND' && (
+            {fyTokenMarketValue !== 'Low liquidity' &&
               <Text weight={450} size="xsmall">
                 Balance: {cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)}
               </Text>
-            )}
+              }
           </Box>
         </Box>
       </Box>
