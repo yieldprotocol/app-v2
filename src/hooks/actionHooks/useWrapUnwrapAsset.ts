@@ -8,7 +8,7 @@ import {
   IAsset,
   RoutedActions,
 } from '../../types';
-import { MAX_256 } from '../../utils/constants';
+import { MAX_256, ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 export const useWrapUnwrapAsset = () => {
@@ -34,7 +34,11 @@ export const useWrapUnwrapAsset = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
     
-    if (asset.wrappedTokenId && asset.wrapHandlerAddress ) {
+    if (
+      asset.wrappedTokenId && 
+      asset.wrapHandlerAddress &&
+      value.gt(ZERO_BN)
+    ) {
       const wraphandlerContract: Contract = new Contract(
         asset.wrapHandlerAddress,
         wrapHandlerAbi,
@@ -49,7 +53,7 @@ export const useWrapUnwrapAsset = () => {
           {
             target: unwrappedAssetContract, // full target contract
             spender: ladleAddress,
-            amount: MAX_256,
+            amount: value,
             ignoreIf: false,
           },
         ],
