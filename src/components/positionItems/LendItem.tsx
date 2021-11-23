@@ -7,6 +7,7 @@ import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
+import SkeletonWrap from '../wraps/SkeletonWrap';
 
 function LendItem({
   series,
@@ -21,11 +22,13 @@ function LendItem({
 }) {
   const history = useHistory();
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const {
+    userState: { assetMap, seriesLoading, selectedSeries, selectedBase },
+    userActions,
+  }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
-  const selectedBase : IAsset = userState.assetMap.get(series.baseId)!;
+  const seriesBase: IAsset = assetMap.get(series.baseId)!;
+  const isSelectedBaseAndSeries = series.baseId === seriesBase.id && series.id === selectedSeries?.id;
 
   const handleSelect = (_series: ISeries) => {
     userActions.setSelectedBase(selectedBase);
@@ -45,12 +48,21 @@ function LendItem({
           <Text weight={900} size="small">
             {series.displayName}
           </Text>
-          <Box direction="row" gap="small">
-            {fyTokenMarketValue !== 'Low liquidity' &&
-              <Text weight={450} size="xsmall">
-                Balance: {cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)}
-              </Text>
-              }
+          <Box direction="row" gap="xsmall">
+            {fyTokenMarketValue !== 'Low liquidity' && (
+              <Box direction="row" gap="xsmall">
+                <Text weight={450} size="xsmall">
+                  Balance:
+                </Text>
+                <Text weight={450} size="xsmall">
+                  {seriesLoading && isSelectedBaseAndSeries ? (
+                    <SkeletonWrap width={30} />
+                  ) : (
+                    cleanValue(fyTokenMarketValue, seriesBase?.digitFormat!)
+                  )}
+                </Text>
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>

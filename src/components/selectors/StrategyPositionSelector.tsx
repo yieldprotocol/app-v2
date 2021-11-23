@@ -13,9 +13,8 @@ import DashButton from '../buttons/DashButton';
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
 
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, strategyMap, selectedBase } =
-    userState;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, strategyMap, selectedBase } = userState;
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
