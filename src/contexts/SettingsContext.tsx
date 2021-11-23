@@ -15,7 +15,7 @@ const initState: ISettingsContextState = {
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
 
   /* Show diagnostic messages in the console */
-  diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (true as boolean),
+  diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
 
   /* Color theme */
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
