@@ -46,7 +46,7 @@ const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedSeries, selectedBase, seriesMap } = userState;
 
   /* LOCAL STATE */
@@ -228,7 +228,12 @@ const Lend = () => {
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View position: </Text>
-                <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
+                <LendItem
+                  series={seriesMap.get(selectedSeries?.id!)!}
+                  index={0}
+                  actionType={ActionType.LEND}
+                  condensed
+                />
               </Box>
             )}
         </Box>
