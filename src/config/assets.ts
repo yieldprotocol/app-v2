@@ -22,7 +22,7 @@ ASSET_INFO.set('USDC', { showToken: true, isWrappedToken: false, color: '#2775CA
 ASSET_INFO.set('WBTC', { showToken: true, isWrappedToken: false, color: '#5A5564', digitFormat: 6 });
 ASSET_INFO.set('USDT', { showToken: true, isWrappedToken: false, color: '#50af95', digitFormat: 2 });
 ASSET_INFO.set('LINK', { showToken: false, isWrappedToken: false, color: '#2A5ADA', digitFormat: 2 });
-ASSET_INFO.set('ENS', { showToken: true, isWrappedToken: false, color: '#000000', digitFormat: 2 });
+ASSET_INFO.set('ENS', { showToken: false, isWrappedToken: false, color: '#000000', digitFormat: 2 });
 ASSET_INFO.set('WETH', {
   displaySymbol: 'ETH',
   showToken: true,
