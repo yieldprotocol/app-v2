@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, Layer, ResponsiveContext, Text, TextInput, Tip } from 'grommet';
+import { Box, Keyboard, ResponsiveContext, Text, TextInput, } from 'grommet';
 
-import { FiClock, FiPocket, FiPercent, FiTrendingUp, FiInfo } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp, } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -13,7 +13,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import MaxButton from '../components/buttons/MaxButton';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IVault, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import VaultSelector from '../components/selectors/VaultPositionSelector';
@@ -34,8 +34,8 @@ import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
 import { useBorrow } from '../hooks/actionHooks/useBorrow';
-import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
-import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
+import { useCollateralHelpers } from '../hooks/viewHelperHooks/useCollateralHelpers';
+import { useBorrowHelpers } from '../hooks/viewHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import ColorText from '../components/texts/ColorText';
 import { useProcess } from '../hooks/useProcess';
@@ -45,6 +45,7 @@ import DummyVaultItem from '../components/positionItems/DummyVaultItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../components/YieldNavigation';
+import VaultItem from '../components/positionItems/VaultItem';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,12 +54,8 @@ const Borrow = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeriesId, selectedIlkId, selectedBaseId } = userState;
-
-  const selectedBase = assetMap.get(selectedBaseId!);
-  const selectedIlk = assetMap.get(selectedIlkId!);
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -90,7 +87,7 @@ const Borrow = () => {
     minCollatRatioPct,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
-  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, aboveDebtLimit } = useBorrowHelpers(
+  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,
@@ -109,7 +106,7 @@ const Borrow = () => {
   ]);
 
   /* TX info (for disabling buttons) */
-  const { txProcess: borrowProcess, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeriesId!);
+  const { txProcess: borrowProcess, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeries?.id!);
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -182,7 +179,10 @@ const Borrow = () => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.id && v.baseId === selectedBase.id && v.seriesId === selectedSeries.id && v.isActive
+          v.ilkId === selectedIlk.idToUse &&
+          v.baseId === selectedBase.idToUse &&
+          v.seriesId === selectedSeries.id &&
+          v.isActive
       );
       setMatchingVaults(_matchingVaults);
     }
@@ -247,7 +247,7 @@ const Borrow = () => {
                                   <Text size="xsmall" color="text-weak">
                                     Max borrow is{' '}
                                     <Text size="small" color="text-weak">
-                                      {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.symbol}
+                                      {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
                                     </Text>{' '}
                                     (limited by protocol liquidity)
                                   </Text>
@@ -259,7 +259,7 @@ const Borrow = () => {
                                   <Text size="small" color="text-weak">
                                     Requires equivalent of{' '}
                                     {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
-                                    {selectedIlk?.symbol} collateral
+                                    {selectedIlk?.displaySymbol} collateral
                                   </Text>
                                 </InputInfoWrap>
                               )}
@@ -298,7 +298,7 @@ const Borrow = () => {
                   <SectionWrap
                     title={
                       seriesMap.size > 0
-                        ? `Available ${selectedBase?.symbol}${selectedBase && '-based'} maturity dates`
+                        ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates`
                         : ''
                     }
                   >
@@ -371,7 +371,7 @@ const Borrow = () => {
                                 >
                                   <Text size="small" color="text-weak">
                                     Use Safe Collateralization{': '}
-                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.symbol}
+                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
                               )
@@ -441,13 +441,13 @@ const Borrow = () => {
                     <InfoBite
                       label="Amount to be Borrowed"
                       icon={<FiPocket />}
-                      value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                      value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                     />
                     <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     <InfoBite
                       label="Vault Debt Payable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
@@ -460,7 +460,7 @@ const Borrow = () => {
                         />
                       }
                       value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
-                        selectedIlk?.symbol
+                        selectedIlk?.displaySymbol
                       } (${collateralizationPercent}%)`}
                     />
                     {vaultToUse?.id && (
@@ -480,7 +480,10 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
-                  {newVaultId && <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />}
+                  {vaultToUse && <VaultItem vault={vaultMap.get(vaultToUse.id)!} condensed index={1} />}
+                  {!vaultToUse && newVaultId && (
+                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
+                  )}
                 </Box>
               )}
           </Box>
@@ -492,7 +495,7 @@ const Borrow = () => {
                 label={
                   <Text size={mobile ? 'small' : undefined}>
                     {borrowInput && !selectedSeries
-                      ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} Maturity`
+                      ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
                       : 'Next Step'}
                   </Text>
                 }
@@ -511,7 +514,7 @@ const Borrow = () => {
                       ? 'Connect Wallet'
                       : `Borrow${borrowProcess?.processActive ? `ing` : ''} ${
                           nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.symbol || ''}`}
+                        } ${selectedBase?.displaySymbol || ''}`}
                   </Text>
                 }
                 onClick={() => handleBorrow()}
@@ -523,7 +526,6 @@ const Borrow = () => {
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <NextButton
-                  size="xsmall"
                   label={<Text size={mobile ? 'small' : undefined}>Borrow more</Text>}
                   onClick={() => resetInputs()}
                 />
@@ -533,7 +535,6 @@ const Borrow = () => {
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.FAILED && (
                 <NextButton
-                  size="xsmall"
                   label={<Text size={mobile ? 'xsmall' : undefined}>Report and go back</Text>}
                   onClick={() => resetInputs()}
                 />

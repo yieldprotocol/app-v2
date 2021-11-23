@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
-import { cleanValue } from '../utils/appUtils';
+import { formatValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 
 interface IDashboardBalance {
@@ -36,7 +36,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
             ) : (
               <Text size="small">
                 {symbol}
-                {cleanValue(lendBalance, digits)}
+                {formatValue(lendBalance, digits!)}
               </Text>
             )}
           </Box>
@@ -48,7 +48,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
             ) : (
               <Text size="small">
                 {symbol}
-                {cleanValue(poolBalance, digits)}
+                {formatValue(poolBalance, digits!)}
               </Text>
             )}
           </Box>
@@ -62,7 +62,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
             ) : (
               <Text size="small">
                 {symbol}
-                {cleanValue(collateral, digits)}
+                {formatValue(collateral, digits!)}
               </Text>
             )}
           </Box>
@@ -76,7 +76,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
             ) : (
               <Text size="small">
                 {symbol}
-                {cleanValue(debt, digits)}
+                {formatValue(debt, digits!)}
               </Text>
             )}
           </Box>
@@ -89,7 +89,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
         ) : (
           <Text size="medium">
             {symbol}
-            {cleanValue(totalBalance?.toString(), digits)}
+            {formatValue(totalBalance!, digits!)}
           </Text>
         )}
       </Box>

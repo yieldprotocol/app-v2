@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 
-/* Simple Hook for caching & retrieved data */
 export const useBlockNum = () => {
   const {
     chainState: {

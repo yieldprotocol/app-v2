@@ -21,7 +21,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
-import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useLendHelpers } from '../hooks/viewHelperHooks/useLendHelpers';
 import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../components/wraps/CopyWrap';
@@ -35,9 +35,12 @@ const LendPosition = () => {
   const { id: idFromUrl } = useParams<{ id: string }>();
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { selectedSeriesId, seriesMap, assetMap, seriesLoading } = userState;
-  const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
+  const {
+    userState,
+    userActions: { setSelectedSeries },
+  } = useContext(UserContext) as IUserContext;
+  const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
+
   const selectedBase = assetMap.get(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
@@ -68,11 +71,11 @@ const LendPosition = () => {
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
-    selectedSeries?.id
+    selectedSeries?.id!
   );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_POSITION,
-    selectedSeries?.id
+    selectedSeries?.id!
   );
 
   /* input validation hooks */
@@ -128,8 +131,9 @@ const LendPosition = () => {
   }, [closeProcess?.stage, rollProcess?.stage]);
 
   useEffect(() => {
-    idFromUrl && userActions.setSelectedSeries(idFromUrl);
-  }, [idFromUrl]);
+    const _series = seriesMap.get(idFromUrl) || null;
+    idFromUrl && setSelectedSeries(_series);
+  }, [idFromUrl, seriesMap, setSelectedSeries]);
 
   /* INTERNAL COMPONENTS */
   const CompletedTx = (props: any) => (
@@ -183,7 +187,7 @@ const LendPosition = () => {
                       value={`${cleanValue(
                         selectedSeries?.fyTokenBalance_!,
                         selectedBase?.digitFormat!
-                      )} ${selectedBase?.symbol!}`}
+                      )} ${selectedBase?.displaySymbol!}`}
                       icon={<FiTrendingUp />}
                       loading={seriesLoading}
                     />
@@ -192,7 +196,7 @@ const LendPosition = () => {
                       value={
                         fyTokenMarketValue === 'Low liquidity'
                           ? 'Low Liquidity'
-                          : `${cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)}${selectedBase?.symbol!}`
+                          : `${cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)}${selectedBase?.displaySymbol!}`
                       }
                       icon={selectedBase?.image}
                       loading={seriesLoading}
@@ -208,7 +212,7 @@ const LendPosition = () => {
                       plain
                       dropProps={{ round: 'xsmall' }}
                       options={[
-                        { text: `Redeem ${selectedBase?.symbol}`, index: 0 },
+                        { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
                         // { text: 'Redeem', index: 3 },
@@ -235,7 +239,7 @@ const LendPosition = () => {
                               {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
                                 <InputInfoWrap action={() => setCloseInput(maxClose_)}>
                                   <Text color="text" alignSelf="end" size="xsmall">
-                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.symbol}
+                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
                                     {selectedSeries.baseReserves.eq(maxClose) && ' (limited by protocol)'}
                                   </Text>
                                 </InputInfoWrap>
@@ -271,9 +275,9 @@ const LendPosition = () => {
                         cancelAction={() => resetInputs(ActionCodes.CLOSE_POSITION)}
                       >
                         <InfoBite
-                          label={`Redeem Position ${selectedBase?.symbol}`}
+                          label={`Redeem Position ${selectedBase?.displaySymbol}`}
                           icon={<FiArrowRight />}
-                          value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                          value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                           loading={seriesLoading}
                         />
                       </ActiveTransaction>
@@ -293,7 +297,7 @@ const LendPosition = () => {
                           <TextInput
                             plain
                             type="number"
-                            placeholder={`Amount of ${selectedBase?.symbol} to roll`}
+                            placeholder={`Amount of ${selectedBase?.displaySymbol} to roll`}
                             value={rollInput || ''}
                             onChange={(event: any) =>
                               setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
@@ -329,7 +333,7 @@ const LendPosition = () => {
                           value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
                             rollInput,
                             selectedBase?.digitFormat!
-                          )} ${selectedBase?.symbol} to ${rollToSeries?.displayName}`}
+                          )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}`}
                         />
                       </ActiveTransaction>
                     )}
@@ -361,7 +365,7 @@ const LendPosition = () => {
                       <Text size={mobile ? 'small' : undefined}>
                         {`Clos${closeProcess?.processActive ? 'ing' : 'e'} ${
                           nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.symbol}`}
+                        } ${selectedBase?.displaySymbol}`}
                       </Text>
                     }
                     onClick={() => handleClosePosition()}
@@ -378,7 +382,7 @@ const LendPosition = () => {
                       <Text size={mobile ? 'small' : undefined}>
                         {`Roll${rollProcess?.processActive ? 'ing' : ''} ${
                           nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.symbol}`}
+                        } ${selectedBase?.displaySymbol}`}
                       </Text>
                     }
                     onClick={() => handleRollPosition()}

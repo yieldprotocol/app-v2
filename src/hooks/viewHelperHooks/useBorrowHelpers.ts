@@ -1,4 +1,4 @@
-import { BigNumber,  BigNumberish,  ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -12,7 +12,7 @@ export const useBorrowHelpers = (
   input: string | undefined,
   collateralInput: string | undefined,
   vault: IVault | undefined,
-  futureSeries: ISeries | undefined = undefined // Future or rollToSeries
+  futureSeries: ISeries | null = null // Future or rollToSeries
 ) => {
   /* STATE FROM CONTEXT */
   const {
@@ -22,20 +22,18 @@ export const useBorrowHelpers = (
   const {
     userState: {
       activeAccount,
-      selectedBaseId,
-      selectedIlkId,
+      selectedBase,
+      selectedIlk,
       assetMap,
       seriesMap,
       limitMap,
       priceMap,
-      selectedSeriesId,
+      selectedSeries,
     },
     userActions: { updateLimit },
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
-  const selectedSeries: ISeries | undefined = seriesMap.get(selectedSeriesId!);
-  const selectedBase: IAsset | undefined = assetMap.get(selectedBaseId!);
 
   /* LOCAL STATE */
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
@@ -71,8 +69,7 @@ export const useBorrowHelpers = (
 
   /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
-    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber|string, total: BigNumber) => {
-      
+    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber | string, total: BigNumber) => {
       const _decimals = decimals.toString();
       const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;
       const _min = ethers.utils.parseUnits(min.toString(), _decimals) || ethers.constants.Zero;
@@ -82,33 +79,32 @@ export const useBorrowHelpers = (
 
       setMaxDebt_(ethers.utils.formatUnits(_max, _decimals)?.toString());
       setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
-       
+
       setMaxDebt(maxLessTotal);
       setMinDebt(_min);
       setTotalDebt(_total);
-      
+
       setMaxDebt_(ethers.utils.formatUnits(maxLessTotal, _decimals)?.toString());
       setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
       setTotalDebt_(ethers.utils.formatUnits(_total, _decimals)?.toString());
-
     };
 
-    if (limitMap.get(selectedBaseId)?.has(selectedIlkId!)) {
-      const _limit = limitMap.get(selectedBaseId).get(selectedIlkId); // get the limit from the map
+    if (selectedBase && selectedIlk && limitMap.get(selectedBase.idToUse)?.has(selectedIlk.idToUse)) {
+      const _limit = limitMap.get(selectedBase.idToUse).get(selectedIlk.idToUse); // get the limit from the map
       setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
       diagnostics && console.log('Cached Limit:', _limit[1].toString(), _limit[0].toString());
     } else {
       (async () => {
-        if (selectedIlkId && selectedBaseId) {
+        if (selectedBase && selectedIlk) {
           /* Update Price before setting */
-          const _limit = await updateLimit(selectedBaseId, selectedIlkId);
+          const _limit = await updateLimit(selectedBase.idToUse, selectedIlk.idToUse);
           setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
           diagnostics &&
             console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
         }
       })();
     }
-  }, [limitMap, selectedBaseId, selectedIlkId, updateLimit, diagnostics]);
+  }, [limitMap, selectedBase, selectedIlk, updateLimit, diagnostics]);
 
   /* check max debt limit is not reached */
   useEffect(() => {
@@ -134,6 +130,7 @@ export const useBorrowHelpers = (
     if (input && futureSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, futureSeries?.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries?.decimals);
+
       const estimate = sellBase(
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
@@ -141,10 +138,12 @@ export const useBorrowHelpers = (
         futureSeries.getTimeTillMaturity(),
         futureSeries.decimals
       );
-      setBorrowEstimate(estimate);
-      setBorrowEstimate_(ethers.utils.formatUnits(estimate, futureSeries.decimals).toString());
+
+      const estimatePlusVaultUsed = vault?.art.gt(ethers.constants.Zero) ? estimate.add(vault.art) : estimate;
+      setBorrowEstimate(estimatePlusVaultUsed);
+      setBorrowEstimate_(ethers.utils.formatUnits(estimatePlusVaultUsed, futureSeries.decimals).toString());
     }
-  }, [input, futureSeries]);
+  }, [input, futureSeries, vault]);
 
   /* Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {

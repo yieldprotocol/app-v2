@@ -12,7 +12,7 @@ import { cleanValue, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -30,7 +30,7 @@ import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
-import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useLendHelpers } from '../hooks/viewHelperHooks/useLendHelpers';
 import { useLend } from '../hooks/actionHooks/useLend';
 
 import ColorText from '../components/texts/ColorText';
@@ -38,7 +38,6 @@ import { useProcess } from '../hooks/useProcess';
 import LendItem from '../components/positionItems/LendItem';
 
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import DashButton from '../components/buttons/DashButton';
 import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../components/YieldNavigation';
@@ -47,10 +46,8 @@ const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeriesId, selectedBaseId, seriesMap, assetMap } = userState;
-  const selectedSeries = seriesMap.get(selectedSeriesId!);
-  const selectedBase = assetMap.get(selectedBaseId!);
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, selectedSeries, selectedBase, seriesMap } = userState;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -68,7 +65,7 @@ const Lend = () => {
 
   const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
-  const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id);
+  const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
@@ -123,7 +120,6 @@ const Lend = () => {
               </YieldCardHeader>
 
               <Box gap="large">
-                {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
@@ -137,7 +133,7 @@ const Lend = () => {
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}
                                 <Text size="small" color="text-weak">
-                                  {cleanValue(maxLend_, 2)} {selectedBase?.symbol}
+                                  {cleanValue(maxLend_, 2)} {selectedBase?.displaySymbol}
                                 </Text>{' '}
                                 (limited by protocol liquidity)
                               </Text>
@@ -182,7 +178,7 @@ const Lend = () => {
                   <SectionWrap
                     title={
                       seriesMap.size > 0
-                        ? `Select a ${selectedBase?.symbol}${selectedBase && '-based'} maturity date`
+                        ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity date`
                         : ''
                     }
                   >
@@ -213,13 +209,13 @@ const Lend = () => {
                   <InfoBite
                     label="Amount to lend"
                     icon={<BiMessageSquareAdd />}
-                    value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.symbol}`}
+                    value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                   />
                   <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                   <InfoBite
                     label="Redeemable @ Maturity"
                     icon={<FiTrendingUp />}
-                    value={`${lendOutput} ${selectedBase?.symbol}`}
+                    value={`${lendOutput} ${selectedBase?.displaySymbol}`}
                   />
                   <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apr}%`} />
                 </Box>
@@ -232,7 +228,12 @@ const Lend = () => {
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View position: </Text>
-                <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
+                <LendItem
+                  series={seriesMap.get(selectedSeries?.id!)!}
+                  index={0}
+                  actionType={ActionType.LEND}
+                  condensed
+                />
               </Box>
             )}
         </Box>
@@ -260,7 +261,7 @@ const Lend = () => {
                       ? 'Connect Wallet'
                       : `Lend${lendProcess?.processActive ? `ing` : ''} ${
                           nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.symbol || ''}`}
+                        } ${selectedBase?.displaySymbol || ''}`}
                   </Text>
                 }
                 onClick={() => handleLend()}

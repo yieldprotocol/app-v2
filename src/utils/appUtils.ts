@@ -237,3 +237,20 @@ export const formatStrategyName = (name: string) => {
 };
 
 export const getStrategySymbol = (name: string) => name.slice(2).slice(0, -2);
+
+export const numberWithCommas = (x: number) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+export const formatValue = (x: string | number, decimals: number) =>
+  numberWithCommas(Number(cleanValue(x?.toString(), decimals)));
+
+/* google analytics log event */
+export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number ) => {
+  if (eventName && chainId === 1) {
+    try {
+    window?.gtag('event', eventName, eventParams);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
+  }
+};

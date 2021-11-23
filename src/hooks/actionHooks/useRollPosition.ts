@@ -4,7 +4,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IUserContext, IUserContextActions, IUserContextState, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
@@ -20,7 +20,9 @@ export const useRollPosition = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions } = useContext(UserContext);
+    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;;
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
@@ -31,7 +33,7 @@ export const useRollPosition = () => {
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
-    const base = assetMap.get(fromSeries.baseId);
+    const base: IAsset = assetMap.get(fromSeries.baseId)!;
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
@@ -50,7 +52,7 @@ export const useRollPosition = () => {
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
 
     const alreadyApproved = approveMax
-    ? (await fromSeries.fyTokenContract.allowance(account, ladleAddress) ).gt(_input)
+    ? (await fromSeries.fyTokenContract.allowance(account!, ladleAddress) ).gt(_input)
     : false;
 
     const permits: ICallData[] = await sign(

@@ -1,10 +1,9 @@
-import { Stack, Avatar, Box, Text } from 'grommet';
 import React, { useContext } from 'react';
-import { FiClock, FiSlash } from 'react-icons/fi';
+import { Stack, Avatar, Box } from 'grommet';
+import { FiClock } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
-import Skeleton from './wraps/SkeletonWrap';
 import { UserContext } from '../contexts/UserContext';
-import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType } from '../types';
+import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType, IUserContextState } from '../types';
 
 function PositionAvatar({
   position,
@@ -18,7 +17,7 @@ function PositionAvatar({
   const isVault = position?.id.length > 15;
 
   /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { assetMap, seriesMap } = userState;
 
   const base: IAsset | undefined = assetMap.get(position?.baseId!); // same for both series and vaults
@@ -34,7 +33,12 @@ function PositionAvatar({
           background={series?.seriesIsMature ? 'lightGrey' : series?.color}
           size={condensed ? '1.5rem' : undefined}
         >
-          <Box round="large" background={base?.color || 'lightBackground'} pad={condensed ? 'none' : 'xsmall'} align="center">
+          <Box
+            round="large"
+            background={base?.color || 'lightBackground'}
+            pad={condensed ? 'none' : 'xsmall'}
+            align="center"
+          >
             {base?.image}
           </Box>
         </Avatar>

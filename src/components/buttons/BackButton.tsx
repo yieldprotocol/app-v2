@@ -1,5 +1,5 @@
-import { Box, Button, ResponsiveContext, Text } from 'grommet';
-import React, { useContext, useState } from 'react';
+import { Box, Button, ResponsiveContext } from 'grommet';
+import React, { useContext } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import styled from 'styled-components';
 

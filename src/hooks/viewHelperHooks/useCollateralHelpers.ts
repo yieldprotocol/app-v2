@@ -16,15 +16,12 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBaseId, selectedIlkId, assetMap, priceMap },
+    userState: { activeAccount, selectedBase, selectedIlk, priceMap },
     userActions: { updatePrice },
   } = useContext(UserContext);
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-
-  const base = assetMap.get(selectedBaseId);
-  const ilk = assetMap.get(selectedIlkId);
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -47,37 +44,37 @@ export const useCollateralHelpers = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-    if (priceMap.get(selectedIlkId)?.has(selectedBaseId!)) {
-      const _price = priceMap.get(selectedIlkId).get(selectedBaseId); // get the price
-      setOraclePrice(decimalNToDecimal18(_price, base?.decimals)); // make sure the price is 18decimals based
+    if (selectedBase && selectedIlk && priceMap.get(selectedIlk.idToUse)?.has(selectedBase.idToUse)) {
+      const _price = priceMap.get(selectedIlk.idToUse).get(selectedBase.idToUse); // get the price
+      setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
     } else {
       (async () => {
-        if (selectedIlkId && selectedBaseId) {
+        if (selectedBase && selectedIlk) {
           /* Update Price before setting */
-          const _price = await updatePrice(selectedIlkId, selectedBaseId, ilk?.decimals);
-          setOraclePrice(decimalNToDecimal18(_price, base?.decimals)); // make sure the price is 18decimals based
+          const _price = await updatePrice(selectedIlk.idToUse, selectedBase.idToUse, selectedIlk.decimals);
+          setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
         }
       })();
     }
-  }, [priceMap, selectedBaseId, selectedIlkId, updatePrice, base?.decimals, ilk?.decimals]);
+  }, [priceMap, updatePrice, selectedBase, selectedIlk]);
 
   /* CHECK collateral selection and sets the max available collateral a user can add */
   useEffect(() => {
     activeAccount &&
       (async () => {
-        const _max = await ilk?.getBalance(activeAccount);
-        _max && setMaxCollateral(ethers.utils.formatUnits(_max, ilk.decimals)?.toString());
+        const _max = await selectedIlk?.getBalance(activeAccount);
+        _max && setMaxCollateral(ethers.utils.formatUnits(_max, selectedIlk.decimals)?.toString());
       })();
-  }, [activeAccount, ilk, setMaxCollateral]);
+  }, [activeAccount, selectedIlk, setMaxCollateral]);
 
   /* handle changes to input values */
   useEffect(() => {
     /* NOTE: this whole function ONLY deals with decimal18, existing values are converted to decimal18 */
     const existingCollateral_ = vault?.ink ? vault.ink : ethers.constants.Zero;
-    const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, ilk?.decimals);
+    const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, selectedIlk?.decimals);
 
     const existingDebt_ = vault?.art ? vault.art : ethers.constants.Zero;
-    const existingDebtAsWei = decimalNToDecimal18(existingDebt_, base?.decimals);
+    const existingDebtAsWei = decimalNToDecimal18(existingDebt_, selectedBase?.decimals);
 
     const dInput =
       debtInput && Math.abs(parseFloat(debtInput)) > 0 ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
@@ -108,9 +105,14 @@ export const useCollateralHelpers = (
         existingCollateralAsWei
       );
 
-      /* Check max collateral that is removable (based on exisiting debt) */
-      const _max = existingCollateralAsWei.sub(min);
-      setMaxRemovableCollateral(ethers.utils.formatUnits(_max, 18).toString());
+      /* Check max collateral that is removable (based on exisiting debt)
+         use a buffer of 1% if there is vault debt to prevent undercollateralized failed tx's
+         else use the existing collateral
+      */
+      const _maxRemove = vault?.art.gt(ethers.constants.Zero)
+        ? existingCollateralAsWei.sub(min).mul(99).div(100)
+        : existingCollateralAsWei;
+      setMaxRemovableCollateral(ethers.utils.formatUnits(_maxRemove, 18).toString());
 
       // factor in the current collateral input if there is a valid chosen vault
       const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateralAsWei);
@@ -130,11 +132,11 @@ export const useCollateralHelpers = (
     priceMap,
     collInput,
     debtInput,
-    ilk,
+    selectedIlk,
     oraclePrice,
     vault,
     collateralizationRatio,
-    base,
+    selectedBase,
     minCollatRatio,
     minSafeCollatRatio,
   ]);
@@ -152,9 +154,9 @@ export const useCollateralHelpers = (
 
   /* Get and set the min (and safe min) collateral ratio for this base/ilk pair */
   useEffect(() => {
-    if (selectedBaseId && selectedIlkId && contractMap.has('Cauldron')) {
+    if (selectedBase && selectedIlk && contractMap.has('Cauldron')) {
       (async () => {
-        const { ratio } = await contractMap.get('Cauldron').spotOracles(selectedBaseId, selectedIlkId);
+        const { ratio } = await contractMap.get('Cauldron').spotOracles(selectedBase.idToUse, selectedIlk.idToUse);
         if (ratio) {
           const _minCollatRatio = parseFloat(ethers.utils.formatUnits(ratio, 6));
           setMinCollatRatio(_minCollatRatio);
@@ -166,7 +168,7 @@ export const useCollateralHelpers = (
         }
       })();
     }
-  }, [selectedBaseId, selectedIlkId, contractMap]);
+  }, [selectedBase, selectedIlk, contractMap]);
 
   return {
     collateralizationRatio,
