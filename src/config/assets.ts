@@ -31,9 +31,9 @@ ASSET_INFO.set('WETH', {
   digitFormat: 6,
 });
 ASSET_INFO.set('wstETH', {
-  displaySymbol: 'stETH',
+  displaySymbol: 'wstETH',
   showToken: true,
-  isWrappedToken: true,
+  isWrappedToken: false,
   wrapHandlerAddress: '0x491aB93faa921C8E634F891F96512Be14fD3DbB1',
   wrappedTokenId: '',
   wrappedTokenAddress: '',
@@ -41,6 +41,7 @@ ASSET_INFO.set('wstETH', {
   digitFormat: 6,
   unwrappedTokenId: "0x303500000000"
 });
+
 ASSET_INFO.set('stETH', {
   showToken: false,
   isWrappedToken: false,
