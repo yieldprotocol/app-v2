@@ -87,7 +87,6 @@ export const useWrapUnwrapAsset = () => {
     
     if (unwrapTokens && asset.wrapHandlerAddress ) {
       diagnostics && console.log('Unwrapping tokens before return');
-
       const wraphandlerContract: Contract = new Contract(
         asset.wrapHandlerAddress,
         wrapHandlerAbi,

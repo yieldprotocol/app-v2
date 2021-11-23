@@ -35,7 +35,7 @@ const initState: ISettingsContextState = {
   /* Show wrapped tokens */
   showWrappedTokens: (JSON.parse(localStorage.getItem('showWrappedTokens')!) as boolean) || (false as boolean),
   /* Always Unwrap tokens when removing them */
-  unwrapTokens: (JSON.parse(localStorage.getItem('unwrapTokens')!) as boolean) || (true as boolean),
+  unwrapTokens: (JSON.parse(localStorage.getItem('unwrapTokens')!) as boolean) || (false as boolean),
 
   /* Dashboard settings */
   dashHideEmptyVaults: (JSON.parse(localStorage.getItem('dashHideEmptyVaults')!) as boolean) || false,
