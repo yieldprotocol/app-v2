@@ -1037,8 +1037,11 @@ export const calcPoolRatios = (
   const slippage_ = new Decimal(slippage.toString());
   const wad = new Decimal(WAD_BN.toString());
 
-  const ratio = baseReserves_.div(fyTokenReserves_).mul(wad);
-  const ratioSlippage = ratio.mul(slippage_);
+  let ratio = ONE_DEC.mul(wad);
+  if ( fyTokenReserves_.gt(ZERO_DEC)) {
+    ratio = baseReserves_.div(fyTokenReserves_).mul(wad);
+  }
+  const ratioSlippage = ratio.mul(slippage_);  
 
   const min = toBn(ratio.sub(ratioSlippage));
   const max = toBn(ratio.add(ratioSlippage));
