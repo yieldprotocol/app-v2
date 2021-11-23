@@ -44,7 +44,6 @@ export const useCollateralHelpers = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-
     if (selectedBase && selectedIlk && priceMap.get(selectedIlk.idToUse)?.has(selectedBase.idToUse)) {
       const _price = priceMap.get(selectedIlk.idToUse).get(selectedBase.idToUse); // get the price
       setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
@@ -106,8 +105,13 @@ export const useCollateralHelpers = (
         existingCollateralAsWei
       );
 
-      /* Check max collateral that is removable (based on exisiting debt) */
-      const _maxRemove = existingCollateralAsWei.sub(min).mul(99).div(100);
+      /* Check max collateral that is removable (based on exisiting debt)
+         use a buffer of 1% if there is vault debt to prevent undercollateralized failed tx's
+         else use the existing collateral
+      */
+      const _maxRemove = vault?.art.gt(ethers.constants.Zero)
+        ? existingCollateralAsWei.sub(min).mul(99).div(100)
+        : existingCollateralAsWei;
       setMaxRemovableCollateral(ethers.utils.formatUnits(_maxRemove, 18).toString());
 
       // factor in the current collateral input if there is a valid chosen vault
