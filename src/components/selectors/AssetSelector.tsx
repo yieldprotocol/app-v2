@@ -70,11 +70,15 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     if (!activeAccount) {
       filteredOptions = selectCollateral
         ? opts.filter((a: IAsset) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected
-        : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
+        : opts
+            .filter((a: IAsset) => a.isYieldBase)
+            .filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
     } else {
       filteredOptions = selectCollateral
         ? opts.filter((a: IAsset) => a.id !== selectedBase?.id)
-        : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
+        : opts
+            .filter((a: IAsset) => a.isYieldBase)
+            .filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
     }
 
     setOptions(filteredOptions);
