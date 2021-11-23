@@ -271,9 +271,20 @@ const UserProvider = ({ children }: any) => {
       let Oracle;
       switch (chainState.connection.fallbackChainId) {
         case 1:
+          Oracle =
+            priceBase === '0x303400000000' ||
+            quote === '0x303400000000' ||
+            priceBase === '0x303700000000' ||
+            quote === '0x303700000000'
+              ? contractMap.get('CompositeMultiOracle')
+              : contractMap.get('ChainlinkMultiOracle');
+          break;
         case 42:
           Oracle =
-            priceBase === '0x303400000000' || quote === '0x303400000000'
+            priceBase === '0x303400000000' ||
+            quote === '0x303400000000' ||
+            priceBase === '0x303700000000' ||
+            quote === '0x303700000000'
               ? contractMap.get('CompositeMultiOracle')
               : contractMap.get('ChainlinkMultiOracle');
           break;
