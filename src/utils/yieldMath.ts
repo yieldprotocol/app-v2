@@ -974,6 +974,8 @@ export const strategyTokenValue = (
     lpReceived
   );
 
+  console.log( 'TTM: ',  poolTimeToMaturity.toString())
+
   const newPool = newPoolState(
     _baseTokenReceived.mul(-1),
     _fyTokenReceived.mul(-1),

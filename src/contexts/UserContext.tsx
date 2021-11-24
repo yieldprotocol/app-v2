@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, ethers, providers } from 'ethers';
 
 import {
   IAssetRoot,
@@ -120,7 +120,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const {
     contractMap,
-    connection: { account },
+    connection: { account, provider },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -528,15 +528,34 @@ const UserProvider = ({ children }: any) => {
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
           if (currentSeries) {
-            const [ [base, fyTokenVirtual], poolTotalSupply, strategyPoolBalance] = await Promise.all([
+            const [[base, fyTokenVirtual], poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries.poolContract.getCache(),
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
             ]);
 
+            const [[base_7d, fyTokenVirtual_7d], poolTotalSupply_7d, strategyPoolBalance_7d, strategyTotalSupply_7d] =
+              await Promise.all([
+                currentSeries.poolContract.getCache({ blockTag: -45000 }),
+                currentSeries.poolContract.totalSupply({ blockTag: -45000 }),
+                currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -45000 }),
+                _strategy.strategyContract.totalSupply({ blockTag: -45000 }),
+              ]);
+
+            console.log(
+              currentSeries.id, 
+              base_7d.toString(),
+              fyTokenVirtual_7d.toString(),
+              poolTotalSupply_7d.toString(),
+              strategyPoolBalance_7d.toString(),
+              strategyTotalSupply_7d.toString()
+            );
+
             // the real balance of fyTokens in the pool
             const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
-            const [ , value] = strategyTokenValue(
+            const fyTokenReal_7d = fyTokenVirtual_7d.sub(poolTotalSupply_7d);
+
+            const [, value] = strategyTokenValue(
               ethers.utils.parseUnits('1', currentSeries.decimals),
               strategyTotalSupply,
               strategyPoolBalance,
@@ -544,10 +563,27 @@ const UserProvider = ({ children }: any) => {
               fyTokenReal,
               poolTotalSupply,
               currentSeries.getTimeTillMaturity(),
-              currentSeries.decimals         
-             ) 
+              currentSeries.decimals
+            );
 
-             console.log(value.toString());
+            const preTimestamp = (await (provider as ethers.providers.JsonRpcProvider).getBlock(-45000)).timestamp;
+            const curTimeStamp = (await provider.getBlockNumber()).timestamp;
+            const diff = 604800;
+
+            console.log('🦞', diff, (parseInt(currentSeries.getTimeTillMaturity(), 10)).toString() )
+
+            const [, value_7d] = strategyTokenValue(
+              ethers.utils.parseUnits('1', currentSeries.decimals),
+              strategyTotalSupply_7d,
+              strategyPoolBalance_7d,
+              base_7d,
+              fyTokenReal_7d,
+              poolTotalSupply_7d,
+              (parseInt(currentSeries.getTimeTillMaturity(), 10) + diff).toString(),
+              currentSeries.decimals
+            );
+
+            console.log('in context: ', _strategy.id, value.toString(), value_7d.toString());
 
             const strategyPoolPercent = divDecimal(strategyPoolBalance, poolTotalSupply);
             // const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
@@ -569,7 +605,7 @@ const UserProvider = ({ children }: any) => {
               initInvariant: BigNumber.from('0'),
               currentInvariant: BigNumber.from('0'),
               returnRate: BigNumber.from('1'),
-              returnRate_:  BigNumber.from('1').toString(),
+              returnRate_: BigNumber.from('1').toString(),
               active: true,
             };
           }

@@ -9,7 +9,7 @@ import { cleanValue } from '../utils/appUtils';
 
 /**
  * returns the strategy's corresponding apy estimated based on the base value per share of the current block num and a previous block num (using last 7-8 days)
- * @param series
+ * @param strategy
  * @param previousBlocks number of blocks to use for comparison (lookback window)
  */
 export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) => {
@@ -49,7 +49,7 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
             ), // estimate the base value of 1 fyToken unit
           ]);
         
-        console.log(' ____ ----- _____');
+        console.log(' ____ --🦞-- _____');
 
         // the real balance of fyTokens in the pool
         const fyTokenReal = (fyTokenVirtual as BigNumber).sub(poolTotalSupply as BigNumber);
@@ -72,6 +72,7 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
           valuePerPoolToken * (Number(poolLpReceived) / Number(poolTotalSupply));
 
         return baseValuePerStrategyLpToken;
+      
       } catch (e) {
         console.log('error getting strategy per share value', e);
         return 0;
@@ -84,6 +85,10 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
         try {
           const baseValuePerShareCurr = await _getStrategyBaseValuePerShare(Number(currentBlock));
           const baseValuePerSharePre = await _getStrategyBaseValuePerShare(Number(previousBlock));
+
+
+          console.log('in hook: ', strategy.id,  baseValuePerShareCurr.toString(), baseValuePerSharePre.toString()   ) 
+
 
           const returns = Number(baseValuePerShareCurr) / Number(baseValuePerSharePre) - 1;
 
