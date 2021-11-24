@@ -36,7 +36,9 @@
       "0xad1fBd05f4FDB81C1bAE82172E9913a7c4152154",
       "0xa2C7Fe53e34d3DCBD1FaeFd733fE72e35E10BbE5",
       "0x643cD6a25fb477Bb083313c0A180f41EAaEb4C5D",
-      "0x59378E0B5de37c7Cd0D9E21e54e9d2e7506BCe68"
+      "0x59378E0B5de37c7Cd0D9E21e54e9d2e7506BCe68",
+      "0xCde7FBa250F38EBA8AC47848594489A887475E9d",
+      "0x4987185d8c5BC40d4E9dbB3E714b5711CAe1f502"
     ],
     "421611": [
       "0x0F97c13Ce038f67F5811935198fA2b850C3FBf4D",
@@ -44,54 +46,5 @@
       "0xAc45d3C681fF93031dFdE6d3081dFB633F9b0874",
       "0x9cF9B79AC34CB4d7dcf37Eb18A48689b7d4bdD39"
     ]
-  },
-
-  "assetColors": {
-    "DAI": "#F5AC37",
-    "USDC": "#2775CA",
-    "WBTC": "#5A5564",
-    "TST": "#D15034",
-    "WETH": "#FFFFFF",
-    "USDT": "#50af95",
-    "stETH": "#00A3FF",
-    "wstETH": "#00A3FF",
-    "LINK": "#2A5ADA",
-    "ENS": "#000000"
-  },
-
-  "assetHandling": {
-    "DAI": {"showToken": true },
-    "USDC": {"showToken": true },
-    "WBTC": { "showToken": true },
-    "TST": { "showToken": true },
-    "USDT": { "showToken": true },
-    "LINK": { "showToken": true },
-    "ENS": { "showToken": false },
-
-    "WETH": { "displaySymbol": "ETH", "showToken": true },
-    
-    "wstETH": {
-      "displaySymbol": "stETH",
-      "showToken": true,
-      "isWrappedToken": true,
-      "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
-      "wrappedTokenId": "",
-      "wrappedTokenAddress": ""
-    },
-
-    "stETH": { 
-      "showToken": true,
-      "isWrappedToken":false,
-      "wrapHandlerAddress": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
-      "wrappedTokenId": "0x303400000000",
-      "wrappedTokenAddress": "0xB12C63eD91e901995E68023293AC1A308ffA6c3c"
-    }
-  },
-
-  "seasonColors": {
-    "WINTER": ["#D9D9D9", "#67F2FC", "#333333"],
-    "SPRING": ["#6AD99E", "#FF6BE4", "#333333"],
-    "SUMMER": ["#FFDE75", "#409C4D", "#333333"],
-    "FALL": ["#7255BD", "#D95948", "#ffffff"]
   }
 }

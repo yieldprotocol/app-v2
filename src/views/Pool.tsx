@@ -11,7 +11,15 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, AddLiquidityType, IUserContext, IUserContextState, ProcessStage, TxState } from '../types';
+import {
+  ActionCodes,
+  ActionType,
+  AddLiquidityType,
+  IUserContext,
+  IUserContextState,
+  ProcessStage,
+  TxState,
+} from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -27,7 +35,7 @@ import YieldCardHeader from '../components/YieldCardHeader';
 import { useAddLiquidity } from '../hooks/actionHooks/useAddLiquidity';
 import StrategySelector from '../components/selectors/StrategySelector';
 import ColorText from '../components/texts/ColorText';
-import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
+import { usePoolHelpers } from '../hooks/viewHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
@@ -39,7 +47,7 @@ function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
 
   /* LOCAL STATE */
@@ -170,7 +178,9 @@ function Pool() {
                 ) : (
                   <SectionWrap
                     title={
-                      strategyMap.size > 0 ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy` : ''
+                      strategyMap.size > 0
+                        ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
+                        : ''
                     }
                   >
                     <StrategySelector inputValue={poolInput} />
@@ -262,7 +272,7 @@ function Pool() {
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View strategy Position: </Text>
-                <StrategyItem strategy={selectedStrategy!} index={0} condensed />
+                <StrategyItem strategy={strategyMap.get(selectedStrategy?.id!)!} index={0} condensed />
               </Box>
             )}
         </Box>

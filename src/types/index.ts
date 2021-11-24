@@ -43,7 +43,6 @@ export interface IUserContextState {
   selectedBase: IAsset | null;
   selectedVault: IVault | null;
   selectedStrategy: IStrategy | null;
-
 }
 
 export interface IUserContextActions {
@@ -55,13 +54,11 @@ export interface IUserContextActions {
   updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
   updateLimit: (ilkId: string, baseId: string) => void;
 
-  
   setSelectedSeries: (series: ISeries | null) => void;
   setSelectedIlk: (ilk: IAsset | null) => void;
   setSelectedBase: (base: IAsset | null) => void;
   setSelectedVault: (vault: IVault | IDummyVault | null) => void;
   setSelectedStrategy: (strategy: IStrategy | null) => void;
-
 }
 
 export interface ISettingsContext {
@@ -81,7 +78,7 @@ export interface ISettingsContextState {
   diagnostics: boolean;
   /* Token wrapping */
   showWrappedTokens: boolean;
-  unwrapTokens: boolean; 
+  unwrapTokens: boolean;
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
@@ -133,21 +130,24 @@ export interface ISeriesRoot extends ISignable {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
-export interface IAssetHandling {
+export interface IAssetInfo {
+  showToken: boolean;
+  isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (expect ETH - which is handled differently)
 
-  displaySymbol: string; // alternative symbol for UI display
-  showToken: boolean; // should it be displayed on the app
-
-  isWrappedToken: boolean // is the token a wrapped version of another token
+  color: string;
+  digitFormat: number; // this is the 'resonable' number of digits to show. accuracy equavalent to +- 1 us cent.
   
-  wrappedTokenId: string; // wrapped token Id 
-  wrappedTokenAddress: string; // wrapped token address
-  wrapHandlerAddress: string;
+  displaySymbol?: string; // override for symbol display
+  wrapHandlerAddress?: string;
+  
+  wrappedTokenId?: string;
+  unwrappedTokenId?: string;
 
+  wrappedTokenAddress?: string;
+  unwrappedTokenAddress?: string;
 }
 
-export interface IAssetRoot extends IAssetHandling, ISignable {
-  
+export interface IAssetRoot extends IAssetInfo, ISignable {
   // fixed/static:
   id: string;
   decimals: number;

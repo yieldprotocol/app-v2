@@ -36,10 +36,10 @@ import ModalWrap from '../components/wraps/ModalWrap';
 import { useCachedState } from '../hooks/generalHooks';
 import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
 import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
-import { useCollateralHelpers } from '../hooks/actionHelperHooks/useCollateralHelpers';
+import { useCollateralHelpers } from '../hooks/viewHelperHooks/useCollateralHelpers';
 import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
-import { useBorrowHelpers } from '../hooks/actionHelperHooks/useBorrowHelpers';
+import { useBorrowHelpers } from '../hooks/viewHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
@@ -56,10 +56,18 @@ const VaultPosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVault, vaultsLoading } = userState;
+  const {
+    activeAccount: account,
+    assetMap,
+    seriesMap,
+    vaultMap,
+    selectedVault,
+    vaultsLoading,
+    selectedIlk,
+  } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
 
-  const _selectedVault: IVault = selectedVault! || vaultMap.get(idFromUrl)!;
+  const _selectedVault: IVault = vaultMap.get(selectedVault?.id! || idFromUrl)!;
 
   const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
@@ -236,10 +244,11 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
+    const _ilkToUse = (_ilk?.isWrappedToken && _ilk.unwrappedTokenId) ? assetMap.get(_ilk.unwrappedTokenId ) : _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);
     _selectedVault && setSelectedBase(_base);
-    _selectedVault && setSelectedIlk(_ilk);
+    _selectedVault && setSelectedIlk(_ilkToUse!);
   }, [vaultMap, _selectedVault, seriesMap, assetMap, setSelectedSeries, setSelectedBase, setSelectedIlk]);
 
   useEffect(() => {
@@ -530,7 +539,7 @@ const VaultPosition = () => {
                             !addCollatInput ? (
                               <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                                 <Text size="xsmall" color="text-weak">
-                                  Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
+                                  Max collateral available: {selectedIlk?.balance_!} {selectedIlk?.displaySymbol!}{' '}
                                 </Text>
                               </InputInfoWrap>
                             ) : (

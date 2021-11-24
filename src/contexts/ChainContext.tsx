@@ -8,11 +8,8 @@ import { useConnection } from '../hooks/useConnection';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetHandling, IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
-
-import { ASSET_INFO } from '../config/assetData';
-
-import { ETH_BASED_ASSETS, USDC } from '../utils/constants';
+import { IAssetInfo, IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
+import { ASSET_INFO, ETH_BASED_ASSETS, USDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
@@ -25,6 +22,7 @@ import YieldMark from '../components/logos/YieldMark';
 import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
 import ENSMark from '../components/logos/ENSMark';
+import { seasonColorMap } from '../config/colors';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -138,7 +136,6 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const assetHandling = yieldEnv.assetHandling as any;
 
       let Cauldron: any;
       let Ladle: any;
@@ -259,7 +256,6 @@ const ChainProvider = ({ children }: any) => {
               id === USDC ? '2' : '1', // TODO  ERC20.version()
             ]);
 
-            /* bring in any extra hardcoded handling info required */
             const {
               showToken,
               isWrappedToken,
@@ -267,7 +263,8 @@ const ChainProvider = ({ children }: any) => {
               wrappedTokenId,
               wrappedTokenAddress,
               displaySymbol,
-            } = assetHandling[symbol] as IAssetHandling;
+              unwrappedTokenId,
+            } = ASSET_INFO.get(symbol) as IAssetInfo;  
 
             const idToUse = wrappedTokenId || id;
 
@@ -287,6 +284,7 @@ const ChainProvider = ({ children }: any) => {
               wrapHandlerAddress,
               wrappedTokenId,
               wrappedTokenAddress,
+              unwrappedTokenId,
 
               showToken,
             };
@@ -318,8 +316,8 @@ const ChainProvider = ({ children }: any) => {
 
         const season = getSeason(series.maturity) as SeasonType;
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000) as SeasonType;
-        const [startColor, endColor, textColor]: string[] = yieldEnv.seasonColors[season];
-        const [oppStartColor, oppEndColor, oppTextColor]: string[] = yieldEnv.seasonColors[oppSeason(season)];
+        const [startColor, endColor, textColor]: string[] = seasonColorMap.get(season)!;
+        const [oppStartColor, oppEndColor, oppTextColor]: string[] = seasonColorMap.get(oppSeason(season))!;
         return {
           ...series,
 

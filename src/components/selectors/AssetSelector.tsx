@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { WETH, USDC } from '../../utils/constants';
+import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
@@ -30,16 +30,10 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext);
 
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const {
-    assetMap,
-    activeAccount,
-    selectedIlk,
-    selectedBase,
-    selectedSeries
-  } = userState;
+  const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase } = userActions;
 
@@ -67,29 +61,30 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts : IAsset[] = Array
-    .from(assetMap.values())
-    .filter((a: IAsset) =>  showWrappedTokens ? true : !a.isWrappedToken ) // filter based on whether wrapped tokens are shown or not
+    const opts: IAsset[] = Array.from(assetMap.values())
+      .filter((a: IAsset) => a.showToken) // filter based on whether wrapped tokens are shown or not
+      .filter((a: IAsset) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
     let filteredOptions;
+
     if (!activeAccount) {
       filteredOptions = selectCollateral
         ? opts.filter((a: IAsset) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected
-        : opts.filter((a: IAsset) => a.isYieldBase);
+        : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
     } else {
       filteredOptions = selectCollateral
         ? opts.filter((a: IAsset) => a.id !== selectedBase?.id)
-        : // .filter((a: IAsset) => a.balance?.gt(ethers.constants.Zero))
-          opts.filter((a: IAsset) => a.isYieldBase);
+        : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
     }
+
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap.values()).length) {
-      !selectedBase && setSelectedBase( assetMap.get(USDC)! );
-      !selectedIlk && setSelectedIlk( assetMap.get(WETH)! );
+      !selectedBase && setSelectedBase(assetMap.get(USDC)!);
+      !selectedIlk && setSelectedIlk(assetMap.get(WETH)!);
     }
   }, [assetMap, selectedBase, selectedIlk]);
 
@@ -126,7 +121,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
         onChange={({ option }: any) => handleSelect(option)}
         disabled={
           (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
-          (selectCollateral ? (selectedSeries?.seriesIsMature || !selectedSeries) : undefined)
+          (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
         }
         // eslint-disable-next-line react/no-children-prop
         children={(x: any) => (

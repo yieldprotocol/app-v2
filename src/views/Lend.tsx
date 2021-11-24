@@ -30,7 +30,7 @@ import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
-import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useLendHelpers } from '../hooks/viewHelperHooks/useLendHelpers';
 import { useLend } from '../hooks/actionHooks/useLend';
 
 import ColorText from '../components/texts/ColorText';
@@ -46,7 +46,7 @@ const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedSeries, selectedBase, seriesMap } = userState;
 
   /* LOCAL STATE */
@@ -120,7 +120,6 @@ const Lend = () => {
               </YieldCardHeader>
 
               <Box gap="large">
-                {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
@@ -229,7 +228,12 @@ const Lend = () => {
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View position: </Text>
-                <LendItem series={selectedSeries!} index={0} actionType={ActionType.LEND} condensed />
+                <LendItem
+                  series={seriesMap.get(selectedSeries?.id!)!}
+                  index={0}
+                  actionType={ActionType.LEND}
+                  condensed
+                />
               </Box>
             )}
         </Box>

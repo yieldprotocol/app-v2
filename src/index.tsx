@@ -12,6 +12,12 @@ import { UserProvider } from './contexts/UserContext';
 import { HistoryProvider } from './contexts/HistoryContext';
 import { SettingsProvider } from './contexts/SettingsContext';
 
+declare global {
+  interface Window {
+    gtag: any;
+  }
+}
+
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
   const library = new ethers.providers.Web3Provider(provider);

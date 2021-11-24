@@ -21,7 +21,7 @@ import TransactButton from '../components/buttons/TransactButton';
 import YieldHistory from '../components/YieldHistory';
 import { useInputValidation } from '../hooks/useInputValidation';
 import ModalWrap from '../components/wraps/ModalWrap';
-import { useLendHelpers } from '../hooks/actionHelperHooks/useLendHelpers';
+import { useLendHelpers } from '../hooks/viewHelperHooks/useLendHelpers';
 import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
 import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../components/wraps/CopyWrap';
@@ -41,7 +41,6 @@ const LendPosition = () => {
   } = useContext(UserContext) as IUserContext;
   const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
 
-  // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
   const selectedBase = assetMap.get(selectedSeries?.baseId!);
 
   /* LOCAL STATE */

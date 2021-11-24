@@ -29,8 +29,6 @@ import {
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
-
-import { useBlockNum } from '../hooks/useBlockNum';
 import { SettingsContext } from './SettingsContext';
 
 const UserContext = React.createContext<any>({});
@@ -101,15 +99,15 @@ function userReducer(state: any, action: any) {
       return { ...state, strategiesLoading: onlyIfChanged(action) };
 
     case 'selectedVault':
-      return { ...state, selectedVault: onlyIfChanged(action) };
+      return { ...state, selectedVault: action.payload };
     case 'selectedSeries':
-      return { ...state, selectedSeries: onlyIfChanged(action) };
+      return { ...state, selectedSeries: action.payload };
     case 'selectedIlk':
-      return { ...state, selectedIlk: onlyIfChanged(action) };
+      return { ...state, selectedIlk: action.payload };
     case 'selectedBase':
-      return { ...state, selectedBase: onlyIfChanged(action) };
+      return { ...state, selectedBase: action.payload };
     case 'selectedStrategy':
-      return { ...state, selectedStrategy: onlyIfChanged(action) };
+      return { ...state, selectedStrategy: action.payload };
 
     default:
       return state;
@@ -132,8 +130,9 @@ const UserProvider = ({ children }: any) => {
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
+
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
-  const blockNumForUse = Number(useBlockNum()) - 10000;
+  // const blockNumForUse = Number(useBlockNum()) - 10000;
 
   /* HOOKS */
   const { pathname } = useLocation();
@@ -253,14 +252,15 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.assetMap)
+        }, assetRootMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
+
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: 'assetsLoading', payload: false });
     },
-    [account]
+    [account, assetRootMap, seriesRootMap, showWrappedTokens]
   );
 
   /* Updates the prices from the oracle with latest data */
@@ -271,9 +271,20 @@ const UserProvider = ({ children }: any) => {
       let Oracle;
       switch (chainState.connection.fallbackChainId) {
         case 1:
+          Oracle =
+            priceBase === '0x303400000000' ||
+            quote === '0x303400000000' ||
+            priceBase === '0x303700000000' ||
+            quote === '0x303700000000'
+              ? contractMap.get('CompositeMultiOracle')
+              : contractMap.get('ChainlinkMultiOracle');
+          break;
         case 42:
           Oracle =
-            priceBase === '0x303400000000' || quote === '0x303400000000'
+            priceBase === '0x303400000000' ||
+            quote === '0x303400000000' ||
+            priceBase === '0x303700000000' ||
+            quote === '0x303700000000'
               ? contractMap.get('CompositeMultiOracle')
               : contractMap.get('ChainlinkMultiOracle');
           break;
@@ -307,7 +318,7 @@ const UserProvider = ({ children }: any) => {
         return ethers.constants.Zero;
       }
     },
-    [contractMap, userState.priceMap]
+    [contractMap, userState.priceMap, chainState.connection.fallbackChainId]
   );
 
   /* Updates the prices from the oracle with latest data */
@@ -441,10 +452,7 @@ const UserProvider = ({ children }: any) => {
       const Witch = contractMap.get('Witch');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0)
-        _vaultList = Array.from(
-          (await _getVaults([1, 42].includes(chainState.connection.fallbackChainId) ? 0 : blockNumForUse)).values()
-        );
+      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
@@ -645,23 +653,20 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: 'activeAccount', payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
-  useEffect(() => {
-    /* Update selected base if asset map changes */
-    userState.selectedBase &&
-      updateState({ type: 'selectedBase', payload: userState.assetMap.get(userState.selectedBase.id) as IAsset });
-  }, [userState.assetMap, userState.selectedBase]);
+  // useEffect(() => {
+  //   /* Update selected base if asset map changes */
+  //   userState.selectedBase &&
+  //     updateState({ type: 'selectedBase', payload: userState.assetMap.get(userState.selectedBase.id) as IAsset });
+  //   /* Update selected ilk if asset map changes */
+  //   userState.selectedIlk &&
+  //     updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
+  // }, [userState.assetMap, userState.selectedBase, userState.selectedIlk]);
 
-  useEffect(() => {
-    /* Update selected ilk if asset map changes */
-    userState.selectedIlk &&
-      updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
-  }, [userState.assetMap, userState.selectedIlk]);
-
-  useEffect(() => {
-    /* Update selected vault if vault map changes */
-    userState.selectedVault &&
-      updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
-  }, [userState.vaultMap, userState.selectedVault]);
+  // useEffect(() => {
+  //   /* Update selected vault if vault map changes */
+  //   userState.selectedVault &&
+  //     updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
+  // }, [userState.vaultMap, userState.selectedVault]);
 
   /* Exposed userActions */
   const userActions = {

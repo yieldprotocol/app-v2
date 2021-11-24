@@ -13,14 +13,15 @@ import {
   ISettingsContext,
   IUserContext,
   IAsset,
-  RoutedActions,
   IUserContextState,
   IUserContextActions,
 } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ETH_BASED_ASSETS } from '../../utils/constants';
+import { BLANK_VAULT } from '../../utils/constants';
+import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
+import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 export const useAddCollateral = () => {
   const {
@@ -31,16 +32,17 @@ export const useAddCollateral = () => {
     settingsState: { approveMax },
   } = useContext(SettingsContext) as ISettingsContext;
 
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext;;
+  ) as IUserContext;
+
   const { activeAccount: account, selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();
+  const { wrapAssetToJoin } = useWrapUnwrapAsset();
 
   const addEth = (value: BigNumber, series: ISeries): ICallData[] => {
-
     /* Check if the selected Ilk is, in fact, an ETH variety (and +ve)  */
     if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) && value.gte(ethers.constants.Zero)) {
       /* return the add ETH OP */
@@ -64,6 +66,11 @@ export const useAddCollateral = () => {
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
+    
+    const ilkForWrap: IAsset | null | undefined = ilk?.isWrappedToken && ilk.unwrappedTokenId
+      ? assetMap.get(ilk.unwrappedTokenId)
+      : selectedIlk; // use the unwrapped token as ilk
+    
     const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -78,10 +85,11 @@ export const useAddCollateral = () => {
     const _isEthBased = ETH_BASED_ASSETS.includes(ilk?.id!);
     const _pourTo = _isEthBased ? ladleAddress : account;
 
+    /* handle wrapped tokens:  */
+    const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
+
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = approveMax
-      ? (await ilk?.getAllowance(account!, ilk?.joinAddress)!).gt(_input)
-      : false;
+    const alreadyApproved = approveMax ? (await ilk?.getAllowance(account!, ilk?.joinAddress)!).gt(_input) : false;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
@@ -90,7 +98,7 @@ export const useAddCollateral = () => {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthBased || alreadyApproved === true,
+          ignoreIf: _isEthBased || alreadyApproved === true || wrapping.length>0,
         },
       ],
       txCode
@@ -106,7 +114,11 @@ export const useAddCollateral = () => {
         args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
+      /* handle wrapped token deposit, if required */
+      ...wrapping,
+      /* handle adding eth if required */
       ...addEth(_input, series!),
+      /* handle permits if required */
       ...permits,
       {
         operation: LadleActions.Fn.POUR,
@@ -123,7 +135,7 @@ export const useAddCollateral = () => {
     /* TRANSACT */
     await transact(calls, txCode);
     updateVaults([vault!]);
-    updateAssets([base!, ilk!]);
+    updateAssets([base!, ilk!, ilkForWrap!]);
   };
 
   return { addEth, addCollateral };

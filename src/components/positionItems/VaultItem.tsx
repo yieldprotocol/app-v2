@@ -7,12 +7,13 @@ import { UserContext } from '../../contexts/UserContext';
 
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
+import SkeletonWrap from '../wraps/SkeletonWrap';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const history = useHistory();
 
   const {
-    userState: { seriesMap },
+    userState: { seriesMap, vaultsLoading, selectedVault },
     userActions,
   } = useContext(UserContext) as IUserContext;
   const { setSelectedVault } = userActions;
@@ -40,9 +41,14 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
               <Text weight={450} size="xsmall">
                 {seriesMap.get(vault.seriesId)?.displayName}
               </Text>
-              <Text weight={450} size="xsmall">
-                Debt: {vault.art_}
-              </Text>
+              <Box direction="row" gap="xsmall">
+                <Text weight={450} size="xsmall">
+                  Debt:
+                </Text>
+                <Text weight={450} size="xsmall">
+                  {vaultsLoading && vault.id === selectedVault?.id ? <SkeletonWrap width={30} /> : vault.art_}
+                </Text>
+              </Box>
             </Box>
           ) : (
             <Text weight={450} size="xsmall" color="text-xweak">

@@ -25,7 +25,7 @@ import ModalWrap from '../components/wraps/ModalWrap';
 import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
-import { usePoolHelpers } from '../hooks/actionHelperHooks/usePoolHelpers';
+import { usePoolHelpers } from '../hooks/viewHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import ExitButton from '../components/buttons/ExitButton';
 
@@ -40,9 +40,6 @@ const PoolPosition = () => {
     userActions: { setSelectedStrategy },
   } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
-
-  // const selectedSeries = seriesMap.get(selectedSeriesId || idFromUrl);
-  // const selectedBase = assetMap.get(selectedSeries?.baseId!);
 
   const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl);
 
