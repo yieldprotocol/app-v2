@@ -30,6 +30,7 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
   const [currBlockTimestamp, setCurrBlockTimestamp] = useState<any>();
 
   useEffect(() => {
+
     const _getStrategyBaseValuePerShare = async (blockNum: number) => {
       try {
         const { currentSeries } = strategy as IStrategy;
@@ -47,6 +48,8 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
               }
             ), // estimate the base value of 1 fyToken unit
           ]);
+        
+        console.log(' ____ ----- _____');
 
         // the real balance of fyTokens in the pool
         const fyTokenReal = (fyTokenVirtual as BigNumber).sub(poolTotalSupply as BigNumber);
@@ -59,12 +62,14 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
         // total estimated base value in pool
         const totalBaseValue = base.add(fyTokenToBaseValueEstimate);
 
-        // number of pool lp tokens associated with a strategy
+        // total number of pool lp tokens associated with a strategy
         const poolLpReceived = burnFromStrategy(poolTotalSupply, strategyTotalSupply, strategyTotalSupply);
 
+        // value per poolToken
+        const valuePerPoolToken  = Number(totalBaseValue) / Number(poolTotalSupply);
         // the amount of base per strategy LP token
         const baseValuePerStrategyLpToken =
-          (Number(totalBaseValue) / Number(poolTotalSupply)) * (Number(poolLpReceived) / Number(poolTotalSupply));
+          valuePerPoolToken * (Number(poolLpReceived) / Number(poolTotalSupply));
 
         return baseValuePerStrategyLpToken;
       } catch (e) {
@@ -97,7 +102,9 @@ export const useStrategyReturns = (strategy: IStrategy, previousBlocks: number) 
       return 0;
     };
     _getStrategyReturns();
+
   }, [strategy, currentBlock, previousBlock, currBlockTimestamp, previousBlockTimestamp]);
+
 
   /* Get blocks to use for comparison, and corresponding timestamps */
   useEffect(() => {

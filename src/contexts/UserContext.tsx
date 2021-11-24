@@ -26,6 +26,7 @@ import {
   secondsToFrom,
   sellFYToken,
   decimal18ToDecimalN,
+  strategyTokenValue,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
@@ -527,22 +528,29 @@ const UserProvider = ({ children }: any) => {
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
           if (currentSeries) {
-            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
+            const [ [base, fyTokenVirtual], poolTotalSupply, strategyPoolBalance] = await Promise.all([
+              currentSeries.poolContract.getCache(),
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
             ]);
 
-            const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
-              ? [ZERO_BN, ZERO_BN]
-              : [ZERO_BN, ZERO_BN];
-            // TODO Re-include invariant
-            // : await Promise.all([
-            //     currentSeries.poolContract.invariant(),
-            //     _strategy.strategyContract.invariants(currentPoolAddr),
-            //   ]);
+            // the real balance of fyTokens in the pool
+            const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
+            const [ , value] = strategyTokenValue(
+              ethers.utils.parseUnits('1', currentSeries.decimals),
+              strategyTotalSupply,
+              strategyPoolBalance,
+              base,
+              fyTokenReal,
+              poolTotalSupply,
+              currentSeries.getTimeTillMaturity(),
+              currentSeries.decimals         
+             ) 
 
-            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
+             console.log(value.toString());
+
+            const strategyPoolPercent = divDecimal(strategyPoolBalance, poolTotalSupply);
+            // const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
 
             return {
               ..._strategy,
@@ -558,10 +566,10 @@ const UserProvider = ({ children }: any) => {
               nextSeriesId,
               currentSeries,
               nextSeries,
-              initInvariant: initInvariant || BigNumber.from('0'),
-              currentInvariant: currentInvariant || BigNumber.from('0'),
-              returnRate,
-              returnRate_: returnRate.toString(),
+              initInvariant: BigNumber.from('0'),
+              currentInvariant: BigNumber.from('0'),
+              returnRate: BigNumber.from('1'),
+              returnRate_:  BigNumber.from('1').toString(),
               active: true,
             };
           }
@@ -652,21 +660,6 @@ const UserProvider = ({ children }: any) => {
     /* keep checking the active account when it changes/ chainlaoding */
     updateState({ type: 'activeAccount', payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
-
-  // useEffect(() => {
-  //   /* Update selected base if asset map changes */
-  //   userState.selectedBase &&
-  //     updateState({ type: 'selectedBase', payload: userState.assetMap.get(userState.selectedBase.id) as IAsset });
-  //   /* Update selected ilk if asset map changes */
-  //   userState.selectedIlk &&
-  //     updateState({ type: 'selectedIlk', payload: userState.assetMap.get(userState.selectedIlk.id) as IAsset });
-  // }, [userState.assetMap, userState.selectedBase, userState.selectedIlk]);
-
-  // useEffect(() => {
-  //   /* Update selected vault if vault map changes */
-  //   userState.selectedVault &&
-  //     updateState({ type: 'selectedVault', payload: userState.vaultMap.get(userState.selectedVault.id) as IVault });
-  // }, [userState.vaultMap, userState.selectedVault]);
 
   /* Exposed userActions */
   const userActions = {
