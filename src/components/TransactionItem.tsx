@@ -35,7 +35,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
     settingsState: { darkMode },
   } = useContext(SettingsContext);
   const theme = useContext<any>(ThemeContext);
-  const textColor = theme.global.colors.text;
+  const { text: textColor, success, error } = theme.global.colors;
 
   const { status, txCode, tx: t, receipt } = tx;
   const action = txCode.split('_')[0];
@@ -72,8 +72,8 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
         <Box direction="row" align="center">
           <Box width="3rem">
             {status === TxState.PENDING && <Spinner color="brand" />}
-            {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color="#34D399" />}
-            {status === TxState.FAILED && <FiXCircle size="1.5rem" color="#F87171" />}
+            {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color={success.dark} />}
+            {status === TxState.FAILED && <FiXCircle size="1.5rem" color={error.dark} />}
           </Box>
           {status === TxState.SUCCESSFUL && link ? (
             <StyledLink to={link} color={darkMode ? textColor.dark : textColor.light}>
