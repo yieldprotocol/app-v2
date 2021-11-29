@@ -1,5 +1,5 @@
 import { format, getMonth, subDays } from 'date-fns';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
 import { ActionCodes, ISeries, IStrategy, IStrategyRoot } from '../types';
@@ -264,28 +264,25 @@ export const getStrategyBaseValuePerShare = async (
   blockNum: number
 ) => {
   try {
-    const { poolContract } = currStrategySeries as ISeries;
-    const [[base, fyTokenVirtual], poolTotalSupply, strategyTotalSupply, decimals, fyTokenToBaseCostEstimate] =
-      await Promise.all([
+    const { poolContract } = currStrategySeries;
+    const [[base, fyTokenVirtual], poolTotalSupply, strategyTotalSupply, fyTokenToBaseCostEstimate] = await Promise.all(
+      [
         await poolContract.getCache({ blockTag: blockNum }),
         await poolContract.totalSupply({ blockTag: blockNum }),
         await strategy.strategyContract.totalSupply({ blockTag: blockNum }),
-        await poolContract.decimals({ blockTag: blockNum }),
-        await poolContract.sellFYTokenPreview(
-          BigNumber.from(1).mul(BigNumber.from(10).pow(await poolContract.decimals())),
-          {
-            blockTag: blockNum,
-          }
-        ), // estimate the base value of 1 fyToken unit
-      ]);
+        await poolContract.sellFYTokenPreview(ethers.utils.parseUnits('1', currStrategySeries.decimals), {
+          blockTag: blockNum,
+        }), // estimate the base value of 1 fyToken unit
+      ]
+    );
 
     // the real balance of fyTokens in the pool
-    const fyTokenReal = (fyTokenVirtual as BigNumber).sub(poolTotalSupply as BigNumber);
+    const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
 
     // the estimated base value of all fyToken in the pool
     const fyTokenToBaseValueEstimate = fyTokenReal
       .mul(fyTokenToBaseCostEstimate)
-      .div(BigNumber.from(1).mul(BigNumber.from(10).pow(decimals)));
+      .div(ethers.utils.parseUnits('1', currStrategySeries.decimals));
 
     // total estimated base value in pool
     const totalBaseValue = base.add(fyTokenToBaseValueEstimate);
@@ -293,15 +290,15 @@ export const getStrategyBaseValuePerShare = async (
     // total number of pool lp tokens associated with a strategy
     const poolLpReceived = burnFromStrategy(poolTotalSupply, strategyTotalSupply, strategyTotalSupply);
 
+    // use Number instead of BigNumber because of precision issues
     // value per poolToken
     const valuePerPoolToken = Number(totalBaseValue) / Number(poolTotalSupply);
     // the amount of base per strategy LP token
     const baseValuePerStrategyLpToken = valuePerPoolToken * (Number(poolLpReceived) / Number(poolTotalSupply));
-
     return baseValuePerStrategyLpToken;
   } catch (e) {
     console.log('error getting strategy per share value', e);
-    return 0;
+    return undefined;
   }
 };
 
@@ -328,5 +325,5 @@ export const getStrategyReturns = async (
   } catch (e) {
     console.log(e);
   }
-  return '0';
+  return undefined;
 };
