@@ -36,7 +36,7 @@ export const Gauge = ({ value = 50, min = 150, max = 750, mean = 200, size = '1e
 
   const _color = useCallback(() => {
     if (percent < 0.15) return '#EF4444';
-    if (percent >= 0.15 && percent < 0.5) return '#FCD34D';
+    if (percent >= 0.15 && percent < 0.5) return '#D97706';
     if (percent >= 0.5 && percent < 0.9) return '#10B981';
     return '#3B82F6';
   }, [percent]);
