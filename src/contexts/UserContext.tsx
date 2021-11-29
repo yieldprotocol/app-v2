@@ -119,7 +119,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const {
     contractMap,
-    connection: { account, provider },
+    connection: { account, fallbackProvider },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -535,12 +535,14 @@ const UserProvider = ({ children }: any) => {
             /* Get timestamp data for the previous and current block for strategy return apy estimation */
             const stratReturnsBlockCompare = 45000; // 45000 blocks ago is around 7 days
 
-            const currBlock: number = await (provider as ethers.providers.JsonRpcProvider).getBlockNumber();
+            const currBlock: number = await (fallbackProvider as ethers.providers.JsonRpcProvider).getBlockNumber();
             const preBlock: number = currBlock - stratReturnsBlockCompare;
-            const { timestamp: currTimeStamp } = await (provider as ethers.providers.JsonRpcProvider).getBlock(
+            const { timestamp: currTimeStamp } = await (fallbackProvider as ethers.providers.JsonRpcProvider).getBlock(
               currBlock
             );
-            const { timestamp: preTimestamp } = await (provider as ethers.providers.JsonRpcProvider).getBlock(preBlock);
+            const { timestamp: preTimestamp } = await (fallbackProvider as ethers.providers.JsonRpcProvider).getBlock(
+              preBlock
+            );
 
             const strategyAPY = await getStrategyReturns(
               _strategy,
