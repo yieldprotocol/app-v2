@@ -14,6 +14,10 @@ export const yieldTheme = {
       },
     },
     colors: {
+      red: '#F87171',
+      green: '#10B981',
+      yellow: '#F59E0B',
+
       error: {
         light: '#FCA5A5',
         dark: '#F87171',
