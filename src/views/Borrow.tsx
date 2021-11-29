@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, ResponsiveContext, Text, TextInput, } from 'grommet';
+import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 
-import { FiClock, FiPocket, FiPercent, FiTrendingUp, } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -19,7 +19,7 @@ import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import VaultSelector from '../components/selectors/VaultPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
-import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../utils/appUtils';
+import { analyticsLogEvent, cleanValue, getVaultIdFromReceipt, nFormatter } from '../utils/appUtils';
 
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -52,7 +52,10 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const {
-    chainState: { contractMap },
+    chainState: {
+      contractMap,
+      connection: { chainId },
+    },
   } = useContext(ChainContext);
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
@@ -112,6 +115,12 @@ const Borrow = () => {
   const handleBorrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
+  };
+
+  const handleNavAction = (_stepPosition: number) => {
+    setStepPosition(_stepPosition);
+    analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition }, chainId);
+    console.log( 'nav: ' , { screen: 'BORROW', step: _stepPosition })
   };
 
   const handleGaugeColorChange: any = (val: string) => {
@@ -311,7 +320,7 @@ const Borrow = () => {
             {stepPosition === 1 && ( // ADD COLLATERAL
               <Box gap={mobile ? undefined : 'medium'}>
                 <YieldCardHeader>
-                  <BackButton action={() => setStepPosition(0)} />
+                  <BackButton action={() => handleNavAction(0)} />
                 </YieldCardHeader>
 
                 <Box gap="large" height="100%">
@@ -371,7 +380,8 @@ const Borrow = () => {
                                 >
                                   <Text size="small" color="text-weak">
                                     Use Safe Collateralization{': '}
-                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
+                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)}{' '}
+                                    {selectedIlk?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
                               )
@@ -425,7 +435,7 @@ const Borrow = () => {
               <Box gap="medium">
                 <YieldCardHeader>
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                    <BackButton action={() => setStepPosition(1)} />
+                    <BackButton action={() => handleNavAction(1)} />
                   ) : (
                     <Box pad="1em" />
                   )}
@@ -447,7 +457,9 @@ const Borrow = () => {
                     <InfoBite
                       label="Vault Debt Payable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
+                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${
+                        selectedBase?.displaySymbol
+                      }`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
@@ -488,6 +500,8 @@ const Borrow = () => {
               )}
           </Box>
 
+          {}
+
           <ActionButtonWrap pad>
             {(stepPosition === 0 || stepPosition === 1) && (
               <NextButton
@@ -499,7 +513,8 @@ const Borrow = () => {
                       : 'Next Step'}
                   </Text>
                 }
-                onClick={() => setStepPosition(stepPosition + 1)}
+                // onClick={() => setStepPosition(stepPosition + 1)}
+                onClick={() => handleNavAction(stepPosition + 1)}
                 disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
                 errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
               />
