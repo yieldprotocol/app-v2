@@ -64,6 +64,9 @@ const Borrow = () => {
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [stepPosition, setStepPosition] = useState<number>(0);
 
+  // renderId for user flow traking (analytics)
+  const [renderId, setRenderId] = useState<string>();
+
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
   // const [maxCollat, setMaxCollat] = useState<string | undefined>();
@@ -115,12 +118,15 @@ const Borrow = () => {
   const handleBorrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
-  };
+  }
 
+  useEffect(()=>{
+    setRenderId( (new Date().getTime()).toString(36));
+  },[])
   const handleNavAction = (_stepPosition: number) => {
     setStepPosition(_stepPosition);
-    analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition }, chainId);
-    console.log( 'nav: ' , { screen: 'BORROW', step: _stepPosition })
+    analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
+    console.log( 'nav: ' , { screen: 'BORROW', step: _stepPosition, renderId })
   };
 
   const handleGaugeColorChange: any = (val: string) => {
