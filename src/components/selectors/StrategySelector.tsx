@@ -60,8 +60,6 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
   ) as IUserContext;
   const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
 
-  const { strategyReturns } = useStrategyReturns(selectedStrategy!, 45000);
-
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
@@ -136,14 +134,14 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                       {(!selectedStrategy || !inputValue) && (
                         <>
                           <Text
-                            size="small"
+                            size="xsmall"
                             color={
                               strategy.address === selectedStrategy?.address
                                 ? strategy.currentSeries?.textColor
                                 : undefined
                             }
                           >
-                            {formatStrategyName(strategy.name)}
+                            {formatStrategyName(strategy.name)} Rolling
                           </Text>
                           <Text
                             size="xsmall"
@@ -153,7 +151,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                                 : undefined
                             }
                           >
-                            Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
+                            {seriesMap.get(strategy.currentSeriesId)?.displayName}
                           </Text>
                         </>
                       )}
@@ -173,7 +171,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                                 ethers.utils.parseUnits(cleanValue(inputValue, strategy.decimals), strategy.decimals),
                                 strategy.strategyTotalSupply!
                               ),
-                              3
+                              2
                             )}
                             %
                           </Text>
@@ -187,12 +185,20 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                           >
                             of strategy
                           </Text>
-                          {strategy.address === selectedStrategy.address && strategyReturns && (
-                            <Box direction="row">
-                              <Text size="small" color={strategy.currentSeries?.textColor}>
-                                {cleanValue(strategyReturns, 2)}% APY
-                              </Text>
-                              {/* <Tip
+                        </>
+                      )}
+                      <Box direction="row">
+                        <Text
+                          size="small"
+                          color={
+                            strategy.address === selectedStrategy?.address
+                              ? strategy.currentSeries?.textColor
+                              : undefined
+                          }
+                        >
+                          {cleanValue(strategy.returnRate_, 2)}% APY
+                        </Text>
+                        {/* <Tip
                                 content={<Text size="xsmall">using last {secondsToDays} days estimated returns</Text>}
                                 dropProps={{
                                   align: { left: 'right' },
@@ -200,10 +206,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                               >
                                 <FiInfo size=".6em" />
                               </Tip> */}
-                            </Box>
-                          )}
-                        </>
-                      )}
+                      </Box>
                     </Box>
                   </Box>
                 </StyledBox>
