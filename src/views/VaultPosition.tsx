@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { ThemeContext } from 'styled-components';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
@@ -46,6 +47,8 @@ import { useProcess } from '../hooks/useProcess';
 import ExitButton from '../components/buttons/ExitButton';
 
 const VaultPosition = () => {
+  const theme = useContext(ThemeContext);
+  const { red } = theme.global.colors;
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
@@ -244,7 +247,7 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
-    const _ilkToUse = (_ilk?.isWrappedToken && _ilk.unwrappedTokenId) ? assetMap.get(_ilk.unwrappedTokenId ) : _ilk; // use the unwrapped token if applicable
+    const _ilkToUse = _ilk?.isWrappedToken && _ilk.unwrappedTokenId ? assetMap.get(_ilk.unwrappedTokenId) : _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);
     _selectedVault && setSelectedBase(_base);
@@ -320,7 +323,7 @@ const VaultPosition = () => {
                   </SectionWrap>
                 )}
                 {unhealthyCollatRatio && !vaultsLoading && (
-                  <Text size="xsmall" color="red">
+                  <Text size="xsmall" color={red}>
                     Vault is in danger of liquidation. Minimum collateralization needed is {minCollatRatioPct}%
                   </Text>
                 )}

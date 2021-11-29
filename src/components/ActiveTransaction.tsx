@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Spinner, Text } from 'grommet';
+import { ThemeContext } from 'styled-components';
 import { BiWallet } from 'react-icons/bi';
 import { FiCheckCircle, FiPenTool, FiX } from 'react-icons/fi';
 import { ApprovalType, IYieldProcess, ProcessStage, TxState } from '../types';
@@ -66,8 +67,10 @@ const ActiveTransaction = ({
   full?: boolean;
   pad?: boolean;
 }) => {
+  const theme = useContext(ThemeContext);
+  const { green } = theme.global.colors;
 
-  const approvalMethod =  useApprovalMethod();
+  const approvalMethod = useApprovalMethod();
   const iconSize = '1.5em';
   const activeProcess = txProcess;
 
@@ -79,10 +82,7 @@ const ActiveTransaction = ({
           {!full && <CancelButton action={cancelAction ? () => cancelAction() : () => null} />}
         </Box>
       )}
-      <Box
-        background="gradient-transparent"
-        round="xsmall"
-      >
+      <Box background="gradient-transparent" round="xsmall">
         {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
           <Box gap="small" pad="small">
             {full && <Text size="medium"> Review Transaction </Text>}
@@ -92,7 +92,7 @@ const ActiveTransaction = ({
 
         {activeProcess?.stage === ProcessStage.SIGNING_REQUESTED && (
           <InfoBlock
-            title={ approvalMethod === ApprovalType.SIG ? 'Signature required' : 'Approval transaction required'}
+            title={approvalMethod === ApprovalType.SIG ? 'Signature required' : 'Approval transaction required'}
             subTitle={
               approvalMethod === ApprovalType.SIG
                 ? 'Please check your wallet/provider'
@@ -140,7 +140,7 @@ const ActiveTransaction = ({
             title="Transaction Complete"
             // subTitle={<CopyWrap hash={activeProcess.txHash}> {abbreviateHash(activeProcess.txHash, 3)} </CopyWrap>}
             subTitle={null}
-            icon={<FiCheckCircle size={iconSize} color="green" />}
+            icon={<FiCheckCircle size={iconSize} color={green} />}
             button={<EtherscanButton txHash={activeProcess.txHash} />}
             full={full}
           />
