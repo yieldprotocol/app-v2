@@ -187,18 +187,19 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                           </Text>
                         </>
                       )}
-                      <Box direction="row">
-                        <Text
-                          size="small"
-                          color={
-                            strategy.address === selectedStrategy?.address
-                              ? strategy.currentSeries?.textColor
-                              : undefined
-                          }
-                        >
-                          {cleanValue(strategy.returnRate_, 2)}% APY
-                        </Text>
-                        {/* <Tip
+                      {strategy.returnRate_ && (
+                        <Box direction="row">
+                          <Text
+                            size="small"
+                            color={
+                              strategy.address === selectedStrategy?.address
+                                ? strategy.currentSeries?.textColor
+                                : undefined
+                            }
+                          >
+                            {cleanValue(strategy.returnRate_, 2)}% APY
+                          </Text>
+                          {/* <Tip
                                 content={<Text size="xsmall">using last {secondsToDays} days estimated returns</Text>}
                                 dropProps={{
                                   align: { left: 'right' },
@@ -206,7 +207,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                               >
                                 <FiInfo size=".6em" />
                               </Tip> */}
-                      </Box>
+                        </Box>
+                      )}
                     </Box>
                   </Box>
                 </StyledBox>
