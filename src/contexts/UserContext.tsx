@@ -16,7 +16,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, generateVaultName, getStrategyReturns } from '../utils/appUtils';
+import { cleanValue, generateVaultName, getStrategyReturns, getStrategyReturnsWithTokenValue } from '../utils/appUtils';
 import {
   calculateAPR,
   divDecimal,
@@ -542,7 +542,18 @@ const UserProvider = ({ children }: any) => {
             );
             const { timestamp: preTimestamp } = await (provider as ethers.providers.JsonRpcProvider).getBlock(preBlock);
 
-            const strategyAPY = await getStrategyReturns(
+            // estimate strategy returns using the base value per strategy token methodology
+            // const strategyAPY = await getStrategyReturns(
+            //   _strategy,
+            //   currentSeries,
+            //   currBlock,
+            //   preBlock,
+            //   currTimeStamp,
+            //   preTimestamp
+            // );
+
+            // estimate strategy returns using the strategy token value yieldmath methodology
+            const strategyAPY = await getStrategyReturnsWithTokenValue(
               _strategy,
               currentSeries,
               currBlock,

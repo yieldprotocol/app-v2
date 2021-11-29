@@ -1,10 +1,10 @@
 import { format, getMonth, subDays } from 'date-fns';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
 import { ActionCodes, ISeries, IStrategy, IStrategyRoot } from '../types';
 import { SECONDS_PER_YEAR } from './constants';
-import { burnFromStrategy } from './yieldMath';
+import { burnFromStrategy, calculateAPR, strategyTokenValue } from './yieldMath';
 
 export const copyToClipboard = (str: string) => {
   const el = document.createElement('textarea');
@@ -271,16 +271,13 @@ export const getStrategyBaseValuePerShare = async (
         await poolContract.totalSupply({ blockTag: blockNum }),
         await strategy.strategyContract.totalSupply({ blockTag: blockNum }),
         await poolContract.decimals({ blockTag: blockNum }),
-        await poolContract.sellFYTokenPreview(
-          BigNumber.from(1).mul(BigNumber.from(10).pow(await poolContract.decimals())),
-          {
-            blockTag: blockNum,
-          }
-        ), // estimate the base value of 1 fyToken unit
+        await poolContract.sellFYTokenPreview(ethers.utils.parseUnits('1', currStrategySeries.decimals), {
+          blockTag: blockNum,
+        }), // estimate the base value of 1 fyToken unit
       ]);
 
     // the real balance of fyTokens in the pool
-    const fyTokenReal = (fyTokenVirtual as BigNumber).sub(poolTotalSupply as BigNumber);
+    const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
 
     // the estimated base value of all fyToken in the pool
     const fyTokenToBaseValueEstimate = fyTokenReal
@@ -329,4 +326,51 @@ export const getStrategyReturns = async (
     console.log(e);
   }
   return '0';
+};
+
+export const getStrategyBaseValue = async (
+  strategy: IStrategyRoot,
+  currStrategySeries: ISeries,
+  blockNum: number,
+  timeTillMaturity: number
+) => {
+  const { poolContract } = currStrategySeries as ISeries;
+  const [[base, fyTokenVirtual], poolTotalSupply, strategyPoolBalance, strategyTotalSupply] = await Promise.all([
+    poolContract.getCache({ blockTag: blockNum }),
+    poolContract.totalSupply({ blockTag: blockNum }),
+    poolContract.balanceOf(strategy.address, { blockTag: blockNum }),
+    strategy.strategyContract.totalSupply({ blockTag: blockNum }),
+  ]);
+
+  // the real balance of fyTokens in the pool
+  const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
+  const [, value] = strategyTokenValue(
+    ethers.utils.parseUnits('1', currStrategySeries.decimals),
+    strategyTotalSupply,
+    strategyPoolBalance,
+    base,
+    fyTokenReal,
+    poolTotalSupply,
+    timeTillMaturity.toString(),
+    currStrategySeries.decimals
+  );
+  return value;
+};
+
+export const getStrategyReturnsWithTokenValue = async (
+  strategy: IStrategyRoot,
+  currStrategySeries: ISeries,
+  currBlock: number,
+  preBlock: number,
+  currBlockTimestamp: number,
+  preBlockTimestamp: number
+) => {
+  const currTimeTillMaturity = +currStrategySeries.getTimeTillMaturity();
+  const preTimeTillMaturity = currTimeTillMaturity + (currBlockTimestamp - preBlockTimestamp);
+  const currValue = await getStrategyBaseValue(strategy, currStrategySeries, currBlock, currTimeTillMaturity);
+  const preValue = await getStrategyBaseValue(strategy, currStrategySeries, preBlock, preTimeTillMaturity);
+  console.log('strategy', strategy.symbol);
+  console.log('currValue', currValue.toString());
+  console.log('preValue', preValue.toString());
+  return calculateAPR(preValue, currValue, currBlockTimestamp, preBlockTimestamp);
 };
