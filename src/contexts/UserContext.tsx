@@ -13,7 +13,6 @@ import {
   IUserContext,
   IStrategyRoot,
   IStrategy,
-  IChainState,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
