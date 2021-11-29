@@ -317,8 +317,6 @@ export const getStrategyReturns = async (
     const baseValuePerShareCurr = await getStrategyBaseValuePerShare(strategy, currStrategySeries, currBlock);
     const baseValuePerSharePre = await getStrategyBaseValuePerShare(strategy, currStrategySeries, preBlock);
 
-    console.log('in util: ', strategy.id, baseValuePerShareCurr.toString(), baseValuePerSharePre.toString());
-
     const returns = Number(baseValuePerShareCurr) / Number(baseValuePerSharePre) - 1;
 
     const secondsBetween = currBlockTimestamp - preBlockTimestamp;
