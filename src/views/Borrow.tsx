@@ -13,7 +13,7 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import MaxButton from '../components/buttons/MaxButton';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, ISettingsContext, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import VaultSelector from '../components/selectors/VaultPositionSelector';
@@ -46,6 +46,7 @@ import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../components/YieldNavigation';
 import VaultItem from '../components/positionItems/VaultItem';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,6 +60,10 @@ const Borrow = () => {
   } = useContext(ChainContext);
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext) as ISettingsContext;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -126,7 +131,7 @@ const Borrow = () => {
   const handleNavAction = (_stepPosition: number) => {
     setStepPosition(_stepPosition);
     analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
-    console.log( 'nav: ' , { screen: 'BORROW', step: _stepPosition, renderId })
+    diagnostics && console.log( 'nav: ' , { screen: 'BORROW', step: _stepPosition, renderId })
   };
 
   const handleGaugeColorChange: any = (val: string) => {
