@@ -1,7 +1,10 @@
 import { format, getMonth, subDays } from 'date-fns';
+import { BigNumber } from 'ethers';
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
-import { ActionCodes } from '../types';
+import { ActionCodes, ISeries, IStrategy, IStrategyRoot } from '../types';
+import { SECONDS_PER_YEAR } from './constants';
+import { burnFromStrategy } from './yieldMath';
 
 export const copyToClipboard = (str: string) => {
   const el = document.createElement('textarea');
@@ -244,13 +247,88 @@ export const formatValue = (x: string | number, decimals: number) =>
   numberWithCommas(Number(cleanValue(x?.toString(), decimals)));
 
 /* google analytics log event */
-export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number ) => {
+export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number) => {
   if (eventName && chainId === 1) {
     try {
-    window?.gtag('event', eventName, eventParams);
+      window?.gtag('event', eventName, eventParams);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);
     }
   }
+};
+
+export const getStrategyBaseValuePerShare = async (
+  strategy: IStrategyRoot,
+  currStrategySeries: ISeries,
+  blockNum: number
+) => {
+  try {
+    const { poolContract } = currStrategySeries as ISeries;
+    const [[base, fyTokenVirtual], poolTotalSupply, strategyTotalSupply, decimals, fyTokenToBaseCostEstimate] =
+      await Promise.all([
+        await poolContract.getCache({ blockTag: blockNum }),
+        await poolContract.totalSupply({ blockTag: blockNum }),
+        await strategy.strategyContract.totalSupply({ blockTag: blockNum }),
+        await poolContract.decimals({ blockTag: blockNum }),
+        await poolContract.sellFYTokenPreview(
+          BigNumber.from(1).mul(BigNumber.from(10).pow(await poolContract.decimals())),
+          {
+            blockTag: blockNum,
+          }
+        ), // estimate the base value of 1 fyToken unit
+      ]);
+
+    // the real balance of fyTokens in the pool
+    const fyTokenReal = (fyTokenVirtual as BigNumber).sub(poolTotalSupply as BigNumber);
+
+    // the estimated base value of all fyToken in the pool
+    const fyTokenToBaseValueEstimate = fyTokenReal
+      .mul(fyTokenToBaseCostEstimate)
+      .div(BigNumber.from(1).mul(BigNumber.from(10).pow(decimals)));
+
+    // total estimated base value in pool
+    const totalBaseValue = base.add(fyTokenToBaseValueEstimate);
+
+    // total number of pool lp tokens associated with a strategy
+    const poolLpReceived = burnFromStrategy(poolTotalSupply, strategyTotalSupply, strategyTotalSupply);
+
+    // value per poolToken
+    const valuePerPoolToken = Number(totalBaseValue) / Number(poolTotalSupply);
+    // the amount of base per strategy LP token
+    const baseValuePerStrategyLpToken = valuePerPoolToken * (Number(poolLpReceived) / Number(poolTotalSupply));
+
+    return baseValuePerStrategyLpToken;
+  } catch (e) {
+    console.log('error getting strategy per share value', e);
+    return 0;
+  }
+};
+
+export const getStrategyReturns = async (
+  strategy: IStrategyRoot,
+  currStrategySeries: ISeries,
+  currBlock: number,
+  preBlock: number,
+  currBlockTimestamp: number,
+  preBlockTimestamp: number
+) => {
+  try {
+    const baseValuePerShareCurr = await getStrategyBaseValuePerShare(strategy, currStrategySeries, currBlock);
+    const baseValuePerSharePre = await getStrategyBaseValuePerShare(strategy, currStrategySeries, preBlock);
+
+    console.log('in util: ', strategy.id, baseValuePerShareCurr.toString(), baseValuePerSharePre.toString());
+
+    const returns = Number(baseValuePerShareCurr) / Number(baseValuePerSharePre) - 1;
+
+    const secondsBetween = currBlockTimestamp - preBlockTimestamp;
+    const periods = SECONDS_PER_YEAR / secondsBetween;
+
+    const apy = (1 + returns / periods) ** periods - 1;
+    const apy_ = cleanValue((apy * 100).toString(), 2);
+    return apy_;
+  } catch (e) {
+    console.log(e);
+  }
+  return '0';
 };
