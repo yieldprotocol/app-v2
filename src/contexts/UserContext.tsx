@@ -26,7 +26,6 @@ import {
   secondsToFrom,
   sellFYToken,
   decimal18ToDecimalN,
-  strategyTokenValue,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
