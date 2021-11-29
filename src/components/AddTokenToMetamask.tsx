@@ -50,7 +50,7 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
 
   return metamask ? (
     <Box align="center">
-      <Button plain color="#3B82F6" hoverIndicator={{}} onClick={() => handleAddToken()} icon={<FiPlusCircle />} />
+      <Button plain color="brand" hoverIndicator={{}} onClick={() => handleAddToken()} icon={<FiPlusCircle />} />
     </Box>
   ) : null;
 };
