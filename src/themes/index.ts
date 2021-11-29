@@ -15,15 +15,15 @@ export const yieldTheme = {
     },
     colors: {
       error: {
-        light: '#ffcccc',
-        dark: '#ff8080',
+        light: '#FCA5A5',
+        dark: '#F87171',
       },
       success: {
-        light: '#00cc44',
+        light: '#34D399',
         dark: '#10B981',
       },
       warning: {
-        light: '#f79533',
+        light: '#F59E0B',
         dark: '#F59E0B',
       },
       brand: {
@@ -91,6 +91,9 @@ export const yieldTheme = {
       scrollbar-width: none;
       ::-webkit-scrollbar {
         display: none;
+      }
+      button:disabled {
+        opacity: 0.5;
       }
     `,
   },
