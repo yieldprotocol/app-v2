@@ -23,8 +23,8 @@ export const yieldTheme = {
         dark: '#10B981',
       },
       warning: {
-        light: '#F59E0B',
-        dark: '#red',
+        light: '#f79533',
+        dark: '#F59E0B',
       },
       brand: {
         light: '#2563EB',
@@ -68,10 +68,9 @@ export const yieldTheme = {
       },
     },
 
-    drop: { border: { radius: '6px' }, elevation : 'xlarge' },
+    drop: { border: { radius: '6px' }, elevation: 'xlarge' },
     anchor: { color: 'brand' },
   },
-
 
   grommet: {
     // @ts-ignore
