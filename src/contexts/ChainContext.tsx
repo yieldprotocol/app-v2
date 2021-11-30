@@ -22,7 +22,9 @@ import YieldMark from '../components/logos/YieldMark';
 import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
 import ENSMark from '../components/logos/ENSMark';
+
 import { seasonColorMap } from '../config/colors';
+import UNIMark from '../components/logos/UNIMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -35,6 +37,7 @@ const markMap = new Map([
   ['wstETH', <StEthMark key="wsteth" />],
   ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
+  ['UNI', <UNIMark key="uni" />],
 ]);
 
 /* Build the context */
