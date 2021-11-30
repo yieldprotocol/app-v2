@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { BigNumber, ethers, providers } from 'ethers';
+import { BigNumber, ethers, } from 'ethers';
 
 import {
   IAssetRoot,
@@ -16,7 +16,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, generateVaultName, getStrategyReturns } from '../utils/appUtils';
+import { cleanValue, generateVaultName, } from '../utils/appUtils';
 import {
   calculateAPR,
   divDecimal,
@@ -30,6 +30,8 @@ import {
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
+import { getStrategyReturns } from './userHelpers';
+
 
 const UserContext = React.createContext<any>({});
 
