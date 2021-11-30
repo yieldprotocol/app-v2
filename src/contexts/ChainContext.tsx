@@ -254,25 +254,16 @@ const ChainProvider = ({ children }: any) => {
               ERC20.symbol(),
               ERC20.decimals(),
               id === USDC ? '2' : '1', // TODO  ERC20.version()
-            ]);
+            ]); 
 
-            const {
-              showToken,
-              isWrappedToken,
-              wrapHandlerAddress,
-              wrappedTokenId,
-              wrappedTokenAddress,
-              displaySymbol,
-              unwrappedTokenId,
-            } = ASSET_INFO.get(symbol) as IAssetInfo;  
-
-            const idToUse = wrappedTokenId || id;
+            const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
+            const idToUse = assetInfo?.wrappedTokenId || id;
 
             const newAsset = {
               id,
               address,
               name,
-              displaySymbol: displaySymbol || symbol,
+              
               symbol,
               decimals,
               version,
@@ -280,13 +271,14 @@ const ChainProvider = ({ children }: any) => {
               joinAddress: joinMap.get(idToUse),
               idToUse,
 
-              isWrappedToken,
-              wrapHandlerAddress,
-              wrappedTokenId,
-              wrappedTokenAddress,
-              unwrappedTokenId,
+              displaySymbol: assetInfo?.displaySymbol || symbol,
 
-              showToken,
+              isWrappedToken: assetInfo?.isWrappedToken,
+              wrapHandlerAddress: assetInfo?.wrapHandlerAddress,
+              wrappedTokenId: assetInfo?.wrappedTokenId,
+              wrappedTokenAddress: assetInfo?.wrappedTokenAddress,
+              unwrappedTokenId: assetInfo?.unwrappedTokenId,
+              showToken: assetInfo?.showToken || false,
             };
 
             // Update state and cache
