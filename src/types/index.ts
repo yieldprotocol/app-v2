@@ -4,6 +4,11 @@ import { ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
+export interface IChainContext {
+  chainState: IChainContextState;
+  chainActions: IChainContextActions;
+}
+
 export interface IChainContextState {
   appVersion: string;
   connection: IConnectionState;
@@ -37,6 +42,12 @@ export interface IHistoryContextState {
   tradeHistory: IHistoryList;
   poolHistory: IHistoryList;
   vaultHistory: IHistoryList;
+}
+
+export interface IChainContextActions {
+  connect: (connection: string) => void;
+  disconnect: () => void;
+  isConnected: (connection: string) => void;
 }
 
 export interface IUserContext {
