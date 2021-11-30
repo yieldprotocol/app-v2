@@ -83,28 +83,19 @@ const AprText = ({
       actionType === ActionType.LEND
         ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)) // lending max
         : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
-  }, [
-    _inputValue,
-    actionType,
-    baseIn,
-    series.baseReserves,
-    series?.decimals,
-    series?.seriesIsMature,
-    setLimitHit,
-  ]);
+  }, [_inputValue, actionType, baseIn, series.baseReserves, series?.decimals, series?.seriesIsMature, setLimitHit]);
 
   return (
     <>
       {!series.seriesIsMature && !_inputValue && !limitHit && (
         <Text size="medium">
-          {series?.apr}%{' '}
-          <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
+          {series?.apr}% <Text size="xsmall">{[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
       {!series?.seriesIsMature && _inputValue && !limitHit && (
         <Text size="medium">
-          {apr}% <Text size="xsmall">{[ActionType.LEND, ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
+          {apr}% <Text size="xsmall">{[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
@@ -189,7 +180,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, _selectedSeries, userActions ]);
+  }, [seriesMap, selectedBase, selectSeriesLocally, _selectedSeries, userActions]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {

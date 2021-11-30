@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, ResponsiveContext, Text, TextInput, } from 'grommet';
+import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 
-import { FiClock, FiPocket, FiPercent, FiTrendingUp, } from 'react-icons/fi';
+import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../components/selectors/SeriesSelector';
 import MainViewWrap from '../components/wraps/MainViewWrap';
@@ -13,13 +13,13 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import MaxButton from '../components/buttons/MaxButton';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../types';
+import { ActionCodes, ActionType, ISettingsContext, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import VaultSelector from '../components/selectors/VaultPositionSelector';
 import ActiveTransaction from '../components/ActiveTransaction';
 
-import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../utils/appUtils';
+import { analyticsLogEvent, cleanValue, getVaultIdFromReceipt, nFormatter } from '../utils/appUtils';
 
 import YieldInfo from '../components/YieldInfo';
 import BackButton from '../components/buttons/BackButton';
@@ -46,20 +46,31 @@ import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../components/YieldNavigation';
 import VaultItem from '../components/positionItems/VaultItem';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const {
-    chainState: { contractMap },
+    chainState: {
+      contractMap,
+      connection: { chainId },
+    },
   } = useContext(ChainContext);
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
 
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext) as ISettingsContext;
+
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [stepPosition, setStepPosition] = useState<number>(0);
+
+  // renderId for user flow traking (analytics)
+  const [renderId, setRenderId] = useState<string>();
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
@@ -112,6 +123,15 @@ const Borrow = () => {
   const handleBorrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
+  }
+
+  useEffect(()=>{
+    setRenderId( (new Date().getTime()).toString(36));
+  },[])
+  const handleNavAction = (_stepPosition: number) => {
+    setStepPosition(_stepPosition);
+    analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
+    diagnostics && console.log( 'nav: ' , { screen: 'BORROW', step: _stepPosition, renderId })
   };
 
   const handleGaugeColorChange: any = (val: string) => {
@@ -311,7 +331,7 @@ const Borrow = () => {
             {stepPosition === 1 && ( // ADD COLLATERAL
               <Box gap={mobile ? undefined : 'medium'}>
                 <YieldCardHeader>
-                  <BackButton action={() => setStepPosition(0)} />
+                  <BackButton action={() => handleNavAction(0)} />
                 </YieldCardHeader>
 
                 <Box gap="large" height="100%">
@@ -371,7 +391,8 @@ const Borrow = () => {
                                 >
                                   <Text size="small" color="text-weak">
                                     Use Safe Collateralization{': '}
-                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
+                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)}{' '}
+                                    {selectedIlk?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
                               )
@@ -425,7 +446,7 @@ const Borrow = () => {
               <Box gap="medium">
                 <YieldCardHeader>
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                    <BackButton action={() => setStepPosition(1)} />
+                    <BackButton action={() => handleNavAction(1)} />
                   ) : (
                     <Box pad="1em" />
                   )}
@@ -447,7 +468,9 @@ const Borrow = () => {
                     <InfoBite
                       label="Vault Debt Payable @ Maturity"
                       icon={<FiTrendingUp />}
-                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
+                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${
+                        selectedBase?.displaySymbol
+                      }`}
                     />
                     <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                     <InfoBite
@@ -499,7 +522,8 @@ const Borrow = () => {
                       : 'Next Step'}
                   </Text>
                 }
-                onClick={() => setStepPosition(stepPosition + 1)}
+                // onClick={() => setStepPosition(stepPosition + 1)}
+                onClick={() => handleNavAction(stepPosition + 1)}
                 disabled={stepPosition === 0 ? stepDisabled : borrowDisabled}
                 errorLabel={stepPosition === 0 ? borrowInputError : collatInputError}
               />
