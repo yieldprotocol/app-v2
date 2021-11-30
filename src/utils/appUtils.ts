@@ -247,7 +247,7 @@ export const formatValue = (x: string | number, decimals: number) =>
 export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number ) => {
   if (eventName && chainId === 1) {
     try {
-    window?.gtag('event', eventName, eventParams);
+      window?.gtag('event', eventName, eventParams);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);
