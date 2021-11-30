@@ -15,7 +15,7 @@ const initState: ISettingsContextState = {
   slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
 
   /* Show diagnostic messages in the console */
-  diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (true as boolean),
+  diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
 
   /* Color theme */
   darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
@@ -30,7 +30,7 @@ const initState: ISettingsContextState = {
   powerUser: (JSON.parse(localStorage.getItem('powerUser')!) as boolean) || (false as boolean),
 
   /* Always force transctions to the chain -> even if they will likely fail */
-  forceTransactions: (JSON.parse(localStorage.getItem('forceTransactions')!) as boolean) || (true as boolean),
+  forceTransactions: (JSON.parse(localStorage.getItem('forceTransactions')!) as boolean) || (false as boolean),
 
   /* Show wrapped tokens */
   showWrappedTokens: (JSON.parse(localStorage.getItem('showWrappedTokens')!) as boolean) || (false as boolean),
