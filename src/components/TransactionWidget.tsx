@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { Box, ResponsiveContext, Text } from 'grommet';
+import { Box, ResponsiveContext, Text, ThemeContext } from 'grommet';
 import { FiAlertCircle, FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { IYieldProcess, ProcessStage } from '../types';
@@ -16,6 +16,8 @@ const StyledBox = styled(Box)`
 `;
 
 const TransactionWidget = () => {
+  const theme = useContext<any>(ThemeContext);
+  const { warning } = theme.global.colors;
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     txState: { processes },
@@ -43,7 +45,7 @@ const TransactionWidget = () => {
                 round={{ size: 'xsmall', corner: 'left' }}
               >
                 <Box width="3rem" align="center">
-                  <FiAlertTriangle size="1.5rem" color="#D97706" />
+                  <FiAlertTriangle size="1.5rem" color={warning.dark} />
                 </Box>
                 <Box align="start">
                   <Text size="small" color="text">
@@ -69,7 +71,7 @@ const TransactionWidget = () => {
                 round="xsmall"
               >
                 <Box width="3rem" align="center">
-                  <FiAlertCircle size="1.5rem" color="#D97706" />
+                  <FiAlertCircle size="1.5rem" color={warning.dark} />
                 </Box>
                 <Box align="start">
                   <Text size="small">Approval transaction pending</Text>

@@ -14,17 +14,21 @@ export const yieldTheme = {
       },
     },
     colors: {
+      red: '#F87171',
+      green: '#10B981',
+      yellow: '#F59E0B',
+
       error: {
-        light: '#ffcccc',
-        dark: '#ff8080',
+        light: '#FCA5A5',
+        dark: '#F87171',
       },
       success: {
-        light: '#00cc44',
+        light: '#34D399',
         dark: '#10B981',
       },
       warning: {
         light: '#F59E0B',
-        dark: '#red',
+        dark: '#F59E0B',
       },
       brand: {
         light: '#2563EB',
@@ -68,10 +72,9 @@ export const yieldTheme = {
       },
     },
 
-    drop: { border: { radius: '6px' }, elevation : 'xlarge' },
+    drop: { border: { radius: '6px' }, elevation: 'xlarge' },
     anchor: { color: 'brand' },
   },
-
 
   grommet: {
     // @ts-ignore
@@ -92,6 +95,9 @@ export const yieldTheme = {
       scrollbar-width: none;
       ::-webkit-scrollbar {
         display: none;
+      }
+      button:disabled {
+        opacity: 0.5;
       }
     `,
   },
