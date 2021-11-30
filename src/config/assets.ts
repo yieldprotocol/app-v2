@@ -1,7 +1,7 @@
-import { ethers } from "ethers";
-import { IAssetInfo } from "../types";
+import { ethers } from 'ethers';
+import { IAssetInfo } from '../types';
 
-export const WETH =  '0x303000000000';
+export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
 export const USDC = '0x303200000000';
 export const WBTC = '0x303300000000';
@@ -10,8 +10,8 @@ export const wstETH = '0x303500000000';
 export const LINK = '0x303600000000';
 export const ENS = '0x303600000000';
 
-export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14) ];
-export const DAI_PERMIT_ASSETS = [ 'DAI', DAI ];
+export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
+export const DAI_PERMIT_ASSETS = ['DAI', DAI];
 export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK];
 
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
@@ -39,7 +39,7 @@ ASSET_INFO.set('wstETH', {
   wrappedTokenAddress: '',
   color: '#00A3FF',
   digitFormat: 6,
-  unwrappedTokenId: "0x303500000000"
+  unwrappedTokenId: '0x303500000000',
 });
 
 ASSET_INFO.set('stETH', {
@@ -50,5 +50,27 @@ ASSET_INFO.set('stETH', {
   wrappedTokenAddress: '0xB12C63eD91e901995E68023293AC1A308ffA6c3c',
   color: '#00A3FF',
   digitFormat: 6,
-  unwrappedTokenId: "0x303500000000"
+  unwrappedTokenId: '0x303500000000',
 });
+
+// ORACLE_INFO.set('CompositeMultiOracle', ['0x303400000000', '0x303700000000']);
+const CHAINLINK_ASSETS = [ 
+  '0x303000000000',
+  '0x303100000000',
+  '0x303200000000',
+  '0x303300000000',
+  '0x303500000000',
+  '0x303600000000',
+  '0x303800000000',
+]
+
+const COMPOSITE_MULTI_ASSETS = [
+  'stETH', 
+]
+
+export const PAIRWISE_ASSET_MAP = new Map<string, {oracle:string, price:string|undefined, limit: number|undefined}>();
+const assetArr = Array.from(ASSET_INFO.keys());
+assetArr.map((x: any) => assetArr.forEach((_x: any) => { 
+    PAIRWISE_ASSET_MAP.set(x+_x, { oracle: 'CompositeMultiOracle', price:undefined, limit:undefined })
+}));
+console.log(PAIRWISE_ASSET_MAP); 
