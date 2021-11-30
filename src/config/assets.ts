@@ -8,7 +8,7 @@ export const WBTC = '0x303300000000';
 export const stETH = '0x303400000000';
 export const wstETH = '0x303500000000';
 export const LINK = '0x303600000000';
-export const ENS = '0x303600000000';
+export const ENS = '0x303700000000';
 
 export const UNI = '0x313000000000';
 
