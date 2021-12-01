@@ -166,7 +166,7 @@ export const useBorrowHelpers = (
       );
 
       const price = priceMap?.get(vault.ilkId)?.get(vault.baseId);
-      const minCollat = calcMinCollateral(price, newDebt, undefined, undefined, true);
+      const minCollat = calcMinCollateral(price, newDebt, vault.minRatio, undefined, true);
       diagnostics && console.log('min Collat', minCollat.toString());
 
       const rollable = vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat);

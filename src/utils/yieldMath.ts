@@ -866,14 +866,14 @@ export const calcCollateralizationRatio = (
 export const calcMinCollateral = (
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
-  liquidationRatio: string,
+  liquidationRatio: number,
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in
   asBigNumber: boolean = false
 ): string | BigNumber => {
   const _baseUnitPrice = divDecimal(basePrice, WAD_BN);
   const _baseVal = divDecimal(baseAmount, _baseUnitPrice);
   const _existingCollateralValue = new Decimal(ethers.utils.formatUnits(existingCollateral, 18));
-  const _minCollatValue = new Decimal(mulDecimal(_baseVal, liquidationRatio));
+  const _minCollatValue = new Decimal(mulDecimal(_baseVal, liquidationRatio.toString()));
   const requiredCollateral = _existingCollateralValue.gt(_minCollatValue)
     ? new Decimal('0')
     : _minCollatValue.sub(_existingCollateralValue); // .add('1'); // hmm, i had to add one check

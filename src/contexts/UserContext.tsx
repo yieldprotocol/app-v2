@@ -267,29 +267,29 @@ const UserProvider = ({ children }: any) => {
   const updatePrice = useCallback(
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
-      
-      const compositeOracleAssets = [ '0x303400000000', '0x303700000000' ]
+
+      const compositeOracleAssets = ['0x303400000000', '0x303700000000'];
 
       let Oracle;
       switch (chainState.connection.fallbackChainId) {
         case 1:
-          Oracle = 
-          compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
+          Oracle =
+            compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
               ? contractMap.get('CompositeMultiOracle')
               : contractMap.get('ChainlinkMultiOracle');
           break;
         case 42:
           Oracle =
-          compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
-          ? contractMap.get('CompositeMultiOracle')
-          : contractMap.get('ChainlinkMultiOracle');
+            compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
+              ? contractMap.get('CompositeMultiOracle')
+              : contractMap.get('ChainlinkMultiOracle');
           break;
         case 421611:
           contractMap.get('ChainlinkUSDOracle');
           break;
         default:
           break;
-      };
+      }
 
       try {
         const _quoteMap = userState.priceMap;
@@ -454,12 +454,17 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           /* update balance and series  ( series - because a vault can have been rolled to another series) */
-          const [{ ink, art }, { owner, seriesId, ilkId }, { min: minDebt, max: maxDebt, sum: totalDebt }] =
-            await Promise.all([
-              await Cauldron.balances(vault.id),
-              await Cauldron.vaults(vault.id),
-              await Cauldron.debt(vault.baseId, vault.ilkId),
-            ]);
+          const [
+            { ink, art },
+            { owner, seriesId, ilkId },
+            { min: minDebt, max: maxDebt, sum: totalDebt },
+            { ratio: minRatio },
+          ] = await Promise.all([
+            await Cauldron.balances(vault.id),
+            await Cauldron.vaults(vault.id),
+            await Cauldron.debt(vault.baseId, vault.ilkId),
+            await Cauldron.spotOracles(vault.baseId, vault.ilkId),
+          ]);
 
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
@@ -477,6 +482,7 @@ const UserProvider = ({ children }: any) => {
             art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
             minDebt,
             maxDebt,
+            minRatio: minRatio/1000000, // minimum ration divided by 1000000 to get a ratio  (e.g 1.5 )
           };
         })
       );

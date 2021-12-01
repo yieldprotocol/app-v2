@@ -44,6 +44,7 @@ function DummyVaultItem({
       art_: '',
       minDebt: ethers.BigNumber.from(0),
       maxDebt: ethers.BigNumber.from(0),
+      minRatio: 1.5,
     };
     // setSelectedVault(dummyVault);
     history.push(`/vaultposition/${_vaultId}`);

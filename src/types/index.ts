@@ -219,6 +219,7 @@ export interface IVault extends IVaultRoot {
   art_: string;
   minDebt: BigNumber;
   maxDebt: BigNumber;
+  minRatio: number;
 }
 
 export interface IStrategy extends IStrategyRoot {
