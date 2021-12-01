@@ -6,7 +6,7 @@ import { IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import { calculateCollateralizationRatio, calculateMinCollateral, decimalNToDecimal18 } from '../../utils/yieldMath';
+import { calcCollateralizationRatio, calcMinCollateral, decimalNToDecimal18 } from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -86,8 +86,8 @@ export const useCollateralHelpers = (
 
     /* set the collateral ratio when collateral is entered */
     if (oraclePrice.gt(ethers.constants.Zero) && totalCollateral.gt(ethers.constants.Zero)) {
-      const ratio = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
-      const percent = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
+      const ratio = calcCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
+      const percent = calcCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
       setCollateralizationRatio(ratio);
       setCollateralizationPercent(parseFloat(percent! || '0').toFixed(2));
     } else {
@@ -97,8 +97,8 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, minCollatRatio?.toString(), existingCollateralAsWei);
-      const minSafeCalc = calculateMinCollateral(
+      const min = calcMinCollateral(oraclePrice, totalDebt, minCollatRatio?.toString(), existingCollateralAsWei);
+      const minSafeCalc = calcMinCollateral(
         oraclePrice,
         totalDebt,
         (minSafeCollatRatio || 2.5).toString(),

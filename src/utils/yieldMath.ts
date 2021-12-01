@@ -833,7 +833,7 @@ export const calculateAPR = (
  * @param {boolean} asPercent OPTIONAL: flag to return ratio as a percentage
  * @returns { string | undefined }
  */
-export const calculateCollateralizationRatio = (
+export const calcCollateralizationRatio = (
   collateralAmount: BigNumber | string,
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
@@ -843,7 +843,6 @@ export const calculateCollateralizationRatio = (
     return undefined;
   }
   const _baseUnitPrice = divDecimal(basePrice, WAD_BN);
-  // const _baseUnitPrice = divDecimal(basePrice, decimal18ToDecimalN(WAD_BN, decimals).toString());
   const _baseVal = divDecimal(baseAmount, _baseUnitPrice); // base/debt value in terms of collateral
   const _ratio = divDecimal(collateralAmount, _baseVal); // collateralValue divide by debtValue
 
@@ -862,9 +861,9 @@ export const calculateCollateralizationRatio = (
  * @param {BigNumber | string} existingCollateral  0 as default (as wei)
  * @param {Boolean} asBigNumber return as big number? in wei
  *
- * @returns { string | undefined }
+ * @returns { string | BigNumber | undefined }
  */
-export const calculateMinCollateral = (
+export const calcMinCollateral = (
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
   liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
@@ -893,7 +892,7 @@ export const calculateMinCollateral = (
  *
  * @returns {string}
  */
-export const calculateBorrowingPower = (
+export const calcBorrowingPower = (
   collateralAmount: BigNumber | string,
   collateralPrice: BigNumber | string,
   debtValue: BigNumber | string,
@@ -905,6 +904,32 @@ export const calculateBorrowingPower = (
   const _max = debtValue_.lt(maxSafeDebtValue_) ? maxSafeDebtValue_.sub(debtValue_) : new Decimal('0');
   return _max.toFixed(0);
 };
+
+/**
+ * Calcualtes the amount (base, or other variant) that can be borrowed based on
+ * an amount of collateral (ETH, or other), and collateral price.
+ *
+ * @param {BigNumber | string} collateralAmount amount of collateral
+ * @param {BigNumber | string} collateralPrice price of unit collateral (in currency x)
+ * @param {BigNumber | string} debtValue value of debt (in currency x)
+ * @param {BigNumber | string} liquidationRatio  OPTIONAL: 1.5 (150%) as default
+ *
+ * @returns {string}
+ */
+ export const calcLiquidationPrice = (
+  collateralAmount: BigNumber | string,
+  collateralPrice: BigNumber | string,
+  debtValue: BigNumber | string,
+  liquidationRatio: string = '1.5' // OPTIONAL: 150% as default
+): string => {
+  
+  const collateralValue = mulDecimal(collateralAmount, collateralPrice);
+  const maxSafeDebtValue_ = new Decimal(divDecimal(collateralValue, liquidationRatio));
+  const debtValue_ = new Decimal(debtValue.toString());
+  const _max = debtValue_.lt(maxSafeDebtValue_) ? maxSafeDebtValue_.sub(debtValue_) : new Decimal('0');
+  return _max.toFixed(0);
+};
+
 
 /**
  *  @param {BigNumber}  baseChange

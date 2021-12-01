@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
-import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
+import { buyBase, calcMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -166,7 +166,7 @@ export const useBorrowHelpers = (
       );
 
       const price = priceMap?.get(vault.ilkId)?.get(vault.baseId);
-      const minCollat = calculateMinCollateral(price, newDebt, undefined, undefined, true);
+      const minCollat = calcMinCollateral(price, newDebt, undefined, undefined, true);
       diagnostics && console.log('min Collat', minCollat.toString());
 
       const rollable = vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat);
