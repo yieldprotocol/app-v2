@@ -100,7 +100,7 @@ export const useCollateralHelpers = (
       const minSafeCalc = calcMinCollateral(
         oraclePrice,
         totalDebt,
-        (minSafeCollatRatio || 2.5),
+        minSafeCollatRatio,
         existingCollateralAsWei
       );
 
