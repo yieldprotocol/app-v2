@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
+import { ThemeContext } from 'styled-components';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
@@ -15,6 +16,8 @@ interface IDashboardBalance {
 }
 
 const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, digits, symbol }: IDashboardBalance) => {
+  const theme = useContext(ThemeContext);
+  const { green, red } = theme.global.colors;
   const {
     userState: { vaultsLoading, seriesLoading, pricesLoading, strategiesLoading },
   } = useContext(UserContext);
@@ -40,7 +43,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
               </Text>
             )}
           </Box>
-          <FiPlus color="#34D399" />
+          <FiPlus color={green} />
           <Box direction="row" justify="between">
             <Text size="xsmall">Total Pooled:</Text>
             {strategiesLoading ? (
@@ -52,7 +55,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
               </Text>
             )}
           </Box>
-          <FiPlus color="#34D399" />
+          <FiPlus color={green} />
         </Box>
         <Box gap="xsmall">
           <Box direction="row" justify="between">
@@ -66,7 +69,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
               </Text>
             )}
           </Box>
-          <FiMinus color="#F87171" />
+          <FiMinus color={red} />
         </Box>
         <Box gap="xsmall">
           <Box direction="row" justify="between">

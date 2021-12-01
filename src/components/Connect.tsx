@@ -75,13 +75,12 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
               disabled={disclaimerChecked === false}
             >
               <Box direction="row" gap="xsmall">
-                {/* {connected && <FiCheckCircle color="#34D399" />} */}
                 {activating ? (
                   <Text size="small" color={connected ? 'white' : 'text'}>
                     'Connecting'
                   </Text>
                 ) : (
-                  <Box direction="row" gap='small'>
+                  <Box direction="row" gap="small">
                     <Text size="small" color={connected ? 'white' : 'text'} textAlign="center">
                       {displayName}
                     </Text>

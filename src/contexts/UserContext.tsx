@@ -267,33 +267,29 @@ const UserProvider = ({ children }: any) => {
   const updatePrice = useCallback(
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
+      
+      const compositeOracleAssets = [ '0x303400000000', '0x303700000000' ]
 
       let Oracle;
       switch (chainState.connection.fallbackChainId) {
         case 1:
-          Oracle =
-            priceBase === '0x303400000000' ||
-            quote === '0x303400000000' ||
-            priceBase === '0x303700000000' ||
-            quote === '0x303700000000'
+          Oracle = 
+          compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
               ? contractMap.get('CompositeMultiOracle')
               : contractMap.get('ChainlinkMultiOracle');
           break;
         case 42:
           Oracle =
-            priceBase === '0x303400000000' ||
-            quote === '0x303400000000' ||
-            priceBase === '0x303700000000' ||
-            quote === '0x303700000000'
-              ? contractMap.get('CompositeMultiOracle')
-              : contractMap.get('ChainlinkMultiOracle');
+          compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
+          ? contractMap.get('CompositeMultiOracle')
+          : contractMap.get('ChainlinkMultiOracle');
           break;
         case 421611:
           contractMap.get('ChainlinkUSDOracle');
           break;
         default:
           break;
-      }
+      };
 
       try {
         const _quoteMap = userState.priceMap;
