@@ -92,10 +92,10 @@ const Borrow = () => {
     collateralizationPercent,
     undercollateralized,
     minCollateral_,
-    minSafeCollateral,
+    minSafeCollateral_,
     maxCollateral,
-    minSafeCollatRatioPct,
-    minCollatRatioPct,
+    minSafeCollatRatio,
+    minCollatRatio,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
@@ -348,7 +348,7 @@ const Borrow = () => {
                         <Gauge
                           value={parseFloat(collateralizationPercent!)}
                           size={mobile ? '6em' : '8em'}
-                          mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                          mean={(minSafeCollatRatio*100) * 0.9}
                           setColor={handleGaugeColorChange}
                         />
                       </Box>
@@ -369,7 +369,7 @@ const Borrow = () => {
                           <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
                             {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
                           </Text>
-                          <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
+                          <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatio!*100}%</Text>
                         </Box>
                       </Box>
                     </Box>
@@ -385,13 +385,13 @@ const Borrow = () => {
                           message={
                             !mobile ? (
                               borrowInput &&
-                              minSafeCollateral && (
+                              minSafeCollateral_ && (
                                 <InputInfoWrap
-                                  action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
+                                  action={() => setCollatInput(cleanValue(minSafeCollateral_, selectedIlk?.decimals))}
                                 >
                                   <Text size="small" color="text-weak">
                                     Use Safe Collateralization{': '}
-                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)}{' '}
+                                    {cleanValue(minSafeCollateral_, selectedIlk?.digitFormat)}{' '}
                                     {selectedIlk?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
@@ -479,7 +479,7 @@ const Borrow = () => {
                         <Gauge
                           value={parseFloat(collateralizationPercent!)}
                           size="1em"
-                          mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                          mean={ (minSafeCollatRatio!*100) * 0.9}
                         />
                       }
                       value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${

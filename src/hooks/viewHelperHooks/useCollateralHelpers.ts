@@ -34,10 +34,10 @@ export const useCollateralHelpers = (
   const [minCollateral, setMinCollateral] = useState<BigNumber>();
   const [minCollateral_, setMinCollateral_] = useState<string | undefined>();
 
-  const [minCollatRatioPct, setMinCollatRatioPct] = useState<string | undefined>();
-  const [minSafeCollatRatio, setMinSafeCollatRatio] = useState<number | undefined>();
-  const [minSafeCollatRatioPct, setMinSafeCollatRatioPct] = useState<string | undefined>();
-  const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
+  const [minCollatRatio, setMinCollatRatio] = useState<number| undefined>(1.5); // default at 150%
+  const [minSafeCollatRatio, setMinSafeCollatRatio] = useState<number>(2.5); // default at 250% 
+
+  const [minSafeCollateral_, setMinSafeCollateral_] = useState<string | undefined>();
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
 
@@ -122,7 +122,7 @@ export const useCollateralHelpers = (
         : undefined;
       setMinCollateral(min as BigNumber);
       setMinCollateral_(ethers.utils.formatUnits(min, 18).toString());
-      setMinSafeCollateral(minSafe);
+      setMinSafeCollateral_(minSafe);
     } else {
       setMinCollateral(ZERO_BN);
       setMinCollateral_('0');
@@ -154,11 +154,16 @@ export const useCollateralHelpers = (
     collateralizationRatio,
     collateralizationPercent,
     undercollateralized,
+
+    minCollatRatio,
+    
     minCollateral,
     minCollateral_,
-    minCollatRatioPct,
-    minSafeCollatRatioPct,
-    minSafeCollateral,
+
+    minSafeCollatRatio,
+
+    minSafeCollateral_,
+    
     maxCollateral,
     maxRemovableCollateral,
     unhealthyCollatRatio,
