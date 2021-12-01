@@ -866,7 +866,7 @@ export const calcCollateralizationRatio = (
 export const calcMinCollateral = (
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
-  liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
+  liquidationRatio: string,
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in
   asBigNumber: boolean = false
 ): string | BigNumber => {
@@ -896,7 +896,7 @@ export const calcBorrowingPower = (
   collateralAmount: BigNumber | string,
   collateralPrice: BigNumber | string,
   debtValue: BigNumber | string,
-  liquidationRatio: string = '1.5' // OPTIONAL: 150% as default
+  liquidationRatio: string,
 ): string => {
   const collateralValue = mulDecimal(collateralAmount, collateralPrice);
   const maxSafeDebtValue_ = new Decimal(divDecimal(collateralValue, liquidationRatio));
@@ -920,7 +920,7 @@ export const calcBorrowingPower = (
   collateralAmount: BigNumber | string,
   collateralPrice: BigNumber | string,
   debtValue: BigNumber | string,
-  liquidationRatio: string = '1.5' // OPTIONAL: 150% as default
+  liquidationRatio: string,
 ): string => {
   
   const collateralValue = mulDecimal(collateralAmount, collateralPrice);
