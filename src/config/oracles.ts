@@ -6,11 +6,11 @@ const CHAINLINK_USD_ORACLE = 'CHAINLINK_USD_ORACLE';
 const ACCUMULATOR_MULTI_ORACLE = 'AccumulatorMultiOracle';
 
 interface IOracleInfo {
-  [number]: Map<string, IAssetOracleInfo>;
+  [chainId: number]: Map<string, IAssetOracleInfo>;
 }
 
 interface IAssetOracleInfo {
-  [string]: Map<string, string>;
+  [baseId: string]: Map<string, string>;
 }
 
 // map chain id to oracle info
