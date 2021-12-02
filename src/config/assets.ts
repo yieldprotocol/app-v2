@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { IAssetInfo } from '../types';
+import { IAssetInfo, IAssetPair } from '../types';
 
 export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
@@ -57,9 +57,20 @@ ASSET_INFO.set('stETH', {
 ASSET_INFO.set('LINK', { showToken: true, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
 ASSET_INFO.set('UNI', { showToken: false, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
 
-export const PAIRWISE_ASSET_MAP = new Map<string, {oracle:string, price:string|undefined, limit: number|undefined}>();
-const assetArr = Array.from(ASSET_INFO.keys());
-assetArr.map((x: any) => assetArr.forEach((_x: any) => { 
-    PAIRWISE_ASSET_MAP.set(x+_x, { oracle: 'CompositeMultiOracle', price:undefined, limit:undefined })
-}));
-console.log(PAIRWISE_ASSET_MAP);
+// export const PAIRWISE_ASSET_MAP = new Map<string, IAssetPair>();
+// const assetArr = Array.from(ASSET_INFO.keys());
+// assetArr.map((x: any) =>
+//   assetArr.forEach((_x: any) => {
+//     PAIRWISE_ASSET_MAP.set(x + _x, {
+//       base: x,
+//       collateral: _x,
+//       price: undefined,
+//       minLimit: undefined,
+//       maxLimit: undefined,
+//       totalDebt: undefined,
+//       decimals: undefined,
+//       ratio: undefined,
+//     });
+//   })
+// );
+// console.log(PAIRWISE_ASSET_MAP);
