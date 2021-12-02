@@ -28,6 +28,8 @@ export interface IUserContextState {
   vaultMap: Map<string, IVault>;
   strategyMap: Map<string, IStrategy>;
 
+  assetPairMap: Map<string, IAssetPair>;
+
   priceMap: Map<string, Map<string, any>>; // oracle pricing
   limitMap: Map<string, Map<string, [BigNumber, BigNumber]>>; // min/max limits
 
@@ -166,6 +168,20 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
+}
+
+export interface IAssetPair {
+  base: string;
+  collateral: string;
+
+  price: BigNumber | string | undefined;
+  minLimit: number | undefined;
+  maxLimit: number | undefined;
+  totalDebt: number | undefined;
+  decimals: number | undefined;
+  minRatio: number | undefined;
+
+  oracle?: string;
 }
 
 export interface IStrategyRoot extends ISignable {

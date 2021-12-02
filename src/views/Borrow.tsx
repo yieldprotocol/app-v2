@@ -47,6 +47,7 @@ import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrat
 import YieldNavigation from '../components/YieldNavigation';
 import VaultItem from '../components/positionItems/VaultItem';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { useAssetPair } from '../hooks/useAssetPair';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -87,6 +88,8 @@ const Borrow = () => {
 
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+
+  const assetPair = useAssetPair(selectedIlk!, selectedBase!); 
 
   const {
     collateralizationPercent,
