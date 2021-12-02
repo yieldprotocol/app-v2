@@ -35,15 +35,21 @@ function DummyVaultItem({
       ilkId: selectedIlk?.id!,
       displayName: '',
       decimals: selectedBase?.decimals!,
+      
       owner: '',
       isWitchOwner: false,
+
       isActive: true,
       ink: ethers.BigNumber.from(0),
       art: ethers.BigNumber.from(0),
       ink_: '',
       art_: '',
-      minDebt: ethers.BigNumber.from(0),
-      maxDebt: ethers.BigNumber.from(0),
+
+      minRatio: 1.5,
+      minDebtLimit: ethers.BigNumber.from(0),
+      maxDebtLimit: ethers.BigNumber.from(0),
+      pairPrice: ethers.BigNumber.from(0),
+      pairTotalDebt: ethers.BigNumber.from(0)
     };
     // setSelectedVault(dummyVault);
     history.push(`/vaultposition/${_vaultId}`);
