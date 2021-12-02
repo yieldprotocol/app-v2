@@ -171,16 +171,14 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 }
 
 export interface IAssetPair {
-  base: string;
-  collateral: string;
-
-  price: BigNumber | string | undefined;
-  minLimit: number | undefined;
-  maxLimit: number | undefined;
-  totalDebt: number | undefined;
-  decimals: number | undefined;
+  baseId: string;
+  ilkId: string;
+  decimals: number;
   minRatio: number | undefined;
-
+  minDebtLimit: BigNumber | number | undefined;
+  maxDebtLimit: BigNumber | number | undefined;
+  pairPrice: BigNumber | string | undefined;
+  pairTotalDebt: BigNumber | number | undefined;
   oracle?: string;
 }
 
@@ -225,7 +223,7 @@ export interface IAsset extends IAssetRoot {
 }
 
 export interface IDummyVault extends IVaultRoot {}
-export interface IVault extends IVaultRoot {
+export interface IVault extends IVaultRoot, IAssetPair {
   owner: string;
   isWitchOwner: boolean;
   isActive: boolean;
@@ -233,8 +231,6 @@ export interface IVault extends IVaultRoot {
   art: BigNumber;
   ink_: string;
   art_: string;
-  minDebt: BigNumber;
-  maxDebt: BigNumber;
 }
 
 export interface IStrategy extends IStrategyRoot {
