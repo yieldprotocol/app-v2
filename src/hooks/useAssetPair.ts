@@ -17,11 +17,11 @@ export const useAssetPair = (collateral: IAsset, base: IAsset) => {
   } = useContext(UserContext);
 
   /* LOCAL STATE */
-  const [assetPair, setAssetPair] = useState<IAssetPair>();
+  const [ assetPair, setAssetPair ] = useState<IAssetPair>();
 
   /* update pair if required */
-  const updatePair = useCallback( async (_bas: IAsset, _coll: IAsset) => {
-    const pair_ = await updateAssetPair(_bas.id,_coll.id );
+  const updatePair = useCallback( async (_b: IAsset, _c: IAsset) => {
+    const pair_ = await updateAssetPair(_b.id,_c.id);
     setAssetPair(pair_);
   }, [updateAssetPair]);
 
