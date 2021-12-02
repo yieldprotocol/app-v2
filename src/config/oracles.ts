@@ -1,8 +1,8 @@
 import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI } from './assets';
 
-const COMPOSITE_MULTI_ORACLE = 'COMPOSITE_MULTI_ORACLE';
-const CHAINLINK_MULTI_ORACLE = 'CHAINLINK_MULTI_ORACLE';
-const CHAINLINK_USD_ORACLE = 'CHAINLINK_USD_ORACLE';
+const COMPOSITE_MULTI_ORACLE = 'CompositeMultiOracle';
+const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
+const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
 const ACCUMULATOR_MULTI_ORACLE = 'AccumulatorMultiOracle';
 
 // map chain id to oracle info
