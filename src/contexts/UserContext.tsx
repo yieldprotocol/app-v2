@@ -385,16 +385,16 @@ const UserProvider = ({ children }: any) => {
           break;
       }
 
-      console.log('Getting Asset Pair Info: ', baseId, ilkId);
+      diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
 
       /* Get debt params */
       const { max, min, sum, dec } = await Cauldron.debt(baseId, ilkId);
       /* get spot ratio  Levels */
       const { ratio: minRatio } = await Cauldron.spotOracles(baseId, ilkId);
       /* get pricing if available */
-      let price: BigNumber = ethers.constants.Zero;
+      let pairPrice: BigNumber = ethers.constants.Zero;
       try {
-        [price] = await Oracle.peek(
+        [pairPrice] = await Oracle.peek(
           bytesToBytes32(baseId, 6),
           bytesToBytes32(ilkId, 6),
           decimal18ToDecimalN(WAD_BN, dec)
@@ -406,13 +406,13 @@ const UserProvider = ({ children }: any) => {
       }
 
       const newPair = {
-        base: baseId,
-        collateral: ilkId,
-        minLimit: min,
-        maxLimit: max,
+        baseId,
+        ilkId,
+        minDebtLimit: min,
+        maxDebtLimit: max,
         decimals: dec,
-        totalDebt: sum,
-        price,
+        pairTotalDebt: sum,
+        pairPrice,
         minRatio,
       } as IAssetPair;
 
@@ -535,30 +535,21 @@ const UserProvider = ({ children }: any) => {
             diagnostics && console.log('Already had Asset Pair Info');
           }
 
-          /* update balance and series  ( series - because a vault can have been rolled to another series) */
+          /* Get dynamic vault data */
           const [
             { ink, art },
-            { owner, seriesId, ilkId },
-            { min: minDebt, max: maxDebt, sum: totalDebt },
-            { minLimit, maxLimit, minRatio, totalDebt: pairTotalDebt },
+            { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
+            { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice }
           ] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
-            await Cauldron.debt(vault.baseId, vault.ilkId),
-            await userState.assetPairMap.get(vault.baseId + vault.ilkId),
+            await userState.assetPairMap.get(vault.baseId + vault.ilkId) // this handles fetching the assetPAir data if required ( either from the map, or network)
           ]);
-
-          // const {
-          //   minLimit,
-          //   maxLimit,
-          //   minRatio,
-          //   totalDebt: pairTotalDebt,
-          // } = (await userState.assetPairMap.get(vault.baseId + vault.ilkId)) as IAssetPair;
 
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
 
-          console.log(vault.id, minLimit, maxLimit, minRatio, pairTotalDebt);
+          diagnostics && console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice);
 
           return {
             ...vault,
@@ -569,10 +560,15 @@ const UserProvider = ({ children }: any) => {
             ilkId, // refreshed in case ilkId has been updated
             ink,
             art,
+            
             ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
             art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
-            minDebt,
-            maxDebt,
+            
+            minDebtLimit,
+            maxDebtLimit,
+            minRatio,
+            pairPrice,
+            pairTotalDebt,
           };
         })
       );
