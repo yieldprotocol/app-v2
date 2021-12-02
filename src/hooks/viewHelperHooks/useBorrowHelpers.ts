@@ -2,10 +2,11 @@ import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IVault, ISeries, IAsset } from '../../types';
+import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
 import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
+import { useAssetPair } from '../useAssetPair';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -67,6 +68,9 @@ export const useBorrowHelpers = (
   const [userBaseAvailable_, setUserBaseAvailable_] = useState<string | undefined>();
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
+
+  const assetPairInfo : IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
+
   /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
     const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber | string, total: BigNumber) => {
@@ -89,6 +93,12 @@ export const useBorrowHelpers = (
       setTotalDebt_(ethers.utils.formatUnits(_total, _decimals)?.toString());
     };
 
+    // if (assetPairInfo ) {
+    //   console.log( 'maxLimit: ', assetPairInfo.maxLimit ); 
+    //   console.log( 'minLimit: ', assetPairInfo.minLimit ); 
+    //   setLimits(assetPairInfo.maxLimit, assetPairInfo.minLimit, assetPairInfo.decimals, assetPairInfo.totalDebt )
+    // }
+    
     if (selectedBase && selectedIlk && limitMap.get(selectedBase.idToUse)?.has(selectedIlk.idToUse)) {
       const _limit = limitMap.get(selectedBase.idToUse).get(selectedIlk.idToUse); // get the limit from the map
       setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
@@ -104,6 +114,8 @@ export const useBorrowHelpers = (
         }
       })();
     }
+
+
   }, [limitMap, selectedBase, selectedIlk, updateLimit, diagnostics]);
 
   /* check max debt limit is not reached */
