@@ -30,9 +30,6 @@ export interface IUserContextState {
 
   assetPairMap: Map<string, IAssetPair>;
 
-  priceMap: Map<string, Map<string, any>>; // oracle pricing
-  limitMap: Map<string, Map<string, [BigNumber, BigNumber]>>; // min/max limits
-
   vaultsLoading: boolean;
   seriesLoading: boolean;
   assetsLoading: boolean;
@@ -53,8 +50,9 @@ export interface IUserContextActions {
   updateAssets: (assetList: IAsset[]) => void;
   updateStrategies: (strategyList: IStrategy[]) => void;
 
-  updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
-  updateLimit: (ilkId: string, baseId: string) => void;
+  // updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
+  // updateLimit: (ilkId: string, baseId: string) => void;
+  updateAssetPair: (baseId: string, ilkId: string) => void;
 
   setSelectedSeries: (series: ISeries | null) => void;
   setSelectedIlk: (ilk: IAsset | null) => void;
