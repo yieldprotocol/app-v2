@@ -8,7 +8,7 @@ const ACCUMULATOR_MULTI_ORACLE = 'AccumulatorMultiOracle';
 // map chain id to oracle info
 export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
 
-// map asset (baseId) and other asset (ilkId) to a specific oracle based on where there is relevant price info for the pair
+// map asset (quote) and other asset (base) to a specific oracle based on where there is relevant price info for the pair
 export const CHAIN_ID_1_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_42_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_421611_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
