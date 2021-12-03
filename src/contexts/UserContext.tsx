@@ -32,6 +32,7 @@ import {
 import { WAD_BN, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ENS, stETH, wstETH } from '../config/assets';
+import { ORACLE_INFO } from '../config/oracles';
 
 const UserContext = React.createContext<any>({});
 
@@ -273,31 +274,10 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: 'assetPairLoading', payload: true });
 
       const Cauldron = contractMap.get('Cauldron');
-      const compositeOracleAssets = ['stETH', 'ENS', ENS, stETH, wstETH, 'wstETH'];
-
-      let Oracle = contractMap.get('ChainlinkMultiOracle');
-      switch (fallbackChainId) {
-        case 1:
-          Oracle =
-            compositeOracleAssets.includes(baseId) || compositeOracleAssets.includes(ilkId)
-              ? contractMap.get('CompositeMultiOracle')
-              : contractMap.get('ChainlinkMultiOracle');
-          break;
-        case 42:
-          Oracle =
-            compositeOracleAssets.includes(baseId) || compositeOracleAssets.includes(ilkId)
-              ? contractMap.get('CompositeMultiOracle')
-              : contractMap.get('ChainlinkMultiOracle');
-          break;
-        case 421611:
-          contractMap.get('ChainlinkUSDOracle');
-          break;
-        default:
-          break;
-      }
+      const oracleName = ORACLE_INFO.get(fallbackChainId)?.get(ilkId)?.get(baseId);
+      const Oracle = contractMap.get(oracleName);
 
       diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
-
       /* Get debt params */
       const { max, min, sum, dec } = await Cauldron.debt(baseId, ilkId);
       /* get spot ratio  Levels */
@@ -311,11 +291,11 @@ const UserProvider = ({ children }: any) => {
           decimal18ToDecimalN(WAD_BN, dec)
         );
       } catch (error) {
-        diagnostics && console.log('Error getting pricing for: ', baseId, ilkId);
+        diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
         diagnostics && console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
       }
-
+      
       const newPair = {
         baseId,
         ilkId,

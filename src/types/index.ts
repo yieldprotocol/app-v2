@@ -1,8 +1,37 @@
-import { ethers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
+import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import React from 'react';
 import { ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
+
+export interface IChainContext {
+  chainState: IChainContextState;
+  chainActions: IChainContextActions;
+}
+
+export interface IChainContextState {
+  appVersion: string;
+  connection: IConnectionState;
+
+  chainLoading: boolean;
+
+  contractMap: Map<string, Contract>;
+  assetRootMap: Map<string, IAssetRoot>;
+  seriesRootMap: Map<string, ISeriesRoot>;
+  strategyRootMap: Map<string, IStrategyRoot>;
+}
+
+export interface IConnectionState {
+  provider: ethers.providers.JsonRpcProvider | null;
+  chainId: number | null;
+  fallbackProvider: ethers.providers.Web3Provider | null;
+  fallbackChainId: number | null;
+  signer: ethers.providers.JsonRpcSigner | null;
+  account: string | null;
+  web3Active: boolean;
+  fallbackActive: boolean;
+  connectorName: string | null;
+}
 
 export interface IHistoryList {
   lastBlock: number;
@@ -13,6 +42,12 @@ export interface IHistoryContextState {
   tradeHistory: IHistoryList;
   poolHistory: IHistoryList;
   vaultHistory: IHistoryList;
+}
+
+export interface IChainContextActions {
+  connect: (connection: string) => void;
+  disconnect: () => void;
+  isConnected: (connection: string) => void;
 }
 
 export interface IUserContext {
@@ -136,10 +171,10 @@ export interface IAssetInfo {
 
   color: string;
   digitFormat: number; // this is the 'resonable' number of digits to show. accuracy equavalent to +- 1 us cent.
-  
+
   displaySymbol?: string; // override for symbol display
   wrapHandlerAddress?: string;
-  
+
   wrappedTokenId?: string;
   unwrappedTokenId?: string;
 

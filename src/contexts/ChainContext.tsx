@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 
 import * as yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetInfo, IAssetRoot, ISeriesRoot, IStrategyRoot } from '../types';
+import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
 import { ASSET_INFO, ETH_BASED_ASSETS, USDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
@@ -43,7 +43,7 @@ const markMap = new Map([
 /* Build the context */
 const ChainContext = React.createContext<any>({});
 
-const initState = {
+const initState: IChainContextState = {
   appVersion: '0.0.0' as string,
 
   connection: {
@@ -156,7 +156,7 @@ const ChainProvider = ({ children }: any) => {
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
 
-        if ([1, 42].includes(fallbackChainId)) {
+        if ([1, 4, 42].includes(fallbackChainId)) {
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
             fallbackProvider
@@ -177,7 +177,7 @@ const ChainProvider = ({ children }: any) => {
       }
 
       if (
-        [1, 42].includes(fallbackChainId) &&
+        [1,4, 42].includes(fallbackChainId) &&
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
@@ -257,7 +257,7 @@ const ChainProvider = ({ children }: any) => {
               ERC20.symbol(),
               ERC20.decimals(),
               id === USDC ? '2' : '1', // TODO  ERC20.version()
-            ]); 
+            ]);
 
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
             const idToUse = assetInfo?.wrappedTokenId || id;
@@ -266,7 +266,7 @@ const ChainProvider = ({ children }: any) => {
               id,
               address,
               name,
-              
+
               symbol,
               decimals,
               version,

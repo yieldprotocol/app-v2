@@ -74,6 +74,8 @@ export const useAddLiquidity = () => {
       slippageTolerance
     );
 
+    console.log(cachedBaseReserves, cachedRealReserves)
+
     const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
@@ -89,7 +91,7 @@ export const useAddLiquidity = () => {
     const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gt(_input) : false;
 
     /* DIAGNOSITCS */
-    diagnostics &&
+
       console.log(
         'input: ',
         _input.toString(),

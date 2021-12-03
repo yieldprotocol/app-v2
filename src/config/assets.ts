@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { IAssetInfo, IAssetPair } from '../types';
+import { IAssetInfo } from '../types';
 
 export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
@@ -12,11 +12,12 @@ export const ENS = '0x303700000000';
 
 export const UNI = '0x313000000000';
 
-export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
-export const DAI_PERMIT_ASSETS = ['DAI', DAI];
-export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK];
+export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14) ];
+export const DAI_PERMIT_ASSETS = [ 'DAI', DAI ];
+export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WETH];
 
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
+// export const IGNORE_BASE_ASSETS = ['ENS'];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
 ASSET_INFO.set('DAI', { showToken: true, isWrappedToken: false, color: '#F5AC37', digitFormat: 2 });
@@ -56,21 +57,3 @@ ASSET_INFO.set('stETH', {
 
 ASSET_INFO.set('LINK', { showToken: true, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
 ASSET_INFO.set('UNI', { showToken: false, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
-
-// export const PAIRWISE_ASSET_MAP = new Map<string, IAssetPair>();
-// const assetArr = Array.from(ASSET_INFO.keys());
-// assetArr.map((x: any) =>
-//   assetArr.forEach((_x: any) => {
-//     PAIRWISE_ASSET_MAP.set(x + _x, {
-//       base: x,
-//       collateral: _x,
-//       price: undefined,
-//       minLimit: undefined,
-//       maxLimit: undefined,
-//       totalDebt: undefined,
-//       decimals: undefined,
-//       ratio: undefined,
-//     });
-//   })
-// );
-// console.log(PAIRWISE_ASSET_MAP);
