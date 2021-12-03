@@ -13,7 +13,16 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import MaxButton from '../components/buttons/MaxButton';
 
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISettingsContext, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../types';
+import {
+  ActionCodes,
+  ActionType,
+  ISettingsContext,
+  IUserContext,
+  IUserContextState,
+  IVault,
+  ProcessStage,
+  TxState,
+} from '../types';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
 import VaultSelector from '../components/selectors/VaultPositionSelector';
@@ -60,7 +69,8 @@ const Borrow = () => {
     },
   } = useContext(ChainContext);
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } =
+    userState as IUserContextState;
 
   const {
     settingsState: { diagnostics },
@@ -89,9 +99,7 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const assetPair = useAssetPair(selectedIlk!, selectedBase!); 
-
-  console.log(assetPair); 
+  const assetPair = useAssetPair(selectedBase!, selectedIlk!);
 
   const {
     collateralizationPercent,
@@ -128,15 +136,15 @@ const Borrow = () => {
   const handleBorrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     !borrowDisabled && borrow(_vault, borrowInput, collatInput);
-  }
+  };
 
-  useEffect(()=>{
-    setRenderId( (new Date().getTime()).toString(36));
-  },[])
+  useEffect(() => {
+    setRenderId(new Date().getTime().toString(36));
+  }, []);
   const handleNavAction = (_stepPosition: number) => {
     setStepPosition(_stepPosition);
     analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
-    diagnostics && console.log( 'nav: ' , { screen: 'BORROW', step: _stepPosition, renderId })
+    diagnostics && console.log('nav: ', { screen: 'BORROW', step: _stepPosition, renderId });
   };
 
   const handleGaugeColorChange: any = (val: string) => {

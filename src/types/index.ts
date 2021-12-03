@@ -69,8 +69,7 @@ export interface IUserContextState {
   seriesLoading: boolean;
   assetsLoading: boolean;
   strategiesLoading: boolean;
-  pricesLoading: boolean;
-  limitsLoading: boolean;
+  assetPairLoading: boolean;
 
   selectedSeries: ISeries | null;
   selectedIlk: IAsset | null;
@@ -85,9 +84,7 @@ export interface IUserContextActions {
   updateAssets: (assetList: IAsset[]) => void;
   updateStrategies: (strategyList: IStrategy[]) => void;
 
-  // updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
-  // updateLimit: (ilkId: string, baseId: string) => void;
-  updateAssetPair: (baseId: string, ilkId: string) => void;
+  updateAssetPair: (baseId: string, ilkId: string) => Promise<IAssetPair>;
 
   setSelectedSeries: (series: ISeries | null) => void;
   setSelectedIlk: (ilk: IAsset | null) => void;
