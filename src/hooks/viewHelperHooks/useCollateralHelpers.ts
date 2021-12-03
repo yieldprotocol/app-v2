@@ -47,12 +47,10 @@ export const useCollateralHelpers = (
 
   /* update the prices if anything changes */
   useEffect(() => {
-
-    if (assetPairInfo ) {
+    if (assetPairInfo) {
       setOraclePrice(decimalNToDecimal18(assetPairInfo.pairPrice, assetPairInfo.baseDecimals));
     }
-  }, [priceMap, updatePrice, selectedBase, selectedIlk, assetPairInfo ]);
-
+  }, [priceMap, updatePrice, selectedBase, selectedIlk, assetPairInfo]);
 
   /* CHECK collateral selection and sets the max available collateral a user can add */
   useEffect(() => {

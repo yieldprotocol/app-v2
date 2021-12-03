@@ -271,6 +271,7 @@ const UserProvider = ({ children }: any) => {
 
   const updateAssetPair = useCallback(
     async (baseId: string, ilkId: string): Promise<IAssetPair> => {
+      
       updateState({ type: 'assetPairLoading', payload: true });
 
       const Cauldron = contractMap.get('Cauldron');
@@ -279,10 +280,13 @@ const UserProvider = ({ children }: any) => {
       const base: IAssetRoot = assetRootMap.get(baseId);
 
       diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
-      /* Get debt params */
-      const { max, min, sum, dec } = await Cauldron.debt(baseId, ilkId);
-      /* get spot ratio  Levels */
-      const { ratio: minRatio } = await Cauldron.spotOracles(baseId, ilkId);
+      
+      /* Get debt params  and spot ratios */
+      const [{ max, min, sum, dec }, { ratio } ] = await Promise.all([
+        await Cauldron.debt(baseId, ilkId),
+        await Cauldron.spotOracles(baseId, ilkId)
+      ])
+      
       /* get pricing if available */
       let pairPrice: BigNumber = ethers.constants.Zero;
       try {
@@ -296,21 +300,17 @@ const UserProvider = ({ children }: any) => {
         diagnostics && console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
       }
-
-      const limitDecimals = dec;
-      const minDebtLimit =  BigNumber.from(min).mul(BigNumber.from('10').pow(dec));
-      const maxDebtLimit =  max.mul(BigNumber.from('10').pow(dec));
-      const pairTotalDebt = sum.mul(BigNumber.from('10').pow(dec));
-
+      
       const newPair = {
         baseId,
         ilkId,
-        minDebtLimit,
-        maxDebtLimit,
-        limitDecimals,
-        pairTotalDebt,
+        minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)),
+        maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)),
+        limitDecimals: dec,
+        pairTotalDebt: sum.mul(BigNumber.from('10').pow(dec)),
         pairPrice,
-        minRatio,
+        minRatio: ratio,
+        baseDecimals: base.decimals,
       } as IAssetPair;
 
       updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
