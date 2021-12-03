@@ -267,34 +267,40 @@ const UserProvider = ({ children }: any) => {
   const updatePrice = useCallback(
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
-      
-      const compositeOracleAssets = [ '0x303400000000', '0x303700000000' ]
 
-      let Oracle;
+      const compositeOracleAssets = ['0x303400000000', '0x303700000000'];
+
+      let Oracle = contractMap.get('ChainlinkMultiOracle');
       switch (chainState.connection.fallbackChainId) {
         case 1:
-          Oracle = 
-          compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
+          Oracle =
+            compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
+              ? contractMap.get('CompositeMultiOracle')
+              : contractMap.get('ChainlinkMultiOracle');
+          break;
+        case 4:
+          Oracle =
+            compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
               ? contractMap.get('CompositeMultiOracle')
               : contractMap.get('ChainlinkMultiOracle');
           break;
         case 42:
           Oracle =
-          compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
-          ? contractMap.get('CompositeMultiOracle')
-          : contractMap.get('ChainlinkMultiOracle');
+            compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
+              ? contractMap.get('CompositeMultiOracle')
+              : contractMap.get('ChainlinkMultiOracle');
           break;
         case 421611:
           contractMap.get('ChainlinkUSDOracle');
           break;
         default:
           break;
-      };
+      }
 
       try {
         const _quoteMap = userState.priceMap;
         const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
-        // const Oracle = oracleSwitch();
+        console.log(Oracle);
         const [price] = await Oracle.peek(
           bytesToBytes32(priceBase, 6),
           bytesToBytes32(quote, 6),
@@ -309,7 +315,8 @@ const UserProvider = ({ children }: any) => {
 
         return price;
       } catch (error) {
-        console.log('Error getting pricing', error);
+        console.log('Error getting pricing', bytesToBytes32(priceBase, 6), bytesToBytes32(quote, 6));
+        console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
       }

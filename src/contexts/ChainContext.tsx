@@ -156,7 +156,7 @@ const ChainProvider = ({ children }: any) => {
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
 
-        if ([1, 42].includes(fallbackChainId)) {
+        if ([1, 4, 42].includes(fallbackChainId)) {
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
             fallbackProvider
@@ -177,7 +177,7 @@ const ChainProvider = ({ children }: any) => {
       }
 
       if (
-        [1, 42].includes(fallbackChainId) &&
+        [1,4, 42].includes(fallbackChainId) &&
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
