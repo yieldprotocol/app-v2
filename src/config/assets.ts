@@ -16,7 +16,8 @@ export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32
 export const DAI_PERMIT_ASSETS = [ 'DAI', DAI ];
 export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK];
 
-export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
+// export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
+export const IGNORE_BASE_ASSETS = ['3'];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
 ASSET_INFO.set('DAI', { showToken: true, isWrappedToken: false, color: '#F5AC37', digitFormat: 2 });
