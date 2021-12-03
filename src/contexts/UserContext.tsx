@@ -31,7 +31,6 @@ import {
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ENS, stETH, wstETH } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 
 const UserContext = React.createContext<any>({});
@@ -101,7 +100,7 @@ function userReducer(state: any, action: any) {
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
     case 'assetPairLoading':
-        return { ...state, assetPairLoading: onlyIfChanged(action) };
+      return { ...state, assetPairLoading: onlyIfChanged(action) };
 
     case 'selectedVault':
       return { ...state, selectedVault: action.payload };
@@ -131,7 +130,9 @@ const UserProvider = ({ children }: any) => {
     strategyRootMap,
   } = chainState;
 
-  const { showWrappedTokens, diagnostics } = useContext(SettingsContext);
+  const {
+    settingsState: { showWrappedTokens, diagnostics },
+  } = useContext(SettingsContext);
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
@@ -268,56 +269,54 @@ const UserProvider = ({ children }: any) => {
     [account, assetRootMap, seriesRootMap, showWrappedTokens]
   );
 
-  const updateAssetPair =
-    async (baseId: string, ilkId: string): Promise<IAssetPair> => {
-      updateState({ type: 'assetPairLoading', payload: true });
+  const updateAssetPair = async (baseId: string, ilkId: string): Promise<IAssetPair> => {
+    updateState({ type: 'assetPairLoading', payload: true });
 
-      const Cauldron = contractMap.get('Cauldron');
-      const oracleName = ORACLE_INFO.get(fallbackChainId)?.get(ilkId)?.get(baseId);
-      const Oracle = contractMap.get(oracleName);
-      const base: IAssetRoot = assetRootMap.get(baseId);
+    const Cauldron = contractMap.get('Cauldron');
+    const oracleName = ORACLE_INFO.get(fallbackChainId)?.get(baseId)?.get(ilkId);
+    const Oracle = contractMap.get(oracleName);
+    const base: IAssetRoot = assetRootMap.get(baseId);
 
-      diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
+    diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
 
-      // /* Get debt params and spot ratios */
-      const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
-        await Cauldron.debt(baseId, ilkId),
-        await Cauldron.spotOracles(baseId, ilkId),
-      ]);
+    // /* Get debt params and spot ratios */
+    const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
+      await Cauldron.debt(baseId, ilkId),
+      await Cauldron.spotOracles(baseId, ilkId),
+    ]);
 
-      /* get pricing if available */
-      let price: BigNumber;
-      try {
-        [price] = await Oracle.peek(
-          bytesToBytes32(ilkId, 6),
-          bytesToBytes32(baseId, 6),
-          decimal18ToDecimalN(WAD_BN, base.decimals)
-        );
-        console.log(' PRICEEEEE: ' , price);
-
-      } catch (error) {
-        diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
-        diagnostics && console.log(error);
-        price = ethers.constants.Zero;
-      }
-
-      const newPair = {
-        baseId,
-        ilkId,
-        minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)),
-        maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)),
-        limitDecimals: dec,
-        pairTotalDebt: sum,
-        pairPrice: price,
-        minRatio: ratio,
-        baseDecimals: base.decimals,
-      };
-
-      updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
-      updateState({ type: 'assetPairLoading', payload: false });
-
-      return newPair;
+    /* get pricing if available */
+    let price: BigNumber;
+    try {
+      [price] = await Oracle.peek(
+        bytesToBytes32(ilkId, 6),
+        bytesToBytes32(baseId, 6),
+        decimal18ToDecimalN(WAD_BN, base.decimals)
+      );
+      console.log(' PRICEEEEE: ', price);
+    } catch (error) {
+      diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+      diagnostics && console.log(error);
+      price = ethers.constants.Zero;
     }
+
+    const newPair = {
+      baseId,
+      ilkId,
+      minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)),
+      maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)),
+      limitDecimals: dec,
+      pairTotalDebt: sum,
+      pairPrice: price,
+      minRatio: ratio,
+      baseDecimals: base.decimals,
+    };
+
+    updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
+    updateState({ type: 'assetPairLoading', payload: false });
+
+    return newPair;
+  };
   //   [assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
   // );
 
