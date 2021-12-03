@@ -1034,14 +1034,15 @@ export const calcPoolRatios = (
 ): [BigNumber, BigNumber] => {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
+
   const slippage_ = new Decimal(slippage.toString());
   const wad = new Decimal(WAD_BN.toString());
 
   const ratio = baseReserves_.div(fyTokenReserves_).mul(wad);
   const ratioSlippage = ratio.mul(slippage_);
 
-  const min = toBn(ratio.sub(ratioSlippage));
-  const max = toBn(ratio.add(ratioSlippage));
+  const min = ratio.isNaN() ? ratio.sub(ratioSlippage): ZERO_DEC;
+  const max = ratio.isNaN() ? ratio.add(ratioSlippage): ONE_DEC;
 
-  return [min, max];
+  return [ toBn(min), toBn(max) ];
 };

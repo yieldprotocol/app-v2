@@ -275,7 +275,7 @@ const UserProvider = ({ children }: any) => {
       try {
         const _quoteMap = userState.priceMap;
         const _basePriceMap = _quoteMap.get(priceBase) || new Map<string, any>();
-        // const Oracle = oracleSwitch();
+        console.log(Oracle);
         const [price] = await Oracle.peek(
           bytesToBytes32(priceBase, 6),
           bytesToBytes32(quote, 6),
@@ -290,7 +290,8 @@ const UserProvider = ({ children }: any) => {
 
         return price;
       } catch (error) {
-        console.log('Error getting pricing', error);
+        console.log('Error getting pricing', bytesToBytes32(priceBase, 6), bytesToBytes32(quote, 6));
+        console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
         return ethers.constants.Zero;
       }
