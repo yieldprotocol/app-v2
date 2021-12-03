@@ -30,6 +30,7 @@ import {
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
+import { ORACLE_INFO } from '../config/oracles';
 
 const UserContext = React.createContext<any>({});
 
@@ -119,7 +120,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const {
     contractMap,
-    connection: { account },
+    connection: { account, fallbackChainId },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -267,29 +268,9 @@ const UserProvider = ({ children }: any) => {
   const updatePrice = useCallback(
     async (priceBase: string, quote: string, decimals: number = 18): Promise<BigNumber> => {
       updateState({ type: 'pricesLoading', payload: true });
-      
-      const compositeOracleAssets = [ '0x303400000000', '0x303700000000' ]
 
-      let Oracle;
-      switch (chainState.connection.fallbackChainId) {
-        case 1:
-          Oracle = 
-          compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
-              ? contractMap.get('CompositeMultiOracle')
-              : contractMap.get('ChainlinkMultiOracle');
-          break;
-        case 42:
-          Oracle =
-          compositeOracleAssets.includes(priceBase) || compositeOracleAssets.includes(quote)
-          ? contractMap.get('CompositeMultiOracle')
-          : contractMap.get('ChainlinkMultiOracle');
-          break;
-        case 421611:
-          contractMap.get('ChainlinkUSDOracle');
-          break;
-        default:
-          break;
-      };
+      const oracleName = ORACLE_INFO.get(fallbackChainId)?.get(quote)?.get(priceBase);
+      const Oracle = contractMap.get(oracleName);
 
       try {
         const _quoteMap = userState.priceMap;
@@ -314,7 +295,7 @@ const UserProvider = ({ children }: any) => {
         return ethers.constants.Zero;
       }
     },
-    [contractMap, userState.priceMap, chainState.connection.fallbackChainId]
+    [contractMap, userState.priceMap, fallbackChainId]
   );
 
   /* Updates the prices from the oracle with latest data */
