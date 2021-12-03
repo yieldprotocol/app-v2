@@ -2,11 +2,12 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IVault } from '../../types';
+import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
 import { calculateCollateralizationRatio, calculateMinCollateral, decimalNToDecimal18 } from '../../utils/yieldMath';
+import { useAssetPair } from '../useAssetPair';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -42,21 +43,28 @@ export const useCollateralHelpers = (
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
 
+  const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
+
   /* update the prices if anything changes */
   useEffect(() => {
-    if (selectedBase && selectedIlk && priceMap.get(selectedIlk.idToUse)?.has(selectedBase.idToUse)) {
-      const _price = priceMap.get(selectedIlk.idToUse).get(selectedBase.idToUse); // get the price
-      setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
-    } else {
-      (async () => {
-        if (selectedBase && selectedIlk) {
-          /* Update Price before setting */
-          const _price = await updatePrice(selectedIlk.idToUse, selectedBase.idToUse, selectedIlk.decimals);
-          setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
-        }
-      })();
+
+    if (assetPairInfo ) {
+      setOraclePrice(decimalNToDecimal18(assetPairInfo.pairPrice, assetPairInfo.decimals));
     }
-  }, [priceMap, updatePrice, selectedBase, selectedIlk]);
+    // if (selectedBase && selectedIlk && priceMap.get(selectedIlk.idToUse)?.has(selectedBase.idToUse)) {
+    //   const _price = priceMap.get(selectedIlk.idToUse).get(selectedBase.idToUse); // get the price
+    //   setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
+    // } else {
+    //   (async () => {
+    //     if (selectedBase && selectedIlk) {
+    //       /* Update Price before setting */
+    //       const _price = await updatePrice(selectedIlk.idToUse, selectedBase.idToUse, selectedIlk.decimals);
+    //       setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
+    //     }
+    //   })();
+    // }
+  }, [priceMap, updatePrice, selectedBase, selectedIlk, assetPairInfo ]);
+
 
   /* CHECK collateral selection and sets the max available collateral a user can add */
   useEffect(() => {

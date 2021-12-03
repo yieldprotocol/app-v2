@@ -172,11 +172,11 @@ export interface IAssetPair {
   baseId: string;
   ilkId: string;
   decimals: number;
-  minRatio: number | undefined;
-  minDebtLimit: BigNumber | number | undefined;
-  maxDebtLimit: BigNumber | number | undefined;
-  pairPrice: BigNumber | string | undefined;
-  pairTotalDebt: BigNumber | number | undefined;
+  minRatio: number;
+  minDebtLimit: BigNumber;
+  maxDebtLimit: BigNumber;
+  pairPrice: BigNumber;
+  pairTotalDebt: BigNumber;
   oracle?: string;
 }
 

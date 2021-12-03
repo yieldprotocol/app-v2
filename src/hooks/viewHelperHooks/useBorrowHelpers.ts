@@ -21,16 +21,7 @@ export const useBorrowHelpers = (
   } = useContext(SettingsContext);
 
   const {
-    userState: {
-      activeAccount,
-      selectedBase,
-      selectedIlk,
-      assetMap,
-      seriesMap,
-      limitMap,
-      priceMap,
-      selectedSeries,
-    },
+    userState: { activeAccount, selectedBase, selectedIlk, assetMap, seriesMap, limitMap, priceMap, selectedSeries },
     userActions: { updateLimit },
   } = useContext(UserContext);
 
@@ -68,12 +59,11 @@ export const useBorrowHelpers = (
   const [userBaseAvailable_, setUserBaseAvailable_] = useState<string | undefined>();
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
-
-  const assetPairInfo : IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
+  const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
 
   /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
-    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber | string, total: BigNumber) => {
+    const setLimits = (max: BigNumber, min: BigNumber, decimals: number, total: BigNumber) => {
       const _decimals = decimals.toString();
       const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;
       const _min = ethers.utils.parseUnits(min.toString(), _decimals) || ethers.constants.Zero;
@@ -93,29 +83,30 @@ export const useBorrowHelpers = (
       setTotalDebt_(ethers.utils.formatUnits(_total, _decimals)?.toString());
     };
 
-    // if (assetPairInfo ) {
-    //   console.log( 'maxLimit: ', assetPairInfo.maxLimit ); 
-    //   console.log( 'minLimit: ', assetPairInfo.minLimit ); 
-    //   setLimits(assetPairInfo.maxLimit, assetPairInfo.minLimit, assetPairInfo.decimals, assetPairInfo.totalDebt )
-    // }
-    
-    if (selectedBase && selectedIlk && limitMap.get(selectedBase.idToUse)?.has(selectedIlk.idToUse)) {
-      const _limit = limitMap.get(selectedBase.idToUse).get(selectedIlk.idToUse); // get the limit from the map
-      setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
-      diagnostics && console.log('Cached Limit:', _limit[1].toString(), _limit[0].toString());
-    } else {
-      (async () => {
-        if (selectedBase && selectedIlk) {
-          /* Update Price before setting */
-          const _limit = await updateLimit(selectedBase.idToUse, selectedIlk.idToUse);
-          setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
-          diagnostics &&
-            console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
-        }
-      })();
+    if (assetPairInfo) {
+      setLimits(
+        assetPairInfo.maxDebtLimit,
+        assetPairInfo.minDebtLimit,
+        assetPairInfo.decimals,
+        assetPairInfo.pairTotalDebt
+      );
     }
 
-
+    // if (selectedBase && selectedIlk && limitMap.get(selectedBase.idToUse)?.has(selectedIlk.idToUse)) {
+    //   const _limit = limitMap.get(selectedBase.idToUse).get(selectedIlk.idToUse); // get the limit from the map
+    //   setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
+    //   diagnostics && console.log('Cached Limit:', _limit[1].toString(), _limit[0].toString());
+    // } else {
+    //   (async () => {
+    //     if (selectedBase && selectedIlk) {
+    //       /* Update Price before setting */
+    //       const _limit = await updateLimit(selectedBase.idToUse, selectedIlk.idToUse);
+    //       setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
+    //       diagnostics &&
+    //         console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
+    //     }
+    //   })();
+    // }
   }, [limitMap, selectedBase, selectedIlk, updateLimit, diagnostics]);
 
   /* check max debt limit is not reached */
