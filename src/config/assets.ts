@@ -14,7 +14,7 @@ export const UNI = '0x313000000000';
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14) ];
 export const DAI_PERMIT_ASSETS = [ 'DAI', DAI ];
-export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK];
+export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WETH];
 
 // export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
 export const IGNORE_BASE_ASSETS = ['3'];
