@@ -26,7 +26,6 @@ import NextButton from '../components/buttons/NextButton';
 import InfoBite from '../components/InfoBite';
 import TransactButton from '../components/buttons/TransactButton';
 
-import { useApr } from '../hooks/useApr';
 import { useInputValidation } from '../hooks/useInputValidation';
 import AltText from '../components/texts/AltText';
 import YieldCardHeader from '../components/YieldCardHeader';
@@ -58,12 +57,11 @@ const Lend = () => {
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { maxLend_, protocolBaseIn, userBaseAvailable } = useLendHelpers(selectedSeries, lendInput);
-
+  const { maxLend_, protocolBaseIn, userBaseAvailable, apy, valueAtMaturity_ } = useLendHelpers(
+    selectedSeries,
+    lendInput
+  );
   const lend = useLend();
-  const { apr } = useApr(lendInput, ActionType.LEND, selectedSeries);
-
-  const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
 
@@ -215,9 +213,9 @@ const Lend = () => {
                   <InfoBite
                     label="Redeemable @ Maturity"
                     icon={<FiTrendingUp />}
-                    value={`${lendOutput} ${selectedBase?.displaySymbol}`}
+                    value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!) } ${selectedBase?.displaySymbol}`}
                   />
-                  <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apr}%`} />
+                  <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
                 </Box>
               </ActiveTransaction>
             </Box>
