@@ -7,6 +7,7 @@ import { FaDiscord as Discord } from 'react-icons/fa';
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import { useBlockNum } from '../hooks/useBlockNum';
+import NetworkSelector from './selectors/NetworkSelector';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -31,6 +32,7 @@ const YieldInfo = () => {
 
   return (
     <Box gap="small">
+      <NetworkSelector />
       <Box>
         <Text size="xsmall" color="text-weak">
           App version: v{appVersion}
