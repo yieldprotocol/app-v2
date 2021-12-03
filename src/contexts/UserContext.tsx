@@ -54,8 +54,7 @@ const initState: IUserContextState = {
   seriesLoading: true as boolean,
   assetsLoading: true as boolean,
   strategiesLoading: true as boolean,
-  pricesLoading: true as boolean,
-  limitsLoading: true as boolean,
+  assetPairLoading: true as boolean,
 
   /* Current User selections */
   selectedSeries: null,
@@ -93,8 +92,6 @@ function userReducer(state: any, action: any) {
     case 'assetPairMap':
       return { ...state, assetPairMap: action.payload };
 
-    case 'pricesLoading':
-      return { ...state, pricesLoading: onlyIfChanged(action) };
     case 'vaultsLoading':
       return { ...state, vaultsLoading: onlyIfChanged(action) };
     case 'seriesLoading':
@@ -103,6 +100,8 @@ function userReducer(state: any, action: any) {
       return { ...state, assetsLoading: onlyIfChanged(action) };
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
+    case 'assetPairLoading':
+        return { ...state, assetPairLoading: onlyIfChanged(action) };
 
     case 'selectedVault':
       return { ...state, selectedVault: action.payload };
@@ -269,9 +268,8 @@ const UserProvider = ({ children }: any) => {
     [account, assetRootMap, seriesRootMap, showWrappedTokens]
   );
 
-  const updateAssetPair = useCallback(
+  const updateAssetPair =
     async (baseId: string, ilkId: string): Promise<IAssetPair> => {
-      
       updateState({ type: 'assetPairLoading', payload: true });
 
       const Cauldron = contractMap.get('Cauldron');
@@ -280,46 +278,48 @@ const UserProvider = ({ children }: any) => {
       const base: IAssetRoot = assetRootMap.get(baseId);
 
       diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
-      
-      /* Get debt params  and spot ratios */
-      const [{ max, min, sum, dec }, { ratio } ] = await Promise.all([
+
+      // /* Get debt params and spot ratios */
+      const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
         await Cauldron.debt(baseId, ilkId),
-        await Cauldron.spotOracles(baseId, ilkId)
-      ])
-      
+        await Cauldron.spotOracles(baseId, ilkId),
+      ]);
+
       /* get pricing if available */
-      let pairPrice: BigNumber = ethers.constants.Zero;
+      let price: BigNumber;
       try {
-        [pairPrice] = await Oracle.peek(
-          bytesToBytes32(baseId, 6),
+        [price] = await Oracle.peek(
           bytesToBytes32(ilkId, 6),
+          bytesToBytes32(baseId, 6),
           decimal18ToDecimalN(WAD_BN, base.decimals)
         );
+        console.log(' PRICEEEEE: ' , price);
+
       } catch (error) {
         diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
         diagnostics && console.log(error);
-        updateState({ type: 'pricesLoading', payload: false });
+        price = ethers.constants.Zero;
       }
-      
+
       const newPair = {
         baseId,
         ilkId,
         minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)),
         maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)),
         limitDecimals: dec,
-        pairTotalDebt: sum.mul(BigNumber.from('10').pow(dec)),
-        pairPrice,
+        pairTotalDebt: sum,
+        pairPrice: price,
         minRatio: ratio,
         baseDecimals: base.decimals,
-      } as IAssetPair;
+      };
 
       updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
       updateState({ type: 'assetPairLoading', payload: false });
-      return newPair;
-    },
 
-    [assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
-  );
+      return newPair;
+    }
+  //   [assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
+  // );
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
