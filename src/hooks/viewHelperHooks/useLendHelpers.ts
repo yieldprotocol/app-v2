@@ -2,20 +2,20 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ISeries, IUserContextState } from '../../types';
-import { maxBaseIn, maxBaseOut, sellFYToken } from '../../utils/yieldMath';
+import { ActionType, ISeries, IUserContextState } from '../../types';
+import { maxBaseIn, maxBaseOut, sellBase, sellFYToken } from '../../utils/yieldMath';
+import { useApr } from '../useApr';
 
 export const useLendHelpers = (
   series: ISeries | null,
   input: string | undefined,
   rollToSeries: ISeries | undefined = undefined
 ) => {
-
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState } : { userState: IUserContextState } = useContext(UserContext);
+  const { userState }: { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount, selectedBase } = userState;
 
   /* clean to prevent underflow */
@@ -25,12 +25,18 @@ export const useLendHelpers = (
   const [maxClose, setMaxClose] = useState<BigNumber>(ethers.constants.Zero);
   const [maxClose_, setMaxClose_] = useState<string>();
 
+  const [valueAtMaturity, setValueAtMaturity] = useState<BigNumber>(ethers.constants.Zero);
+  const [valueAtMaturity_, setValueAtMaturity_] = useState<string>();
+
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
   const [protocolBaseOut, setProtocolBaseOut] = useState<BigNumber>(ethers.constants.Zero);
   const [protocolBaseIn, setProtocolBaseIn] = useState<BigNumber>(ethers.constants.Zero);
 
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
+
+  const { apr: apy } = useApr(input, ActionType.LEND, series);
+  // const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
   /* check and set the protocol Base max limits */
   useEffect(() => {
@@ -112,12 +118,27 @@ export const useLendHelpers = (
     }
   }, [series]);
 
+  /* Sets values at maturity on input change */
+  useEffect(() => {
+    if (series && !series.seriesIsMature && input) {
+      const baseAmount = ethers.utils.parseUnits(input, series.decimals);
+      const { baseReserves, fyTokenReserves } = series;
+      const val =  sellBase(baseReserves, fyTokenReserves, baseAmount, series.getTimeTillMaturity(), series.decimals)
+      setValueAtMaturity(val);
+      setValueAtMaturity_( ethers.utils.formatUnits(val, series.decimals).toString()  )
+    }
+  }, [input, apy, series]);
+
   return {
     maxLend,
     maxLend_,
 
     maxClose,
     maxClose_,
+
+    apy,
+    valueAtMaturity,
+    valueAtMaturity_,
 
     fyTokenMarketValue,
 
