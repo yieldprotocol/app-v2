@@ -5,7 +5,7 @@ import { SettingsContext } from '../contexts/SettingsContext';
 import { UserContext } from '../contexts/UserContext';
 
 /* Generic hook for chain transactions */
-export const useAssetPair = (collateral: IAsset, base: IAsset) => {
+export const useAssetPair = ( base: IAsset, collateral: IAsset ) => {
   /* CONTEXT STATE */
   const {
     settingsState: { diagnostics },
