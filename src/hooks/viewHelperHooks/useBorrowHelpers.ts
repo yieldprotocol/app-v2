@@ -26,6 +26,7 @@ export const useBorrowHelpers = (
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
+  const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
 
   /* LOCAL STATE */
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
@@ -59,8 +60,6 @@ export const useBorrowHelpers = (
   const [userBaseAvailable_, setUserBaseAvailable_] = useState<string | undefined>();
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
-  const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
-
   /* Update the borrow limits if ilk or base changes */
   useEffect(() => {
     const setLimits = (max: BigNumber, min: BigNumber, decimals: number, total: BigNumber) => {
@@ -91,48 +90,32 @@ export const useBorrowHelpers = (
         assetPairInfo.pairTotalDebt
       );
     }
-
-    // if (selectedBase && selectedIlk && limitMap.get(selectedBase.idToUse)?.has(selectedIlk.idToUse)) {
-    //   const _limit = limitMap.get(selectedBase.idToUse).get(selectedIlk.idToUse); // get the limit from the map
-    //   setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
-    //   diagnostics && console.log('Cached Limit:', _limit[1].toString(), _limit[0].toString());
-    // } else {
-    //   (async () => {
-    //     if (selectedBase && selectedIlk) {
-    //       /* Update Price before setting */
-    //       const _limit = await updateLimit(selectedBase.idToUse, selectedIlk.idToUse);
-    //       setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
-    //       diagnostics &&
-    //         console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
-    //     }
-    //   })();
-    // }
-  }, [limitMap, selectedBase, selectedIlk, updateLimit, diagnostics]);
+  }, [limitMap, selectedBase, selectedIlk, updateLimit, diagnostics, assetPairInfo]);
 
   /* check max debt limit is not reached */
   useEffect(() => {
-    if (input) {
-      const cleanedInput = cleanValue(input, selectedBase?.decimals);
-      const _input = ethers.utils.parseUnits(cleanedInput, selectedBase?.decimals);
-      const inputAndTotal = _input.add(totalDebt!);
-      setAboveDebtLimit(inputAndTotal.gte(maxDebt!));
+    if (input && selectedBase && assetPairInfo) {
+      const cleanedInput = cleanValue(input, selectedBase.decimals);
+      const _input = ethers.utils.parseUnits(cleanedInput, selectedBase.decimals);
+      const inputAndTotal = _input.add(assetPairInfo?.pairTotalDebt);
+      setAboveDebtLimit(inputAndTotal.gte(assetPairInfo?.maxDebtLimit));
     }
-  }, [input, maxDebt, minDebt, selectedBase?.decimals, totalDebt]);
+  }, [input, selectedBase, assetPairInfo ]);
 
   /* check if the user can borrow the specified amount based on protocol base reserves */
   useEffect(() => {
     if (input && selectedSeries && parseFloat(input) > 0) {
-      const cleanedInput = cleanValue(input, selectedSeries?.decimals);
-      const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries?.decimals);
-      input_.lte(selectedSeries?.baseReserves!) ? setBorrowPossible(true) : setBorrowPossible(false);
+      const cleanedInput = cleanValue(input, selectedSeries.decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries.decimals);
+      input_.lte(selectedSeries.baseReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
   }, [input, selectedSeries, selectedSeries?.baseReserves]);
 
   /* Calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
     if (input && futureSeries && parseFloat(input) > 0) {
-      const cleanedInput = cleanValue(input, futureSeries?.decimals);
-      const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries?.decimals);
+      const cleanedInput = cleanValue(input, futureSeries.decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
 
       const estimate = sellBase(
         futureSeries.baseReserves,
