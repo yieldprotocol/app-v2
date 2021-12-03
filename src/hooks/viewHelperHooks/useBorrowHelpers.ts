@@ -15,7 +15,6 @@ export const useBorrowHelpers = (
   vault: IVault | undefined,
   futureSeries: ISeries | null = null // Future or rollToSeries
 ) => {
-
   /* STATE FROM CONTEXT */
   const {
     settingsState: { diagnostics },
@@ -65,7 +64,6 @@ export const useBorrowHelpers = (
       const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;
       const _min = ethers.utils.parseUnits(min.toString(), _decimals) || ethers.constants.Zero;
       const _total = total || ethers.constants.Zero;
-
       const maxLessTotal = _max.sub(_total);
 
       setMaxDebt_(ethers.utils.formatUnits(_max, _decimals)?.toString());
@@ -73,14 +71,18 @@ export const useBorrowHelpers = (
 
       setMaxDebt(maxLessTotal);
       setMinDebt(_min);
-      setTotalDebt(_total);
 
       setMaxDebt_(ethers.utils.formatUnits(maxLessTotal, _decimals)?.toString());
       setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
-      setTotalDebt_(ethers.utils.formatUnits(_total, _decimals)?.toString());
     };
 
     if (assetPairInfo) {
+      console.log( 'pair: ', assetPairInfo.baseId, assetPairInfo.ilkId,)
+      console.log( 'max: ', assetPairInfo.maxDebtLimit)
+      console.log( 'min: ', assetPairInfo.minDebtLimit)
+      console.log( 'total: ', assetPairInfo.pairTotalDebt)
+      console.log( 'decimals: ', assetPairInfo.decimals)
+
       setLimits(
         assetPairInfo.maxDebtLimit,
         assetPairInfo.minDebtLimit,
