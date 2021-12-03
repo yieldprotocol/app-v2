@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -15,6 +15,7 @@ export const useBorrowHelpers = (
   vault: IVault | undefined,
   futureSeries: ISeries | null = null // Future or rollToSeries
 ) => {
+
   /* STATE FROM CONTEXT */
   const {
     settingsState: { diagnostics },
@@ -44,11 +45,11 @@ export const useBorrowHelpers = (
   const [totalDebt, setTotalDebt] = useState<BigNumber>();
   const [totalDebt_, setTotalDebt_] = useState<string | undefined>();
 
-  const [aboveDebtLimit, setAboveDebtLimit] = useState<boolean>(true);
   const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
 
   const [maxRepay, setMaxRepay] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRepay_, setMaxRepay_] = useState<string | undefined>();
+
   const [minRepay, setMinRepay] = useState<BigNumber>(ethers.constants.Zero);
   const [minRepay_, setMinRepay_] = useState<string | undefined>();
 
@@ -91,16 +92,6 @@ export const useBorrowHelpers = (
       );
     }
   }, [limitMap, selectedBase, selectedIlk, updateLimit, diagnostics, assetPairInfo]);
-
-  /* check max debt limit is not reached */
-  useEffect(() => {
-    if (input && selectedBase && assetPairInfo) {
-      const cleanedInput = cleanValue(input, selectedBase.decimals);
-      const _input = ethers.utils.parseUnits(cleanedInput, selectedBase.decimals);
-      const inputAndTotal = _input.add(assetPairInfo?.pairTotalDebt);
-      setAboveDebtLimit(inputAndTotal.gte(assetPairInfo?.maxDebtLimit));
-    }
-  }, [input, selectedBase, assetPairInfo ]);
 
   /* check if the user can borrow the specified amount based on protocol base reserves */
   useEffect(() => {
@@ -232,10 +223,14 @@ export const useBorrowHelpers = (
     userBaseAvailable_,
 
     vaultDebt_,
+
+    totalDebt, 
     totalDebt_,
 
     maxDebt_,
     minDebt_,
-    aboveDebtLimit,
+
+    maxDebt,
+    minDebt,
   };
 };
