@@ -61,27 +61,29 @@ export const useBorrowHelpers = (
   useEffect(() => {
     const setLimits = (max: BigNumber, min: BigNumber, decimals: number, total: BigNumber) => {
       const _decimals = decimals.toString();
-      const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;
-      const _min = ethers.utils.parseUnits(min.toString(), _decimals) || ethers.constants.Zero;
+      // const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;
+      // const _min = ethers.utils.parseUnits(min.toString(), _decimals) || ethers.constants.Zero;
       const _total = total || ethers.constants.Zero;
-      const maxLessTotal = _max.sub(_total);
+      const maxLessTotal = max.sub(_total);
 
-      setMaxDebt_(ethers.utils.formatUnits(_max, _decimals)?.toString());
-      setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
+      setMaxDebt_(ethers.utils.formatUnits(max, _decimals)?.toString());
+      setMinDebt_(ethers.utils.formatUnits(min, _decimals)?.toString());
 
       setMaxDebt(maxLessTotal);
-      setMinDebt(_min);
+      setMinDebt(min);
 
       setMaxDebt_(ethers.utils.formatUnits(maxLessTotal, _decimals)?.toString());
-      setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
+      setMinDebt_(ethers.utils.formatUnits(min, _decimals)?.toString());
     };
 
-    if (assetPairInfo) {
+    if (assetPairInfo && assetPairInfo.pairTotalDebt) {
+
       console.log( 'pair: ', assetPairInfo.baseId, assetPairInfo.ilkId)
       console.log( 'max: ', assetPairInfo.maxDebtLimit.toString())
       console.log( 'min: ', assetPairInfo.minDebtLimit.toString())
       console.log( 'total: ', assetPairInfo.pairTotalDebt.toString())
       console.log( 'Limit decimals: ', assetPairInfo.limitDecimals)
+      console.log( 'price: ', assetPairInfo.pairPrice )
 
       setLimits(
         assetPairInfo.maxDebtLimit,
