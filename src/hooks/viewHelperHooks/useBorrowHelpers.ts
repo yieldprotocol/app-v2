@@ -77,10 +77,10 @@ export const useBorrowHelpers = (
     };
 
     if (assetPairInfo) {
-      console.log( 'pair: ', assetPairInfo.baseId, assetPairInfo.ilkId,)
-      console.log( 'max: ', assetPairInfo.maxDebtLimit)
-      console.log( 'min: ', assetPairInfo.minDebtLimit)
-      console.log( 'total: ', assetPairInfo.pairTotalDebt)
+      console.log( 'pair: ', assetPairInfo.baseId, assetPairInfo.ilkId)
+      console.log( 'max: ', assetPairInfo.maxDebtLimit.toString())
+      console.log( 'min: ', assetPairInfo.minDebtLimit.toString())
+      console.log( 'total: ', assetPairInfo.pairTotalDebt.toString())
       console.log( 'Limit decimals: ', assetPairInfo.limitDecimals)
 
       setLimits(

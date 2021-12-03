@@ -276,6 +276,7 @@ const UserProvider = ({ children }: any) => {
       const Cauldron = contractMap.get('Cauldron');
       const oracleName = ORACLE_INFO.get(fallbackChainId)?.get(ilkId)?.get(baseId);
       const Oracle = contractMap.get(oracleName);
+      const base: IAssetRoot = assetRootMap.get(baseId);
 
       diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
       /* Get debt params */
@@ -288,7 +289,7 @@ const UserProvider = ({ children }: any) => {
         [pairPrice] = await Oracle.peek(
           bytesToBytes32(baseId, 6),
           bytesToBytes32(ilkId, 6),
-          decimal18ToDecimalN(WAD_BN, dec)
+          decimal18ToDecimalN(WAD_BN, base.decimals)
         );
       } catch (error) {
         diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
@@ -296,13 +297,18 @@ const UserProvider = ({ children }: any) => {
         updateState({ type: 'pricesLoading', payload: false });
       }
 
+      const limitDecimals = dec;
+      const minDebtLimit =  BigNumber.from(min).mul(BigNumber.from('10').pow(dec));
+      const maxDebtLimit =  max.mul(BigNumber.from('10').pow(dec));
+      const pairTotalDebt = sum.mul(BigNumber.from('10').pow(dec));
+
       const newPair = {
         baseId,
         ilkId,
-        minDebtLimit: min,
-        maxDebtLimit: max,
-        limitDecimals: dec,
-        pairTotalDebt: sum,
+        minDebtLimit,
+        maxDebtLimit,
+        limitDecimals,
+        pairTotalDebt,
         pairPrice,
         minRatio,
       } as IAssetPair;
@@ -312,7 +318,7 @@ const UserProvider = ({ children }: any) => {
       return newPair;
     },
 
-    [contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
+    [assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
   );
 
   /* Updates the series with relevant *user* data */
