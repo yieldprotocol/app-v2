@@ -42,9 +42,6 @@ export const useBorrowHelpers = (
   const [maxDebt, setMaxDebt] = useState<BigNumber>();
   const [maxDebt_, setMaxDebt_] = useState<string | undefined>();
 
-  const [totalDebt, setTotalDebt] = useState<BigNumber>();
-  const [totalDebt_, setTotalDebt_] = useState<string | undefined>();
-
   const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
 
   const [maxRepay, setMaxRepay] = useState<BigNumber>(ethers.constants.Zero);
@@ -223,9 +220,6 @@ export const useBorrowHelpers = (
     userBaseAvailable_,
 
     vaultDebt_,
-
-    totalDebt, 
-    totalDebt_,
 
     maxDebt_,
     minDebt_,
