@@ -206,12 +206,16 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 export interface IAssetPair {
   baseId: string;
   ilkId: string;
-  decimals: number;
+  
+  baseDecimals: number;
+  limitDecimals: number;
   minRatio: number;
+
   minDebtLimit: BigNumber;
   maxDebtLimit: BigNumber;
   pairPrice: BigNumber;
   pairTotalDebt: BigNumber;
+
   oracle?: string;
 }
 

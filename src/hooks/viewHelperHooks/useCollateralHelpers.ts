@@ -49,20 +49,8 @@ export const useCollateralHelpers = (
   useEffect(() => {
 
     if (assetPairInfo ) {
-      setOraclePrice(decimalNToDecimal18(assetPairInfo.pairPrice, assetPairInfo.decimals));
+      setOraclePrice(decimalNToDecimal18(assetPairInfo.pairPrice, assetPairInfo.baseDecimals));
     }
-    // if (selectedBase && selectedIlk && priceMap.get(selectedIlk.idToUse)?.has(selectedBase.idToUse)) {
-    //   const _price = priceMap.get(selectedIlk.idToUse).get(selectedBase.idToUse); // get the price
-    //   setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
-    // } else {
-    //   (async () => {
-    //     if (selectedBase && selectedIlk) {
-    //       /* Update Price before setting */
-    //       const _price = await updatePrice(selectedIlk.idToUse, selectedBase.idToUse, selectedIlk.decimals);
-    //       setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
-    //     }
-    //   })();
-    // }
   }, [priceMap, updatePrice, selectedBase, selectedIlk, assetPairInfo ]);
 
 

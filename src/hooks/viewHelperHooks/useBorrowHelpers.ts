@@ -81,12 +81,12 @@ export const useBorrowHelpers = (
       console.log( 'max: ', assetPairInfo.maxDebtLimit)
       console.log( 'min: ', assetPairInfo.minDebtLimit)
       console.log( 'total: ', assetPairInfo.pairTotalDebt)
-      console.log( 'decimals: ', assetPairInfo.decimals)
+      console.log( 'Limit decimals: ', assetPairInfo.limitDecimals)
 
       setLimits(
         assetPairInfo.maxDebtLimit,
         assetPairInfo.minDebtLimit,
-        assetPairInfo.decimals,
+        assetPairInfo.limitDecimals,
         assetPairInfo.pairTotalDebt
       );
     }

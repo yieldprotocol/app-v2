@@ -295,13 +295,13 @@ const UserProvider = ({ children }: any) => {
         diagnostics && console.log(error);
         updateState({ type: 'pricesLoading', payload: false });
       }
-      
+
       const newPair = {
         baseId,
         ilkId,
         minDebtLimit: min,
         maxDebtLimit: max,
-        decimals: dec,
+        limitDecimals: dec,
         pairTotalDebt: sum,
         pairPrice,
         minRatio,
@@ -430,17 +430,18 @@ const UserProvider = ({ children }: any) => {
           const [
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-            { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice }
+            { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals },
           ] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
-            await userState.assetPairMap.get(vault.baseId + vault.ilkId) // this handles fetching the assetPAir data if required ( either from the map, or network)
+            await userState.assetPairMap.get(vault.baseId + vault.ilkId), // this handles fetching the assetPAir data if required ( either from the map, or network)
           ]);
 
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
 
-          diagnostics && console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice);
+          diagnostics &&
+            console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
 
           return {
             ...vault,
@@ -451,16 +452,19 @@ const UserProvider = ({ children }: any) => {
             ilkId, // refreshed in case ilkId has been updated
             ink,
             art,
-            
+
             ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
             art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
-            
+
             /* attach extra pairwaise data for convenience */
             minDebtLimit,
             maxDebtLimit,
             minRatio,
             pairPrice,
             pairTotalDebt,
+
+            baseDecimals: baseRoot?.decimals,
+            limitDecimals,
           };
         })
       );
