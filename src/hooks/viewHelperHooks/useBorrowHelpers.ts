@@ -183,10 +183,8 @@ export const useBorrowHelpers = (
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
-    if (activeAccount && vault && vaultBase) {
-      const _minDebt = ethers.utils.parseUnits('0.5', vaultBase?.decimals);
+    if (activeAccount && vault && vaultBase && minDebt ) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
-
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
         const _maxDebt = vault.art;
@@ -194,7 +192,7 @@ export const useBorrowHelpers = (
 
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
-        const _maxToDust = _maxUser.sub(_minDebt);
+        const _maxToDust = _maxUser.sub(minDebt);
         const _maxBaseIn = maxBaseIn(
           vaultSeries?.baseReserves,
           vaultSeries?.fyTokenReserves,
@@ -224,7 +222,7 @@ export const useBorrowHelpers = (
         }
       })();
     }
-  }, [activeAccount, seriesMap, vault, vaultBase]);
+  }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);
 
   return {
     borrowEstimate,
