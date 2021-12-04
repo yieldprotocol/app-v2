@@ -136,9 +136,7 @@ const UserProvider = ({ children }: any) => {
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
-
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
-  // const blockNumForUse = Number(useBlockNum()) - 10000;
 
   /* HOOKS */
   const { pathname } = useLocation();
@@ -269,11 +267,15 @@ const UserProvider = ({ children }: any) => {
     [account, assetRootMap, seriesRootMap, showWrappedTokens]
   );
 
-  const updateAssetPair = async (baseId: string, ilkId: string): Promise<IAssetPair> => {
+  
+
+  const updateAssetPair = useCallback( async (baseId: string, ilkId: string): Promise<IAssetPair> => {
     updateState({ type: 'assetPairLoading', payload: true });
 
     const Cauldron = contractMap.get('Cauldron');
-    const oracleName = ORACLE_INFO.get(fallbackChainId)?.get(baseId)?.get(ilkId);
+    const oracleName = ORACLE_INFO.get(fallbackChainId||1)
+      ?.get(baseId)
+      ?.get(ilkId);
     const Oracle = contractMap.get(oracleName);
     const base: IAssetRoot = assetRootMap.get(baseId);
 
@@ -291,9 +293,9 @@ const UserProvider = ({ children }: any) => {
       [price] = await Oracle.peek(
         bytesToBytes32(ilkId, 6),
         bytesToBytes32(baseId, 6),
-        decimal18ToDecimalN(WAD_BN, base.decimals)
+        decimal18ToDecimalN(WAD_BN, dec)
       );
-      console.log(' PRICEEEEE: ', price);
+      diagnostics && console.log('Price fetched: ', baseId, ilkId, '>', price.toString());
     } catch (error) {
       diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
       diagnostics && console.log(error);
@@ -316,9 +318,9 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: 'assetPairLoading', payload: false });
 
     return newPair;
-  };
-  //   [assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
-  // );
+  }
+  ,[assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
+  )
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
@@ -650,8 +652,6 @@ const UserProvider = ({ children }: any) => {
     updateStrategies,
 
     updateAssetPair,
-    // updatePrice,
-    // updateLimit,
 
     setSelectedVault: useCallback((vault: IVault | null) => updateState({ type: 'selectedVault', payload: vault }), []),
     setSelectedIlk: useCallback((asset: IAsset | null) => updateState({ type: 'selectedIlk', payload: asset }), []),
