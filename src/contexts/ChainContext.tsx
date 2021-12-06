@@ -177,7 +177,7 @@ const ChainProvider = ({ children }: any) => {
       }
 
       if (
-        [1,4, 42].includes(fallbackChainId) &&
+        [1, 4, 42].includes(fallbackChainId) &&
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
@@ -295,7 +295,10 @@ const ChainProvider = ({ children }: any) => {
 
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
-        console.log('Yield Protocol Asset data updated.');
+
+        [...cachedAssets, ...newAssetList].length === 0
+          ? console.log('No yields Assets found on this network.' ) 
+          : console.log('Yield Protocol Asset data updated.');
       };
 
       /* add on extra/calculated ASYNC series info and contract instances */
@@ -407,7 +410,10 @@ const ChainProvider = ({ children }: any) => {
         }
         setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
-        console.log('Yield Protocol Series data updated.');
+
+        [...cachedSeries, ...newSeriesList].length === 0
+        ? console.log('No yields Assets found on this network.' ) 
+        : console.log('Yield Protocol Series data updated.');
       };
 
       /* Attach contract instance */
@@ -459,7 +465,9 @@ const ChainProvider = ({ children }: any) => {
         console.log('Yield Protocol Strategy data updated.');
       };
 
-      /* LOAD the Series and Assets */
+      /**
+       * LOAD the Series and Assets *
+       * */
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
@@ -494,7 +502,6 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
-      // window.localStorage.clear();
       clearCachedItems([
         'lastAppVersion',
         'lastChainId',
@@ -505,13 +512,12 @@ const ChainProvider = ({ children }: any) => {
         'strategies',
         'lastStrategiesUpdate',
       ]);
-
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
     setLastAppVersion(process.env.REACT_APP_VERSION);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // ignored to only happen once on init
+  }, []); // ignore to only happen once on init
 
   /**
    * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
