@@ -231,7 +231,7 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = [1, 42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        const blockNumForUse = [1,4,42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
 
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
@@ -296,9 +296,7 @@ const ChainProvider = ({ children }: any) => {
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
 
-        [...cachedAssets, ...newAssetList].length === 0
-          ? console.log('No yields Assets found on this network.' ) 
-          : console.log('Yield Protocol Asset data updated.');
+        console.log('Yield Protocol Asset data updated.');
       };
 
       /* add on extra/calculated ASYNC series info and contract instances */
@@ -346,7 +344,8 @@ const ChainProvider = ({ children }: any) => {
 
       const _getSeries = async () => {
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = [1, 42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        /* NBNBNBNBNBBN this is PPPPPOOOOR logic marco... please be exlpicit > */ 
+        const blockNumForUse = [1,4,42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
 
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
@@ -411,9 +410,7 @@ const ChainProvider = ({ children }: any) => {
         setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
 
-        [...cachedSeries, ...newSeriesList].length === 0
-        ? console.log('No yields Assets found on this network.' ) 
-        : console.log('Yield Protocol Series data updated.');
+        console.log('Yield Protocol Series data updated.');
       };
 
       /* Attach contract instance */
