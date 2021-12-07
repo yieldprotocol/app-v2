@@ -264,61 +264,69 @@ const UserProvider = ({ children }: any) => {
     [account, assetRootMap, seriesRootMap, showWrappedTokens]
   );
 
-  const updateAssetPair = useCallback( async (baseId: string, ilkId: string): Promise<IAssetPair> => {
-    updateState({ type: 'assetPairLoading', payload: true });
+  const updateAssetPair = useCallback(
+    async (baseId: string, ilkId: string): Promise<IAssetPair> => {
+      updateState({ type: 'assetPairLoading', payload: true });
 
-    const Cauldron = contractMap.get('Cauldron');
-    const oracleName = ORACLE_INFO.get(fallbackChainId||1)
-      ?.get(baseId)
-      ?.get(ilkId);
-    const Oracle = contractMap.get(oracleName);
-    const base: IAssetRoot = assetRootMap.get(baseId);
-    const ilk: IAssetRoot = assetRootMap.get(ilkId);
+      const Cauldron = contractMap.get('Cauldron');
+      const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
+        ?.get(baseId)
+        ?.get(ilkId);
+      const Oracle = contractMap.get(oracleName);
+      const base: IAssetRoot = assetRootMap.get(baseId);
+      const ilk: IAssetRoot = assetRootMap.get(ilkId);
 
-    diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+      diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
 
-    // /* Get debt params and spot ratios */
-    const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
-      await Cauldron.debt(baseId, ilkId),
-      await Cauldron.spotOracles(baseId, ilkId),
-    ]);
+      // /* Get debt params and spot ratios */
+      const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
+        await Cauldron.debt(baseId, ilkId),
+        await Cauldron.spotOracles(baseId, ilkId),
+      ]);
 
-    /* get pricing if available */
-    let price: BigNumber;
-    try {
-      // eslint-disable-next-line prefer-const
-      [price] = await Oracle.peek(
-        bytesToBytes32(ilkId, 6),
-        bytesToBytes32(baseId, 6),
-        decimal18ToDecimalN(WAD_BN, ilk.decimals)
-      );
-      diagnostics && 
-        console.log('Price fetched:', decimal18ToDecimalN(WAD_BN, ilk.decimals).toString(), ilkId,  'for' , price.toString(), baseId); 
-    } catch (error) {
-      diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
-      diagnostics && console.log(error);
-      price = ethers.constants.Zero;
-    }
+      /* get pricing if available */
+      let price: BigNumber;
+      try {
+        // eslint-disable-next-line prefer-const
+        [price] = await Oracle.peek(
+          bytesToBytes32(ilkId, 6),
+          bytesToBytes32(baseId, 6),
+          decimal18ToDecimalN(WAD_BN, ilk.decimals)
+        );
+        diagnostics &&
+          console.log(
+            'Price fetched:',
+            decimal18ToDecimalN(WAD_BN, ilk.decimals).toString(),
+            ilkId,
+            'for',
+            price.toString(),
+            baseId
+          );
+      } catch (error) {
+        diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+        diagnostics && console.log(error);
+        price = ethers.constants.Zero;
+      }
 
-    const newPair = {
-      baseId,
-      ilkId,
-      limitDecimals: dec,
-      minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
-      maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
-      pairTotalDebt: sum,
-      pairPrice: price, // value of 1 ilk (1x10**n) in terms of base. 
-      minRatio: parseFloat(ethers.utils.formatUnits(ratio, 6)), // pre-format ratio
-      baseDecimals: base.decimals,
-    };
+      const newPair = {
+        baseId,
+        ilkId,
+        limitDecimals: dec,
+        minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
+        maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
+        pairTotalDebt: sum,
+        pairPrice: price, // value of 1 ilk (1x10**n) in terms of base.
+        minRatio: parseFloat(ethers.utils.formatUnits(ratio, 6)), // pre-format ratio
+        baseDecimals: base.decimals,
+      };
 
-    updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
-    updateState({ type: 'assetPairLoading', payload: false });
+      updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
+      updateState({ type: 'assetPairLoading', payload: false });
 
-    return newPair;
-  }
-  ,[assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
-  )
+      return newPair;
+    },
+    [assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
+  );
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
@@ -422,7 +430,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-          
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
             await updateAssetPair(vault.baseId, vault.ilkId);
