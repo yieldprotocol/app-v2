@@ -56,7 +56,6 @@ const Dashboard = () => {
     totalStrategyBalance,
     currencySettingDigits,
     currencySettingSymbol,
-    dashPricesLoading,
   } = useDashboardHelpers();
 
   return (
@@ -94,9 +93,8 @@ const Dashboard = () => {
                     <DashboardPositionList
                       actionType={ActionType.BORROW}
                       positions={vaultPositions}
-                      debt={`${currencySettingSymbol}${formatValue(totalDebt, currencySettingDigits)}`}
-                      collateral={`${currencySettingSymbol}${formatValue(totalCollateral, currencySettingDigits)}`}
-                      dashPricesLoading={dashPricesLoading}
+                      debt={`${currencySettingSymbol}${formatValue(totalDebt!, currencySettingDigits)}`}
+                      collateral={`${currencySettingSymbol}${formatValue(totalCollateral!, currencySettingDigits)}`}
                     />
                   )}
                 </>
@@ -125,8 +123,7 @@ const Dashboard = () => {
                     <DashboardPositionList
                       actionType={ActionType.LEND}
                       positions={lendPositions}
-                      lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance, currencySettingDigits)}`}
-                      dashPricesLoading={dashPricesLoading}
+                      lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance!, currencySettingDigits)}`}
                     />
                   )}
                 </>
@@ -156,10 +153,9 @@ const Dashboard = () => {
                       actionType={ActionType.POOL}
                       positions={strategyPositions}
                       strategyBalance={`${currencySettingSymbol}${formatValue(
-                        totalStrategyBalance,
+                        totalStrategyBalance!,
                         currencySettingDigits
                       )}`}
-                      dashPricesLoading={dashPricesLoading}
                     />
                   )}
                 </>
@@ -187,8 +183,8 @@ const Dashboard = () => {
                 <DashboardBalanceSummary
                   debt={totalDebt!}
                   collateral={totalCollateral!}
-                  lendBalance={totalLendBalance}
-                  poolBalance={totalStrategyBalance}
+                  lendBalance={totalLendBalance!}
+                  poolBalance={totalStrategyBalance!}
                   digits={currencySettingDigits}
                   symbol={currencySettingSymbol}
                 />

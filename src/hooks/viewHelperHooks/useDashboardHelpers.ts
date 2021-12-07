@@ -36,19 +36,17 @@ export const useDashboardHelpers = () => {
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
 
   const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : USDC;
-  const currencySettingDigits = dashCurrency === 'ETH' ? 4 : 2;
+  const currencySettingDigits = 2;
   const currencySettingSymbol = dashCurrency === 'ETH' ? 'Ξ' : '$';
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ILendPosition[]>([]);
   const [strategyPositions, setStrategyPositions] = useState<IStrategyPosition[]>([]);
 
-  const [totalDebt, setTotalDebt] = useState<string>('');
-  const [totalCollateral, setTotalCollateral] = useState<string>('');
-  const [totalLendBalance, setTotalLendBalance] = useState<string>('');
-  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
-
-  const [dashPricesLoading, setDashPricesLoading] = useState<boolean>(false);
+  const [totalDebt, setTotalDebt] = useState<string | null>(null);
+  const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
+  const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
+  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string | null>(null);
 
   /* set vault positions */
   useEffect(() => {
@@ -121,15 +119,13 @@ export const useDashboardHelpers = () => {
 
         /* else update the pair data */
         if (!pair) {
-          setDashPricesLoading(true);
           pair = await updateAssetPair(toAssetId, fromAssetId);
         }
-        setDashPricesLoading(false);
+
         return (
           Number(ethers.utils.formatUnits(pair.pairPrice || ethers.constants.Zero, pair.baseDecimals)) * Number(value)
         );
       } catch (e) {
-        setDashPricesLoading(false);
         console.log(e);
       }
       return 0;
@@ -187,6 +183,5 @@ export const useDashboardHelpers = () => {
     totalStrategyBalance,
     currencySettingDigits,
     currencySettingSymbol,
-    dashPricesLoading,
   };
 };

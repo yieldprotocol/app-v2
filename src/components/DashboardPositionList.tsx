@@ -17,7 +17,6 @@ interface IDashPosition {
   strategyBalance?: string | null;
   actionType: ActionType;
   positions: (ISeries | IVault | IStrategy)[];
-  dashPricesLoading?: boolean;
 }
 
 const DashboardPositionList = ({
@@ -27,7 +26,6 @@ const DashboardPositionList = ({
   strategyBalance,
   positions,
   actionType,
-  dashPricesLoading,
 }: IDashPosition) => (
   <DashboardPositionSummary
     debt={debt!}
@@ -35,7 +33,6 @@ const DashboardPositionList = ({
     lendBalance={lendBalance!}
     strategyBalance={strategyBalance!}
     actionType={actionType}
-    dashPricesLoading={dashPricesLoading!}
   >
     <StyledBox gap="xsmall">
       {positions.length === 0 && (
@@ -55,7 +52,6 @@ DashboardPositionList.defaultProps = {
   collateral: null,
   lendBalance: null,
   strategyBalance: null,
-  dashPricesLoading: false,
 };
 
 export default DashboardPositionList;
