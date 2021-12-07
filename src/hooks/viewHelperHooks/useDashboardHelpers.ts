@@ -114,19 +114,18 @@ export const useDashboardHelpers = () => {
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
 
   const convertValue = useCallback(
-    async (fromAssetId: string, toAssetId: string = USDC, value: string) => {
+    async (toAssetId: string = USDC, fromAssetId: string, value: string) => {
       try {
         /* try get from state first */
-        let pair = assetPairMap.get(fromAssetId + toAssetId);
+        let pair = assetPairMap.get(toAssetId + fromAssetId);
+        console.log('pairy', ethers.utils.formatUnits(pair?.pairPrice!, pair?.baseDecimals!));
 
         /* else update the pair data */
         if (!pair) {
-          pair = await updateAssetPair(fromAssetId, toAssetId);
+          pair = await updateAssetPair(toAssetId, fromAssetId);
           console.log('pair', pair);
         }
-        const assetPrice = pair.pairPrice;
-        const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
-        return assetValue;
+        return Number(ethers.utils.formatUnits(pair.pairPrice || ethers.constants.Zero, 18)) * Number(value);
       } catch (e) {
         console.log(e);
       }
@@ -139,7 +138,7 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     async function getBalances() {
       const _debts = await Promise.all(
-        vaultPositions.map((position) => convertValue(position.baseId, currencySettingAssetId, position.art_))
+        vaultPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.art_))
       );
       console.log('debts', _debts);
 
@@ -148,7 +147,7 @@ export const useDashboardHelpers = () => {
       console.log('updating debt and collat');
 
       const _collaterals = await Promise.all(
-        vaultPositions.map((position) => convertValue(position.ilkId, currencySettingAssetId, position.ink_))
+        vaultPositions.map((position) => convertValue(currencySettingAssetId, position.ilkId, position.ink_))
       );
       console.log('collats', _collaterals);
 
@@ -157,7 +156,7 @@ export const useDashboardHelpers = () => {
       );
 
       const _lendBalances = await Promise.all(
-        lendPositions.map((position) => convertValue(position.baseId, currencySettingAssetId, position.currentValue_!))
+        lendPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.currentValue_!))
       );
 
       // using the current fyToken Value denominated in currency setting
@@ -167,7 +166,7 @@ export const useDashboardHelpers = () => {
 
       const _strategyBalances = await Promise.all(
         strategyPositions.map((position) =>
-          convertValue(position.baseId, currencySettingAssetId, position.currentValue_!)
+          convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
         )
       );
 
