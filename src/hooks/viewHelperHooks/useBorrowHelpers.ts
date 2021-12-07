@@ -21,11 +21,12 @@ export const useBorrowHelpers = (
   } = useContext(SettingsContext);
 
   const {
-    userState: { activeAccount, selectedBase, selectedIlk, assetMap, seriesMap, limitMap, priceMap, selectedSeries },
+    userState: { activeAccount, selectedBase, selectedIlk, assetMap, seriesMap, selectedSeries },
     userActions: { updateLimit },
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
+
   const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
 
   /* LOCAL STATE */
@@ -57,42 +58,19 @@ export const useBorrowHelpers = (
   const [userBaseAvailable_, setUserBaseAvailable_] = useState<string | undefined>();
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
-  /* Update the borrow limits if ilk or base changes */
+  /* Update the borrow limits if asset pair changes */
   useEffect(() => {
-    const setLimits = (max: BigNumber, min: BigNumber, decimals: number, total: BigNumber) => {
-      const _decimals = decimals.toString();
-      // const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;
-      // const _min = ethers.utils.parseUnits(min.toString(), _decimals) || ethers.constants.Zero;
-      const _total = total || ethers.constants.Zero;
-      const maxLessTotal = max.sub(_total);
+    if (assetPairInfo) {
+      const _decimals = assetPairInfo.baseDecimals;
+      const _maxLessTotal = assetPairInfo.maxDebtLimit.sub(assetPairInfo.pairTotalDebt);
+      const min = assetPairInfo.minDebtLimit;
 
-      setMaxDebt_(ethers.utils.formatUnits(max, _decimals)?.toString());
-      setMinDebt_(ethers.utils.formatUnits(min, _decimals)?.toString());
-
-      setMaxDebt(maxLessTotal);
+      setMaxDebt(_maxLessTotal);
+      setMaxDebt_(ethers.utils.formatUnits(_maxLessTotal, _decimals)?.toString());
       setMinDebt(min);
-
-      setMaxDebt_(ethers.utils.formatUnits(maxLessTotal, _decimals)?.toString());
       setMinDebt_(ethers.utils.formatUnits(min, _decimals)?.toString());
-    };
-
-    if (assetPairInfo && assetPairInfo.pairTotalDebt) {
-
-      console.log( 'pair: ', assetPairInfo.baseId, assetPairInfo.ilkId)
-      console.log( 'max: ', assetPairInfo.maxDebtLimit.toString())
-      console.log( 'min: ', assetPairInfo.minDebtLimit.toString())
-      console.log( 'total: ', assetPairInfo.pairTotalDebt.toString())
-      console.log( 'Limit decimals: ', assetPairInfo.limitDecimals)
-      console.log( 'price: ', assetPairInfo.pairPrice )
-
-      setLimits(
-        assetPairInfo.maxDebtLimit,
-        assetPairInfo.minDebtLimit,
-        assetPairInfo.limitDecimals,
-        assetPairInfo.pairTotalDebt
-      );
     }
-  }, [limitMap, selectedBase, selectedIlk, updateLimit, diagnostics, assetPairInfo]);
+  }, [assetPairInfo]);
 
   /* check if the user can borrow the specified amount based on protocol base reserves */
   useEffect(() => {
@@ -143,9 +121,15 @@ export const useBorrowHelpers = (
         futureSeries.decimals
       );
 
-      const price = priceMap?.get(vault.ilkId)?.get(vault.baseId);
-      const minCollat = calculateMinCollateral(price, newDebt, undefined, undefined, true);
-      diagnostics && console.log('min Collat', minCollat.toString());
+      console.log(assetPairInfo!.pairPrice);
+      const minCollat = calculateMinCollateral(
+        assetPairInfo!.pairPrice,
+        newDebt,
+        assetPairInfo!.minRatio.toString(),
+        undefined,
+        true
+      );
+      diagnostics && console.log('min Collat of roll to series', minCollat.toString());
 
       const rollable = vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat);
 
@@ -157,7 +141,7 @@ export const useBorrowHelpers = (
         setMaxRoll_(ethers.utils.formatUnits(vault.art, futureSeries.decimals).toString());
       }
     }
-  }, [futureSeries, priceMap, vault, diagnostics]);
+  }, [futureSeries, vault, diagnostics]);
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
