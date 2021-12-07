@@ -1,10 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { ethers } from 'ethers';
 
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IUserContext, IVault } from '../../types';
-import { UserContext } from '../../contexts/UserContext';
+import { ActionType, ISeries } from '../../types';
 
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
