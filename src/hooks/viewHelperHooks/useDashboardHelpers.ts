@@ -148,7 +148,7 @@ export const useDashboardHelpers = () => {
       console.log('updating debt and collat');
 
       const _collaterals = await Promise.all(
-        vaultPositions.map((vault) => convertValue(vault.ilkId, currencySettingAssetId, vault.ink_))
+        vaultPositions.map((position) => convertValue(position.ilkId, currencySettingAssetId, position.ink_))
       );
       console.log('collats', _collaterals);
 
@@ -157,7 +157,7 @@ export const useDashboardHelpers = () => {
       );
 
       const _lendBalances = await Promise.all(
-        lendPositions.map((_series) => convertValue(_series.baseId, currencySettingAssetId, _series.currentValue_!))
+        lendPositions.map((position) => convertValue(position.baseId, currencySettingAssetId, position.currentValue_!))
       );
 
       // using the current fyToken Value denominated in currency setting
@@ -166,8 +166,8 @@ export const useDashboardHelpers = () => {
       );
 
       const _strategyBalances = await Promise.all(
-        strategyPositions.map((strategy) =>
-          convertValue(strategy.baseId, currencySettingAssetId, strategy.currentValue_!)
+        strategyPositions.map((position) =>
+          convertValue(position.baseId, currencySettingAssetId, position.currentValue_!)
         )
       );
 
