@@ -1,11 +1,12 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IVault, ISeries, IAsset } from '../../types';
+import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
 import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
+import { useAssetPair } from '../useAssetPair';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -20,20 +21,13 @@ export const useBorrowHelpers = (
   } = useContext(SettingsContext);
 
   const {
-    userState: {
-      activeAccount,
-      selectedBase,
-      selectedIlk,
-      assetMap,
-      seriesMap,
-      limitMap,
-      priceMap,
-      selectedSeries,
-    },
+    userState: { activeAccount, selectedBase, selectedIlk, assetMap, seriesMap, selectedSeries },
     userActions: { updateLimit },
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
+
+  const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
 
   /* LOCAL STATE */
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
@@ -48,14 +42,11 @@ export const useBorrowHelpers = (
   const [maxDebt, setMaxDebt] = useState<BigNumber>();
   const [maxDebt_, setMaxDebt_] = useState<string | undefined>();
 
-  const [totalDebt, setTotalDebt] = useState<BigNumber>();
-  const [totalDebt_, setTotalDebt_] = useState<string | undefined>();
-
-  const [aboveDebtLimit, setAboveDebtLimit] = useState<boolean>(true);
   const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
 
   const [maxRepay, setMaxRepay] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRepay_, setMaxRepay_] = useState<string | undefined>();
+
   const [minRepay, setMinRepay] = useState<BigNumber>(ethers.constants.Zero);
   const [minRepay_, setMinRepay_] = useState<string | undefined>();
 
@@ -67,69 +58,34 @@ export const useBorrowHelpers = (
   const [userBaseAvailable_, setUserBaseAvailable_] = useState<string | undefined>();
   const [protocolBaseAvailable, setProtocolBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
 
-  /* Update the borrow limits if ilk or base changes */
+  /* Update the borrow limits if asset pair changes */
   useEffect(() => {
-    const setLimits = (max: BigNumber, min: BigNumber, decimals: BigNumber | string, total: BigNumber) => {
-      const _decimals = decimals.toString();
-      const _max = ethers.utils.parseUnits(max.toString(), _decimals) || ethers.constants.Zero;
-      const _min = ethers.utils.parseUnits(min.toString(), _decimals) || ethers.constants.Zero;
-      const _total = total || ethers.constants.Zero;
+    if (assetPairInfo) {
+      const _decimals = assetPairInfo.baseDecimals;
+      const _maxLessTotal = assetPairInfo.maxDebtLimit.sub(assetPairInfo.pairTotalDebt);
+      const min = assetPairInfo.minDebtLimit;
 
-      const maxLessTotal = _max.sub(_total);
-
-      setMaxDebt_(ethers.utils.formatUnits(_max, _decimals)?.toString());
-      setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
-
-      setMaxDebt(maxLessTotal);
-      setMinDebt(_min);
-      setTotalDebt(_total);
-
-      setMaxDebt_(ethers.utils.formatUnits(maxLessTotal, _decimals)?.toString());
-      setMinDebt_(ethers.utils.formatUnits(_min, _decimals)?.toString());
-      setTotalDebt_(ethers.utils.formatUnits(_total, _decimals)?.toString());
-    };
-
-    if (selectedBase && selectedIlk && limitMap.get(selectedBase.idToUse)?.has(selectedIlk.idToUse)) {
-      const _limit = limitMap.get(selectedBase.idToUse).get(selectedIlk.idToUse); // get the limit from the map
-      setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
-      diagnostics && console.log('Cached Limit:', _limit[1].toString(), _limit[0].toString());
-    } else {
-      (async () => {
-        if (selectedBase && selectedIlk) {
-          /* Update Price before setting */
-          const _limit = await updateLimit(selectedBase.idToUse, selectedIlk.idToUse);
-          setLimits(_limit[0], _limit[1], _limit[2], _limit[3]);
-          diagnostics &&
-            console.log('External call:', 'MIN LIMIT:', _limit[1].toString(), 'MAX LIMIT:', _limit[0].toString());
-        }
-      })();
+      setMaxDebt(_maxLessTotal);
+      setMaxDebt_(ethers.utils.formatUnits(_maxLessTotal, _decimals)?.toString());
+      setMinDebt(min);
+      setMinDebt_(ethers.utils.formatUnits(min, _decimals)?.toString());
     }
-  }, [limitMap, selectedBase, selectedIlk, updateLimit, diagnostics]);
-
-  /* check max debt limit is not reached */
-  useEffect(() => {
-    if (input) {
-      const cleanedInput = cleanValue(input, selectedBase?.decimals);
-      const _input = ethers.utils.parseUnits(cleanedInput, selectedBase?.decimals);
-      const inputAndTotal = _input.add(totalDebt!);
-      setAboveDebtLimit(inputAndTotal.gte(maxDebt!));
-    }
-  }, [input, maxDebt, minDebt, selectedBase?.decimals, totalDebt]);
+  }, [assetPairInfo]);
 
   /* check if the user can borrow the specified amount based on protocol base reserves */
   useEffect(() => {
     if (input && selectedSeries && parseFloat(input) > 0) {
-      const cleanedInput = cleanValue(input, selectedSeries?.decimals);
-      const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries?.decimals);
-      input_.lte(selectedSeries?.baseReserves!) ? setBorrowPossible(true) : setBorrowPossible(false);
+      const cleanedInput = cleanValue(input, selectedSeries.decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries.decimals);
+      input_.lte(selectedSeries.baseReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
   }, [input, selectedSeries, selectedSeries?.baseReserves]);
 
   /* Calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
     if (input && futureSeries && parseFloat(input) > 0) {
-      const cleanedInput = cleanValue(input, futureSeries?.decimals);
-      const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries?.decimals);
+      const cleanedInput = cleanValue(input, futureSeries.decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
 
       const estimate = sellBase(
         futureSeries.baseReserves,
@@ -165,9 +121,15 @@ export const useBorrowHelpers = (
         futureSeries.decimals
       );
 
-      const price = priceMap?.get(vault.ilkId)?.get(vault.baseId);
-      const minCollat = calculateMinCollateral(price, newDebt, undefined, undefined, true);
-      diagnostics && console.log('min Collat', minCollat.toString());
+      console.log(assetPairInfo!.pairPrice);
+      const minCollat = calculateMinCollateral(
+        assetPairInfo!.pairPrice,
+        newDebt,
+        assetPairInfo!.minRatio.toString(),
+        undefined,
+        true
+      );
+      diagnostics && console.log('min Collat of roll to series', minCollat.toString());
 
       const rollable = vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat);
 
@@ -179,7 +141,7 @@ export const useBorrowHelpers = (
         setMaxRoll_(ethers.utils.formatUnits(vault.art, futureSeries.decimals).toString());
       }
     }
-  }, [futureSeries, priceMap, vault, diagnostics]);
+  }, [futureSeries, vault, diagnostics]);
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
@@ -246,10 +208,11 @@ export const useBorrowHelpers = (
     userBaseAvailable_,
 
     vaultDebt_,
-    totalDebt_,
 
     maxDebt_,
     minDebt_,
-    aboveDebtLimit,
+
+    maxDebt,
+    minDebt,
   };
 };
