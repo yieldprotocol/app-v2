@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
-import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
+import { buyBase, calculateLiquidationPrice, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
 import { useAssetPair } from '../useAssetPair';
 
 /* Collateralization hook calculates collateralization metrics */
@@ -26,7 +26,6 @@ export const useBorrowHelpers = (
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
-
   const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
 
   /* LOCAL STATE */
@@ -34,6 +33,7 @@ export const useBorrowHelpers = (
   const [borrowEstimate_, setBorrowEstimate_] = useState<string>();
 
   const [vaultDebt_, setVaultDebt_] = useState<string | undefined>();
+  const [liquidationPrice_, setLiquidationPrice_] = useState<string | undefined>();
 
   /* debt limits */
   const [minDebt, setMinDebt] = useState<BigNumber>();
@@ -188,6 +188,18 @@ export const useBorrowHelpers = (
     }
   }, [activeAccount, seriesMap, vault, vaultBase]);
 
+    /* check the liquidation price */
+    useEffect(()=>{
+
+      if (vault) {
+        const liqPrice = calculateLiquidationPrice( vault.ink, vault.art, vault.minRatio )
+        console.log( liqPrice)
+        setLiquidationPrice_('233')
+      }
+  
+    },[vault])
+    
+
   return {
     borrowEstimate,
     borrowEstimate_,
@@ -209,6 +221,8 @@ export const useBorrowHelpers = (
 
     vaultDebt_,
 
+    liquidationPrice_,
+
     maxDebt_,
     minDebt_,
 
@@ -216,3 +230,4 @@ export const useBorrowHelpers = (
     minDebt,
   };
 };
+
