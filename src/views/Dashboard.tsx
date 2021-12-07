@@ -13,7 +13,7 @@ import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
 import YieldNavigation from '../components/YieldNavigation';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useDashboardHelpers }  from '../hooks/viewHelperHooks/useDashboardHelpers';
+import { useDashboardHelpers } from '../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../contexts/UserContext';
 import { formatValue } from '../utils/appUtils';
 
@@ -56,6 +56,7 @@ const Dashboard = () => {
     totalStrategyBalance,
     currencySettingDigits,
     currencySettingSymbol,
+    dashPricesLoading,
   } = useDashboardHelpers();
 
   return (
@@ -95,6 +96,7 @@ const Dashboard = () => {
                       positions={vaultPositions}
                       debt={`${currencySettingSymbol}${formatValue(totalDebt, currencySettingDigits)}`}
                       collateral={`${currencySettingSymbol}${formatValue(totalCollateral, currencySettingDigits)}`}
+                      dashPricesLoading={dashPricesLoading}
                     />
                   )}
                 </>
@@ -124,6 +126,7 @@ const Dashboard = () => {
                       actionType={ActionType.LEND}
                       positions={lendPositions}
                       lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance, currencySettingDigits)}`}
+                      dashPricesLoading={dashPricesLoading}
                     />
                   )}
                 </>
@@ -156,6 +159,7 @@ const Dashboard = () => {
                         totalStrategyBalance,
                         currencySettingDigits
                       )}`}
+                      dashPricesLoading={dashPricesLoading}
                     />
                   )}
                 </>

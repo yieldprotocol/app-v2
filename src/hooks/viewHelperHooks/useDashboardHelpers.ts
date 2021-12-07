@@ -48,6 +48,8 @@ export const useDashboardHelpers = () => {
   const [totalLendBalance, setTotalLendBalance] = useState<string>('');
   const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
 
+  const [dashPricesLoading, setDashPricesLoading] = useState<boolean>(false);
+
   /* set vault positions */
   useEffect(() => {
     const _vaultPositions = Array.from(vaultMap.values())
@@ -119,12 +121,15 @@ export const useDashboardHelpers = () => {
 
         /* else update the pair data */
         if (!pair) {
+          setDashPricesLoading(true);
           pair = await updateAssetPair(toAssetId, fromAssetId);
         }
+        setDashPricesLoading(false);
         return (
           Number(ethers.utils.formatUnits(pair.pairPrice || ethers.constants.Zero, pair.baseDecimals)) * Number(value)
         );
       } catch (e) {
+        setDashPricesLoading(false);
         console.log(e);
       }
       return 0;
@@ -182,5 +187,6 @@ export const useDashboardHelpers = () => {
     totalStrategyBalance,
     currencySettingDigits,
     currencySettingSymbol,
+    dashPricesLoading,
   };
 };
