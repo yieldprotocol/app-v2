@@ -315,10 +315,6 @@ const UserProvider = ({ children }: any) => {
       baseDecimals: base.decimals,
     };
 
-    console.log('NEW PARI ', newPair);
-
-    console.log(userState.assetPairMap.set(baseId + ilkId, newPair))
-
     updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
     updateState({ type: 'assetPairLoading', payload: false });
 
