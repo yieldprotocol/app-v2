@@ -53,10 +53,10 @@ export const useDashboardHelpers = () => {
   /* set vault positions */
   useEffect(() => {
     const _vaultPositions = Array.from(vaultMap.values())
-      .filter((vault: IVault) => (dashHideInactiveVaults ? vault.isActive : true))
-      .filter((vault: IVault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
-      .filter((vault: IVault) => vault.baseId !== vault.ilkId)
-      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
+      .filter((vault) => (dashHideInactiveVaults ? vault.isActive : true))
+      .filter((vault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .filter((vault) => vault.baseId !== vault.ilkId)
+      .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
   }, [vaultMap, dashHideInactiveVaults, dashHideEmptyVaults]);
 
@@ -89,27 +89,25 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
       .map((_strategy) => {
-        const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
+        const currentStrategySeries = seriesMap.get(_strategy.currentSeriesId);
 
         const [, currentValue] = strategyTokenValue(
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,
           _strategy?.strategyPoolBalance || ethers.constants.Zero,
-          currentStrategySeries.baseReserves,
-          currentStrategySeries.fyTokenRealReserves,
-          currentStrategySeries.totalSupply,
-          currentStrategySeries.getTimeTillMaturity(),
-          currentStrategySeries.decimals
+          currentStrategySeries?.baseReserves!,
+          currentStrategySeries?.fyTokenRealReserves!,
+          currentStrategySeries?.totalSupply!,
+          currentStrategySeries?.getTimeTillMaturity()!,
+          currentStrategySeries?.decimals!
         );
         const currentValue_ = currentValue.eq(ethers.constants.Zero)
           ? _strategy.accountBalance_
           : ethers.utils.formatUnits(currentValue, _strategy.decimals!);
         return { ..._strategy, currentValue_ };
       })
-      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
-      .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
-        _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
-      );
+      .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
+      .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
     setStrategyPositions(_strategyPositions);
   }, [strategyMap, seriesMap]);
 
