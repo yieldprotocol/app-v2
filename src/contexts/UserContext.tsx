@@ -85,9 +85,6 @@ function userReducer(state: any, action: any) {
     case 'strategyMap':
       return { ...state, strategyMap: onlyIfChanged(action) };
 
-    case 'priceMap':
-      return { ...state, priceMap: onlyIfChanged(action) };
-
     case 'assetPairMap':
       return { ...state, assetPairMap: action.payload };
 
@@ -306,12 +303,12 @@ const UserProvider = ({ children }: any) => {
     const newPair = {
       baseId,
       ilkId,
-      minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)),
-      maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)),
       limitDecimals: dec,
+      minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
+      maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
       pairTotalDebt: sum,
       pairPrice: price, // value of 1 ilk (1x10**n) in terms of base. 
-      minRatio: ratio,
+      minRatio: parseFloat(ethers.utils.formatUnits(ratio, 6)), // pre-format ratio
       baseDecimals: base.decimals,
     };
 
