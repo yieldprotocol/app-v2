@@ -137,7 +137,7 @@ export const useDashboardHelpers = () => {
 
   /* get vault, lend, and pool position total debt, collateral, and balances */
   useEffect(() => {
-    async function getValues() {
+    async function getBalances() {
       const _debts = await Promise.all(
         vaultPositions.map((position) => convertValue(position.baseId, currencySettingAssetId, position.art_))
       );
@@ -176,7 +176,7 @@ export const useDashboardHelpers = () => {
       );
     }
 
-    getValues();
+    getBalances();
   }, [currencySettingAssetId, convertValue, currencySettingDigits, vaultPositions, lendPositions, strategyPositions]);
 
   return {
