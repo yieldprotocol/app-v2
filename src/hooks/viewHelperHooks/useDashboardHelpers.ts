@@ -14,7 +14,7 @@ import {
   IVault,
 } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { DAI, USDC, WETH } from '../../config/assets';
+import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import { sellFYToken, strategyTokenValue } from '../../utils/yieldMath';
 
@@ -137,26 +137,23 @@ export const useDashboardHelpers = () => {
 
   /* get vault, lend, and pool position total debt, collateral, and balances */
   useEffect(() => {
-    const getValues = async () => {
+    async function getValues() {
       const _debts = await Promise.all(
         vaultPositions.map((position) => convertValue(position.baseId, currencySettingAssetId, position.art_))
       );
+      console.log('debts', _debts);
 
-      setTotalDebt(
-        cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
-      );
+      setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits));
 
       console.log('updating debt and collat');
 
       const _collaterals = await Promise.all(
         vaultPositions.map((vault) => convertValue(vault.ilkId, currencySettingAssetId, vault.ink_))
       );
+      console.log('collats', _collaterals);
 
       setTotalCollateral(
-        cleanValue(
-          _collaterals.reduce((sum: number, collateral: number) => sum + collateral, 0).toString(),
-          currencySettingDigits
-        )
+        cleanValue(_collaterals.reduce((sum, collateral) => sum + collateral, 0).toString(), currencySettingDigits)
       );
 
       const _lendBalances = await Promise.all(
@@ -165,22 +162,19 @@ export const useDashboardHelpers = () => {
 
       // using the current fyToken Value denominated in currency setting
       setTotalLendBalance(
-        cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
+        cleanValue(_lendBalances.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits)
       );
 
       const _strategyBalances = await Promise.all(
-        strategyPositions?.map((strategy) =>
+        strategyPositions.map((strategy) =>
           convertValue(strategy.baseId, currencySettingAssetId, strategy.currentValue_!)
         )
       );
 
       setTotalStrategyBalance(
-        cleanValue(
-          _strategyBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(),
-          currencySettingDigits
-        )
+        cleanValue(_strategyBalances.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits)
       );
-    };
+    }
 
     getValues();
   }, [currencySettingAssetId, convertValue, currencySettingDigits, vaultPositions, lendPositions, strategyPositions]);
