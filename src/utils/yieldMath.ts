@@ -887,6 +887,33 @@ export const calculateMinCollateral = (
  * an amount of collateral (ETH, or other), and collateral price.
  *
  * @param {BigNumber | string} collateralAmount amount of collateral
+ * @param {BigNumber | string} debtAmount amount of debt
+ * @param {number} liquidationRatio  OPTIONAL: 1.5 (150%) as default
+ *
+ * @returns {string}
+ */
+ export const calculateLiquidationPrice = (
+  collateralAmount: BigNumber | string,
+  debtAmount: BigNumber | string,
+  liquidationRatio: number,
+): string => {
+
+  // condition: collValueInBase > debtAmount * ratio
+  // so, collAmount*price > debtAmount*ratio
+  const liquidationPoint = mulDecimal(debtAmount, liquidationRatio.toString() );
+  console.log( debtAmount.toString(), liquidationPoint ); // this is correct
+  
+  console.log( collateralAmount.toString() )
+  const price = mulDecimal( liquidationPoint, collateralAmount );
+  return price;
+};
+
+
+/**
+ * Calcualtes the amount (base, or other variant) that can be borrowed based on
+ * an amount of collateral (ETH, or other), and collateral price.
+ *
+ * @param {BigNumber | string} collateralAmount amount of collateral
  * @param {BigNumber | string} collateralPrice price of unit collateral (in currency x)
  * @param {BigNumber | string} debtValue value of debt (in currency x)
  * @param {BigNumber | string} liquidationRatio  OPTIONAL: 1.5 (150%) as default
