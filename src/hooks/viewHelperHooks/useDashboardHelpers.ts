@@ -14,7 +14,7 @@ import {
   IVault,
 } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { DAI, WETH } from '../../config/assets';
+import { DAI, USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import { sellFYToken, strategyTokenValue } from '../../utils/yieldMath';
 
@@ -37,7 +37,7 @@ export const useDashboardHelpers = () => {
     userActions: { updateAssetPair },
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
 
-  const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : DAI;
+  const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : USDC;
   const currencySettingDigits = dashCurrency === 'ETH' ? 4 : 2;
   const currencySettingSymbol = dashCurrency === 'ETH' ? 'Ξ' : '$';
 
@@ -114,7 +114,7 @@ export const useDashboardHelpers = () => {
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
 
   const convertValue = useCallback(
-    async (fromAssetId: string, toAssetId: string = DAI, value: string) => {
+    async (fromAssetId: string, toAssetId: string = USDC, value: string) => {
       try {
         /* try get from state first */
         let pair = assetPairMap.get(fromAssetId + toAssetId);
@@ -122,6 +122,7 @@ export const useDashboardHelpers = () => {
         /* else update the pair data */
         if (!pair) {
           pair = await updateAssetPair(fromAssetId, toAssetId);
+          console.log('pair', pair);
         }
         const assetPrice = pair.pairPrice;
         const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
