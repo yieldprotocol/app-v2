@@ -267,8 +267,6 @@ const UserProvider = ({ children }: any) => {
     [account, assetRootMap, seriesRootMap, showWrappedTokens]
   );
 
-  
-
   const updateAssetPair = useCallback( async (baseId: string, ilkId: string): Promise<IAssetPair> => {
     updateState({ type: 'assetPairLoading', payload: true });
 
@@ -278,8 +276,9 @@ const UserProvider = ({ children }: any) => {
       ?.get(ilkId);
     const Oracle = contractMap.get(oracleName);
     const base: IAssetRoot = assetRootMap.get(baseId);
+    const ilk: IAssetRoot = assetRootMap.get(ilkId);
 
-    diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
+    diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
 
     // /* Get debt params and spot ratios */
     const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
@@ -290,12 +289,14 @@ const UserProvider = ({ children }: any) => {
     /* get pricing if available */
     let price: BigNumber;
     try {
+      // eslint-disable-next-line prefer-const
       [price] = await Oracle.peek(
         bytesToBytes32(ilkId, 6),
         bytesToBytes32(baseId, 6),
-        decimal18ToDecimalN(WAD_BN, dec)
+        decimal18ToDecimalN(WAD_BN, ilk.decimals)
       );
-      diagnostics && console.log('Price fetched: ', baseId, ilkId, '>', price.toString());
+      diagnostics && 
+        console.log('Price fetched:', decimal18ToDecimalN(WAD_BN, ilk.decimals).toString(), ilkId,  'for' , price.toString(), baseId); 
     } catch (error) {
       diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
       diagnostics && console.log(error);
@@ -309,10 +310,14 @@ const UserProvider = ({ children }: any) => {
       maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)),
       limitDecimals: dec,
       pairTotalDebt: sum,
-      pairPrice: price,
+      pairPrice: price, // value of 1 ilk (1x10**n) in terms of base. 
       minRatio: ratio,
       baseDecimals: base.decimals,
     };
+
+    console.log('NEW PARI ', newPair);
+
+    console.log(userState.assetPairMap.set(baseId + ilkId, newPair))
 
     updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
     updateState({ type: 'assetPairLoading', payload: false });
@@ -401,7 +406,6 @@ const UserProvider = ({ children }: any) => {
       ) as Map<string, ISeries>;
 
       // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
-
       updateState({ type: 'seriesMap', payload: newSeriesMap });
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
       updateState({ type: 'seriesLoading', payload: false });
@@ -425,9 +429,10 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-          /* get the asset Pair info */
+          
+          /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
-            userState.assetPairMap.set(vault.baseId + vault.ilkId, updateAssetPair(vault.baseId, vault.ilkId));
+            await updateAssetPair(vault.baseId, vault.ilkId);
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
