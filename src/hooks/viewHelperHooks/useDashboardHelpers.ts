@@ -3,8 +3,6 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
-  IAsset,
-  IAssetPair,
   ISeries,
   ISettingsContext,
   IStrategy,
