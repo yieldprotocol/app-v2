@@ -118,14 +118,14 @@ export const useDashboardHelpers = () => {
       try {
         /* try get from state first */
         let pair = assetPairMap.get(toAssetId + fromAssetId);
-        console.log('pairy', ethers.utils.formatUnits(pair?.pairPrice!, pair?.baseDecimals!));
 
         /* else update the pair data */
         if (!pair) {
           pair = await updateAssetPair(toAssetId, fromAssetId);
-          console.log('pair', pair);
         }
-        return Number(ethers.utils.formatUnits(pair.pairPrice || ethers.constants.Zero, 18)) * Number(value);
+        return (
+          Number(ethers.utils.formatUnits(pair.pairPrice || ethers.constants.Zero, pair.baseDecimals)) * Number(value)
+        );
       } catch (e) {
         console.log(e);
       }
@@ -140,16 +140,12 @@ export const useDashboardHelpers = () => {
       const _debts = await Promise.all(
         vaultPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.art_))
       );
-      console.log('debts', _debts);
 
       setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits));
-
-      console.log('updating debt and collat');
 
       const _collaterals = await Promise.all(
         vaultPositions.map((position) => convertValue(currencySettingAssetId, position.ilkId, position.ink_))
       );
-      console.log('collats', _collaterals);
 
       setTotalCollateral(
         cleanValue(_collaterals.reduce((sum, collateral) => sum + collateral, 0).toString(), currencySettingDigits)
