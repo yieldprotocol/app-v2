@@ -430,14 +430,15 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
+
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
-            await updateAssetPair(vault.baseId, vault.ilkId);
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
+            await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
           }
-
+ 
           /* Get dynamic vault data */
           const [
             { ink, art },

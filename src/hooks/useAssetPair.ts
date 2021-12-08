@@ -12,7 +12,7 @@ export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | und
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    userState: { assetPairMap },
+    userState: { assetPairMap, assetPairLoading },
     userActions: { updateAssetPair },
   } = useContext(UserContext);
 
@@ -23,20 +23,21 @@ export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | und
   const updatePair = useCallback(
     async (_b: IAsset, _c: IAsset) => {
       const pair_: IAssetPair = await updateAssetPair(_b.id, _c.id);
+
       setAssetPair(pair_);
     },
     [updateAssetPair]
   );
 
   useEffect(() => {
-    if (base?.id && collateral?.id) {
+    if (base?.id && collateral?.id && !assetPairLoading) {
       /* try get from state first */
       const pair_: IAssetPair = assetPairMap.get(base.id + collateral.id);
       pair_ && setAssetPair(pair_);
       /* else update the pair data */
-      !pair_ && updatePair(base, collateral);
+      !pair_ && (async () => updatePair(base, collateral))() ;
     }
-  }, [assetPairMap, base, collateral, updatePair]);
+  }, [assetPairLoading, assetPairMap, base, collateral, updatePair]);
 
   return assetPair;
 };
