@@ -36,7 +36,7 @@ const Dashboard = () => {
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    userState: { vaultsLoading, seriesLoading, strategiesLoading, pricesLoading },
+    userState: { vaultsLoading, seriesLoading, strategiesLoading },
   }: { userState: IUserContextState } = useContext(UserContext);
 
   const {

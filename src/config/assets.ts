@@ -1,7 +1,7 @@
-import { ethers } from "ethers";
-import { IAssetInfo } from "../types";
+import { ethers } from 'ethers';
+import { IAssetInfo } from '../types';
 
-export const WETH =  '0x303000000000';
+export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
 export const USDC = '0x303200000000';
 export const WBTC = '0x303300000000';
@@ -12,8 +12,8 @@ export const ENS = '0x303700000000';
 
 export const UNI = '0x313000000000';
 
-export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14) ];
-export const DAI_PERMIT_ASSETS = [ 'DAI', DAI ];
+export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
+export const DAI_PERMIT_ASSETS = ['DAI', DAI];
 export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WETH];
 
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
@@ -41,7 +41,7 @@ ASSET_INFO.set('wstETH', {
   wrappedTokenAddress: '',
   color: '#00A3FF',
   digitFormat: 6,
-  unwrappedTokenId: "0x303500000000"
+  unwrappedTokenId: '0x303500000000',
 });
 
 ASSET_INFO.set('stETH', {
@@ -52,8 +52,8 @@ ASSET_INFO.set('stETH', {
   wrappedTokenAddress: '0xB12C63eD91e901995E68023293AC1A308ffA6c3c',
   color: '#00A3FF',
   digitFormat: 6,
-  unwrappedTokenId: "0x303500000000"
+  unwrappedTokenId: '0x303500000000',
 });
 
 ASSET_INFO.set('LINK', { showToken: true, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
-ASSET_INFO.set('UNI', { showToken: false, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
+ASSET_INFO.set('UNI', { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });

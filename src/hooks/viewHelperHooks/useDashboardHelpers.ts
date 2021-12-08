@@ -16,6 +16,7 @@ import { cleanValue } from '../../utils/appUtils';
 import { DAI, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import { sellFYToken, strategyTokenValue } from '../../utils/yieldMath';
+import { useAssetPair } from '../useAssetPair';
 
 export const useDashboardHelpers = () => {
   /* STATE FROM CONTEXT */
@@ -24,8 +25,8 @@ export const useDashboardHelpers = () => {
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    userState: { vaultMap, assetMap, priceMap, seriesMap, strategyMap },
-    userActions: { updatePrice },
+    userState: { vaultMap, assetMap, assetPairMap, seriesMap, strategyMap },
+    userActions: { updateAssetPair },
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
 
   const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : DAI;
@@ -107,18 +108,24 @@ export const useDashboardHelpers = () => {
     (fromAssetId: string, toAssetId: string = DAI, value: string) => {
       const fromAsset: IAsset = assetMap?.get(fromAssetId)!;
       try {
-        if (!priceMap.get(fromAssetId)?.has(toAssetId)) {
-          updatePrice(fromAssetId, toAssetId, fromAsset?.decimals!);
+
+        const assetPairInfo = assetPairMap.get(fromAssetId+toAssetId);
+        if (!assetPairInfo) {
+          console.log( updateAssetPair(fromAssetId, toAssetId) )
+          // assetPairInfo = await updateAssetPair(fromAssetId, toAssetId)
+          // updatePrice(fromAssetId, toAssetId, fromAsset?.decimals!);
         }
-        const assetPrice = priceMap.get(fromAssetId)?.get(toAssetId);
+        const assetPrice = assetPairInfo?.pairPrice;
         const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
         return assetValue;
+
       } catch (e) {
         console.log(e);
       }
       return 0;
     },
-    [assetMap, priceMap, updatePrice]
+    [assetMap, assetPairMap, updateAssetPair]
+
   );
 
   /* get vault, lend, and pool position total debt, collateral, and balances */
@@ -160,7 +167,6 @@ export const useDashboardHelpers = () => {
       )
     );
   }, [
-    priceMap,
     currencySettingAssetId,
     convertValue,
     currencySettingDigits,
