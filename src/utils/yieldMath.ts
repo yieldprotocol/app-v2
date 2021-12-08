@@ -888,7 +888,7 @@ export const calculateMinCollateral = (
  *
  * @param {BigNumber | string} collateralAmount amount of collateral
  * @param {BigNumber | string} debtAmount amount of debt
- * @param {number} liquidationRatio  OPTIONAL: 1.5 (150%) as default
+ * @param {number} liquidationRatio (eg. 1.5 for 150% )
  *
  * @returns {string}
  */
@@ -898,13 +898,15 @@ export const calculateMinCollateral = (
   liquidationRatio: number,
 ): string => {
 
-  // condition: collValueInBase > debtAmount * ratio
-  // so, collAmount*price > debtAmount*ratio
-  const liquidationPoint = mulDecimal(debtAmount, liquidationRatio.toString() );
-  console.log( debtAmount.toString(), liquidationPoint ); // this is correct
-  
-  console.log( collateralAmount.toString() )
-  const price = mulDecimal( liquidationPoint, collateralAmount );
+  // liquidation point is when: collValueInBase = debtAmount * ratio
+  // so, collAmount * price =  debtAmount * ratio
+  const maxAllowedDebtValue = mulDecimal(debtAmount, liquidationRatio.toString());
+  console.log( debtAmount.toString(), maxAllowedDebtValue ); // this appears to be correct
+
+  const price = floorDecimal( divDecimal(maxAllowedDebtValue, collateralAmount) ); 
+  // const price = mulDecimal( liquidationPoint, collateralAmount );
+  console.log(price)
+
   return price;
 };
 

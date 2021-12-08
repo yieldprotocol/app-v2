@@ -5,7 +5,15 @@ import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 
-import { buyBase, calculateLiquidationPrice, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
+import {
+  buyBase,
+  calculateLiquidationPrice,
+  calculateMinCollateral,
+  decimalNToDecimal18,
+  maxBaseIn,
+  maxFyTokenIn,
+  sellBase,
+} from '../../utils/yieldMath';
 import { useAssetPair } from '../useAssetPair';
 
 /* Collateralization hook calculates collateralization metrics */
@@ -188,17 +196,18 @@ export const useBorrowHelpers = (
     }
   }, [activeAccount, seriesMap, vault, vaultBase]);
 
-    /* check the liquidation price */
-    useEffect(()=>{
-
-      if (vault) {
-        const liqPrice = calculateLiquidationPrice( vault.ink, vault.art, vault.minRatio )
-        console.log( liqPrice)
-        setLiquidationPrice_('233')
-      }
-  
-    },[vault])
-    
+  /* check the liquidation price */
+  useEffect(() => {
+    if (vault) {
+      const liqPrice = calculateLiquidationPrice(
+        decimalNToDecimal18(vault.ink, selectedIlk.decimals),
+        decimalNToDecimal18(vault.art, selectedBase?.decimals),
+        vault.minRatio
+      );
+      console.log('LIQUidation PRICE > ', liqPrice);
+      setLiquidationPrice_('233');
+    }
+  }, [vault]);
 
   return {
     borrowEstimate,
@@ -230,4 +239,3 @@ export const useBorrowHelpers = (
     minDebt,
   };
 };
-
