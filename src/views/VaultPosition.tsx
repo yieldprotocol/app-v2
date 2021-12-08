@@ -323,7 +323,7 @@ const VaultPosition = () => {
                                 </Text>
                               }
                               dropProps={{
-                                align: { bottom: 'top', left: 'right' },
+                                align: { top: 'bottom' },
                               }}
                             >
                               <Box direction="row" alignSelf="end">
