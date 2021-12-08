@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Tip, Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ThemeContext } from 'styled-components';
 
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiInfo } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -311,14 +311,31 @@ const VaultPosition = () => {
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading}
                       />
-                      <InfoBite
-                        label="Collateral posted"
-                        value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
-                          vaultIlk?.displaySymbol
-                        } (${collateralizationPercent} %)`}
-                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        loading={vaultsLoading}
-                      />
+                      <Box direction="row" gap="xsmall">
+                        <InfoBite
+                          label="Collateral posted"
+                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
+                          icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                          loading={vaultsLoading}
+                        />
+                        <Box align="center" direction="row">
+                          <Tip
+                            content={
+                              <Text size="xsmall">
+                                Keep your collateralization ratio above {minCollatRatioPct}% to prevent liquidation
+                              </Text>
+                            }
+                            dropProps={{
+                              align: { bottom: 'top', left: 'right' },
+                            }}
+                          >
+                            <Box direction="row" alignSelf="end">
+                              <Text>({collateralizationPercent}%)</Text>
+                              <FiInfo size=".75rem" />
+                            </Box>
+                          </Tip>
+                        </Box>
+                      </Box>
                     </Box>
                   </SectionWrap>
                 )}
