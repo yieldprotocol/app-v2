@@ -160,12 +160,10 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     const opts = Array.from(seriesMap.values());
 
     /* filter out options based on base Id and if mature */
-    let filteredOpts = opts
-      .filter(
-        (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
-        // !ignoredSeries?.includes(_series.baseId)
-      )
-      .sort((a, b) => b.maturity! - a.maturity!);
+    let filteredOpts = opts.filter(
+      (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
+      // !ignoredSeries?.includes(_series.baseId)
+    );
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
