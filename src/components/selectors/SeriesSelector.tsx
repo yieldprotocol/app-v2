@@ -157,15 +157,15 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(seriesMap.values()) as ISeries[];
+    const opts = Array.from(seriesMap.values());
 
     /* filter out options based on base Id and if mature */
     let filteredOpts = opts
       .filter(
-        (_series: ISeries) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
+        (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
         // !ignoredSeries?.includes(_series.baseId)
       )
-      .sort((a: ISeries, b: ISeries) => b.maturity! - a.maturity!);
+      .sort((a, b) => b.maturity! - a.maturity!);
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
@@ -173,14 +173,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
         .filter((_series) => _series.id !== selectedSeries?.id); // filter out currently globally selected series
     }
-
-    /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
-    set the selected series to null. */
-    // if (
-    //   _selectedSeries &&
-    //   _selectedSeries.baseId !== selectedBase?.idToUse // )
-    // )
-    //   userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
   }, [
