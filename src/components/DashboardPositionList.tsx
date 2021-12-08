@@ -47,6 +47,11 @@ const DashboardPositionList = ({
   </DashboardPositionSummary>
 );
 
-DashboardPositionList.defaultProps = { debt: null, collateral: null, lendBalance: null, strategyBalance: null };
+DashboardPositionList.defaultProps = {
+  debt: null,
+  collateral: null,
+  lendBalance: null,
+  strategyBalance: null,
+};
 
 export default DashboardPositionList;
