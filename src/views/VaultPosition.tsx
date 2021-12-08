@@ -130,11 +130,8 @@ const VaultPosition = () => {
     '0',
     _selectedVault
   );
-  const { collateralizationPercent: removeCollEst } = useCollateralHelpers(
-    '0',
-    `-${removeCollatInput! || '0'}`,
-    _selectedVault
-  );
+  const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault);
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
@@ -625,9 +622,16 @@ const VaultPosition = () => {
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Text color="text" alignSelf="end" size="xsmall">
-                                  Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
-                                </Text>
+                                <Box>
+                                  <Text color="text" alignSelf="start" size="xsmall">
+                                    Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
+                                  </Text>
+                                  {removeCollEstUnhealthyRatio && (
+                                    <Text color="red" alignSelf="start" size="xsmall">
+                                      Removing this much collateral will make the vault in danger of liquidation
+                                    </Text>
+                                  )}
+                                </Box>
                               </InputInfoWrap>
                             )
                           }
