@@ -177,7 +177,7 @@ const ChainProvider = ({ children }: any) => {
       }
 
       if (
-        [1,4, 42].includes(fallbackChainId) &&
+        [1, 4, 42].includes(fallbackChainId) &&
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
@@ -231,7 +231,7 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = [1, 42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        const blockNumForUse = [1,4,42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
 
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
@@ -295,6 +295,7 @@ const ChainProvider = ({ children }: any) => {
 
         // log the new assets in the cache
         setCachedAssets([...cachedAssets, ...newAssetList]);
+
         console.log('Yield Protocol Asset data updated.');
       };
 
@@ -343,7 +344,8 @@ const ChainProvider = ({ children }: any) => {
 
       const _getSeries = async () => {
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = [1, 42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        /* NBNBNBNBNBBN this is PPPPPOOOOR logic marco... please be exlpicit > */ 
+        const blockNumForUse = [1,4,42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
 
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
@@ -407,6 +409,7 @@ const ChainProvider = ({ children }: any) => {
         }
         setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
+
         console.log('Yield Protocol Series data updated.');
       };
 
@@ -459,7 +462,9 @@ const ChainProvider = ({ children }: any) => {
         console.log('Yield Protocol Strategy data updated.');
       };
 
-      /* LOAD the Series and Assets */
+      /**
+       * LOAD the Series and Assets *
+       * */
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
@@ -494,7 +499,6 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
-      // window.localStorage.clear();
       clearCachedItems([
         'lastAppVersion',
         'lastChainId',
@@ -505,13 +509,12 @@ const ChainProvider = ({ children }: any) => {
         'strategies',
         'lastStrategiesUpdate',
       ]);
-
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
     setLastAppVersion(process.env.REACT_APP_VERSION);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // ignored to only happen once on init
+  }, []); // ignore to only happen once on init
 
   /**
    * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
