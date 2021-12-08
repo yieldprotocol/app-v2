@@ -328,7 +328,7 @@ const VaultPosition = () => {
                             >
                               <Box direction="row" alignSelf="end">
                                 <Text>({collateralizationPercent}%)</Text>
-                                <FiInfo size=".75rem" />
+                                {!mobile && <FiInfo size=".75rem" />}
                               </Box>
                             </Tip>
                           </Box>
