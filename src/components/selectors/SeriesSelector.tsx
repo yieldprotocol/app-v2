@@ -3,7 +3,7 @@ import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { ActionType, ISeries, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { maxBaseIn, maxBaseOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
@@ -121,9 +121,10 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } =
-    useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap, seriesLoading } = userState;
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;
+  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -166,21 +167,26 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )
       .sort((a: ISeries, b: ISeries) => b.maturity! - a.maturity!);
 
-    /* if required, filter out the globally selected asset and */
+    /* if required, filter out the globally selected asset */
     if (selectSeriesLocally) {
-      filteredOpts = filteredOpts.filter((_series: ISeries) => _series.id !== _selectedSeries?.id);
+      filteredOpts = opts
+        .filter(
+          (_series) =>
+            actionType === ActionType.LEND && _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature
+        ) // if in lend position then use base series
+        .filter((_series) => actionType === ActionType.LEND && _series.id !== selectedSeries?.id); // filter out currently globally selected series
     }
 
     /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
     set the selected series to null. */
-    if (
-      _selectedSeries &&
-      _selectedSeries.baseId !== selectedBase?.idToUse // )
-    )
-      userActions.setSelectedSeries(null);
+    // if (
+    //   _selectedSeries &&
+    //   _selectedSeries.baseId !== selectedBase?.idToUse // )
+    // )
+    //   userActions.setSelectedSeries(null);
 
-    setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, _selectedSeries, userActions]);
+    setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
+  }, [seriesMap, selectedBase, selectSeriesLocally, _selectedSeries, userActions, selectedSeries, actionType]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
