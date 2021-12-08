@@ -314,24 +314,25 @@ const VaultPosition = () => {
                           value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                           loading={vaultsLoading}
-                        />
-                        <Box align="center" direction="row">
-                          <Tip
-                            content={
-                              <Text size="xsmall">
-                                Keep your collateralization ratio above {minCollatRatioPct}% to prevent liquidation
-                              </Text>
-                            }
-                            dropProps={{
-                              align: { bottom: 'top', left: 'right' },
-                            }}
-                          >
-                            <Box direction="row" alignSelf="end">
-                              <Text>({collateralizationPercent}%)</Text>
-                              <FiInfo size=".75rem" />
-                            </Box>
-                          </Tip>
-                        </Box>
+                        >
+                          <Box align="center" direction="row">
+                            <Tip
+                              content={
+                                <Text size="xsmall">
+                                  Keep your collateralization ratio above {minCollatRatioPct}% to prevent liquidation
+                                </Text>
+                              }
+                              dropProps={{
+                                align: { bottom: 'top', left: 'right' },
+                              }}
+                            >
+                              <Box direction="row" alignSelf="end">
+                                <Text>({collateralizationPercent}%)</Text>
+                                <FiInfo size=".75rem" />
+                              </Box>
+                            </Tip>
+                          </Box>
+                        </InfoBite>
                       </Box>
                     </Box>
                   </SectionWrap>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { Box, Text } from 'grommet';
 import Skeleton from './wraps/SkeletonWrap';
 
@@ -9,14 +9,17 @@ interface IInfoBite {
   loading?: boolean;
 }
 
-const InfoBite = ({ label, value, icon, loading }: IInfoBite) => (
+const InfoBite: FC<IInfoBite> = ({ label, value, icon, loading, children }) => (
   <Box direction="row" align="center" pad={{ left: 'small', vertical: 'none' }} gap="medium">
     {icon && <Box>{icon}</Box>}
     <Box>
       <Text size="xsmall" color="text-weak">
         {label}
       </Text>
-      <Text size="medium"> {loading ? <Skeleton width={80} height={20} /> : value} </Text>
+      <Box direction="row" gap="xsmall">
+        <Text size="medium"> {loading ? <Skeleton width={80} height={20} /> : value} </Text>
+        {children}
+      </Box>
     </Box>
   </Box>
 );
