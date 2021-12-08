@@ -167,14 +167,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )
       .sort((a: ISeries, b: ISeries) => b.maturity! - a.maturity!);
 
-    /* if required, filter out the globally selected asset */
+    /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
       filteredOpts = opts
-        .filter(
-          (_series) =>
-            actionType === ActionType.LEND && _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature
-        ) // if in lend position then use base series
-        .filter((_series) => actionType === ActionType.LEND && _series.id !== selectedSeries?.id); // filter out currently globally selected series
+        .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
+        .filter((_series) => _series.id !== selectedSeries?.id); // filter out currently globally selected series
     }
 
     /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
@@ -186,7 +183,16 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     //   userActions.setSelectedSeries(null);
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, _selectedSeries, userActions, selectedSeries, actionType]);
+  }, [
+    seriesMap,
+    selectedBase,
+    selectSeriesLocally,
+    _selectedSeries,
+    userActions,
+    selectedSeries,
+    actionType,
+    selectedVault,
+  ]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
