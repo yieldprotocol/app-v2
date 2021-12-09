@@ -316,7 +316,8 @@ const VaultPosition = () => {
                           loading={vaultsLoading}
                         >
                           <Box align="center" direction="row">
-                            <Tip
+                            <Text>({collateralizationPercent}%)</Text>
+                            {/* <Tip
                               content={
                                 <Text size="xsmall">
                                   Keep your collateralization ratio above {minCollatRatioPct}% to prevent liquidation
@@ -330,7 +331,7 @@ const VaultPosition = () => {
                                 <Text>({collateralizationPercent}%)</Text>
                                 {!mobile && <FiInfo size=".75rem" />}
                               </Box>
-                            </Tip>
+                            </Tip> */}
                           </Box>
                         </InfoBite>
                       </Box>
