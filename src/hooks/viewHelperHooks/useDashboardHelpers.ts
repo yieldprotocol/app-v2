@@ -3,7 +3,6 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
-  IAsset,
   ISeries,
   ISettingsContext,
   IStrategy,
@@ -13,9 +12,17 @@ import {
   IVault,
 } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { DAI, WETH } from '../../config/assets';
+import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import { sellFYToken, strategyTokenValue } from '../../utils/yieldMath';
+
+interface ILendPosition extends ISeries {
+  currentValue_: string | undefined;
+}
+
+interface IStrategyPosition extends IStrategy {
+  currentValue_: string | undefined;
+}
 
 export const useDashboardHelpers = () => {
   /* STATE FROM CONTEXT */
@@ -24,37 +31,37 @@ export const useDashboardHelpers = () => {
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    userState: { vaultMap, assetMap, priceMap, seriesMap, strategyMap },
-    userActions: { updatePrice },
+    userState: { vaultMap, assetPairMap, seriesMap, strategyMap },
+    userActions: { updateAssetPair },
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
 
-  const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : DAI;
-  const currencySettingDigits = dashCurrency === 'ETH' ? 4 : 2;
+  const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : USDC;
+  const currencySettingDigits = 2;
   const currencySettingSymbol = dashCurrency === 'ETH' ? 'Ξ' : '$';
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
-  const [lendPositions, setLendPositions] = useState<ISeries[]>([]);
-  const [strategyPositions, setStrategyPositions] = useState<IStrategy[]>([]);
+  const [lendPositions, setLendPositions] = useState<ILendPosition[]>([]);
+  const [strategyPositions, setStrategyPositions] = useState<IStrategyPosition[]>([]);
 
-  const [totalDebt, setTotalDebt] = useState<string>('');
-  const [totalCollateral, setTotalCollateral] = useState<string>('');
-  const [totalLendBalance, setTotalLendBalance] = useState<string>('');
-  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string>('');
+  const [totalDebt, setTotalDebt] = useState<string | null>(null);
+  const [totalCollateral, setTotalCollateral] = useState<string | null>(null);
+  const [totalLendBalance, setTotalLendBalance] = useState<string | null>(null);
+  const [totalStrategyBalance, setTotalStrategyBalance] = useState<string | null>(null);
 
   /* set vault positions */
   useEffect(() => {
-    const _vaultPositions: IVault[] = Array.from(vaultMap.values())
-      .filter((vault: IVault) => (dashHideInactiveVaults ? vault.isActive : true))
-      .filter((vault: IVault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
-      .filter((vault: IVault) => vault.baseId !== vault.ilkId)
-      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
+    const _vaultPositions = Array.from(vaultMap.values())
+      .filter((vault) => (dashHideInactiveVaults ? vault.isActive : true))
+      .filter((vault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .filter((vault) => vault.baseId !== vault.ilkId)
+      .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);
   }, [vaultMap, dashHideInactiveVaults, dashHideEmptyVaults]);
 
   /* set lend positions */
   useEffect(() => {
-    const _lendPositions: ISeries[] = Array.from(seriesMap.values())
-      .map((_series: ISeries) => {
+    const _lendPositions: ILendPosition[] = Array.from(seriesMap.values())
+      .map((_series) => {
         const currentValue = sellFYToken(
           _series.baseReserves,
           _series.fyTokenReserves,
@@ -69,105 +76,102 @@ export const useDashboardHelpers = () => {
             : ethers.utils.formatUnits(currentValue, _series.decimals!);
         return { ..._series, currentValue_ };
       })
-      .filter((_series: ISeries) => _series.fyTokenBalance?.gt(ZERO_BN))
-      .sort((_seriesA: ISeries, _seriesB: ISeries) => (_seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1));
+      .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
+      .sort((_seriesA: ILendPosition, _seriesB: ILendPosition) =>
+        _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
+      );
     setLendPositions(_lendPositions);
   }, [seriesMap]);
 
   /* set strategy positions */
   useEffect(() => {
-    const _strategyPositions: IStrategy[] = Array.from(strategyMap.values())
-      .map((_strategy: IStrategy) => {
-        const currentStrategySeries: any = seriesMap.get(_strategy.currentSeriesId);
+    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
+      .map((_strategy) => {
+        const currentStrategySeries = seriesMap.get(_strategy.currentSeriesId);
 
         const [, currentValue] = strategyTokenValue(
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,
           _strategy?.strategyPoolBalance || ethers.constants.Zero,
-          currentStrategySeries.baseReserves,
-          currentStrategySeries.fyTokenRealReserves,
-          currentStrategySeries.totalSupply,
-          currentStrategySeries.getTimeTillMaturity(),
-          currentStrategySeries.decimals
+          currentStrategySeries?.baseReserves!,
+          currentStrategySeries?.fyTokenRealReserves!,
+          currentStrategySeries?.totalSupply!,
+          currentStrategySeries?.getTimeTillMaturity()!,
+          currentStrategySeries?.decimals!
         );
         const currentValue_ = currentValue.eq(ethers.constants.Zero)
           ? _strategy.accountBalance_
           : ethers.utils.formatUnits(currentValue, _strategy.decimals!);
         return { ..._strategy, currentValue_ };
       })
-      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
-      .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
-        _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
-      );
+      .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
+      .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
     setStrategyPositions(_strategyPositions);
   }, [strategyMap, seriesMap]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
+
   const convertValue = useCallback(
-    (fromAssetId: string, toAssetId: string = DAI, value: string) => {
-      const fromAsset: IAsset = assetMap?.get(fromAssetId)!;
+    async (toAssetId: string = USDC, fromAssetId: string, value: string) => {
       try {
-        if (!priceMap.get(fromAssetId)?.has(toAssetId)) {
-          updatePrice(fromAssetId, toAssetId, fromAsset?.decimals!);
+        /* try get from state first */
+        let pair = assetPairMap.get(toAssetId + fromAssetId);
+
+        /* else update the pair data */
+        if (!pair) {
+          pair = await updateAssetPair(toAssetId, fromAssetId);
         }
-        const assetPrice = priceMap.get(fromAssetId)?.get(toAssetId);
-        const assetValue = Number(ethers.utils.formatUnits(assetPrice || ethers.constants.Zero, 18)) * Number(value);
-        return assetValue;
+
+        return (
+          Number(ethers.utils.formatUnits(pair.pairPrice || ethers.constants.Zero, pair.baseDecimals)) * Number(value)
+        );
       } catch (e) {
         console.log(e);
       }
       return 0;
     },
-    [assetMap, priceMap, updatePrice]
+    [assetPairMap, updateAssetPair]
   );
 
   /* get vault, lend, and pool position total debt, collateral, and balances */
   useEffect(() => {
-    const _debts = vaultPositions?.map((position: any) =>
-      convertValue(position.baseId, currencySettingAssetId, position.art_)
-    );
-    setTotalDebt(
-      cleanValue(_debts.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
-    );
-    console.log('updating debt and collat');
-    const _collaterals = vaultPositions?.map((vault: IVault) =>
-      convertValue(vault.ilkId, currencySettingAssetId, vault.ink_)
-    );
-    setTotalCollateral(
-      cleanValue(
-        _collaterals.reduce((sum: number, collateral: number) => sum + collateral, 0).toString(),
-        currencySettingDigits
-      )
-    );
+    async function getBalances() {
+      const _debts = await Promise.all(
+        vaultPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.art_))
+      );
 
-    const _lendBalances = lendPositions?.map((_series: any) =>
-      convertValue(_series.baseId, currencySettingAssetId, _series.currentValue_!)
-    );
+      setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits));
 
-    // using the current fyToken Value denominated in currency setting
-    setTotalLendBalance(
-      cleanValue(_lendBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(), currencySettingDigits)
-    );
+      const _collaterals = await Promise.all(
+        vaultPositions.map((position) => convertValue(currencySettingAssetId, position.ilkId, position.ink_))
+      );
 
-    const _strategyBalances = strategyPositions?.map((strategy: any) =>
-      convertValue(strategy.baseId, currencySettingAssetId, strategy.currentValue_!)
-    );
+      setTotalCollateral(
+        cleanValue(_collaterals.reduce((sum, collateral) => sum + collateral, 0).toString(), currencySettingDigits)
+      );
 
-    setTotalStrategyBalance(
-      cleanValue(
-        _strategyBalances.reduce((sum: number, debt: number) => sum + debt, 0).toString(),
-        currencySettingDigits
-      )
-    );
-  }, [
-    priceMap,
-    currencySettingAssetId,
-    convertValue,
-    currencySettingDigits,
-    vaultPositions,
-    lendPositions,
-    strategyPositions,
-  ]);
+      const _lendBalances = await Promise.all(
+        lendPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.currentValue_!))
+      );
+
+      // using the current fyToken Value denominated in currency setting
+      setTotalLendBalance(
+        cleanValue(_lendBalances.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits)
+      );
+
+      const _strategyBalances = await Promise.all(
+        strategyPositions.map((position) =>
+          convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
+        )
+      );
+
+      setTotalStrategyBalance(
+        cleanValue(_strategyBalances.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits)
+      );
+    }
+
+    getBalances();
+  }, [currencySettingAssetId, convertValue, currencySettingDigits, vaultPositions, lendPositions, strategyPositions]);
 
   return {
     vaultPositions,

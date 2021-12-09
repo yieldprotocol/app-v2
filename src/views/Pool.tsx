@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox } from 'grommet';
-import { FiPercent } from 'react-icons/fi';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Tip } from 'grommet';
+import { FiInfo, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
 import { cleanValue, nFormatter } from '../utils/appUtils';
@@ -231,7 +231,28 @@ function Pool() {
                     <Box direction="row" justify="between" fill align="center">
                       {!mobile && (
                         <Box direction="row" gap="xsmall">
-                          <Text size="xsmall">Pooling method:</Text>
+                          <Tip
+                            content={
+                              <Box gap="small">
+                                <Text size="xsmall">Buy & Pool: provide liquidity using {selectedBase?.symbol}.</Text>
+                                <Box>
+                                  <Text size="xsmall">
+                                    Borrow & Pool: provide liquidity by borrowing fy{selectedBase?.symbol} using{' '}
+                                    {selectedBase?.symbol}.
+                                  </Text>
+                                  <Text size="xsmall">Typically used when providing a large amount of liquidity.</Text>
+                                </Box>
+                              </Box>
+                            }
+                            dropProps={{
+                              align: { bottom: 'top', right: 'left' },
+                            }}
+                          >
+                            <Box direction="row">
+                              <Text size="xsmall">Pooling method:</Text>
+                              <FiInfo size=".75rem" />
+                            </Box>
+                          </Tip>
                         </Box>
                       )}
                       <RadioButtonGroup

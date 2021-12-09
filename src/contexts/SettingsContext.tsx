@@ -43,7 +43,7 @@ const initState: ISettingsContextState = {
   dashHideVaults: (JSON.parse(localStorage.getItem('dashHideVaults')!) as boolean) || false,
   dashHideLendPositions: (JSON.parse(localStorage.getItem('dashHideLendPostions')!) as boolean) || false,
   dashHidePoolPositions: (JSON.parse(localStorage.getItem('dashHidePoolPositions')!) as boolean) || false,
-  dashCurrency: (JSON.parse(localStorage.getItem('dashCurrency')!) as string) || 'DAI',
+  dashCurrency: (JSON.parse(localStorage.getItem('dashCurrency')!) as string) || 'USDC',
 };
 
 function settingsReducer(state: any, action: any) {

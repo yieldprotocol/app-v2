@@ -867,7 +867,7 @@ export const calculateCollateralizationRatio = (
 export const calculateMinCollateral = (
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
-  liquidationRatio: string = '1.5', // OPTIONAL: 150% as default
+  liquidationRatio: string, 
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in
   asBigNumber: boolean = false
 ): string | BigNumber => {

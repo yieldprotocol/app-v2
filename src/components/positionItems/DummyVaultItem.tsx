@@ -1,10 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { ethers } from 'ethers';
 
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, IUserContext, IVault } from '../../types';
-import { UserContext } from '../../contexts/UserContext';
+import { ActionType, ISeries } from '../../types';
 
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
@@ -23,28 +21,7 @@ function DummyVaultItem({
 }) {
   const history = useHistory();
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { selectedSeries, selectedBase, selectedIlk } = userState;
-  const { setSelectedVault } = userActions;
-
   const handleSelect = (_vaultId: string) => {
-    const dummyVault: IVault = {
-      id: _vaultId,
-      seriesId: selectedSeries?.id!,
-      baseId: selectedBase?.id!,
-      ilkId: selectedIlk?.id!,
-      displayName: '',
-      decimals: selectedBase?.decimals!,
-      owner: '',
-      isWitchOwner: false,
-      isActive: true,
-      ink: ethers.BigNumber.from(0),
-      art: ethers.BigNumber.from(0),
-      ink_: '',
-      art_: '',
-      minDebt: ethers.BigNumber.from(0),
-      maxDebt: ethers.BigNumber.from(0),
-    };
     // setSelectedVault(dummyVault);
     history.push(`/vaultposition/${_vaultId}`);
   };
