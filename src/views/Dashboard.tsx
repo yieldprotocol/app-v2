@@ -13,7 +13,7 @@ import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
 import YieldNavigation from '../components/YieldNavigation';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useDashboardHelpers }  from '../hooks/viewHelperHooks/useDashboardHelpers';
+import { useDashboardHelpers } from '../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../contexts/UserContext';
 import { formatValue } from '../utils/appUtils';
 
@@ -36,7 +36,7 @@ const Dashboard = () => {
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    userState: { vaultsLoading, seriesLoading, strategiesLoading, pricesLoading },
+    userState: { vaultsLoading, seriesLoading, strategiesLoading },
   }: { userState: IUserContextState } = useContext(UserContext);
 
   const {
@@ -93,8 +93,8 @@ const Dashboard = () => {
                     <DashboardPositionList
                       actionType={ActionType.BORROW}
                       positions={vaultPositions}
-                      debt={`${currencySettingSymbol}${formatValue(totalDebt, currencySettingDigits)}`}
-                      collateral={`${currencySettingSymbol}${formatValue(totalCollateral, currencySettingDigits)}`}
+                      debt={`${currencySettingSymbol}${formatValue(totalDebt!, currencySettingDigits)}`}
+                      collateral={`${currencySettingSymbol}${formatValue(totalCollateral!, currencySettingDigits)}`}
                     />
                   )}
                 </>
@@ -123,7 +123,7 @@ const Dashboard = () => {
                     <DashboardPositionList
                       actionType={ActionType.LEND}
                       positions={lendPositions}
-                      lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance, currencySettingDigits)}`}
+                      lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance!, currencySettingDigits)}`}
                     />
                   )}
                 </>
@@ -153,7 +153,7 @@ const Dashboard = () => {
                       actionType={ActionType.POOL}
                       positions={strategyPositions}
                       strategyBalance={`${currencySettingSymbol}${formatValue(
-                        totalStrategyBalance,
+                        totalStrategyBalance!,
                         currencySettingDigits
                       )}`}
                     />
@@ -183,8 +183,8 @@ const Dashboard = () => {
                 <DashboardBalanceSummary
                   debt={totalDebt!}
                   collateral={totalCollateral!}
-                  lendBalance={totalLendBalance}
-                  poolBalance={totalStrategyBalance}
+                  lendBalance={totalLendBalance!}
+                  poolBalance={totalStrategyBalance!}
                   digits={currencySettingDigits}
                   symbol={currencySettingSymbol}
                 />
