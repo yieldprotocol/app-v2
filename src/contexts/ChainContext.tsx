@@ -39,7 +39,7 @@ const markMap = new Map([
   ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
   ['UNI', <UNIMark key="uni" />],
-  ['YVUSDC', <YVUSDCMark key="yvusdc" />],
+  ['yvUSDC', <YVUSDCMark key="yvusdc" />],
 ]);
 
 /* Build the context */

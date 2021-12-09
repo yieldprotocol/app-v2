@@ -11,10 +11,11 @@ export const LINK = '0x303600000000';
 export const ENS = '0x303700000000';
 
 export const UNI = '0x313000000000';
+export const yvUSDC = '0x303900000000';
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
 export const DAI_PERMIT_ASSETS = ['DAI', DAI];
-export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WETH];
+export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WETH, yvUSDC, 'yvUSDC'];
 
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
 // export const IGNORE_BASE_ASSETS = ['ENS'];
@@ -57,5 +58,5 @@ ASSET_INFO.set('stETH', {
 
 ASSET_INFO.set('LINK', { showToken: true, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
 ASSET_INFO.set('UNI', { showToken: false, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
-ASSET_INFO.set('YVUSDC', { showToken: false, isWrappedToken: false, color: '#3366CC', digitFormat: 6 });
-ASSET_INFO.set('UNI', { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
+ASSET_INFO.set('yvUSDC', { showToken: true, isWrappedToken: false, color: '#3366CC', digitFormat: 6 });
+ASSET_INFO.set('UNI', { showToken: true, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
