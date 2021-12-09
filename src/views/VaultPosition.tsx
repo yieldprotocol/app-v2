@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Tip, Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ThemeContext } from 'styled-components';
 
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiInfo } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -130,11 +130,8 @@ const VaultPosition = () => {
     '0',
     _selectedVault
   );
-  const { collateralizationPercent: removeCollEst } = useCollateralHelpers(
-    '0',
-    `-${removeCollatInput! || '0'}`,
-    _selectedVault
-  );
+  const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault);
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
@@ -311,14 +308,33 @@ const VaultPosition = () => {
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading}
                       />
-                      <InfoBite
-                        label="Collateral posted"
-                        value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
-                          vaultIlk?.displaySymbol
-                        } (${collateralizationPercent} %)`}
-                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        loading={vaultsLoading}
-                      />
+                      <Box direction="row" gap="xsmall">
+                        <InfoBite
+                          label="Collateral posted"
+                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
+                          icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                          loading={vaultsLoading}
+                        >
+                          <Box align="center" direction="row">
+                            <Text>({collateralizationPercent}%)</Text>
+                            {/* <Tip
+                              content={
+                                <Text size="xsmall">
+                                  Keep your collateralization ratio above {minCollatRatioPct}% to prevent liquidation
+                                </Text>
+                              }
+                              dropProps={{
+                                align: { top: 'bottom' },
+                              }}
+                            >
+                              <Box direction="row" alignSelf="end">
+                                <Text>({collateralizationPercent}%)</Text>
+                                {!mobile && <FiInfo size=".75rem" />}
+                              </Box>
+                            </Tip> */}
+                          </Box>
+                        </InfoBite>
+                      </Box>
                     </Box>
                   </SectionWrap>
                 )}
@@ -608,9 +624,16 @@ const VaultPosition = () => {
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Text color="text" alignSelf="end" size="xsmall">
-                                  Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
-                                </Text>
+                                <Box>
+                                  <Text color="text" alignSelf="start" size="xsmall">
+                                    Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
+                                  </Text>
+                                  {removeCollEstUnhealthyRatio && (
+                                    <Text color="red" alignSelf="start" size="xsmall">
+                                      Removing this much collateral will make the vault in danger of liquidation
+                                    </Text>
+                                  )}
+                                </Box>
                               </InputInfoWrap>
                             )
                           }
