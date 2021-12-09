@@ -523,7 +523,7 @@ const UserProvider = ({ children }: any) => {
           const [strategyTotalSupply, strategyTotalSupplyHist, currentSeriesId, currentPoolAddr, nextSeriesId] =
             await Promise.all([
               _strategy.strategyContract.totalSupply(),
-              _strategy.strategyContract.totalSupply({ blockTag: -20000 }),
+              _strategy.strategyContract.totalSupply({ blockTag: -42000 }),
               _strategy.strategyContract.seriesId(),
               _strategy.strategyContract.pool(),
               _strategy.strategyContract.nextSeriesId(),
@@ -544,14 +544,16 @@ const UserProvider = ({ children }: any) => {
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
 
-              currentSeries.poolContract.getCache({ blockTag: -20000 }),
-              currentSeries.poolContract.totalSupply({ blockTag: -20000 }),
-              currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -20000 }),
+              currentSeries.poolContract.getCache({ blockTag: -42000 }),
+              currentSeries.poolContract.totalSupply({ blockTag: -42000 }),
+              currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -42000 }),
             ]);
 
+            /* get the invariant information */
             const invariant = await PoolView.invariant(currentSeries.poolAddress);
-            const invariantHist = await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
-            console.log(  mulDecimal( divDecimal( invariant.sub(invariantHist), invariant), '100') );
+            const histInvariant = await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
+            const returnRateInv = mulDecimal( divDecimal( invariant.sub(histInvariant), invariant), '100');
+            console.log( 'RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4)  );
 
             // the real balance of fyTokens in the pool
             const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
@@ -581,7 +583,7 @@ const UserProvider = ({ children }: any) => {
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');          
             const returnRate = valHist.lt(val) ? mulDecimal( divDecimal( (val.sub(valHist)) ,valHist), '100') : undefined ;
-            returnRate && console.log( cleanValue(returnRate, 2) ); 
+            returnRate && console.log( 'RETURN FROM TOKEN VALUES:',  cleanValue(returnRate, 4) ); 
 
             return {
               ..._strategy,
@@ -597,8 +599,8 @@ const UserProvider = ({ children }: any) => {
               nextSeriesId,
               currentSeries,
               nextSeries,
-              initInvariant: BigNumber.from('0'),
-              currentInvariant: BigNumber.from('0'),
+              invariant,
+              histInvariant,
               returnRate,
               returnRate_: cleanValue(returnRate, 4),
               active: true,

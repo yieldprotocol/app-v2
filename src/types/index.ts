@@ -276,8 +276,8 @@ export interface IStrategy extends IStrategyRoot {
   nextSeries: ISeries | undefined;
   active: boolean;
 
-  initInvariant?: BigNumber;
-  currentInvariant?: BigNumber;
+  invariant?: string | BigNumber;
+  histInvariant?: string | BigNumber;
   returnRate?: string;
   returnRate_?: string;
 
