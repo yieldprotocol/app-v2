@@ -27,6 +27,8 @@ import {
   secondsToFrom,
   sellFYToken,
   decimal18ToDecimalN,
+  strategyTokenValue,
+  toBn,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
@@ -86,7 +88,7 @@ function userReducer(state: any, action: any) {
       return { ...state, strategyMap: onlyIfChanged(action) };
 
     case 'assetPairMap':
-      return { ...state, assetPairMap: action.payload };
+      return { ...state, assetPairMap: onlyIfChanged(action) };
 
     case 'vaultsLoading':
       return { ...state, vaultsLoading: onlyIfChanged(action) };
@@ -120,7 +122,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const {
     contractMap,
-    connection: { account, fallbackChainId },
+    connection: { account, fallbackChainId, fallbackProvider },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -430,7 +432,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
@@ -438,7 +439,7 @@ const UserProvider = ({ children }: any) => {
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
           }
- 
+
           /* Get dynamic vault data */
           const [
             { ink, art },
@@ -514,32 +515,64 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy: IStrategyRoot): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-            _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.seriesId(),
-            _strategy.strategyContract.pool(),
-            _strategy.strategyContract.nextSeriesId(),
-          ]);
+          const [strategyTotalSupply, strategyTotalSupplyHist, currentSeriesId, currentPoolAddr, nextSeriesId] =
+            await Promise.all([
+              _strategy.strategyContract.totalSupply(),
+              _strategy.strategyContract.totalSupply({ blockTag: -20000 }),
+              _strategy.strategyContract.seriesId(),
+              _strategy.strategyContract.pool(),
+              _strategy.strategyContract.nextSeriesId(),
+            ]);
           const currentSeries: ISeries = userState.seriesMap.get(currentSeriesId);
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
           if (currentSeries) {
-            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
+            const [
+              [base, fyTokenVirtual, ],
+              poolTotalSupply,
+              strategyPoolBalance,
+              [baseHist, fyTokenVirtualHist, ],
+              poolTotalSupplyHist,
+              strategyPoolBalanceHist,
+            ] = await Promise.all([
+              currentSeries.poolContract.getCache(),
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
+
+              currentSeries.poolContract.getCache({ blockTag: -20000 }),
+              currentSeries.poolContract.totalSupply({ blockTag: -20000 }),
+              currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -20000 }),
             ]);
 
-            const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
-              ? [ZERO_BN, ZERO_BN]
-              : [ZERO_BN, ZERO_BN];
-            // TODO Re-include invariant
-            // : await Promise.all([
-            //     currentSeries.poolContract.invariant(),
-            //     _strategy.strategyContract.invariants(currentPoolAddr),
-            //   ]);
+            // the real balance of fyTokens in the pool
+            const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
+            const fyTokenRealHist = fyTokenVirtualHist.sub(poolTotalSupplyHist);
 
-            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
+            const [ ,val] = strategyTokenValue(
+              ethers.utils.parseUnits('1', currentSeries.decimals ),
+              strategyTotalSupply,
+              strategyPoolBalance,
+              base,
+              fyTokenReal,
+              poolTotalSupply,
+              currentSeries.getTimeTillMaturity(),
+              currentSeries.decimals
+            );
+
+            const [ ,valHist] = strategyTokenValue(
+              ethers.utils.parseUnits('1', currentSeries.decimals ),
+              strategyTotalSupplyHist,
+              strategyPoolBalanceHist,
+              baseHist,
+              fyTokenRealHist,
+              poolTotalSupplyHist,
+              (parseInt(currentSeries.getTimeTillMaturity(), 10) + 640000).toString(),   
+              currentSeries.decimals
+            );
+
+            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');          
+            const returnRate = valHist.lt(val) ? mulDecimal( divDecimal( (val.sub(valHist)) ,valHist), '100') : undefined ;
+            returnRate && console.log( cleanValue(returnRate, 2) ); 
 
             return {
               ..._strategy,
@@ -555,10 +588,10 @@ const UserProvider = ({ children }: any) => {
               nextSeriesId,
               currentSeries,
               nextSeries,
-              initInvariant: initInvariant || BigNumber.from('0'),
-              currentInvariant: currentInvariant || BigNumber.from('0'),
+              initInvariant: BigNumber.from('0'),
+              currentInvariant: BigNumber.from('0'),
               returnRate,
-              returnRate_: returnRate.toString(),
+              returnRate_: cleanValue(returnRate, 4),
               active: true,
             };
           }

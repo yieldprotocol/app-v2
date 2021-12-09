@@ -443,7 +443,7 @@ const ChainProvider = ({ children }: any) => {
                   id: strategyAddr,
                   address: strategyAddr,
                   symbol,
-                  name,
+                  name: name.substr(6),
                   version,
                   baseId,
                   decimals,

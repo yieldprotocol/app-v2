@@ -993,7 +993,7 @@ export const strategyTokenValue = (
     _fyTokenReceived,
     poolTimeToMaturity.toString(),
     decimals
-  );
+  ); 
 
   const totalValue = sellValue.add(_baseTokenReceived);
 
