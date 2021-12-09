@@ -507,7 +507,12 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
+
+  
     async (strategyList: IStrategyRoot[]) => {
+
+      const PoolView = contractMap.get('PoolView');
+
       updateState({ type: 'strategiesLoading', payload: true });
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
@@ -543,6 +548,10 @@ const UserProvider = ({ children }: any) => {
               currentSeries.poolContract.totalSupply({ blockTag: -20000 }),
               currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -20000 }),
             ]);
+
+            const invariant = await PoolView.invariant(currentSeries.poolAddress);
+            const invariantHist = await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
+            console.log(  mulDecimal( divDecimal( invariant.sub(invariantHist), invariant), '100') );
 
             // the real balance of fyTokens in the pool
             const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);

@@ -146,15 +146,18 @@ const ChainProvider = ({ children }: any) => {
       let CompositeMultiOracle: any;
       let Witch: any;
       let LidoWrapHandler: any;
+      let PoolView:any;
 
       // arbitrum
       let ChainlinkUSDOracle: any;
       let AccumulatorMultiOracle: any;
 
+
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+        PoolView = contracts.PoolView__factory.connect(addrs.PoolView, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
@@ -199,6 +202,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
+      newContractMap.set('PoolView', PoolView);
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
