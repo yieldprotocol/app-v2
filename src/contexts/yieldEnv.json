@@ -6,6 +6,7 @@
       "ChainlinkMultiOracle": "0xcDCe5C87f691058B61f3A65913f1a3cBCbAd9F52",
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061",
+      "PoolView": "0x6AEe94A96baCDc528D13c230F1fB3e608B75DEcC",
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1"
     },
     "4": {
@@ -14,6 +15,7 @@
       "ChainlinkMultiOracle": "0xBDBF01Ee32485aF94e316C395765F5Af2bf4b4dB",
       "CompositeMultiOracle": "0x8482BF1e17ceF57109F34C259d39d5B9BB9A4e13",
       "Witch": "0x458098338c136D1c4410910e6F893316D86Ba837",
+      "PoolView": "0x6AEe94A96baCDc528D13c230F1fB3e608B75DEcC", 
       "lidoWrapHandler": "0x80d0CfceE7dfa135189e44d617032d5A7Cc2705b"
     },
     "42": {
@@ -22,6 +24,7 @@
       "ChainlinkMultiOracle": "0xBcdc8bad83ca8053DFA6B1CBAEB7E71699254a3b",
       "CompositeMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
       "Witch": "0xA421B81481e0d150740f8F137FB10b1b747974a8",
+      "PoolView": "0x6AEe94A96baCDc528D13c230F1fB3e608B75DEcC",
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1"
     },
     "421611": {
@@ -29,6 +32,7 @@
       "Ladle": "0x75aD7c0461eE87Ca87D86DD1F33C7419c11f5b05",
       "ChainlinkUSDOracle": "0x2c6966F0CeEb633ce8ece0972f4c4d28841dBbDD",
       "AccumulatorMultiOracle": "0x7eD45E73A6c6381a7F6E9778643134f0a8E07Abc",
+      "PoolView": "0x6AEe94A96baCDc528D13c230F1fB3e608B75DEcC",
       "Witch": "0x7257575992431d7e55F0ccCD4253e7D77b6CD7E4"
     }
   },
