@@ -88,110 +88,60 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
     <>
       {strategiesLoading && <Skeleton width={180} />}
 
+      {selectedStrategy && (
+        <Box pad="small" width="small" direction="row" align="center" gap="small">
+          <Avatar
+            background={selectedStrategy.currentSeries?.endColor.toString().concat('10')}
+            style={{
+              boxShadow: `inset 1px 1px 2px ${selectedStrategy.currentSeries?.endColor.toString().concat('69')}`,
+            }}
+          >
+            {selectedStrategy.currentSeries?.seriesMark || <FiSlash />}
+          </Avatar>
+          <Box>
+            {(!selectedStrategy || !inputValue) && (
+              <>
+                <Text size="small" color={selectedStrategy.currentSeries?.textColor}>
+                  {formatStrategyName(selectedStrategy.name)}
+                </Text>
+                <Text size="xsmall" color={selectedStrategy.currentSeries?.textColor}>
+                  Rolling {seriesMap.get(selectedStrategy.currentSeriesId)?.displayName}
+                </Text>
+              </>
+            )}
+
+            {selectedStrategy && inputValue && (
+              <>
+                <Text size="small" color={selectedStrategy.currentSeries?.textColor}>
+                  {cleanValue(
+                    getPoolPercent(
+                      ethers.utils.parseUnits(
+                        cleanValue(inputValue, selectedStrategy.decimals),
+                        selectedStrategy.decimals
+                      ),
+                      selectedStrategy.strategyTotalSupply!
+                    ),
+                    3
+                  )}
+                  %
+                </Text>
+                <Text size="xsmall" color={selectedStrategy.currentSeries?.textColor}>
+                  of strategy
+                </Text>
+              </>
+            )}
+          </Box>
+        </Box>
+      )}
+
       {cardLayout && (
         <ShadeBox
           overflow={mobile ? 'auto' : 'auto'}
           height={mobile ? undefined : '250px'}
           pad={{ vertical: 'small', horizontal: 'xsmall' }}
         >
-          <Grid columns={mobile ? '100%' : '40%'} gap="small">
-            {strategiesLoading ? (
-              <>
-                <CardSkeleton />
-                <CardSkeleton />
-              </>
-            ) : (
-              options.map((strategy: IStrategy) => (
-                <StyledBox
-                  key={strategy.address}
-                  pad="xsmall"
-                  round="xsmall"
-                  onClick={() => handleSelect(strategy)}
-                  background={
-                    strategy.address === selectedStrategy?.address ? strategy.currentSeries?.color : 'hoverBackground'
-                  }
-                  elevation="xsmall"
-                  align="center"
-                >
-                  <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar
-                      background={
-                        strategy.address === selectedStrategy?.address
-                          ? 'lightBackground'
-                          : strategy.currentSeries?.endColor.toString().concat('10')
-                      }
-                      style={{
-                        boxShadow:
-                          strategy.address === selectedStrategy?.address
-                            ? `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`
-                            : undefined,
-                      }}
-                    >
-                      {strategy.currentSeries?.seriesMark || <FiSlash />}
-                    </Avatar>
-                    <Box>
-                      {(!selectedStrategy || !inputValue) && (
-                        <>
-                          <Text
-                            size="small"
-                            color={
-                              strategy.address === selectedStrategy?.address
-                                ? strategy.currentSeries?.textColor
-                                : undefined
-                            }
-                          >
-                            {formatStrategyName(strategy.name)}
-                          </Text>
-                          <Text
-                            size="xsmall"
-                            color={
-                              strategy.address === selectedStrategy?.address
-                                ? strategy.currentSeries?.textColor
-                                : undefined
-                            }
-                          >
-                            Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
-                          </Text>
-                        </>
-                      )}
-
-                      {selectedStrategy && inputValue && (
-                        <>
-                          <Text
-                            size="small"
-                            color={
-                              strategy.address === selectedStrategy?.address
-                                ? strategy.currentSeries?.textColor
-                                : undefined
-                            }
-                          >
-                            {cleanValue(
-                              getPoolPercent(
-                                ethers.utils.parseUnits(cleanValue(inputValue, strategy.decimals), strategy.decimals),
-                                strategy.strategyTotalSupply!
-                              ),
-                              3
-                            )}
-                            %
-                          </Text>
-                          <Text
-                            size="xsmall"
-                            color={
-                              strategy.address === selectedStrategy?.address
-                                ? strategy.currentSeries?.textColor
-                                : undefined
-                            }
-                          >
-                            of strategy
-                          </Text>
-                        </>
-                      )}
-                    </Box>
-                  </Box>
-                </StyledBox>
-              ))
-            )}
-          </Grid>
+          {' '}
+          {false}
         </ShadeBox>
       )}
     </>
