@@ -31,6 +31,7 @@ const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 function getFallbackLibrary(provider: any) {
   const library: ethers.providers.JsonRpcProvider = new ethers.providers.JsonRpcProvider(
     process.env[`REACT_APP_RPC_URL_${provider.chainId}`]
+    // 'http://127.0.0.1:8545/'
   );
   library.pollingInterval = 6000;
   return library;
