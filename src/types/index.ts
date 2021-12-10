@@ -1,8 +1,37 @@
-import { ethers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
+import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import React from 'react';
 import { ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
+
+export interface IChainContext {
+  chainState: IChainContextState;
+  chainActions: IChainContextActions;
+}
+
+export interface IChainContextState {
+  appVersion: string;
+  connection: IConnectionState;
+
+  chainLoading: boolean;
+
+  contractMap: Map<string, Contract>;
+  assetRootMap: Map<string, IAssetRoot>;
+  seriesRootMap: Map<string, ISeriesRoot>;
+  strategyRootMap: Map<string, IStrategyRoot>;
+}
+
+export interface IConnectionState {
+  provider: ethers.providers.JsonRpcProvider | null;
+  chainId: number | null;
+  fallbackProvider: ethers.providers.Web3Provider | null;
+  fallbackChainId: number | null;
+  signer: ethers.providers.JsonRpcSigner | null;
+  account: string | null;
+  web3Active: boolean;
+  fallbackActive: boolean;
+  connectorName: string | null;
+}
 
 export interface IHistoryList {
   lastBlock: number;
@@ -13,6 +42,12 @@ export interface IHistoryContextState {
   tradeHistory: IHistoryList;
   poolHistory: IHistoryList;
   vaultHistory: IHistoryList;
+}
+
+export interface IChainContextActions {
+  connect: (connection: string) => void;
+  disconnect: () => void;
+  isConnected: (connection: string) => void;
 }
 
 export interface IUserContext {
@@ -28,15 +63,13 @@ export interface IUserContextState {
   vaultMap: Map<string, IVault>;
   strategyMap: Map<string, IStrategy>;
 
-  priceMap: Map<string, Map<string, any>>; // oracle pricing
-  limitMap: Map<string, Map<string, [BigNumber, BigNumber]>>; // min/max limits
+  assetPairMap: Map<string, IAssetPair>;
 
   vaultsLoading: boolean;
   seriesLoading: boolean;
   assetsLoading: boolean;
   strategiesLoading: boolean;
-  pricesLoading: boolean;
-  limitsLoading: boolean;
+  assetPairLoading: boolean;
 
   selectedSeries: ISeries | null;
   selectedIlk: IAsset | null;
@@ -51,8 +84,7 @@ export interface IUserContextActions {
   updateAssets: (assetList: IAsset[]) => void;
   updateStrategies: (strategyList: IStrategy[]) => void;
 
-  updatePrice: (ilkId: string, baseId: string, decimals: number) => void;
-  updateLimit: (ilkId: string, baseId: string) => void;
+  updateAssetPair: (baseId: string, ilkId: string) => Promise<IAssetPair>;
 
   setSelectedSeries: (series: ISeries | null) => void;
   setSelectedIlk: (ilk: IAsset | null) => void;
@@ -136,10 +168,10 @@ export interface IAssetInfo {
 
   color: string;
   digitFormat: number; // this is the 'resonable' number of digits to show. accuracy equavalent to +- 1 us cent.
-  
+
   displaySymbol?: string; // override for symbol display
   wrapHandlerAddress?: string;
-  
+
   wrappedTokenId?: string;
   unwrappedTokenId?: string;
 
@@ -166,6 +198,22 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
+}
+
+export interface IAssetPair {
+  baseId: string;
+  ilkId: string;
+  
+  baseDecimals: number;
+  limitDecimals: number;
+  minRatio: number;
+
+  minDebtLimit: BigNumber;
+  maxDebtLimit: BigNumber;
+  pairPrice: BigNumber;
+  pairTotalDebt: BigNumber;
+
+  oracle?: string;
 }
 
 export interface IStrategyRoot extends ISignable {
@@ -209,7 +257,7 @@ export interface IAsset extends IAssetRoot {
 }
 
 export interface IDummyVault extends IVaultRoot {}
-export interface IVault extends IVaultRoot {
+export interface IVault extends IVaultRoot, IAssetPair {
   owner: string;
   isWitchOwner: boolean;
   isActive: boolean;
@@ -217,8 +265,6 @@ export interface IVault extends IVaultRoot {
   art: BigNumber;
   ink_: string;
   art_: string;
-  minDebt: BigNumber;
-  maxDebt: BigNumber;
 }
 
 export interface IStrategy extends IStrategyRoot {

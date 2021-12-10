@@ -5,6 +5,7 @@ import { FiPlus, FiMinus } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
+import { IUserContext } from '../types';
 
 interface IDashboardBalance {
   debt: string;
@@ -19,8 +20,8 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   const theme = useContext(ThemeContext);
   const { green, red } = theme.global.colors;
   const {
-    userState: { vaultsLoading, seriesLoading, pricesLoading, strategiesLoading },
-  } = useContext(UserContext);
+    userState: { vaultsLoading, seriesLoading, assetPairLoading, strategiesLoading },
+  } = useContext(UserContext) as IUserContext;
 
   const [totalBalance, setTotalBalance] = useState<number>();
 
@@ -60,7 +61,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
         <Box gap="xsmall">
           <Box direction="row" justify="between">
             <Text size="xsmall">Total Collateral:</Text>
-            {vaultsLoading || pricesLoading ? (
+            {vaultsLoading || assetPairLoading ? (
               <Skeleton width={50} />
             ) : (
               <Text size="small">
@@ -74,7 +75,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
         <Box gap="xsmall">
           <Box direction="row" justify="between">
             <Text size="xsmall">Total Debt:</Text>
-            {vaultsLoading || pricesLoading ? (
+            {vaultsLoading || assetPairLoading ? (
               <Skeleton width={50} />
             ) : (
               <Text size="small">
@@ -87,7 +88,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
       </Box>
       <Box direction="row" justify="between">
         <Text size="small">Total:</Text>
-        {vaultsLoading || seriesLoading || strategiesLoading || (pricesLoading && !totalBalance) ? (
+        {vaultsLoading || seriesLoading || strategiesLoading || (assetPairLoading && !totalBalance) ? (
           <Skeleton width={50} />
         ) : (
           <Text size="medium">

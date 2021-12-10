@@ -33,7 +33,7 @@ const NetworkSelector = () => {
 
   useEffect(() => {
     setOptions(
-      SUPPORTED_CHAIN_IDS.filter((chainId: number) => ![fallbackChainId, 42, 69, 421611].includes(chainId)) // filter out test networks and currently selected network
+      SUPPORTED_CHAIN_IDS.filter((chainId: number) => ![fallbackChainId, 4, 42, 69, 421611].includes(chainId)) // filter out test networks and currently selected network
         .map((chainId: number) => CHAIN_INFO.get(chainId)?.name!)
     );
   }, [fallbackChainId]);

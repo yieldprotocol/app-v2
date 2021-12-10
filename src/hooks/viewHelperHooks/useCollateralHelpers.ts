@@ -1,12 +1,12 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IVault } from '../../types';
+import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
 import { calculateCollateralizationRatio, calculateMinCollateral, decimalNToDecimal18 } from '../../utils/yieldMath';
+import { useAssetPair } from '../useAssetPair';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -16,12 +16,8 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBase, selectedIlk, priceMap },
-    userActions: { updatePrice },
+    userState: { activeAccount, selectedBase, selectedIlk },
   } = useContext(UserContext);
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -42,23 +38,26 @@ export const useCollateralHelpers = (
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
 
-  /* update the prices if anything changes */
-  useEffect(() => {
-    if (selectedBase && selectedIlk && priceMap.get(selectedIlk.idToUse)?.has(selectedBase.idToUse)) {
-      const _price = priceMap.get(selectedIlk.idToUse).get(selectedBase.idToUse); // get the price
-      setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
-    } else {
-      (async () => {
-        if (selectedBase && selectedIlk) {
-          /* Update Price before setting */
-          const _price = await updatePrice(selectedIlk.idToUse, selectedBase.idToUse, selectedIlk.decimals);
-          setOraclePrice(decimalNToDecimal18(_price, selectedBase.decimals)); // make sure the price is 18decimals based
-        }
-      })();
-    }
-  }, [priceMap, updatePrice, selectedBase, selectedIlk]);
+  const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
 
-  /* CHECK collateral selection and sets the max available collateral a user can add */
+  /* update the prices/limits if anything changes with the asset pair */
+  useEffect(() => {
+    if (assetPairInfo) {
+      /* set the pertinent oracle price */
+      setOraclePrice(decimalNToDecimal18(assetPairInfo.pairPrice, assetPairInfo.baseDecimals));
+
+      /* set min collaterateralisation ratio */
+      setMinCollatRatio(assetPairInfo?.minRatio);
+      setMinCollatRatioPct((assetPairInfo?.minRatio * 100).toString());
+
+      /* set min safe coll ratio */
+      const _minSafeCollatRatio = assetPairInfo?.minRatio < 1.4 ? 1.5 : assetPairInfo?.minRatio + 1;
+      setMinSafeCollatRatio(_minSafeCollatRatio);
+      setMinSafeCollatRatioPct((_minSafeCollatRatio * 100).toString());
+    }
+  }, [assetPairInfo]);
+
+  /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {
     activeAccount &&
       (async () => {
@@ -97,7 +96,7 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, minCollatRatio?.toString(), existingCollateralAsWei);
+      const min = calculateMinCollateral(oraclePrice, totalDebt, minCollatRatio!.toString(), existingCollateralAsWei);
       const minSafeCalc = calculateMinCollateral(
         oraclePrice,
         totalDebt,
@@ -129,7 +128,6 @@ export const useCollateralHelpers = (
       setMinCollateral_('0');
     }
   }, [
-    priceMap,
     collInput,
     debtInput,
     selectedIlk,
@@ -141,7 +139,7 @@ export const useCollateralHelpers = (
     minSafeCollatRatio,
   ]);
 
-  /* Monitor for undercollaterization */
+  /* Monitor for undercollaterization/ danger-collateralisation, and set flags if reqd. */
   useEffect(() => {
     parseFloat(collateralizationRatio!) >= minCollatRatio!
       ? setUndercollateralized(false)
@@ -151,24 +149,6 @@ export const useCollateralHelpers = (
       ? setUnhealthyCollatRatio(true)
       : setUnhealthyCollatRatio(false);
   }, [collateralizationRatio, minCollatRatio, vault?.art]);
-
-  /* Get and set the min (and safe min) collateral ratio for this base/ilk pair */
-  useEffect(() => {
-    if (selectedBase && selectedIlk && contractMap.has('Cauldron')) {
-      (async () => {
-        const { ratio } = await contractMap.get('Cauldron').spotOracles(selectedBase.idToUse, selectedIlk.idToUse);
-        if (ratio) {
-          const _minCollatRatio = parseFloat(ethers.utils.formatUnits(ratio, 6));
-          setMinCollatRatio(_minCollatRatio);
-          setMinCollatRatioPct(`${parseFloat(ethers.utils.formatUnits(ratio * 100, 6)).toFixed(0)}`);
-
-          const _minSafeCollatRatio = _minCollatRatio < 1.4 ? 1.5 : _minCollatRatio + 1;
-          setMinSafeCollatRatio(_minSafeCollatRatio);
-          setMinSafeCollatRatioPct((_minSafeCollatRatio * 100).toString());
-        }
-      })();
-    }
-  }, [selectedBase, selectedIlk, contractMap]);
 
   return {
     collateralizationRatio,
