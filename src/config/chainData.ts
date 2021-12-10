@@ -1,6 +1,6 @@
 export const RPC_URLS: { [chainId: number]: string } = {
-  1: process.env.REACT_APP_RPC_URL_1 as string,
-  // 1: 'http://127.0.0.1:8545/',
+  // 1: process.env.REACT_APP_RPC_URL_1 as string,
+  1: 'http://127.0.0.1:8545/',
   4: process.env.REACT_APP_RPC_URL_4 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,
   10: process.env.REACT_APP_RPC_URL_10 as string,
