@@ -3,7 +3,7 @@ import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { ActionType, ISeries, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { maxBaseIn, maxBaseOut } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
@@ -121,9 +121,10 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } =
-    useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap, seriesLoading } = userState;
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+    UserContext
+  ) as IUserContext;
+  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -156,31 +157,32 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(seriesMap.values()) as ISeries[];
+    const opts = Array.from(seriesMap.values());
 
     /* filter out options based on base Id and if mature */
-    let filteredOpts = opts
-      .filter(
-        (_series: ISeries) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
-        // !ignoredSeries?.includes(_series.baseId)
-      )
-      .sort((a: ISeries, b: ISeries) => b.maturity! - a.maturity!);
+    let filteredOpts = opts.filter(
+      (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
+      // !ignoredSeries?.includes(_series.baseId)
+    );
 
-    /* if required, filter out the globally selected asset and */
+    /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
-      filteredOpts = filteredOpts.filter((_series: ISeries) => _series.id !== _selectedSeries?.id);
+      filteredOpts = opts
+        .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
+        .filter((_series) => _series.id !== selectedSeries?.id); // filter out current globally selected series
     }
 
-    /* if current selected series is NOT in the list of available series (for a particular base), or bases don't match:
-    set the selected series to null. */
-    if (
-      _selectedSeries &&
-      _selectedSeries.baseId !== selectedBase?.idToUse // )
-    )
-      userActions.setSelectedSeries(null);
-
-    setOptions(filteredOpts.sort((a: ISeries, b: ISeries) => a.maturity - b.maturity));
-  }, [seriesMap, selectedBase, selectSeriesLocally, _selectedSeries, userActions]);
+    setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
+  }, [
+    seriesMap,
+    selectedBase,
+    selectSeriesLocally,
+    _selectedSeries,
+    userActions,
+    selectedSeries,
+    actionType,
+    selectedVault,
+  ]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
   /* height: ${(props: any) => (props.mobile ? '3rem' : '3rem')}; */
-  border: ${(props) => (props.theme.dark ? '#141a1e' : '2px solid white')};
+  border: ${(props) => (props.theme.dark ? '2px solid #141a1e' : '2px solid white')};
 
   :hover {
     transform: scale(1.01);

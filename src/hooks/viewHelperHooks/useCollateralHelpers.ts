@@ -45,10 +45,10 @@ export const useCollateralHelpers = (
     if (assetPairInfo) {
       /* set the pertinent oracle price */
       setOraclePrice(decimalNToDecimal18(assetPairInfo.pairPrice, assetPairInfo.baseDecimals));
-      
+
       /* set min collaterateralisation ratio */
       setMinCollatRatio(assetPairInfo?.minRatio);
-      setMinCollatRatioPct( (assetPairInfo?.minRatio * 100).toString());
+      setMinCollatRatioPct((assetPairInfo?.minRatio * 100).toString());
 
       /* set min safe coll ratio */
       const _minSafeCollatRatio = assetPairInfo?.minRatio < 1.4 ? 1.5 : assetPairInfo?.minRatio + 1;
@@ -65,7 +65,6 @@ export const useCollateralHelpers = (
         _max && setMaxCollateral(ethers.utils.formatUnits(_max, selectedIlk.decimals)?.toString());
       })();
   }, [activeAccount, selectedIlk, setMaxCollateral]);
-
 
   /* handle changes to input values */
   useEffect(() => {
@@ -139,7 +138,6 @@ export const useCollateralHelpers = (
     minCollatRatio,
     minSafeCollatRatio,
   ]);
-
 
   /* Monitor for undercollaterization/ danger-collateralisation, and set flags if reqd. */
   useEffect(() => {
