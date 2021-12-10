@@ -527,6 +527,7 @@ const UserProvider = ({ children }: any) => {
               _strategy.strategyContract.seriesId(),
               _strategy.strategyContract.pool(),
               _strategy.strategyContract.nextSeriesId(),
+
             ]);
           const currentSeries: ISeries = userState.seriesMap.get(currentSeriesId);
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
@@ -539,6 +540,7 @@ const UserProvider = ({ children }: any) => {
               [baseHist, fyTokenVirtualHist, ],
               poolTotalSupplyHist,
               strategyPoolBalanceHist,
+              invariant, 
             ] = await Promise.all([
               currentSeries.poolContract.getCache(),
               currentSeries.poolContract.totalSupply(),
@@ -547,13 +549,14 @@ const UserProvider = ({ children }: any) => {
               currentSeries.poolContract.getCache({ blockTag: -42000 }),
               currentSeries.poolContract.totalSupply({ blockTag: -42000 }),
               currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -42000 }),
+
+              PoolView.invariant(currentSeries.poolAddress),
             ]);
 
-            /* get the invariant information */
-            const invariant = await PoolView.invariant(currentSeries.poolAddress);
-            const histInvariant = await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
+            /* Get the historical invariant information: NB example for future use only hence commented out */
+            const histInvariant = ethers.utils.parseUnits('1', currentSeries.decimals ); // await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
             const returnRateInv = mulDecimal( divDecimal( invariant.sub(histInvariant), histInvariant), '100');
-            console.log( 'RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4)  );
+            diagnostics && console.log( 'RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4)  );
 
             // the real balance of fyTokens in the pool
             const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
@@ -583,7 +586,7 @@ const UserProvider = ({ children }: any) => {
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');          
             const returnRate = valHist.lt(val) ? mulDecimal( divDecimal( (val.sub(valHist)) ,valHist), '100') : undefined ;
-            returnRate && console.log( 'RETURN FROM TOKEN VALUES:',  cleanValue(returnRate, 4) ); 
+            diagnostics && console.log( 'RETURN FROM TOKEN VALUES:',  cleanValue(returnRate, 4) ); 
 
             return {
               ..._strategy,
