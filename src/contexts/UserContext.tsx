@@ -53,7 +53,7 @@ const initState: IUserContextState = {
   seriesLoading: true as boolean,
   assetsLoading: true as boolean,
   strategiesLoading: true as boolean,
-  assetPairLoading: true as boolean,
+  assetPairLoading: false as boolean,
 
   /* Current User selections */
   selectedSeries: null,
@@ -430,7 +430,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
@@ -438,7 +437,7 @@ const UserProvider = ({ children }: any) => {
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
           }
- 
+
           /* Get dynamic vault data */
           const [
             { ink, art },
