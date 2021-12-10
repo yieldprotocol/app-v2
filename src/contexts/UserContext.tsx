@@ -552,7 +552,7 @@ const UserProvider = ({ children }: any) => {
             /* get the invariant information */
             const invariant = await PoolView.invariant(currentSeries.poolAddress);
             const histInvariant = await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
-            const returnRateInv = mulDecimal( divDecimal( invariant.sub(histInvariant), invariant), '100');
+            const returnRateInv = mulDecimal( divDecimal( invariant.sub(histInvariant), histInvariant), '100');
             console.log( 'RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4)  );
 
             // the real balance of fyTokens in the pool
