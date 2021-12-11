@@ -147,13 +147,12 @@ const VaultPosition = () => {
     userBaseAvailable,
     maxRoll_,
     minDebt,
-    minDebt_,
     vaultDebt_,
     rollPossible,
   } = useBorrowHelpers(undefined, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
-    minRepayable_, // this is the max pay to get to dust limit. note different logic in input validation hook.
+    repayInput === maxRepay_ ? 0 : minRepayable_, // this is the max pay to get to dust limit. note different logic in input validation hook.
     maxRepay_,
   ]);
 
@@ -428,8 +427,8 @@ const VaultPosition = () => {
 
                               {!repayInput && minDebt && minDebt.gt(maxRepay) && (
                                 <InputInfoWrap>
-                                <Text size='xsmall'>Your debt is below the current minimumn debt requirement. </Text>
-                                <Text size='xsmall'>(It is only possible to repay the full debt)</Text>
+                                  <Text size="xsmall">Your debt is below the current minimumn debt requirement. </Text>
+                                  <Text size="xsmall">(It is only possible to repay the full debt)</Text>
                                 </InputInfoWrap>
                               )}
 
