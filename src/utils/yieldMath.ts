@@ -867,7 +867,7 @@ export const calculateCollateralizationRatio = (
 export const calculateMinCollateral = (
   basePrice: BigNumber | string,
   baseAmount: BigNumber | string,
-  liquidationRatio: string, 
+  liquidationRatio: string,
   existingCollateral: BigNumber | string = '0', // OPTIONAL add in
   asBigNumber: boolean = false
 ): string | BigNumber => {
@@ -1041,8 +1041,8 @@ export const calcPoolRatios = (
   const ratio = baseReserves_.div(fyTokenReserves_).mul(wad);
   const ratioSlippage = ratio.mul(slippage_);
 
-  const min = ratio.isNaN() ? ratio.sub(ratioSlippage): ZERO_DEC;
-  const max = ratio.isNaN() ? ratio.add(ratioSlippage): ONE_DEC;
+  const min = toBn(ratio.sub(ratioSlippage));
+  const max = toBn(ratio.add(ratioSlippage));
 
-  return [ toBn(min), toBn(max) ];
+  return [min, max];
 };
