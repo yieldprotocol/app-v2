@@ -52,12 +52,11 @@ export const useInputValidation = (
         case ActionCodes.ROLL_DEBT:
           /* set dust limit Error between 0 and dustLimit */
           limits[0] &&
-            limits[1] &&
-            _inputAsFloat >= parseFloat(limits[0].toString()) &&
-            _inputAsFloat !== parseFloat(limits[1].toString()) &&
-            setInputError('Remaining debt below dust levels');
+            _inputAsFloat < parseFloat(limits[0].toString()) &&
+            setInputError('Remaining debt will be below dust levels');
           /* set dustError between 0 and dustLimit */
-          aboveMax && setInputError('Amount exceeds the maximum repayable');
+          aboveMax && 
+          setInputError('Amount exceeds token balance');
           break;
 
         case ActionCodes.ADD_COLLATERAL:
