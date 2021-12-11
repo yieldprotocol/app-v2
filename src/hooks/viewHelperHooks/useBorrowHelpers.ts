@@ -39,6 +39,8 @@ export const useBorrowHelpers = (
   const [minDebt, setMinDebt] = useState<BigNumber>();
   const [minDebt_, setMinDebt_] = useState<string | undefined>();
 
+  const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
+
   const [maxDebt, setMaxDebt] = useState<BigNumber>();
   const [maxDebt_, setMaxDebt_] = useState<string | undefined>();
 
@@ -80,6 +82,21 @@ export const useBorrowHelpers = (
       input_.lte(selectedSeries.baseReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
   }, [input, selectedSeries, selectedSeries?.baseReserves]);
+
+
+    /* check the new debt level after repaying */
+    useEffect(() => {
+      if (input && vault && parseFloat(input) > 0) {
+
+        const cleanedInput = cleanValue(input, vault.decimals);
+        const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
+         console.log('ERERER', vault.art.sub(input_).toString() );
+
+        setDebtAfterRepay(  vault.art.sub(input_) ) 
+
+      }
+    }, [input, vault]);
+
 
   /* Calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
@@ -197,6 +214,8 @@ export const useBorrowHelpers = (
 
     maxRepay_,
     maxRepay,
+
+    debtAfterRepay,
 
     minRepayable,
     minRepayable_,

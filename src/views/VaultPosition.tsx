@@ -45,6 +45,7 @@ import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import ExitButton from '../components/buttons/ExitButton';
+import { ZERO_BN } from '../utils/constants';
 
 const VaultPosition = () => {
   const theme = useContext(ThemeContext);
@@ -149,10 +150,15 @@ const VaultPosition = () => {
     minDebt,
     vaultDebt_,
     rollPossible,
-  } = useBorrowHelpers(undefined, undefined, _selectedVault, rollToSeries);
+    debtAfterRepay,
+  } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
-    repayInput === maxRepay_ ? 0 : minRepayable_, // this is the max pay to get to dust limit. note different logic in input validation hook.
+    
+    
+    
+    !debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.lt(minDebt!) ?  minRepayable_ : 0,
+    // repayInput === maxRepay_ ? 0 : minRepayable_, // this is the max pay to get to dust limit. note different logic in input validation hook.
     maxRepay_,
   ]);
 
