@@ -154,11 +154,7 @@ const VaultPosition = () => {
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
-    
-    
-    
-    !debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.lt(minDebt!) ?  minRepayable_ : 0,
-    // repayInput === maxRepay_ ? 0 : minRepayable_, // this is the max pay to get to dust limit. note different logic in input validation hook.
+    ( debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minRepayable) )  ? undefined : minRepayable_ ,
     maxRepay_,
   ]);
 
