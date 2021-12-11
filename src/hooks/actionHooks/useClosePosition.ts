@@ -48,9 +48,7 @@ export const useClosePosition = () => {
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = approveMax
-      ? (await series.fyTokenContract.allowance(account!, ladleAddress)).gt(_fyTokenValueOfInput)
-      : false;
+    const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress)).gt(_fyTokenValueOfInput);
 
     const permits: ICallData[] = await sign(
       [

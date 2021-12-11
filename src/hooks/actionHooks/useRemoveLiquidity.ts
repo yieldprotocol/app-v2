@@ -148,11 +148,11 @@ export const useRemoveLiquidity = () => {
     diagnostics && console.log('extrafyTokentrade value: ', extrafyTokenTrade);
 
     const alreadyApprovedStrategy =
-      approveMax && !!_strategy
+      _strategy 
         ? (await _strategy.strategyContract.allowance(account!, ladleAddress)).gt(_input)
         : false;
     const alreadyApprovedPool =
-      approveMax && !_strategy ? (await series.poolContract.allowance(account!, ladleAddress)).gt(_input) : false;
+      !_strategy ? (await series.poolContract.allowance(account!, ladleAddress)).gt(_input) : false;
 
 
     const permits: ICallData[] = await sign(
