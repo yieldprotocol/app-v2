@@ -45,6 +45,7 @@ import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import ExitButton from '../components/buttons/ExitButton';
+import { ZERO_BN } from '../utils/constants';
 
 const VaultPosition = () => {
   const theme = useContext(ThemeContext);
@@ -141,16 +142,19 @@ const VaultPosition = () => {
   const {
     maxRepay,
     maxRepay_,
-    minRepay_,
+    minRepayable,
+    minRepayable_,
     protocolBaseAvailable,
     userBaseAvailable,
     maxRoll_,
+    minDebt,
     vaultDebt_,
     rollPossible,
-  } = useBorrowHelpers(undefined, undefined, _selectedVault, rollToSeries);
+    debtAfterRepay,
+  } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
-    minRepay_, // this is the max pay to get to dust limit. note different logic in input validation hook.
+    ( debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minRepayable) )  ? undefined : minRepayable_ ,
     maxRepay_,
   ]);
 
@@ -406,7 +410,7 @@ const VaultPosition = () => {
                           isError={repayError}
                           message={
                             <>
-                              {!repayInput && maxRepay_ && (
+                              {!repayInput && maxRepay_ && maxRepay.gt(minRepayable) && (
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {_selectedVault.art.gt(maxRepay) ? (
                                     <Text color="text" alignSelf="end" size="xsmall">
@@ -423,6 +427,13 @@ const VaultPosition = () => {
                                 </InputInfoWrap>
                               )}
 
+                              {!repayInput && minDebt && minDebt.gt(maxRepay) && (
+                                <InputInfoWrap>
+                                  <Text size="xsmall">Your debt is below the current minimumn debt requirement. </Text>
+                                  <Text size="xsmall">(It is only possible to repay the full debt)</Text>
+                                </InputInfoWrap>
+                              )}
+
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
                                   {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== vaultDebt_ && (
@@ -430,6 +441,7 @@ const VaultPosition = () => {
                                       Repaying this amount will leave a small amount of debt.
                                     </Text>
                                   )}
+
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
@@ -462,7 +474,7 @@ const VaultPosition = () => {
                             icon={<>{vaultBase?.image}</>}
                           />
                           <MaxButton
-                            action={() => setRepayInput(maxRepay_)}
+                            action={() => setRepayInput(maxRepay.gt(minRepayable) ? maxRepay_ : minRepayable_)}
                             clearAction={() => setRepayInput('')}
                             showingMax={!!repayInput && repayInput === maxRepay_}
                           />

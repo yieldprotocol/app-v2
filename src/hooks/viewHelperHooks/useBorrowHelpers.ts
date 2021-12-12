@@ -4,6 +4,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
+import { ZERO_BN } from '../../utils/constants';
 
 import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
 import { useAssetPair } from '../useAssetPair';
@@ -39,6 +40,8 @@ export const useBorrowHelpers = (
   const [minDebt, setMinDebt] = useState<BigNumber>();
   const [minDebt_, setMinDebt_] = useState<string | undefined>();
 
+  const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
+
   const [maxDebt, setMaxDebt] = useState<BigNumber>();
   const [maxDebt_, setMaxDebt_] = useState<string | undefined>();
 
@@ -47,8 +50,8 @@ export const useBorrowHelpers = (
   const [maxRepay, setMaxRepay] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRepay_, setMaxRepay_] = useState<string | undefined>();
 
-  const [minRepay, setMinRepay] = useState<BigNumber>(ethers.constants.Zero);
-  const [minRepay_, setMinRepay_] = useState<string | undefined>();
+  const [minRepayable, setMinRepayable] = useState<BigNumber>(ethers.constants.Zero);
+  const [minRepayable_, setMinRepayable_] = useState<string | undefined>();
 
   const [maxRoll, setMaxRoll] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
@@ -80,6 +83,15 @@ export const useBorrowHelpers = (
       input_.lte(selectedSeries.baseReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
   }, [input, selectedSeries, selectedSeries?.baseReserves]);
+
+  /* check the new debt level after repaying */
+  useEffect(() => {
+    if (input && vault && parseFloat(input) > 0) {
+      const cleanedInput = cleanValue(input, vault.decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
+      setDebtAfterRepay(vault.art.sub(input_));
+    }
+  }, [input, vault]);
 
   /* Calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
@@ -145,7 +157,7 @@ export const useBorrowHelpers = (
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
-    if (activeAccount && vault && vaultBase && minDebt ) {
+    if (activeAccount && vault && vaultBase && minDebt) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
       (async () => {
         const _maxToken = await vaultBase?.getBalance(activeAccount);
@@ -154,7 +166,8 @@ export const useBorrowHelpers = (
 
         /* max user is either the max tokens they have or max debt */
         const _maxUser = _maxToken && _maxDebt?.gt(_maxToken) ? _maxToken : _maxDebt;
-        const _maxToDust = _maxUser.sub(minDebt);
+        const _maxToDust = _maxDebt.gt(minDebt) ? _maxUser.sub(minDebt) : _maxDebt;
+
         const _maxBaseIn = maxBaseIn(
           vaultSeries?.baseReserves,
           vaultSeries?.fyTokenReserves,
@@ -162,9 +175,9 @@ export const useBorrowHelpers = (
           vaultSeries?.decimals
         );
 
-        /* set the dust limit */
-        _maxToDust && setMinRepay(_maxToDust);
-        _maxToDust && setMinRepay_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
+        /* set the min repayable dust limit */
+        _maxToDust && setMinRepayable(_maxToDust);
+        _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
         _maxBaseIn && setProtocolBaseAvailable(_maxBaseIn);
 
@@ -194,8 +207,10 @@ export const useBorrowHelpers = (
     maxRepay_,
     maxRepay,
 
-    minRepay,
-    minRepay_,
+    debtAfterRepay,
+
+    minRepayable,
+    minRepayable_,
 
     maxRoll,
     maxRoll_,

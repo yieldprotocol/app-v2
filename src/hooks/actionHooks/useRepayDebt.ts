@@ -88,9 +88,9 @@ export const useRepayDebt = () => {
       unwrap = await unwrapAsset(ilk, account!);
     }
 
-    const alreadyApproved = approveMax
-      ? (await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress)).gt(_input)
-      : false;
+    const alreadyApproved = (
+      await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress)
+    ).gt(_input);
 
     const permits: ICallData[] = await sign(
       [
