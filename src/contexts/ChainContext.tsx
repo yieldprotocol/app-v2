@@ -25,7 +25,7 @@ import ENSMark from '../components/logos/ENSMark';
 
 import { seasonColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
-import YVUSDCMark from '../components/logos/YVUSDCMark';
+import YFIMark from '../components/logos/YFIMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -39,7 +39,7 @@ const markMap = new Map([
   ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
   ['UNI', <UNIMark key="uni" />],
-  ['yvUSDC', <YVUSDCMark key="yvusdc" />],
+  ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get('yvUSDC')!.color} />],
 ]);
 
 /* Build the context */
