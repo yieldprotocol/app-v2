@@ -154,7 +154,7 @@ const VaultPosition = () => {
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
-    (debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!))  ? undefined :  '0',
+    debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
     maxRepay_,
   ]);
 
@@ -410,7 +410,7 @@ const VaultPosition = () => {
                           isError={repayError}
                           message={
                             <>
-                              {!repayInput && maxRepay_ && maxRepay.gt(minRepayable) && (
+                              {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {_selectedVault.art.gt(maxRepay) ? (
                                     <Text color="text" alignSelf="end" size="xsmall">
@@ -427,12 +427,20 @@ const VaultPosition = () => {
                                 </InputInfoWrap>
                               )}
 
-                              {!repayInput && minDebt && minDebt.gt(maxRepay) && (
+                              {!repayInput && minDebt?.gt(ZERO_BN) && maxRepay.gt(ZERO_BN) && minDebt.gt(maxRepay) && (
                                 <InputInfoWrap>
                                   <Text size="xsmall">Your debt is below the current minimumn debt requirement. </Text>
                                   <Text size="xsmall">(It is only possible to repay the full debt)</Text>
                                 </InputInfoWrap>
                               )}
+
+                              {userBaseAvailable &&
+                                protocolBaseAvailable &&
+                                userBaseAvailable.gt(protocolBaseAvailable) && (
+                                  <InputInfoWrap>
+                                    <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
+                                  </InputInfoWrap>
+                                )}
 
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
