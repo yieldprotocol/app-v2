@@ -507,7 +507,12 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
+
+  
     async (strategyList: IStrategyRoot[]) => {
+
+      const PoolView = contractMap.get('PoolView');
+
       updateState({ type: 'strategiesLoading', payload: true });
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
@@ -518,10 +523,11 @@ const UserProvider = ({ children }: any) => {
           const [strategyTotalSupply, strategyTotalSupplyHist, currentSeriesId, currentPoolAddr, nextSeriesId] =
             await Promise.all([
               _strategy.strategyContract.totalSupply(),
-              _strategy.strategyContract.totalSupply({ blockTag: -20000 }),
+              _strategy.strategyContract.totalSupply({ blockTag: -42000 }),
               _strategy.strategyContract.seriesId(),
               _strategy.strategyContract.pool(),
               _strategy.strategyContract.nextSeriesId(),
+
             ]);
           const currentSeries: ISeries = userState.seriesMap.get(currentSeriesId);
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
@@ -534,15 +540,23 @@ const UserProvider = ({ children }: any) => {
               [baseHist, fyTokenVirtualHist, ],
               poolTotalSupplyHist,
               strategyPoolBalanceHist,
+              invariant, 
             ] = await Promise.all([
               currentSeries.poolContract.getCache(),
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
 
-              currentSeries.poolContract.getCache({ blockTag: -20000 }),
-              currentSeries.poolContract.totalSupply({ blockTag: -20000 }),
-              currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -20000 }),
+              currentSeries.poolContract.getCache({ blockTag: -42000 }),
+              currentSeries.poolContract.totalSupply({ blockTag: -42000 }),
+              currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -42000 }),
+
+              PoolView.invariant(currentSeries.poolAddress),
             ]);
+
+            /* Get the historical invariant information: NB example for future use only hence commented out */
+            const histInvariant = ethers.utils.parseUnits('1', currentSeries.decimals ); // await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
+            const returnRateInv = mulDecimal( divDecimal( invariant.sub(histInvariant), histInvariant), '100');
+            diagnostics && console.log( 'RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4)  );
 
             // the real balance of fyTokens in the pool
             const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
@@ -572,7 +586,7 @@ const UserProvider = ({ children }: any) => {
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');          
             const returnRate = valHist.lt(val) ? mulDecimal( divDecimal( (val.sub(valHist)) ,valHist), '100') : undefined ;
-            returnRate && console.log( cleanValue(returnRate, 2) ); 
+            diagnostics && console.log( 'RETURN FROM TOKEN VALUES:',  cleanValue(returnRate, 4) ); 
 
             return {
               ..._strategy,
@@ -588,8 +602,8 @@ const UserProvider = ({ children }: any) => {
               nextSeriesId,
               currentSeries,
               nextSeries,
-              initInvariant: BigNumber.from('0'),
-              currentInvariant: BigNumber.from('0'),
+              invariant,
+              histInvariant,
               returnRate,
               returnRate_: cleanValue(returnRate, 4),
               active: true,

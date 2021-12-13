@@ -18,13 +18,15 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
-interface PoolExtensionsWrapperInterface extends ethers.utils.Interface {
+interface PoolViewInterface extends ethers.utils.Interface {
   functions: {
     "invariant(address)": FunctionFragment;
     "maxBaseIn(address)": FunctionFragment;
     "maxBaseOut(address)": FunctionFragment;
     "maxFYTokenIn(address)": FunctionFragment;
     "maxFYTokenOut(address)": FunctionFragment;
+    "retrievableBase(address)": FunctionFragment;
+    "retrievableFYToken(address)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "invariant", values: [string]): string;
@@ -36,6 +38,14 @@ interface PoolExtensionsWrapperInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "maxFYTokenOut",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "retrievableBase",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "retrievableFYToken",
     values: [string]
   ): string;
 
@@ -50,11 +60,19 @@ interface PoolExtensionsWrapperInterface extends ethers.utils.Interface {
     functionFragment: "maxFYTokenOut",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "retrievableBase",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "retrievableFYToken",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
 
-export class PoolExtensionsWrapper extends BaseContract {
+export class PoolView extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -95,7 +113,7 @@ export class PoolExtensionsWrapper extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: PoolExtensionsWrapperInterface;
+  interface: PoolViewInterface;
 
   functions: {
     invariant(pool: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -107,6 +125,16 @@ export class PoolExtensionsWrapper extends BaseContract {
     maxFYTokenIn(pool: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     maxFYTokenOut(
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    retrievableBase(
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    retrievableFYToken(
       pool: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -122,6 +150,13 @@ export class PoolExtensionsWrapper extends BaseContract {
 
   maxFYTokenOut(pool: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+  retrievableBase(pool: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  retrievableFYToken(
+    pool: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   callStatic: {
     invariant(pool: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -132,6 +167,16 @@ export class PoolExtensionsWrapper extends BaseContract {
     maxFYTokenIn(pool: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     maxFYTokenOut(pool: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    retrievableBase(
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    retrievableFYToken(
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};
@@ -146,6 +191,16 @@ export class PoolExtensionsWrapper extends BaseContract {
     maxFYTokenIn(pool: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     maxFYTokenOut(pool: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    retrievableBase(
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    retrievableFYToken(
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -170,6 +225,16 @@ export class PoolExtensionsWrapper extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     maxFYTokenOut(
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    retrievableBase(
+      pool: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    retrievableFYToken(
       pool: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type {
-  PoolExtensions,
-  PoolExtensionsInterface,
-} from "../PoolExtensions";
+import type { PoolView, PoolViewInterface } from "../PoolView";
 
 const _abi = [
   {
@@ -15,7 +12,7 @@ const _abi = [
       {
         internalType: "contract IPool",
         name: "pool",
-        type: "IPool",
+        type: "address",
       },
     ],
     name: "invariant",
@@ -34,7 +31,7 @@ const _abi = [
       {
         internalType: "contract IPool",
         name: "pool",
-        type: "IPool",
+        type: "address",
       },
     ],
     name: "maxBaseIn",
@@ -53,7 +50,7 @@ const _abi = [
       {
         internalType: "contract IPool",
         name: "pool",
-        type: "IPool",
+        type: "address",
       },
     ],
     name: "maxBaseOut",
@@ -72,7 +69,7 @@ const _abi = [
       {
         internalType: "contract IPool",
         name: "pool",
-        type: "IPool",
+        type: "address",
       },
     ],
     name: "maxFYTokenIn",
@@ -91,7 +88,7 @@ const _abi = [
       {
         internalType: "contract IPool",
         name: "pool",
-        type: "IPool",
+        type: "address",
       },
     ],
     name: "maxFYTokenOut",
@@ -105,17 +102,55 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "contract IPool",
+        name: "pool",
+        type: "address",
+      },
+    ],
+    name: "retrievableBase",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IPool",
+        name: "pool",
+        type: "address",
+      },
+    ],
+    name: "retrievableFYToken",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
 ];
 
-export class PoolExtensions__factory {
+export class PoolView__factory {
   static readonly abi = _abi;
-  static createInterface(): PoolExtensionsInterface {
-    return new utils.Interface(_abi) as PoolExtensionsInterface;
+  static createInterface(): PoolViewInterface {
+    return new utils.Interface(_abi) as PoolViewInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): PoolExtensions {
-    return new Contract(address, _abi, signerOrProvider) as PoolExtensions;
+  ): PoolView {
+    return new Contract(address, _abi, signerOrProvider) as PoolView;
   }
 }
