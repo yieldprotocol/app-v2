@@ -154,7 +154,7 @@ const VaultPosition = () => {
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
-    ( debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minRepayable) )  ? undefined : minRepayable_ ,
+    (debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!))  ? undefined :  '0',
     maxRepay_,
   ]);
 
