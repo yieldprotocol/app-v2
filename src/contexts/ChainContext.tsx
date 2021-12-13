@@ -12,6 +12,8 @@ import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot 
 import { ASSET_INFO, ETH_BASED_ASSETS, USDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
+import { seasonColorMap } from '../config/colors';
+
 import DaiMark from '../components/logos/DaiMark';
 import EthMark from '../components/logos/EthMark';
 import TSTMark from '../components/logos/TSTMark';
@@ -23,7 +25,7 @@ import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
 import ENSMark from '../components/logos/ENSMark';
 
-import { seasonColorMap } from '../config/colors';
+import MakerMark from '../components/logos/MakerMark';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 
@@ -40,6 +42,7 @@ const markMap = new Map([
   ['ENS', <ENSMark key="ens" />],
   ['UNI', <UNIMark key="uni" />],
   ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get('yvUSDC')!.color} />],
+  ['MKR', <MakerMark key="mkr" />],
 ]);
 
 /* Build the context */
