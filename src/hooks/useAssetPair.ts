@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect, useCallback } from 'react';
 
-import { IAsset, IAssetPair, ISettingsContext } from '../types';
+import { IAsset, IAssetPair, ISettingsContext, IUserContext } from '../types';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { UserContext } from '../contexts/UserContext';
 
@@ -14,7 +14,7 @@ export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | und
   const {
     userState: { assetPairMap, assetPairLoading },
     userActions: { updateAssetPair },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
   /* LOCAL STATE */
   const [assetPair, setAssetPair] = useState<IAssetPair | undefined>();
@@ -32,10 +32,10 @@ export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | und
   useEffect(() => {
     if (base?.id && collateral?.id && !assetPairLoading) {
       /* try get from state first */
-      const pair_: IAssetPair = assetPairMap.get(base.id + collateral.id);
+      const pair_ = assetPairMap.get(base.id + collateral.id);
       pair_ && setAssetPair(pair_);
       /* else update the pair data */
-      !pair_ && (async () => updatePair(base, collateral))() ;
+      !pair_ && (async () => updatePair(base, collateral))();
     }
   }, [assetPairLoading, assetPairMap, base, collateral, updatePair]);
 

@@ -12,7 +12,7 @@ export const useInputValidation = (
   vault?: IVault | undefined
 ) => {
   /* STATE FROM CONTEXT */
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { assetMap, seriesMap, selectedSeries, selectedBase, activeAccount } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;
@@ -29,9 +29,9 @@ export const useInputValidation = (
       const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
 
       // General input validation here:
-      if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT)  {
+      if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT) {
         setInputError('Amount should be expressed as a positive value');
-      } else if (parseFloat(input) === 0 && actionCode !== ActionCodes.ADD_COLLATERAL  ) {
+      } else if (parseFloat(input) === 0 && actionCode !== ActionCodes.ADD_COLLATERAL) {
         setInputError('Transaction amount should be greater than 0');
       } else if (aboveMax) {
         setInputError('Amount exceeds available balance');
@@ -45,19 +45,19 @@ export const useInputValidation = (
             ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.baseReserves) &&
             setInputError(`Amount exceeds the ${_selectedBase?.symbol} currently available in pool`);
           aboveMax && setInputError('Exceeds the max allowable debt for this series');
-          belowMin && setInputError(`A minimum debt of ${limits[0]} ${_selectedBase?.symbol} is required for this series`);
+          belowMin &&
+            setInputError(`A minimum debt of ${limits[0]} ${_selectedBase?.symbol} is required for this series`);
           break;
 
         case ActionCodes.REPAY:
         case ActionCodes.ROLL_DEBT:
           /* set dust limit Error between 0 and dustLimit */
           limits[0] &&
-            limits[1] &&
-            _inputAsFloat >= parseFloat(limits[0].toString()) &&
-            _inputAsFloat !== parseFloat(limits[1].toString()) &&
-            setInputError('Remaining debt below dust levels');
+            _inputAsFloat > parseFloat(limits[0].toString()) &&
+            setInputError('Remaining debt will be below dust levels');
+
           /* set dustError between 0 and dustLimit */
-          aboveMax && setInputError('Amount exceeds the maximum repayable');
+          aboveMax && setInputError('Amount exceeds token balance');
           break;
 
         case ActionCodes.ADD_COLLATERAL:

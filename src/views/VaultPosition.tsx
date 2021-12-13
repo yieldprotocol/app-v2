@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Tip, Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { ThemeContext } from 'styled-components';
 
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiInfo } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -45,6 +45,7 @@ import InputInfoWrap from '../components/wraps/InputInfoWrap';
 import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import ExitButton from '../components/buttons/ExitButton';
+import { ZERO_BN } from '../utils/constants';
 
 const VaultPosition = () => {
   const theme = useContext(ThemeContext);
@@ -130,11 +131,8 @@ const VaultPosition = () => {
     '0',
     _selectedVault
   );
-  const { collateralizationPercent: removeCollEst } = useCollateralHelpers(
-    '0',
-    `-${removeCollatInput! || '0'}`,
-    _selectedVault
-  );
+  const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault);
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
@@ -144,16 +142,19 @@ const VaultPosition = () => {
   const {
     maxRepay,
     maxRepay_,
-    minRepay_,
+    minRepayable,
+    minRepayable_,
     protocolBaseAvailable,
     userBaseAvailable,
     maxRoll_,
+    minDebt,
     vaultDebt_,
     rollPossible,
-  } = useBorrowHelpers(undefined, undefined, _selectedVault, rollToSeries);
+    debtAfterRepay,
+  } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
-    minRepay_, // this is the max pay to get to dust limit. note different logic in input validation hook.
+    debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
     maxRepay_,
   ]);
 
@@ -311,14 +312,33 @@ const VaultPosition = () => {
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading}
                       />
-                      <InfoBite
-                        label="Collateral posted"
-                        value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
-                          vaultIlk?.displaySymbol
-                        } (${collateralizationPercent} %)`}
-                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        loading={vaultsLoading}
-                      />
+                      <Box direction="row" gap="xsmall">
+                        <InfoBite
+                          label="Collateral posted"
+                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
+                          icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                          loading={vaultsLoading}
+                        >
+                          <Box align="center" direction="row">
+                            <Text>({collateralizationPercent}%)</Text>
+                            {/* <Tip
+                              content={
+                                <Text size="xsmall">
+                                  Keep your collateralization ratio above {minCollatRatioPct}% to prevent liquidation
+                                </Text>
+                              }
+                              dropProps={{
+                                align: { top: 'bottom' },
+                              }}
+                            >
+                              <Box direction="row" alignSelf="end">
+                                <Text>({collateralizationPercent}%)</Text>
+                                {!mobile && <FiInfo size=".75rem" />}
+                              </Box>
+                            </Tip> */}
+                          </Box>
+                        </InfoBite>
+                      </Box>
                     </Box>
                   </SectionWrap>
                 )}
@@ -390,7 +410,7 @@ const VaultPosition = () => {
                           isError={repayError}
                           message={
                             <>
-                              {!repayInput && maxRepay_ && (
+                              {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {_selectedVault.art.gt(maxRepay) ? (
                                     <Text color="text" alignSelf="end" size="xsmall">
@@ -407,6 +427,21 @@ const VaultPosition = () => {
                                 </InputInfoWrap>
                               )}
 
+                              {!repayInput && minDebt?.gt(ZERO_BN) && maxRepay.gt(ZERO_BN) && minDebt.gt(maxRepay) && (
+                                <InputInfoWrap>
+                                  <Text size="xsmall">Your debt is below the current minimumn debt requirement. </Text>
+                                  <Text size="xsmall">(It is only possible to repay the full debt)</Text>
+                                </InputInfoWrap>
+                              )}
+
+                              {userBaseAvailable &&
+                                protocolBaseAvailable &&
+                                userBaseAvailable.gt(protocolBaseAvailable) && (
+                                  <InputInfoWrap>
+                                    <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
+                                  </InputInfoWrap>
+                                )}
+
                               {repayInput && !repayError && (
                                 <InputInfoWrap>
                                   {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== vaultDebt_ && (
@@ -414,6 +449,7 @@ const VaultPosition = () => {
                                       Repaying this amount will leave a small amount of debt.
                                     </Text>
                                   )}
+
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
@@ -446,7 +482,7 @@ const VaultPosition = () => {
                             icon={<>{vaultBase?.image}</>}
                           />
                           <MaxButton
-                            action={() => setRepayInput(maxRepay_)}
+                            action={() => setRepayInput(maxRepay.gt(minRepayable) ? maxRepay_ : minRepayable_)}
                             clearAction={() => setRepayInput('')}
                             showingMax={!!repayInput && repayInput === maxRepay_}
                           />
@@ -608,9 +644,16 @@ const VaultPosition = () => {
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Text color="text" alignSelf="end" size="xsmall">
-                                  Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
-                                </Text>
+                                <Box>
+                                  <Text color="text" alignSelf="start" size="xsmall">
+                                    Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
+                                  </Text>
+                                  {removeCollEstUnhealthyRatio && (
+                                    <Text color="red" alignSelf="start" size="xsmall">
+                                      Removing this much collateral will make the vault in danger of liquidation
+                                    </Text>
+                                  )}
+                                </Box>
                               </InputInfoWrap>
                             )
                           }

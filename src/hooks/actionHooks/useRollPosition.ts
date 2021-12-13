@@ -51,9 +51,7 @@ export const useRollPosition = () => {
 
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
 
-    const alreadyApproved = approveMax
-    ? (await fromSeries.fyTokenContract.allowance(account!, ladleAddress) ).gt(_input)
-    : false;
+    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress) ).gt(_input);
 
     const permits: ICallData[] = await sign(
       [
