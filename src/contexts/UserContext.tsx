@@ -429,25 +429,30 @@ const UserProvider = ({ children }: any) => {
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
+
+
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
+
+          let pairData : IAssetPair;
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
-            await updateAssetPair(vault.baseId, vault.ilkId);
+            pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
+            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId)
           }
 
           /* Get dynamic vault data */
           const [
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-            { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals },
           ] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
-            await userState.assetPairMap.get(vault.baseId + vault.ilkId), // this handles fetching the assetPAir data if required ( either from the map, or network)
           ]);
+
+          const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
@@ -531,11 +536,6 @@ const UserProvider = ({ children }: any) => {
             const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
               ? [ZERO_BN, ZERO_BN]
               : [ZERO_BN, ZERO_BN];
-            // TODO Re-include invariant
-            // : await Promise.all([
-            //     currentSeries.poolContract.invariant(),
-            //     _strategy.strategyContract.invariants(currentPoolAddr),
-            //   ]);
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;

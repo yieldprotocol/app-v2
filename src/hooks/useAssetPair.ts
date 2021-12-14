@@ -22,8 +22,8 @@ export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | und
   /* update pair if required */
   const updatePair = useCallback(
     async (_b: IAsset, _c: IAsset) => {
+      diagnostics && console.log('Updating assetPAir.... from hook '); 
       const pair_: IAssetPair = await updateAssetPair(_b.id, _c.id);
-
       setAssetPair(pair_);
     },
     [updateAssetPair]
