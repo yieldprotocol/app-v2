@@ -148,6 +148,7 @@ const UserProvider = ({ children }: any) => {
     // async (fromBlock: number = 27096000) => {
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
+
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
       const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
@@ -272,31 +273,33 @@ const UserProvider = ({ children }: any) => {
       const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
         ?.get(baseId)
         ?.get(ilkId);
-      const Oracle = contractMap.get(oracleName);
-      const base: IAssetRoot = assetRootMap.get(baseId);
-      const ilk: IAssetRoot = assetRootMap.get(ilkId);
+
+      const Oracle = contractMap.get(oracleName!);
+
+      const base = assetRootMap.get(baseId);
+      const ilk = assetRootMap.get(ilkId);
 
       diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
 
       // /* Get debt params and spot ratios */
       const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
-        await Cauldron.debt(baseId, ilkId),
-        await Cauldron.spotOracles(baseId, ilkId),
+        await Cauldron?.debt(baseId, ilkId),
+        await Cauldron?.spotOracles(baseId, ilkId),
       ]);
 
       /* get pricing if available */
       let price: BigNumber;
       try {
         // eslint-disable-next-line prefer-const
-        [price] = await Oracle.peek(
+        [price] = await Oracle?.peek(
           bytesToBytes32(ilkId, 6),
           bytesToBytes32(baseId, 6),
-          decimal18ToDecimalN(WAD_BN, ilk.decimals)
+          decimal18ToDecimalN(WAD_BN, ilk?.decimals!)
         );
         diagnostics &&
           console.log(
             'Price fetched:',
-            decimal18ToDecimalN(WAD_BN, ilk.decimals).toString(),
+            decimal18ToDecimalN(WAD_BN, ilk?.decimals!).toString(),
             ilkId,
             'for',
             price.toString(),
@@ -317,7 +320,7 @@ const UserProvider = ({ children }: any) => {
         pairTotalDebt: sum,
         pairPrice: price, // value of 1 ilk (1x10**n) in terms of base.
         minRatio: parseFloat(ethers.utils.formatUnits(ratio, 6)), // pre-format ratio
-        baseDecimals: base.decimals,
+        baseDecimals: base?.decimals!,
       };
 
       updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
@@ -419,6 +422,8 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[]) => {
+      if (!account) return;
+
       updateState({ type: 'vaultsLoading', payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
@@ -429,28 +434,22 @@ const UserProvider = ({ children }: any) => {
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
-
-
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-
-          let pairData : IAssetPair;
+          let pairData: IAssetPair;
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
             pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
-            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId)
+            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId);
           }
 
           /* Get dynamic vault data */
           const [
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([
-            await Cauldron.balances(vault.id),
-            await Cauldron.vaults(vault.id),
-          ]);
+          ] = await Promise.all([await Cauldron.balances(vault.id), await Cauldron.vaults(vault.id)]);
 
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
@@ -640,7 +639,8 @@ const UserProvider = ({ children }: any) => {
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
-    if (!chainLoading && account !== null) {
+    if (!chainLoading && account) {
+      console.log('account', account);
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
