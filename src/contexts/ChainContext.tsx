@@ -257,10 +257,11 @@ const ChainProvider = ({ children }: any) => {
 
             /* Get the basic token info */
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-            let name;
-            let symbol;
-            let decimals;
-            let version;
+
+            let name: string;
+            let symbol: string;
+            let decimals: number;
+            let version: string;
             try {
               [name, symbol, decimals, version] = await Promise.all([
                 ERC20.name(),
@@ -269,7 +270,15 @@ const ChainProvider = ({ children }: any) => {
                 id === USDC ? '2' : '1', // TODO ERC20.version()
               ]);
             } catch (e) {
-              [name, symbol, decimals, version] = ['xxx', 'xxx', 18, '1'];
+              /* TODO look at finding a better way to handle Maker Token */
+              const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
+              const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
+              [name, symbol, decimals, version] = await Promise.all([
+                mkrERC20.name(),
+                mkrERC20.symbol(),
+                Promise.resolve(18),
+                Promise.resolve('1'),
+              ]);
             }
 
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
