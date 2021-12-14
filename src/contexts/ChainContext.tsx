@@ -27,6 +27,7 @@ import { seasonColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 import MakerMark from '../components/logos/MakerMark';
+import { BLANK_ADDRESS } from '../utils/constants';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -256,12 +257,20 @@ const ChainProvider = ({ children }: any) => {
 
             /* Get the basic token info */
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-            const [name, symbol, decimals, version] = await Promise.all([
-              ERC20.name(),
-              ERC20.symbol(),
-              ERC20.decimals(),
-              id === USDC ? '2' : '1', // TODO  ERC20.version()
-            ]);
+            let name;
+            let symbol;
+            let decimals;
+            let version;
+            try {
+              [name, symbol, decimals, version] = await Promise.all([
+                ERC20.name(),
+                ERC20.symbol(),
+                ERC20.decimals(),
+                id === USDC ? '2' : '1', // TODO ERC20.version()
+              ]);
+            } catch (e) {
+              [name, symbol, decimals, version] = ['xxx', 'xxx', 18, '1'];
+            }
 
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
             const idToUse = assetInfo?.wrappedTokenId || id;
