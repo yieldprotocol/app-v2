@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { useCachedState } from '../hooks/generalHooks';
 import { useConnection } from '../hooks/useConnection';
 
-import * as yieldEnv from './yieldEnv.json';
+import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
 import { ASSET_INFO, ETH_BASED_ASSETS, USDC } from '../config/assets';
@@ -231,7 +231,7 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = [1,4,42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        const blockNumForUse = [1, 4, 42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
 
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
@@ -344,8 +344,8 @@ const ChainProvider = ({ children }: any) => {
 
       const _getSeries = async () => {
         const blockNum = await fallbackProvider.getBlockNumber();
-        /* NBNBNBNBNBBN this is PPPPPOOOOR logic marco... please be exlpicit > */ 
-        const blockNumForUse = [1,4,42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        /* NBNBNBNBNBBN this is PPPPPOOOOR logic marco... please be exlpicit > */
+        const blockNumForUse = [1, 4, 42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
 
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
