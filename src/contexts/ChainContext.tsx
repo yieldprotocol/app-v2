@@ -26,6 +26,7 @@ import ENSMark from '../components/logos/ENSMark';
 import { seasonColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
+import MakerMark from '../components/logos/MakerMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -40,6 +41,7 @@ const markMap = new Map([
   ['ENS', <ENSMark key="ens" />],
   ['UNI', <UNIMark key="uni" />],
   ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get('yvUSDC')!.color} />],
+  ['MKR', <MakerMark key="mkr" />],
 ]);
 
 /* Build the context */
