@@ -422,8 +422,6 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[]) => {
-      if (!account) return;
-
       updateState({ type: 'vaultsLoading', payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
@@ -626,7 +624,7 @@ const UserProvider = ({ children }: any) => {
 
   /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
   useEffect(() => {
-    if (!chainLoading) {
+    if (!chainLoading && account) {
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
       assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
     }
@@ -639,7 +637,8 @@ const UserProvider = ({ children }: any) => {
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
-    if (!chainLoading && account) {
+    if (!chainLoading) {
+      console.log('account', account);
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
