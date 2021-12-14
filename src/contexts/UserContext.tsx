@@ -638,7 +638,6 @@ const UserProvider = ({ children }: any) => {
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
     if (!chainLoading) {
-      console.log('account', account);
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
