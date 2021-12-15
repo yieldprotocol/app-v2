@@ -69,7 +69,7 @@ const VaultPosition = () => {
     vaultsLoading,
     selectedIlk,
   } = userState;
-  const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
+  const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const _selectedVault: IVault = vaultMap.get(selectedVault?.id! || idFromUrl)!;
 
@@ -253,6 +253,7 @@ const VaultPosition = () => {
     _selectedVault && setSelectedSeries(_series);
     _selectedVault && setSelectedBase(_base);
     _selectedVault && setSelectedIlk(_ilkToUse!);
+    _selectedVault && setSelectedVault(_selectedVault);
   }, [vaultMap, _selectedVault, seriesMap, assetMap, setSelectedSeries, setSelectedBase, setSelectedIlk]);
 
   useEffect(() => {
