@@ -14,6 +14,7 @@ import {
   IStrategyRoot,
   IStrategy,
   IAssetPair,
+  IChainContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -117,7 +118,7 @@ function userReducer(state: any, action: any) {
 
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext);
+  const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
     connection: { account, fallbackChainId },
@@ -148,6 +149,7 @@ const UserProvider = ({ children }: any) => {
     // async (fromBlock: number = 27096000) => {
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
+      if (!Cauldron) return new Map();
 
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
@@ -159,8 +161,8 @@ const UserProvider = ({ children }: any) => {
         Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
       ]);
 
-      const buildEventList: IVaultRoot[] = vaultsBuilt.map((x: any): IVaultRoot => {
-        const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
+      const buildEventList: IVaultRoot[] = vaultsBuilt?.map((x: ethers.Event): IVaultRoot => {
+        const { vaultId: id, ilkId, seriesId } = Cauldron?.interface.parseLog(x).args;
         const series = seriesRootMap.get(seriesId);
         return {
           id,
@@ -173,7 +175,7 @@ const UserProvider = ({ children }: any) => {
       });
 
       const recievedEventsList: IVaultRoot[] = await Promise.all(
-        vaultsReceived.map(async (x: any): Promise<IVaultRoot> => {
+        vaultsReceived.map(async (x: ethers.Event): Promise<IVaultRoot> => {
           const { vaultId: id } = Cauldron.interface.parseLog(x).args;
           const { ilkId, seriesId } = await Cauldron.vaults(id);
           const series = seriesRootMap.get(seriesId);
@@ -447,12 +449,12 @@ const UserProvider = ({ children }: any) => {
           const [
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([await Cauldron.balances(vault.id), await Cauldron.vaults(vault.id)]);
+          ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
-          const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
-          const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
+          const baseRoot = assetRootMap.get(vault.baseId);
+          const ilkRoot = assetRootMap.get(ilkId);
 
           diagnostics &&
             console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
@@ -460,7 +462,7 @@ const UserProvider = ({ children }: any) => {
           return {
             ...vault,
             owner, // refreshed in case owner has been updated
-            isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+            isWitchOwner: Witch?.address === owner, // check if witch is the owner (in liquidation process)
             isActive: owner === account, // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated
@@ -477,7 +479,7 @@ const UserProvider = ({ children }: any) => {
             pairPrice,
             pairTotalDebt,
 
-            baseDecimals: baseRoot?.decimals,
+            baseDecimals: baseRoot?.decimals!,
             limitDecimals,
           };
         })
