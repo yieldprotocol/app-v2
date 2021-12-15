@@ -461,7 +461,9 @@ const UserProvider = ({ children }: any) => {
           diagnostics &&
             console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
 
-          calcLiquidationPrice(ink, art, minRatio);
+          const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat);
+          const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat);
+          const liquidationPrice_ = cleanValue( calcLiquidationPrice(ink_, art_, minRatio), baseRoot?.digitFormat);
 
           return {
             ...vault,
@@ -473,8 +475,8 @@ const UserProvider = ({ children }: any) => {
             ink,
             art,
 
-            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
+            ink_,  // for display purposes only
+            art_, // for display purposes only
 
             /* attach extra pairwaise data for convenience */
             minDebtLimit,
@@ -485,6 +487,8 @@ const UserProvider = ({ children }: any) => {
 
             baseDecimals: baseRoot?.decimals,
             limitDecimals,
+
+            liquidationPrice_,
           };
         })
       );

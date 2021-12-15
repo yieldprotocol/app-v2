@@ -910,28 +910,24 @@ export const calculateBorrowingPower = (
  * Calcualtes the amount (base, or other variant) that can be borrowed based on
  * an amount of collateral (ETH, or other), and collateral price.
  *
- * @param {BigNumber | string} collateralAmount amount of collateral
- * @param {BigNumber | string} debtAmount amount of debt
+ * @param {string} collateralAmount amount of collateral in human readable decimals
+ * @param {string} debtAmount amount of debt in human readable decimals
  * @param {number} liquidationRatio  OPTIONAL: 1.5 (150%) as default
  *
  * @returns {string}
  */
  export const calcLiquidationPrice = (
-  collateralAmount: BigNumber | string,
-  debtAmount: BigNumber | string,
+  collateralAmount: string, // 
+  debtAmount: string,
   liquidationRatio: number,
+  // collateralDecimals: number
 ): string => {
-
+  const _collateralAmount = parseFloat(collateralAmount);
+  const _debtAmount = parseFloat(debtAmount);
   // condition: collValueInBase > debtAmount * ratio
   // so, collAmount*price > debtAmount*ratio
-  const liquidationPoint = mulDecimal(debtAmount, liquidationRatio.toString() );
-  console.log( debtAmount.toString(), liquidationPoint ); // this is correct
-
-  console.log( collateralAmount.toString() )
-
-  const price = mulDecimal( liquidationPoint, collateralAmount );
-
-   // console.log(price)
+  const liquidationPoint = _debtAmount*liquidationRatio
+  const price = (liquidationPoint/_collateralAmount).toString(); 
   return price;
 };
 
