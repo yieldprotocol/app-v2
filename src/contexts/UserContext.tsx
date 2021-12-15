@@ -15,6 +15,7 @@ import {
   IStrategy,
   IAssetPair,
   IChainContext,
+  ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -130,7 +131,7 @@ const UserProvider = ({ children }: any) => {
 
   const {
     settingsState: { showWrappedTokens, diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
