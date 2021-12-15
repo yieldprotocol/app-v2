@@ -916,16 +916,16 @@ export const calculateBorrowingPower = (
  *
  * @returns {string}
  */
- export const calcLiquidationPrice = (
-  collateralAmount: string, // 
+export const calcLiquidationPrice = (
+  collateralAmount: string, //
   debtAmount: string,
-  liquidationRatio: number,
+  liquidationRatio: number
 ): string => {
   const _collateralAmount = parseFloat(collateralAmount);
   const _debtAmount = parseFloat(debtAmount);
   // condition/logic: collAmount*price > debtAmount*ratio
-  const liquidationPoint = _debtAmount*liquidationRatio
-  const price = (liquidationPoint/_collateralAmount).toString(); 
+  const liquidationPoint = _debtAmount * liquidationRatio;
+  const price = (liquidationPoint / _collateralAmount).toString();
   return price;
 };
 
