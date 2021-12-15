@@ -430,28 +430,22 @@ const UserProvider = ({ children }: any) => {
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
-
-
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-
-          let pairData : IAssetPair;
+          let pairData: IAssetPair;
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
             pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
-            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId)
+            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId);
           }
 
           /* Get dynamic vault data */
           const [
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([
-            await Cauldron.balances(vault.id),
-            await Cauldron.vaults(vault.id),
-          ]);
+          ] = await Promise.all([await Cauldron.balances(vault.id), await Cauldron.vaults(vault.id)]);
 
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
@@ -463,7 +457,7 @@ const UserProvider = ({ children }: any) => {
 
           const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat);
           const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat);
-          const liquidationPrice_ = cleanValue( calcLiquidationPrice(ink_, art_, minRatio), baseRoot?.digitFormat);
+          const liquidationPrice_ = cleanValue(calcLiquidationPrice(ink_, art_, minRatio), baseRoot?.digitFormat);
 
           return {
             ...vault,
@@ -475,7 +469,7 @@ const UserProvider = ({ children }: any) => {
             ink,
             art,
 
-            ink_,  // for display purposes only
+            ink_, // for display purposes only
             art_, // for display purposes only
 
             /* attach extra pairwaise data for convenience */
