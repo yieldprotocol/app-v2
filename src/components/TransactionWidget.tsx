@@ -64,17 +64,19 @@ const TransactionWidget = () => {
                 justify="start"
                 align="center"
                 fill
-                // elevation="small"
                 gap="small"
-                pad="small"
-                background="lightBackground"
-                round="xsmall"
+                pad="medium"
+                elevation="small"
+                // background='gradient-transparent'
+                animation={{ type: 'slideLeft', size: 'large' }}
+                background="hoverBackground"
+                round={{ size: 'xsmall', corner: 'left' }}
               >
                 <Box width="3rem" align="center">
                   <FiAlertCircle size="1.5rem" color={warning.dark} />
                 </Box>
                 <Box align="start">
-                  <Text size="small">Approval pending</Text>
+                  <Text size="small">Approval Transaction pending</Text>
                 </Box>
               </Box>
             )}
