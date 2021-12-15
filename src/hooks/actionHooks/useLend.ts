@@ -51,7 +51,7 @@ export const useLend = () => {
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gt(_input) : false;
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gt(_input);
 
     const permits: ICallData[] = await sign(
       [

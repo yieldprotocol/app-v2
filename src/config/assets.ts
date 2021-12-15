@@ -56,4 +56,4 @@ ASSET_INFO.set('stETH', {
 });
 
 ASSET_INFO.set('LINK', { showToken: true, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
-ASSET_INFO.set('UNI', { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
+ASSET_INFO.set('UNI', { showToken: true, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });

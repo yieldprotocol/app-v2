@@ -65,17 +65,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       .filter((a: IAsset) => a.showToken) // filter based on whether wrapped tokens are shown or not
       .filter((a: IAsset) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
-    let filteredOptions;
-
-    if (!activeAccount) {
-      filteredOptions = selectCollateral
+    const filteredOptions = selectCollateral
         ? opts.filter((a: IAsset) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected
         : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
-    } else {
-      filteredOptions = selectCollateral
-        ? opts.filter((a: IAsset) => a.id !== selectedBase?.id)
-        : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
-    }
 
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount]);
@@ -91,8 +83,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk?.id === selectedBase?.id) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
-      setSelectedIlk(firstNotBaseIlk!);
+      console.log('base matches ilk');
+      // const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
+      // setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
 

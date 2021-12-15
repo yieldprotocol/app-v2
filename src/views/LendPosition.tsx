@@ -196,7 +196,10 @@ const LendPosition = () => {
                       value={
                         fyTokenMarketValue === 'Low liquidity'
                           ? 'Low Liquidity'
-                          : `${cleanValue(fyTokenMarketValue, selectedBase?.digitFormat!)}${selectedBase?.displaySymbol!}`
+                          : `${cleanValue(
+                              fyTokenMarketValue,
+                              selectedBase?.digitFormat!
+                            )} ${selectedBase?.displaySymbol!}`
                       }
                       icon={selectedBase?.image}
                       loading={seriesLoading}

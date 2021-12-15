@@ -55,7 +55,7 @@ const initState: IUserContextState = {
   seriesLoading: true as boolean,
   assetsLoading: true as boolean,
   strategiesLoading: true as boolean,
-  assetPairLoading: true as boolean,
+  assetPairLoading: false as boolean,
 
   /* Current User selections */
   selectedSeries: null,
@@ -431,25 +431,30 @@ const UserProvider = ({ children }: any) => {
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
+
+
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
+                       
+          let pairData : IAssetPair;
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
-            await updateAssetPair(vault.baseId, vault.ilkId);
+            pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
+            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId)
           }
 
           /* Get dynamic vault data */
           const [
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-            { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals },
           ] = await Promise.all([
             await Cauldron.balances(vault.id),
             await Cauldron.vaults(vault.id),
-            await userState.assetPairMap.get(vault.baseId + vault.ilkId), // this handles fetching the assetPAir data if required ( either from the map, or network)
           ]);
+
+          const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
           const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
           const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
@@ -557,6 +562,7 @@ const UserProvider = ({ children }: any) => {
             const histInvariant = ethers.utils.parseUnits('1', currentSeries.decimals ); // await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
             const returnRateInv = mulDecimal( divDecimal( invariant.sub(histInvariant), histInvariant), '100');
             diagnostics && console.log( 'RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4)  );
+
 
             // the real balance of fyTokens in the pool
             const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
