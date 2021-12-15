@@ -27,6 +27,7 @@ import {
   secondsToFrom,
   sellFYToken,
   decimal18ToDecimalN,
+  calcLiquidationPrice,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
@@ -459,6 +460,8 @@ const UserProvider = ({ children }: any) => {
 
           diagnostics &&
             console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
+
+          calcLiquidationPrice(ink, art, minRatio);
 
           return {
             ...vault,
