@@ -1063,7 +1063,7 @@ export const calcPoolRatios = (
  *
  * y = fyToken
  * z = vyToken
- * x = token
+ *
  *           (                  sum                    )
  *           (    Za    )   ( Ya  )   (       Zxa      )   (   invA   )
  * dy = y - ( c * z^(1-t) + y^(1-t) - c * (z + dz)^(1-t) )^(1 / (1 - t))
@@ -1116,10 +1116,10 @@ export function sellBaseVY(
  *
  * y = fyToken
  * z = vyToken
- * x = token
+ *
  *            (                sum                      )
  *              (  Za     )   ( Ya  )    (    Yxa     )         (   invA   )
- * dy = z - ( ( c * z^(1-t) + y^(1-t) -  (y + dy)^(1-t) ) / c )^(1 / (1 - t))
+ * dz = z - ( ( c * z^(1-t) + y^(1-t) -  (y + dy)^(1-t) ) / c )^(1 / (1 - t))
  */
 export function sellFYTokenVY(
   baseReserves: BigNumber | string, // z
@@ -1170,7 +1170,7 @@ export function sellFYTokenVY(
  *
  * y = fyToken
  * z = vyToken
- * x = token
+ *
  *        (                  sum                   )
  *        (    Za    )   ( Ya  )  (      Zxa       )   (   invA   )
  * dy = ( c * z^(1-t) + y^(1-t) - c * (z - dz)^(1-t) )^(1 / (1 - t)) - y
@@ -1222,10 +1222,10 @@ export function buyBaseVY(
  *
  * y = fyToken
  * z = vyToken
- * x = token
+ *
  *        (                 sum                     )
  *         (  Za      )  ( Ya   )    (    Yxa     )         (   invA   )
- * dy = ( ( c * z^(1-t) + y^(1-t) -  (y - dy)^(1-t) ) / c )^(1 / (1 - t)) - z
+ * dz = ( ( c * z^(1-t) + y^(1-t) -  (y - dy)^(1-t) ) / c )^(1 / (1 - t)) - z
  */
 export function buyFYTokenVY(
   baseReserves: BigNumber | string, // z
