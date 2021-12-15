@@ -3,7 +3,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { Tip, Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Stack } from 'grommet';
 import { ThemeContext } from 'styled-components';
 
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiInfo } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import InputWrap from '../components/wraps/InputWrap';
@@ -322,10 +322,10 @@ const VaultPosition = () => {
                     <InfoBite
                       label="Liguidation price"
                       value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
-                      icon={<FiTrendingUp />}
+                      icon={<FiActivity />}
                       loading={vaultsLoading}
                     />
-                    <Box pad='xsmall' /> 
+                    <Box pad="xsmall" />
 
                     {_selectedVault?.isActive && unhealthyCollatRatio && (
                       <InfoBite
