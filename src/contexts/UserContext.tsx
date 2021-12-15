@@ -513,7 +513,6 @@ const UserProvider = ({ children }: any) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
 
-  
     async (strategyList: IStrategyRoot[]) => {
 
       const PoolView = contractMap.get('PoolView');
@@ -538,6 +537,9 @@ const UserProvider = ({ children }: any) => {
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
           if (currentSeries) {
+
+            const _oneUnit = ethers.utils.parseUnits('1', currentSeries.decimals );
+
             const [
               [base, fyTokenVirtual, ],
               poolTotalSupply,
@@ -559,17 +561,16 @@ const UserProvider = ({ children }: any) => {
             ]);
 
             /* Get the historical invariant information: NB example for future use only hence commented out */
-            const histInvariant = ethers.utils.parseUnits('1', currentSeries.decimals ); // await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
+            const histInvariant =_oneUnit; // await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
             const returnRateInv = mulDecimal( divDecimal( invariant.sub(histInvariant), histInvariant), '100');
             diagnostics && console.log( 'RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4)  );
-
 
             // the real balance of fyTokens in the pool
             const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
             const fyTokenRealHist = fyTokenVirtualHist.sub(poolTotalSupplyHist);
 
             const [ ,val] = strategyTokenValue(
-              ethers.utils.parseUnits('1', currentSeries.decimals ),
+              _oneUnit,
               strategyTotalSupply,
               strategyPoolBalance,
               base,
@@ -580,7 +581,7 @@ const UserProvider = ({ children }: any) => {
             );
 
             const [ ,valHist] = strategyTokenValue(
-              ethers.utils.parseUnits('1', currentSeries.decimals ),
+              _oneUnit,
               strategyTotalSupplyHist,
               strategyPoolBalanceHist,
               baseHist,

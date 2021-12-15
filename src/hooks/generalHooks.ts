@@ -89,5 +89,3 @@ export const useWindowSize = () => {
   );
   return [height, width];
 };
-
-export const useCurrentRoute = () => {};

@@ -26,7 +26,7 @@ export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | und
       const pair_: IAssetPair = await updateAssetPair(_b.id, _c.id);
       setAssetPair(pair_);
     },
-    [updateAssetPair]
+    [diagnostics, updateAssetPair]
   );
 
   useEffect(() => {
