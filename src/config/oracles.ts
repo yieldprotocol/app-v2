@@ -1,4 +1,4 @@
-import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI , yvUSDC} from './assets';
+import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI , yvUSDC, MKR} from './assets';
 
 const COMPOSITE_MULTI_ORACLE = 'CompositeMultiOracle';
 const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
@@ -27,6 +27,7 @@ usdcIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 usdcIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(yvUSDC, COMPOSITE_MULTI_ORACLE);
+usdcIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle1);
 
 // DAI base
@@ -41,6 +42,7 @@ daiIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 daiIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(yvUSDC, COMPOSITE_MULTI_ORACLE);
+daiIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle1);
 
 // WETH base
@@ -55,6 +57,7 @@ wethIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 wethIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(yvUSDC, COMPOSITE_MULTI_ORACLE);
+wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(WETH, wethIlkOracle1);
 
 /* chain id 421611 */
@@ -70,6 +73,7 @@ usdcIlkOracle421611.set(ENS, CHAINLINK_USD_ORACLE);
 usdcIlkOracle421611.set(LINK, CHAINLINK_USD_ORACLE);
 usdcIlkOracle421611.set(UNI, CHAINLINK_USD_ORACLE);
 usdcIlkOracle421611.set(yvUSDC, CHAINLINK_USD_ORACLE);
+usdcIlkOracle421611.set(MKR, CHAINLINK_USD_ORACLE);
 CHAIN_ID_421611_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle421611);
 
 // DAI base
@@ -84,6 +88,7 @@ daiIlkOracle421611.set(ENS, CHAINLINK_USD_ORACLE);
 daiIlkOracle421611.set(LINK, CHAINLINK_USD_ORACLE);
 daiIlkOracle421611.set(UNI, CHAINLINK_USD_ORACLE);
 daiIlkOracle421611.set(yvUSDC, CHAINLINK_USD_ORACLE);
+daiIlkOracle421611.set(MKR, CHAINLINK_USD_ORACLE);
 
 CHAIN_ID_421611_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle421611);
 

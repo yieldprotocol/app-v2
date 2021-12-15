@@ -12,6 +12,7 @@ export const ENS = '0x303700000000';
 
 export const UNI = '0x313000000000';
 export const yvUSDC = '0x303900000000';
+export const MKR = '0x313100000000';
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
 export const DAI_PERMIT_ASSETS = ['DAI', DAI];
@@ -59,4 +60,4 @@ ASSET_INFO.set('stETH', {
 ASSET_INFO.set('LINK', { showToken: true, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
 ASSET_INFO.set('yvUSDC', { showToken: true, isWrappedToken: false, color: '#3366CC', digitFormat: 2 });
 ASSET_INFO.set('UNI', { showToken: true, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
-ASSET_INFO.set('MKR', { showToken: true, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
+ASSET_INFO.set('MKR', { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
