@@ -1,14 +1,13 @@
 import React from 'react';
-import { Avatar, Stack, Box } from 'grommet';
-import USDCMark from './USDCMark';
+import { Avatar, Box } from 'grommet';
 import YFIMark from './YFIMark';
 
 const YVUSDCMark = () => (
   <Box>
     <Avatar background="white">
-      <YFIMark color='red' />
+      <YFIMark color="red" />
     </Avatar>
-    </Box>
+  </Box>
 );
 
 export default YVUSDCMark;
