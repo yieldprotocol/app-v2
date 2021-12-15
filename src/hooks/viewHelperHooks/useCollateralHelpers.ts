@@ -145,10 +145,15 @@ export const useCollateralHelpers = (
       ? setUndercollateralized(false)
       : setUndercollateralized(true);
 
-    parseFloat(collateralizationRatio!) < minCollatRatio! + 0.2 && vault?.art.gt(ethers.constants.Zero)
+    collateralizationRatio &&
+    vault &&
+    vault.art.gt(ethers.constants.Zero) &&
+    parseFloat(collateralizationRatio)>0 &&
+    parseFloat(collateralizationRatio)< vault.minRatio + 0.2
       ? setUnhealthyCollatRatio(true)
       : setUnhealthyCollatRatio(false);
-  }, [collateralizationRatio, minCollatRatio, vault?.art]);
+
+  }, [collateralizationRatio, minCollatRatio, vault]);
 
   return {
     collateralizationRatio,

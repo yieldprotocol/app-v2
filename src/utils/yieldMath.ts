@@ -920,17 +920,14 @@ export const calculateBorrowingPower = (
   collateralAmount: string, // 
   debtAmount: string,
   liquidationRatio: number,
-  // collateralDecimals: number
 ): string => {
   const _collateralAmount = parseFloat(collateralAmount);
   const _debtAmount = parseFloat(debtAmount);
-  // condition: collValueInBase > debtAmount * ratio
-  // so, collAmount*price > debtAmount*ratio
+  // condition/logic: collAmount*price > debtAmount*ratio
   const liquidationPoint = _debtAmount*liquidationRatio
   const price = (liquidationPoint/_collateralAmount).toString(); 
   return price;
 };
-
 
 /**
  *  @param {BigNumber}  baseChange
