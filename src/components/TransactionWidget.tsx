@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { Box, ResponsiveContext, Text, ThemeContext } from 'grommet';
+import { Box, ResponsiveContext, Spinner, Text, ThemeContext } from 'grommet';
 import { FiAlertCircle, FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { IYieldProcess, ProcessStage } from '../types';
@@ -64,17 +64,19 @@ const TransactionWidget = () => {
                 justify="start"
                 align="center"
                 fill
-                // elevation="small"
                 gap="small"
-                pad="small"
-                background="lightBackground"
-                round="xsmall"
+                pad="medium"
+                elevation="small"
+                // background='gradient-transparent'
+                animation={{ type: 'slideLeft', size: 'large' }}
+                background="hoverBackground"
+                round={{ size: 'xsmall', corner: 'left' }}
               >
                 <Box width="3rem" align="center">
-                  <FiAlertCircle size="1.5rem" color={warning.dark} />
+                  <Spinner color="brand" />
                 </Box>
                 <Box align="start">
-                  <Text size="small">Approval pending</Text>
+                  <Text size="small">Approval Transaction pending</Text>
                 </Box>
               </Box>
             )}
