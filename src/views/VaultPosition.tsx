@@ -295,7 +295,6 @@ const VaultPosition = () => {
                   <ExitButton action={() => history.goBack()} />
                 </Box>
 
-
                 {_selectedVault?.isActive && (
                   <Box gap="small">
                     <InfoBite
@@ -310,56 +309,50 @@ const VaultPosition = () => {
                       icon={<FiTrendingUp />}
                       loading={vaultsLoading}
                     />
-                    <Box direction="row" gap="xsmall">
-                      <InfoBite
-                        label="Collateral posted"
-                        value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
-                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        loading={vaultsLoading}
-                      >
-                        <Box align="center" direction="row">
-                          <Text size='small'>({collateralizationPercent}%)</Text>
-                        </Box>
-                      </InfoBite>
-                    </Box>
+                    <InfoBite
+                      label="Collateral posted"
+                      value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
+                      icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                      loading={vaultsLoading}
+                    >
+                      <Box align="center" direction="row">
+                        <Text size="small">({collateralizationPercent}%)</Text>
+                      </Box>
+                    </InfoBite>
+                    <InfoBite
+                      label="Liguidation price"
+                      value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
+                      icon={<FiTrendingUp />}
+                      loading={vaultsLoading}
+                    />
+                    <Box pad='xsmall' /> 
 
-                    <Box direction="row" gap="xsmall">
+                    {_selectedVault?.isActive && unhealthyCollatRatio && (
                       <InfoBite
-                        label="Liguidation price"
-                        value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
-                        icon={<FiTrendingUp />}
-                        loading={vaultsLoading}
+                        label="Vault is in danger of liquidation"
+                        value={`Minimum collateralization needed is ${minCollatRatioPct}%`}
+                        icon={<FiAlertTriangle size="1.5em" color="red" />}
+                        loading={false}
                       />
-                    </Box>
+                    )}
 
-                    { _selectedVault?.isActive && unhealthyCollatRatio &&
-                    <InfoBite
-                      label="Vault is in danger of liquidation"
-                      value={`Minimum collateralization needed is ${minCollatRatioPct}%`}
-                      icon={<FiAlertTriangle size="1.5em" color="red" />}
-                      loading={false}
-                    />    
-                    }
+                    {!_selectedVault?.isActive && !_selectedVault?.isWitchOwner && (
+                      <InfoBite
+                        label="The connected account no longer owns this vault"
+                        value={` Vault ${_selectedVault?.id} has either been transfered, deleted or liquidated`}
+                        icon={<FiAlertTriangle size="1.5em" color="red" />}
+                        loading={false}
+                      />
+                    )}
 
-                  {!_selectedVault?.isActive && !_selectedVault?.isWitchOwner && (
-                    <InfoBite
-                      label="The connected account no longer owns this vault"
-                      value={` Vault ${_selectedVault?.id} has either been transfered, deleted or liquidated`}
-                      icon={<FiAlertTriangle size="1.5em" color="red" />}
-                      loading={false}
-                    />
-                  )}
-
-                  {_selectedVault?.isWitchOwner && (
-                    <InfoBite
-                      label="Liquidation in progress."
-                      value="This vault is in the process of being liquidated and the account no longer owns this vault"
-                      icon={<FiAlertTriangle size="1.5em" color="red" />}
-                      loading={false}
-                    />
-                  )}
-
-
+                    {_selectedVault?.isWitchOwner && (
+                      <InfoBite
+                        label="Liquidation in progress."
+                        value="This vault is in the process of being liquidated and the account no longer owns this vault"
+                        icon={<FiAlertTriangle size="1.5em" color="red" />}
+                        loading={false}
+                      />
+                    )}
                   </Box>
                 )}
               </Box>
