@@ -150,12 +150,12 @@ const UserProvider = ({ children }: any) => {
       const Cauldron = contractMap.get('Cauldron');
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
-      const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
+      // const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
 
       const [vaultsBuilt, vaultsReceived, vaultsDestroyed] = await Promise.all([
         Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
         Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
-        Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
+        [], // Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
       ]);
 
       const buildEventList: IVaultRoot[] = vaultsBuilt.map((x: any): IVaultRoot => {
@@ -188,9 +188,9 @@ const UserProvider = ({ children }: any) => {
       );
 
       const destroyedEventsList: string[] = vaultsDestroyed.map((x: any) => Cauldron.interface.parseLog(x).args[0]);
-      console.log('DESTROYED VAULTS: ', destroyedEventsList);
+      diagnostics && console.log('DESTROYED VAULTS: ', destroyedEventsList);
 
-      /* all vault excluing deleted vaults */
+      /* all vault excluding deleted vaults */
       const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList].filter(
         (x: IVaultRoot) => !destroyedEventsList.includes(x.id)
       );

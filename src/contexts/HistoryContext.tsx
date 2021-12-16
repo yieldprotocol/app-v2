@@ -472,7 +472,15 @@ const HistoryProvider = ({ children }: any) => {
       updateState({ type: 'vaultHistory', payload: new Map([...historyState.vaultHistory, ...vaultHistMap]) });
       diagnostics && console.log('Vault history updated: ', vaultHistMap);
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, historyState.vaultHistory, seriesRootMap]
+    [
+      _parseGivenLogs,
+      _parsePourLogs,
+      _parseRolledLogs,
+      contractMap,
+      diagnostics,
+      historyState.vaultHistory,
+      seriesRootMap,
+    ]
   );
 
   useEffect(() => {
