@@ -37,6 +37,7 @@ export const useCollateralHelpers = (
   const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
+  const [totalCollateral_, setTotalCollateral_] = useState<string | undefined>();
 
   const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
 
@@ -81,6 +82,7 @@ export const useCollateralHelpers = (
       collInput && Math.abs(parseFloat(collInput)) > 0 ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
 
     const totalCollateral = existingCollateralAsWei.add(cInput);
+    setTotalCollateral_(ethers.utils.formatUnits(totalCollateral, 18));
     const totalDebt = existingDebtAsWei.add(dInput);
 
     /* set the collateral ratio when collateral is entered */
@@ -166,5 +168,6 @@ export const useCollateralHelpers = (
     maxCollateral,
     maxRemovableCollateral,
     unhealthyCollatRatio,
+    totalCollateral_,
   };
 };
