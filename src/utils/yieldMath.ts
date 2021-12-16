@@ -1004,11 +1004,6 @@ export const strategyTokenValue = (
     poolFyTokenRealReserves,
     poolTotalSupply
   );
-  //  const newBaseReserves = poolBaseReserves.sub(_baseTokenReceived);
-  //  const newFyTokenRealReserves = poolFyTokenRealReserves.sub(_fyTokenReceived);
-  //  const newTotalSupply = poolTotalSupply.sub(_fyTokenReceived)
-  //  // virtualReserves  = totalsupply + realBalance
-  //  const newFyTokenVirtualReserves = newTotalSupply.add( newFyTokenRealReserves );
 
   const sellValue = sellFYToken(
     newPool.baseReserves,

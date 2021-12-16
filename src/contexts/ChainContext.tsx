@@ -25,6 +25,8 @@ import ENSMark from '../components/logos/ENSMark';
 
 import { seasonColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
+import YFIMark from '../components/logos/YFIMark';
+import MakerMark from '../components/logos/MakerMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -38,6 +40,8 @@ const markMap = new Map([
   ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
   ['UNI', <UNIMark key="uni" />],
+  ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get('yvUSDC')!.color} />],
+  ['MKR', <MakerMark key="mkr" />],
 ]);
 
 /* Build the context */
@@ -252,12 +256,26 @@ const ChainProvider = ({ children }: any) => {
 
             /* Get the basic token info */
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-            const [name, symbol, decimals, version] = await Promise.all([
-              ERC20.name(),
-              ERC20.symbol(),
-              ERC20.decimals(),
-              id === USDC ? '2' : '1', // TODO  ERC20.version()
-            ]);
+            let name: string;
+            let symbol: string;
+            let decimals: number;
+            let version: string;
+            try {
+              [name, symbol, decimals, version] = await Promise.all([
+                ERC20.name(),
+                ERC20.symbol(),
+                ERC20.decimals(),
+                id === USDC ? '2' : '1', // TODO ERC20.version()
+              ]);
+            } catch (e) {
+              /* TODO look at finding a better way to handle the pimple that is the Maker Token */
+              const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
+              const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
+              const mkrInfo = await Promise.all([mkrERC20.name() , mkrERC20.symbol()]);
+              name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
+              symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
+              [decimals, version] = [18, '1']
+            }
 
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
             const idToUse = assetInfo?.wrappedTokenId || id;
