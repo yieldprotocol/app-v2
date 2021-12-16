@@ -11,12 +11,10 @@ import InfoBite from '../components/InfoBite';
 import {
   ActionCodes,
   ActionType,
-  IAsset,
   ISeries,
   IUserContext,
   IUserContextActions,
   IUserContextState,
-  IVault,
   ProcessStage,
 } from '../types';
 
@@ -69,13 +67,13 @@ const VaultPosition = () => {
     vaultsLoading,
     selectedIlk,
   } = userState;
-  const { setSelectedBase, setSelectedIlk, setSelectedSeries } = userActions;
+  const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
-  const _selectedVault: IVault = vaultMap.get(selectedVault?.id! || idFromUrl)!;
+  const _selectedVault = vaultMap.get(idFromUrl);
 
-  const vaultBase: IAsset | undefined = assetMap.get(_selectedVault?.baseId!);
-  const vaultIlk: IAsset | undefined = assetMap.get(_selectedVault?.ilkId!);
-  const vaultSeries: ISeries | undefined = seriesMap.get(_selectedVault?.seriesId!);
+  const vaultBase = assetMap.get(_selectedVault?.baseId!);
+  const vaultIlk = assetMap.get(_selectedVault?.ilkId!);
+  const vaultSeries = seriesMap.get(_selectedVault?.seriesId!);
 
   /* TX info (for disabling buttons) */
   const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(
@@ -253,7 +251,17 @@ const VaultPosition = () => {
     _selectedVault && setSelectedSeries(_series);
     _selectedVault && setSelectedBase(_base);
     _selectedVault && setSelectedIlk(_ilkToUse!);
-  }, [vaultMap, _selectedVault, seriesMap, assetMap, setSelectedSeries, setSelectedBase, setSelectedIlk]);
+    _selectedVault && setSelectedVault(_selectedVault);
+  }, [
+    vaultMap,
+    _selectedVault,
+    seriesMap,
+    assetMap,
+    setSelectedSeries,
+    setSelectedBase,
+    setSelectedIlk,
+    setSelectedVault,
+  ]);
 
   useEffect(() => {
     if (_selectedVault && account !== _selectedVault?.owner) history.push(prevLoc);

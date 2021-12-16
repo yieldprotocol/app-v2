@@ -453,7 +453,6 @@ const UserProvider = ({ children }: any) => {
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
-
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
           const baseRoot = assetRootMap.get(vault.baseId);
