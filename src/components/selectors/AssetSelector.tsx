@@ -84,8 +84,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   useEffect(() => {
     if (selectedIlk?.id === selectedBase?.id) {
       console.log('base matches ilk');
-      // const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
-      // setSelectedIlk(firstNotBaseIlk!);
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
+      setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
 

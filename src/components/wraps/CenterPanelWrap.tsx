@@ -114,7 +114,9 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                 round="xsmall"
                 background="lightBackground"
               >
-                <Box fill>{children}</Box>
+                <Box fill round="xsmall" background="background">
+                  {children}
+                </Box>
               </Box>
             </Stack>
           </animated.div>

@@ -14,6 +14,8 @@ import {
   IStrategyRoot,
   IStrategy,
   IAssetPair,
+  IChainContext,
+  ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -29,6 +31,7 @@ import {
   decimal18ToDecimalN,
   strategyTokenValue,
   toBn,
+  calcLiquidationPrice,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
@@ -119,7 +122,7 @@ function userReducer(state: any, action: any) {
 
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext);
+  const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
     connection: { account, fallbackChainId, fallbackProvider },
@@ -131,7 +134,7 @@ const UserProvider = ({ children }: any) => {
 
   const {
     settingsState: { showWrappedTokens, diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
@@ -150,18 +153,20 @@ const UserProvider = ({ children }: any) => {
     // async (fromBlock: number = 27096000) => {
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
+      if (!Cauldron) return new Map();
+
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
-      const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
+      // const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
 
       const [vaultsBuilt, vaultsReceived, vaultsDestroyed] = await Promise.all([
         Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
         Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
-        Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
+        [], // Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
       ]);
 
-      const buildEventList: IVaultRoot[] = vaultsBuilt.map((x: any): IVaultRoot => {
-        const { vaultId: id, ilkId, seriesId } = Cauldron.interface.parseLog(x).args;
+      const buildEventList: IVaultRoot[] = vaultsBuilt?.map((x: ethers.Event): IVaultRoot => {
+        const { vaultId: id, ilkId, seriesId } = Cauldron?.interface.parseLog(x).args;
         const series = seriesRootMap.get(seriesId);
         return {
           id,
@@ -174,7 +179,7 @@ const UserProvider = ({ children }: any) => {
       });
 
       const recievedEventsList: IVaultRoot[] = await Promise.all(
-        vaultsReceived.map(async (x: any): Promise<IVaultRoot> => {
+        vaultsReceived.map(async (x: ethers.Event): Promise<IVaultRoot> => {
           const { vaultId: id } = Cauldron.interface.parseLog(x).args;
           const { ilkId, seriesId } = await Cauldron.vaults(id);
           const series = seriesRootMap.get(seriesId);
@@ -190,9 +195,9 @@ const UserProvider = ({ children }: any) => {
       );
 
       const destroyedEventsList: string[] = vaultsDestroyed.map((x: any) => Cauldron.interface.parseLog(x).args[0]);
-      console.log('DESTROYED VAULTS: ', destroyedEventsList);
+      diagnostics && console.log('DESTROYED VAULTS: ', destroyedEventsList);
 
-      /* all vault excluing deleted vaults */
+      /* all vault excluding deleted vaults */
       const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList].filter(
         (x: IVaultRoot) => !destroyedEventsList.includes(x.id)
       );
@@ -274,31 +279,33 @@ const UserProvider = ({ children }: any) => {
       const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
         ?.get(baseId)
         ?.get(ilkId);
-      const Oracle = contractMap.get(oracleName);
-      const base: IAssetRoot = assetRootMap.get(baseId);
-      const ilk: IAssetRoot = assetRootMap.get(ilkId);
+
+      const Oracle = contractMap.get(oracleName!);
+
+      const base = assetRootMap.get(baseId);
+      const ilk = assetRootMap.get(ilkId);
 
       diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
 
       // /* Get debt params and spot ratios */
       const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
-        await Cauldron.debt(baseId, ilkId),
-        await Cauldron.spotOracles(baseId, ilkId),
+        await Cauldron?.debt(baseId, ilkId),
+        await Cauldron?.spotOracles(baseId, ilkId),
       ]);
 
       /* get pricing if available */
       let price: BigNumber;
       try {
         // eslint-disable-next-line prefer-const
-        [price] = await Oracle.peek(
+        [price] = await Oracle?.peek(
           bytesToBytes32(ilkId, 6),
           bytesToBytes32(baseId, 6),
-          decimal18ToDecimalN(WAD_BN, ilk.decimals)
+          decimal18ToDecimalN(WAD_BN, ilk?.decimals!)
         );
         diagnostics &&
           console.log(
             'Price fetched:',
-            decimal18ToDecimalN(WAD_BN, ilk.decimals).toString(),
+            decimal18ToDecimalN(WAD_BN, ilk?.decimals!).toString(),
             ilkId,
             'for',
             price.toString(),
@@ -319,7 +326,7 @@ const UserProvider = ({ children }: any) => {
         pairTotalDebt: sum,
         pairPrice: price, // value of 1 ilk (1x10**n) in terms of base.
         minRatio: parseFloat(ethers.utils.formatUnits(ratio, 6)), // pre-format ratio
-        baseDecimals: base.decimals,
+        baseDecimals: base?.decimals!,
       };
 
       updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
@@ -431,49 +438,47 @@ const UserProvider = ({ children }: any) => {
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
-
-
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-                       
-          let pairData : IAssetPair;
+          let pairData: IAssetPair;
           /* get the asset Pair info if required */
           if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
             pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
-            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId)
+            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId);
           }
 
           /* Get dynamic vault data */
           const [
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([
-            await Cauldron.balances(vault.id),
-            await Cauldron.vaults(vault.id),
-          ]);
+          ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
-          const baseRoot: IAssetRoot = assetRootMap.get(vault.baseId);
-          const ilkRoot: IAssetRoot = assetRootMap.get(ilkId);
+          const baseRoot = assetRootMap.get(vault.baseId);
+          const ilkRoot = assetRootMap.get(ilkId);
 
           diagnostics &&
             console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
 
+          const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat);
+          const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat);
+          const liquidationPrice_ = cleanValue(calcLiquidationPrice(ink_, art_, minRatio), baseRoot?.digitFormat);
+
           return {
             ...vault,
             owner, // refreshed in case owner has been updated
-            isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+            isWitchOwner: Witch?.address === owner, // check if witch is the owner (in liquidation process)
             isActive: owner === account, // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated
             ink,
             art,
 
-            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
+            ink_, // for display purposes only
+            art_, // for display purposes only
 
             /* attach extra pairwaise data for convenience */
             minDebtLimit,
@@ -482,8 +487,10 @@ const UserProvider = ({ children }: any) => {
             pairPrice,
             pairTotalDebt,
 
-            baseDecimals: baseRoot?.decimals,
+            baseDecimals: baseRoot?.decimals!,
             limitDecimals,
+
+            liquidationPrice_,
           };
         })
       );
@@ -512,9 +519,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
-
     async (strategyList: IStrategyRoot[]) => {
-
       const PoolView = contractMap.get('PoolView');
 
       updateState({ type: 'strategiesLoading', payload: true });
@@ -531,23 +536,21 @@ const UserProvider = ({ children }: any) => {
               _strategy.strategyContract.seriesId(),
               _strategy.strategyContract.pool(),
               _strategy.strategyContract.nextSeriesId(),
-
             ]);
           const currentSeries: ISeries = userState.seriesMap.get(currentSeriesId);
           const nextSeries: ISeries = userState.seriesMap.get(nextSeriesId);
 
           if (currentSeries) {
-
-            const _oneUnit = ethers.utils.parseUnits('1', currentSeries.decimals );
+            const _oneUnit = ethers.utils.parseUnits('1', currentSeries.decimals);
 
             const [
-              [base, fyTokenVirtual, ],
+              [base, fyTokenVirtual],
               poolTotalSupply,
               strategyPoolBalance,
-              [baseHist, fyTokenVirtualHist, ],
+              [baseHist, fyTokenVirtualHist],
               poolTotalSupplyHist,
               strategyPoolBalanceHist,
-              invariant, 
+              invariant,
             ] = await Promise.all([
               currentSeries.poolContract.getCache(),
               currentSeries.poolContract.totalSupply(),
@@ -561,15 +564,15 @@ const UserProvider = ({ children }: any) => {
             ]);
 
             /* Get the historical invariant information: NB example for future use only hence commented out */
-            const histInvariant =_oneUnit; // await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
-            const returnRateInv = mulDecimal( divDecimal( invariant.sub(histInvariant), histInvariant), '100');
-            diagnostics && console.log( 'RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4)  );
+            const histInvariant = _oneUnit; // await PoolView.invariant(currentSeries.poolAddress, { blockTag: -42000 } );
+            const returnRateInv = mulDecimal(divDecimal(invariant.sub(histInvariant), histInvariant), '100');
+            diagnostics && console.log('RETURN FROM INVARIANT:', cleanValue(returnRateInv, 4));
 
             // the real balance of fyTokens in the pool
             const fyTokenReal = fyTokenVirtual.sub(poolTotalSupply);
             const fyTokenRealHist = fyTokenVirtualHist.sub(poolTotalSupplyHist);
 
-            const [ ,val] = strategyTokenValue(
+            const [, val] = strategyTokenValue(
               _oneUnit,
               strategyTotalSupply,
               strategyPoolBalance,
@@ -580,20 +583,20 @@ const UserProvider = ({ children }: any) => {
               currentSeries.decimals
             );
 
-            const [ ,valHist] = strategyTokenValue(
+            const [, valHist] = strategyTokenValue(
               _oneUnit,
               strategyTotalSupplyHist,
               strategyPoolBalanceHist,
               baseHist,
               fyTokenRealHist,
               poolTotalSupplyHist,
-              (parseInt(currentSeries.getTimeTillMaturity(), 10) + 640000).toString(),   
+              (parseInt(currentSeries.getTimeTillMaturity(), 10) + 640000).toString(),
               currentSeries.decimals
             );
 
-            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');          
-            const returnRate = valHist.lt(val) ? mulDecimal( divDecimal( (val.sub(valHist)) ,valHist), '100') : undefined ;
-            diagnostics && console.log( 'RETURN FROM TOKEN VALUES:',  cleanValue(returnRate, 4) ); 
+            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+            const returnRate = valHist.lt(val) ? mulDecimal(divDecimal(val.sub(valHist), valHist), '100') : undefined;
+            diagnostics && console.log('RETURN FROM TOKEN VALUES:', cleanValue(returnRate, 4));
 
             return {
               ..._strategy,
@@ -695,7 +698,7 @@ const UserProvider = ({ children }: any) => {
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
-    if (!chainLoading && account !== null) {
+    if (!chainLoading && account) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
