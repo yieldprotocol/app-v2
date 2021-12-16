@@ -29,6 +29,7 @@ import {
   secondsToFrom,
   sellFYToken,
   decimal18ToDecimalN,
+  calcLiquidationPrice,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
@@ -452,6 +453,7 @@ const UserProvider = ({ children }: any) => {
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
+
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
           const baseRoot = assetRootMap.get(vault.baseId);
@@ -459,6 +461,10 @@ const UserProvider = ({ children }: any) => {
 
           diagnostics &&
             console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
+
+          const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat);
+          const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat);
+          const liquidationPrice_ = cleanValue(calcLiquidationPrice(ink_, art_, minRatio), baseRoot?.digitFormat);
 
           return {
             ...vault,
@@ -470,8 +476,8 @@ const UserProvider = ({ children }: any) => {
             ink,
             art,
 
-            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
+            ink_, // for display purposes only
+            art_, // for display purposes only
 
             /* attach extra pairwaise data for convenience */
             minDebtLimit,
@@ -482,6 +488,8 @@ const UserProvider = ({ children }: any) => {
 
             baseDecimals: baseRoot?.decimals!,
             limitDecimals,
+
+            liquidationPrice_,
           };
         })
       );

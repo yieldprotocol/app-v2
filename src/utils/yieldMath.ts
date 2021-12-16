@@ -907,6 +907,29 @@ export const calculateBorrowingPower = (
 };
 
 /**
+ * Calcualtes the amount (base, or other variant) that can be borrowed based on
+ * an amount of collateral (ETH, or other), and collateral price.
+ *
+ * @param {string} collateralAmount amount of collateral in human readable decimals
+ * @param {string} debtAmount amount of debt in human readable decimals
+ * @param {number} liquidationRatio  OPTIONAL: 1.5 (150%) as default
+ *
+ * @returns {string}
+ */
+export const calcLiquidationPrice = (
+  collateralAmount: string, //
+  debtAmount: string,
+  liquidationRatio: number
+): string => {
+  const _collateralAmount = parseFloat(collateralAmount);
+  const _debtAmount = parseFloat(debtAmount);
+  // condition/logic: collAmount*price > debtAmount*ratio
+  const liquidationPoint = _debtAmount * liquidationRatio;
+  const price = (liquidationPoint / _collateralAmount).toString();
+  return price;
+};
+
+/**
  *  @param {BigNumber}  baseChange
  * @param {BigNumber}  fyTokenChange
  * @param {BigNumber}  poolBaseReserves
