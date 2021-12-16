@@ -207,6 +207,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
+      newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
       newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       updateState({ type: 'contractMap', payload: newContractMap });

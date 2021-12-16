@@ -23,7 +23,7 @@
       "Ladle": "0xe7bae0445B9a1DBE834a7379fbE23C6d2Bd61C59",
       "ChainlinkMultiOracle": "0xBcdc8bad83ca8053DFA6B1CBAEB7E71699254a3b",
       "CompositeMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
-      "YearnVaultMultiOracle": "",
+      "YearnVaultMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
       "Witch": "0xA421B81481e0d150740f8F137FB10b1b747974a8",
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1"
     },

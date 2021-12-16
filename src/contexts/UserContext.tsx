@@ -284,7 +284,6 @@ const UserProvider = ({ children }: any) => {
       const ilk = assetRootMap.get(ilkId);
 
       diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
-
       // /* Get debt params and spot ratios */
       const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
         await Cauldron?.debt(baseId, ilkId),
