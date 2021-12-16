@@ -328,7 +328,7 @@ const VaultPosition = () => {
                       </Box>
                     </InfoBite>
                     <InfoBite
-                      label="Liguidation price"
+                      label="Vault Liquidation"
                       value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
                       icon={<FiActivity />}
                       loading={vaultsLoading}
