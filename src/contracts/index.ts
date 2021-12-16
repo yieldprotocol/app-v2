@@ -22,6 +22,7 @@ export type { TLMModule } from "./TLMModule";
 export type { UniswapV3Oracle } from "./UniswapV3Oracle";
 export type { Wand } from "./Wand";
 export type { Witch } from "./Witch";
+export type { YearnVaultMultiOracle } from "./YearnVaultMultiOracle";
 
 export { Cauldron__factory } from "./factories/Cauldron__factory";
 export { ChainlinkMultiOracle__factory } from "./factories/ChainlinkMultiOracle__factory";
@@ -44,3 +45,4 @@ export { TLMModule__factory } from "./factories/TLMModule__factory";
 export { UniswapV3Oracle__factory } from "./factories/UniswapV3Oracle__factory";
 export { Wand__factory } from "./factories/Wand__factory";
 export { Witch__factory } from "./factories/Witch__factory";
+export { YearnVaultMultiOracle__factory } from "./factories/YearnVaultMultiOracle__factory";

@@ -148,6 +148,7 @@ const ChainProvider = ({ children }: any) => {
       let Ladle: any;
       let ChainlinkMultiOracle: any;
       let CompositeMultiOracle: any;
+      let YearnVaultMultiOracle:any;
       let Witch: any;
       let LidoWrapHandler: any;
 
@@ -169,6 +170,11 @@ const ChainProvider = ({ children }: any) => {
             addrs.CompositeMultiOracle,
             fallbackProvider
           );
+          YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(
+            addrs.YearnVaultMultiOracle,
+            fallbackProvider
+          );
+
         }
 
         // arbitrum
