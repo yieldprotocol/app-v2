@@ -560,7 +560,7 @@ const UserProvider = ({ children }: any) => {
               currentSeries.poolContract.totalSupply({ blockTag: -42000 }),
               currentSeries.poolContract.balanceOf(_strategy.address, { blockTag: -42000 }),
 
-              PoolView.invariant(currentSeries.poolAddress),
+              PoolView?.invariant(currentSeries.poolAddress),
             ]);
 
             /* Get the historical invariant information: NB example for future use only hence commented out */
