@@ -107,6 +107,7 @@ const Borrow = () => {
     maxCollateral,
     minSafeCollatRatioPct,
     minCollatRatioPct,
+    totalCollateral_,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
@@ -493,7 +494,7 @@ const Borrow = () => {
                           mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
                         />
                       }
-                      value={`${cleanValue(collatInput, selectedIlk?.digitFormat!)} ${
+                      value={`${cleanValue(totalCollateral_, selectedIlk?.digitFormat!)} ${
                         selectedIlk?.displaySymbol
                       } (${collateralizationPercent}%)`}
                     />
