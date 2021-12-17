@@ -1090,7 +1090,7 @@ export function sellBaseVY(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   base: BigNumber | string,
-  coefficient: BigNumber | string, // c: the price of vyDAI to DAI
+  coefficient: BigNumber | string, // c: the price of vyDAI to DAI in decimals
   timeTillMaturity: BigNumber | string,
   decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
@@ -1104,7 +1104,7 @@ export function sellBaseVY(
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const base_ = new Decimal(base18.toString());
-  const c = new Decimal(c18.toString());
+  const c = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const _g = withNoFee ? ONE : g1;
   const [a, invA] = _computeA(timeTillMaturity, _g);
@@ -1157,7 +1157,7 @@ export function sellFYTokenVY(
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyDai_ = new Decimal(fyToken18.toString());
-  const c = new Decimal(c18.toString());
+  const c = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const _g = withNoFee ? ONE : g2;
   const [a, invA] = _computeA(timeTillMaturity, _g);
@@ -1211,7 +1211,7 @@ export function buyBaseVY(
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const base_ = new Decimal(base18.toString());
-  const c = new Decimal(c18.toString());
+  const c = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const _g = withNoFee ? ONE : g2;
   const [a, invA] = _computeA(timeTillMaturity, _g);
@@ -1263,7 +1263,7 @@ export function buyFYTokenVY(
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyDai_ = new Decimal(fyToken18.toString());
-  const c = new Decimal(c18.toString());
+  const c = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const _g = withNoFee ? ONE : g1;
   const [a, invA] = _computeA(timeTillMaturity, _g);
