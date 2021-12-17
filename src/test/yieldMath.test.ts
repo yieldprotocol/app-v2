@@ -29,7 +29,7 @@ describe('VY YieldMath', () => {
     baseReserves = parseUnits('1', 27); // z
     fyTokenReserves = parseUnits('2', 27); // y
     coefficient = parseUnits('1', 18); // c: the price of vyDAI to DAI
-    timeTillMaturity = parseUnits('1', 7);
+    timeTillMaturity = parseUnits('4', 7);
     decimals = 18;
   });
 
