@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { BigNumber, utils } from 'ethers';
-import { sellBase, sellBaseVY, sellFYToken, sellFYTokenVY } from '../utils/yieldMath';
+import { buyBase, buyBaseVY, sellBase, sellBaseVY, sellFYToken, sellFYTokenVY } from '../utils/yieldMath';
 
 chai.use(solidity);
 const { parseUnits, formatUnits } = utils;
@@ -39,6 +39,11 @@ describe('VY YieldMath', () => {
       expect(result).to.be.within(BigNumber.from(parseUnits('1.8', 24)), BigNumber.from(parseUnits('2', 24)));
     });
 
+    it('should be more fyToken out for vyToken in when coefficient greater than 1', () => {
+      const result = sellBaseVY(baseReserves, fyTokenReserves, base, coefficient, timeTillMaturity, decimals);
+      expect(result).to.be.gt(base);
+    });
+
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
       coefficient = parseUnits('1.1', decimals);
       const result = sellBaseVY(baseReserves, fyTokenReserves, base, coefficient, timeTillMaturity, decimals);
@@ -51,9 +56,6 @@ describe('VY YieldMath', () => {
 
     beforeEach(() => {
       fyToken = parseUnits('2', 24);
-      coefficient = parseUnits('1', decimals);
-      baseReserves = parseUnits('1', 27); // z
-      fyTokenReserves = parseUnits('2', 27); // y
     });
 
     it('should equal non-variable yield func with non-variable base', () => {
@@ -65,15 +67,40 @@ describe('VY YieldMath', () => {
     it('should be less vyToken out than fyToken in when coefficient greater than 1', () => {
       coefficient = parseUnits('1.1', decimals);
       const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, coefficient, timeTillMaturity, decimals);
-      expect(result).to.be.lt(BigNumber.from(fyToken));
+      expect(result).to.be.lt(fyToken);
     });
 
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
       coefficient = parseUnits('1.1', decimals);
       const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, coefficient, timeTillMaturity, decimals);
-      console.log('fy token in ', formatUnits(fyToken, decimals));
-      console.log('vy token out', formatUnits(result, decimals));
       expect(result).to.be.within(BigNumber.from(parseUnits('1.5', 24)), BigNumber.from(parseUnits('1.8', 24))); // should be 1.6572 * 10 ** 24
+    });
+  });
+
+  describe('buyBaseVY (fyDaiInForVYDaiOut)', () => {
+    // https://www.desmos.com/calculator/jmvpaci27o
+
+    beforeEach(() => {
+      base = parseUnits('2', 24);
+    });
+
+    it('should equal non-variable yield func with non-variable base', () => {
+      const resultVY = buyBaseVY(baseReserves, fyTokenReserves, base, coefficient, timeTillMaturity, decimals);
+      const result = buyBase(baseReserves, fyTokenReserves, base, timeTillMaturity, decimals);
+      expect(resultVY).to.equal(result);
+    });
+
+    it('should be more fyToken in than vyToken out when coefficient greater than 1', () => {
+      coefficient = parseUnits('1.1', decimals);
+      const result = buyBaseVY(baseReserves, fyTokenReserves, base, coefficient, timeTillMaturity, decimals);
+      console.log('result', formatUnits(result));
+      expect(result).to.be.gt(base);
+    });
+
+    it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
+      coefficient = parseUnits('1.1', decimals);
+      const result = buyBaseVY(baseReserves, fyTokenReserves, base, coefficient, timeTillMaturity, decimals);
+      expect(result).to.be.within(BigNumber.from(parseUnits('2.0', 24)), BigNumber.from(parseUnits('2.3', 24))); // should be 2.4138 * 10 ** 24
     });
   });
 });
