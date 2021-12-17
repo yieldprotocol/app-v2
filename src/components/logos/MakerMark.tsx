@@ -2,11 +2,14 @@ import * as React from 'react';
 
 function MakerMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg width="1em" height="1em" viewBox="0 0 351 180" fill="none" {...props}>
-      <path
-        d="M27.339 180V38.805l107.077 80.58V180h27.338v-66.299c0-5.01-2.354-9.73-6.358-12.742L25.536 3.234C15.028-4.675 0 2.823 0 15.977V180h27.339zM323.48 180V38.805l-107.077 80.58V180h-27.338v-66.299c0-5.01 2.354-9.73 6.358-12.742L325.282 3.234c10.51-7.909 25.537-.411 25.537 12.743V180H323.48z"
-        fill="#1AAB9B"
-      />
+    <svg width="1em" height="1em" viewBox="0 0 32 32" fill="none" {...props}>
+      <g fill="none">
+        <circle cx="16" cy="16" fill="#1abc9c" r="16" />
+        <path
+          d="M7.838 12.056V22.5H6v-14l9.708 7.027V22.5H13.87v-6.077zm10.292 4.367V22.5h-1.838v-6.973L26 8.5v14h-1.838V12.056z"
+          fill="#fff"
+        />
+      </g>
     </svg>
   );
 }

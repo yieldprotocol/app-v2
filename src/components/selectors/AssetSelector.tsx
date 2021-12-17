@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
+import { WETH, USDC, IGNORE_BASE_ASSETS, DAI, yvUSDC } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
@@ -66,11 +66,13 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       .filter((a: IAsset) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
     const filteredOptions = selectCollateral
-        ? opts.filter((a: IAsset) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected
-        : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
+      ? opts
+          .filter((a: IAsset) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
+          .filter((a: IAsset) => (selectedBase?.id === USDC ? a : a.id !== yvUSDC)) // TODO fix this temporary logic.
+      : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
 
     setOptions(filteredOptions);
-  }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount]);
+  }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
@@ -84,8 +86,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   useEffect(() => {
     if (selectedIlk?.id === selectedBase?.id) {
       console.log('base matches ilk');
-      // const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
-      // setSelectedIlk(firstNotBaseIlk!);
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
+      setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
 

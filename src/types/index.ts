@@ -177,6 +177,7 @@ export interface IAssetInfo {
 
   wrappedTokenAddress?: string;
   unwrappedTokenAddress?: string;
+
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
@@ -265,6 +266,8 @@ export interface IVault extends IVaultRoot, IAssetPair {
   art: BigNumber;
   ink_: string;
   art_: string;
+
+  liquidationPrice_: string;
 }
 
 export interface IStrategy extends IStrategyRoot {

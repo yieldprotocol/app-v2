@@ -29,6 +29,7 @@ import {
   secondsToFrom,
   sellFYToken,
   decimal18ToDecimalN,
+  calcLiquidationPrice,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
@@ -154,12 +155,12 @@ const UserProvider = ({ children }: any) => {
 
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
-      const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
+      // const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
 
       const [vaultsBuilt, vaultsReceived, vaultsDestroyed] = await Promise.all([
         Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
         Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
-        Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
+        [], // Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
       ]);
 
       const buildEventList: IVaultRoot[] = vaultsBuilt?.map((x: ethers.Event): IVaultRoot => {
@@ -192,9 +193,9 @@ const UserProvider = ({ children }: any) => {
       );
 
       const destroyedEventsList: string[] = vaultsDestroyed.map((x: any) => Cauldron.interface.parseLog(x).args[0]);
-      console.log('DESTROYED VAULTS: ', destroyedEventsList);
+      diagnostics && console.log('DESTROYED VAULTS: ', destroyedEventsList);
 
-      /* all vault excluing deleted vaults */
+      /* all vault excluding deleted vaults */
       const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList].filter(
         (x: IVaultRoot) => !destroyedEventsList.includes(x.id)
       );
@@ -283,7 +284,6 @@ const UserProvider = ({ children }: any) => {
       const ilk = assetRootMap.get(ilkId);
 
       diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
-
       // /* Get debt params and spot ratios */
       const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
         await Cauldron?.debt(baseId, ilkId),
@@ -460,6 +460,10 @@ const UserProvider = ({ children }: any) => {
           diagnostics &&
             console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
 
+          const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat);
+          const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat);
+          const liquidationPrice_ = cleanValue(calcLiquidationPrice(ink_, art_, minRatio), baseRoot?.digitFormat);
+
           return {
             ...vault,
             owner, // refreshed in case owner has been updated
@@ -470,8 +474,8 @@ const UserProvider = ({ children }: any) => {
             ink,
             art,
 
-            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
+            ink_, // for display purposes only
+            art_, // for display purposes only
 
             /* attach extra pairwaise data for convenience */
             minDebtLimit,
@@ -482,6 +486,8 @@ const UserProvider = ({ children }: any) => {
 
             baseDecimals: baseRoot?.decimals!,
             limitDecimals,
+
+            liquidationPrice_,
           };
         })
       );

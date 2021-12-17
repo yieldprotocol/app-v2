@@ -17,7 +17,7 @@ const InfoBite: FC<IInfoBite> = ({ label, value, icon, loading, children }) => (
         {label}
       </Text>
       <Box direction="row" gap="xsmall">
-        <Text size="medium"> {loading ? <Skeleton width={80} height={20} /> : value} </Text>
+        <Text size="small"> {loading ? <Skeleton width={80} height={20} /> : value} </Text>
         {children}
       </Box>
     </Box>
