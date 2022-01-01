@@ -27,7 +27,6 @@ export const useRollDebt = () => {
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
-    const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
 
     const calls: ICallData[] = [
@@ -35,7 +34,7 @@ export const useRollDebt = () => {
         // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
         operation: LadleActions.Fn.ROLL,
         args: [vault.id, toSeries.id, '2', MAX_128] as LadleActions.Args.ROLL,
-        ignoreIf: series?.seriesIsMature,
+        ignoreIf: false,
       },
     ];
     await transact(calls, txCode);
