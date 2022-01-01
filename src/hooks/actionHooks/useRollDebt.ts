@@ -11,7 +11,7 @@ import {
   IUserContextState,
 } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
-import { MAX_128 } from '../../utils/constants';
+import { MAX_128, ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 /* Generic hook for chain transactions */
@@ -27,6 +27,7 @@ export const useRollDebt = () => {
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
+    const series = seriesMap.get(vault.seriesId);
     const base = assetMap.get(vault.baseId);
 
     const calls: ICallData[] = [
@@ -34,7 +35,13 @@ export const useRollDebt = () => {
         // ladle.rollAction(vaultId: string, newSeriesId: string, max: BigNumberish)
         operation: LadleActions.Fn.ROLL,
         args: [vault.id, toSeries.id, '2', MAX_128] as LadleActions.Args.ROLL,
-        ignoreIf: false,
+        ignoreIf: !series?.fyTokenBalance?.gt(ZERO_BN),
+      },
+      {
+        // case where rolling vault with ZERO debt
+        operation: LadleActions.Fn.TWEAK,
+        args: [vault.id, toSeries.id, vault.ilkId] as LadleActions.Args.TWEAK,
+        ignoreIf: series?.fyTokenBalance?.gt(ZERO_BN),
       },
     ];
     await transact(calls, txCode);
