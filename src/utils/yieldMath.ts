@@ -28,6 +28,10 @@ const g1 = new Decimal(950 / 1000);
 const g2 = new Decimal(1000 / 950);
 const precisionFee = new Decimal(1000000000000);
 
+
+console.log( g1.mul( 2**64 ).toString() )
+console.log( g2.mul( 2**64 ).toString() )
+
 /** *************************
  Support functions
  *************************** */
@@ -305,6 +309,8 @@ export function sellBase(
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  // gVal: BigNumber | string = g1,
+  // tsVal: BigNumber | string,
   decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
 ): BigNumber {

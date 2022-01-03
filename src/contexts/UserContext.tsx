@@ -345,13 +345,14 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series: ISeriesRoot): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
-            series.poolContract.getBaseBalance(),
-            series.poolContract.getFYTokenBalance(),
-            series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress),
-            series.isMature(),
-          ]);
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] =
+            await Promise.all([
+              series.poolContract.getBaseBalance(),
+              series.poolContract.getFYTokenBalance(),
+              series.poolContract.totalSupply(),
+              series.fyTokenContract.balanceOf(series.poolAddress),
+              series.isMature(),
+            ]);
 
           /* Calculates the base/fyToken unit selling price */
           const _sellRate = sellFYToken(
@@ -375,7 +376,7 @@ const UserProvider = ({ children }: any) => {
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: mature,
+            seriesIsMature: mature
           };
         })
       );
