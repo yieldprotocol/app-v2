@@ -23,13 +23,13 @@ const TWO = TWO_DEC;
 const MAX = MAX_DEC;
 
 /* Protocol Specific Constants */
-const k = new Decimal(1 / secondsInTenYears.toNumber()); // inv of seconds in 10 years
+const k = new Decimal(1 / secondsInTenYears.toNumber()).mul(2 ** 64) ; // inv of seconds in 10 years
 const g1_default = new Decimal(950 / 1000).mul(2 ** 64);
 const g2_default = new Decimal(1000 / 950).mul(2 ** 64);
 const precisionFee = new Decimal(1000000000000);
 
-console.log(g1_default.div(2 ** 64).toString());
-console.log(g2_default.div(2 ** 64).toString());
+// console.log(g1_default.div(2 ** 64).toString());
+// console.log(g2_default.div(2 ** 64).toString());
 
 /** *************************
  Support functions
@@ -136,10 +136,12 @@ const _computeA = (
   ts: BigNumber | string,
   g: BigNumber | string
 ): [Decimal, Decimal] => {
+  
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
+  // console.log( new Decimal(BigNumber.from(g).toString()).div(2 ** 64).toString() )
 
-  const _g = new Decimal(g.toString()).div(2 ** 64);
-  const _ts = new Decimal(ts.toString()).div(2 ** 64);
+  const _g = new Decimal(BigNumber.from(g).toString()).div(2 ** 64);
+  const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
 
   // t = ts * timeTillMaturity
   const t = _ts.mul(timeTillMaturity_);
@@ -156,8 +158,8 @@ const _computeB = (
 ): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
 
-  const _g = new Decimal(g.toString()).div(2 ** 64);
-  const _ts = new Decimal(ts.toString()).div(2 ** 64);
+  const _g = new Decimal(BigNumber.from(g).toString()).div(2 ** 64);
+  const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
 
   // t = ts * timeTillMaturity
   const t = _ts.mul(timeTillMaturity_);
