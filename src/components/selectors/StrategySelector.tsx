@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Avatar, Box, Grid, ResponsiveContext, Text } from 'grommet';
+import { Avatar, Box, Grid, Layer, ResponsiveContext, Text } from 'grommet';
 import { toast } from 'react-toastify';
-import { FiSlash } from 'react-icons/fi';
+import { FiSlash, FiX } from 'react-icons/fi';
 
 import styled from 'styled-components';
 import { IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
@@ -44,12 +44,13 @@ const CardSkeleton = () => (
 );
 
 interface IStrategySelectorProps {
-  inputValue?: string | undefined /* accepts an inpout value for possible dynamic Return  calculations */;
+  inputValue?: string | undefined /* accepts an input value for possible dynamic Return calculations */;
   cardLayout?: boolean;
   setOpen?: any /* used with modal */;
+  open?: boolean;
 }
 
-function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelectorProps) {
+function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
@@ -97,10 +98,10 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
     } else {
-      /* or select random strategy from aopts */
+      /* or select random strategy from opts */
       userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
     }
-  }, [selectedBase, strategyMap ]);
+  }, [selectedBase, strategyMap]);
 
   return (
     <>
@@ -136,7 +137,6 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                   {selectedStrategy?.currentSeries?.seriesMark || <FiSlash />}
                 </Avatar>
                 <Box>
-                  
                   {(!selectedStrategy || !inputValue) && (
                     <>
                       <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
@@ -170,18 +170,52 @@ function StrategySelector({ inputValue, cardLayout, setOpen }: IStrategySelector
                     </>
                   )}
                 </Box>
+                {open && (
+                  <Layer onClickOutside={() => setOpen(false)}>
+                    <Box onClick={() => setOpen(false)} gap="small" pad="medium" fill background="background">
+                      <Box alignSelf="end">
+                        <FiX size="1.5rem" />
+                      </Box>
+                      {options.map((strategy) => (
+                        <StyledBox
+                          key={strategy.id}
+                          pad="xsmall"
+                          round="xsmall"
+                          onClick={() => handleSelect(strategy)}
+                          background={strategy.currentSeries?.color}
+                          elevation="xsmall"
+                          margin="xsmall"
+                        >
+                          <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
+                            <Avatar
+                              background="background"
+                              style={{
+                                boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
+                                  .toString()
+                                  .concat('69')}`,
+                              }}
+                            >
+                              {strategy.currentSeries?.seriesMark || <FiSlash />}
+                            </Avatar>
+                            <Text size="small" color={strategy.currentSeries?.textColor}>
+                              {/* {formatStrategyName(strategy?.name!)} */}
+                              {strategy.name}
+                            </Text>
+                            <Text size="xsmall" color={strategy.currentSeries?.textColor}>
+                              Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
+                            </Text>
+                          </Box>
+                        </StyledBox>
+                      ))}
+                    </Box>
+                  </Layer>
+                )}
               </Box>
             </StyledBox>
           )}
-          {strategiesLoading ? (
+          {strategiesLoading && (
             <Box align="end">
               <Skeleton width={180} />
-            </Box>
-          ) : (
-            <Box align="end">
-              <AltText size={mobile ? 'xsmall' : 'xsmall'} color="text-xweak">
-                Choose another strategy ...
-              </AltText>
             </Box>
           )}
         </ShadeBox>
@@ -194,6 +228,7 @@ StrategySelector.defaultProps = {
   inputValue: undefined,
   cardLayout: true,
   setOpen: () => null,
+  open: false,
 };
 
 export default StrategySelector;
