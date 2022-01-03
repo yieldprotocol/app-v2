@@ -68,17 +68,19 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
     const filteredOpts = opts
-      .filter((_st: IStrategy) => _st.baseId === selectedBase?.idToUse && !_st.currentSeries?.seriesIsMature)
-      .sort((a: IStrategy, b: IStrategy) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
+      .filter((_st) => _st.baseId === selectedBase?.idToUse && !_st.currentSeries?.seriesIsMature)
+      .filter((_st) => _st.id !== selectedStrategy?.id)
+      .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
     // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
-  }, [selectedBase, strategyMap]);
+  }, [selectedBase, strategyMap, selectedStrategy]);
 
   const handleSelect = (_strategy: IStrategy) => {
     if (_strategy.active) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy);
       userActions.setSelectedSeries(_strategy.currentSeries!);
+      setOpen(false);
     } else {
       toast.info('Strategy coming soon');
     }
