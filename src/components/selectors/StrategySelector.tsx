@@ -199,7 +199,6 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                             </Avatar>
                             <Box>
                               <Text size="small" color={strategy.currentSeries?.textColor}>
-                                {/* {formatStrategyName(strategy?.name!)} */}
                                 {strategy.name}
                               </Text>
                               <Text size="xsmall" color={strategy.currentSeries?.textColor}>
