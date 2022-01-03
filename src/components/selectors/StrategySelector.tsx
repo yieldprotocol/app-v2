@@ -197,13 +197,15 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                             >
                               {strategy.currentSeries?.seriesMark || <FiSlash />}
                             </Avatar>
-                            <Text size="small" color={strategy.currentSeries?.textColor}>
-                              {/* {formatStrategyName(strategy?.name!)} */}
-                              {strategy.name}
-                            </Text>
-                            <Text size="xsmall" color={strategy.currentSeries?.textColor}>
-                              Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
-                            </Text>
+                            <Box>
+                              <Text size="small" color={strategy.currentSeries?.textColor}>
+                                {/* {formatStrategyName(strategy?.name!)} */}
+                                {strategy.name}
+                              </Text>
+                              <Text size="xsmall" color={strategy.currentSeries?.textColor}>
+                                Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
+                              </Text>
+                            </Box>
                           </Box>
                         </StyledBox>
                       ))}
