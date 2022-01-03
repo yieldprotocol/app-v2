@@ -172,8 +172,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 </Box>
                 {open && (
                   <Layer onClickOutside={() => setOpen(false)}>
-                    <Box onClick={() => setOpen(false)} gap="small" pad="medium" fill background="background">
-                      <Box alignSelf="end">
+                    <Box gap="small" pad="medium" fill background="background">
+                      <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
                       </Box>
                       {options.map((strategy) => (
