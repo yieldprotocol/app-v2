@@ -137,6 +137,7 @@ const _computeA = (
   g: BigNumber | string
 ): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
+  
   const _g = new Decimal(g.toString()).div(2 ** 64);
   const _ts = new Decimal(ts.toString()).div(2 ** 64);
 
@@ -154,8 +155,10 @@ const _computeB = (
   g: BigNumber | string
 ): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
+
   const _g = new Decimal(g.toString()).div(2 ** 64);
   const _ts = new Decimal(ts.toString()).div(2 ** 64);
+
   // t = ts * timeTillMaturity
   const t = _ts.mul(timeTillMaturity_);
   // b = (1 - t/g)
@@ -247,6 +250,8 @@ export function burnFromStrategy(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g1
  * @param { number } decimals
  *
  * @returns {[BigNumber, BigNumber]}
@@ -286,7 +291,10 @@ export function mintWithBase(
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @param { BigNumber | string } timeTillMaturity
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g2
  * @param { number } decimals
+ * 
  * @returns { BigNumber }
  */
 export function burnForBase(
@@ -316,8 +324,10 @@ export function burnForBase(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
  * @param { BigNumber | string } timeTillMaturity
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g1
  * @param { number } decimals
- * @param { boolean } withNoFee
+ * 
  * @returns { BigNumber }
  */
 export function sellBase(
@@ -357,8 +367,10 @@ export function sellBase(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g2
  * @param { number } decimals
- * @param { boolean } withNoFee
+ * 
  * @returns { BigNumber }
  */
 export function sellFYToken(
@@ -399,8 +411,10 @@ export function sellFYToken(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
  * @param { BigNumber | string } timeTillMaturity
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g1
  * @param { number } decimals
- * @param { boolean } withNoFee
+ *
  * @returns { BigNumber }
  */
 export function buyBase(
@@ -441,7 +455,10 @@ export function buyBase(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
- * @param { boolean } withNoFee
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g1
+ * @param { number } decimals
+ *
  * @returns { BigNumber }
  */
 export function buyFYToken(
@@ -481,7 +498,10 @@ export function buyFYToken(
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } timeTillMaturity
- *
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g1
+ * @param { number } decimals
+ * 
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
@@ -536,7 +556,10 @@ export function maxBaseIn(
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } timeTillMaturity
- *
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g1
+ * @param { number } decimals
+ * 
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
@@ -587,6 +610,9 @@ export function maxBaseOut(
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } timeTillMaturity
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g2
+ * @param { number } decimals
  *
  * @returns { BigNumber }
  */
@@ -626,7 +652,10 @@ export function maxFyTokenIn(
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } timeTillMaturity
- *
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g1
+ * @param { number } decimals
+ * 
  * @returns { BigNumber }
  */
 export function maxFyTokenOut(
@@ -958,7 +987,10 @@ export const newPoolState = (
  * @param {BigNumber}  poolFyTokenReserves
  * @param {BigNumber}  poolTotalSupply
  * @param {number}  poolTimeToMaturity
- * @param {number}  decimals
+ * 
+ * @param { BigNumber | string } ts
+ * @param { BigNumber | string } g2
+ * @param { number } decimals
  *
  * @returns {BigNumber} [soldValue, totalValue]
  */
