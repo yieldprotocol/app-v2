@@ -178,11 +178,6 @@ function Pool() {
                 ) : (
                   <>
                     <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
-                    <Box align="end" onClick={() => toggleModal(true)}>
-                      <AltText size={mobile ? 'xsmall' : 'xsmall'} color="text-xweak">
-                        Choose a different strategy
-                      </AltText>
-                    </Box>
                   </>
                 )}
               </Box>

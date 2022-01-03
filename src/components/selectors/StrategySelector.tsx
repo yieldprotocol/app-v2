@@ -214,9 +214,11 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
               </Box>
             </StyledBox>
           )}
-          {strategiesLoading && (
-            <Box align="end">
-              <Skeleton width={180} />
+          {options.length > 0 && !mobile && (
+            <Box align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
+              <AltText size={mobile ? 'xsmall' : 'xsmall'} color="text-xweak">
+                Choose a different strategy
+              </AltText>
             </Box>
           )}
         </ShadeBox>
