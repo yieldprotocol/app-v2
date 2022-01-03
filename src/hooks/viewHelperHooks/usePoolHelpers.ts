@@ -115,6 +115,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.getTimeTillMaturity(),
+        strategySeries.ts,
+        strategySeries.g1,
         strategySeries.decimals
       );
 
@@ -124,6 +126,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.fyTokenReserves,
         _input,
         strategySeries.getTimeTillMaturity(),
+        strategySeries.ts,
+        strategySeries.g1,
         strategySeries.decimals,
         slippageTolerance
       );
@@ -285,6 +289,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries?.fyTokenReserves!,
           strategySeries?.totalSupply!,
           strategySeries.getTimeTillMaturity(),
+          strategySeries.ts,
+          strategySeries.g2,
           strategySeries.decimals
         );
 

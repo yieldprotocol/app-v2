@@ -132,6 +132,7 @@ export interface ISeriesRoot extends ISignable {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
+
   fullDate: Date;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
@@ -142,6 +143,9 @@ export interface ISeriesRoot extends ISignable {
   poolSymbol: string; // for signing
 
   decimals: number;
+  ts: BigNumber;
+  g1: BigNumber;
+  g2: BigNumber;
 
   baseId: string;
 

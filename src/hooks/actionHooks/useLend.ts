@@ -46,6 +46,8 @@ export const useLend = () => {
       series.fyTokenReserves,
       _input,
       series.getTimeTillMaturity(),
+      series.ts,
+      series.g1,
       series.decimals
     );
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
