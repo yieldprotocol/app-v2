@@ -56,6 +56,8 @@ export const useRepayDebt = () => {
       series.baseReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
+      series.ts, 
+      series.g1,
       series.decimals
     );
 
@@ -64,6 +66,8 @@ export const useRepayDebt = () => {
       series.fyTokenReserves,
       _input,
       secondsToFrom(series.maturity.toString()),
+      series.ts,
+      series.g1,
       series.decimals
     );
 

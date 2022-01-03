@@ -104,6 +104,8 @@ export const useBorrowHelpers = (
         futureSeries.fyTokenReserves,
         input_,
         futureSeries.getTimeTillMaturity(),
+        futureSeries.ts, 
+        futureSeries.g1,
         futureSeries.decimals
       );
 
@@ -120,6 +122,8 @@ export const useBorrowHelpers = (
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
         futureSeries.getTimeTillMaturity(),
+        futureSeries.ts, 
+        futureSeries.g2,
         futureSeries.decimals
       );
       setMaxRoll(_maxFyTokenIn);
@@ -130,6 +134,8 @@ export const useBorrowHelpers = (
         futureSeries.fyTokenReserves,
         vault.art,
         futureSeries.getTimeTillMaturity(),
+        futureSeries.ts, 
+        futureSeries.g2,
         futureSeries.decimals
       );
 
@@ -172,6 +178,8 @@ export const useBorrowHelpers = (
           vaultSeries?.baseReserves,
           vaultSeries?.fyTokenReserves,
           vaultSeries?.getTimeTillMaturity(),
+          vaultSeries?.ts, 
+          vaultSeries?.g1,
           vaultSeries?.decimals
         );
 

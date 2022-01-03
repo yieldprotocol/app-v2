@@ -360,6 +360,8 @@ const UserProvider = ({ children }: any) => {
             fyTokenReserves,
             ethers.utils.parseUnits('1', series.decimals),
             secondsToFrom(series.maturity.toString()),
+            series.ts,
+            series.g2,
             series.decimals
           );
 

@@ -4,7 +4,16 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IUserContextState, IUserContext, IUserContextActions } from '../../types';
+import {
+  ICallData,
+  ISeries,
+  ActionCodes,
+  LadleActions,
+  RoutedActions,
+  IUserContextState,
+  IUserContext,
+  IUserContextActions,
+} from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
@@ -19,9 +28,9 @@ export const useClosePosition = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext;;
+  ) as IUserContext;
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
   const {
@@ -42,7 +51,15 @@ export const useClosePosition = () => {
     /* buy fyToken value ( after maturity  fytoken === base value ) */
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
-      : buyBase(series.baseReserves, series.fyTokenReserves, _input, series.getTimeTillMaturity(), series.decimals);
+      : buyBase(
+          series.baseReserves,
+          series.fyTokenReserves,
+          _input,
+          series.getTimeTillMaturity(),
+          series.ts,
+          series.g2,
+          series.decimals
+        );
 
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
@@ -56,7 +73,7 @@ export const useClosePosition = () => {
           target: series,
           spender: 'LADLE',
           amount: _fyTokenValueOfInput,
-          ignoreIf: alreadyApproved===true,
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode

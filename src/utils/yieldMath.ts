@@ -412,7 +412,7 @@ export function sellFYToken(
  * @param { BigNumber | string } base
  * @param { BigNumber | string } timeTillMaturity
  * @param { BigNumber | string } ts
- * @param { BigNumber | string } g1
+ * @param { BigNumber | string } g2
  * @param { number } decimals
  *
  * @returns { BigNumber }
@@ -557,7 +557,7 @@ export function maxBaseIn(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } timeTillMaturity
  * @param { BigNumber | string } ts
- * @param { BigNumber | string } g1
+ * @param { BigNumber | string } g2
  * @param { number } decimals
  * 
  * @returns { BigNumber } max amount of base that can be bought from the pool
@@ -694,9 +694,9 @@ export function fyTokenForMint(
   fyTokenVirtualReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number,
   ts: BigNumber | string,
   g1: BigNumber | string,
+  decimals: number,
   slippage: number = 0.01 // 1% default
 ): BigNumber {
   /* convert to 18 decimals */
