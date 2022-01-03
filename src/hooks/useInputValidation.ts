@@ -31,7 +31,11 @@ export const useInputValidation = (
       // General input validation here:
       if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT) {
         setInputError('Amount should be expressed as a positive value');
-      } else if (parseFloat(input) === 0 && actionCode !== ActionCodes.ADD_COLLATERAL) {
+      } else if (
+        parseFloat(input) === 0 &&
+        actionCode !== ActionCodes.ADD_COLLATERAL &&
+        actionCode !== ActionCodes.ROLL_DEBT
+      ) {
         setInputError('Transaction amount should be greater than 0');
       } else if (aboveMax) {
         setInputError('Amount exceeds available balance');
