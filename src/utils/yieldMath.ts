@@ -137,7 +137,7 @@ const _computeA = (
   g: BigNumber | string
 ): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
-  
+
   const _g = new Decimal(g.toString()).div(2 ** 64);
   const _ts = new Decimal(ts.toString()).div(2 ** 64);
 
@@ -568,11 +568,11 @@ export function maxBaseOut(
   fyTokenReserves: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
-  g1: BigNumber | string,
+  g2: BigNumber | string,
   decimals: number
 ): BigNumber {
   /* calculate the max possible fyToken (fyToken amount) */
-  const fyTokenAmountIn = maxFyTokenIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals);
+  const fyTokenAmountIn = maxFyTokenIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g2, decimals);
 
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -584,7 +584,7 @@ export function maxBaseOut(
   const fyTokenAmountIn_ = new Decimal(fyTokenAmountIn18.toString());
 
   // baseOutForFYTokenIn(baseReserves, fyTokenReserves, _maxFYTokenIn, timeTillMaturity, ts, g);
-  const [a, invA] = _computeA(timeTillMaturity, ts, g1);
+  const [a, invA] = _computeA(timeTillMaturity, ts, g2);
   const za = baseReserves_.pow(a);
   const ya = fyTokenReserves_.pow(a);
 
@@ -1003,7 +1003,7 @@ export const strategyTokenValue = (
   poolTotalSupply: BigNumber,
   poolTimeToMaturity: string | BigNumber,
   ts: BigNumber | string,
-  g1: BigNumber | string,
+  g2: BigNumber | string,
   decimals: number
 ): [BigNumber, BigNumber] => {
   // 0. Calc amount of lpTokens from strat token burn
@@ -1033,7 +1033,7 @@ export const strategyTokenValue = (
     _fyTokenReceived,
     poolTimeToMaturity.toString(),
     ts,
-    g1,
+    g2,
     decimals
   );
 
