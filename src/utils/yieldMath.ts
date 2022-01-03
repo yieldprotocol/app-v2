@@ -24,13 +24,12 @@ const MAX = MAX_DEC;
 
 /* Protocol Specific Constants */
 const k = new Decimal(1 / secondsInTenYears.toNumber()); // inv of seconds in 10 years
-const g1 = new Decimal(950 / 1000);
-const g2 = new Decimal(1000 / 950);
+const g1_default = new Decimal(950 / 1000).mul(2 ** 64);
+const g2_default = new Decimal(1000 / 950).mul(2 ** 64);
 const precisionFee = new Decimal(1000000000000);
 
-
-console.log( g1.mul( 2**64 ).toString() )
-console.log( g2.mul( 2**64 ).toString() )
+console.log(g1_default.div(2 ** 64).toString());
+console.log(g2_default.div(2 ** 64).toString());
 
 /** *************************
  Support functions
@@ -132,22 +131,35 @@ export const secondsToFrom = (
 /**
  * specific Yieldspace helper functions
  * */
-const _computeA = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
+const _computeA = (
+  timeToMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g: BigNumber | string
+): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
+  const _g = new Decimal(g.toString()).div(2 ** 64);
+  const _ts = new Decimal(ts.toString()).div(2 ** 64);
+
   // t = ts * timeTillMaturity
-  const t = ts.mul(timeTillMaturity_);
+  const t = _ts.mul(timeTillMaturity_);
   // a = (1 - gt)
-  const a = ONE.sub(g.mul(t));
+  const a = ONE.sub(_g.mul(t));
   const invA = ONE.div(a);
   return [a, invA]; /* returns a and inverse of a */
 };
 
-const _computeB = (timeToMaturity: BigNumber | string, g: Decimal = g1, ts: Decimal = k): [Decimal, Decimal] => {
+const _computeB = (
+  timeToMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g: BigNumber | string
+): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
+  const _g = new Decimal(g.toString()).div(2 ** 64);
+  const _ts = new Decimal(ts.toString()).div(2 ** 64);
   // t = ts * timeTillMaturity
-  const t = ts.mul(timeTillMaturity_);
+  const t = _ts.mul(timeTillMaturity_);
   // b = (1 - t/g)
-  const b = ONE.sub(t.div(g));
+  const b = ONE.sub(t.div(_g));
   const invB = ONE.div(b);
   return [b, invB]; /* returns b and inverse of b */
 };
@@ -246,6 +258,8 @@ export function mintWithBase(
   supply: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g1: BigNumber | string,
   decimals: number
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
@@ -254,7 +268,7 @@ export function mintWithBase(
   const y = new Decimal(fyToken.toString());
   // buyFyToken:
   const z1 = new Decimal(
-    buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity, decimals).toString()
+    buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity, ts, g1, decimals).toString()
   );
   const Z2 = Z.add(z1); // Base reserves after the trade
   const YR2 = YR.sub(y); // FYToken reserves after the trade
@@ -282,12 +296,14 @@ export function burnForBase(
   supply: BigNumber,
   lpTokens: BigNumber,
   timeTillMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g2: BigNumber | string,
   decimals: number
 ): BigNumber {
   // Burn FyToken
   const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
   // Sell FyToken for base
-  const z2 = sellFYToken(baseReserves, fyTokenReservesVirtual, y, timeTillMaturity, decimals);
+  const z2 = sellFYToken(baseReserves, fyTokenReservesVirtual, y, timeTillMaturity, ts, g2, decimals);
   const z1D = new Decimal(z1.toString());
   const z2D = new Decimal(z2.toString());
   return toBn(z1D.add(z2D));
@@ -309,10 +325,9 @@ export function sellBase(
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  // gVal: BigNumber | string = g1,
-  // tsVal: BigNumber | string,
-  decimals: number, // optional : default === 18
-  withNoFee: boolean = false // optional: default === false
+  ts: BigNumber | string,
+  g1: BigNumber | string,
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -323,8 +338,7 @@ export function sellBase(
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const base_ = new Decimal(base18.toString());
 
-  const _g = withNoFee ? ONE : g1;
-  const [a, invA] = _computeA(timeTillMaturity, _g);
+  const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -333,8 +347,6 @@ export function sellBase(
   const y = fyTokenReserves_.sub(sum.pow(invA));
 
   const yFee = y.sub(precisionFee);
-
-  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
   return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
@@ -354,8 +366,9 @@ export function sellFYToken(
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number, // optional : default === 18
-  withNoFee: boolean = false // optional: default === false
+  ts: BigNumber | string,
+  g2: BigNumber | string,
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -366,8 +379,7 @@ export function sellFYToken(
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyDai_ = new Decimal(fyToken18.toString());
 
-  const _g = withNoFee ? ONE : g2;
-  const [a, invA] = _computeA(timeTillMaturity, _g);
+  const [a, invA] = _computeA(timeTillMaturity, ts, g2);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -377,7 +389,6 @@ export function sellFYToken(
 
   const yFee = y.sub(precisionFee);
 
-  // return yFee.isNaN() ? ethers.constants.Zero : toBn(yFee);
   return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
 }
 
@@ -397,8 +408,9 @@ export function buyBase(
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number, // optional : default === 18
-  withNoFee: boolean = false // optional: default === false
+  ts: BigNumber | string,
+  g2: BigNumber | string,
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -409,8 +421,7 @@ export function buyBase(
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const base_ = new Decimal(base18.toString());
 
-  const _g = withNoFee ? ONE : g2;
-  const [a, invA] = _computeA(timeTillMaturity, _g);
+  const [a, invA] = _computeA(timeTillMaturity, ts, g2);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -438,8 +449,9 @@ export function buyFYToken(
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
-  decimals: number, // optional : default === 18
-  withNoFee: boolean = false // optional: default === false
+  ts: BigNumber | string,
+  g1: BigNumber | string,
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -450,8 +462,8 @@ export function buyFYToken(
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyDai_ = new Decimal(fyToken18.toString());
 
-  const _g = withNoFee ? ONE : g1;
-  const [a, invA] = _computeA(timeTillMaturity, _g);
+  // const _g = withNoFee ? ONE : g1;
+  const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
   const Za = baseReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
@@ -477,10 +489,12 @@ export function maxBaseIn(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g1: BigNumber | string,
   decimals: number
 ): BigNumber {
   /* calculate the max possible fyToken (fyToken amount) */
-  const fyTokenAmountOut = maxFyTokenOut(baseReserves, fyTokenReserves, timeTillMaturity, decimals);
+  const fyTokenAmountOut = maxFyTokenOut(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals);
 
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -495,7 +509,7 @@ export function maxBaseIn(
   if (fyTokenAmountOut_.eq(ZERO)) return ZERO_BN;
 
   // baseInForFYTokenOut(baseReserves, fyTokenReserves, _maxFYTokenOut, timeTillMaturity, ts, g)
-  const [a, invA] = _computeA(timeTillMaturity);
+  const [a, invA] = _computeA(timeTillMaturity, ts, g1);
   const za = baseReserves_.pow(a);
   const ya = fyTokenReserves_.pow(a);
   // yx =
@@ -530,10 +544,12 @@ export function maxBaseOut(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g1: BigNumber | string,
   decimals: number
 ): BigNumber {
   /* calculate the max possible fyToken (fyToken amount) */
-  const fyTokenAmountIn = maxFyTokenIn(baseReserves, fyTokenReserves, timeTillMaturity, decimals);
+  const fyTokenAmountIn = maxFyTokenIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals);
 
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
@@ -545,7 +561,7 @@ export function maxBaseOut(
   const fyTokenAmountIn_ = new Decimal(fyTokenAmountIn18.toString());
 
   // baseOutForFYTokenIn(baseReserves, fyTokenReserves, _maxFYTokenIn, timeTillMaturity, ts, g);
-  const [a, invA] = _computeA(timeTillMaturity);
+  const [a, invA] = _computeA(timeTillMaturity, ts, g1);
   const za = baseReserves_.pow(a);
   const ya = fyTokenReserves_.pow(a);
 
@@ -578,6 +594,8 @@ export function maxFyTokenIn(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g2: BigNumber | string,
   decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
@@ -586,7 +604,7 @@ export function maxFyTokenIn(
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
 
-  const [b, invB] = _computeB(timeTillMaturity);
+  const [b, invB] = _computeB(timeTillMaturity, ts, g2);
 
   const xa = baseReserves_.pow(b);
   const ya = fyTokenReserves_.pow(b);
@@ -615,6 +633,8 @@ export function maxFyTokenOut(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   timeTillMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g1: BigNumber | string,
   decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
@@ -623,7 +643,7 @@ export function maxFyTokenOut(
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
 
-  const [a, invA] = _computeA(timeTillMaturity);
+  const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
   const xa = baseReserves_.pow(a);
   const ya = fyTokenReserves_.pow(a);
@@ -646,6 +666,8 @@ export function fyTokenForMint(
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   decimals: number,
+  ts: BigNumber | string,
+  g1: BigNumber | string,
   slippage: number = 0.01 // 1% default
 ): BigNumber {
   /* convert to 18 decimals */
@@ -678,6 +700,8 @@ export function fyTokenForMint(
         fyTokenVirtualReserves18,
         BigNumber.from(yOut.floor().toFixed()),
         timeTillMaturity_.toString(),
+        ts,
+        g1,
         18
       ).toString()
     );
@@ -711,48 +735,6 @@ export function fyTokenForMint(
     BigNumber.from(yOut.floor().toFixed()),
     decimals
   );
-}
-
-/**
- * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReserves
- * @param { BigNumber | string } fyToken
- * @param { BigNumber | string } timeTillMaturity
- * @returns { BigNumber }
- */
-export function getFee(
-  baseReserves: BigNumber | string,
-  fyTokenReserves: BigNumber | string,
-  fyToken: BigNumber | string,
-  timeTillMaturity: BigNumber | string,
-  decimals: number
-): BigNumber {
-  let fee_: Decimal = ZERO;
-  const fyToken_: BigNumber = BigNumber.isBigNumber(fyToken) ? fyToken : BigNumber.from(fyToken);
-
-  if (fyToken_.gte(ethers.constants.Zero)) {
-    const tokenWithFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, decimals);
-    const tokenWithoutFee: BigNumber = buyFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, 18, true);
-    fee_ = new Decimal(tokenWithFee.toString()).sub(new Decimal(tokenWithoutFee.toString()));
-  } else {
-    const tokenWithFee: BigNumber = sellFYToken(
-      baseReserves,
-      fyTokenReserves,
-      fyToken_.mul(BigNumber.from('-1')),
-      timeTillMaturity,
-      decimals
-    );
-    const tokenWithoutFee: BigNumber = sellFYToken(
-      baseReserves,
-      fyTokenReserves,
-      fyToken_.mul(BigNumber.from('-1')),
-      timeTillMaturity,
-      18,
-      true
-    );
-    fee_ = new Decimal(tokenWithoutFee.toString()).sub(new Decimal(tokenWithFee.toString()));
-  }
-  return toBn(fee_);
 }
 
 /**
@@ -988,6 +970,8 @@ export const strategyTokenValue = (
   poolFyTokenRealReserves: BigNumber,
   poolTotalSupply: BigNumber,
   poolTimeToMaturity: string | BigNumber,
+  ts: BigNumber | string,
+  g1: BigNumber | string,
   decimals: number
 ): [BigNumber, BigNumber] => {
   // 0. Calc amount of lpTokens from strat token burn
@@ -1016,6 +1000,8 @@ export const strategyTokenValue = (
     newPool.fyTokenVirtualReserves,
     _fyTokenReceived,
     poolTimeToMaturity.toString(),
+    ts,
+    g1,
     decimals
   );
 
