@@ -34,10 +34,11 @@ const ShadeBox = styled(Box)`
 
 const CardSkeleton = () => (
   <StyledBox pad="xsmall" round="xsmall" elevation="xsmall" align="center">
-    <Box pad="small" width="small" direction="row" align="center" gap="small">
+    <Box pad="small" width="small" direction="row" gap="small" fill>
       <Skeleton circle width={45} height={45} />
       <Box>
-        <Skeleton count={2} width={100} />
+        <Skeleton width={250} />
+        <Skeleton width={150} />
       </Box>
     </Box>
   </StyledBox>
