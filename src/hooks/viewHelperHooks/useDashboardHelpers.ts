@@ -67,6 +67,8 @@ export const useDashboardHelpers = () => {
           _series.fyTokenReserves,
           _series.fyTokenBalance || ethers.constants.Zero,
           _series.getTimeTillMaturity(),
+          _series.ts!,
+          _series.g2!,
           _series.decimals!
         );
 
@@ -97,6 +99,8 @@ export const useDashboardHelpers = () => {
           currentStrategySeries?.fyTokenRealReserves!,
           currentStrategySeries?.totalSupply!,
           currentStrategySeries?.getTimeTillMaturity()!,
+          currentStrategySeries?.ts!,
+          currentStrategySeries?.g2!,
           currentStrategySeries?.decimals!
         );
         const currentValue_ = currentValue.eq(ethers.constants.Zero)

@@ -43,10 +43,24 @@ export const useLendHelpers = (
     if (series) {
       const timeTillMaturity = series.getTimeTillMaturity();
 
-      const _maxBaseOut = maxBaseOut(series.baseReserves, series.fyTokenReserves, timeTillMaturity, series.decimals);
+      const _maxBaseOut = maxBaseOut(
+        series.baseReserves,
+        series.fyTokenReserves,
+        timeTillMaturity,
+        series.ts,
+        series.g2,
+        series.decimals
+      );
       _maxBaseOut && setProtocolBaseOut(_maxBaseOut);
 
-      const _maxBaseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, timeTillMaturity, series.decimals);
+      const _maxBaseIn = maxBaseIn(
+        series.baseReserves,
+        series.fyTokenReserves,
+        timeTillMaturity,
+        series.ts,
+        series.g1,
+        series.decimals
+      );
 
       diagnostics && console.log('BASE IN : ', _maxBaseIn.toString());
       _maxBaseIn && setProtocolBaseIn(_maxBaseIn);
@@ -87,6 +101,8 @@ export const useLendHelpers = (
         series.fyTokenReserves,
         series.fyTokenBalance || ethers.constants.Zero,
         series.getTimeTillMaturity(),
+        series.ts,
+        series.g2,
         series.decimals
       );
 
@@ -123,9 +139,17 @@ export const useLendHelpers = (
     if (series && !series.seriesIsMature && input) {
       const baseAmount = ethers.utils.parseUnits(input, series.decimals);
       const { baseReserves, fyTokenReserves } = series;
-      const val =  sellBase(baseReserves, fyTokenReserves, baseAmount, series.getTimeTillMaturity(), series.decimals)
+      const val = sellBase(
+        baseReserves,
+        fyTokenReserves,
+        baseAmount,
+        series.getTimeTillMaturity(),
+        series.ts,
+        series.g1,
+        series.decimals
+      );
       setValueAtMaturity(val);
-      setValueAtMaturity_( ethers.utils.formatUnits(val, series.decimals).toString()  )
+      setValueAtMaturity_(ethers.utils.formatUnits(val, series.decimals).toString());
     }
   }, [input, apy, series]);
 

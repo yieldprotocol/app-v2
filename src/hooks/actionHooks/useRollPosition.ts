@@ -46,6 +46,8 @@ export const useRollPosition = () => {
           fromSeries.fyTokenReserves,
           _input,
           fromSeries.getTimeTillMaturity(),
+          fromSeries.ts,
+          fromSeries.g2,
           fromSeries.decimals
         );
 
