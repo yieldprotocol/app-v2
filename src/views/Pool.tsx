@@ -176,15 +176,7 @@ function Pool() {
                     setOpen={toggleModal}
                   />
                 ) : (
-                  <SectionWrap
-                    title={
-                      strategyMap.size > 0
-                        ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
-                        : ''
-                    }
-                  >
-                    <StrategySelector inputValue={poolInput} />
-                  </SectionWrap>
+                  <StrategySelector inputValue={poolInput} />
                 )}
               </Box>
             </Box>
