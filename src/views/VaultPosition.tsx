@@ -373,7 +373,7 @@ const VaultPosition = () => {
                       plain
                       options={[
                         { text: 'Repay Debt', index: 0 },
-                        { text: 'Roll Debt', index: 1, disabled: rollPossible },
+                        { text: 'Roll Vault', index: 1, disabled: !rollPossible },
                         { text: 'Add More Collateral', index: 2 },
                         { text: 'Remove Collateral', index: 3 },
                         { text: 'View Transaction History', index: 4 },
