@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Tip } from 'grommet';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Tip, Layer } from 'grommet';
 import { FiInfo, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
@@ -176,7 +176,9 @@ function Pool() {
                     setOpen={toggleModal}
                   />
                 ) : (
-                  <StrategySelector inputValue={poolInput} />
+                  <>
+                    <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
+                  </>
                 )}
               </Box>
             </Box>
