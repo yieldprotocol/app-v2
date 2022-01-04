@@ -696,7 +696,8 @@ const VaultPosition = () => {
                   key="next"
                   disabled={
                     (actionActive.index === 0 && repayDisabled) ||
-                    (actionActive.index === 1 && rollDisabled) ||
+                    (actionActive.index === 1 && rollDisabled ) ||
+                    (actionActive.index === 1 && !rollPossible ) ||
                     (actionActive.index === 3 && removeCollatInput && removeCollateralDisabled) ||
                     (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
                     ((actionActive.index === 2 || actionActive.index === 3) && !addCollatInput && !removeCollatInput)
