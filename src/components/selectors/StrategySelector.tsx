@@ -24,8 +24,7 @@ background 0.3s ease-in-out;
 }
 :active {
   transform: scale(1);
-}
-`;
+}`;
 
 const ShadeBox = styled(Box)`
   /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
@@ -107,7 +106,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     <>
       {cardLayout && (
         <ShadeBox
-          overflow={mobile ? 'auto' : 'auto'}
+          overflow={mobile ? 'auto' : 'hidden'}
           height={mobile ? undefined : '250px'}
           pad={{ vertical: 'small', horizontal: 'xsmall' }}
           gap="small"
@@ -216,13 +215,13 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
             </Box>
           )}
           {options.length > 0 && (
-            <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
-              <Box>
-                <AltText size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
+            <Box>
+              <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
+                <AltText size="xsmall" color="text-weak">
                   Choose a different strategy
                 </AltText>
-              </Box>
-            </StyledBox>
+              </StyledBox>
+            </Box>
           )}
         </ShadeBox>
       )}
