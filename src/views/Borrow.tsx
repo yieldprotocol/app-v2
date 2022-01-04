@@ -57,6 +57,7 @@ import YieldNavigation from '../components/YieldNavigation';
 import VaultItem from '../components/positionItems/VaultItem';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { useAssetPair } from '../hooks/useAssetPair';
+import StepCardWrap from '../components/wraps/StepCardWrap';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -95,6 +96,19 @@ const Borrow = () => {
 
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
+
+  const STEP_DATA = [
+    {
+      step: 0,
+      header: 'Choose amount to borrow',
+      body: 'Input how much you want to borrow against your collateral',
+    },
+    {
+      step: 1,
+      header: 'Choose collateral',
+      body: 'Use assets such as ETH or ENS to collateralize your position. You will need to maintain a minimum collateralization ratio to prevent liquidations.',
+    },
+  ];
 
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
@@ -244,6 +258,7 @@ const Borrow = () => {
         {!mobile && (
           <PanelWrap>
             <YieldNavigation sideNavigation={true} />
+            <VaultSelector />
             <YieldInfo />
           </PanelWrap>
         )}
@@ -580,7 +595,9 @@ const Borrow = () => {
 
         {!mobile && (
           <PanelWrap right basis="40%">
-            <VaultSelector />
+            <Box margin={{ top: 'xlarge', left: 'large' }} alignSelf="start">
+              <StepCardWrap currStep={stepPosition} stepData={STEP_DATA} />
+            </Box>
           </PanelWrap>
         )}
       </MainViewWrap>
