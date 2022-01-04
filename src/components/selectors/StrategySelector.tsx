@@ -15,16 +15,17 @@ import AltText from '../texts/AltText';
 import { ZERO_BN } from '../../utils/constants';
 
 const StyledBox = styled(Box)`
--webkit-transition: transform 0.3s ease-in-out;
--moz-transition: transform 0.3s ease-in-out;
-transition: transform 0.3s ease-in-out;
-background 0.3s ease-in-out;
-:hover {
-  transform: scale(1.05);
-}
-:active {
-  transform: scale(1);
-}`;
+  -webkit-transition: transform 0.3s ease-in-out;
+  -moz-transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
+  background: 0.3s ease-in-out;
+  :hover {
+    transform: scale(1.05);
+  }
+  :active {
+    transform: scale(1);
+  }
+`;
 
 const ShadeBox = styled(Box)`
   /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
