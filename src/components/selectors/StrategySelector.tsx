@@ -75,11 +75,10 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
       diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy);
       userActions.setSelectedSeries(_strategy.currentSeries!);
-      setOpen(false);
     } else {
       toast.info('Strategy coming soon');
     }
-    mobile && setOpen(false);
+    setOpen(false);
   };
 
   /* Keeping options/selection fresh and valid: */
