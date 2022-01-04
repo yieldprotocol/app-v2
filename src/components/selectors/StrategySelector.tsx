@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
-import { cleanValue, formatStrategyName } from '../../utils/appUtils';
+import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AltText from '../texts/AltText';
@@ -172,9 +172,13 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
 
                 {open && (
                   <Layer onClickOutside={() => setOpen(false)}>
-                    <Box gap="small" pad="medium" fill background="background">
+                    <Box gap="small" pad="medium" fill background="background" round="small">
                       <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
+                      </Box>
+
+                      <Box pad="xsmall">
+                        <Text size="xsmall">Other available {selectedBase?.symbol} strategies:</Text>
                       </Box>
                       {options.map((strategy) => (
                         <StyledBox
@@ -215,11 +219,13 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
             </Box>
           )}
           {options.length > 0 && (
-            <Box align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
-              <AltText size={mobile ? 'xsmall' : 'xsmall'} color="text-xweak">
-                Choose a different strategy
-              </AltText>
-            </Box>
+            <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
+              <Box>
+                <AltText size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
+                  Choose a different strategy
+                </AltText>
+              </Box>
+            </StyledBox>
           )}
         </ShadeBox>
       )}
