@@ -67,7 +67,6 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
       .filter((_st) => _st.baseId === selectedBase?.idToUse && !_st.currentSeries?.seriesIsMature)
       .filter((_st) => _st.id !== selectedStrategy?.id)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
-    // .filter((_st: IStrategy) => _st.currentSeries);
     setOptions(filteredOpts);
   }, [selectedBase, strategyMap, selectedStrategy]);
 
