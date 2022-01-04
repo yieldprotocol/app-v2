@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Avatar, Box, Grid, Layer, ResponsiveContext, Text } from 'grommet';
+import { Avatar, Box, Layer, ResponsiveContext, Text } from 'grommet';
 import { toast } from 'react-toastify';
 import { FiSlash, FiX } from 'react-icons/fi';
 
@@ -25,11 +25,6 @@ const StyledBox = styled(Box)`
   :active {
     transform: scale(1);
   }
-`;
-
-const ShadeBox = styled(Box)`
-  /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
-  box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
 `;
 
 const CardSkeleton = () => (
@@ -106,7 +101,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   return (
     <>
       {cardLayout && (
-        <ShadeBox
+        <Box
           overflow={mobile ? 'auto' : 'hidden'}
           height={mobile ? undefined : '250px'}
           pad={{ vertical: 'small', horizontal: 'xsmall' }}
@@ -224,7 +219,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
               </StyledBox>
             </Box>
           )}
-        </ShadeBox>
+        </Box>
       )}
     </>
   );
