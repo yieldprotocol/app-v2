@@ -118,14 +118,10 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
           {strategiesLoading ? (
             <CardSkeleton />
           ) : (
-            <StyledBox
+            <Box
               key={selectedStrategy?.address}
               pad="xsmall"
               round="xsmall"
-              // onClick={() => handleSelect(strategy)}
-              // background={
-              //   strategy.address === selectedStrategy?.address ? strategy.currentSeries?.color : 'hoverBackground'
-              // }
               background={selectedStrategy?.currentSeries?.color}
               elevation="xsmall"
               margin="xsmall"
@@ -173,6 +169,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                     </>
                   )}
                 </Box>
+
                 {open && (
                   <Layer onClickOutside={() => setOpen(false)}>
                     <Box gap="small" pad="medium" fill background="background">
@@ -215,9 +212,9 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                   </Layer>
                 )}
               </Box>
-            </StyledBox>
+            </Box>
           )}
-          {options.length > 0 && !mobile && (
+          {options.length > 0 && (
             <Box align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
               <AltText size={mobile ? 'xsmall' : 'xsmall'} color="text-xweak">
                 Choose a different strategy

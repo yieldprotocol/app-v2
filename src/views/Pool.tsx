@@ -167,19 +167,7 @@ function Pool() {
                     </Box>
                   </Box>
                 </SectionWrap>
-
-                {mobile ? (
-                  <SeriesOrStrategySelectorModal
-                    inputValue={poolInput!}
-                    actionType={ActionType.POOL}
-                    open={modalOpen}
-                    setOpen={toggleModal}
-                  />
-                ) : (
-                  <>
-                    <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
-                  </>
-                )}
+                <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
               </Box>
             </Box>
           )}
