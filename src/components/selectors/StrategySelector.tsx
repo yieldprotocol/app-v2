@@ -93,10 +93,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     const opts: IStrategy[] = Array.from(strategyMap.values()).filter(
       (_st: IStrategy) => _st.baseId === selectedBase?.idToUse && !_st.currentSeries?.seriesIsMature
     );
-
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
-
-    console.log(strategyWithBalance);
     /* select strategy with existing balance */
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
