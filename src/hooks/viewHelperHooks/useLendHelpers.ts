@@ -4,7 +4,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, ISeries, IUserContextState } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import { maxBaseIn, maxBaseOut, sellBase, sellFYToken } from '../../utils/yieldMath';
+import { maxBaseIn, sellBase, sellFYToken } from '../../utils/yieldMath';
 import { useApr } from '../useApr';
 
 export const useLendHelpers = (
@@ -33,13 +33,10 @@ export const useLendHelpers = (
   const [valueAtMaturity_, setValueAtMaturity_] = useState<string>();
 
   const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
-
   const [protocolBaseIn, setProtocolBaseIn] = useState<BigNumber>(ethers.constants.Zero);
-
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
-  // const lendOutput = cleanValue((Number(lendInput) * (1 + Number(apr) / 100)).toString(), selectedBase?.digitFormat!);
 
   /* check and set the protocol Base max limits */
   useEffect(() => {
@@ -102,7 +99,6 @@ export const useLendHelpers = (
 
       /* set max Closing */
       const baseReservesWithMargin = series.baseReserves.mul(9999).div(10000); // TODO figure out why we can't use the base reserves exactly (margin added to facilitate transaction)
-      
       if (value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.baseReserves)) {
         setMaxClose(baseReservesWithMargin);
         setMaxClose_(ethers.utils.formatUnits(baseReservesWithMargin, series.decimals).toString());
@@ -119,7 +115,6 @@ export const useLendHelpers = (
       setMaxClose(series.fyTokenBalance!);
     }
   }, [series]);
-
 
   /* Sets values at maturity on input change */
   useEffect(() => {
@@ -139,7 +134,6 @@ export const useLendHelpers = (
       setValueAtMaturity_(ethers.utils.formatUnits(val, series.decimals).toString());
     }
   }, [input, series]);
-
 
   /* Maximum Roll possible from series to rollToSeries */
   useEffect(() => {
