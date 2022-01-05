@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Tip } from 'grommet';
+import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Tip, Layer } from 'grommet';
 import { FiInfo, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
@@ -13,7 +13,6 @@ import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
 import {
   ActionCodes,
-  ActionType,
   AddLiquidityType,
   IUserContext,
   IUserContextState,
@@ -39,7 +38,6 @@ import { usePoolHelpers } from '../hooks/viewHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
 import DashMobileButton from '../components/buttons/DashMobileButton';
-import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 
 import YieldNavigation from '../components/YieldNavigation';
 
@@ -129,20 +127,12 @@ function Pool() {
               </YieldCardHeader>
 
               <Box gap="large">
-                {/* <SectionWrap title={assetMap.size > 0 ? 'Select an asset and amount' : 'Assets Loading...'}> */}
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap
                         action={() => console.log('maxAction')}
                         isError={poolError}
-                        // message={ poolInput &&
-                        //   <InputInfoWrap>
-                        //   <Text size="small" color="text-weak">
-                        //     The actual amount used to pool may be less.
-                        //   </Text>
-                        // </InputInfoWrap>
-                        // }
                       >
                         <TextInput
                           plain
@@ -167,25 +157,7 @@ function Pool() {
                     </Box>
                   </Box>
                 </SectionWrap>
-
-                {mobile ? (
-                  <SeriesOrStrategySelectorModal
-                    inputValue={poolInput!}
-                    actionType={ActionType.POOL}
-                    open={modalOpen}
-                    setOpen={toggleModal}
-                  />
-                ) : (
-                  <SectionWrap
-                    title={
-                      strategyMap.size > 0
-                        ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
-                        : ''
-                    }
-                  >
-                    <StrategySelector inputValue={poolInput} />
-                  </SectionWrap>
-                )}
+                <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
               </Box>
             </Box>
           )}
@@ -215,11 +187,6 @@ function Pool() {
                         value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                       />
                       <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
-                      {/* <InfoBite
-                        label="Amount of liquidity tokens recieved"
-                        icon={<BiCoinStack />}
-                        value={`${'[todo]'} Liquidity tokens`}
-                      /> */}
                       <InfoBite
                         label="Strategy Ownership"
                         icon={<FiPercent />}
