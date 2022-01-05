@@ -277,6 +277,10 @@ const VaultPosition = () => {
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_DEBT);
   }, [addCollateralProcess, removeCollateralProcess, repayProcess, rollProcess]);
 
+  useEffect(() => {
+    if (actionActive.index === 5) history.push('/borrow');
+  }, [actionActive.index, history]);
+
   return (
     <>
       {_selectedVault && (
@@ -377,7 +381,8 @@ const VaultPosition = () => {
                         { text: 'Add More Collateral', index: 2 },
                         { text: 'Remove Collateral', index: 3 },
                         { text: 'View Transaction History', index: 4 },
-                      ]}
+                        !vaultSeries?.seriesIsMature && { text: 'Borrow More', index: 5 },
+                      ].filter(Boolean)}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
@@ -696,8 +701,8 @@ const VaultPosition = () => {
                   key="next"
                   disabled={
                     (actionActive.index === 0 && repayDisabled) ||
-                    (actionActive.index === 1 && rollDisabled ) ||
-                    (actionActive.index === 1 && !rollPossible ) ||
+                    (actionActive.index === 1 && rollDisabled) ||
+                    (actionActive.index === 1 && !rollPossible) ||
                     (actionActive.index === 3 && removeCollatInput && removeCollateralDisabled) ||
                     (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
                     ((actionActive.index === 2 || actionActive.index === 3) && !addCollatInput && !removeCollatInput)
