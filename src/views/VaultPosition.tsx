@@ -373,7 +373,7 @@ const VaultPosition = () => {
                       plain
                       options={[
                         { text: 'Repay Debt', index: 0 },
-                        { text: 'Roll Debt', index: 1, disabled: rollPossible },
+                        { text: 'Roll Vault', index: 1, disabled: !rollPossible },
                         { text: 'Add More Collateral', index: 2 },
                         { text: 'Remove Collateral', index: 3 },
                         { text: 'View Transaction History', index: 4 },
@@ -696,7 +696,8 @@ const VaultPosition = () => {
                   key="next"
                   disabled={
                     (actionActive.index === 0 && repayDisabled) ||
-                    (actionActive.index === 1 && rollDisabled) ||
+                    (actionActive.index === 1 && rollDisabled ) ||
+                    (actionActive.index === 1 && !rollPossible ) ||
                     (actionActive.index === 3 && removeCollatInput && removeCollateralDisabled) ||
                     (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
                     ((actionActive.index === 2 || actionActive.index === 3) && !addCollatInput && !removeCollatInput)
