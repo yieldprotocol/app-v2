@@ -231,7 +231,7 @@ export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
 };
 
 export const formatStrategyName = (name: string) => {
-  const name_ = name.slice(6, 22);
+  const name_ = name ? name.slice(6, 22) : '' ;
   return `${name_}`;
 };
 
