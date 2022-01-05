@@ -50,23 +50,20 @@ const LendPosition = () => {
   const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
   const [closeInput, setCloseInput] = useState<string | undefined>();
   const [rollInput, setRollInput] = useState<string | undefined>();
-  const [rollToSeries, setRollToSeries] = useState<ISeries | null>(null);
-  const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
+  const [rollToSeries, setRollToSeries] = useState<ISeries | undefined>();
+
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput);
-  const { maxLend_, maxLend } = useLendHelpers(rollToSeries!, rollInput);
-  // const { maxLend_, maxLend } = useLendHelpers(selectedSeries!, rollInput);
+  const { fyTokenMarketValue, maxClose_, maxClose, maxRoll_ } = useLendHelpers(
+    selectedSeries!,
+    closeInput,
+    rollToSeries!
+  );
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
-
-  /* set max roll to the lower of either:  maxLend of the rollToseries or,  maxclose of the current series */
-  useEffect(() => {
-    maxLend.gt(maxClose) ? setMaxRoll_(maxClose_) : setMaxRoll_(maxLend_);
-  }, [maxClose, maxClose_, maxLend, maxLend_]);
 
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
@@ -134,20 +131,6 @@ const LendPosition = () => {
     const _series = seriesMap.get(idFromUrl) || null;
     idFromUrl && setSelectedSeries(_series);
   }, [idFromUrl, seriesMap, setSelectedSeries]);
-
-  /* INTERNAL COMPONENTS */
-  const CompletedTx = (props: any) => (
-    <>
-      <NextButton
-        label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
-        onClick={() => {
-          props.resetTx();
-          handleStepper(true);
-          resetInputs(props.actionCode);
-        }}
-      />
-    </>
-  );
 
   return (
     <>
@@ -292,6 +275,13 @@ const LendPosition = () => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }} gap="small">
+                        
+                        <SeriesSelector
+                          selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                          actionType={ActionType.LEND}
+                          cardLayout={false}
+                        />
+
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={closeError}
@@ -310,17 +300,11 @@ const LendPosition = () => {
                           />
                           <MaxButton
                             action={() => setRollInput(maxRoll_)}
-                            disabled={maxRoll_ === '0.0' || !selectedSeries}
+                            disabled={maxRoll_ === '0.0' || !selectedSeries || !rollToSeries}
                             clearAction={() => setRollInput('')}
                             showingMax={!!rollInput && rollInput === maxRoll_}
                           />
                         </InputWrap>
-
-                        <SeriesSelector
-                          selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
-                          actionType={ActionType.LEND}
-                          cardLayout={false}
-                        />
                       </Box>
                     )}
 
@@ -396,20 +380,26 @@ const LendPosition = () => {
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 0 &&
                 closeProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <CompletedTx
-                    tx={closeProcess}
-                    resetTx={() => resetCloseProcess()}
-                    actionCode={ActionCodes.CLOSE_POSITION}
+                  <NextButton
+                    label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
+                    onClick={() => {
+                      resetCloseProcess();
+                      handleStepper(true);
+                      resetInputs(ActionCodes.CLOSE_POSITION);
+                    }}
                   />
                 )}
 
               {stepPosition[actionActive.index] === 1 &&
                 actionActive.index === 1 &&
                 rollProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <CompletedTx
-                    tx={rollProcess}
-                    resetTx={() => resetRollProcess()}
-                    actionCode={ActionCodes.ROLL_POSITION}
+                  <NextButton
+                    label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
+                    onClick={() => {
+                      resetRollProcess();
+                      handleStepper(true);
+                      resetInputs(ActionCodes.ROLL_POSITION);
+                    }}
                   />
                 )}
             </ActionButtonGroup>
