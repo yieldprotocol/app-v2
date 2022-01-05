@@ -104,7 +104,7 @@ export const useBorrowHelpers = (
         futureSeries.fyTokenReserves,
         input_,
         futureSeries.getTimeTillMaturity(),
-        futureSeries.ts, 
+        futureSeries.ts,
         futureSeries.g1,
         futureSeries.decimals
       );
@@ -122,7 +122,7 @@ export const useBorrowHelpers = (
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
         futureSeries.getTimeTillMaturity(),
-        futureSeries.ts, 
+        futureSeries.ts,
         futureSeries.g2,
         futureSeries.decimals
       );
@@ -134,12 +134,12 @@ export const useBorrowHelpers = (
         futureSeries.fyTokenReserves,
         vault.art,
         futureSeries.getTimeTillMaturity(),
-        futureSeries.ts, 
+        futureSeries.ts,
         futureSeries.g2,
         futureSeries.decimals
       );
 
-      console.log(assetPairInfo!.pairPrice);
+      diagnostics && console.log(assetPairInfo!.pairPrice);
       const minCollat = calculateMinCollateral(
         assetPairInfo!.pairPrice,
         newDebt,
@@ -149,7 +149,9 @@ export const useBorrowHelpers = (
       );
       diagnostics && console.log('min Collat of roll to series', minCollat.toString());
 
-      const rollable = vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat);
+      const rollable = vault.art.eq(ZERO_BN) // always rollable if zero debt
+        ? true
+        : vault.art.lt(_maxFyTokenIn) && vault.ink.gt(minCollat) && vault.art.gt(minDebt!);
 
       diagnostics && console.log('Roll possible: ', rollable);
       setRollPossible(rollable);
@@ -159,7 +161,7 @@ export const useBorrowHelpers = (
         setMaxRoll_(ethers.utils.formatUnits(vault.art, futureSeries.decimals).toString());
       }
     }
-  }, [futureSeries, vault, diagnostics]);
+  }, [futureSeries, vault, diagnostics, assetPairInfo, minDebt]);
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
@@ -178,7 +180,7 @@ export const useBorrowHelpers = (
           vaultSeries?.baseReserves,
           vaultSeries?.fyTokenReserves,
           vaultSeries?.getTimeTillMaturity(),
-          vaultSeries?.ts, 
+          vaultSeries?.ts,
           vaultSeries?.g1,
           vaultSeries?.decimals
         );
@@ -206,11 +208,9 @@ export const useBorrowHelpers = (
 
         /* max is all debt if series is mature */
         if (vaultSeries.seriesIsMature) {
-          setMaxRepay(_maxDebt)
+          setMaxRepay(_maxDebt);
         }
-
       })();
-
     }
   }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);
 
