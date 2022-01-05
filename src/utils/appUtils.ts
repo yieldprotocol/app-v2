@@ -231,9 +231,8 @@ export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
 };
 
 export const formatStrategyName = (name: string) => {
-  const name_ = name.toLowerCase();
-  const timeFrame = name_.slice(-2) === 'q2' ? '3 Month' : '6 Month';
-  return `${timeFrame}`;
+  const name_ = name.slice(6, 22);
+  return `${name_}`;
 };
 
 export const getStrategySymbol = (name: string) => name.slice(2).slice(0, -2);
