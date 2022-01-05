@@ -2,13 +2,12 @@ import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Text } from 'grommet';
 
-import { ActionType, ISeries, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue, formatStrategyName, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
-import { Strategy } from '../../contracts';
 
 function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const history = useHistory();
@@ -37,7 +36,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
           <Text weight={900} size="small">
             {formatStrategyName(strategy.name)}
           </Text>
-          <Text size='xsmall'> Rolling: { strategy.currentSeries?.fullDate} </Text>
+          <Text size="xsmall"> Rolling: {strategy.currentSeries?.fullDate} </Text>
           <Box direction="row" gap="medium">
             <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
               <Text weight={450} size="xsmall">
