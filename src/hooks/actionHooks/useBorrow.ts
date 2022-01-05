@@ -16,14 +16,14 @@ import {
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
+import { calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddCollateral } from './useAddCollateral';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 export const useBorrow = () => {
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
@@ -53,20 +53,21 @@ export const useBorrow = () => {
     const cleanCollInput = cleanValue(collInput, ilk.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals) : ethers.constants.Zero;
 
-    /* Calculate expected debt(fytokens) */
-    const _expectedFyToken = buyBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _input,
-      series.getTimeTillMaturity(),
-      series.ts,
-      series.g2,
-      series.decimals
-    );
-    const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
-
     /* if approveMAx, check if signature is required */
     const alreadyApproved = (await ilk.getAllowance(account!, ilk.joinAddress)).gt(_collInput);
+
+    /* Calculate expected debt(fytokens) */
+    // const _expectedFyToken = buyBase(
+    //   series.baseReserves,
+    //   series.fyTokenReserves,
+    //   _input,
+    //   series.getTimeTillMaturity(),
+    //   series.ts,
+    //   series.g2,
+    //   series.decimals
+    // );
+    const _expectedFyToken = await series.poolContract.buyBasePreview(_input);
+    const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
     const wrapping: ICallData[] = await wrapAssetToJoin(_collInput, selectedIlk!, txCode); // note: selected ilk used here, not wrapped version
 

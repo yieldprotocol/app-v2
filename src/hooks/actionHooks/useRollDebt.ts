@@ -28,6 +28,7 @@ export const useRollDebt = () => {
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const base = assetMap.get(vault.baseId);
+    
     const hasDebt = vault.art.gt(ZERO_BN);
 
     const calls: ICallData[] = [

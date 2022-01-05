@@ -6,13 +6,13 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { calculateSlippage, sellBase } from '../../utils/yieldMath';
+import { calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useLend = () => {
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const {
@@ -41,15 +41,16 @@ export const useLend = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const _inputAsFyToken = sellBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _input,
-      series.getTimeTillMaturity(),
-      series.ts,
-      series.g1,
-      series.decimals
-    );
+    // const _inputAsFyToken = sellBase(
+    //   series.baseReserves,
+    //   series.fyTokenReserves,
+    //   _input,
+    //   series.getTimeTillMaturity(),
+    //   series.ts,
+    //   series.g1,
+    //   series.decimals
+    // );
+    const _inputAsFyToken = await series.poolContract.sellBasePreview(_input);
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */

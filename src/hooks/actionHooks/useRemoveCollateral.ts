@@ -33,7 +33,6 @@ export const useRemoveCollateral = () => {
   } = useContext(SettingsContext) as ISettingsContext;
 
   const { transact } = useChain();
-
   const { unwrapAsset } = useWrapUnwrapAsset();
 
   const removeEth = (value: BigNumber): ICallData[] => {

@@ -14,7 +14,7 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
+import { calculateSlippage, maxBaseIn } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
@@ -23,7 +23,7 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 export const useRepayDebt = () => {
   const {
-    settingsState: { slippageTolerance, approveMax, unwrapTokens },
+    settingsState: { slippageTolerance, unwrapTokens },
   } = useContext(SettingsContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
@@ -56,21 +56,21 @@ export const useRepayDebt = () => {
       series.baseReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
-      series.ts, 
-      series.g1,
-      series.decimals
-    );
-
-    const _inputAsFyToken = sellBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _input,
-      secondsToFrom(series.maturity.toString()),
       series.ts,
       series.g1,
       series.decimals
     );
 
+    // const _inputAsFyToken = sellBase(
+    //   series.baseReserves,
+    //   series.fyTokenReserves,
+    //   _input,
+    //   secondsToFrom(series.maturity.toString()),
+    //   series.ts,
+    //   series.g1,
+    //   series.decimals
+    // );
+    const _inputAsFyToken = await series.poolContract.sellBasePreview(_input);
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
       slippageTolerance.toString(),

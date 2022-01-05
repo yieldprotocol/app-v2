@@ -1,14 +1,12 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
   IVault,
   ActionCodes,
   LadleActions,
-  ISettingsContext,
   IUserContext,
   IUserContextActions,
   IUserContextState,
@@ -30,10 +28,6 @@ export const useVaultAdmin = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const {
-    settingsState: { approveMax },
-  } = useContext(SettingsContext) as ISettingsContext;
-
   const { sign, transact } = useChain();
 
   const transfer = async (vault: IVault, to: string) => {
@@ -42,7 +36,7 @@ export const useVaultAdmin = () => {
     const base: IAsset = assetMap.get(vault.baseId)!;
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gt(vault.art) : false;
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gt(vault.art);
 
     const permits: ICallData[] = await sign(
       [

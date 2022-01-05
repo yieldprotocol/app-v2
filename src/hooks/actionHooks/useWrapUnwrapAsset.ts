@@ -8,7 +8,7 @@ import {
   IAsset,
   RoutedActions,
 } from '../../types';
-import { MAX_256, ZERO_BN } from '../../utils/constants';
+import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 export const useWrapUnwrapAsset = () => {

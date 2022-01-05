@@ -26,13 +26,13 @@ import { ChainContext } from '../../contexts/ChainContext';
 
 export const useAddLiquidity = () => {
   const {
-    settingsState: { slippageTolerance, diagnostics, approveMax },
+    settingsState: { slippageTolerance, diagnostics },
   } = useContext(SettingsContext);
 
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
   const { activeAccount: account, assetMap, seriesMap } = userState;
@@ -52,14 +52,16 @@ export const useAddLiquidity = () => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
     const series: ISeries = seriesMap.get(strategy.currentSeriesId)!;
     const base: IAsset = assetMap.get(series?.baseId!)!;
-
     const ladleAddress = contractMap.get('Ladle').address;
 
     const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
-    const cleanInput = cleanValue(input, base?.decimals!);
 
+    const cleanInput = cleanValue(input, base?.decimals!);
     const _input = ethers.utils.parseUnits(cleanInput, base?.decimals);
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance, true);
+
+    /* if approveMAx, check if signature is still required */
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gt(_input);
 
     const [cachedBaseReserves, cachedFyTokenReserves] = await series?.poolContract.getCache()!;
     const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!);
@@ -76,8 +78,6 @@ export const useAddLiquidity = () => {
       slippageTolerance
     );
 
-    console.log(cachedBaseReserves.toString(), cachedRealReserves.toString())
-
     const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
@@ -89,11 +89,8 @@ export const useAddLiquidity = () => {
 
     const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance));
 
-    /* if approveMAx, check if signature is still required */
-    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gt(_input);
-
     /* DIAGNOSITCS */
-
+    diagnostics &&
       console.log(
         'input: ',
         _input.toString(),
@@ -128,7 +125,7 @@ export const useAddLiquidity = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: alreadyApproved===true,
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode
@@ -182,7 +179,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.POUR,
         args: [
-          matchingVaultId || BLANK_VAULT,
+          matchingVaultId || BLANK_VAULT, // use matching vault if provided, else 0x0..0
           series.poolAddress,
           _baseToFyToken,
           _baseToFyToken,
@@ -191,7 +188,12 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [strategy.id || account, account, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS,
+        args: [
+          strategy.id || account, // if there is a strategy use the id, else use the account address
+          account,
+          minRatio,
+          maxRatio,
+        ] as RoutedActions.Args.MINT_POOL_TOKENS,
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: method !== AddLiquidityType.BORROW,
@@ -214,6 +216,7 @@ export const useAddLiquidity = () => {
     ];
 
     await transact(calls, txCode);
+    /* then generously update the required elements */
     updateSeries([series]);
     updateAssets([base]);
     updateStrategies([strategy]);

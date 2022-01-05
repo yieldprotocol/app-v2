@@ -15,13 +15,13 @@ import {
   IUserContextActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
+import { calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const {
@@ -49,17 +49,19 @@ export const useClosePosition = () => {
     const ladleAddress = contractMap.get('Ladle').address;
 
     /* buy fyToken value ( after maturity  fytoken === base value ) */
-    const _fyTokenValueOfInput = seriesIsMature
-      ? _input
-      : buyBase(
-          series.baseReserves,
-          series.fyTokenReserves,
-          _input,
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g2,
-          series.decimals
-        );
+    // const _fyTokenValueOfInput = seriesIsMature
+    //   ? _input
+    //   : buyBase(
+    //       series.baseReserves,
+    //       series.fyTokenReserves,
+    //       _input,
+    //       series.getTimeTillMaturity(),
+    //       series.ts,
+    //       series.g2,
+    //       series.decimals
+    //     );
+    const _fyTokenVal = await series.poolContract.buyBasePreview(_input);
+    const _fyTokenValueOfInput = seriesIsMature ? _input : _fyTokenVal;
 
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);

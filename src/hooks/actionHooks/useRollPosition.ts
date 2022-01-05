@@ -4,29 +4,40 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IUserContext, IUserContextActions, IUserContextState, IAsset } from '../../types';
+import {
+  ICallData,
+  ISeries,
+  ActionCodes,
+  LadleActions,
+  RoutedActions,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
+  IAsset,
+} from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
+import { calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
 export const useRollPosition = () => {
-
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
-  
+
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext;;
+  ) as IUserContext;
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
-  const { historyActions: { updateTradeHistory } } = useContext(HistoryContext);
+  const {
+    historyActions: { updateTradeHistory },
+  } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
 
@@ -38,24 +49,22 @@ export const useRollPosition = () => {
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
     const ladleAddress = contractMap.get('Ladle').address;
+    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress)).gt(_input);
 
-    const _fyTokenValueOfInput = fromSeries.seriesIsMature
-      ? _input
-      : buyBase(
-          fromSeries.baseReserves,
-          fromSeries.fyTokenReserves,
-          _input,
-          fromSeries.getTimeTillMaturity(),
-          fromSeries.ts,
-          fromSeries.g2,
-          fromSeries.decimals
-        );
-
-    console.log( _fyTokenValueOfInput.toString());
-
+    // const _fyTokenValueOfInput = fromSeries.seriesIsMature
+    //   ? _input
+    //   : buyBase(
+    //       fromSeries.baseReserves,
+    //       fromSeries.fyTokenReserves,
+    //       _input,
+    //       fromSeries.getTimeTillMaturity(),
+    //       fromSeries.ts,
+    //       fromSeries.g2,
+    //       fromSeries.decimals
+    //     );
+    const baseValue = await fromSeries.poolContract.buyBasePreview(_input);
+    const _fyTokenValueOfInput = fromSeries.seriesIsMature ? _input : baseValue;
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
-
-    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress) ).gt(_input);
 
     const permits: ICallData[] = await sign(
       [
@@ -63,7 +72,7 @@ export const useRollPosition = () => {
           target: fromSeries,
           spender: 'LADLE',
           amount: _fyTokenValueOfInput,
-          ignoreIf: alreadyApproved===true,
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode
@@ -75,9 +84,9 @@ export const useRollPosition = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [
-          fromSeries.fyTokenAddress, 
-          fromSeries.seriesIsMature ? fromSeries.fyTokenAddress : fromSeries.poolAddress,  // mature/not
-          _fyTokenValueOfInput
+          fromSeries.fyTokenAddress,
+          fromSeries.seriesIsMature ? fromSeries.fyTokenAddress : fromSeries.poolAddress, // mature/not
+          _fyTokenValueOfInput,
         ] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore
       },
