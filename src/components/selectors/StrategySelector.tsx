@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
-import { cleanValue } from '../../utils/appUtils';
+import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AltText from '../texts/AltText';
@@ -129,8 +129,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                   {(!selectedStrategy || !inputValue) && (
                     <>
                       <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
-                        {/* {formatStrategyName(selectedStrategy?.name!)} */}
-                        {selectedStrategy?.name}
+                        {formatStrategyName(selectedStrategy?.name!)}
                       </Text>
                       <Text size="xsmall" color={selectedStrategy?.currentSeries?.textColor}>
                         Rolling {seriesMap.get(selectedStrategy?.currentSeriesId!)?.displayName}
@@ -161,8 +160,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 </Box>
 
                 {open && (
-                  <Layer onClickOutside={() => setOpen(false)}>
-                    <Box gap="small" pad="medium" fill background="background" round="small">
+                  <Layer onClickOutside={() => setOpen(false)} style={{minWidth:'500px'}}>
+                    <Box gap="small" pad="medium" fill background="background" round="small" >
                       <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
                       </Box>
@@ -193,7 +192,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                             </Avatar>
                             <Box>
                               <Text size="small" color={strategy.currentSeries?.textColor}>
-                                {strategy.name}
+                              {formatStrategyName(selectedStrategy?.name!)}
                               </Text>
                               <Text size="xsmall" color={strategy.currentSeries?.textColor}>
                                 Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
