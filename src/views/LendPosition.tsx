@@ -285,7 +285,7 @@ const LendPosition = () => {
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={closeError}
-                          disabled={!selectedSeries}
+                          disabled={!selectedSeries || !rollToSeries}
                         >
                           <TextInput
                             plain
@@ -295,7 +295,7 @@ const LendPosition = () => {
                             onChange={(event: any) =>
                               setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
-                            disabled={!selectedSeries}
+                            disabled={!selectedSeries || !rollToSeries}
                             icon={<>{selectedBase?.image}</>}
                           />
                           <MaxButton
