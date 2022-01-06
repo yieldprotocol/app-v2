@@ -155,7 +155,6 @@ const VaultPosition = () => {
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
     maxRepay_,
   ]);
-  console.log(maxRepay_);
 
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries!, [
     0,
