@@ -317,6 +317,8 @@ const VaultPosition = () => {
                       icon={<FiTrendingUp />}
                       loading={vaultsLoading}
                     />
+
+                    {_selectedVault?.ink.gt(ZERO_BN) && (
                     <InfoBite
                       label="Collateral posted"
                       value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
@@ -327,12 +329,17 @@ const VaultPosition = () => {
                         <Text size="small">({collateralizationPercent}%)</Text>
                       </Box>
                     </InfoBite>
-                    <InfoBite
-                      label="Vault Liquidation"
-                      value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
-                      icon={<FiActivity />}
-                      loading={vaultsLoading}
-                    />
+                    )}
+
+                    {_selectedVault?.art.gt(ZERO_BN) && (
+                      <InfoBite
+                        label="Vault Liquidation"
+                        value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
+                        icon={<FiActivity />}
+                        loading={vaultsLoading}
+                      />
+                    )}
+
                     <Box pad="xsmall" />
 
                     {_selectedVault?.isActive && unhealthyCollatRatio && (
@@ -696,8 +703,8 @@ const VaultPosition = () => {
                   key="next"
                   disabled={
                     (actionActive.index === 0 && repayDisabled) ||
-                    (actionActive.index === 1 && rollDisabled ) ||
-                    (actionActive.index === 1 && !rollPossible ) ||
+                    (actionActive.index === 1 && rollDisabled) ||
+                    (actionActive.index === 1 && !rollPossible) ||
                     (actionActive.index === 3 && removeCollatInput && removeCollateralDisabled) ||
                     (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
                     ((actionActive.index === 2 || actionActive.index === 3) && !addCollatInput && !removeCollatInput)
