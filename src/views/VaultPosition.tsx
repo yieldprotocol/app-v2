@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Tip, Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Stack } from 'grommet';
 import { ThemeContext } from 'styled-components';
-import { ethers } from 'ethers';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
@@ -151,19 +150,12 @@ const VaultPosition = () => {
     rollPossible,
     debtAfterRepay,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
-  console.log(
-    '🦄 ~ file: VaultPosition.tsx ~ line 153 ~ VaultPosition ~ userBaseAvailable',
-    ethers.utils.formatUnits(userBaseAvailable, vaultSeries?.decimals)
-  );
-  console.log(
-    '🦄 ~ file: VaultPosition.tsx ~ line 153 ~ VaultPosition ~ protocolBaseAvailable,',
-    ethers.utils.formatUnits(protocolBaseAvailable, vaultSeries?.decimals)
-  );
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
     maxRepay_,
   ]);
+  console.log(maxRepay_);
 
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries!, [
     0,
