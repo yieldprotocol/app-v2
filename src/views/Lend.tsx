@@ -213,7 +213,7 @@ const Lend = () => {
                   <InfoBite
                     label="Redeemable @ Maturity"
                     icon={<FiTrendingUp />}
-                    value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!) } ${selectedBase?.displaySymbol}`}
+                    value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                   />
                   <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
                 </Box>
@@ -272,7 +272,7 @@ const Lend = () => {
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && ( // lendTx.success && (
               <NextButton
-                label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
+                label={<Text size={mobile ? 'small' : undefined}>Lend more</Text>}
                 onClick={() => resetInputs()}
               />
             )}
@@ -282,7 +282,7 @@ const Lend = () => {
             lendProcess?.tx.status === TxState.FAILED && (
               <NextButton
                 size="xsmall"
-                label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                label={<Text size={mobile ? 'xsmall' : undefined}>Report and go back</Text>}
                 onClick={() => resetInputs()}
               />
             )}
