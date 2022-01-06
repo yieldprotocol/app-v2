@@ -10,7 +10,7 @@ const StyledButton = styled(Button)`
   }
   :disabled {
     box-shadow: none;
-    opacity: 0.7 !important;
+    opacity: 0.8 !important;
   }
 `;
 
