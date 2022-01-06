@@ -85,7 +85,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk?.id === selectedBase?.id) {
-      console.log('base matches ilk');
       const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
       setSelectedIlk(firstNotBaseIlk!);
     }
