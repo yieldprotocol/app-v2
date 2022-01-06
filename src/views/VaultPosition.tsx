@@ -65,7 +65,6 @@ const VaultPosition = () => {
     vaultMap,
     selectedVault,
     vaultsLoading,
-    selectedIlk,
   } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
@@ -572,7 +571,7 @@ const VaultPosition = () => {
                             !addCollatInput ? (
                               <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                                 <Text size="xsmall" color="text-weak">
-                                  Max collateral available: {selectedIlk?.balance_!} {selectedIlk?.displaySymbol!}{' '}
+                                  Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
                                 </Text>
                               </InputInfoWrap>
                             ) : (
@@ -597,9 +596,9 @@ const VaultPosition = () => {
                           />
                           <MaxButton
                             // disabled={removeCollatInput}
-                            action={() => setAddCollatInput(maxCollateral)}
+                            action={() => setAddCollatInput(vaultIlk?.balance_!)}
                             clearAction={() => setAddCollatInput('')}
-                            showingMax={!!addCollatInput && addCollatInput === maxCollateral}
+                            showingMax={!!addCollatInput && addCollatInput === vaultIlk?.balance_!}
                           />
                         </InputWrap>
                       </Box>
