@@ -116,20 +116,6 @@ const PoolPosition = () => {
     removeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REMOVE_LIQUIDITY);
   }, [removeProcess?.stage]);
 
-  /* INTERNAL COMPONENTS */
-  const CompletedTx = (props: any) => (
-    <>
-      <NextButton
-        label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
-        onClick={() => {
-          props.resetTx();
-          handleStepper(true);
-          resetInputs(props.actionCode);
-        }}
-      />
-    </>
-  );
-
   return (
     <>
       {_selectedStrategy && (
@@ -258,8 +244,9 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Removing that amount of tokens and trading immediately for {selectedBase?.displaySymbol}{' '}
-                                      is currently not possible due to liquidity limitations.
+                                      Removing that amount of tokens and trading immediately for{' '}
+                                      {selectedBase?.displaySymbol} is currently not possible due to liquidity
+                                      limitations.
                                     </Text>
                                   </Box>
                                 </InputInfoWrap>
@@ -321,7 +308,9 @@ const PoolPosition = () => {
                           </Text> */}
                         <Text size="xsmall">
                           Force Removal:
-                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} `}
+                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
+                            selectedBase?.displaySymbol
+                          } `}
                           {`and then rest will be in redeemable fy${selectedBase?.displaySymbol})`}
                         </Text>
                       </Box>
@@ -359,17 +348,6 @@ const PoolPosition = () => {
                     }
                     onClick={() => handleRemove()}
                     disabled={removeDisabled || removeProcess?.processActive}
-                  />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 0 &&
-                !removeProcess?.processActive &&
-                removeProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <CompletedTx
-                    tx={removeProcess}
-                    resetTx={() => resetRemoveProcess()}
-                    actionCode={ActionCodes.REMOVE_LIQUIDITY}
                   />
                 )}
             </ActionButtonGroup>
