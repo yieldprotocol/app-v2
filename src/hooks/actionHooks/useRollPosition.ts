@@ -51,6 +51,8 @@ export const useRollPosition = () => {
           fromSeries.decimals
         );
 
+    console.log( _fyTokenValueOfInput.toString());
+
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
 
     const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress) ).gt(_input);
