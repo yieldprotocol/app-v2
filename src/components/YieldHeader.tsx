@@ -65,8 +65,12 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
               <StyledAvatar
                 background="hoverBackground"
                 size="3rem"
-                onMouseEnter={() => setYieldMarkHover(true)}
-                onMouseLeave={() => setYieldMarkHover(false)}
+                onMouseOver={() => setYieldMarkHover(true)}
+                onMouseLeave={() =>
+                  setTimeout(() => {
+                    setYieldMarkHover(false);
+                  }, 300)
+                }
               >
                 <NavLink to={`/${prevLoc}`} style={{ height: '50%' }}>
                   {yieldMarkhover ? (

@@ -317,6 +317,8 @@ const VaultPosition = () => {
                       icon={<FiTrendingUp />}
                       loading={vaultsLoading}
                     />
+
+                    {_selectedVault?.ink.gt(ZERO_BN) && (
                     <InfoBite
                       label="Collateral posted"
                       value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
@@ -327,12 +329,17 @@ const VaultPosition = () => {
                         <Text size="small">({collateralizationPercent}%)</Text>
                       </Box>
                     </InfoBite>
-                    <InfoBite
-                      label="Vault Liquidation"
-                      value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
-                      icon={<FiActivity />}
-                      loading={vaultsLoading}
-                    />
+                    )}
+
+                    {_selectedVault?.art.gt(ZERO_BN) && (
+                      <InfoBite
+                        label="Vault Liquidation"
+                        value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
+                        icon={<FiActivity />}
+                        loading={vaultsLoading}
+                      />
+                    )}
+
                     <Box pad="xsmall" />
 
                     {_selectedVault?.isActive && unhealthyCollatRatio && (
