@@ -328,7 +328,7 @@ const VaultPosition = () => {
                       </Box>
                     </InfoBite>
 
-                    {parseFloat(_selectedVault.art_!) > 0 && (
+                    {_selectedVault.art.gt(ZERO_BN) && (
                       <InfoBite
                         label="Vault Liquidation"
                         value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
