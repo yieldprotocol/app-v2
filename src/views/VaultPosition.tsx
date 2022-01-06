@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Tip, Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Stack } from 'grommet';
 import { ThemeContext } from 'styled-components';
+import { ethers } from 'ethers';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
@@ -150,6 +151,14 @@ const VaultPosition = () => {
     rollPossible,
     debtAfterRepay,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
+  console.log(
+    '🦄 ~ file: VaultPosition.tsx ~ line 153 ~ VaultPosition ~ userBaseAvailable',
+    ethers.utils.formatUnits(userBaseAvailable, vaultSeries?.decimals)
+  );
+  console.log(
+    '🦄 ~ file: VaultPosition.tsx ~ line 153 ~ VaultPosition ~ protocolBaseAvailable,',
+    ethers.utils.formatUnits(protocolBaseAvailable, vaultSeries?.decimals)
+  );
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
@@ -422,7 +431,8 @@ const VaultPosition = () => {
 
                               {userBaseAvailable &&
                                 protocolBaseAvailable &&
-                                userBaseAvailable.gt(protocolBaseAvailable) && (
+                                userBaseAvailable.gt(protocolBaseAvailable) &&
+                                !vaultSeries?.seriesIsMature && (
                                   <InputInfoWrap>
                                     <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
                                   </InputInfoWrap>
@@ -696,8 +706,8 @@ const VaultPosition = () => {
                   key="next"
                   disabled={
                     (actionActive.index === 0 && repayDisabled) ||
-                    (actionActive.index === 1 && rollDisabled ) ||
-                    (actionActive.index === 1 && !rollPossible ) ||
+                    (actionActive.index === 1 && rollDisabled) ||
+                    (actionActive.index === 1 && !rollPossible) ||
                     (actionActive.index === 3 && removeCollatInput && removeCollateralDisabled) ||
                     (actionActive.index === 2 && addCollatInput && addCollateralDisabled) ||
                     ((actionActive.index === 2 || actionActive.index === 3) && !addCollatInput && !removeCollatInput)
