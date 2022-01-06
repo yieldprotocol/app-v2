@@ -10,6 +10,7 @@ const StyledButton = styled(Button)`
   }
   :disabled {
     box-shadow: none;
+    opacity: 0.8 !important;
   }
 `;
 
@@ -17,14 +18,14 @@ const NextButton = (props: any) => (
   <Box>
     <StyledButton
       {...props}
-      color={props.errorLabel ? 'error' : undefined}
+      color={props.errorLabel ? 'red' : undefined}
       label={
         props.errorLabel ? (
           <Box direction="row" gap="small" align="center" fill justify="center">
-            <Text color="error">
+            <Text color="red">
               <FiAlertTriangle style={{ verticalAlign: 'middle' }} />
             </Text>
-            <Text color="error" size="xsmall">
+            <Text color="red" size="xsmall">
               {props.errorLabel}
             </Text>
           </Box>
