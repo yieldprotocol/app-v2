@@ -596,9 +596,9 @@ const VaultPosition = () => {
                           />
                           <MaxButton
                             // disabled={removeCollatInput}
-                            action={() => setAddCollatInput(vaultIlk?.balance_!)}
+                            action={() => setAddCollatInput(maxCollateral)}
                             clearAction={() => setAddCollatInput('')}
-                            showingMax={!!addCollatInput && addCollatInput === vaultIlk?.balance_!}
+                            showingMax={!!addCollatInput && addCollatInput === maxCollateral}
                           />
                         </InputWrap>
                       </Box>
