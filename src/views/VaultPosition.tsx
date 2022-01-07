@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput} from 'grommet';
+import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
@@ -306,16 +306,16 @@ const VaultPosition = () => {
                     />
 
                     {_selectedVault?.ink.gt(ZERO_BN) && (
-                    <InfoBite
-                      label="Collateral posted"
-                      value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
-                      icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                      loading={vaultsLoading}
-                    >
-                      <Box align="center" direction="row">
-                        <Text size="small">({collateralizationPercent}%)</Text>
-                      </Box>
-                    </InfoBite>
+                      <InfoBite
+                        label="Collateral posted"
+                        value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
+                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                        loading={vaultsLoading}
+                      >
+                        <Box align="center" direction="row">
+                          <Text size="small">({collateralizationPercent}%)</Text>
+                        </Box>
+                      </InfoBite>
                     )}
 
                     {_selectedVault?.art.gt(ZERO_BN) && (
@@ -513,15 +513,22 @@ const VaultPosition = () => {
                           <Box fill="horizontal">
                             {rollPossible ? (
                               <InputInfoWrap>
-                                <Text color="text-weak" size="xsmall">
+                                <Text size="xsmall">
                                   All debt {cleanValue(maxRoll_, 2)} {vaultBase?.displaySymbol} will be rolled.
                                 </Text>
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Text color="text-weak" size="xsmall">
-                                  It is not currently possible to roll debt to this series.
+                                <Box pad='xsmall'>
+                                <Text size="small">
+                                  It is not currently possible to roll debt to this series
                                 </Text>
+                                <Text color="text-weak" size="xsmall">
+                                  ( Most commonly because the
+                                  debt doesn't meet the minimum debt requirements of the series being rolled to ).
+                                </Text>
+                                </Box>
+
                               </InputInfoWrap>
                             )}
                           </Box>
