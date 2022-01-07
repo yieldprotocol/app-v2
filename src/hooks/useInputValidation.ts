@@ -13,14 +13,14 @@ export const useInputValidation = (
 ) => {
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { assetMap, seriesMap, selectedSeries, selectedBase, activeAccount } = userState;
+  const { assetMap, selectedSeries, selectedBase, activeAccount } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;
 
   /* LOCAL STATE */
   const [inputError, setInputError] = useState<string | null>();
-  const [inputWarning, setInputWarning] = useState<string | null>();
-  const [inputDisabled, setInputDisabled] = useState<boolean | null>();
+  // const [inputWarning, setInputWarning] = useState<string | null>();
+  // const [inputDisabled, setInputDisabled] = useState<boolean | null>();
 
   useEffect(() => {
     if (activeAccount && (input || input === '')) {
@@ -60,7 +60,7 @@ export const useInputValidation = (
             _inputAsFloat > parseFloat(limits[0].toString()) &&
             setInputError('Remaining debt will be below dust levels');
 
-          /* set dustError between 0 and dustLimit */
+          /* token balance value */
           aboveMax && setInputError('Amount exceeds token balance');
           break;
 
@@ -82,6 +82,10 @@ export const useInputValidation = (
           break;
 
         case ActionCodes.LEND:
+          aboveMax && setInputError('Amount exceeds the maximum you can lend');
+          belowMin && setInputError('Amount should be expressed as a positive value');
+          break;
+
         case ActionCodes.ADD_LIQUIDITY:
         case ActionCodes.CLOSE_POSITION:
         case ActionCodes.REMOVE_LIQUIDITY:
@@ -99,7 +103,7 @@ export const useInputValidation = (
 
   return {
     inputError,
-    inputWarning,
-    inputDisabled,
+    // inputWarning,
+    // inputDisabled,
   };
 };

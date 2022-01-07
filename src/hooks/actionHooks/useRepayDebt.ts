@@ -23,7 +23,7 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 export const useRepayDebt = () => {
   const {
-    settingsState: { slippageTolerance, approveMax, unwrapTokens },
+    settingsState: { slippageTolerance, unwrapTokens },
   } = useContext(SettingsContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
@@ -61,7 +61,9 @@ export const useRepayDebt = () => {
       series.decimals
     );
 
-    const _inputAsFyToken = sellBase(
+    const _inputAsFyToken = series.seriesIsMature
+    ? calculateSlippage(_input, slippageTolerance.toString()) // if series is mature then fyToken value is simply the input.
+    : sellBase(
       series.baseReserves,
       series.fyTokenReserves,
       _input,
@@ -79,6 +81,7 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
@@ -109,7 +112,7 @@ export const useRepayDebt = () => {
           // after maturity
           target: base,
           spender: base.joinAddress,
-          amount: _input,
+          amount: _inputAsFyToken,
           ignoreIf: !series.seriesIsMature || alreadyApproved === true,
         },
       ],
@@ -151,7 +154,7 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the collateral (if requested).
+      ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the ETH collateral (if requested).
       ...unwrap,
     ];
     await transact(calls, txCode);

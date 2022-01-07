@@ -32,15 +32,51 @@ export const useLendHelpers = (
   const [valueAtMaturity, setValueAtMaturity] = useState<BigNumber>(ethers.constants.Zero);
   const [valueAtMaturity_, setValueAtMaturity_] = useState<string>();
 
-  const [userBaseAvailable, setUserBaseAvailable] = useState<BigNumber>(ethers.constants.Zero);
-  const [protocolBaseIn, setProtocolBaseIn] = useState<BigNumber>(ethers.constants.Zero);
+  const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(ethers.constants.Zero);
+
+  const [protocolLimited, setProtocolLimited] = useState<boolean>(false);
+  
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
 
-  /* check and set the protocol Base max limits */
+  // /* check and set the protocol Base max limits */
+  // useEffect(() => {
+  //   if (series) {
+  //     const _maxBaseIn = maxBaseIn(
+  //       series.baseReserves,
+  //       series.fyTokenReserves,
+  //       series.getTimeTillMaturity(),
+  //       series.ts,
+  //       series.g1,
+  //       series.decimals
+  //     );
+  //     diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
+  //     _maxBaseIn && setProtocolBaseIn(_maxBaseIn);
+  //   }
+  // }, [series, diagnostics]);
+
+  /* Check and set Max available lend by user (only if activeAccount).   */
   useEffect(() => {
+    if (activeAccount) {
+      (async () => {
+        // user base available when rolling is the user's from series lend position balance
+        const usersMaxBase = await selectedBase?.getBalance(activeAccount);
+        usersMaxBase && setUserBaseBalance(usersMaxBase);
+      })();
+    }
+  }, [activeAccount, selectedBase, series]);
+
+  /* set maxLend based on either max user or max protocol */
+  useEffect(() => {
+
+    if (!series && selectedBase) {
+      setMaxLend(userBaseBalance);
+      setMaxLend_(ethers.utils.formatUnits(userBaseBalance, selectedBase.decimals).toString());
+    }
+
     if (series) {
+      /* checks the protocol limits  (max Base allowed in ) */ 
       const _maxBaseIn = maxBaseIn(
         series.baseReserves,
         series.fyTokenReserves,
@@ -50,35 +86,19 @@ export const useLendHelpers = (
         series.decimals
       );
       diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
-      _maxBaseIn && setProtocolBaseIn(_maxBaseIn);
-    }
-  }, [series, diagnostics]);
 
-  /* Check and set Max available lend by user (only if activeAccount).   */
-  useEffect(() => {
-    if (activeAccount) {
-      (async () => {
-        // user base available when rolling is the user's from series lend position balance
-        const usersMaxBase = await selectedBase?.getBalance(activeAccount);
-        usersMaxBase && setUserBaseAvailable(usersMaxBase);
-      })();
+      if (userBaseBalance.lt(_maxBaseIn) ) {
+        setMaxLend(userBaseBalance);
+        setMaxLend_(ethers.utils.formatUnits(userBaseBalance, series.decimals).toString());
+        setProtocolLimited(false);
+      } else {
+        setMaxLend(_maxBaseIn);
+        setMaxLend_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString())
+        setProtocolLimited(true);
+      }  
     }
-  }, [activeAccount, selectedBase, series]);
 
-  /* set maxLend based on either max user or max protocol */
-  useEffect(() => {
-    if (!series && selectedBase) {
-      setMaxLend(userBaseAvailable);
-      setMaxLend_(ethers.utils.formatUnits(userBaseAvailable, selectedBase.decimals).toString());
-    }
-    if (series) {
-      /* user balance or max Lend (max base to spend) */
-      userBaseAvailable.lt(protocolBaseIn) ? setMaxLend(userBaseAvailable) : setMaxLend(protocolBaseIn);
-      userBaseAvailable.lt(protocolBaseIn)
-        ? setMaxLend_(ethers.utils.formatUnits(userBaseAvailable, series.decimals).toString())
-        : setMaxLend_(ethers.utils.formatUnits(protocolBaseIn, series.decimals).toString());
-    }
-  }, [userBaseAvailable, series, selectedBase, protocolBaseIn]);
+  }, [userBaseBalance, series, selectedBase, diagnostics]);
 
   /* Sets max close and current market Value of fyTokens held in base tokens */
   useEffect(() => {
@@ -189,8 +209,8 @@ export const useLendHelpers = (
     valueAtMaturity_,
 
     fyTokenMarketValue,
+    userBaseBalance,
 
-    protocolBaseIn,
-    userBaseAvailable,
+    protocolLimited, // userBaseBalance.gt(protocolBaseIn)
   };
 };
