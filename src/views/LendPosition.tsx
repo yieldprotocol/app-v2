@@ -37,7 +37,7 @@ const LendPosition = () => {
   /* STATE FROM CONTEXT */
   const {
     userState,
-    userActions: { setSelectedSeries },
+    userActions: { setSelectedSeries, setSelectedBase },
   } = useContext(UserContext) as IUserContext;
   const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
 
@@ -129,8 +129,12 @@ const LendPosition = () => {
 
   useEffect(() => {
     const _series = seriesMap.get(idFromUrl) || null;
-    idFromUrl && setSelectedSeries(_series);
-  }, [idFromUrl, seriesMap, setSelectedSeries]);
+    const _base = assetMap.get(_series?.baseId!);
+    if (idFromUrl) {
+      setSelectedSeries(_series);
+      setSelectedBase(_base!);
+    }
+  }, [idFromUrl, seriesMap, setSelectedSeries, assetMap, setSelectedBase]);
 
   return (
     <>
