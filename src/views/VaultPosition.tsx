@@ -434,7 +434,7 @@ const VaultPosition = () => {
                                     !debtAfterRepay.eq(ZERO_BN) && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralization ratio after repayment:{' '}
-                                        {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
+                                        {nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
 
