@@ -100,7 +100,7 @@ const VaultPosition = () => {
   const [addCollateralDisabled, setAddCollateralDisabled] = useState<boolean>(true);
 
   const [actionActive, setActionActive] = useState<any>(
-    _selectedVault && !_selectedVault.isActive ? { index: 3 } : { index: 0 }
+    _selectedVault && !_selectedVault?.isActive ? { index: 3 } : { index: 0 }
   );
 
   /* HOOK FNS */
