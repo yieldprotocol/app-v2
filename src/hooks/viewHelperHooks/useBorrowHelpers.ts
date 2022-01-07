@@ -209,7 +209,9 @@ export const useBorrowHelpers = (
         /* max is all debt if series is mature */
         if (vaultSeries.seriesIsMature) {
           setMaxRepay(_maxDebt);
+          setMaxRepay_(ethers.utils.formatUnits(_maxDebt, vaultBase?.decimals)?.toString());
         }
+
       })();
     }
   }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);
