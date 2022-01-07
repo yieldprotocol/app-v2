@@ -105,8 +105,7 @@ export const useBorrowHelpers = (
         futureSeries.g1,
         futureSeries.decimals
       );
-      const estimatePlusVaultUsed = vault?.art.gt(ethers.constants.Zero) ? estimate.add(vault.art) : estimate;
-
+      const estimatePlusVaultUsed = vault?.art?.gt(ethers.constants.Zero) ? estimate.add(vault.art) : estimate;
       setBorrowEstimate(estimatePlusVaultUsed);
       setBorrowEstimate_(ethers.utils.formatUnits(estimatePlusVaultUsed, futureSeries.decimals).toString());
     }

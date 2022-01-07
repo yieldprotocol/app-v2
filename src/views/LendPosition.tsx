@@ -275,7 +275,6 @@ const LendPosition = () => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'medium' }} gap="small">
-                        
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
@@ -350,7 +349,7 @@ const LendPosition = () => {
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`Clos${closeProcess?.processActive ? 'ing' : 'e'} ${
+                        {`Redeem${closeProcess?.processActive ? 'ing' : ''} ${
                           nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
                         } ${selectedBase?.displaySymbol}`}
                       </Text>
@@ -374,32 +373,6 @@ const LendPosition = () => {
                     }
                     onClick={() => handleRollPosition()}
                     disabled={rollDisabled || rollProcess?.processActive}
-                  />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 0 &&
-                closeProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <NextButton
-                    label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
-                    onClick={() => {
-                      resetCloseProcess();
-                      handleStepper(true);
-                      resetInputs(ActionCodes.CLOSE_POSITION);
-                    }}
-                  />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 1 &&
-                rollProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <NextButton
-                    label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
-                    onClick={() => {
-                      resetRollProcess();
-                      handleStepper(true);
-                      resetInputs(ActionCodes.ROLL_POSITION);
-                    }}
                   />
                 )}
             </ActionButtonGroup>

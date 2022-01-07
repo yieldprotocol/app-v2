@@ -11,14 +11,7 @@ import InfoBite from '../components/InfoBite';
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import SectionWrap from '../components/wraps/SectionWrap';
 import { UserContext } from '../contexts/UserContext';
-import {
-  ActionCodes,
-  AddLiquidityType,
-  IUserContext,
-  IUserContextState,
-  ProcessStage,
-  TxState,
-} from '../types';
+import { ActionCodes, AddLiquidityType, IUserContext, IUserContextState, ProcessStage, TxState } from '../types';
 import MaxButton from '../components/buttons/MaxButton';
 import PanelWrap from '../components/wraps/PanelWrap';
 import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
@@ -130,10 +123,7 @@ function Pool() {
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>
-                      <InputWrap
-                        action={() => console.log('maxAction')}
-                        isError={poolError}
-                      >
+                      <InputWrap action={() => console.log('maxAction')} isError={poolError}>
                         <TextInput
                           plain
                           type="number"
@@ -298,7 +288,7 @@ function Pool() {
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
               <NextButton
-                label={<Text size={mobile ? 'small' : undefined}>Add more Liquidity</Text>}
+                label={<Text size={mobile ? 'small' : undefined}>Add more liquidity</Text>}
                 onClick={() => resetInputs()}
               />
             )}

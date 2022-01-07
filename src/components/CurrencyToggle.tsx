@@ -14,10 +14,10 @@ const CurrencyToggle = () => {
       <Box
         fill
         pad="small"
-        border={dashCurrency === 'DAI' ? undefined : { color: 'lightgrey' }}
-        background={dashCurrency === 'DAI' ? 'gradient-transparent' : undefined}
+        border={dashCurrency === 'USDC' ? undefined : { color: 'lightgrey' }}
+        background={dashCurrency === 'USDC' ? 'gradient-transparent' : undefined}
         round={{ corner: 'left', size: 'xsmall' }}
-        onClick={() => updateSetting('dashCurrency', 'DAI')}
+        onClick={() => updateSetting('dashCurrency', 'USDC')}
         align="center"
         justify="center"
       >
