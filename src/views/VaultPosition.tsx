@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Tip, Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Stack } from 'grommet';
-import { ThemeContext } from 'styled-components';
+import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput} from 'grommet';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
@@ -46,8 +45,6 @@ import ExitButton from '../components/buttons/ExitButton';
 import { ZERO_BN } from '../utils/constants';
 
 const VaultPosition = () => {
-  const theme = useContext(ThemeContext);
-  const { red } = theme.global.colors;
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
@@ -58,14 +55,7 @@ const VaultPosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const {
-    activeAccount: account,
-    assetMap,
-    seriesMap,
-    vaultMap,
-    selectedVault,
-    vaultsLoading,
-  } = userState;
+  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVault, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const _selectedVault = vaultMap.get(idFromUrl);
@@ -116,7 +106,6 @@ const VaultPosition = () => {
   /* HOOK FNS */
   const repay = useRepayDebt();
   const rollDebt = useRollDebt();
-  // const { transfer, merge } = useVaultAdmin();
 
   const { addCollateral } = useAddCollateral();
   const { removeCollateral } = useRemoveCollateral();
@@ -141,18 +130,17 @@ const VaultPosition = () => {
     maxRepay_,
     minRepayable,
     minRepayable_,
-    protocolBaseAvailable,
-    userBaseAvailable,
+    protocolLimited,
     maxRoll_,
     minDebt,
-    vaultDebt_,
+    userBaseBalance_,
     rollPossible,
     debtAfterRepay,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
-    maxRepay_,
+    userBaseBalance_,
   ]);
 
   const { inputError: addCollatError } = useInputValidation(addCollatInput, ActionCodes.ADD_COLLATERAL, vaultSeries!, [
@@ -400,7 +388,7 @@ const VaultPosition = () => {
                                   {_selectedVault.art.gt(maxRepay) ? (
                                     <Text color="text" alignSelf="end" size="xsmall">
                                       Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
-                                      {userBaseAvailable.lt(protocolBaseAvailable)
+                                      {!protocolLimited
                                         ? '(based on your token balance)'
                                         : '(limited by protocol reserves)'}
                                     </Text>
@@ -419,18 +407,15 @@ const VaultPosition = () => {
                                 </InputInfoWrap>
                               )}
 
-                              {userBaseAvailable &&
-                                protocolBaseAvailable &&
-                                userBaseAvailable.gt(protocolBaseAvailable) &&
-                                !vaultSeries?.seriesIsMature && (
-                                  <InputInfoWrap>
-                                    <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
-                                  </InputInfoWrap>
-                                )}
-
-                              {repayInput && !repayError && (
+                              {protocolLimited && (
                                 <InputInfoWrap>
-                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && repayInput !== vaultDebt_ && (
+                                  <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
+                                </InputInfoWrap>
+                              )}
+
+                              {repayInput && !repayError && debtAfterRepay && (
+                                <InputInfoWrap>
+                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && !debtAfterRepay.eq(ZERO_BN) && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
                                       Repaying this amount will leave a small amount of debt.
                                     </Text>
@@ -439,16 +424,16 @@ const VaultPosition = () => {
                                   {repayCollEst &&
                                     parseFloat(repayCollEst) < 10000 &&
                                     parseFloat(repayCollEst) !== 0 &&
-                                    repayInput !== vaultDebt_ && (
+                                    !debtAfterRepay.eq(ZERO_BN) && (
                                       <Text color="text-weak" alignSelf="end" size="xsmall">
                                         Collateralization ratio after repayment:{' '}
                                         {repayCollEst && nFormatter(parseFloat(repayCollEst), 2)}%
                                       </Text>
                                     )}
 
-                                  {repayInput === vaultDebt_ && (
+                                  {debtAfterRepay?.eq(ZERO_BN) && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      All debt will be repaid.
+                                      All debt will be repaid ( {_selectedVault?.art_!} {vaultBase?.displaySymbol!} ).
                                     </Text>
                                   )}
                                 </InputInfoWrap>
@@ -488,7 +473,7 @@ const VaultPosition = () => {
                           value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.displaySymbol}`}
                         />
 
-                        {repayInput === vaultDebt_ && (
+                        {debtAfterRepay?.eq(ZERO_BN) && (
                           <Box fill="horizontal" align="end">
                             <CheckBox
                               reverse
