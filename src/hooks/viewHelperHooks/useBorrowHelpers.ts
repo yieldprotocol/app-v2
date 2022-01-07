@@ -89,7 +89,7 @@ export const useBorrowHelpers = (
     if (input && vault && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, vault.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
-      setDebtAfterRepay(vault.art.sub(input_));
+      setDebtAfterRepay(vault.art?.sub(input_));
     }
   }, [input, vault]);
 
@@ -109,7 +109,7 @@ export const useBorrowHelpers = (
         futureSeries.decimals
       );
 
-      const estimatePlusVaultUsed = vault?.art.gt(ethers.constants.Zero) ? estimate.add(vault.art) : estimate;
+      const estimatePlusVaultUsed = vault?.art?.gt(ethers.constants.Zero) ? estimate.add(vault.art) : estimate;
       setBorrowEstimate(estimatePlusVaultUsed);
       setBorrowEstimate_(ethers.utils.formatUnits(estimatePlusVaultUsed, futureSeries.decimals).toString());
     }

@@ -10,7 +10,7 @@ const StyledButton = styled(Button)`
   }
   :disabled {
     box-shadow: none;
-    opacity: 0.8 !important;
+    opacity: ${(props: any) => (props.errorLabel ? '0.8 !important' : '0.2 !important')};
   }
 `;
 

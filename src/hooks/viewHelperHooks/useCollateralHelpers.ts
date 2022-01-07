@@ -113,7 +113,7 @@ export const useCollateralHelpers = (
          use a buffer of 1% if there is vault debt to prevent undercollateralized failed tx's
          else use the existing collateral
       */
-      const _maxRemove = vault?.art.gt(ethers.constants.Zero)
+      const _maxRemove = vault?.art?.gt(ethers.constants.Zero)
         ? existingCollateralAsWei.sub(min).mul(99).div(100)
         : existingCollateralAsWei;
       setMaxRemovableCollateral(ethers.utils.formatUnits(_maxRemove, 18).toString());
@@ -152,7 +152,7 @@ export const useCollateralHelpers = (
 
     collateralizationRatio &&
     vault &&
-    vault.art.gt(ethers.constants.Zero) &&
+    vault.art?.gt(ethers.constants.Zero) &&
     parseFloat(collateralizationRatio) > 0 &&
     parseFloat(collateralizationRatio) < vault.minRatio + 0.2
       ? setUnhealthyCollatRatio(true)

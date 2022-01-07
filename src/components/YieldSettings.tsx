@@ -13,6 +13,7 @@ import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
+import EtherscanButton from './buttons/EtherscanButton';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -72,11 +73,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
           {!mobile && (
             <Box align="center" direction="row" gap="small" justify="center">
-              {currentChainInfo?.name && (
+              {currentChainInfo.explorer && (
                 <Anchor
-                  href={`https://${
-                    currentChainInfo.name === 'Mainnet' ? '' : `${currentChainInfo.name}.`
-                  }etherscan.io/address/${account}`}
+                  href={`${currentChainInfo.explorer}/address/${account}`}
                   margin="xsmall"
                   target="_blank"
                 >
