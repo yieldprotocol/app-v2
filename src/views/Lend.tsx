@@ -57,16 +57,16 @@ const Lend = () => {
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { maxLend_, protocolBaseIn, userBaseAvailable, apy, valueAtMaturity_ } = useLendHelpers(
-    selectedSeries,
-    lendInput
-  );
+  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
   const lend = useLend();
 
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
 
   /* input validation hooks */
-  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
+  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [
+    0,
+    maxLend_,
+  ]);
 
   /* LOCAL FNS */
   const handleLend = () => {
@@ -126,7 +126,7 @@ const Lend = () => {
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
                         message={
-                          selectedSeries && userBaseAvailable.gt(protocolBaseIn) && !mobile ? (
+                          selectedBase && selectedSeries && protocolLimited && !mobile ? (
                             <InputInfoWrap action={() => setLendInput(maxLend_)}>
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}

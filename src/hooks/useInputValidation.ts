@@ -43,7 +43,6 @@ export const useInputValidation = (
 
       // Action specific rules: - or message customising/Overriding:
       switch (actionCode) {
-
         case ActionCodes.BORROW:
           input &&
             _selectedSeries &&
@@ -83,6 +82,10 @@ export const useInputValidation = (
           break;
 
         case ActionCodes.LEND:
+          aboveMax && setInputError('Amount exceeds the maximum you can lend');
+          belowMin && setInputError('Amount should be expressed as a positive value');
+          break;
+
         case ActionCodes.ADD_LIQUIDITY:
         case ActionCodes.CLOSE_POSITION:
         case ActionCodes.REMOVE_LIQUIDITY:
