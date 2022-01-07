@@ -349,7 +349,7 @@ const LendPosition = () => {
                     primary
                     label={
                       <Text size={mobile ? 'small' : undefined}>
-                        {`Clos${closeProcess?.processActive ? 'ing' : 'e'} ${
+                        {`Redeem${closeProcess?.processActive ? 'ing' : ''} ${
                           nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
                         } ${selectedBase?.displaySymbol}`}
                       </Text>
