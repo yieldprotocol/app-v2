@@ -62,7 +62,7 @@ export const useRepayDebt = () => {
     );
 
     const _inputAsFyToken = series.seriesIsMature
-    ? calculateSlippage(_input, slippageTolerance.toString()) // if series is mature then fyToken value is simply the input.
+    ? _input // if series is mature then fyToken value is simply the input.
     : sellBase(
       series.baseReserves,
       series.fyTokenReserves,
@@ -112,7 +112,7 @@ export const useRepayDebt = () => {
           // after maturity
           target: base,
           spender: base.joinAddress,
-          amount: _inputAsFyToken,
+          amount: _input,
           ignoreIf: !series.seriesIsMature || alreadyApproved === true,
         },
       ],
