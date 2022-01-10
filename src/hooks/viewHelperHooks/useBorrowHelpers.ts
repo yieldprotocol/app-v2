@@ -202,10 +202,11 @@ export const useBorrowHelpers = (
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxRepayable);
         }
-        /* or, if the series is mature re-set max as all debt  */
+        /* or, if the series is mature re-set max as all debt rounded up to account for changes in time it takes to mine.  */
         if (vaultSeries.seriesIsMature) {
-          setMaxRepay(vault.art);
-          setMaxRepay_(ethers.utils.formatUnits(vault.art, vaultBase?.decimals)?.toString());
+          const _artRoundUp = vault.art.mul(10000).div(9999);
+          setMaxRepay(_artRoundUp);
+          setMaxRepay_(ethers.utils.formatUnits(_artRoundUp, vaultBase?.decimals)?.toString());
         }
       })();
     }
