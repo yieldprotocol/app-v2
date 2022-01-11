@@ -35,7 +35,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   ) as IUserContext;
   const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
-  const { setSelectedIlk, setSelectedBase } = userActions;
+  const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
 
   const [options, setOptions] = useState<IAsset[]>([]);
 
@@ -56,6 +56,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
+      setSelectedSeries(null)
     }
   };
 
