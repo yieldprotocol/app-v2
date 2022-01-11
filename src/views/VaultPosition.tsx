@@ -155,10 +155,12 @@ const VaultPosition = () => {
     [0, maxRemovableCollateral]
   );
 
-  const { inputError: rollError } = useInputValidation(_selectedVault?.art_, ActionCodes.ROLL_DEBT, vaultSeries!, [
-    0,
-    maxRoll_,
-  ]);
+  const { inputError: rollError } = useInputValidation(
+    _selectedVault?.accruedArt_,
+    ActionCodes.ROLL_DEBT,
+    vaultSeries!,
+    [0, maxRoll_]
+  );
 
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
@@ -300,7 +302,9 @@ const VaultPosition = () => {
                     />
                     <InfoBite
                       label="Vault debt + interest"
-                      value={`${cleanValue(_selectedVault?.art_, vaultBase?.digitFormat!)} ${vaultBase?.displaySymbol}`}
+                      value={`${cleanValue(_selectedVault?.accruedArt_, vaultBase?.digitFormat!)} ${
+                        vaultBase?.displaySymbol
+                      }`}
                       icon={<FiTrendingUp />}
                       loading={vaultsLoading}
                     />
@@ -318,7 +322,7 @@ const VaultPosition = () => {
                       </InfoBite>
                     )}
 
-                    {_selectedVault?.art.gt(ZERO_BN) && (
+                    {_selectedVault?.accruedArt.gt(ZERO_BN) && (
                       <InfoBite
                         label="Vault Liquidation"
                         value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
@@ -392,7 +396,7 @@ const VaultPosition = () => {
                             <>
                               {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
-                                  {_selectedVault.art.gt(maxRepay) ? (
+                                  {_selectedVault.accruedArt.gt(maxRepay) ? (
                                     <Text color="text" alignSelf="end" size="xsmall">
                                       Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
                                       {!protocolLimited
@@ -401,7 +405,7 @@ const VaultPosition = () => {
                                     </Text>
                                   ) : (
                                     <Text color="text" alignSelf="end" size="xsmall">
-                                      Max debt repayable ({_selectedVault?.art_!} {vaultBase?.displaySymbol!})
+                                      Max debt repayable ({_selectedVault?.accruedArt_!} {vaultBase?.displaySymbol!})
                                     </Text>
                                   )}
                                 </InputInfoWrap>
@@ -440,7 +444,8 @@ const VaultPosition = () => {
 
                                   {debtAfterRepay?.eq(ZERO_BN) && (
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      All debt will be repaid ( {_selectedVault?.art_!} {vaultBase?.displaySymbol!} ).
+                                      All debt will be repaid ( {_selectedVault?.accruedArt_!}{' '}
+                                      {vaultBase?.displaySymbol!} ).
                                     </Text>
                                   )}
                                 </InputInfoWrap>
@@ -519,16 +524,13 @@ const VaultPosition = () => {
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
-                                <Box pad='xsmall'>
-                                <Text size="small">
-                                  It is not currently possible to roll debt to this series
-                                </Text>
-                                <Text color="text-weak" size="xsmall">
-                                  ( Most commonly because the
-                                  debt doesn't meet the minimum debt requirements of the series being rolled to ).
-                                </Text>
+                                <Box pad="xsmall">
+                                  <Text size="small">It is not currently possible to roll debt to this series</Text>
+                                  <Text color="text-weak" size="xsmall">
+                                    ( Most commonly because the debt doesn't meet the minimum debt requirements of the
+                                    series being rolled to ).
+                                  </Text>
                                 </Box>
-
                               </InputInfoWrap>
                             )}
                           </Box>

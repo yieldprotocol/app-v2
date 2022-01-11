@@ -266,8 +266,15 @@ export interface IVault extends IVaultRoot, IAssetPair {
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
+  accruedArt: BigNumber;
+
   ink_: string;
   art_: string;
+  
+  rateAtMaturity: BigNumber;
+  rate: BigNumber;
+
+  accruedArt_: string;
 
   liquidationPrice_: string;
 }

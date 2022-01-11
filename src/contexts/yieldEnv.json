@@ -3,6 +3,7 @@
     "1": {
       "Cauldron": "0xc88191F8cb8e6D4a668B047c1C8503432c3Ca867",
       "Ladle": "0x6cB18fF2A33e981D1e38A663Ca056c0a5265066A",
+      "CompoundMultiOracle" : "0x53FBa816BD69a7f2a096f58687f87dd3020d0d5c",
       "ChainlinkMultiOracle": "0xcDCe5C87f691058B61f3A65913f1a3cBCbAd9F52",
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
@@ -12,6 +13,7 @@
     "4": {
       "Cauldron": "0x8390Cd98C116F269a6E6A3b50Fb03B0931423164",
       "Ladle": "0xbC0200F0AAD7C1c0bBB1CC7885E1e796DFFac3e0",
+      "CompoundMultiOracle" : "0xeCA876c39DF7b75281Ea78eB35912fa1CC8f9482",
       "ChainlinkMultiOracle": "0xBDBF01Ee32485aF94e316C395765F5Af2bf4b4dB",
       "CompositeMultiOracle": "0x8482BF1e17ceF57109F34C259d39d5B9BB9A4e13",
       "YearnVaultMultiOracle": "0x88175a3e14F905ecCe464aF2A8E99f26159d4Cb8",
@@ -21,6 +23,7 @@
     "42": {
       "Cauldron": "0xacb1fb5E88ba69E12BDE76A4c373F1935d9fe912",
       "Ladle": "0xe7bae0445B9a1DBE834a7379fbE23C6d2Bd61C59",
+      "CompoundMultiOracle" : "0x23F5F7a17117ba794Fcc5F46Fbf635edD2596Bb6",
       "ChainlinkMultiOracle": "0xBcdc8bad83ca8053DFA6B1CBAEB7E71699254a3b",
       "CompositeMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
       "YearnVaultMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",

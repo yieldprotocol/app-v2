@@ -76,7 +76,7 @@ export const useCollateralHelpers = (
     const existingCollateral_ = vault?.ink ? vault.ink : ethers.constants.Zero;
     const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, _selectedIlk?.decimals);
 
-    const existingDebt_ = vault?.art ? vault.art : ethers.constants.Zero;
+    const existingDebt_ = vault?.accruedArt ? vault.accruedArt : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, _selectedBase?.decimals);
 
     const dInput =
@@ -113,7 +113,7 @@ export const useCollateralHelpers = (
          use a buffer of 1% if there is vault debt to prevent undercollateralized failed tx's
          else use the existing collateral
       */
-      const _maxRemove = vault?.art?.gt(ethers.constants.Zero)
+      const _maxRemove = vault?.accruedArt?.gt(ethers.constants.Zero)
         ? existingCollateralAsWei.sub(min).mul(99).div(100)
         : existingCollateralAsWei;
       setMaxRemovableCollateral(ethers.utils.formatUnits(_maxRemove, 18).toString());
