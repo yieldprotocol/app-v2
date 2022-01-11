@@ -1090,3 +1090,27 @@ export const calcPoolRatios = (
 
   return [min, max];
 };
+
+/**
+ * Calculate accrued debt value after maturity
+ * 
+ * @param {BigNumber} rate
+ * @param {BigNumber} rateAtMaturity
+ * @param {BigNumberr} debt
+ * 
+ * @returns {BigNumber} accruedDebt
+ */
+export const calcAccruedDebt = (
+  rate: BigNumber,
+  rateAtMaturity: BigNumber,
+  debt: BigNumber
+) => {
+  const rate_ = new Decimal(rate.toString());
+  const rateAtMaturity_ = new Decimal(rateAtMaturity.toString());
+  const debt_ = new Decimal(debt.toString());
+
+  const accRatio_ = (rate_).div(rateAtMaturity_);
+  const accruedDebt = debt_.mul( accRatio_);
+
+  return toBn(accruedDebt);
+}

@@ -62,7 +62,7 @@ export const useRepayDebt = () => {
     );
 
     const _inputAsFyToken = series.seriesIsMature
-    ? _input // if series is mature then fyToken value is simply the input.
+    ? _input // if series is mature then value is simply the input.
     : sellBase(
       series.baseReserves,
       series.fyTokenReserves,
@@ -79,7 +79,7 @@ export const useRepayDebt = () => {
       true // minimize
     );
 
-    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
+    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
