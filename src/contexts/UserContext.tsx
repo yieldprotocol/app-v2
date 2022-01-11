@@ -472,7 +472,7 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
-            accruedArt = calcAccruedDebt(rate, rateAtMaturity, art);
+            [accruedArt, ] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
             rateAtMaturity = BigNumber.from('1');

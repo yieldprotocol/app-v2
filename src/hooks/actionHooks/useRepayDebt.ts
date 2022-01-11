@@ -14,7 +14,7 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
+import { calcAccruedDebt, calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
@@ -56,22 +56,22 @@ export const useRepayDebt = () => {
       series.baseReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
-      series.ts, 
+      series.ts,
       series.g1,
       series.decimals
     );
 
     const _inputAsFyToken = series.seriesIsMature
-    ? _input // if series is mature then value is simply the input.
-    : sellBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _input,
-      secondsToFrom(series.maturity.toString()),
-      series.ts,
-      series.g1,
-      series.decimals
-    );
+      ? _input
+      : sellBase(
+          series.baseReserves,
+          series.fyTokenReserves,
+          _input,
+          secondsToFrom(series.maturity.toString()),
+          series.ts,
+          series.g1,
+          series.decimals
+        );
 
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
@@ -82,9 +82,9 @@ export const useRepayDebt = () => {
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
 
-    const _inputforClose = vault.art.lt(_input) ? vault.art : _input;
-
-    // console.log(_inputforClose.toString());
+    const _inputforClose = vault.art.lt(_input)
+      ? vault.art
+      : calcAccruedDebt(vault.rate, vault.rateAtMaturity, _input)[1]; // this is the input value less the accrued amount. 
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
