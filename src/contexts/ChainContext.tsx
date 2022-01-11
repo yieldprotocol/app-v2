@@ -59,8 +59,7 @@ const initState: IChainContextState = {
 
     signer: null as ethers.providers.JsonRpcSigner | null,
     account: null as string | null,
-    web3Active: false as boolean,
-    fallbackActive: false as boolean,
+    
     connectorName: null as string | null,
   },
 
@@ -428,7 +427,7 @@ const ChainProvider = ({ children }: any) => {
                   poolSymbol,
                   ts,
                   g1,
-                  g2
+                  g2,
                 };
                 updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
