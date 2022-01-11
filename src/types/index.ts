@@ -28,8 +28,6 @@ export interface IConnectionState {
   fallbackChainId: number | null;
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
-  web3Active: boolean;
-  fallbackActive: boolean;
   connectorName: string | null;
 }
 
