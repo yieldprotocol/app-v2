@@ -23,7 +23,7 @@ const TWO = TWO_DEC;
 const MAX = MAX_DEC;
 
 /* Protocol Specific Constants */
-const k = new Decimal(1 / secondsInTenYears.toNumber()).mul(2 ** 64) ; // inv of seconds in 10 years
+const k = new Decimal(1 / secondsInTenYears.toNumber()).mul(2 ** 64); // inv of seconds in 10 years
 const g1_default = new Decimal(950 / 1000).mul(2 ** 64);
 const g2_default = new Decimal(1000 / 950).mul(2 ** 64);
 const precisionFee = new Decimal(1000000000000);
@@ -136,7 +136,6 @@ const _computeA = (
   ts: BigNumber | string,
   g: BigNumber | string
 ): [Decimal, Decimal] => {
-  
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
   // console.log( new Decimal(BigNumber.from(g).toString()).div(2 ** 64).toString() )
 
@@ -296,7 +295,7 @@ export function mintWithBase(
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g2
  * @param { number } decimals
- * 
+ *
  * @returns { BigNumber }
  */
 export function burnForBase(
@@ -329,7 +328,7 @@ export function burnForBase(
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g1
  * @param { number } decimals
- * 
+ *
  * @returns { BigNumber }
  */
 export function sellBase(
@@ -372,7 +371,7 @@ export function sellBase(
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g2
  * @param { number } decimals
- * 
+ *
  * @returns { BigNumber }
  */
 export function sellFYToken(
@@ -503,7 +502,7 @@ export function buyFYToken(
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g1
  * @param { number } decimals
- * 
+ *
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
@@ -561,7 +560,7 @@ export function maxBaseIn(
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g2
  * @param { number } decimals
- * 
+ *
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
@@ -657,7 +656,7 @@ export function maxFyTokenIn(
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g1
  * @param { number } decimals
- * 
+ *
  * @returns { BigNumber }
  */
 export function maxFyTokenOut(
@@ -989,7 +988,7 @@ export const newPoolState = (
  * @param {BigNumber}  poolFyTokenReserves
  * @param {BigNumber}  poolTotalSupply
  * @param {number}  poolTimeToMaturity
- * 
+ *
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g2
  * @param { number } decimals
@@ -1093,24 +1092,20 @@ export const calcPoolRatios = (
 
 /**
  * Calculate accrued debt value after maturity
- * 
+ *
  * @param {BigNumber} rate
  * @param {BigNumber} rateAtMaturity
  * @param {BigNumberr} debt
- * 
+ *
  * @returns {BigNumber} accruedDebt
  */
-export const calcAccruedDebt = (
-  rate: BigNumber,
-  rateAtMaturity: BigNumber,
-  debt: BigNumber
-) => {
+export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt: BigNumber): BigNumber => {
   const rate_ = new Decimal(rate.toString());
   const rateAtMaturity_ = new Decimal(rateAtMaturity.toString());
   const debt_ = new Decimal(debt.toString());
 
-  const accRatio_ = (rate_).div(rateAtMaturity_);
-  const accruedDebt = debt_.mul( accRatio_);
+  const accRatio_ = rate_.div(rateAtMaturity_);
+  const accruedDebt = debt_.mul(accRatio_);
 
   return toBn(accruedDebt);
-}
+};
