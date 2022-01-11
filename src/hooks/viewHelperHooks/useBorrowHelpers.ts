@@ -203,7 +203,7 @@ export const useBorrowHelpers = (
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxRepayable);
         }
-        /* or, if the series is mature re-set max as all debt rounded up to account for changes in time it takes to mine.  */
+        /* or, if the series is mature re-set max as all debt */
         if (vaultSeries.seriesIsMature) {
           const _art = vault.accruedArt;
           setMaxRepay(_art);
