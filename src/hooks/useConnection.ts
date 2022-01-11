@@ -47,7 +47,7 @@ export const useConnection = () => {
 
   const connect = useCallback((connection: string ) => {
     setErrorMessage(undefined);
-    console.log( connection )
+    // console.log( connection )
     activate(
       CONNECTORS.get(connection),
       (e: Error) => {
@@ -56,7 +56,6 @@ export const useConnection = () => {
       },
       false
     ).then( (x) => {
-      console.log( isConnected(connection) );
       setConnectionName(connection);
     })
   }, [activate, handleErrorMessage, setConnectionName]);
@@ -76,6 +75,7 @@ export const useConnection = () => {
             } else setTried(true); // not authorsied, move on
           }); 
       } else {
+        connect('walletconnect');
         setTried(true); // tried, failed, move on.
       };
     }
