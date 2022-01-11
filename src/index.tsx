@@ -17,6 +17,10 @@ declare global {
     gtag: any;
   }
 }
+/* this is only for walletConnect to work */
+(window as any).global = window;
+// eslint-disable-next-line global-require
+(window as any).global.Buffer = (window as any).global.Buffer || require('buffer').Buffer;
 
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
