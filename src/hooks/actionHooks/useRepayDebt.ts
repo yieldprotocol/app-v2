@@ -81,6 +81,7 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+    const _inputforClose = vault.art.gt(_input)? vault.art : _input;
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
@@ -98,8 +99,6 @@ export const useRepayDebt = () => {
     const alreadyApproved = (
       await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress)
     ).gt(_input);
-
-    const _inputforClose = vault.art.gt(_input)? vault.art : _input;
 
     const permits: ICallData[] = await sign(
       [
