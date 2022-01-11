@@ -6,8 +6,8 @@ import {
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector';
 
 import { NetworkConnector } from '@web3-react/network-connector';
-import { ethers } from 'ethers';
-import { useEffect, useState } from 'react';
+import { ethers } from 'ethers'; 
+import { useCallback, useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
 import { CHAIN_INFO, SUPPORTED_RPC_URLS } from '../config/chainData';
 import { CONNECTORS, CONNECTOR_INFO, INIT_INJECTED } from '../config/connectors';
@@ -23,13 +23,14 @@ const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more det
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
 
-  const [connectionName, setConnectionName] = useCachedState('connectionName', '');
+  
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
+  const [connectionName, setConnectionName] = useCachedState('connectionName', '');
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const { connector, library: provider, chainId, account, activate, deactivate, active } = primaryConnection;
@@ -43,8 +44,10 @@ export const useConnection = () => {
 
   const isConnected = (connection: string) => CONNECTORS.get(connection) === connector;
   const disconnect = () => connector && deactivate();
-  const connect = (connection: string = INIT_INJECTED) => {
+
+  const connect = useCallback((connection: string ) => {
     setErrorMessage(undefined);
+    // console.log( connection )
     activate(
       CONNECTORS.get(connection),
       (e: Error) => {
@@ -52,39 +55,37 @@ export const useConnection = () => {
         setTried(true); // tried, failed, move on.
       },
       false
-    );
-    CONNECTORS.has(connection) && setConnectionName(connection);
-  };
+    ).then( (x) => {
+      setConnectionName(connection);
+    })
+  }, [activate, handleErrorMessage, setConnectionName]);
 
   /**
    * FIRST STEP > Try to connect automatically to an injected provider on first load
    * */
   useEffect(() => {
-    if (!tried && !active && INIT_INJECTED !== 'walletconnect') {
+    if (!tried && !active ) {
       setErrorMessage(undefined);
       if (INIT_INJECTED !== 'walletconnect') {
         CONNECTORS.get(INIT_INJECTED)
           .isAuthorized()
           .then((isAuthorized: boolean) => {
             if (isAuthorized) {
-              activate(
-                CONNECTORS.get(INIT_INJECTED),
-                (e: Error) => {
-                  setErrorMessage(handleErrorMessage(e));
-                  setTried(true); // tried, failed, move on.
-                },
-                false
-              );
-              setConnectionName(INIT_INJECTED);
+                connect(INIT_INJECTED)
             } else setTried(true); // not authorsied, move on
-          });
-      } else setTried(true); // metamask not authorised, move on
+          }); 
+      } else {
+        connect('walletconnect');
+        setTried(true); // tried, failed, move on.
+      };
     }
     /* if active, set tried to true */
     !tried && active && setTried(true);
-  }, [activate, active, handleErrorMessage, tried, setConnectionName]);
+
+  }, [activate, active, connect, handleErrorMessage, tried]);
 
   /*
+      SETTTING THE FALLBACK CHAINID >
       Watch the chainId for changes (most likely instigated by metamask),
       and change the FALLBACK provider accordingly.
       NOTE: Currently, there is no way to change the fallback provider manually, but the last chainId is cached.
@@ -105,7 +106,6 @@ export const useConnection = () => {
         false
       );
     }
-
     /* Case: Auto Connection SUCCESS > set the fallback connector to the same as the chainId */
     if (tried && chainId) {
       console.log('Connecting fallback Provider to the same network as connected wallet');
@@ -121,17 +121,16 @@ export const useConnection = () => {
         false
       );
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tried, chainId, fallbackActivate, lastChainId]);
 
-  /* Watch the connector currently being activated */
+  /* Watch and track the connector currently being activated */
   const [activatingConnector, setActivatingConnector] = useState<any>();
   useEffect(() => {
     activatingConnector && activatingConnector === connector && setActivatingConnector(undefined);
   }, [activatingConnector, connector]);
 
-  /* handle chain changes */
+  /* handle chainId changes */
   useEffect(() => {
     fallbackChainId && setCurrentChainInfo(CHAIN_INFO.get(fallbackChainId));
     if (fallbackChainId && lastChainId && fallbackChainId !== lastChainId) {
@@ -144,6 +143,7 @@ export const useConnection = () => {
         'lastSeriesUpdate',
         'strategies',
         'lastStrategiesUpdate',
+        'connectionName',
       ]);
       setLastChainId(fallbackChainId);
       // eslint-disable-next-line no-restricted-globals
@@ -215,6 +215,7 @@ const useInactiveListener = (suppress: boolean = false) => {
   useEffect((): any => {
     const { ethereum } = window as any;
     if (ethereum && ethereum.on && !active && !error && !suppress) {
+
       const handleConnect = () => {
         if (lastChainId !== _chainId && active) {
           console.log('Handling CONNECT');
