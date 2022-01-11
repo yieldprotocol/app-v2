@@ -1099,7 +1099,7 @@ export const calcPoolRatios = (
  *
  * @returns {BigNumber} accruedDebt
  */
-export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt: BigNumber) => {
+export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt: BigNumber): BigNumber => {
   const rate_ = new Decimal(rate.toString());
   const rateAtMaturity_ = new Decimal(rateAtMaturity.toString());
   const debt_ = new Decimal(debt.toString());
