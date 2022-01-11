@@ -1097,7 +1097,7 @@ export const calcPoolRatios = (
  * @param {BigNumber} rateAtMaturity
  * @param {BigNumberr} debt
  *
- * @returns {[BigNumber, BigNumber] } accruedDebt , debt less accrued value
+ * @returns {[BigNumber, BigNumber] } accruedDebt, debt less accrued value
  */
 export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt: BigNumber): BigNumber[] => {
   const rate_ = new Decimal(rate.toString());
@@ -1111,5 +1111,5 @@ export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt
   const accruedDebt = debt_.mul(accRatio_);
   const debtLessAccrued = debt_.mul(invRatio_);
 
-  return [ toBn(accruedDebt), toBn(debtLessAccrued) ];
+  return [toBn(accruedDebt), toBn(debtLessAccrued)];
 };
