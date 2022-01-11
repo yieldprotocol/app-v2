@@ -99,6 +99,8 @@ export const useRepayDebt = () => {
       await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress)
     ).gt(_input);
 
+    const _inputforClose = vault.art.gt(_input)? vault.art : _input;
+
     const permits: ICallData[] = await sign(
       [
         {
@@ -150,7 +152,7 @@ export const useRepayDebt = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 

@@ -490,6 +490,9 @@ const UserProvider = ({ children }: any) => {
             baseRoot?.digitFormat
           );
 
+          diagnostics && console.log(vault.displayName, ' art: ', art.toString());
+          diagnostics && console.log(vault.displayName, ' accArt: ', accruedArt.toString());
+
           const liquidationPrice_ = cleanValue(
             calcLiquidationPrice(ink_, accruedArt_, minRatio),
             baseRoot?.digitFormat
@@ -546,7 +549,18 @@ const UserProvider = ({ children }: any) => {
 
       console.log('VAULTS: ', combinedVaultMap);
     },
-    [contractMap, _getVaults, userState.vaultMap, userState.assetPairMap, vaultFromUrl, diagnostics, seriesRootMap, assetRootMap, account, updateAssetPair]
+    [
+      contractMap,
+      _getVaults,
+      userState.vaultMap,
+      userState.assetPairMap,
+      vaultFromUrl,
+      diagnostics,
+      seriesRootMap,
+      assetRootMap,
+      account,
+      updateAssetPair,
+    ]
   );
 
   /* Updates the assets with relevant *user* data */
