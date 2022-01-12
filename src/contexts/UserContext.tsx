@@ -30,6 +30,7 @@ import {
   sellFYToken,
   decimal18ToDecimalN,
   calcLiquidationPrice,
+  calcAccruedDebt,
 } from '../utils/yieldMath';
 
 import { WAD_BN, ZERO_BN } from '../utils/constants';
@@ -278,7 +279,7 @@ const UserProvider = ({ children }: any) => {
         ?.get(baseId)
         ?.get(ilkId);
 
-      const Oracle = contractMap.get(oracleName!);
+      const PriceOracle = contractMap.get(oracleName!);
 
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
@@ -294,7 +295,7 @@ const UserProvider = ({ children }: any) => {
       let price: BigNumber;
       try {
         // eslint-disable-next-line prefer-const
-        [price] = await Oracle?.peek(
+        [price] = await PriceOracle?.peek(
           bytesToBytes32(ilkId, 6),
           bytesToBytes32(baseId, 6),
           decimal18ToDecimalN(WAD_BN, ilk?.decimals!)
@@ -345,14 +346,13 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series: ISeriesRoot): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] =
-            await Promise.all([
-              series.poolContract.getBaseBalance(),
-              series.poolContract.getFYTokenBalance(),
-              series.poolContract.totalSupply(),
-              series.fyTokenContract.balanceOf(series.poolAddress),
-              series.isMature(),
-            ]);
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
+            series.poolContract.getBaseBalance(),
+            series.poolContract.getFYTokenBalance(),
+            series.poolContract.totalSupply(),
+            series.fyTokenContract.balanceOf(series.poolAddress),
+            series.isMature(),
+          ]);
 
           /* Calculates the base/fyToken unit selling price */
           const _sellRate = sellFYToken(
@@ -378,7 +378,7 @@ const UserProvider = ({ children }: any) => {
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: mature
+            seriesIsMature: mature,
           };
         })
       );
@@ -432,6 +432,7 @@ const UserProvider = ({ children }: any) => {
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
       const Witch = contractMap.get('Witch');
+      const RateOracle = contractMap.get('RateOracle');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
       if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
@@ -448,6 +449,10 @@ const UserProvider = ({ children }: any) => {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
             pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId);
           }
+          const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
+
+          diagnostics &&
+            console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
 
           /* Get dynamic vault data */
           const [
@@ -455,17 +460,43 @@ const UserProvider = ({ children }: any) => {
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
-          const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
+          const series = seriesRootMap.get(seriesId);
+
+          let accruedArt;
+          let rateAtMaturity;
+          let rate;
+          if (await series?.isMature()) {
+            rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
+            [rate] = await RateOracle?.peek(
+              bytesToBytes32(vault.baseId, 6),
+              '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
+              '0'
+            );
+            [accruedArt, ] = calcAccruedDebt(rate, rateAtMaturity, art);
+          } else {
+            rate = BigNumber.from('1');
+            rateAtMaturity = BigNumber.from('1');
+            accruedArt = art;
+          }
 
           const baseRoot = assetRootMap.get(vault.baseId);
           const ilkRoot = assetRootMap.get(ilkId);
 
-          diagnostics &&
-            console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
-
           const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat);
           const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat);
-          const liquidationPrice_ = cleanValue(calcLiquidationPrice(ink_, art_, minRatio), baseRoot?.digitFormat);
+
+          const accruedArt_ = cleanValue(
+            ethers.utils.formatUnits(accruedArt, baseRoot?.decimals),
+            baseRoot?.digitFormat
+          );
+
+          diagnostics && console.log(vault.displayName, ' art: ', art.toString());
+          diagnostics && console.log(vault.displayName, ' accArt: ', accruedArt.toString());
+
+          const liquidationPrice_ = cleanValue(
+            calcLiquidationPrice(ink_, accruedArt_, minRatio),
+            baseRoot?.digitFormat
+          );
 
           return {
             ...vault,
@@ -476,9 +507,13 @@ const UserProvider = ({ children }: any) => {
             ilkId, // refreshed in case ilkId has been updated
             ink,
             art,
+            accruedArt,
+            rateAtMaturity,
+            rate,
 
             ink_, // for display purposes only
             art_, // for display purposes only
+            accruedArt_, // display purposes
 
             /* attach extra pairwaise data for convenience */
             minDebtLimit,
@@ -514,7 +549,18 @@ const UserProvider = ({ children }: any) => {
 
       console.log('VAULTS: ', combinedVaultMap);
     },
-    [contractMap, _getVaults, userState.vaultMap, vaultFromUrl, assetRootMap, account]
+    [
+      contractMap,
+      _getVaults,
+      userState.vaultMap,
+      userState.assetPairMap,
+      vaultFromUrl,
+      diagnostics,
+      seriesRootMap,
+      assetRootMap,
+      account,
+      updateAssetPair,
+    ]
   );
 
   /* Updates the assets with relevant *user* data */

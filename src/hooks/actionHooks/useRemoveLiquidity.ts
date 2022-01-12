@@ -118,7 +118,7 @@ export const useRemoveLiquidity = () => {
     const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
 
     const matchingVaultId: string | undefined = matchingVault?.id;
-    const matchingVaultDebt: BigNumber = matchingVault?.art || ZERO_BN;
+    const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
     // Choose use use matching vault:
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
     // const useMatchingVault: boolean = !!matchingVault && ( _fyTokenReceived.lte(matchingVaultDebt) || !tradeFyToken) ;

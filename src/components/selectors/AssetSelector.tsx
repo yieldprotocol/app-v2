@@ -35,7 +35,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   ) as IUserContext;
   const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
-  const { setSelectedIlk, setSelectedBase } = userActions;
+  const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
 
   const [options, setOptions] = useState<IAsset[]>([]);
 
@@ -56,6 +56,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
+      setSelectedSeries(null)
     }
   };
 
@@ -85,7 +86,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk?.id === selectedBase?.id) {
-      console.log('base matches ilk');
       const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
       setSelectedIlk(firstNotBaseIlk!);
     }

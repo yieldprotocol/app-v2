@@ -28,8 +28,6 @@ export interface IConnectionState {
   fallbackChainId: number | null;
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
-  web3Active: boolean;
-  fallbackActive: boolean;
   connectorName: string | null;
 }
 
@@ -268,8 +266,15 @@ export interface IVault extends IVaultRoot, IAssetPair {
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
+  accruedArt: BigNumber;
+
   ink_: string;
   art_: string;
+  
+  rateAtMaturity: BigNumber;
+  rate: BigNumber;
+
+  accruedArt_: string;
 
   liquidationPrice_: string;
 }
