@@ -257,7 +257,7 @@ const PoolPosition = () => {
                           <TextInput
                             plain
                             type="number"
-                            inputMode="numeric"
+                            inputMode="decimal"
                             placeholder="Tokens to remove"
                             value={removeInput || ''}
                             onChange={(event: any) =>

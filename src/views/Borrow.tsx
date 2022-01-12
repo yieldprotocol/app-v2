@@ -305,7 +305,7 @@ const Borrow = () => {
                         <TextInput
                           plain
                           type="number"
-                          inputMode="numeric"
+                          inputMode="decimal"
                           placeholder="Enter amount"
                           value={borrowInput}
                           onChange={(event: any) =>

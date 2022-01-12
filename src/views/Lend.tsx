@@ -141,7 +141,7 @@ const Lend = () => {
                         <TextInput
                           plain
                           type="number"
-                          inputMode="numeric"
+                          inputMode="decimal"
                           placeholder="Enter amount"
                           value={lendInput || ''}
                           onChange={(event: any) =>
