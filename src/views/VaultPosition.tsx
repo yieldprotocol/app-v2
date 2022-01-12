@@ -136,6 +136,7 @@ const VaultPosition = () => {
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
+    variableRate,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
@@ -304,7 +305,7 @@ const VaultPosition = () => {
                       label="Vault debt + interest"
                       value={`${cleanValue(_selectedVault?.accruedArt_, vaultBase?.digitFormat!)} ${
                         vaultBase?.displaySymbol
-                      }`}
+                      }${vaultSeries?.seriesIsMature && variableRate ? ` (variable rate: ${variableRate})` : ''}`}
                       icon={<FiTrendingUp />}
                       loading={vaultsLoading}
                     />

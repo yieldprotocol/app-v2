@@ -258,5 +258,7 @@ export const useBorrowHelpers = (
     minDebt,
     maxDebt_,
     minDebt_,
+
+    variableRate,
   };
 };
