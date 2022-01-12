@@ -145,6 +145,7 @@ const ChainProvider = ({ children }: any) => {
 
       let Cauldron: any;
       let Ladle: any;
+      let RateOracle: any;
       let ChainlinkMultiOracle: any;
       let CompositeMultiOracle: any;
       let YearnVaultMultiOracle: any;
@@ -161,6 +162,10 @@ const ChainProvider = ({ children }: any) => {
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
+          RateOracle = contracts.CompoundMultiOracle__factory.connect(
+            addrs.CompoundMultiOracle,
+            fallbackProvider
+          );
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
             fallbackProvider
@@ -202,6 +207,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('Witch', Witch);
+      newContractMap.set('RateOracle', RateOracle);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);

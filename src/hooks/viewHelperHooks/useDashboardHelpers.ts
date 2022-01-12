@@ -141,7 +141,7 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     async function getBalances() {
       const _debts = await Promise.all(
-        vaultPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.art_))
+        vaultPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.accruedArt_))
       );
 
       setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits));
