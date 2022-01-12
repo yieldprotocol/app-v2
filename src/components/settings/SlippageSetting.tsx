@@ -76,6 +76,7 @@ const SlippageSetting = () => {
                 reverse
                 plain
                 type="number"
+                inputMode="numeric"
                 value={input || ''}
                 onChange={(event: any) => setInput(event.target.value)}
               />

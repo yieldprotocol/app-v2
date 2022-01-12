@@ -456,6 +456,7 @@ const VaultPosition = () => {
                           <TextInput
                             plain
                             type="number"
+                            inputMode="numeric"
                             placeholder={`Enter ${vaultBase?.displaySymbol} amount to Repay`}
                             // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                             value={repayInput || ''}
@@ -581,6 +582,7 @@ const VaultPosition = () => {
                             // disabled={removeCollatInput}
                             plain
                             type="number"
+                            inputMode="numeric"
                             placeholder="Collateral to add"
                             value={addCollatInput || ''}
                             onChange={(event: any) =>
@@ -649,6 +651,7 @@ const VaultPosition = () => {
                             // disabled={addCollatInput}
                             plain
                             type="number"
+                            inputMode="numeric"
                             placeholder="Collateral to remove"
                             value={removeCollatInput || ''}
                             onChange={(event: any) =>

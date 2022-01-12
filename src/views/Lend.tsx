@@ -63,10 +63,7 @@ const Lend = () => {
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
 
   /* input validation hooks */
-  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [
-    0,
-    maxLend_,
-  ]);
+  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
 
   /* LOCAL FNS */
   const handleLend = () => {
@@ -144,6 +141,7 @@ const Lend = () => {
                         <TextInput
                           plain
                           type="number"
+                          inputMode="numeric"
                           placeholder="Enter amount"
                           value={lendInput || ''}
                           onChange={(event: any) =>

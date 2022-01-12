@@ -127,6 +127,7 @@ function Pool() {
                         <TextInput
                           plain
                           type="number"
+                          inputMode="numeric"
                           placeholder="Enter Amount"
                           value={poolInput || ''}
                           onChange={(event: any) =>
