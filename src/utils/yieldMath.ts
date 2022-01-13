@@ -704,6 +704,7 @@ export function fyTokenForMint(
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
   const fyTokenRealReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenRealReserves), decimals);
   const fyTokenVirtualReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenVirtualReserves), decimals);
+  
   const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
@@ -723,7 +724,7 @@ export function fyTokenForMint(
     // eslint-disable-next-line no-plusplus
     if (i++ > 100) return ZERO_BN;
     // if (i++ > 100)  throw 'Not converging'
-
+    
     zIn = new Decimal(
       buyFYToken(
         baseReserves18,
@@ -1070,10 +1071,10 @@ export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber)
  *
  * @returns {[BigNumber, BigNumber] }
  */
-export const calcPoolRatios = (
+export const calcMinMaxPoolRatios = (
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
-  slippage: number = 0.1
+  slippage: number = 0.01
 ): [BigNumber, BigNumber] => {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
@@ -1105,7 +1106,6 @@ export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt
   const debt_ = new Decimal(debt.toString());
 
   const accRatio_ = rate_.div(rateAtMaturity_);
-
   const invRatio_ = rateAtMaturity_.div(rate_); // to reverse calc the debt LESS the accrued value
 
   const accruedDebt = debt_.mul(accRatio_);

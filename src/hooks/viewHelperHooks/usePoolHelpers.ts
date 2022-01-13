@@ -27,7 +27,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const strategySeries: ISeries | undefined = seriesMap?.get(
     selectedStrategy ? strategy?.currentSeriesId : selectedSeries
   );
-
   const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.idToUse);
 
   /* LOCAL STATE */
@@ -38,10 +37,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const [poolPercentPreview, setPoolPercentPreview] = useState<string | undefined>();
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(false);
-
-  // const [inputTradeValue, setInputTradeValue] = useState<BigNumber | undefined>();
-  // const [inputTradeValue_, setInputTradeValue_] = useState<string | undefined>();
-  // const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
 
   /* remove liquidity helpers */
   const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
@@ -95,6 +90,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     }
   }, [input, strategy?.decimals, strategyBase]);
 
+
   /**
    * ADD LIQUIDITY SPECIFIC  SECTION
    * */
@@ -129,7 +125,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.ts,
         strategySeries.g1,
         strategySeries.decimals,
-        slippageTolerance
+        // slippageTolerance
       );
 
       /* Check if buy and pool option is allowed */
@@ -140,6 +136,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
       setCanBuyAndPool(buyAndPoolAllowed);
       diagnostics && console.log('Can BuyAndPool?', buyAndPoolAllowed);
+
     } else {
       /* Don't allow by default */
       setCanBuyAndPool(false);

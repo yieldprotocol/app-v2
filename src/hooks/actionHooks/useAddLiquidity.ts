@@ -19,20 +19,20 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT } from '../../utils/constants';
 import { useChain } from '../useChain';
 
-import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
+import { calcMinMaxPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
 
 export const useAddLiquidity = () => {
   const {
-    settingsState: { slippageTolerance, diagnostics, approveMax },
+    settingsState: { slippageTolerance, diagnostics },
   } = useContext(SettingsContext);
 
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
   const { activeAccount: account, assetMap, seriesMap } = userState;
@@ -68,17 +68,15 @@ export const useAddLiquidity = () => {
       cachedBaseReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
-      _inputLessSlippage,
+      _input,
       series.getTimeTillMaturity(),
       series.ts,
       series.g1,
       series.decimals,
-      slippageTolerance
+      // slippageTolerance
     );
 
-    console.log(cachedBaseReserves.toString(), cachedRealReserves.toString())
-
-    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
+    const [minRatio, maxRatio] = calcMinMaxPoolRatios(cachedBaseReserves, cachedRealReserves);
 
     const [_baseToPool, _baseToFyToken] = splitLiquidity(
       cachedBaseReserves,
@@ -93,31 +91,26 @@ export const useAddLiquidity = () => {
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gt(_input);
 
     /* DIAGNOSITCS */
+    if (diagnostics) {
+    console.log('matching vault id', matchingVaultId);
 
-      console.log(
-        'input: ',
-        _input.toString(),
-        'inputLessSlippage: ',
-        _inputLessSlippage.toString(),
-        'base: ',
-        cachedBaseReserves.toString(),
-        'real: ',
-        cachedRealReserves.toString(),
-        'virtual: ',
-        cachedFyTokenReserves.toString(),
-        '>> baseSplit: ',
-        _baseToPool.toString(),
-        '>> fyTokenSplit: ',
-        _baseToFyToken.toString(),
-        '>> baseSplitWithSlippage: ',
-        _baseToPoolWithSlippage.toString(),
-        '>> minRatio',
-        minRatio.toString(),
-        '>> maxRatio',
-        maxRatio.toString(),
-        'matching vault id',
-        matchingVaultId
-      );
+    console.log('input: ', _input.toString());
+    console.log('inputLessSlippage: ', _inputLessSlippage.toString());
+
+    console.log('fyTokensForMinting: ', _fyTokenToBeMinted.toString());
+
+    console.log('baseReserves: ', cachedBaseReserves.toString());
+    console.log('realReserves: ', cachedRealReserves.toString());
+    console.log('virtualReserves: ', cachedFyTokenReserves.toString());
+
+    console.log('>> baseSplit (Base to Pool): ', _baseToPool.toString());
+    console.log('>> baseSplitWithSlippage: ', _baseToPoolWithSlippage.toString());
+
+    console.log('>> fyTokenSplit: (Base to Fytoken) ', _baseToFyToken.toString());
+
+    console.log('>> minRatio', minRatio.toString());
+    console.log('>> maxRatio', maxRatio.toString());
+    }
 
     /**
      * GET SIGNTURE/APPROVAL DATA
@@ -128,7 +121,7 @@ export const useAddLiquidity = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: alreadyApproved===true,
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode

@@ -9,7 +9,6 @@ import {
   RoutedActions,
   IVault,
   ISettingsContext,
-  IStrategy,
   IAsset,
   IUserContext,
   IUserContextState,
@@ -19,10 +18,9 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '../../utils/yieldMath';
+import { burn, burnFromStrategy, calcMinMaxPoolRatios, newPoolState, sellFYToken } from '../../utils/yieldMath';
 import { ZERO_BN } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -50,7 +48,7 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const {
-    settingsState: { approveMax, diagnostics },
+    settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
@@ -123,7 +121,7 @@ export const useRemoveLiquidity = () => {
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
     // const useMatchingVault: boolean = !!matchingVault && ( _fyTokenReceived.lte(matchingVaultDebt) || !tradeFyToken) ;
 
-    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
+    const [minRatio, maxRatio] = calcMinMaxPoolRatios(cachedBaseReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
     const extrafyTokenTrade: BigNumber = sellFYToken(
