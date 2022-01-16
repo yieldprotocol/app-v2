@@ -240,6 +240,7 @@ const LendPosition = () => {
                           <TextInput
                             plain
                             type="number"
+                            inputMode="decimal"
                             placeholder="Amount to redeem"
                             value={closeInput || ''}
                             onChange={(event: any) =>
