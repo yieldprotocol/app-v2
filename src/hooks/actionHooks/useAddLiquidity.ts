@@ -68,7 +68,7 @@ export const useAddLiquidity = () => {
       cachedBaseReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
-      _input,
+      _inputLessSlippage,
       series.getTimeTillMaturity(),
       series.ts,
       series.g1,
