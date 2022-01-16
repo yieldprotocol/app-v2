@@ -711,7 +711,7 @@ export function fyTokenForMint(
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const slippage_ = new Decimal(slippage).mul(new Decimal(10)); /* multiply the user slippage by 10 */
+  const slippage_ = new Decimal(slippage).mul(new Decimal(10)); /* multiply the user slippage by 10  - if selected */
 
   let min = ZERO;
   let max = base_.mul(TWO);
@@ -1074,7 +1074,7 @@ export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber)
 export const calcMinMaxPoolRatios = (
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
-  slippage: number = 0.01
+  slippage: number = 0.1
 ): [BigNumber, BigNumber] => {
   const baseReserves_ = new Decimal(baseReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
