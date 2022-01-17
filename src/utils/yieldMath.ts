@@ -150,6 +150,7 @@ const _computeA = (
   return [a, invA]; /* returns a and inverse of a */
 };
 
+
 const _computeB = (
   timeToMaturity: BigNumber | string,
   ts: BigNumber | string,
@@ -710,7 +711,7 @@ export function fyTokenForMint(
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const slippage_ = new Decimal(slippage).mul(new Decimal(10)); /* multiply the user slippage by 10 */
+  const slippage_ = new Decimal(slippage) // .mul(new Decimal(10)); /* multiply the user slippage by 10 */
 
   let min = ZERO;
   let max = base_.mul(TWO);
@@ -735,6 +736,7 @@ export function fyTokenForMint(
         18
       ).toString()
     );
+
     const Z_1 = baseReserves_.add(zIn); // New base balance
     const z_1 = base_.sub(zIn); // My remaining base
     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyToken balance
@@ -759,6 +761,9 @@ export function fyTokenForMint(
       yOut = yOut.add(min).div(TWO); // bought too much fyToken, buy a bit less
     }
   }
+
+//  console.log( 'yOut : ', yOut.toFixed());
+//  console.log( 'buyFyTOKEN: ', zIn.toString() );
 
   return decimal18ToDecimalN(
     // (converted back to original decimals)

@@ -10,6 +10,7 @@ import {
   maxFyTokenOut,
   burnFromStrategy,
   burn,
+  calculateSlippage,
 } from '../../utils/yieldMath';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
@@ -124,12 +125,12 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.fyTokenReserves,
-        _input,
+        calculateSlippage(_input, slippageTolerance, true),
         strategySeries.getTimeTillMaturity(),
         strategySeries.ts,
         strategySeries.g1,
         strategySeries.decimals,
-        slippageTolerance
+        // slippageTolerance
       );
 
       /* Check if buy and pool option is allowed */
