@@ -1074,6 +1074,7 @@ export const calcPoolRatios = (
  * @param { BigNumber | string } fyTokenReserves // y
  * @param { BigNumber | string } base
  * @param { BigNumber | string } coefficient // c
+ * @param { BigNumber | string } coefficient0 // c0 (μ)
  * @param { BigNumber | string } timeTillMaturity
  * @param { number } decimals
  * @param { boolean } withNoFee
@@ -1083,14 +1084,15 @@ export const calcPoolRatios = (
  * z = vyToken
  *
  *           (                  sum                    )
- *           (    Za    )   ( Ya  )   (       Zxa      )   (   invA   )
- * dy = y - ( c * z^(1-t) + y^(1-t) - c * (z + dz)^(1-t) )^(1 / (1 - t))
+ *           (    Za           )   ( Ya  )   (       Zxa          )   (   invA   )
+ * dy = y - ( c * μ^-t * z^(1-t) + y^(1-t) - c * μ^-t (z + dz)^(1-t) )^(1 / (1 - t))
  */
 export function sellBaseVY(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   base: BigNumber | string,
   coefficient: BigNumber | string, // c: the price of vyDAI to DAI in decimals
+  coefficient0: BigNumber | string, // c0 (μ): the price of vyDAI to DAI in decimals at initialization
   timeTillMaturity: BigNumber | string,
   decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
@@ -1100,18 +1102,22 @@ export function sellBaseVY(
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(coefficient), decimals);
+  const c0_18 = decimalNToDecimal18(BigNumber.from(coefficient0), decimals);
+  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const c = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const mu = new Decimal(c0_18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const _g = withNoFee ? ONE : g1;
   const [a, invA] = _computeA(timeTillMaturity, _g);
+  const muFactor = ONE.div(mu.pow(timeTillMaturity_));
 
-  const Za = c.mul(baseReserves_.pow(a));
+  const Za = c.mul(muFactor).mul(baseReserves_.pow(a));
   const Ya = fyTokenReserves_.pow(a);
-  const Zxa = c.mul(baseReserves_.add(base_).pow(a));
+  const Zxa = c.mul(muFactor).mul(baseReserves_.add(base_).pow(a));
   const sum = Za.add(Ya).sub(Zxa);
   const y = fyTokenReserves_.sub(sum.pow(invA));
 
@@ -1126,7 +1132,8 @@ export function sellBaseVY(
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
- * @param { BigNumber | string } fyToken
+ * @param { BigNumber | string } coefficient
+ * @param { BigNumber | string } coefficient0
  * @param { BigNumber | string } timeTillMaturity
  * @param { number } decimals
  * @param { boolean } withNoFee
@@ -1136,14 +1143,15 @@ export function sellBaseVY(
  * z = vyToken
  *
  *            (                sum                      )
- *              (  Za     )   ( Ya  )    (    Yxa     )         (   invA   )
- * dz = z - ( ( c * z^(1-t) + y^(1-t) -  (y + dy)^(1-t) ) / c )^(1 / (1 - t))
+ *             (       Za        )   ( Ya  )    (    Yxa     )                 (   invA   )
+ * dz = z - ( ( c * μ^-t * z^(1-t) + y^(1-t) -  (y + dy)^(1-t) ) / (c * μ-t) )^(1 / (1 - t))
  */
 export function sellFYTokenVY(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   fyToken: BigNumber | string,
   coefficient: BigNumber | string, // c: the price of vyDAI to DAI
+  coefficient0: BigNumber | string, // c: the price of vyDAI to DAI at initialization
   timeTillMaturity: BigNumber | string,
   decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
@@ -1153,20 +1161,24 @@ export function sellFYTokenVY(
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const fyToken18 = decimalNToDecimal18(BigNumber.from(fyToken), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(coefficient), decimals);
+  const c0_18 = decimalNToDecimal18(BigNumber.from(coefficient0), decimals);
+  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyDai_ = new Decimal(fyToken18.toString());
   const c = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const mu = new Decimal(c0_18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const _g = withNoFee ? ONE : g2;
   const [a, invA] = _computeA(timeTillMaturity, _g);
+  const muFactor = ONE.div(mu.pow(timeTillMaturity_));
 
-  const Za = c.mul(baseReserves_.pow(a));
+  const Za = c.mul(muFactor).mul(baseReserves_.pow(a));
   const Ya = fyTokenReserves_.pow(a);
   const Yxa = fyTokenReserves_.add(fyDai_).pow(a);
   const sum = Za.add(Ya).sub(Yxa);
-  const y = baseReserves_.sub(sum.div(c).pow(invA));
+  const y = baseReserves_.sub(sum.div(c.mul(muFactor)).pow(invA));
 
   const yFee = y.sub(precisionFee);
 
@@ -1181,6 +1193,7 @@ export function sellFYTokenVY(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
  * @param { BigNumber | string } coefficient
+ * @param { BigNumber | string } coefficient0
  * @param { BigNumber | string } timeTillMaturity
  * @param { number } decimals
  * @param { boolean } withNoFee
@@ -1190,14 +1203,15 @@ export function sellFYTokenVY(
  * z = vyToken
  *
  *        (                  sum                   )
- *        (    Za    )   ( Ya  )  (      Zxa       )   (   invA   )
- * dy = ( c * z^(1-t) + y^(1-t) - c * (z - dz)^(1-t) )^(1 / (1 - t)) - y
+ *        (    Za          )   ( Ya  )   (      Zxa              )   (   invA   )
+ * dy = ( c * μ^-t * z^(1-t) + y^(1-t) - c * μ^-t * (z - dz)^(1-t) )^(1 / (1 - t)) - y
  */
 export function buyBaseVY(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   base: BigNumber | string,
   coefficient: BigNumber | string, // c
+  coefficient0: BigNumber | string, // c0
   timeTillMaturity: BigNumber | string,
   decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
@@ -1207,18 +1221,22 @@ export function buyBaseVY(
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(coefficient), decimals);
+  const c0_18 = decimalNToDecimal18(BigNumber.from(coefficient0), decimals);
+  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const c = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const mu = new Decimal(c0_18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const _g = withNoFee ? ONE : g2;
   const [a, invA] = _computeA(timeTillMaturity, _g);
+  const muFactor = ONE.div(mu.pow(timeTillMaturity_));
 
-  const Za = c.mul(baseReserves_.pow(a));
+  const Za = c.mul(muFactor).mul(baseReserves_.pow(a));
   const Ya = fyTokenReserves_.pow(a);
-  const Zxa = c.mul(baseReserves_.sub(base_).pow(a));
+  const Zxa = c.mul(muFactor).mul(baseReserves_.sub(base_).pow(a));
   const sum = Za.add(Ya).sub(Zxa);
   const y = sum.pow(invA).sub(fyTokenReserves_);
 
@@ -1234,6 +1252,7 @@ export function buyBaseVY(
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } coefficient
+ * @param { BigNumber | string } coefficient0
  * @param { BigNumber | string } timeTillMaturity
  * @param { boolean } withNoFee
  * @returns { BigNumber }
@@ -1242,14 +1261,15 @@ export function buyBaseVY(
  * z = vyToken
  *
  *        (                 sum                     )
- *         (  Za      )  ( Ya   )    (    Yxa     )         (   invA   )
- * dz = ( ( c * z^(1-t) + y^(1-t) -  (y - dy)^(1-t) ) / c )^(1 / (1 - t)) - z
+ *         (  Za             )  ( Ya   )    (    Yxa     )                  (   invA   )
+ * dz = ( ( c * μ^-t * z^(1-t) + y^(1-t) -  (y - dy)^(1-t) ) / (c * μ^-t) )^(1 / (1 - t)) - z
  */
 export function buyFYTokenVY(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   fyToken: BigNumber | string,
   coefficient: BigNumber | string, // c
+  coefficient0: BigNumber | string, // c0
   timeTillMaturity: BigNumber | string,
   decimals: number, // optional : default === 18
   withNoFee: boolean = false // optional: default === false
@@ -1259,20 +1279,24 @@ export function buyFYTokenVY(
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const fyToken18 = decimalNToDecimal18(BigNumber.from(fyToken), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(coefficient), decimals);
+  const c0_18 = decimalNToDecimal18(BigNumber.from(coefficient0), decimals);
+  const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
 
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyDai_ = new Decimal(fyToken18.toString());
   const c = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const mu = new Decimal(c0_18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const _g = withNoFee ? ONE : g1;
   const [a, invA] = _computeA(timeTillMaturity, _g);
+  const muFactor = ONE.div(mu.pow(timeTillMaturity_));
 
-  const Za = c.mul(baseReserves_.pow(a));
+  const Za = c.mul(muFactor).mul(baseReserves_.pow(a));
   const Ya = fyTokenReserves_.pow(a);
   const Yxa = fyTokenReserves_.sub(fyDai_).pow(a);
   const sum = Za.add(Ya.sub(Yxa));
-  const y = sum.div(c).pow(invA).sub(baseReserves_);
+  const y = sum.div(c.mul(muFactor)).pow(invA).sub(baseReserves_);
 
   const yFee = y.add(precisionFee);
   return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
