@@ -711,7 +711,7 @@ export function fyTokenForMint(
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
-  const slippage_ = new Decimal(slippage).mul(new Decimal(10)); /* multiply the user slippage by 10  - if selected */
+  const slippage_ = new Decimal(slippage) // .mul(new Decimal(10)); /* multiply the user slippage by 10  - if selected */
 
   let min = ZERO;
   let max = base_.mul(TWO);
