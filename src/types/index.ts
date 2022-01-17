@@ -28,8 +28,6 @@ export interface IConnectionState {
   fallbackChainId: number | null;
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
-  web3Active: boolean;
-  fallbackActive: boolean;
   connectorName: string | null;
 }
 
@@ -132,6 +130,7 @@ export interface ISeriesRoot extends ISignable {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
+
   fullDate: Date;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
@@ -142,6 +141,9 @@ export interface ISeriesRoot extends ISignable {
   poolSymbol: string; // for signing
 
   decimals: number;
+  ts: BigNumber;
+  g1: BigNumber;
+  g2: BigNumber;
 
   baseId: string;
 
@@ -264,8 +266,15 @@ export interface IVault extends IVaultRoot, IAssetPair {
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
+  accruedArt: BigNumber;
+
   ink_: string;
   art_: string;
+  
+  rateAtMaturity: BigNumber;
+  rate: BigNumber;
+
+  accruedArt_: string;
 
   liquidationPrice_: string;
 }

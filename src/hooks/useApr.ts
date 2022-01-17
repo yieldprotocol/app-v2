@@ -8,12 +8,12 @@ import { sellBase, buyBase, calculateAPR } from '../utils/yieldMath';
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
   /* STATE FROM CONTEXT */
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { seriesMap, selectedSeries, selectedBase } = userState;
-  
+
   const _selectedSeries = series || selectedSeries;
   /* Make sure there won't be an underflow */
-  const _input = cleanValue(input, _selectedSeries?.decimals)
+  const _input = cleanValue(input, _selectedSeries?.decimals);
 
   /* LOCAL STATE */
   const [apr, setApr] = useState<string | undefined>();
@@ -23,8 +23,26 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
     if (_selectedSeries) {
       const baseAmount = ethers.utils.parseUnits(_input || '1', _selectedSeries.decimals);
       const { baseReserves, fyTokenReserves } = _selectedSeries;
-      if (actionType === 'LEND') preview = sellBase(baseReserves, fyTokenReserves, baseAmount, _selectedSeries.getTimeTillMaturity(), _selectedSeries.decimals);
-      if (actionType === 'BORROW') preview = buyBase(baseReserves, fyTokenReserves, baseAmount, _selectedSeries.getTimeTillMaturity(), _selectedSeries.decimals);
+      if (actionType === 'LEND')
+        preview = sellBase(
+          baseReserves,
+          fyTokenReserves,
+          baseAmount,
+          _selectedSeries.getTimeTillMaturity(),
+          _selectedSeries.ts,
+          _selectedSeries.g1,
+          _selectedSeries.decimals
+        );
+      if (actionType === 'BORROW')
+        preview = buyBase(
+          baseReserves,
+          fyTokenReserves,
+          baseAmount,
+          _selectedSeries.getTimeTillMaturity(),
+          _selectedSeries.ts,
+          _selectedSeries.g2,
+          _selectedSeries.decimals
+        );
       const _apr = calculateAPR(baseAmount, preview, _selectedSeries?.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
     }

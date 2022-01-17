@@ -75,7 +75,14 @@ const AprText = ({
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
-  const baseIn = maxBaseIn(series.baseReserves, series.fyTokenReserves, series.getTimeTillMaturity(), series.decimals);
+  const baseIn = maxBaseIn(
+    series.baseReserves,
+    series.fyTokenReserves,
+    series.getTimeTillMaturity(),
+    series.ts,
+    series.g1,
+    series.decimals
+  );
   // diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
 
   useEffect(() => {
@@ -200,7 +207,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
-      {seriesLoading && !mobile && !selectedBase && <Skeleton width={180} />}
+      {seriesLoading && !selectedBase && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hoverBackground' : undefined}>
           <Select

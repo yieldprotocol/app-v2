@@ -115,6 +115,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.baseReserves,
         strategySeries.fyTokenReserves,
         strategySeries.getTimeTillMaturity(),
+        strategySeries.ts,
+        strategySeries.g1,
         strategySeries.decimals
       );
 
@@ -124,6 +126,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.fyTokenReserves,
         _input,
         strategySeries.getTimeTillMaturity(),
+        strategySeries.ts,
+        strategySeries.g1,
         strategySeries.decimals,
         slippageTolerance
       );
@@ -213,42 +217,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
           setRemoveFyTokenReceived(_fyTokenVal);
           setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenVal, strategySeries.decimals));
-
-          // /* Check trade of fytokens recieved ( LESS vault art ) */
-          // const sellValue = sellFYToken(
-          //   strategySeries?.baseReserves!,
-          //   strategySeries?.fyTokenReserves!,
-          //   _extraFyTokensToSell,
-          //   strategySeries?.getTimeTillMaturity(),
-          //   strategySeries?.decimals
-          // );
-          // diagnostics && console.log('SEll VALUE of fyTokens', sellValue);
-
-          // if (sellValue.gt(ethers.constants.Zero)) {
-          //   /* CASE> positive sell value (ie. all recieved can be sold) : USE REMOVE OPTION 2.1 */
-          //   diagnostics && console.log('Extra FyTokens can be sold in the market : USE REMOVE OPTION 2.1');
-          //   setPartialRemoveRequired(false);
-
-          //   const _val = _baseReceived.add(matchingVault.art).add(sellValue);
-
-          //   setRemoveBaseReceived(_val);
-          //   setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
-          //   setRemoveFyTokenReceived(ethers.constants.Zero);
-          //   setRemoveFyTokenReceived_('0');
-          // } else {
-          //   /* CASE> extra fyToken TRADE NOT POSSIBLE ( limited by protocol ): USE REMOVE OPTION 2.2 */
-          //   diagnostics &&
-          //     console.log('The trading of the extra fyTokens is NOT possible in the market : USE REMOVE OPTION 2.2');
-          //   setPartialRemoveRequired(true);
-
-          //   const _fyTokenVal = _fyTokenReceived.sub(matchingVault.art);
-          //   const _baseVal = _baseReceived.add(matchingVault.art);
-
-          //   setRemoveBaseReceived(_baseVal);
-          //   setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
-          //   setRemoveFyTokenReceived(_fyTokenVal);
-          //   setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenVal, strategySeries.decimals));
-          // }
+          
         } else {
           /* CASE> fytokenReceived less than debt : USE REMOVE OPTION 1 */
           diagnostics &&
@@ -285,6 +254,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries?.fyTokenReserves!,
           strategySeries?.totalSupply!,
           strategySeries.getTimeTillMaturity(),
+          strategySeries.ts,
+          strategySeries.g2,
           strategySeries.decimals
         );
 

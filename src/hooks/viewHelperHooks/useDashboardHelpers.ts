@@ -67,6 +67,8 @@ export const useDashboardHelpers = () => {
           _series.fyTokenReserves,
           _series.fyTokenBalance || ethers.constants.Zero,
           _series.getTimeTillMaturity(),
+          _series.ts!,
+          _series.g2!,
           _series.decimals!
         );
 
@@ -97,6 +99,8 @@ export const useDashboardHelpers = () => {
           currentStrategySeries?.fyTokenRealReserves!,
           currentStrategySeries?.totalSupply!,
           currentStrategySeries?.getTimeTillMaturity()!,
+          currentStrategySeries?.ts!,
+          currentStrategySeries?.g2!,
           currentStrategySeries?.decimals!
         );
         const currentValue_ = currentValue.eq(ethers.constants.Zero)
@@ -137,7 +141,7 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     async function getBalances() {
       const _debts = await Promise.all(
-        vaultPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.art_))
+        vaultPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.accruedArt_))
       );
 
       setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits));

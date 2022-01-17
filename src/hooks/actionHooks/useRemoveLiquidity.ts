@@ -109,6 +109,8 @@ export const useRemoveLiquidity = () => {
       _newPool.fyTokenVirtualReserves,
       _fyTokenReceived,
       series.getTimeTillMaturity(),
+      series.ts,
+      series.g2,
       series.decimals
     );
 
@@ -116,7 +118,7 @@ export const useRemoveLiquidity = () => {
     const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
 
     const matchingVaultId: string | undefined = matchingVault?.id;
-    const matchingVaultDebt: BigNumber = matchingVault?.art || ZERO_BN;
+    const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
     // Choose use use matching vault:
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
     // const useMatchingVault: boolean = !!matchingVault && ( _fyTokenReceived.lte(matchingVaultDebt) || !tradeFyToken) ;
@@ -129,6 +131,8 @@ export const useRemoveLiquidity = () => {
       series.fyTokenReserves,
       _fyTokenReceived.sub(matchingVaultDebt),
       series.getTimeTillMaturity(),
+      series.ts,
+      series.g2,
       series.decimals
     );
     /* if valid extraTrade > 0 and user selected to tradeFyToken */

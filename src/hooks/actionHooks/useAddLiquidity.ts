@@ -70,11 +70,13 @@ export const useAddLiquidity = () => {
       cachedFyTokenReserves,
       _inputLessSlippage,
       series.getTimeTillMaturity(),
+      series.ts,
+      series.g1,
       series.decimals,
       slippageTolerance
     );
 
-    console.log(cachedBaseReserves, cachedRealReserves)
+    console.log(cachedBaseReserves.toString(), cachedRealReserves.toString())
 
     const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
 
@@ -165,7 +167,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [series.id, base.idToUse, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: !!matchingVaultId && method !== AddLiquidityType.BORROW, // ingore if not BORROW and POOL
+        ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ingore if not BORROW and POOL
       },
       {
         operation: LadleActions.Fn.TRANSFER,

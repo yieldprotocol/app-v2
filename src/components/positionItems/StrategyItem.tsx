@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Text } from 'grommet';
 
-import { ActionType, ISeries, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue, formatStrategyName, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
@@ -32,35 +32,44 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
     <ItemWrap action={() => handleSelect(strategy)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
         <PositionAvatar position={strategy.currentSeries!} condensed={condensed} actionType={ActionType.POOL} />
-        <Box fill={condensed ? 'horizontal' : undefined} justify={condensed ? 'between' : undefined}>
-          <Text weight={900} size="small">
-            {strategy.name}
-          </Text>
-          <Box direction="row" gap="medium">
-            <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
-              <Text weight={450} size="xsmall">
-                Tokens:
-              </Text>
-              <Text weight={450} size="xsmall">
-                {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
-                {strategiesLoading && isSelectedStrategy ? (
-                  <SkeletonWrap width={30} />
-                ) : (
-                  nFormatter(parseFloat(strategy.accountBalance_!), 2)
-                )}
-              </Text>
-            </Box>
-            <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
-              <Text weight={450} size="xsmall">
-                Strategy %:
-              </Text>
-              <Text weight={450} size="xsmall">
-                {strategiesLoading && isSelectedStrategy ? (
-                  <SkeletonWrap width={30} />
-                ) : (
-                  cleanValue(strategy.accountStrategyPercent, 2)
-                )}
-              </Text>
+        <Box
+          fill={condensed ? 'horizontal' : undefined}
+          justify={condensed ? 'between' : undefined}
+          direction={condensed ? 'row' : undefined}
+        >
+          <Box justify="center">
+            <Text weight={900} size="small">
+              {formatStrategyName(strategy.name)}
+            </Text>
+            <Text size="xsmall"> Rolling: {strategy.currentSeries?.fullDate} </Text>
+          </Box>
+          <Box justify="center">
+            <Box direction="row" gap="medium">
+              <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
+                <Text weight={450} size="xsmall">
+                  Tokens:
+                </Text>
+                <Text weight={450} size="xsmall">
+                  {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
+                  {strategiesLoading && isSelectedStrategy ? (
+                    <SkeletonWrap width={30} />
+                  ) : (
+                    nFormatter(parseFloat(strategy.accountBalance_!), 2)
+                  )}
+                </Text>
+              </Box>
+              <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
+                <Text weight={450} size="xsmall">
+                  Strategy %:
+                </Text>
+                <Text weight={450} size="xsmall">
+                  {strategiesLoading && isSelectedStrategy ? (
+                    <SkeletonWrap width={30} />
+                  ) : (
+                    cleanValue(strategy.accountStrategyPercent, 2)
+                  )}
+                </Text>
+              </Box>
             </Box>
           </Box>
         </Box>

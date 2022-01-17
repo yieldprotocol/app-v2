@@ -16,8 +16,11 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBase, selectedIlk },
+    userState: { activeAccount, selectedBase, selectedIlk, assetMap },
   } = useContext(UserContext);
+
+  const _selectedBase = vault ? assetMap.get(vault.baseId) : selectedBase;
+  const _selectedIlk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -39,7 +42,7 @@ export const useCollateralHelpers = (
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
   const [totalCollateral_, setTotalCollateral_] = useState<string | undefined>();
 
-  const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
+  const assetPairInfo: IAssetPair | undefined = useAssetPair(_selectedBase, _selectedIlk);
 
   /* update the prices/limits if anything changes with the asset pair */
   useEffect(() => {
@@ -62,19 +65,19 @@ export const useCollateralHelpers = (
   useEffect(() => {
     activeAccount &&
       (async () => {
-        const _max = await selectedIlk?.getBalance(activeAccount);
-        _max && setMaxCollateral(ethers.utils.formatUnits(_max, selectedIlk.decimals)?.toString());
+        const _max = await _selectedIlk?.getBalance(activeAccount)
+        _max && setMaxCollateral(ethers.utils.formatUnits(_max, _selectedIlk.decimals)?.toString());
       })();
-  }, [activeAccount, selectedIlk, setMaxCollateral]);
+  }, [activeAccount, _selectedIlk, setMaxCollateral ]);
 
   /* handle changes to input values */
   useEffect(() => {
     /* NOTE: this whole function ONLY deals with decimal18, existing values are converted to decimal18 */
     const existingCollateral_ = vault?.ink ? vault.ink : ethers.constants.Zero;
-    const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, selectedIlk?.decimals);
+    const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, _selectedIlk?.decimals);
 
-    const existingDebt_ = vault?.art ? vault.art : ethers.constants.Zero;
-    const existingDebtAsWei = decimalNToDecimal18(existingDebt_, selectedBase?.decimals);
+    const existingDebt_ = vault?.accruedArt ? vault.accruedArt : ethers.constants.Zero;
+    const existingDebtAsWei = decimalNToDecimal18(existingDebt_, _selectedBase?.decimals);
 
     const dInput =
       debtInput && Math.abs(parseFloat(debtInput)) > 0 ? ethers.utils.parseUnits(debtInput, 18) : ethers.constants.Zero;
@@ -110,7 +113,7 @@ export const useCollateralHelpers = (
          use a buffer of 1% if there is vault debt to prevent undercollateralized failed tx's
          else use the existing collateral
       */
-      const _maxRemove = vault?.art.gt(ethers.constants.Zero)
+      const _maxRemove = vault?.accruedArt?.gt(ethers.constants.Zero)
         ? existingCollateralAsWei.sub(min).mul(99).div(100)
         : existingCollateralAsWei;
       setMaxRemovableCollateral(ethers.utils.formatUnits(_maxRemove, 18).toString());
@@ -132,11 +135,11 @@ export const useCollateralHelpers = (
   }, [
     collInput,
     debtInput,
-    selectedIlk,
+    _selectedIlk,
     oraclePrice,
     vault,
     collateralizationRatio,
-    selectedBase,
+    _selectedBase,
     minCollatRatio,
     minSafeCollatRatio,
   ]);
@@ -149,7 +152,7 @@ export const useCollateralHelpers = (
 
     collateralizationRatio &&
     vault &&
-    vault.art.gt(ethers.constants.Zero) &&
+    vault.art?.gt(ethers.constants.Zero) &&
     parseFloat(collateralizationRatio) > 0 &&
     parseFloat(collateralizationRatio) < vault.minRatio + 0.2
       ? setUnhealthyCollatRatio(true)

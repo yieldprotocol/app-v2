@@ -14,7 +14,7 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
+import { calcAccruedDebt, calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { useRemoveCollateral } from './useRemoveCollateral';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
@@ -23,7 +23,7 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 
 export const useRepayDebt = () => {
   const {
-    settingsState: { slippageTolerance, approveMax, unwrapTokens },
+    settingsState: { slippageTolerance, unwrapTokens },
   } = useContext(SettingsContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
@@ -56,16 +56,22 @@ export const useRepayDebt = () => {
       series.baseReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
+      series.ts,
+      series.g1,
       series.decimals
     );
 
-    const _inputAsFyToken = sellBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _input,
-      secondsToFrom(series.maturity.toString()),
-      series.decimals
-    );
+    const _inputAsFyToken = series.seriesIsMature
+      ? _input
+      : sellBase(
+          series.baseReserves,
+          series.fyTokenReserves,
+          _input,
+          secondsToFrom(series.maturity.toString()),
+          series.ts,
+          series.g1,
+          series.decimals
+        );
 
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
@@ -73,8 +79,13 @@ export const useRepayDebt = () => {
       true // minimize
     );
 
-    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.art);
+    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+
+    const _inputforClose = vault.art.lt(_input)
+      ? vault.art
+      : calcAccruedDebt(vault.rate, vault.rateAtMaturity, _input)[1]; // this is the input value less the accrued amount. 
+
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
     const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
@@ -143,11 +154,11 @@ export const useRepayDebt = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the collateral (if requested).
+      ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the ETH collateral (if requested).
       ...unwrap,
     ];
     await transact(calls, txCode);

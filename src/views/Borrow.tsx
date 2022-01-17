@@ -69,8 +69,7 @@ const Borrow = () => {
     },
   } = useContext(ChainContext);
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } =
-    userState as IUserContextState;
+  const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
 
   const {
     settingsState: { diagnostics },
@@ -191,7 +190,8 @@ const Borrow = () => {
     selectedSeries?.seriesIsMature ||
     borrowInputError ||
     (stepPosition === 1 && undercollateralized) ||
-    (stepPosition === 1 && collatInputError)
+    (stepPosition === 1 && collatInputError) ||
+    selectedSeries.baseId !== selectedBase?.id
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
@@ -203,6 +203,7 @@ const Borrow = () => {
     collatInput,
     undercollateralized,
     collatInputError,
+    selectedBase?.id,
   ]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
@@ -304,6 +305,7 @@ const Borrow = () => {
                         <TextInput
                           plain
                           type="number"
+                          inputMode="decimal"
                           placeholder="Enter amount"
                           value={borrowInput}
                           onChange={(event: any) =>
@@ -529,7 +531,7 @@ const Borrow = () => {
                 // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {borrowInput && !selectedSeries
+                    {borrowInput && (!selectedSeries || selectedBase?.id !== selectedSeries.baseId)
                       ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
                       : 'Next Step'}
                   </Text>

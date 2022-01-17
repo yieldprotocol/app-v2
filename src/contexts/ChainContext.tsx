@@ -59,8 +59,7 @@ const initState: IChainContextState = {
 
     signer: null as ethers.providers.JsonRpcSigner | null,
     account: null as string | null,
-    web3Active: false as boolean,
-    fallbackActive: false as boolean,
+    
     connectorName: null as string | null,
   },
 
@@ -146,9 +145,10 @@ const ChainProvider = ({ children }: any) => {
 
       let Cauldron: any;
       let Ladle: any;
+      let RateOracle: any;
       let ChainlinkMultiOracle: any;
       let CompositeMultiOracle: any;
-      let YearnVaultMultiOracle:any;
+      let YearnVaultMultiOracle: any;
       let Witch: any;
       let LidoWrapHandler: any;
 
@@ -162,6 +162,10 @@ const ChainProvider = ({ children }: any) => {
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
+          RateOracle = contracts.CompoundMultiOracle__factory.connect(
+            addrs.CompoundMultiOracle,
+            fallbackProvider
+          );
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
             fallbackProvider
@@ -174,7 +178,6 @@ const ChainProvider = ({ children }: any) => {
             addrs.YearnVaultMultiOracle,
             fallbackProvider
           );
-
         }
 
         // arbitrum
@@ -204,6 +207,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('Witch', Witch);
+      newContractMap.set('RateOracle', RateOracle);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
@@ -278,10 +282,10 @@ const ChainProvider = ({ children }: any) => {
               /* TODO look at finding a better way to handle the pimple that is the Maker Token */
               const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
               const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
-              const mkrInfo = await Promise.all([mkrERC20.name() , mkrERC20.symbol()]);
+              const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
               name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
               symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
-              [decimals, version] = [18, '1']
+              [decimals, version] = [18, '1'];
             }
 
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
@@ -399,16 +403,20 @@ const ChainProvider = ({ children }: any) => {
                 const poolAddress: string = poolMap.get(id) as string;
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol] = await Promise.all([
-                  fyTokenContract.name(),
-                  fyTokenContract.symbol(),
-                  fyTokenContract.version(),
-                  fyTokenContract.decimals(),
-                  poolContract.name(),
-                  poolContract.version(),
-                  poolContract.symbol(),
-                  // poolContract.decimals(),
-                ]);
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
+                  await Promise.all([
+                    fyTokenContract.name(),
+                    fyTokenContract.symbol(),
+                    fyTokenContract.version(),
+                    fyTokenContract.decimals(),
+                    poolContract.name(),
+                    poolContract.version(),
+                    poolContract.symbol(),
+                    poolContract.ts(),
+                    poolContract.g1(),
+                    poolContract.g2(),
+                    // poolContract.decimals(),
+                  ]);
                 const newSeries = {
                   id,
                   baseId,
@@ -423,6 +431,9 @@ const ChainProvider = ({ children }: any) => {
                   poolVersion,
                   poolName,
                   poolSymbol,
+                  ts,
+                  g1,
+                  g2,
                 };
                 updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);

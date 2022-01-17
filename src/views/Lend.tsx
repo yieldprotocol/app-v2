@@ -57,10 +57,7 @@ const Lend = () => {
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { maxLend_, protocolBaseIn, userBaseAvailable, apy, valueAtMaturity_ } = useLendHelpers(
-    selectedSeries,
-    lendInput
-  );
+  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
   const lend = useLend();
 
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
@@ -126,7 +123,7 @@ const Lend = () => {
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
                         message={
-                          selectedSeries && userBaseAvailable.gt(protocolBaseIn) && !mobile ? (
+                          selectedBase && selectedSeries && protocolLimited && !mobile ? (
                             <InputInfoWrap action={() => setLendInput(maxLend_)}>
                               <Text size="xsmall" color="text-weak">
                                 Max lend is{' '}
@@ -144,6 +141,7 @@ const Lend = () => {
                         <TextInput
                           plain
                           type="number"
+                          inputMode="decimal"
                           placeholder="Enter amount"
                           value={lendInput || ''}
                           onChange={(event: any) =>
@@ -213,7 +211,7 @@ const Lend = () => {
                   <InfoBite
                     label="Redeemable @ Maturity"
                     icon={<FiTrendingUp />}
-                    value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!) } ${selectedBase?.displaySymbol}`}
+                    value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                   />
                   <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
                 </Box>
@@ -272,7 +270,7 @@ const Lend = () => {
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && ( // lendTx.success && (
               <NextButton
-                label={<Text size={mobile ? 'small' : undefined}>Lend some more</Text>}
+                label={<Text size={mobile ? 'small' : undefined}>Lend more</Text>}
                 onClick={() => resetInputs()}
               />
             )}
@@ -282,7 +280,7 @@ const Lend = () => {
             lendProcess?.tx.status === TxState.FAILED && (
               <NextButton
                 size="xsmall"
-                label={<Text size={mobile ? 'xsmall' : undefined}> Report and go back</Text>}
+                label={<Text size={mobile ? 'xsmall' : undefined}>Report and go back</Text>}
                 onClick={() => resetInputs()}
               />
             )}

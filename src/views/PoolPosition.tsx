@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useHistory, useParams } from 'react-router-dom';
-import { FiArrowRight, FiPercent, FiSlash } from 'react-icons/fi';
+import { FiArrowRight, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
 
 import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
 import InputWrap from '../components/wraps/InputWrap';
-import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
+import { abbreviateHash, cleanValue, formatStrategyName, nFormatter } from '../utils/appUtils';
 import SectionWrap from '../components/wraps/SectionWrap';
 
 import { UserContext } from '../contexts/UserContext';
@@ -116,20 +116,6 @@ const PoolPosition = () => {
     removeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REMOVE_LIQUIDITY);
   }, [removeProcess?.stage]);
 
-  /* INTERNAL COMPONENTS */
-  const CompletedTx = (props: any) => (
-    <>
-      <NextButton
-        label={<Text size={mobile ? 'xsmall' : undefined}>Go back</Text>}
-        onClick={() => {
-          props.resetTx();
-          handleStepper(true);
-          resetInputs(props.actionCode);
-        }}
-      />
-    </>
-  );
-
   return (
     <>
       {_selectedStrategy && (
@@ -147,7 +133,7 @@ const PoolPosition = () => {
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
                     <Box>
-                      <Text size={mobile ? 'medium' : 'large'}> {_selectedStrategy?.name} </Text>
+                      <Text size={mobile ? 'medium' : 'large'}> {formatStrategyName(_selectedStrategy?.name)}</Text>
                       <CopyWrap hash={_selectedStrategy.address}>
                         <Text size="small"> {abbreviateHash(_selectedStrategy.address!, 6)}</Text>
                       </CopyWrap>
@@ -158,6 +144,13 @@ const PoolPosition = () => {
 
                 <SectionWrap>
                   <Box gap="small">
+                    <InfoBite
+                      label="Next Roll Date"
+                      value={_selectedStrategy?.currentSeries?.fullDate.toString()!}
+                      icon={<FiClock height="1em" />}
+                      loading={seriesLoading}
+                    />
+
                     <InfoBite
                       label="Strategy Token Balance"
                       value={cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)}
@@ -251,8 +244,9 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Removing that amount of tokens and trading immediately for {selectedBase?.displaySymbol}{' '}
-                                      is currently not possible due to liquidity limitations.
+                                      Removing that amount of tokens and trading immediately for{' '}
+                                      {selectedBase?.displaySymbol} is currently not possible due to liquidity
+                                      limitations.
                                     </Text>
                                   </Box>
                                 </InputInfoWrap>
@@ -263,6 +257,7 @@ const PoolPosition = () => {
                           <TextInput
                             plain
                             type="number"
+                            inputMode="decimal"
                             placeholder="Tokens to remove"
                             value={removeInput || ''}
                             onChange={(event: any) =>
@@ -314,7 +309,9 @@ const PoolPosition = () => {
                           </Text> */}
                         <Text size="xsmall">
                           Force Removal:
-                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} `}
+                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
+                            selectedBase?.displaySymbol
+                          } `}
                           {`and then rest will be in redeemable fy${selectedBase?.displaySymbol})`}
                         </Text>
                       </Box>
@@ -352,17 +349,6 @@ const PoolPosition = () => {
                     }
                     onClick={() => handleRemove()}
                     disabled={removeDisabled || removeProcess?.processActive}
-                  />
-                )}
-
-              {stepPosition[actionActive.index] === 1 &&
-                actionActive.index === 0 &&
-                !removeProcess?.processActive &&
-                removeProcess?.stage === ProcessStage.PROCESS_COMPLETE && (
-                  <CompletedTx
-                    tx={removeProcess}
-                    resetTx={() => resetRemoveProcess()}
-                    actionCode={ActionCodes.REMOVE_LIQUIDITY}
                   />
                 )}
             </ActionButtonGroup>
