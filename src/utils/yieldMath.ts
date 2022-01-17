@@ -722,7 +722,7 @@ export function fyTokenForMint(
   while (true) {
     /* NB return ZERO when not converging > not mintable */
     // eslint-disable-next-line no-plusplus
-    if (i++ > 1000) return ZERO_BN;
+    if (i++ > 100) return ZERO_BN;
     // if (i++ > 100)  throw 'Not converging'
 
     zIn = new Decimal(
@@ -762,9 +762,8 @@ export function fyTokenForMint(
     }
   }
 
-  console.log( 'yOut : ', yOut.floor().toFixed());
-
-  console.log( 'buyFyTOKEN : ', zIn.toString() );
+//  console.log( 'yOut : ', yOut.toFixed());
+//  console.log( 'buyFyTOKEN: ', zIn.toString() );
 
   return decimal18ToDecimalN(
     // (converted back to original decimals)
