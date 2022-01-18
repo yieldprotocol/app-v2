@@ -261,7 +261,6 @@ export function mintWithBase(
   baseReserves: BigNumber | string,
   fyTokenReservesVirtual: BigNumber | string,
   fyTokenReservesReal: BigNumber | string,
-  supply: BigNumber | string,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
@@ -270,7 +269,7 @@ export function mintWithBase(
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
-  const S = new Decimal(supply.toString());
+  const supply = fyTokenReservesVirtual.sub(fyTokenReservesReal);
   const y = new Decimal(fyToken.toString());
   // buyFyToken:
   const z1 = new Decimal(
@@ -302,13 +301,13 @@ export function burnForBase(
   baseReserves: BigNumber,
   fyTokenReservesVirtual: BigNumber,
   fyTokenReservesReal: BigNumber,
-  supply: BigNumber,
   lpTokens: BigNumber,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
   g2: BigNumber | string,
   decimals: number
 ): BigNumber {
+  const supply = fyTokenReservesVirtual.sub(fyTokenReservesReal);
   // Burn FyToken
   const [z1, y] = burn(baseReserves, fyTokenReservesReal, supply, lpTokens);
   // Sell FyToken for base
@@ -689,7 +688,80 @@ export function maxFyTokenOut(
   return decimal18ToDecimalN(toBn(safeRes), decimals);
 }
 
+/**
+ * Calculate the amount of fyToken that should be bought when providing liquidity with only underlying.
+ * The amount bought leaves a bit of unused underlying, to allow for the pool reserves to change between
+ * the calculation and the mint. The pool returns any unused underlying.
+ * 
+ * @param baseReserves 
+ * @param fyTokenRealReserves 
+ * @param fyTokenVirtualReserves 
+ * @param base 
+ * @param timeTillMaturity 
+ * @param ts 
+ * @param g1 
+ * @param decimals 
+ * @param slippage How far from the optimum we want to be
+ * @param precision How wide the range in which we will accept a value
+ * @returns fyTokenToBuy, surplus
+ */
 export function fyTokenForMint(
+  baseReserves: BigNumber | string,
+  fyTokenRealReserves: BigNumber | string,
+  fyTokenVirtualReserves: BigNumber | string,
+  base: BigNumber | string,
+  timeTillMaturity: BigNumber | string,
+  ts: BigNumber | string,
+  g1: BigNumber | string,
+  decimals: number,
+  slippage: number = 0.01, // 1% default
+  precision: number = 0.0001 // 0.01% default
+): [BigNumber, BigNumber] {
+  const minSurplus = base.mul(slippage)
+  const maxSurplus = minSurplus.add(base.mul(precision))
+  let maxFYToken = maxFyTokenOut(
+    baseReserves,
+    fyTokenRealReserves,
+    timeTillMaturity,
+    ts,
+    g1,
+    decimals
+  )
+  let minFYToken = ZERO_BN
+
+  let i = 0;
+  while (true) {
+    /* NB return ZERO when not converging > not mintable */
+    // eslint-disable-next-line no-plusplus
+    if (i++ > 100) return ZERO_BN;
+    // if (i++ > 100)  throw 'Not converging'
+
+    const fyTokenToBuy = (minFYToken.add(maxFYToken)).div(2)
+    
+    const baseIn = mintWithBase(
+      baseReserves,
+      fyTokenVirtualReserves,
+      fyTokenRealReserves,
+      fyTokenToBuy,
+      timeTillMaturity,
+      ts,
+      g1,
+      decimals
+    )[1]
+    const surplus = base.sub(baseIn)
+    
+    // Just right
+    if (minSurplus < surplus && surplus < maxSurplus) return [fyTokenToBuy, surplus]
+    
+    // Bought too much, lower the max and the buy
+    if (baseIn > base || surplus < minSurplus) maxFYToken = fyTokenToBuy
+    
+    // Bought too little, raise the min and the buy
+    if (surplus > maxSurplus) minFYToken = fyTokenToBuy
+  }
+}
+
+export function fyTokenForMintOld(
   baseReserves: BigNumber | string,
   fyTokenRealReserves: BigNumber | string,
   fyTokenVirtualReserves: BigNumber | string,
