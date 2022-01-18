@@ -120,7 +120,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.decimals
       );
 
-      _fyTokenToBuy = fyTokenForMint(
+      [_fyTokenToBuy, ] = fyTokenForMint(
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.fyTokenReserves,

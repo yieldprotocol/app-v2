@@ -64,7 +64,7 @@ export const useAddLiquidity = () => {
     const [cachedBaseReserves, cachedFyTokenReserves] = await series?.poolContract.getCache()!;
     const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!);
 
-    const _fyTokenToBeMinted = fyTokenForMint(
+    const [_fyTokenToBeMinted, ] = fyTokenForMint(
       cachedBaseReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
@@ -93,7 +93,6 @@ export const useAddLiquidity = () => {
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gt(_input);
 
     /* DIAGNOSITCS */
-
       console.log(
         'input: ',
         _input.toString(),
