@@ -245,10 +245,9 @@ export function burnFromStrategy(
 }
 
 /**
- * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReservesVirtual
- * @param { BigNumber | string } fyTokenReservesReal
- * @param { BigNumber | string } totalSupply
+ * @param { BigNumber } baseReserves
+ * @param { BigNumber } fyTokenReservesVirtual
+ * @param { BigNumber } fyTokenReservesReal
  * @param { BigNumber | string } fyToken
  * @param { BigNumber | string } timeTillMaturity
  * @param { BigNumber | string } ts
@@ -258,9 +257,9 @@ export function burnFromStrategy(
  * @returns {[BigNumber, BigNumber]}
  */
 export function mintWithBase(
-  baseReserves: BigNumber | string,
-  fyTokenReservesVirtual: BigNumber | string,
-  fyTokenReservesReal: BigNumber | string,
+  baseReserves: BigNumber,
+  fyTokenReservesVirtual: BigNumber,
+  fyTokenReservesReal: BigNumber,
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
@@ -269,7 +268,7 @@ export function mintWithBase(
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
-  const supply = fyTokenReservesVirtual.sub(fyTokenReservesReal);
+  const supply = fyTokenReservesVirtual.sub( fyTokenReservesReal );
   const y = new Decimal(fyToken.toString());
   // buyFyToken:
   const z1 = new Decimal(
@@ -666,6 +665,7 @@ export function maxFyTokenOut(
   g1: BigNumber | string,
   decimals: number
 ): BigNumber {
+
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
@@ -706,9 +706,9 @@ export function maxFyTokenOut(
  * @returns fyTokenToBuy, surplus
  */
 export function fyTokenForMint(
-  baseReserves: BigNumber | string,
-  fyTokenRealReserves: BigNumber | string,
-  fyTokenVirtualReserves: BigNumber | string,
+  baseReserves: BigNumber,
+  fyTokenRealReserves: BigNumber,
+  fyTokenVirtualReserves: BigNumber,
   base: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
@@ -717,41 +717,48 @@ export function fyTokenForMint(
   slippage: number = 0.01, // 1% default
   precision: number = 0.0001 // 0.01% default
 ): [BigNumber, BigNumber] {
-  const minSurplus = base.mul(slippage)
-  const maxSurplus = minSurplus.add(base.mul(precision))
-  let maxFYToken = maxFyTokenOut(
+
+  const base_ = new Decimal(base.toString());
+  const minSurplus = base_.mul(slippage)
+  const maxSurplus = minSurplus.add(base_.mul(precision))
+
+  console.log( base_.toString(), minSurplus.toString(), maxSurplus.toString())
+
+  let maxFYToken = new Decimal( maxFyTokenOut(
     baseReserves,
     fyTokenRealReserves,
     timeTillMaturity,
     ts,
     g1,
     decimals
-  )
-  let minFYToken = ZERO_BN
+  ).toString() )
+
+  let minFYToken = ZERO_DEC
+  console.log('maxFyToken :',  maxFYToken.toString())
 
   let i = 0;
   while (true) {
     /* NB return ZERO when not converging > not mintable */
     // eslint-disable-next-line no-plusplus
-    if (i++ > 100) return ZERO_BN;
-    // if (i++ > 100)  throw 'Not converging'
-
+    if (i++ > 100) return [ ZERO_BN, ZERO_BN ];
     const fyTokenToBuy = (minFYToken.add(maxFYToken)).div(2)
-    
+
     const baseIn = mintWithBase(
       baseReserves,
       fyTokenVirtualReserves,
       fyTokenRealReserves,
-      fyTokenToBuy,
+      toBn(fyTokenToBuy),
       timeTillMaturity,
       ts,
       g1,
       decimals
-    )[1]
-    const surplus = base.sub(baseIn)
+    )[1];
+    const surplus = base_.sub( new Decimal( baseIn.toString())) 
     
     // Just right
-    if (minSurplus < surplus && surplus < maxSurplus) return [fyTokenToBuy, surplus]
+    if (minSurplus < surplus && surplus < maxSurplus) console.log('fyToken to buy: ', fyTokenToBuy.toString(), 'surplus: ', surplus.toString()); 
+    
+    if (minSurplus < surplus && surplus < maxSurplus) return [toBn(fyTokenToBuy), BigNumber.from(surplus) ]
     
     // Bought too much, lower the max and the buy
     if (baseIn > base || surplus < minSurplus) maxFYToken = fyTokenToBuy
@@ -760,6 +767,7 @@ export function fyTokenForMint(
     if (surplus > maxSurplus) minFYToken = fyTokenToBuy
   }
 }
+
 
 export function fyTokenForMintOld(
   baseReserves: BigNumber | string,
