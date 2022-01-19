@@ -28,7 +28,6 @@ const g1_default = new Decimal(950 / 1000).mul(2 ** 64);
 const g2_default = new Decimal(1000 / 950).mul(2 ** 64);
 const precisionFee = new Decimal(1000000000000);
 
-
 /** *************************
  Support functions
  *************************** */
@@ -264,7 +263,6 @@ export function mintWithBase(
   g1: BigNumber | string,
   decimals: number
 ): [BigNumber, BigNumber] {
-
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
   const supply = fyTokenReservesVirtual.sub(fyTokenReservesReal);
@@ -277,7 +275,7 @@ export function mintWithBase(
   const YR2 = YR.sub(y); // FYToken reserves after the trade
 
   // Mint specifying how much fyToken to take in. Reverse of `mint`.
-  const [minted, z2] = mint( toBn(Z2), toBn(YR2), supply, fyToken, false);
+  const [minted, z2] = mint(toBn(Z2), toBn(YR2), supply, fyToken, false);
 
   return [minted, toBn(z1).add(z2)];
 }
@@ -662,12 +660,12 @@ export function maxFyTokenOut(
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
   g1: BigNumber | string,
-  decimals: number,
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
   const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
-  
+
   /* convert to decimal for the math */
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
@@ -675,10 +673,10 @@ export function maxFyTokenOut(
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
   const xa = baseReserves_.pow(a);
-  const ya = fyTokenReserves_.pow(a)
+  const ya = fyTokenReserves_.pow(a);
   const xy = xa.add(ya);
 
-  const inaccessible = (xy.div(2)).pow(invA);
+  const inaccessible = xy.div(2).pow(invA);
   const res = inaccessible.gt(fyTokenReserves_) ? ZERO : fyTokenReserves_.sub(inaccessible);
 
   /* Handle precision variations */
@@ -718,7 +716,6 @@ export function fyTokenForMint(
   slippage: number = 0.01, // 1% default
   precision: number = 0.0001 // 0.01% default
 ): [BigNumber, BigNumber] {
-
   const base_ = new Decimal(base.toString());
   const minSurplus = base_.mul(slippage);
   const maxSurplus = minSurplus.add(base_.mul(precision));
@@ -732,10 +729,10 @@ export function fyTokenForMint(
   while (true) {
     /* NB return ZERO when not converging > not mintable */
     // eslint-disable-next-line no-plusplus
-    if (i++ > 100) { 
-      console.log('No solution')
-      return [ZERO_BN, ZERO_BN]
-    };
+    if (i++ > 100) {
+      console.log('No solution');
+      return [ZERO_BN, ZERO_BN];
+    }
 
     const fyTokenToBuy = minFYToken.add(maxFYToken).div(2);
     // console.log('fyToken tobuy',  fyTokenToBuy.toFixed() )
@@ -755,19 +752,19 @@ export function fyTokenForMint(
     // console.log( 'min:',  minSurplus.toFixed() ,  'max:',   maxSurplus.toFixed() , 'surplus: ', surplus.toFixed() )
 
     // Just right
-    if (minSurplus.lt(surplus) && surplus.lt(maxSurplus))  {
+    if (minSurplus.lt(surplus) && surplus.lt(maxSurplus)) {
       // console.log('fyToken to buy: ', fyTokenToBuy.toFixed(), 'surplus: ', surplus.toFixed());
-      return [ toBn(fyTokenToBuy), toBn(surplus) ];
+      return [toBn(fyTokenToBuy), toBn(surplus)];
     }
 
     // Bought too much, lower the max and the buy
-    if ( baseIn.gt(base) || surplus.lt(minSurplus) ) {
+    if (baseIn.gt(base) || surplus.lt(minSurplus)) {
       // console.log('Bought too much');
       maxFYToken = fyTokenToBuy;
     }
 
     // Bought too little, raise the min and the buy
-    if (surplus.gt(maxSurplus))  { 
+    if (surplus.gt(maxSurplus)) {
       // console.log('Bought too little');
       minFYToken = fyTokenToBuy;
     }
