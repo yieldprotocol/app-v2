@@ -73,7 +73,7 @@ export const useAddLiquidity = () => {
       series.ts,
       series.g1,
       series.decimals,
-      // slippageTolerance
+      slippageTolerance
     );
 
     console.log(cachedBaseReserves.toString(), cachedRealReserves.toString())

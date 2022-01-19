@@ -130,7 +130,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.ts,
         strategySeries.g1,
         strategySeries.decimals,
-        // slippageTolerance
+        slippageTolerance
       );
 
       /* Check if buy and pool option is allowed */
