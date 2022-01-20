@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IStrategy, IVault } from '../../types';
+import { IAsset, ISeries, ISettingsContext, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
@@ -18,7 +18,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* STATE FROM CONTEXT */
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const {
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
@@ -121,16 +121,16 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.decimals
       );
 
-      _fyTokenToBuy = fyTokenForMint(
+      [_fyTokenToBuy] = fyTokenForMint(
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.fyTokenReserves,
-        calculateSlippage(_input, slippageTolerance, true),
+        calculateSlippage(_input, slippageTolerance.toString(), true),
         strategySeries.getTimeTillMaturity(),
         strategySeries.ts,
         strategySeries.g1,
         strategySeries.decimals,
-        // slippageTolerance
+        slippageTolerance
       );
 
       /* Check if buy and pool option is allowed */
@@ -218,7 +218,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
           setRemoveFyTokenReceived(_fyTokenVal);
           setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenVal, strategySeries.decimals));
-          
         } else {
           /* CASE> fytokenReceived less than debt : USE REMOVE OPTION 1 */
           diagnostics &&
