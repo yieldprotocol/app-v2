@@ -1,4 +1,5 @@
 import chai, { expect } from 'chai';
+import Decimal from 'decimal.js';
 import { solidity } from 'ethereum-waffle';
 import { BigNumber, utils } from 'ethers';
 import {
@@ -25,6 +26,9 @@ describe('VY YieldMath', () => {
   let base: BigNumber | string;
   let fyToken: BigNumber | string;
 
+  const g1 = new Decimal(950 / 1000).mul(2 ** 64);
+  const g2 = new Decimal(1000 / 950).mul(2 ** 64);
+
   beforeEach(() => {
     baseReserves = parseUnits('1', 27); // z
     fyTokenReserves = parseUnits('2', 27); // y
@@ -36,6 +40,11 @@ describe('VY YieldMath', () => {
   describe('sellBaseVY (fyDaiOutForVYDaiIn)', () => {
     // https://www.desmos.com/calculator/wh5quy9mft
     base = parseUnits('2', 24);
+    it('should ', () => {
+      const resultVY = sellBaseVY(baseReserves, fyTokenReserves, base, coefficient, timeTillMaturity, ts, g1, decimals);
+      const result = sellBase(baseReserves, fyTokenReserves, base, timeTillMaturity, decimals);
+      expect(resultVY).to.equal(result);
+    });
 
     it('should equal non-variable yield func with non-variable base', () => {
       const resultVY = sellBaseVY(baseReserves, fyTokenReserves, base, coefficient, timeTillMaturity, decimals);
