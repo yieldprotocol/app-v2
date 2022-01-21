@@ -36,6 +36,7 @@ import {
 import { WAD_BN, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
+import { useCachedState } from '../hooks/generalHooks';
 
 const UserContext = React.createContext<any>({});
 
@@ -134,6 +135,9 @@ const UserProvider = ({ children }: any) => {
   const {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
+
+  const [lastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+  const blockNumForUse = [1, 4, 42].includes(fallbackChainId!) ? lastSeriesUpdate : -90000; // use last x blocks if too much (arbitrum limit)
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
@@ -435,8 +439,7 @@ const UserProvider = ({ children }: any) => {
       const RateOracle = contractMap.get('RateOracle');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0)
-        _vaultList = Array.from((await _getVaults(fallbackChainId === 421611 ? -90000 : undefined)).values()); // fromblock specifically x blocks ago for arb testnet
+      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(blockNumForUse)).values()); // fromblock specifically x blocks ago for arb testnet
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(

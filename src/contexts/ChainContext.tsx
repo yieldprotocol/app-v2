@@ -132,6 +132,8 @@ const ChainProvider = ({ children }: any) => {
   const { connectionState, connectionActions } = useConnection();
   const { chainId, fallbackProvider, fallbackChainId } = connectionState;
 
+  const blockNumForUse = [1, 4, 42].includes(fallbackChainId!) ? lastSeriesUpdate : -90000; // use last x blocks if too much (arbitrum limit)
+
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
@@ -246,7 +248,6 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = [1, 4, 42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 90000; // use last 1000 blocks if too much (arbitrum limit)
 
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
@@ -373,10 +374,6 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-        const blockNum = await fallbackProvider.getBlockNumber();
-        /* NBNBNBNBNBBN this is PPPPPOOOOR logic marco... please be exlpicit > */
-        const blockNumForUse = [1, 4, 42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
-
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
           // Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),

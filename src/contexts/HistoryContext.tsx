@@ -21,6 +21,7 @@ import { Cauldron } from '../contracts';
 import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
 import { SettingsContext } from './SettingsContext';
 import { useBlockNum } from '../hooks/useBlockNum';
+import { useCachedState } from '../hooks/generalHooks';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -81,15 +82,17 @@ const HistoryProvider = ({ children }: any) => {
   const {
     chainLoading,
     contractMap,
-    connection: { fallbackProvider },
+    connection: { fallbackProvider, fallbackChainId },
     seriesRootMap,
     assetRootMap,
   } = chainState;
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
-  const blockNumForUse = 0;
   const [historyState, updateState] = useReducer(historyReducer, initState);
+
+  const [lastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+  const blockNumForUse = [1, 4, 42].includes(fallbackChainId!) ? lastSeriesUpdate : -90000; // use last x blocks if too much (arbitrum limit)
 
   const {
     settingsState: { diagnostics },
