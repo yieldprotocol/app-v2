@@ -127,6 +127,7 @@ function Pool() {
                         <TextInput
                           plain
                           type="number"
+                          inputMode="decimal"
                           placeholder="Enter Amount"
                           value={poolInput || ''}
                           onChange={(event: any) =>
@@ -248,7 +249,7 @@ function Pool() {
           {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
-              <Box pad="large" gap="small">
+              <Box pad="small" gap="small" height="auto">
                 <Text size="small"> View strategy Position: </Text>
                 <StrategyItem strategy={strategyMap.get(selectedStrategy?.id!)!} index={0} condensed />
               </Box>
