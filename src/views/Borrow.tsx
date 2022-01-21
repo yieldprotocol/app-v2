@@ -526,14 +526,15 @@ const Borrow = () => {
                 </Box>
               )}
 
-            {stepPosition === 2 && !borrowProcess?.processActive &&(
+            {stepPosition === 2 && !borrowProcess?.processActive && (
               <CheckBox
                 pad={{ vertical: 'small' }}
                 label={
                   <Text size="xsmall">
-                    I understand the risks associated with borrowing. In particular, while liquidation auctions are not
-                    sufficiently competitive, I stand to lose all posted collateral if my vault falls below the minimum
-                    collateralization requirement of {minCollatRatioPct}%.
+                    I understand the risks associated with borrowing. In particular, I understand that as a new
+                    protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
+                    below the minimum collateralization requirement ( <Text size='xsmall' color='red'> {minCollatRatioPct}%</Text> ) I could lose most or all of
+                    my posted collateral.
                   </Text>
                 }
                 checked={disclaimerChecked}
