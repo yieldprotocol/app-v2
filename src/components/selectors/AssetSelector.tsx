@@ -56,21 +56,21 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
-      setSelectedSeries(null)
+      setSelectedSeries(null);
     }
   };
 
   /* update options on any changes */
   useEffect(() => {
-    const opts: IAsset[] = Array.from(assetMap.values())
-      .filter((a: IAsset) => a.showToken) // filter based on whether wrapped tokens are shown or not
-      .filter((a: IAsset) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
+    const opts = Array.from(assetMap.values())
+      .filter((a) => a.showToken) // filter based on whether wrapped tokens are shown or not
+      .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
     const filteredOptions = selectCollateral
       ? opts
-          .filter((a: IAsset) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
-          .filter((a: IAsset) => (selectedBase?.id === USDC ? a : a.id !== yvUSDC)) // TODO fix this temporary logic.
-      : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
+          .filter((a) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
+          .filter((a) => (selectedBase?.id === USDC ? a : a.id !== yvUSDC)) // TODO fix this temporary logic.
+      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
 
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
