@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import type {
-  AccumulatorOracles,
-  AccumulatorOraclesInterface,
-} from "../AccumulatorOracles";
+  AccumulatorOracle,
+  AccumulatorOracleInterface,
+} from "../AccumulatorOracle";
 
 const _abi = [
   {
@@ -506,15 +506,15 @@ const _abi = [
   },
 ];
 
-export class AccumulatorOracles__factory {
+export class AccumulatorOracle__factory {
   static readonly abi = _abi;
-  static createInterface(): AccumulatorOraclesInterface {
-    return new utils.Interface(_abi) as AccumulatorOraclesInterface;
+  static createInterface(): AccumulatorOracleInterface {
+    return new utils.Interface(_abi) as AccumulatorOracleInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): AccumulatorOracles {
-    return new Contract(address, _abi, signerOrProvider) as AccumulatorOracles;
+  ): AccumulatorOracle {
+    return new Contract(address, _abi, signerOrProvider) as AccumulatorOracle;
   }
 }

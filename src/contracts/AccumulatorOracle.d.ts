@@ -19,7 +19,7 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
-interface AccumulatorOraclesInterface extends ethers.utils.Interface {
+interface AccumulatorOracleInterface extends ethers.utils.Interface {
   functions: {
     "LOCK()": FunctionFragment;
     "LOCK8605463013()": FunctionFragment;
@@ -189,7 +189,7 @@ export type SourceSetEvent = TypedEvent<
   }
 >;
 
-export class AccumulatorOracles extends BaseContract {
+export class AccumulatorOracle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -230,7 +230,7 @@ export class AccumulatorOracles extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: AccumulatorOraclesInterface;
+  interface: AccumulatorOracleInterface;
 
   functions: {
     LOCK(overrides?: CallOverrides): Promise<[string]>;
