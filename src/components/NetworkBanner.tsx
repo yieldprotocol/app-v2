@@ -3,6 +3,8 @@ import { Anchor, Box, Button, Text } from 'grommet';
 import styled from 'styled-components';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
+import { IChainContext } from '../types';
+import { CHAIN_INFO } from '../config/chainData';
 
 const StyledBox = styled(Box)`
   position: absolute;
@@ -15,17 +17,16 @@ const StyledBox = styled(Box)`
 const NetworkBanner = () => {
   const {
     chainState: {
-      connection: { currentChainInfo, chainId },
+      connection: { fallbackChainId },
     },
-  } = useContext(ChainContext);
-  const [show, setShow] = useState<boolean>(false);
+  } = useContext(ChainContext) as IChainContext;
+  const [show, setShow] = useState<boolean>(true);
+  const showableChains = [421611];
+  const currentChainInfo = CHAIN_INFO.get(fallbackChainId!);
 
-  useEffect(() => {
-    const showableChains = [421611];
-    currentChainInfo && showableChains.includes(Number(chainId)) && setShow(true);
-  }, [currentChainInfo, chainId]);
+  if (!currentChainInfo) return null;
 
-  return show ? (
+  return showableChains.includes(fallbackChainId!) && show ? (
     <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round="xsmall" gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {currentChainInfo.name}</Box>
