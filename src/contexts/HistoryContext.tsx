@@ -20,7 +20,6 @@ import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
 import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
 import { SettingsContext } from './SettingsContext';
-import { useBlockNum } from '../hooks/useBlockNum';
 import { useCachedState } from '../hooks/generalHooks';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
@@ -166,7 +165,7 @@ const HistoryProvider = ({ children }: any) => {
       diagnostics && console.log('Strategy History updated: ', combinedStrategyMap);
     },
 
-    [account, fallbackProvider]
+    [account, fallbackProvider, blockNumForUse]
   );
 
   /* update Pool Historical data */
@@ -217,7 +216,7 @@ const HistoryProvider = ({ children }: any) => {
       updateState({ type: 'poolHistory', payload: liqHistMap });
       diagnostics && console.log('Pool History updated: ', liqHistMap);
     },
-    [account, fallbackProvider]
+    [account, fallbackProvider, blockNumForUse]
   );
 
   /* update Trading Historical data  */
@@ -277,7 +276,7 @@ const HistoryProvider = ({ children }: any) => {
       updateState({ type: 'tradeHistory', payload: combinedTradeMap });
       diagnostics && console.log('Trade history updated: ', combinedTradeMap);
     },
-    [account, assetRootMap, fallbackProvider, historyState.tradeHistory]
+    [account, assetRootMap, fallbackProvider, historyState.tradeHistory, blockNumForUse]
   );
 
   /*  Updates VAULT history */
@@ -483,6 +482,7 @@ const HistoryProvider = ({ children }: any) => {
       diagnostics,
       historyState.vaultHistory,
       seriesRootMap,
+      blockNumForUse,
     ]
   );
 

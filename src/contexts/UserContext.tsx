@@ -565,6 +565,7 @@ const UserProvider = ({ children }: any) => {
       account,
       updateAssetPair,
       fallbackChainId,
+      blockNumForUse,
     ]
   );
 
