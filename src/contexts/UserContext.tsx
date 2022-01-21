@@ -297,7 +297,7 @@ const UserProvider = ({ children }: any) => {
 
       /* get pricing if available */
       let price: BigNumber;
-      console.log('🦄 ~ file: UserContext.tsx ~ line 303 ~ PriceOracle', PriceOracle);
+
       try {
         // eslint-disable-next-line prefer-const
         [price] = await PriceOracle?.peek(
