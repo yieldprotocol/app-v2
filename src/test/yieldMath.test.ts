@@ -32,8 +32,8 @@ describe('VY YieldMath', () => {
   let timeTillMaturity: BigNumber | string;
   const decimals = 18;
 
-  let base: BigNumber | string;
-  let fyToken: BigNumber | string;
+  const base = parseUnits('100000', decimals); // 100,000
+  const fyToken = parseUnits('100000', decimals); // 100,000
 
   const comparePrecision = parseUnits('.001', decimals); // how close the equality check should be within
 
@@ -46,10 +46,6 @@ describe('VY YieldMath', () => {
   });
 
   describe('sellBaseVY (fyTokenOutForVYTokenIn)', () => {
-    beforeEach(() => {
-      base = parseUnits('100000', decimals); // 100,000
-    });
-
     it('should equal the non-variable yield function with non-variable base', () => {
       const resultVY = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
       const result = sellBase(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g1, decimals);
@@ -70,10 +66,6 @@ describe('VY YieldMath', () => {
   });
 
   describe('sellFYTokenVY (vyTokenOutForFYTokenIn)', () => {
-    beforeEach(() => {
-      fyToken = parseUnits('100000', decimals); // 100,000
-    });
-
     it('should equal non-variable yield func with non-variable base', () => {
       const resultVY = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g2, decimals);
       const result = sellFYToken(baseReserves, fyTokenReserves, fyToken, timeTillMaturity, ts, g2, decimals);
@@ -94,10 +86,6 @@ describe('VY YieldMath', () => {
   });
 
   describe('buyBaseVY (fyTokenInForVYTokenOut)', () => {
-    beforeEach(() => {
-      base = parseUnits('100000', decimals); // 100,000
-    });
-
     it('should equal non-variable yield func with non-variable base', () => {
       const resultVY = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
       const result = buyBase(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g2, decimals);
@@ -118,10 +106,6 @@ describe('VY YieldMath', () => {
   });
 
   describe('buyFYTokenVY (vyTokenInForFYTokenOut)', () => {
-    beforeEach(() => {
-      fyToken = parseUnits('100000', decimals); // 100,000
-    });
-
     it('should equal non-variable yield func with non-variable base', () => {
       const resultVY = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
       const result = buyFYToken(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g1, decimals);
@@ -140,4 +124,6 @@ describe('VY YieldMath', () => {
       expect(result).to.be.closeTo(parseUnits('91172.431', decimals), comparePrecision); // 91,172.431
     });
   });
+
+  describe('stress test interactions', () => {});
 });
