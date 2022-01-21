@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SUPPORTED_CHAIN_IDS, CHAIN_INFO } from '../../config/chainData';
 import { useNetworkSelect } from '../../hooks/useNetworkSelect';
+import { IChainContext } from '../../types';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -18,9 +19,10 @@ const NetworkSelector = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     chainState: {
-      connection: { currentChainInfo, fallbackChainId },
+      connection: { fallbackChainId },
     },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
+  const currentChainInfo = CHAIN_INFO.get(fallbackChainId!);
 
   const [options, setOptions] = useState<string[]>([]);
   const [selectedChainId, setSelectedChainId] = useState<number | undefined>();
@@ -38,7 +40,7 @@ const NetworkSelector = () => {
     );
   }, [fallbackChainId]);
 
-  if (!currentChainInfo || options.length <= 1) return null;
+  if (!currentChainInfo || options.length < 1) return null;
 
   return (
     <StyledBox round="xsmall" elevation="xsmall" background="hoverBackground">
