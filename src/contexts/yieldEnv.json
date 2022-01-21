@@ -3,7 +3,7 @@
     "1": {
       "Cauldron": "0xc88191F8cb8e6D4a668B047c1C8503432c3Ca867",
       "Ladle": "0x6cB18fF2A33e981D1e38A663Ca056c0a5265066A",
-      "CompoundMultiOracle" : "0x53FBa816BD69a7f2a096f58687f87dd3020d0d5c",
+      "CompoundMultiOracle": "0x53FBa816BD69a7f2a096f58687f87dd3020d0d5c",
       "ChainlinkMultiOracle": "0xcDCe5C87f691058B61f3A65913f1a3cBCbAd9F52",
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061",
@@ -13,7 +13,7 @@
     "4": {
       "Cauldron": "0xb2cf78ccA863675Ef61a0c696885DED0C833F8f3",
       "Ladle": "0x45f502A7358ec631c7a422270922d7dFA142cb9C",
-      "CompoundMultiOracle" : "0xeCA876c39DF7b75281Ea78eB35912fa1CC8f9482",
+      "CompoundMultiOracle": "0xeCA876c39DF7b75281Ea78eB35912fa1CC8f9482",
       "ChainlinkMultiOracle": "0xBDBF01Ee32485aF94e316C395765F5Af2bf4b4dB",
       "CompositeMultiOracle": "0x8482BF1e17ceF57109F34C259d39d5B9BB9A4e13",
       "Witch": "0x5cEe0925647722e7ed32dcaf5A2DeFD3872Edb6F",
@@ -23,7 +23,7 @@
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
       "Ladle": "0xe7bae0445B9a1DBE834a7379fbE23C6d2Bd61C59",
-      "CompoundMultiOracle" : "0x23F5F7a17117ba794Fcc5F46Fbf635edD2596Bb6",
+      "CompoundMultiOracle": "0x23F5F7a17117ba794Fcc5F46Fbf635edD2596Bb6",
       "ChainlinkMultiOracle": "0xBcdc8bad83ca8053DFA6B1CBAEB7E71699254a3b",
       "CompositeMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
       "Witch": "0xA421B81481e0d150740f8F137FB10b1b747974a8",
@@ -31,11 +31,11 @@
       "YearnVaultMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1"
     },
     "421611": {
-      "Cauldron": "0x589fb605D165D0cd32608cC44dAcB87151d3B913",
-      "Ladle": "0x75aD7c0461eE87Ca87D86DD1F33C7419c11f5b05",
-      "ChainlinkUSDOracle": "0x2c6966F0CeEb633ce8ece0972f4c4d28841dBbDD",
-      "AccumulatorMultiOracle": "0x7eD45E73A6c6381a7F6E9778643134f0a8E07Abc",
-      "Witch": "0x7257575992431d7e55F0ccCD4253e7D77b6CD7E4"
+      "Cauldron": "0xF8dF50d5E8406242FF7f6c4BECE195893Ac15027",
+      "Ladle": "0xA1781a4A44815Ce4dBEf2A5E4724B96A8129162c",
+      "ChainlinkUSDOracle": "0xaE956a6cB4D53a08Dc28D6B9E169e07a6e69aE1C",
+      "AccumulatorMultiOracle": "0x4e4d5AE0240e6C2333C91C3A5c6F2403Af582d0f",
+      "Witch": "0x56b4cb5838Eb6304DF4252eb53f997bf29a7293d"
     }
   },
   "strategies": {
@@ -60,10 +60,10 @@
       "0x4987185d8c5BC40d4E9dbB3E714b5711CAe1f502"
     ],
     "421611": [
-      "0x0F97c13Ce038f67F5811935198fA2b850C3FBf4D",
-      "0xBACd09F2709D01409Dd02b6612A7454264379CAd",
-      "0xAc45d3C681fF93031dFdE6d3081dFB633F9b0874",
-      "0x9cF9B79AC34CB4d7dcf37Eb18A48689b7d4bdD39"
+      "0x54BF2D3b38d2717Bd3D19F9915b06e5bCb933765",
+      "0x6D0fe5BE31EFFB8385F9394C25Ca5AD53c9b4645",
+      "0x22FF7eB1d538Dcc1d9D2294763a054743b092112",
+      "0xEcF8A5f5dCE12C0E5cF1D109Ff3011dC027EFa5B"
     ]
   }
 }
