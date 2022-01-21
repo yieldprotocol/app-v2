@@ -156,7 +156,7 @@ const ChainProvider = ({ children }: any) => {
 
       // arbitrum
       let ChainlinkUSDOracle: any;
-      let AccumulatorMultiOracle: any;
+      let AccumulatorOracle: any;
 
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
@@ -181,11 +181,12 @@ const ChainProvider = ({ children }: any) => {
 
         // arbitrum
         if ([421611].includes(fallbackChainId)) {
-          ChainlinkUSDOracle = '';
-
-          AccumulatorMultiOracle = '';
-
-          RateOracle = ChainlinkUSDOracle;
+          ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
+            addrs.ChainlinkUSDOracle,
+            fallbackProvider
+          );
+          AccumulatorOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorOracle, fallbackProvider);
+          RateOracle = AccumulatorOracle;
         }
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
@@ -200,7 +201,7 @@ const ChainProvider = ({ children }: any) => {
       // arbitrum
       if (
         [421611].includes(fallbackChainId) &&
-        (!Cauldron || !Ladle || ChainlinkUSDOracle || AccumulatorMultiOracle || !Witch)
+        (!Cauldron || !Ladle || ChainlinkUSDOracle || AccumulatorOracle || !Witch)
       )
         return;
 
@@ -214,7 +215,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
-      newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
+      newContractMap.set('AccumulatorOracle', AccumulatorOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       updateState({ type: 'contractMap', payload: newContractMap });
 
