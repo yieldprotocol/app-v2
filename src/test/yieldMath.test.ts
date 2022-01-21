@@ -65,7 +65,6 @@ describe('VY YieldMath', () => {
     it('should equal some number with certain inputs and c at 1.1 (formatted)', () => {
       c = parseUnits('1.1', decimals);
       const result = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
-      console.log('🦄 ~ file: yieldMath.test.ts ~ line 66 ~ it ~ result', formatUnits(result));
       expect(result).to.be.closeTo(parseUnits('109651.409', decimals), comparePrecision); // 109,651.409
     });
   });
@@ -90,7 +89,6 @@ describe('VY YieldMath', () => {
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
       c = parseUnits('1.1', decimals);
       const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g2, decimals);
-      console.log('🦄 ~ file: yieldMath.test.ts ~ line 90 ~ it ~ result', formatUnits(result));
       expect(result).to.be.closeTo(parseUnits('90620.803', decimals), comparePrecision); // 90,620.803
     });
   });
@@ -115,7 +113,6 @@ describe('VY YieldMath', () => {
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
       c = parseUnits('1.1', decimals);
       const result = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
-      console.log('🦄 ~ file: yieldMath.test.ts ~ line 118 ~ it ~ result', formatUnits(result));
       expect(result).to.be.closeTo(parseUnits('110386.285', decimals), comparePrecision); // 110,386.285
     });
   });
@@ -140,7 +137,6 @@ describe('VY YieldMath', () => {
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
       c = parseUnits('1.1', decimals);
       const result = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
-      console.log('🦄 ~ file: yieldMath.test.ts ~ line 143 ~ it ~ result', formatUnits(result));
       expect(result).to.be.closeTo(parseUnits('91172.431', decimals), comparePrecision); // 91,172.431
     });
   });
