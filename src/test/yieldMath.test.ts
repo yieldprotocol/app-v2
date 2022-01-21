@@ -103,9 +103,16 @@ describe('VY YieldMath', () => {
     });
 
     it('should have a price of one at maturity', () => {
+      // when c stays the same
       const result = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
       expect(result).to.be.closeTo(parseUnits('110000', decimals), comparePrecision); // 110,000 fyToken out
       expect(calcPrice(base, result, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+
+      // when c grew
+      c = parseUnits('1.2', decimals);
+      const result2 = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
+      expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken out
+      expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
   });
 
@@ -124,6 +131,12 @@ describe('VY YieldMath', () => {
       const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g2, decimals);
       expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken out
       expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+
+      // when c grew
+      c = parseUnits('1.2', decimals);
+      const result2 = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g2, decimals);
+      expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken out
+      expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
   });
 
@@ -142,6 +155,12 @@ describe('VY YieldMath', () => {
       const result = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g2, decimals);
       expect(result).to.be.closeTo(parseUnits('110000', decimals), comparePrecision); // 110,000 fyToken in
       expect(calcPrice(base, result, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+
+      // when c grew
+      c = parseUnits('1.2', decimals);
+      const result2 = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g2, decimals);
+      expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken in
+      expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
   });
 
@@ -160,8 +179,12 @@ describe('VY YieldMath', () => {
       const result = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
       expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken in
       expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+
+      // when c grew
+      c = parseUnits('1.2', decimals);
+      const result2 = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
+      expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken in
+      expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
   });
-
-  describe('stress test interactions', () => {});
 });
