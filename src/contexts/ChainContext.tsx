@@ -201,7 +201,7 @@ const ChainProvider = ({ children }: any) => {
       // arbitrum
       if (
         [421611].includes(fallbackChainId) &&
-        (!Cauldron || !Ladle || ChainlinkUSDOracle || AccumulatorOracle || !Witch)
+        (!Cauldron || !Ladle || !ChainlinkUSDOracle || !AccumulatorOracle || !Witch)
       )
         return;
 
