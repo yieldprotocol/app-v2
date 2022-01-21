@@ -435,7 +435,8 @@ const UserProvider = ({ children }: any) => {
       const RateOracle = contractMap.get('RateOracle');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
+      if (vaultList.length === 0)
+        _vaultList = Array.from((await _getVaults(fallbackChainId === 421611 ? -90000 : undefined)).values()); // fromblock specifically x blocks ago for arb testnet
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
@@ -472,7 +473,7 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
-            [accruedArt, ] = calcAccruedDebt(rate, rateAtMaturity, art);
+            [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
             rateAtMaturity = BigNumber.from('1');
@@ -560,6 +561,7 @@ const UserProvider = ({ children }: any) => {
       assetRootMap,
       account,
       updateAssetPair,
+      fallbackChainId,
     ]
   );
 
