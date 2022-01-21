@@ -70,7 +70,7 @@ CHAIN_INFO.set(42161, {
   name: 'Arbitrum',
   color: '#1F2937',
   bridge: 'https://bridge.arbitrum.io',
-  explorer: 'https://explorer.arbitrum.io',
+  explorer: 'https://arbiscan.io/',
   rpcUrl: 'https://arb1.arbitrum.io/rpc',
   nativeCurrency: {
     name: 'ETH',
@@ -82,7 +82,7 @@ CHAIN_INFO.set(421611, {
   name: 'Arbitrum Testnet',
   color: '#1F2937',
   bridge: 'https://bridge.arbitrum.io',
-  explorer: 'https://rinkeby-explorer.arbitrum.io/#',
+  explorer: 'https://testnet.arbiscan.io',
   rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
   nativeCurrency: {
     name: 'ETH',
