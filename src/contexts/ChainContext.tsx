@@ -255,7 +255,6 @@ const ChainProvider = ({ children }: any) => {
           Cauldron.queryFilter('AssetAdded' as any, blockNumForUse),
           Ladle.queryFilter('JoinAdded' as any, blockNumForUse),
         ]);
-        console.log('🦄 ~ file: ChainContext.tsx ~ line 257 ~ const_getAssets= ~ assetAddedEvents', assetAddedEvents);
 
         /* Create a map from the joinAdded event data */
         const joinMap: Map<string, string> = new Map(
