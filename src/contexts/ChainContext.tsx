@@ -59,7 +59,7 @@ const initState: IChainContextState = {
 
     signer: null as ethers.providers.JsonRpcSigner | null,
     account: null as string | null,
-    
+
     connectorName: null as string | null,
   },
 
@@ -162,10 +162,7 @@ const ChainProvider = ({ children }: any) => {
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
-          RateOracle = contracts.CompoundMultiOracle__factory.connect(
-            addrs.CompoundMultiOracle,
-            fallbackProvider
-          );
+          RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
             fallbackProvider
@@ -183,7 +180,10 @@ const ChainProvider = ({ children }: any) => {
         // arbitrum
         if ([421611].includes(fallbackChainId)) {
           ChainlinkUSDOracle = '';
+
           AccumulatorMultiOracle = '';
+
+          RateOracle = ChainlinkUSDOracle;
         }
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
@@ -246,7 +246,7 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = [1, 4, 42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        const blockNumForUse = [1, 4, 42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 90000; // use last 1000 blocks if too much (arbitrum limit)
 
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
@@ -254,6 +254,7 @@ const ChainProvider = ({ children }: any) => {
           Cauldron.queryFilter('AssetAdded' as any, blockNumForUse),
           Ladle.queryFilter('JoinAdded' as any, blockNumForUse),
         ]);
+        console.log('🦄 ~ file: ChainContext.tsx ~ line 257 ~ const_getAssets= ~ assetAddedEvents', assetAddedEvents);
 
         /* Create a map from the joinAdded event data */
         const joinMap: Map<string, string> = new Map(

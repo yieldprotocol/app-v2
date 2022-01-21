@@ -1,10 +1,10 @@
-import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI , yvUSDC, MKR} from './assets';
+import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI, yvUSDC, MKR } from './assets';
 
 const COMPOSITE_MULTI_ORACLE = 'CompositeMultiOracle';
 const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
 const YEARNVAULT_MULTI_ORACLE = 'YearnVaultMultiOracle';
 const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
-const ACCUMULATOR_MULTI_ORACLE = 'AccumulatorMultiOracle';
+const ACCUMULATOR_ORACLE = 'AccumulatorOracle';
 
 // map chain id to oracle info
 export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
