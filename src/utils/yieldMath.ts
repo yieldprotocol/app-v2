@@ -23,9 +23,9 @@ const TWO = TWO_DEC;
 const MAX = MAX_DEC;
 
 /* Protocol Specific Constants */
-const k = new Decimal(1 / secondsInTenYears.toNumber()).mul(2 ** 64); // inv of seconds in 10 years
-const g1_default = new Decimal(950 / 1000).mul(2 ** 64);
-const g2_default = new Decimal(1000 / 950).mul(2 ** 64);
+export const k = new Decimal(1 / BigNumber.from(SECONDS_PER_YEAR).mul(10).toNumber()).mul(2 ** 64); // inv of seconds in 10 years
+export const g1_default = new Decimal(950 / 1000).mul(2 ** 64);
+export const g2_default = new Decimal(1000 / 950).mul(2 ** 64);
 const precisionFee = new Decimal(1000000000000);
 
 /** *************************
