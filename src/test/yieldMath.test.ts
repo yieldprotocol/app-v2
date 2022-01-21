@@ -126,8 +126,8 @@ describe('VY YieldMath', () => {
     });
 
     it('should equal non-variable yield func with non-variable base', () => {
-      const resultVY = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
-      const result = buyFYToken(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g2, decimals);
+      const resultVY = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
+      const result = buyFYToken(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g1, decimals);
       expect(resultVY).to.equal(result);
     });
 
