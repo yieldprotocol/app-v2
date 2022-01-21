@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
@@ -88,6 +88,8 @@ const Borrow = () => {
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
+
+  const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
 
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
@@ -523,6 +525,21 @@ const Borrow = () => {
                   )}
                 </Box>
               )}
+
+            {stepPosition === 2 && !borrowProcess?.processActive &&(
+              <CheckBox
+                pad={{ vertical: 'small' }}
+                label={
+                  <Text size="xsmall">
+                    I understand the risks associated with borrowing. In particular, while liquidation auctions are not
+                    sufficiently competitive, I stand to lose all posted collateral if my vault falls below the minimum
+                    collateralization requirement of {minCollatRatioPct}%.
+                  </Text>
+                }
+                checked={disclaimerChecked}
+                onChange={() => setDisclaimerChecked(!disclaimerChecked)}
+              />
+            )}
           </Box>
 
           <ActionButtonWrap pad>
@@ -556,7 +573,7 @@ const Borrow = () => {
                   </Text>
                 }
                 onClick={() => handleBorrow()}
-                disabled={borrowDisabled || borrowProcess?.processActive}
+                disabled={borrowDisabled || borrowProcess?.processActive || !disclaimerChecked}
               />
             )}
 
