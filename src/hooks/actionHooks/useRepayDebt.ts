@@ -80,9 +80,8 @@ export const useRepayDebt = () => {
     );
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
-    const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
-
-    // const inputGreaterThanMaxBaseIn = true;
+    // const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+    const inputGreaterThanMaxBaseIn = true;
 
     const _inputforClose = vault.art.lt(_input)
       ? vault.art
@@ -174,7 +173,7 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
-        ignoreIf: !series.seriesIsMature || !inputGreaterThanMaxBaseIn,
+        ignoreIf: !series.seriesIsMature,
       },
 
       ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the ETH collateral (if requested).
