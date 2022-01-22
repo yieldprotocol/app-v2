@@ -80,8 +80,8 @@ export const useRepayDebt = () => {
     );
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
-    // const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
-    const inputGreaterThanMaxBaseIn = true;
+    const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+    // const inputGreaterThanMaxBaseIn = true;
 
     const _inputforClose = vault.art.lt(_input)
       ? vault.art
