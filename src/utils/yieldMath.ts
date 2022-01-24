@@ -1195,10 +1195,11 @@ export const calcPoolRatios = (
  *
  * y = fyToken
  * z = vyToken
+ * x = Δz
  *
  *          (                        sum                           )
  *            (    Za        )   ( Ya  )   (       Zxa         )   (   invA   )
- * dy = y - ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz + μz)^(1-t) )^(1 / (1 - t))
+ * dy = y - ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz + μx)^(1-t) )^(1 / (1 - t))
  */
 export function sellBaseVY(
   baseReserves: BigNumber | string, // z
@@ -1228,7 +1229,7 @@ export function sellBaseVY(
 
   const Za = c_.div(mu_).mul(mu_.mul(baseReserves_).pow(a));
   const Ya = fyTokenReserves_.pow(a);
-  const Zxa = c_.div(mu_).mul(baseReserves_.add(mu_.mul(base_)).pow(a));
+  const Zxa = c_.div(mu_).mul(mu_.mul(baseReserves_).add(mu_.mul(base_)).pow(a));
   const sum = Za.add(Ya).sub(Zxa);
   const y = fyTokenReserves_.sub(sum.pow(invA));
 
@@ -1253,10 +1254,11 @@ export function sellBaseVY(
  *
  * y = fyToken
  * z = vyToken
+ * x = Δy
  *
  *                (                      sum                                       )
  *                  (       Za           )   ( Ya  )    (    Yxa     )               (   invA   )
- * dz = z - 1/μ  * ( ( (c / μ) * (μz)^(1-t) + y^(1-t) -  (y + dy)^(1-t) ) / (c / μ) )^(1 / (1 - t))
+ * dz = z - 1/μ  * ( ( (c / μ) * (μz)^(1-t) + y^(1-t) -  (y + x)^(1-t) ) / (c / μ) )^(1 / (1 - t))
  */
 export function sellFYTokenVY(
   baseReserves: BigNumber | string, // z
@@ -1311,10 +1313,11 @@ export function sellFYTokenVY(
  *
  * y = fyToken
  * z = vyToken
+ * x = Δz
  *
  *      (                  sum                                )
  *        (    Za        )   ( Ya  )   (      Zxa           )   (   invA   )
- * dy = ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz - μdz)^(1-t) )^(1 / (1 - t)) - y
+ * dy = ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz - μx)^(1-t) )^(1 / (1 - t)) - y
  */
 export function buyBaseVY(
   baseReserves: BigNumber | string, // z
@@ -1368,10 +1371,11 @@ export function buyBaseVY(
  *
  * y = fyToken
  * z = vyToken
+ * x = Δy
  *
  *            (                 sum                                   )
  *              (     Za       )  ( Ya   )   (    Yxa     )             (   invA   )
- * dz = 1/μ * ( ( c/μ * μz^(1-t) + y^(1-t) - (y - dy)^(1-t) ) / (c/μ) )^(1 / (1 - t)) - z
+ * dz = 1/μ * ( ( c/μ * μz^(1-t) + y^(1-t) - (y - x)^(1-t) ) / (c/μ) )^(1 / (1 - t)) - z
  */
 export function buyFYTokenVY(
   baseReserves: BigNumber | string, // z
