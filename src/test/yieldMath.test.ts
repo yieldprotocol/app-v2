@@ -44,12 +44,13 @@ describe('VY YieldMath', () => {
     baseReserves = parseUnits('1000000', decimals); // 1,000,000 base reserves to decimals
     fyTokenReserves = parseUnits('1000000', decimals); // 1,000,000 fyToken reserves to decimals
     c = parseUnits('1.1', decimals);
-    mu = parseUnits('1', decimals);
+    mu = parseUnits('1.05', decimals);
     timeTillMaturity = (10000000).toString(); // 10000000 seconds
   });
 
   it('should equal the non-variable yield function with non-variable base', () => {
     c = parseUnits('1', decimals); // non-variable initially
+    mu = parseUnits('1', decimals); // non-variable initially
     // sellBase
     const sellBaseVYResult = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
     const sellBaseResult = sellBase(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g1, decimals);
@@ -97,9 +98,9 @@ describe('VY YieldMath', () => {
       expect(result).to.be.gt(base);
     });
 
-    it('should equal some number with certain inputs and c at 1.1 (formatted)', () => {
+    it('should equal some number with certain inputs and c at 1.1 (formatted) and mu at 1.05', () => {
       const result = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
-      expect(result).to.be.closeTo(parseUnits('109651.409', decimals), comparePrecision); // 109,651.409
+      expect(result).to.be.closeTo(parseUnits('109490.652', decimals), comparePrecision); // 109,490.652
     });
 
     it('should have a price of one at maturity', () => {
@@ -117,14 +118,14 @@ describe('VY YieldMath', () => {
   });
 
   describe('sellFYTokenVY (vyTokenOutForFYTokenIn)', () => {
-    it('should be less vyToken out than fyToken in when c greater than 1 and mu at 1', () => {
+    it('should be less vyToken out than fyToken in when c greater than 1', () => {
       const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g2, decimals);
       expect(result).to.be.lt(fyToken);
     });
 
-    it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
+    it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
       const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g2, decimals);
-      expect(result).to.be.closeTo(parseUnits('90620.803', decimals), comparePrecision); // 90,620.803
+      expect(result).to.be.closeTo(parseUnits('90768.266', decimals), comparePrecision); // 90,768.266
     });
 
     it('should have a price of one at maturity', () => {
@@ -146,9 +147,9 @@ describe('VY YieldMath', () => {
       expect(result).to.be.gt(base);
     });
 
-    it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
+    it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
       const result = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
-      expect(result).to.be.closeTo(parseUnits('110386.285', decimals), comparePrecision); // 110,386.285
+      expect(result).to.be.closeTo(parseUnits('110206.353', decimals), comparePrecision); // 110,206.353
     });
 
     it('should have a price of one at maturity', () => {
@@ -170,9 +171,10 @@ describe('VY YieldMath', () => {
       expect(result).to.be.lt(fyToken);
     });
 
-    it('should equal some number with certain inputs and coefficient at 1.1 (formatted)', () => {
+    it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
       const result = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
-      expect(result).to.be.closeTo(parseUnits('91172.431', decimals), comparePrecision); // 91,172.431
+      console.log('🦄 ~ file: yieldMath.test.ts ~ line 175 ~ it ~ result', formatUnits(result));
+      expect(result).to.be.closeTo(parseUnits('92827.269', decimals), comparePrecision); // 92,827.269
     });
 
     it('should have a price of one at maturity', () => {
