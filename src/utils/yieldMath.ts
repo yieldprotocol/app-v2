@@ -1181,7 +1181,7 @@ export const calcPoolRatios = (
 /**
  * Calculate the amount of fyToken a user would get for given amount of interest-bearing (variable yield) base asset).
  * fyTokenOutForVYTokenIn
- * https://www.desmos.com/calculator/iqjsvkcuv2
+ * https://www.desmos.com/calculator/2ugdrfiaal
  * @param { BigNumber | string } baseReserves // z
  * @param { BigNumber | string } fyTokenReserves // y
  * @param { BigNumber | string } base // amount of variable yield base asset
@@ -1240,7 +1240,7 @@ export function sellBaseVY(
 /**
  * Calculate the amount of variable-yield base a user would get for certain amount of fyToken.
  * vyTokenOutForFYTokenIn
- * https://www.desmos.com/calculator/dgd6w2fvcc
+ * https://www.desmos.com/calculator/keqw4iztps
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
@@ -1299,7 +1299,7 @@ export function sellFYTokenVY(
 /**
  * Calculate the amount of fyToken a user could sell for given amount of variable yield Base.
  * fyTokenInForVYTokenOut
- * https://www.desmos.com/calculator/wfaod7vz4r
+ * https://www.desmos.com/calculator/4fq0vf6dgi
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
@@ -1358,7 +1358,7 @@ export function buyBaseVY(
 /**
  * Calculate the amount of variable yield base a user would have to pay for certain amount of fyToken.
  * vyTokenInForFYTokenOut
- * https://www.desmos.com/calculator/rfjs8bttps
+ * https://www.desmos.com/calculator/ly9qkwp3wy
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
