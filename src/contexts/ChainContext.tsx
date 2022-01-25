@@ -462,8 +462,6 @@ const ChainProvider = ({ children }: any) => {
                   g1,
                   g2,
                 };
-
-                console.log( _chargeSeries(newSeries) );
                 updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
               }
