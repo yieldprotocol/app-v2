@@ -27,6 +27,7 @@ import { seasonColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 import MakerMark from '../components/logos/MakerMark';
+import { baseIdFromSeriesId } from '../utils/yieldMath';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -145,8 +146,6 @@ const ChainProvider = ({ children }: any) => {
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
 
-      const seriesHardMap: Map<string, string> = new Map((yieldEnv.series as any)[fallbackChainId]);
-
       let Cauldron: any;
       let Ladle: any;
       let RateOracle: any;
@@ -256,11 +255,11 @@ const ChainProvider = ({ children }: any) => {
         const joinHardMap: Map<string, string> = new Map((yieldEnv.joins as any)[fallbackChainId]);
         const assetHardMap: Map<string, string> = new Map((yieldEnv.assets as any)[fallbackChainId]);
 
-        const [ assetAddedEvents, joinAddedEvents ] = await Promise.all([
+        const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
           Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
         ]).catch(() => {
-          assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.' )
+          assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.');
           return [[], []];
         });
 
@@ -273,8 +272,6 @@ const ChainProvider = ({ children }: any) => {
         const assetsAdded: { assetId: string; asset: string }[] = assetHardMap.size
           ? Array.from(assetHardMap, ([assetId, asset]) => ({ assetId, asset }))
           : assetAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
-
-        console.log(assetsAdded);
 
         const newAssetList: any[] = [];
 
@@ -293,7 +290,7 @@ const ChainProvider = ({ children }: any) => {
                 ERC20.symbol(),
                 ERC20.decimals(),
                 id === USDC ? '2' : '1', // TODO ERC20.version()
-              ])
+              ]);
             } catch (e) {
               /* TODO look at finding a better way to handle the pimple that is the Maker Token */
               const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
@@ -387,27 +384,47 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
+        /* get hardcoded pool/series values  */
+        const poolHardMap: Map<string, string> = new Map((yieldEnv.pools as any)[fallbackChainId]);
+        const seriesHardMap: Map<string, string> = new Map((yieldEnv.series as any)[fallbackChainId]);
+
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
           Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
           Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
         ]).catch(() => {
-          console.log('Fallback to hardcorded ASSET information required.' )
+          console.log('Fallback to hardcorded ASSET information required.');
           return [[], []];
         });
 
+        /* Create a map from the poolAdded event data or hardcoded pool data if available */
+        const poolMap: Map<string, string> = poolHardMap.size
+          ? poolHardMap
+          : new Map(poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]); // event values);
+
+        /* Create a array from the seriesAdded event data or hardcoded series data if available */
+        const seriesAdded: { seriesId: string; baseId: string; fyToken: string }[] = seriesHardMap.size
+          ? Array.from(seriesHardMap, ([seriesId, fyToken]) => ({
+              seriesId,
+              fyToken,
+              baseId: baseIdFromSeriesId(seriesId),
+            }))
+          : seriesAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
+
         /* build a map from the poolAdded event data */
-        const poolMap: Map<string, string> = new Map(
-          poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-        );
+        // const poolMap: Map<string, string> = new Map(
+        //   poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
+        // );
+
+        console.log( seriesAdded); 
 
         const newSeriesList: any[] = [];
 
         /* Add in any extra static series */
         try {
           await Promise.all([
-            ...seriesAddedEvents.map(async (x: any): Promise<void> => {
-              const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+            seriesAdded.map(async (x: any): Promise<void> => {
+              const { seriesId: id, baseId, fyToken } = x;
               const { maturity } = await Cauldron.series(id);
 
               if (poolMap.has(id)) {
