@@ -132,7 +132,7 @@ const ChainProvider = ({ children }: any) => {
   const { connectionState, connectionActions } = useConnection();
   const { chainId, fallbackProvider, fallbackChainId } = connectionState;
 
-  const blockNumForUse = [1, 4, 42].includes(fallbackChainId!) ? lastSeriesUpdate : -90000; // use last x blocks if too much (arbitrum limit)
+  const blockNumForUse = [1, 4, 42].includes(fallbackChainId!) ? Math.min(lastSeriesUpdate,lastAssetUpdate) : -90000; // use last x blocks if too much (arbitrum limit)
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -144,6 +144,10 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
+
+      const assetHardMap: Map<string, string> = new Map((yieldEnv.assets as any)[fallbackChainId]);
+
+      const seriesHardMap: Map<string, string> = new Map((yieldEnv.series as any)[fallbackChainId]);
 
       let Cauldron: any;
       let Ladle: any;
@@ -213,8 +217,8 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('RateOracle', RateOracle);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
+      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('AccumulatorOracle', AccumulatorOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       updateState({ type: 'contractMap', payload: newContractMap });
@@ -257,14 +261,25 @@ const ChainProvider = ({ children }: any) => {
           Ladle.queryFilter('JoinAdded' as any, blockNumForUse),
         ]);
 
-        /* Create a map from the joinAdded event data */
-        const joinMap: Map<string, string> = new Map(
-          joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-        );
+        /* Create a map from the joinAdded event data or hardcoded join data if available */
+        const joinHardMap: Map<string, string> = new Map((yieldEnv.joins as any)[fallbackChainId]); // hardcoded values
+        const joinMap: Map<string, string> = joinHardMap.size
+          ? joinHardMap
+          : new Map(
+              joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]] // event values
+            );
 
         const newAssetList: any[] = [];
+
+        const assetsAdded: { assetId: string,  asset: string }[] = assetHardMap.size
+          ? Array.from(assetHardMap, ([assetId, asset]) => ({ assetId, asset }))
+          : assetAddedEvents.map( (x:any) => Cauldron.interface.parseLog(x).args );
+
+        console.log( assetsAdded );
+
         await Promise.all(
           assetAddedEvents.map(async (x: any) => {
+            
             const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
 
             /* Get the basic token info */
@@ -292,7 +307,6 @@ const ChainProvider = ({ children }: any) => {
 
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
             const idToUse = assetInfo?.wrappedTokenId || id;
-
             const newAsset = {
               id,
               address,
