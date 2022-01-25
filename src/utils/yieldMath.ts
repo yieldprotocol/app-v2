@@ -1176,15 +1176,15 @@ export const calcPoolRatios = (
   return [min, max];
 };
 
-/** Variable Yield (VY) Base Functions */
+/** Share-based Swap Functions */
 
 /**
  * Calculate the amount of fyToken a user would get for given amount of interest-bearing (variable yield) base asset).
- * fyTokenOutForVYTokenIn
- * https://www.desmos.com/calculator/2ugdrfiaal
+ * fyTokenOutForSharesIn
+ * https://www.desmos.com/calculator/bdplcpol2y
  * @param { BigNumber | string } baseReserves // z
  * @param { BigNumber | string } fyTokenReserves // y
- * @param { BigNumber | string } base // amount of variable yield base asset
+ * @param { BigNumber | string } base // number of shares
  * @param { BigNumber | string } c// c: conversion factor between variable yielding asset to non-variable yielding asset in respective decimal format
  * @param { BigNumber | string } mu // c at initialization (μ)
  * @param { BigNumber | string } timeTillMaturity // time till maturity in seconds
@@ -1201,7 +1201,7 @@ export const calcPoolRatios = (
  *            (    Za        )   ( Ya  )   (       Zxa         )   (   invA   )
  * dy = y - ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz + μx)^(1-t) )^(1 / (1 - t))
  */
-export function sellBaseVY(
+export function sellBaseShares(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   base: BigNumber | string,
@@ -1239,8 +1239,8 @@ export function sellBaseVY(
 
 /**
  * Calculate the amount of variable-yield base a user would get for certain amount of fyToken.
- * vyTokenOutForFYTokenIn
- * https://www.desmos.com/calculator/keqw4iztps
+ * sharesOutForFYTokenIn
+ * https://www.desmos.com/calculator/mjzqajjsq6
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
@@ -1260,7 +1260,7 @@ export function sellBaseVY(
  *                  (       Za           )   ( Ya  )    (    Yxa     )               (   invA   )
  * dz = z - 1/μ  * ( ( (c / μ) * (μz)^(1-t) + y^(1-t) -  (y + x)^(1-t) ) / (c / μ) )^(1 / (1 - t))
  */
-export function sellFYTokenVY(
+export function sellFYTokenShares(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   fyToken: BigNumber | string,
@@ -1298,8 +1298,8 @@ export function sellFYTokenVY(
 
 /**
  * Calculate the amount of fyToken a user could sell for given amount of variable yield Base.
- * fyTokenInForVYTokenOut
- * https://www.desmos.com/calculator/4fq0vf6dgi
+ * fyTokenInForSharesOut
+ * https://www.desmos.com/calculator/8dgux6slgq
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } base
@@ -1319,7 +1319,7 @@ export function sellFYTokenVY(
  *        (    Za        )   ( Ya  )   (      Zxa           )   (   invA   )
  * dy = ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz - μx)^(1-t) )^(1 / (1 - t)) - y
  */
-export function buyBaseVY(
+export function buyBaseShares(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   base: BigNumber | string,
@@ -1357,8 +1357,8 @@ export function buyBaseVY(
 
 /**
  * Calculate the amount of variable yield base a user would have to pay for certain amount of fyToken.
- * vyTokenInForFYTokenOut
- * https://www.desmos.com/calculator/kdstqpu3lc
+ * sharesInForFYTokenOut
+ * https://www.desmos.com/calculator/oyj2qzevzs
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken
@@ -1377,7 +1377,7 @@ export function buyBaseVY(
  *              (     Za       )  ( Ya   )   (    Yxa     )             (   invA   )
  * dz = 1/μ * ( ( c/μ * μz^(1-t) + y^(1-t) - (y - x)^(1-t) ) / (c/μ) )^(1 / (1 - t)) - z
  */
-export function buyFYTokenVY(
+export function buyFYTokenShares(
   baseReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   fyToken: BigNumber | string,
