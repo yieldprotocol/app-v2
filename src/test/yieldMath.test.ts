@@ -4,13 +4,13 @@ import { solidity } from 'ethereum-waffle';
 import { BigNumber, utils } from 'ethers';
 import {
   buyBase,
-  buyBaseVY,
+  buyBaseShares,
   buyFYToken,
-  buyFYTokenVY,
+  buyFYTokenShares,
   sellBase,
-  sellBaseVY,
+  sellBaseShares,
   sellFYToken,
-  sellFYTokenVY,
+  sellFYTokenShares,
   g1_default,
   g2_default,
   k,
@@ -52,12 +52,22 @@ describe('VY YieldMath', () => {
     c = parseUnits('1', decimals); // non-variable initially
     mu = parseUnits('1', decimals); // non-variable initially
     // sellBase
-    const sellBaseVYResult = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
+    const sellBaseVYResult = sellBaseShares(
+      baseReserves,
+      fyTokenReserves,
+      base,
+      c,
+      mu,
+      timeTillMaturity,
+      ts,
+      g1,
+      decimals
+    );
     const sellBaseResult = sellBase(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g1, decimals);
     expect(sellBaseVYResult).to.equal(sellBaseResult);
 
     // sellFYToken
-    const sellFYTokenVYResult = sellFYTokenVY(
+    const sellFYTokenVYResult = sellFYTokenShares(
       baseReserves,
       fyTokenReserves,
       fyToken,
@@ -72,12 +82,22 @@ describe('VY YieldMath', () => {
     expect(sellFYTokenVYResult).to.equal(sellFYTokenResult);
 
     // buyBase
-    const buyBaseVYResult = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
+    const buyBaseVYResult = buyBaseShares(
+      baseReserves,
+      fyTokenReserves,
+      base,
+      c,
+      mu,
+      timeTillMaturity,
+      ts,
+      g2,
+      decimals
+    );
     const buyBaseResult = buyBase(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g2, decimals);
     expect(buyBaseVYResult).to.equal(buyBaseResult);
 
-    // buyFYTokenVY
-    const buyFYTokenVYResult = buyFYTokenVY(
+    // buyFYToken
+    const buyFYTokenVYResult = buyFYTokenShares(
       baseReserves,
       fyTokenReserves,
       base,
@@ -94,24 +114,24 @@ describe('VY YieldMath', () => {
 
   describe('sellBaseVY (fyTokenOutForVYTokenIn)', () => {
     it('should be more fyToken out for vyToken in when c greater than 1 and mu at 1', () => {
-      const result = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
+      const result = sellBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
       expect(result).to.be.gt(base);
     });
 
     it('should equal some number with certain inputs and c at 1.1 (formatted) and mu at 1.05', () => {
-      const result = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
+      const result = sellBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
       expect(result).to.be.closeTo(parseUnits('109490.652', decimals), comparePrecision); // 109,490.652
     });
 
     it('should have a price of one at maturity', () => {
       // when c stays the same
-      const result = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
+      const result = sellBaseShares(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
       expect(result).to.be.closeTo(parseUnits('110000', decimals), comparePrecision); // 110,000 fyToken out
       expect(calcPrice(base, result, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
       // when c grew
       c = parseUnits('1.2', decimals);
-      const result2 = sellBaseVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
+      const result2 = sellBaseShares(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
       expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken out
       expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
@@ -119,23 +139,53 @@ describe('VY YieldMath', () => {
 
   describe('sellFYTokenVY (vyTokenOutForFYTokenIn)', () => {
     it('should be less vyToken out than fyToken in when c greater than 1', () => {
-      const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g2, decimals);
+      const result = sellFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g2,
+        decimals
+      );
       expect(result).to.be.lt(fyToken);
     });
 
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
-      const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g2, decimals);
+      const result = sellFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g2,
+        decimals
+      );
       expect(result).to.be.closeTo(parseUnits('90768.266', decimals), comparePrecision); // 90,768.266
     });
 
     it('should have a price of one at maturity', () => {
-      const result = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g2, decimals);
+      const result = sellFYTokenShares(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g2, decimals);
       expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken out
       expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
       // when c grew
       c = parseUnits('1.2', decimals);
-      const result2 = sellFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g2, decimals);
+      const result2 = sellFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        c,
+        mu,
+        (0).toString(),
+        ts,
+        g2,
+        decimals
+      );
       expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken out
       expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
@@ -143,23 +193,23 @@ describe('VY YieldMath', () => {
 
   describe('buyBaseVY (fyTokenInForVYTokenOut)', () => {
     it('should be more fyToken in than vyToken out when coefficient greater than 1', () => {
-      const result = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
+      const result = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
       expect(result).to.be.gt(base);
     });
 
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
-      const result = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
+      const result = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
       expect(result).to.be.closeTo(parseUnits('110206.353', decimals), comparePrecision); // 110,206.353
     });
 
     it('should have a price of one at maturity', () => {
-      const result = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g2, decimals);
+      const result = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g2, decimals);
       expect(result).to.be.closeTo(parseUnits('110000', decimals), comparePrecision); // 110,000 fyToken in
       expect(calcPrice(base, result, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
       // when c grew
       c = parseUnits('1.2', decimals);
-      const result2 = buyBaseVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g2, decimals);
+      const result2 = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g2, decimals);
       expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken in
       expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
@@ -167,23 +217,43 @@ describe('VY YieldMath', () => {
 
   describe('buyFYTokenVY (vyTokenInForFYTokenOut)', () => {
     it('should be less vyToken in than fyToken out when coefficient greater than 1', () => {
-      const result = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g1, decimals);
+      const result = buyFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals
+      );
       expect(result).to.be.lt(fyToken);
     });
 
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
-      const result = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g1, decimals);
+      const result = buyFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals
+      );
       expect(result).to.be.closeTo(parseUnits('91306.706', decimals), comparePrecision); // 91,306.706
     });
 
     it('should have a price of one at maturity', () => {
-      const result = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g1, decimals);
+      const result = buyFYTokenShares(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g1, decimals);
       expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken in
       expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
       // when c grew
       c = parseUnits('1.2', decimals);
-      const result2 = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g1, decimals);
+      const result2 = buyFYTokenShares(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g1, decimals);
       expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken in
       expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
