@@ -416,13 +416,11 @@ const ChainProvider = ({ children }: any) => {
         //   poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
         // );
 
-        console.log( seriesAdded); 
-
         const newSeriesList: any[] = [];
 
         /* Add in any extra static series */
         try {
-          await Promise.all([
+          await Promise.all(
             seriesAdded.map(async (x: any): Promise<void> => {
               const { seriesId: id, baseId, fyToken } = x;
               const { maturity } = await Cauldron.series(id);
@@ -464,11 +462,13 @@ const ChainProvider = ({ children }: any) => {
                   g1,
                   g2,
                 };
+
+                console.log( _chargeSeries(newSeries) );
                 updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
               }
             }),
-          ]);
+          );
         } catch (e) {
           console.log('Error fetching series data: ', e);
         }
