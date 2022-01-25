@@ -135,6 +135,34 @@ describe('VY YieldMath', () => {
       expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken out
       expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
+
+    it('should mirror buyFYTokenShares (fyTokenInForSharesOut)', () => {
+      const fyTokensOut = sellBaseShares(
+        baseReserves,
+        fyTokenReserves,
+        base,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals
+      );
+
+      // plug the fyTokens out from above into mirror swap function
+      const baseIn = buyFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyTokensOut,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals
+      );
+      expect(baseIn).to.be.closeTo(base, comparePrecision);
+    });
   });
 
   describe('sellFYTokenShares (sharesOutForFYTokenIn)', () => {
@@ -189,6 +217,34 @@ describe('VY YieldMath', () => {
       expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken out
       expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
+
+    it('should mirror buyBaseShares (fyTokenInForSharesOut)', () => {
+      const sharesOut = sellFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g2,
+        decimals
+      );
+
+      // plug the shares out from above into mirror swap function
+      const fyTokenIn = buyBaseShares(
+        baseReserves,
+        fyTokenReserves,
+        sharesOut,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g2,
+        decimals
+      );
+      expect(fyTokenIn).to.be.closeTo(fyToken, comparePrecision);
+    });
   });
 
   describe('buyBaseShares (fyTokenInForSharesOut)', () => {
@@ -212,6 +268,24 @@ describe('VY YieldMath', () => {
       const result2 = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g2, decimals);
       expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken in
       expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+    });
+
+    it('should mirror sellFYTokenShares (sharesOutForFYTokenIn)', () => {
+      const fyTokenIn = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
+
+      // plug the fyToken in from above into mirror swap function
+      const sharesOut = sellFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyTokenIn,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g2,
+        decimals
+      );
+      expect(sharesOut).to.be.closeTo(base, comparePrecision);
     });
   });
 
@@ -256,6 +330,35 @@ describe('VY YieldMath', () => {
       const result2 = buyFYTokenShares(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g1, decimals);
       expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken in
       expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+    });
+
+    it('should mirror sellBaseShares (fyTokenOutForSharesIn)', () => {
+      // shares in
+      const sharesIn = buyFYTokenShares(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals
+      );
+
+      // plug the shares in from above into mirror swap function
+      const fyTokensOut = sellBaseShares(
+        baseReserves,
+        fyTokenReserves,
+        sharesIn,
+        c,
+        mu,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals
+      );
+      expect(fyTokensOut).to.be.closeTo(fyToken, comparePrecision);
     });
   });
 });
