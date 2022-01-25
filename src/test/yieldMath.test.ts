@@ -112,8 +112,8 @@ describe('VY YieldMath', () => {
     expect(buyFYTokenVYResult).to.equal(buyFYTokenResult);
   });
 
-  describe('sellBaseVY (fyTokenOutForVYTokenIn)', () => {
-    it('should be more fyToken out for vyToken in when c greater than 1 and mu at 1', () => {
+  describe('sellBaseShares (fyTokenOutForSharesIn)', () => {
+    it('should be more fyToken out for shares in when c greater than 1 and mu at 1', () => {
       const result = sellBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
       expect(result).to.be.gt(base);
     });
@@ -137,8 +137,8 @@ describe('VY YieldMath', () => {
     });
   });
 
-  describe('sellFYTokenVY (vyTokenOutForFYTokenIn)', () => {
-    it('should be less vyToken out than fyToken in when c greater than 1', () => {
+  describe('sellFYTokenShares (sharesOutForFYTokenIn)', () => {
+    it('should be fewer shares out than fyToken in when c greater than 1', () => {
       const result = sellFYTokenShares(
         baseReserves,
         fyTokenReserves,
@@ -191,8 +191,8 @@ describe('VY YieldMath', () => {
     });
   });
 
-  describe('buyBaseVY (fyTokenInForVYTokenOut)', () => {
-    it('should be more fyToken in than vyToken out when coefficient greater than 1', () => {
+  describe('buyBaseShares (fyTokenInForSharesOut)', () => {
+    it('should be more fyToken in than shares out when coefficient greater than 1', () => {
       const result = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
       expect(result).to.be.gt(base);
     });
@@ -215,8 +215,8 @@ describe('VY YieldMath', () => {
     });
   });
 
-  describe('buyFYTokenVY (vyTokenInForFYTokenOut)', () => {
-    it('should be less vyToken in than fyToken out when coefficient greater than 1', () => {
+  describe('buyFYTokenShares (sharesInForFYTokenOut)', () => {
+    it('should be fewer shares in than fyToken out when coefficient greater than 1', () => {
       const result = buyFYTokenShares(
         baseReserves,
         fyTokenReserves,
