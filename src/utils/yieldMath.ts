@@ -1358,7 +1358,7 @@ export function buyBaseVY(
 /**
  * Calculate the amount of variable yield base a user would have to pay for certain amount of fyToken.
  * vyTokenInForFYTokenOut
- * https://www.desmos.com/calculator/ly9qkwp3wy
+ * https://www.desmos.com/calculator/kdstqpu3lc
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } fyToken

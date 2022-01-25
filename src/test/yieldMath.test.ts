@@ -173,8 +173,7 @@ describe('VY YieldMath', () => {
 
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
       const result = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g1, decimals);
-      console.log('🦄 ~ file: yieldMath.test.ts ~ line 175 ~ it ~ result', formatUnits(result));
-      expect(result).to.be.closeTo(parseUnits('92827.269', decimals), comparePrecision); // 92,827.269
+      expect(result).to.be.closeTo(parseUnits('91306.706', decimals), comparePrecision); // 91,306.706
     });
 
     it('should have a price of one at maturity', () => {
