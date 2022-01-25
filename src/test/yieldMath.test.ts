@@ -167,24 +167,24 @@ describe('VY YieldMath', () => {
 
   describe('buyFYTokenVY (vyTokenInForFYTokenOut)', () => {
     it('should be less vyToken in than fyToken out when coefficient greater than 1', () => {
-      const result = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
+      const result = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g1, decimals);
       expect(result).to.be.lt(fyToken);
     });
 
     it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
-      const result = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
+      const result = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, timeTillMaturity, ts, g1, decimals);
       console.log('🦄 ~ file: yieldMath.test.ts ~ line 175 ~ it ~ result', formatUnits(result));
       expect(result).to.be.closeTo(parseUnits('92827.269', decimals), comparePrecision); // 92,827.269
     });
 
     it('should have a price of one at maturity', () => {
-      const result = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
+      const result = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g1, decimals);
       expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken in
       expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
       // when c grew
       c = parseUnits('1.2', decimals);
-      const result2 = buyFYTokenVY(baseReserves, fyTokenReserves, base, c, mu, (0).toString(), ts, g1, decimals);
+      const result2 = buyFYTokenVY(baseReserves, fyTokenReserves, fyToken, c, mu, (0).toString(), ts, g1, decimals);
       expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken in
       expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
     });
