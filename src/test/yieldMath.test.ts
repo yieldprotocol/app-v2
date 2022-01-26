@@ -114,14 +114,15 @@ describe('Shares YieldMath', () => {
       expect(buyFYTokenVYResult).to.equal(buyFYTokenResult);
     });
   });
-  describe('sellBaseShares (fyTokenOutForSharesIn)', () => {
-    describe('when c is 1.1 and mu is 1.05', () => {
-      it('should be more fyToken out for shares in when c greater than 1 and mu at 1', () => {
+
+  describe('when c is 1.1 and mu is 1.05', () => {
+    describe('sellBaseShares (fyTokenOutForSharesIn)', () => {
+      it('should be more fyToken out for shares in', () => {
         const result = sellBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
         expect(result).to.be.gt(base);
       });
 
-      it('should equal some number with certain inputs and c at 1.1 (formatted) and mu at 1.05', () => {
+      it('should output a specific number with a specific input', () => {
         const result = sellBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
         expect(result).to.be.closeTo(parseUnits('109490.652', decimals), comparePrecision); // 109,490.652
       });
@@ -167,11 +168,9 @@ describe('Shares YieldMath', () => {
         expect(baseIn).to.be.closeTo(base, comparePrecision);
       });
     });
-  });
 
-  describe('sellFYTokenShares (sharesOutForFYTokenIn)', () => {
-    describe('when c is 1.1 and mu is 1.05', () => {
-      it('should be fewer shares out than fyToken in when c greater than 1', () => {
+    describe('sellFYTokenShares (sharesOutForFYTokenIn)', () => {
+      it('should be fewer shares out than fyToken in', () => {
         const result = sellFYTokenShares(
           baseReserves,
           fyTokenReserves,
@@ -186,7 +185,7 @@ describe('Shares YieldMath', () => {
         expect(result).to.be.lt(fyToken);
       });
 
-      it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
+      it('should output a specific number with a specific input', () => {
         const result = sellFYTokenShares(
           baseReserves,
           fyTokenReserves,
@@ -261,16 +260,14 @@ describe('Shares YieldMath', () => {
         expect(fyTokenIn).to.be.closeTo(fyToken, comparePrecision);
       });
     });
-  });
 
-  describe('buyBaseShares (fyTokenInForSharesOut)', () => {
-    describe('when c is 1.1 and mu is 1.05', () => {
-      it('should be more fyToken in than shares out when coefficient greater than 1', () => {
+    describe('buyBaseShares (fyTokenInForSharesOut)', () => {
+      it('should be more fyToken in than shares out', () => {
         const result = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
         expect(result).to.be.gt(base);
       });
 
-      it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
+      it('should output a specific number with a specific input', () => {
         const result = buyBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g2, decimals);
         expect(result).to.be.closeTo(parseUnits('110206.353', decimals), comparePrecision); // 110,206.353
       });
@@ -305,11 +302,9 @@ describe('Shares YieldMath', () => {
         expect(sharesOut).to.be.closeTo(base, comparePrecision);
       });
     });
-  });
 
-  describe('buyFYTokenShares (sharesInForFYTokenOut)', () => {
-    describe('when c is 1.1 and mu is 1.05', () => {
-      it('should be fewer shares in than fyToken out when coefficient greater than 1', () => {
+    describe('buyFYTokenShares (sharesInForFYTokenOut)', () => {
+      it('should be fewer shares in than fyToken out', () => {
         const result = buyFYTokenShares(
           baseReserves,
           fyTokenReserves,
@@ -324,7 +319,7 @@ describe('Shares YieldMath', () => {
         expect(result).to.be.lt(fyToken);
       });
 
-      it('should equal some number with certain inputs and coefficient at 1.1 (formatted) and mu at 1.05', () => {
+      it('should output a specific number with a specific input', () => {
         const result = buyFYTokenShares(
           baseReserves,
           fyTokenReserves,
