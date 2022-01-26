@@ -15,6 +15,8 @@ import {
   g2_default,
   k,
   toBn,
+  maxFyTokenOut,
+  maxBaseIn,
 } from '../utils/yieldMath';
 
 chai.use(solidity);
@@ -28,10 +30,10 @@ describe('Shares YieldMath', () => {
   const g2 = toBn(g2_default);
   const ts = toBn(k);
 
-  let baseReserves: BigNumber | string;
-  let fyTokenReserves: BigNumber | string;
-  let c: BigNumber | string; // c: the price of vyToken to Token
-  let mu: BigNumber | string; // mu: the price of vyToken to Token (c) at initialization
+  let baseReserves: BigNumber;
+  let fyTokenReserves: BigNumber;
+  let c: BigNumber; // c: the price of vyToken to Token
+  let mu: BigNumber; // mu: the price of vyToken to Token (c) at initialization
   let timeTillMaturity: BigNumber | string;
   const decimals = 18;
 
@@ -166,6 +168,12 @@ describe('Shares YieldMath', () => {
           decimals
         );
         expect(baseIn).to.be.closeTo(base, comparePrecision);
+      });
+
+      it('should have max fyToken out of x', () => {
+        const maxShares = maxBaseIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals);
+        console.log('🦄 ~ file: yieldMath.test.ts ~ line 182 ~ it ~ maxBase', formatUnits(maxShares));
+        console.log('🦄 ~ file: yieldMath.test.ts ~ line 184 ~ it ~ timeTillMaturity', timeTillMaturity);
       });
     });
 
