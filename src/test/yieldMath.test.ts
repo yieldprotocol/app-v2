@@ -406,6 +406,8 @@ describe('Shares YieldMath', () => {
   });
 
   describe('when c is 110 and mu is 105', () => {
+    c = parseUnits('110', decimals);
+    mu = parseUnits('105', decimals);
     describe('sellBaseShares (fyTokenOutForSharesIn)', () => {
       it('should be more fyToken out for shares in', () => {
         const result = sellBaseShares(baseReserves, fyTokenReserves, base, c, mu, timeTillMaturity, ts, g1, decimals);
