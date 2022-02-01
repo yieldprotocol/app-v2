@@ -94,13 +94,7 @@ const AprText = ({
 
   return (
     <>
-      {!series.seriesIsMature && !_inputValue && !limitHit && (
-        <Text size="medium">
-          {series?.apr}% <Text size="xsmall">{[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
-        </Text>
-      )}
-
-      {!series?.seriesIsMature && _inputValue && !limitHit && (
+      {!series?.seriesIsMature && !limitHit && (
         <Text size="medium">
           {apr}% <Text size="xsmall">{[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
