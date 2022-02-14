@@ -90,7 +90,7 @@ const HistoryProvider = ({ children }: any) => {
   const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
-  const [lastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+  const [ lastSeriesUpdate ] = useCachedState('lastSeriesUpdate', 0);
   const blockNumForUse = [1, 4, 42].includes(fallbackChainId!) ? lastSeriesUpdate : -90000; // use last x blocks if too much (arbitrum limit)
 
   const {

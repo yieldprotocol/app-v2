@@ -158,15 +158,20 @@ const UserProvider = ({ children }: any) => {
       const Cauldron = contractMap.get('Cauldron');
       if (!Cauldron) return new Map();
 
-      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
+      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
       // const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
 
+      console.log(vaultsBuiltFilter); 
+
       const [vaultsBuilt, vaultsReceived, vaultsDestroyed] = await Promise.all([
-        Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
-        Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
+        Cauldron.queryFilter(vaultsBuiltFilter, 'earliest', 'latest'),
+        Cauldron.queryFilter(vaultsReceivedfilter, 'earliest', 'latest'),
         [], // Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
       ]);
+
+      console.log( vaultsBuilt );
+
 
       const buildEventList: IVaultRoot[] = vaultsBuilt?.map((x: ethers.Event): IVaultRoot => {
         const { vaultId: id, ilkId, seriesId } = Cauldron?.interface.parseLog(x).args;
