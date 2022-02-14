@@ -14,17 +14,14 @@ const AdvancedSetting = () => {
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Box pad='xsmall'>
-        <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
-          Network
-        </Text>
+        <Box pad="xsmall">
+          <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
+            Network
+          </Text>
         </Box>
-
-        <Box pad='xsmall' round background='lightblue'>
+        <Box pad="xsmall" round background="lightblue">
           <NetworkSelector />
-
         </Box>
-        
       </Box>
     </Box>
   );
