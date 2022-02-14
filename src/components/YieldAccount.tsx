@@ -92,7 +92,6 @@ const YieldAccount = (props: any) => {
               </Box>
             )}
           </StyledBox>
-           {/* <NetworkSelector /> */}
         </Box>
       ) : (
         <ConnectButton action={() => setConnectOpen(true)} />
