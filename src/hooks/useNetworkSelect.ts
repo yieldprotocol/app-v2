@@ -16,7 +16,6 @@ interface IAddEthereumChainParameter {
   iconUrls?: string[]; // Currently ignored.
 }
 
-/* Simple Hook for caching & retrieved data */
 export const useNetworkSelect = (chainId: number) => {
   const {
     chainState: {
@@ -44,7 +43,6 @@ export const useNetworkSelect = (chainId: number) => {
           if (switchError.code === 4902) {
             try {
               const { rpcUrl, name: chainName, nativeCurrency, explorer }: any = CHAIN_INFO.get(chainId);
-
               await provider.provider.request({
                 method: 'wallet_addEthereumChain',
                 params: [

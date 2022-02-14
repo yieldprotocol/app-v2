@@ -3,29 +3,40 @@ import { Anchor, Box, Button, Text } from 'grommet';
 import styled from 'styled-components';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
+import { IChainContext } from '../types';
+import { CHAIN_INFO } from '../config/chainData';
+import { UserContext } from '../contexts/UserContext';
+import { WETH } from '../config/assets';
+import { ZERO_BN } from '../utils/constants';
 
 const StyledBox = styled(Box)`
   position: absolute;
-  top: 15rem;
-  right: 5rem;
-  max-width: 25rem;
+  top: 6rem;
+  right: 3rem;
+  max-width: 20rem;
   z-index: 500;
 `;
 
 const NetworkBanner = () => {
   const {
     chainState: {
-      connection: { currentChainInfo, chainId },
+      connection: { fallbackChainId, account },
     },
-  } = useContext(ChainContext);
-  const [show, setShow] = useState<boolean>(false);
+  } = useContext(ChainContext) as IChainContext;
 
-  useEffect(() => {
-    const showableChains = [421611];
-    currentChainInfo && showableChains.includes(Number(chainId)) && setShow(true);
-  }, [currentChainInfo, chainId]);
+  const {
+    userState: { assetMap },
+  } = useContext(UserContext);
 
-  return show ? (
+  const [show, setShow] = useState<boolean>(true);
+  const showableChains = [421611, 42161];
+  const currentChainInfo = CHAIN_INFO.get(fallbackChainId!);
+
+  const ethBalance = assetMap.get(WETH)?.balance;
+
+  if (!ethBalance || !currentChainInfo || ( ethBalance && ethBalance.gt(ZERO_BN) )  ) return null;
+
+  return showableChains.includes(fallbackChainId!) && show ? (
     <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round="xsmall" gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {currentChainInfo.name}</Box>

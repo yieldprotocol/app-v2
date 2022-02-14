@@ -64,6 +64,16 @@ export function bytesToBytes32(x: string, n: number): string {
 }
 
 /**
+ * Calculate the baseId from the series nae
+ * @param seriesId seriesID.
+ * @returns string bytes32
+ */
+export function baseIdFromSeriesId(seriesId:string) : string {
+
+  return seriesId.slice(0,6).concat('00000000');
+}
+
+/**
  * @param { BigNumber | string } multiplicant
  * @param { BigNumber | string } multiplier
  * @param { string } precisionDifference  // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )

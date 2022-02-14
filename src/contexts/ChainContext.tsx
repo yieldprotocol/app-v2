@@ -23,10 +23,11 @@ import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
 import ENSMark from '../components/logos/ENSMark';
 
-import { seasonColorMap } from '../config/colors';
+import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 import MakerMark from '../components/logos/MakerMark';
+import { baseIdFromSeriesId } from '../utils/yieldMath';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -59,7 +60,7 @@ const initState: IChainContextState = {
 
     signer: null as ethers.providers.JsonRpcSigner | null,
     account: null as string | null,
-    
+
     connectorName: null as string | null,
   },
 
@@ -121,8 +122,8 @@ const ChainProvider = ({ children }: any) => {
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
-  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
-  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 'earliest');
+  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 'earliest');
 
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
@@ -143,6 +144,8 @@ const ChainProvider = ({ children }: any) => {
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
 
+      const seasonColorMap = [1,4,42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap 
+
       let Cauldron: any;
       let Ladle: any;
       let RateOracle: any;
@@ -154,7 +157,7 @@ const ChainProvider = ({ children }: any) => {
 
       // arbitrum
       let ChainlinkUSDOracle: any;
-      let AccumulatorMultiOracle: any;
+      let AccumulatorOracle: any;
 
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
@@ -162,10 +165,7 @@ const ChainProvider = ({ children }: any) => {
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
-          RateOracle = contracts.CompoundMultiOracle__factory.connect(
-            addrs.CompoundMultiOracle,
-            fallbackProvider
-          );
+          RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
             fallbackProvider
@@ -182,8 +182,12 @@ const ChainProvider = ({ children }: any) => {
 
         // arbitrum
         if ([421611].includes(fallbackChainId)) {
-          ChainlinkUSDOracle = '';
-          AccumulatorMultiOracle = '';
+          ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
+            addrs.ChainlinkUSDOracle,
+            fallbackProvider
+          );
+          AccumulatorOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorOracle, fallbackProvider);
+          RateOracle = AccumulatorOracle;
         }
       } catch (e) {
         console.log(e, 'Could not connect to contracts');
@@ -198,7 +202,7 @@ const ChainProvider = ({ children }: any) => {
       // arbitrum
       if (
         [421611].includes(fallbackChainId) &&
-        (!Cauldron || !Ladle || ChainlinkUSDOracle || AccumulatorMultiOracle || !Witch)
+        (!Cauldron || !Ladle || !ChainlinkUSDOracle || !AccumulatorOracle || !Witch)
       )
         return;
 
@@ -210,9 +214,9 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('RateOracle', RateOracle);
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
-      newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
+      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
+      newContractMap.set('AccumulatorOracle', AccumulatorOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       updateState({ type: 'contractMap', payload: newContractMap });
 
@@ -246,25 +250,34 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const blockNumForUse = [1, 4, 42].includes(fallbackChainId) ? lastAssetUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+
+        /* get hardcoded join/asset values  */
+        const joinHardMap: Map<string, string> = new Map((yieldEnv.joins as any)[fallbackChainId]);
+        const assetHardMap: Map<string, string> = new Map((yieldEnv.assets as any)[fallbackChainId]);
 
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          // Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
-          // Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
-          Cauldron.queryFilter('AssetAdded' as any, blockNumForUse),
-          Ladle.queryFilter('JoinAdded' as any, blockNumForUse),
-        ]);
+          Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
+          Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
+        ]).catch(() => {
+          assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.');
+          return [[], []];
+        });
 
-        /* Create a map from the joinAdded event data */
-        const joinMap: Map<string, string> = new Map(
-          joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-        );
+        /* Create a map from the joinAdded event data or hardcoded join data if available */
+        const joinMap: Map<string, string> = joinHardMap.size
+          ? joinHardMap
+          : new Map(joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]); // event values);
+
+        /* Create a array from the assetAdded event data or hardcoded asset data if available */
+        const assetsAdded: { assetId: string; asset: string }[] = assetHardMap.size
+          ? Array.from(assetHardMap, ([assetId, asset]) => ({ assetId, asset }))
+          : assetAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
 
         const newAssetList: any[] = [];
-        await Promise.all(
-          assetAddedEvents.map(async (x: any) => {
-            const { assetId: id, asset: address } = Cauldron.interface.parseLog(x).args;
 
+        await Promise.all(
+          assetsAdded.map(async (x: { assetId: string; asset: string }) => {
+            const { assetId: id, asset: address } = x;
             /* Get the basic token info */
             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
             let name: string;
@@ -290,7 +303,6 @@ const ChainProvider = ({ children }: any) => {
 
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
             const idToUse = assetInfo?.wrappedTokenId || id;
-
             const newAsset = {
               id,
               address,
@@ -341,7 +353,7 @@ const ChainProvider = ({ children }: any) => {
 
         const season = getSeason(series.maturity) as SeasonType;
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000) as SeasonType;
-        const [startColor, endColor, textColor]: string[] = seasonColorMap.get(season)!;
+        const [startColor, endColor, textColor]: string[] = (seasonColorMap.get(season)!);
         const [oppStartColor, oppEndColor, oppTextColor]: string[] = seasonColorMap.get(oppSeason(season))!;
         return {
           ...series,
@@ -372,30 +384,45 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-        const blockNum = await fallbackProvider.getBlockNumber();
-        /* NBNBNBNBNBBN this is PPPPPOOOOR logic marco... please be exlpicit > */
-        const blockNumForUse = [1, 4, 42].includes(fallbackChainId) ? lastSeriesUpdate : blockNum - 20000; // use last 1000 blocks if too much (arbitrum limit)
+        /* get hardcoded pool/series values  */
+        const poolHardMap: Map<string, string> = new Map((yieldEnv.pools as any)[fallbackChainId]);
+        const seriesHardMap: Map<string, string> = new Map((yieldEnv.series as any)[fallbackChainId]);
 
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-          // Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
-          // Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
-          Cauldron.queryFilter('SeriesAdded' as any, blockNumForUse),
-          Ladle.queryFilter('PoolAdded' as any, blockNumForUse),
-        ]);
+          Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
+          Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
+        ]).catch(() => {
+          console.log('Fallback to hardcorded ASSET information required.');
+          return [[], []];
+        });
+
+        /* Create a map from the poolAdded event data or hardcoded pool data if available */
+        const poolMap: Map<string, string> = poolHardMap.size
+          ? poolHardMap
+          : new Map(poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]); // event values);
+
+        /* Create a array from the seriesAdded event data or hardcoded series data if available */
+        const seriesAdded: { seriesId: string; baseId: string; fyToken: string }[] = seriesHardMap.size
+          ? Array.from(seriesHardMap, ([seriesId, fyToken]) => ({
+              seriesId,
+              fyToken,
+              baseId: baseIdFromSeriesId(seriesId),
+            }))
+          : seriesAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
 
         /* build a map from the poolAdded event data */
-        const poolMap: Map<string, string> = new Map(
-          poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-        );
+        // const poolMap: Map<string, string> = new Map(
+        //   poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
+        // );
 
         const newSeriesList: any[] = [];
 
         /* Add in any extra static series */
         try {
-          await Promise.all([
-            ...seriesAddedEvents.map(async (x: any): Promise<void> => {
-              const { seriesId: id, baseId, fyToken } = Cauldron.interface.parseLog(x).args;
+          await Promise.all(
+            seriesAdded.map(async (x: any): Promise<void> => {
+              const { seriesId: id, baseId, fyToken } = x;
               const { maturity } = await Cauldron.series(id);
 
               if (poolMap.has(id)) {
@@ -439,7 +466,7 @@ const ChainProvider = ({ children }: any) => {
                 newSeriesList.push(newSeries);
               }
             }),
-          ]);
+          );
         } catch (e) {
           console.log('Error fetching series data: ', e);
         }

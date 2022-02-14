@@ -66,7 +66,7 @@ export const useBorrow = () => {
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await ilk.getAllowance(account!, ilk.joinAddress)).gt(_collInput);
+    const alreadyApproved = (await ilk.getAllowance(account!, ilk.joinAddress)).gte(_collInput);
 
     const wrapping: ICallData[] = await wrapAssetToJoin(_collInput, selectedIlk!, txCode); // note: selected ilk used here, not wrapped version
 

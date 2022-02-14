@@ -13,7 +13,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
 
   const _selectedSeries = series || selectedSeries;
   /* Make sure there won't be an underflow */
-  const _input = cleanValue(input, _selectedSeries?.decimals);
+  const _input = Number(input) === 0 ? '1' : cleanValue(input, _selectedSeries?.decimals);
 
   /* LOCAL STATE */
   const [apr, setApr] = useState<string | undefined>();

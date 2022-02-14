@@ -65,10 +65,10 @@ export const useCollateralHelpers = (
   useEffect(() => {
     activeAccount &&
       (async () => {
-        const _max = await _selectedIlk?.getBalance(activeAccount)
+        const _max = await _selectedIlk?.getBalance(activeAccount);
         _max && setMaxCollateral(ethers.utils.formatUnits(_max, _selectedIlk.decimals)?.toString());
       })();
-  }, [activeAccount, _selectedIlk, setMaxCollateral ]);
+  }, [activeAccount, _selectedIlk, setMaxCollateral]);
 
   /* handle changes to input values */
   useEffect(() => {
