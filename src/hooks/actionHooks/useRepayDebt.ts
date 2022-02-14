@@ -105,7 +105,7 @@ export const useRepayDebt = () => {
         account!,
         series.seriesIsMature || inputGreaterThanMaxBaseIn ? base.joinAddress : ladleAddress
       )
-    ).gt(_input);
+    ).gte(_input);
 
     const permits: ICallData[] = await sign(
       [

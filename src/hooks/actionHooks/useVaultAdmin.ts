@@ -42,7 +42,7 @@ export const useVaultAdmin = () => {
     const base: IAsset = assetMap.get(vault.baseId)!;
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gt(vault.art) : false;
+    const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gte(vault.art) : false;
 
     const permits: ICallData[] = await sign(
       [
