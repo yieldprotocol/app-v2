@@ -23,7 +23,7 @@ import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
 import ENSMark from '../components/logos/ENSMark';
 
-import { seasonColorMap } from '../config/colors';
+import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 import MakerMark from '../components/logos/MakerMark';
@@ -143,6 +143,8 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
+
+      const seasonColorMap = [1,4,42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap 
 
       let Cauldron: any;
       let Ladle: any;
@@ -351,7 +353,7 @@ const ChainProvider = ({ children }: any) => {
 
         const season = getSeason(series.maturity) as SeasonType;
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000) as SeasonType;
-        const [startColor, endColor, textColor]: string[] = seasonColorMap.get(season)!;
+        const [startColor, endColor, textColor]: string[] = (seasonColorMap.get(season)!);
         const [oppStartColor, oppEndColor, oppTextColor]: string[] = seasonColorMap.get(oppSeason(season))!;
         return {
           ...series,
