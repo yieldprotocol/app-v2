@@ -122,8 +122,8 @@ const ChainProvider = ({ children }: any) => {
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
-  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 0);
-  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 0);
+  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 'earliest');
+  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 'earliest');
 
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
@@ -132,8 +132,6 @@ const ChainProvider = ({ children }: any) => {
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
   const { chainId, fallbackProvider, fallbackChainId } = connectionState;
-
-  // const blockNumForUse = [1, 4, 42].includes(fallbackChainId!) ? Math.min(lastSeriesUpdate,lastAssetUpdate) : -90000; // use last x blocks if too much (arbitrum limit)
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)

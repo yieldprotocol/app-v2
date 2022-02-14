@@ -81,7 +81,7 @@ const HistoryProvider = ({ children }: any) => {
   const {
     chainLoading,
     contractMap,
-    connection: { fallbackProvider, fallbackChainId },
+    connection: { fallbackProvider },
     seriesRootMap,
     assetRootMap,
   } = chainState;
@@ -90,8 +90,8 @@ const HistoryProvider = ({ children }: any) => {
   const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
-  const [ lastSeriesUpdate ] = useCachedState('lastSeriesUpdate', 0);
-  const blockNumForUse = [1, 4, 42].includes(fallbackChainId!) ? lastSeriesUpdate : -90000; // use last x blocks if too much (arbitrum limit)
+  const [ lastSeriesUpdate ] = useCachedState('lastSeriesUpdate', 'earliest');
+  const [ lastVaultUpdate ] = useCachedState('lastVaultUpdate', 'earliest');
 
   const {
     settingsState: { diagnostics },
@@ -115,8 +115,8 @@ const HistoryProvider = ({ children }: any) => {
           // const startEventList = await strategyContract.queryFilter(_startedFilter, 0);
           // const endEventList = await strategyContract.queryFilter(_endedFilter, 0);
 
-          const inEventList = await strategyContract.queryFilter(_transferInFilter, blockNumForUse); // originally 0
-          const outEventList = await strategyContract.queryFilter(_transferOutFilter, blockNumForUse); // originally 0
+          const inEventList = await strategyContract.queryFilter(_transferInFilter, lastSeriesUpdate); // originally 0
+          const outEventList = await strategyContract.queryFilter(_transferOutFilter, lastSeriesUpdate); // originally 0
 
           const events = await Promise.all([
             ...inEventList.map(async (log: any) => {
@@ -165,7 +165,7 @@ const HistoryProvider = ({ children }: any) => {
       diagnostics && console.log('Strategy History updated: ', combinedStrategyMap);
     },
 
-    [account, fallbackProvider, blockNumForUse]
+    [account, fallbackProvider, lastSeriesUpdate]
   );
 
   /* update Pool Historical data */
@@ -178,7 +178,7 @@ const HistoryProvider = ({ children }: any) => {
           const { poolContract, id: seriesId, decimals } = series;
           // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
           const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
-          const eventList = await poolContract.queryFilter(_liqFilter, blockNumForUse);
+          const eventList = await poolContract.queryFilter(_liqFilter, lastSeriesUpdate);
 
           const liqLogs = await Promise.all(
             eventList.map(async (log: any) => {
@@ -216,7 +216,7 @@ const HistoryProvider = ({ children }: any) => {
       updateState({ type: 'poolHistory', payload: liqHistMap });
       diagnostics && console.log('Pool History updated: ', liqHistMap);
     },
-    [account, fallbackProvider, blockNumForUse]
+    [account, fallbackProvider, lastSeriesUpdate]
   );
 
   /* update Trading Historical data  */
@@ -230,7 +230,7 @@ const HistoryProvider = ({ children }: any) => {
           const base: IAsset = assetRootMap.get(baseId);
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
-          const eventList = await poolContract.queryFilter(_filter, blockNumForUse);
+          const eventList = await poolContract.queryFilter(_filter, lastSeriesUpdate);
 
           const tradeLogs = await Promise.all(
             eventList
@@ -276,7 +276,7 @@ const HistoryProvider = ({ children }: any) => {
       updateState({ type: 'tradeHistory', payload: combinedTradeMap });
       diagnostics && console.log('Trade history updated: ', combinedTradeMap);
     },
-    [account, assetRootMap, fallbackProvider, historyState.tradeHistory, blockNumForUse]
+    [account, assetRootMap, fallbackProvider, historyState.tradeHistory, lastSeriesUpdate]
   );
 
   /*  Updates VAULT history */
@@ -446,9 +446,9 @@ const HistoryProvider = ({ children }: any) => {
           const [pourEventList, givenEventList, rolledEventList]: // destroyedEventList,
           // stirredEventList,
           ethers.Event[][] = await Promise.all([
-            cauldronContract.queryFilter(pourFilter, blockNumForUse),
-            cauldronContract.queryFilter(givenFilter, blockNumForUse),
-            cauldronContract.queryFilter(rolledFilter, blockNumForUse),
+            cauldronContract.queryFilter(pourFilter, lastVaultUpdate),
+            cauldronContract.queryFilter(givenFilter, lastVaultUpdate),
+            cauldronContract.queryFilter(rolledFilter, lastVaultUpdate),
             // cauldronContract.queryFilter(destroyedFilter, 0),
             // cauldronContract.queryFilter(stirredFilter, 0),
           ]);
@@ -482,7 +482,7 @@ const HistoryProvider = ({ children }: any) => {
       diagnostics,
       historyState.vaultHistory,
       seriesRootMap,
-      blockNumForUse,
+      lastVaultUpdate,
     ]
   );
 
