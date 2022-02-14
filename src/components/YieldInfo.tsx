@@ -99,9 +99,9 @@ const YieldInfo = () => {
       {connectedChain && (
         <Box direction="row" gap="xsmall" align="center" flex>
           <NetworkSelector />
-          <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
+          {/* <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
             {CHAIN_INFO.get(fallbackChainId)?.name}
-          </Text>
+          </Text> */}
           {blockNum && currentChainInfo?.explorer && !currentChainInfo.name.includes('Optimism') && (
             <Anchor style={{ lineHeight: '0' }} href={`${currentChainInfo.explorer}/block/${blockNum}`} target="_blank">
               <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>

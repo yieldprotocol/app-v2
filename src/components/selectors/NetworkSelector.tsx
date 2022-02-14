@@ -46,7 +46,7 @@ const NetworkSelector = () => {
           currentNetwork === 'Ethereum'
             ? [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="xsmall">
+                <Box direction="row" gap="small" pad='xsmall'>
                   <ArbitrumLogo />
                   <Text size="small" color={CHAIN_INFO.get(42161)?.color}>
                     Arbitrum
@@ -55,9 +55,9 @@ const NetworkSelector = () => {
               ]
             : [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="xsmall">
+                <Box direction="row" gap="small" pad='xsmall'>
                   <EthMark />
-                  <Text size="small" color={CHAIN_INFO.get(1)?.color}>
+                  <Text size="small" color={CHAIN_INFO.get(1)?.color} >
                     Ethereum
                   </Text>
                 </Box>,
@@ -65,16 +65,16 @@ const NetworkSelector = () => {
         }
         value={
           currentNetwork === 'Ethereum' ? (
-            <Box direction="row" gap="xsmall">
+            <Box direction="row" gap="small">
               <EthMark />
-              <Text size="small" color={CHAIN_INFO.get(42161)?.color}>
+              <Text size="small" color={CHAIN_INFO.get(1)?.color}>
                 Ethereum
               </Text>
             </Box>
           ) : (
-            <Box direction="row" gap="xsmall">
+            <Box direction="row" gap="small">
               <ArbitrumLogo />
-              <Text size="small" color={CHAIN_INFO.get(1)?.color}>
+              <Text size="small" color={CHAIN_INFO.get(42161)?.color}>
                 Arbitrum
               </Text>
             </Box>

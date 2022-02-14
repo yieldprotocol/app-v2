@@ -14,6 +14,7 @@ import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
 import NetworkSelector from './selectors/NetworkSelector';
+import NetworkSetting from './settings/NetworkSetting';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,6 +54,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
+        
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
           <FiX size="1.5rem" />
         </Box>
@@ -84,14 +86,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Box>
           )}
 
-          
-        </Box>
-
-        <Box align="end">
-          <Box direction='row'gap='small' > 
-          <Text size='small'>Network: </Text>
-            <NetworkSelector />
-          </Box>
         </Box>
 
         <Box gap="medium">
@@ -128,6 +122,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
 
       <Box pad="medium" gap="medium" flex={false}>
+        <NetworkSetting />
         <ThemeSetting />
         <ApprovalSetting />
         <SlippageSetting />
