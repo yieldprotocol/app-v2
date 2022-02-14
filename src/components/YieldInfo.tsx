@@ -32,7 +32,7 @@ const YieldInfo = () => {
 
   return (
     <Box gap="small">
-      <NetworkSelector />
+      
       <Box>
         <Text size="xsmall" color="text-weak">
           App version: v{appVersion}
@@ -98,6 +98,7 @@ const YieldInfo = () => {
 
       {connectedChain && (
         <Box direction="row" gap="xsmall" align="center" flex>
+          <NetworkSelector />
           <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
             {CHAIN_INFO.get(fallbackChainId)?.name}
           </Text>

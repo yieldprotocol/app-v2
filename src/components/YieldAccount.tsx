@@ -13,7 +13,6 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import SettingsBalances from './SettingsBalances';
 import { useEns } from '../hooks/useEns';
-import NetworkSelector from './selectors/NetworkSelector';
 
 const StyledText = styled(Text)`
   svg,
@@ -93,8 +92,7 @@ const YieldAccount = (props: any) => {
               </Box>
             )}
           </StyledBox>
-
-           <NetworkSelector />
+           {/* <NetworkSelector /> */}
         </Box>
       ) : (
         <ConnectButton action={() => setConnectOpen(true)} />

@@ -13,7 +13,7 @@ import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
-import EtherscanButton from './buttons/EtherscanButton';
+import NetworkSelector from './selectors/NetworkSelector';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -74,11 +74,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           {!mobile && (
             <Box align="center" direction="row" gap="small" justify="center">
               {currentChainInfo.explorer && (
-                <Anchor
-                  href={`${currentChainInfo.explorer}/address/${account}`}
-                  margin="xsmall"
-                  target="_blank"
-                >
+                <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
                   <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
                   <Text margin="xxsmall" size="xsmall">
                     View on Explorer
@@ -87,6 +83,15 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
               )}
             </Box>
           )}
+
+          
+        </Box>
+
+        <Box align="end">
+          <Box direction='row'gap='small' > 
+          <Text size='small'>Network: </Text>
+            <NetworkSelector />
+          </Box>
         </Box>
 
         <Box gap="medium">
@@ -117,7 +122,10 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Box>
           </Collapsible>
         </Box>
+
       </Box>
+
+
 
       <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />
