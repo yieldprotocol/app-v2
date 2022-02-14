@@ -160,8 +160,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 </Box>
 
                 {open && (
-                  <Layer onClickOutside={() => setOpen(false)} style={{minWidth:'500px'}}>
-                    <Box gap="small" pad="medium" fill background="background" round="small" >
+                  <Layer onClickOutside={() => setOpen(false)} style={{ minWidth: '500px', borderRadius: '12px' }}>
+                    <Box gap="small" pad="medium" fill background="background" round="small">
                       <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
                       </Box>
@@ -192,7 +192,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                             </Avatar>
                             <Box>
                               <Text size="small" color={strategy.currentSeries?.textColor}>
-                              {formatStrategyName(selectedStrategy?.name!)}
+                                {formatStrategyName(selectedStrategy?.name!)}
                               </Text>
                               <Text size="xsmall" color={strategy.currentSeries?.textColor}>
                                 Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
