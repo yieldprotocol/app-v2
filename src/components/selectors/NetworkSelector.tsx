@@ -5,6 +5,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { SUPPORTED_CHAIN_IDS, CHAIN_INFO } from '../../config/chainData';
 import { useNetworkSelect } from '../../hooks/useNetworkSelect';
 import { IChainContext } from '../../types';
+import ArbitrumLogo from '../logos/Arbitrum';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -74,6 +75,8 @@ const NetworkSelector = () => {
         children={(x: any) => (
           <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
             <Text color="text" size="small">
+
+            <ArbitrumLogo />
               {x}
             </Text>
           </Box>
