@@ -116,10 +116,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
       </Box>
 
-      { !connectionSettingsOpen &&
-      <Box pad={{ horizontal: 'medium' }} background="gradient">
-        <NetworkSetting />
-      </Box>}
+      {!connectionSettingsOpen && (
+        <Box pad={{ horizontal: 'medium' }} background="gradient">
+          <NetworkSetting />
+        </Box>
+      )}
 
       <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />
