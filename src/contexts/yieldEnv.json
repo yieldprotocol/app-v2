@@ -38,11 +38,11 @@
       "Witch": "0xadBCeeC6387840140A6b765fdC8b32B5ad508c76"
     },
     "42161": {
-      "Cauldron": "",
-      "Ladle": "",
+      "Cauldron": "0x23cc87FBEBDD67ccE167Fa9Ec6Ad3b7fE3892E30",
+      "Ladle": "0x16E25cf364CeCC305590128335B8f327975d0560",
       "ChainlinkUSDOracle": "0x30e042468e333Fde8E52Dd237673D7412045D2AC",
       "AccumulatorOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
-      "Witch": ""
+      "Witch": "0x08173D0885B00BDD640aaE57D05AbB74cd00d669"
     }
   },
 
