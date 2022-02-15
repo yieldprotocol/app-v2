@@ -54,7 +54,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
-        
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
           <FiX size="1.5rem" />
         </Box>
@@ -85,7 +84,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
               )}
             </Box>
           )}
-
         </Box>
 
         <Box gap="medium">
@@ -116,13 +114,14 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Box>
           </Collapsible>
         </Box>
-
       </Box>
 
-
+      { !connectionSettingsOpen &&
+      <Box pad={{ horizontal: 'medium' }} background="gradient">
+        <NetworkSetting />
+      </Box>}
 
       <Box pad="medium" gap="medium" flex={false}>
-        <NetworkSetting />
         <ThemeSetting />
         <ApprovalSetting />
         <SlippageSetting />
