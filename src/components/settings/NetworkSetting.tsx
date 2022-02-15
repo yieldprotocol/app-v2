@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
 import NetworkSelector from '../selectors/NetworkSelector';
 
