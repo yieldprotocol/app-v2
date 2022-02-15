@@ -12,9 +12,9 @@ const AdvancedSetting = () => {
   } = useContext(ChainContext);
 
   return (
-    <Box gap="small" pad={{ vertical: 'small' }}>
+    <Box gap="small" pad="xsmall" fill>
       <Box direction="row" justify="between">
-        <Box pad="xsmall">
+        <Box pad="xsmall" alignSelf="center">
           <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
             Network
           </Text>
