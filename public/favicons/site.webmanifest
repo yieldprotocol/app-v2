@@ -15,5 +15,8 @@
     ],
     "theme_color": "#333333",
     "background_color": "#333333",
-    "display": "standalone"
+    "display": "standalone",
+    "description": "Permissionless market for collateralized fixed-rate borrowing and lending",
+    "iconPath": "/favicons/android-chrome-512x512.png"
+
 }

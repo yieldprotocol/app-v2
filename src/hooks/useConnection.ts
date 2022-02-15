@@ -5,6 +5,8 @@ import {
 } from '@web3-react/injected-connector';
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector';
 
+import { SafeAppConnector, useSafeAppConnection } from '@gnosis.pm/safe-apps-web3-react';
+
 import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers'; 
 import { useCallback, useEffect, useState } from 'react';
@@ -13,6 +15,8 @@ import { CHAIN_INFO, SUPPORTED_RPC_URLS } from '../config/chainData';
 import { CONNECTORS, CONNECTOR_INFO, INIT_INJECTED } from '../config/connectors';
 import { clearCachedItems } from '../utils/appUtils';
 // import TrezorMark from '../components/logos/TrezorMark';
+
+
 
 const NO_BROWSER_EXT =
   'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
@@ -45,44 +49,54 @@ export const useConnection = () => {
   const isConnected = (connection: string) => CONNECTORS.get(connection) === connector;
   const disconnect = () => connector && deactivate();
 
+  const triedToConnectToSafe = useSafeAppConnection(new SafeAppConnector);
+  
   const connect = useCallback((connection: string ) => {
+
     setErrorMessage(undefined);
-    // console.log( connection )
-    activate(
-      CONNECTORS.get(connection),
-      (e: Error) => {
-        setErrorMessage(handleErrorMessage(e));
-        setTried(true); // tried, failed, move on.
-      },
-      false
-    ).then( (x) => {
-      setConnectionName(connection);
-    })
+      // console.log( connection )
+      activate(
+        CONNECTORS.get(connection),
+        (e: Error) => {
+          setErrorMessage(handleErrorMessage(e));
+          setTried(true); // tried, failed, move on.
+        },
+        false
+      ).then( (x) => {
+        setConnectionName(connection);
+      })
+
   }, [activate, handleErrorMessage, setConnectionName]);
 
   /**
-   * FIRST STEP > Try to connect automatically to an injected provider on first load
+   * FIRST STEP > Try to vconnect automatically to an injected provider on first load
    * */
   useEffect(() => {
-    if (!tried && !active ) {
-      setErrorMessage(undefined);
-      if (INIT_INJECTED !== 'walletconnect') {
-        CONNECTORS.get(INIT_INJECTED)
-          .isAuthorized()
-          .then((isAuthorized: boolean) => {
-            if (isAuthorized) {
-                connect(INIT_INJECTED)
-            } else setTried(true); // not authorsied, move on
-          }); 
-      } else {
-        connect('walletconnect');
-        setTried(true); // tried, failed, move on.
-      };
-    }
+
+    /* first check if gnosis safe has tried to vconnect */
+    if (triedToConnectToSafe) { 
+
+      /* if not, try autoconnecting */
+      if (!tried && !active ) {
+        setErrorMessage(undefined);
+        if (INIT_INJECTED !== 'walletconnect') {
+          CONNECTORS.get(INIT_INJECTED)
+            .isAuthorized()
+            .then((isAuthorized: boolean) => {
+              if (isAuthorized) {
+                  connect(INIT_INJECTED)
+              } else setTried(true); // not authorsied, move on
+            }); 
+        } else {
+          connect('walletconnect');
+          setTried(true); // tried, failed, move on.
+        };
+      }
     /* if active, set tried to true */
     !tried && active && setTried(true);
+  }
 
-  }, [activate, active, connect, handleErrorMessage, tried]);
+  }, [activate, active, connect, handleErrorMessage, tried, triedToConnectToSafe]);
 
   /*
       SETTTING THE FALLBACK CHAINID >
@@ -91,8 +105,9 @@ export const useConnection = () => {
       NOTE: Currently, there is no way to change the fallback provider manually, but the last chainId is cached.
   */
   useEffect(() => {
+
     /* Case: Auto Connection FAILURE > Set the fallback connector to the lastChainId */
-    if (tried && !chainId) {
+    if (tried && !chainId && triedToConnectToSafe ) {
       console.log('Connecting fallback Provider to the default network');
       setFallbackErrorMessage(undefined);
       fallbackActivate(
@@ -107,7 +122,7 @@ export const useConnection = () => {
       );
     }
     /* Case: Auto Connection SUCCESS > set the fallback connector to the same as the chainId */
-    if (tried && chainId) {
+    if (tried && chainId && triedToConnectToSafe) {
       console.log('Connecting fallback Provider to the same network as connected wallet');
       setFallbackErrorMessage(undefined);
       fallbackActivate(
@@ -174,6 +189,8 @@ export const useConnection = () => {
       account,
       active,
       activatingConnector,
+
+      triedToConnectToSafe,
     },
 
     connectionActions: {

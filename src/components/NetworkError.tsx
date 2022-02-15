@@ -6,7 +6,7 @@ import { ChainContext } from '../contexts/ChainContext';
 const NetworkError = () => {
   const {
     chainState: { connection },
-    chainActions: { disconnect, connect },
+    chainActions: { disconnect },
   } = useContext(ChainContext);
 
   const [showError, setShowError] = useState<boolean>(false);
