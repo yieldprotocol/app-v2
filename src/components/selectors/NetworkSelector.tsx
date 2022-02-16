@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box,ResponsiveContext, Select, Stack, Text } from 'grommet';
+import { Box, Select, Text } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
 import { CHAIN_INFO } from '../../config/chainData';
 import { useNetworkSelect } from '../../hooks/useNetworkSelect';
@@ -7,18 +7,7 @@ import { IChainContext } from '../../types';
 import ArbitrumLogo from '../logos/Arbitrum';
 import EthMark from '../logos/EthMark';
 
-// const StyledBox = styled(Box)`
-//   -webkit-transition: transform 0.3s ease-in-out;
-//   -moz-transition: transform 0.3s ease-in-out;
-//   transition: transform 0.3s ease-in-out;
-//   :hover {
-//     transform: scale(1.025);
-//   }
-// `;
-
 const NetworkSelector = () => {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
   const {
     chainState: {
       connection: { fallbackChainId },
@@ -34,10 +23,8 @@ const NetworkSelector = () => {
 
   useNetworkSelect(selectedChainId!);
 
-  const handleNetworkChange = (chainName: string) => {
-    setSelectedChainId([...CHAIN_INFO.entries()].find(([id, chainInfo]: any) => chainInfo.name === chainName)![0]);
-  };
-
+  const handleNetworkChange = (chainName: string) =>
+    setSelectedChainId([...CHAIN_INFO.entries()].find(([, chainInfo]) => chainInfo.name === chainName)![0]);
 
   return (
     <>
@@ -47,7 +34,7 @@ const NetworkSelector = () => {
           currentNetwork === 'Ethereum'
             ? [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" pad='xsmall'>
+                <Box direction="row" gap="small" pad="xsmall">
                   <ArbitrumLogo />
                   <Text size="small" color={CHAIN_INFO.get(42161)?.color}>
                     Arbitrum
@@ -56,9 +43,9 @@ const NetworkSelector = () => {
               ]
             : [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" pad='xsmall'>
+                <Box direction="row" gap="small" pad="xsmall">
                   <EthMark />
-                  <Text size="small" color={CHAIN_INFO.get(1)?.color} >
+                  <Text size="small" color={CHAIN_INFO.get(1)?.color}>
                     Ethereum
                   </Text>
                 </Box>,
@@ -69,21 +56,20 @@ const NetworkSelector = () => {
             <Box direction="row" gap="small">
               <EthMark />
               <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                Ethereum  {[4, 42, 421611 ].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name }
+                Ethereum {[4, 42, 421611].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name}
               </Text>
             </Box>
           ) : (
             <Box direction="row" gap="small">
               <ArbitrumLogo />
               <Text size="small" color={CHAIN_INFO.get(42161)?.color}>
-                {[4, 42, 421611 ].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum' }
+                {[4, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
               </Text>
             </Box>
           )
         }
         onChange={() => handleNetworkChange(currentNetwork === 'Ethereum' ? 'Arbitrum' : 'Ethereum')}
       />
-      
     </>
   );
 };
