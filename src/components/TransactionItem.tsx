@@ -69,7 +69,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
         </Box>
       )}
       <Box direction="row" fill justify="between" align="center">
-        <Box direction="row" align="center">
+        <Box direction="row" align="center" alignSelf="center" fill="vertical">
           <Box width="3rem">
             {status === TxState.PENDING && <Spinner color="brand" />}
             {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color={success.dark} />}
@@ -77,15 +77,16 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
           </Box>
           {status === TxState.SUCCESSFUL && link ? (
             <StyledLink to={link} color={darkMode ? textColor.dark : textColor.light}>
-              <Text
-                size="small"
-                style={{
-                  color: darkMode ? textColor.dark : textColor.light,
-                  verticalAlign: 'middle',
-                }}
-              >
-                {action}
-              </Text>
+              <Box fill>
+                <Text
+                  size="small"
+                  style={{
+                    color: darkMode ? textColor.dark : textColor.light,
+                  }}
+                >
+                  {action}
+                </Text>
+              </Box>
             </StyledLink>
           ) : (
             <Text size="small" color={textColor}>
