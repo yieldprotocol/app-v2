@@ -68,9 +68,8 @@ export function bytesToBytes32(x: string, n: number): string {
  * @param seriesId seriesID.
  * @returns string bytes32
  */
-export function baseIdFromSeriesId(seriesId:string) : string {
-
-  return seriesId.slice(0,6).concat('00000000');
+export function baseIdFromSeriesId(seriesId: string): string {
+  return seriesId.slice(0, 6).concat('00000000');
 }
 
 /**
@@ -890,7 +889,7 @@ export const splitLiquidity = (
  * Calculate Slippage
  * @param { BigNumber } value
  * @param { BigNumber } slippage optional: defaults to 0.005 (0.5%)
- * @param { boolean } minimise optional: whether the resutl should be a minimum or maximum (default max)
+ * @param { boolean } minimise optional: whether the result should be a minimum or maximum (default max)
  * @returns { string } human readable string
  */
 export const calculateSlippage = (
