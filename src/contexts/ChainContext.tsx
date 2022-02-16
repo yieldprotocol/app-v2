@@ -61,7 +61,7 @@ const initState: IChainContextState = {
     signer: null as ethers.providers.JsonRpcSigner | null,
     account: null as string | null,
 
-    connectorName: null as string | null,
+    connectionName: null as string | null,
   },
 
   /* flags */

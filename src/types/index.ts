@@ -28,7 +28,7 @@ export interface IConnectionState {
   fallbackChainId: number | null;
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
-  connectorName: string | null;
+  connectionName: string | null;
 }
 
 export interface IHistoryList {
@@ -179,7 +179,6 @@ export interface IAssetInfo {
 
   wrappedTokenAddress?: string;
   unwrappedTokenAddress?: string;
-
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
@@ -206,7 +205,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 export interface IAssetPair {
   baseId: string;
   ilkId: string;
-  
+
   baseDecimals: number;
   limitDecimals: number;
   minRatio: number;
@@ -270,7 +269,7 @@ export interface IVault extends IVaultRoot, IAssetPair {
 
   ink_: string;
   art_: string;
-  
+
   rateAtMaturity: BigNumber;
   rate: BigNumber;
 
