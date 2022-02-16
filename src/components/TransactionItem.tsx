@@ -61,11 +61,11 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
     >
       {!wide && (
         <Box
-          alignSelf="end"
+          style={{ position: 'absolute', top: '.5rem', right: '.5rem' }}
           onClick={() => updateTxStage(txCode, ProcessStage.PROCESS_COMPLETE_TIMEOUT)}
           hoverIndicator={{}}
         >
-          {status === TxState.FAILED && <FiX size="1.2rem" />}
+          {status === TxState.FAILED && <FiX size="1rem" />}
         </Box>
       )}
       <Box direction="row" fill justify="between" align="center">
