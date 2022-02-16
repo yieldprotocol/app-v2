@@ -32,7 +32,6 @@ const YieldInfo = () => {
 
   return (
     <Box gap="small">
-      
       <Box>
         <Text size="xsmall" color="text-weak">
           App version: v{appVersion}
@@ -99,9 +98,6 @@ const YieldInfo = () => {
       {connectedChain && (
         <Box direction="row" gap="xsmall" align="center" flex>
           <NetworkSelector />
-          {/* <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
-            {CHAIN_INFO.get(fallbackChainId)?.name}
-          </Text> */}
           {blockNum && currentChainInfo?.explorer && !currentChainInfo.name.includes('Optimism') && (
             <Anchor style={{ lineHeight: '0' }} href={`${currentChainInfo.explorer}/block/${blockNum}`} target="_blank">
               <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
