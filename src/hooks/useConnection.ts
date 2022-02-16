@@ -75,7 +75,7 @@ export const useConnection = () => {
             } else setTried(true); // not authorsied, move on
           }); 
       } else {
-        connect('walletconnect');
+        // connect('walletconnect');
         setTried(true); // tried, failed, move on.
       };
     }
