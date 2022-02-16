@@ -34,7 +34,7 @@ const NetworkBanner = () => {
 
   const ethBalance = assetMap.get(WETH)?.balance;
 
-  if (!ethBalance || !currentChainInfo || ( ethBalance && ethBalance.gt(ZERO_BN) )  ) return null;
+  if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.gt(ZERO_BN))) return null;
 
   return showableChains.includes(fallbackChainId!) && show ? (
     <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round="xsmall" gap="small">
