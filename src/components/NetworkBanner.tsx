@@ -3,7 +3,7 @@ import { Anchor, Box, Button, Text } from 'grommet';
 import styled from 'styled-components';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
-import { IChainContext } from '../types';
+import { IChainContext, IUserContext } from '../types';
 import { CHAIN_INFO } from '../config/chainData';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
@@ -20,13 +20,13 @@ const StyledBox = styled(Box)`
 const NetworkBanner = () => {
   const {
     chainState: {
-      connection: { fallbackChainId, account },
+      connection: { fallbackChainId },
     },
   } = useContext(ChainContext) as IChainContext;
 
   const {
     userState: { assetMap },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
   const [show, setShow] = useState<boolean>(true);
   const showableChains = [421611, 42161];
