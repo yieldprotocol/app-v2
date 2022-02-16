@@ -1,6 +1,6 @@
+import React, { useContext } from 'react';
 import { Anchor, Box, Text } from 'grommet';
 
-import React, { useContext } from 'react';
 import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
@@ -8,6 +8,8 @@ import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import { useBlockNum } from '../hooks/useBlockNum';
 import NetworkSelector from './selectors/NetworkSelector';
+import { IChainContext } from '../types';
+import { CHAIN_INFO } from '../config/chainData';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -15,12 +17,12 @@ const IconGap = 'small';
 const YieldInfo = () => {
   const {
     chainState: {
-      connection: { CHAIN_INFO, fallbackChainId, currentChainInfo },
+      connection: { fallbackChainId },
       appVersion,
     },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
-  const connectedChain = CHAIN_INFO?.get(fallbackChainId!);
+  const connectedChain = CHAIN_INFO.get(fallbackChainId!);
 
   const blockNum = useBlockNum();
 
@@ -98,9 +100,9 @@ const YieldInfo = () => {
       {connectedChain && (
         <Box direction="row" gap="xsmall" align="center" flex>
           <NetworkSelector />
-          {blockNum && currentChainInfo?.explorer && !currentChainInfo.name.includes('Optimism') && (
-            <Anchor style={{ lineHeight: '0' }} href={`${currentChainInfo.explorer}/block/${blockNum}`} target="_blank">
-              <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
+          {blockNum && connectedChain.explorer && !connectedChain.name.includes('Optimism') && (
+            <Anchor style={{ lineHeight: '0' }} href={`${connectedChain.explorer}/block/${blockNum}`} target="_blank">
+              <Text size="xsmall" color={connectedChain.colorSecondary || connectedChain.color}>
                 {blockNum}
               </Text>
             </Anchor>
