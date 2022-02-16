@@ -182,7 +182,6 @@ const ChainProvider = ({ children }: any) => {
 
         // arbitrum
         if ([42161, 421611].includes(fallbackChainId)) {
-          console.log('🦄 ~ file: ChainContext.tsx ~ line 185 ~ useEffect ~ fallbackChainId', fallbackChainId);
           ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
             addrs.ChainlinkUSDOracle,
             fallbackProvider
