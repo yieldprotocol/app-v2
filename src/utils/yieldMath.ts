@@ -734,6 +734,8 @@ export function fyTokenForMint(
   );
   let minFYToken = ZERO_DEC;
 
+  if (maxFYToken.lt(2)) return [ZERO_BN, ZERO_BN]; // won't be able to parse using toBn
+
   let i = 0;
   while (true) {
     /* NB return ZERO when not converging > not mintable */
