@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box,ResponsiveContext, Select, Text } from 'grommet';
+import { Box,ResponsiveContext, Select, Stack, Text } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
 import { CHAIN_INFO } from '../../config/chainData';
 import { useNetworkSelect } from '../../hooks/useNetworkSelect';
@@ -38,6 +38,7 @@ const NetworkSelector = () => {
     setSelectedChainId([...CHAIN_INFO.entries()].find(([id, chainInfo]: any) => chainInfo.name === chainName)![0]);
   };
 
+
   return (
     <>
       <Select
@@ -68,20 +69,21 @@ const NetworkSelector = () => {
             <Box direction="row" gap="small">
               <EthMark />
               <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                Ethereum
+                Ethereum  {[4, 42, 421611 ].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name }
               </Text>
             </Box>
           ) : (
             <Box direction="row" gap="small">
               <ArbitrumLogo />
               <Text size="small" color={CHAIN_INFO.get(42161)?.color}>
-                Arbitrum
+                {[4, 42, 421611 ].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum' }
               </Text>
             </Box>
           )
         }
         onChange={() => handleNetworkChange(currentNetwork === 'Ethereum' ? 'Arbitrum' : 'Ethereum')}
       />
+      
     </>
   );
 };
