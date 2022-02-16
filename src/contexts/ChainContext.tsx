@@ -144,7 +144,7 @@ const ChainProvider = ({ children }: any) => {
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
 
-      const seasonColorMap = [1,4,42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap 
+      const seasonColorMap = [1, 4, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: any;
       let Ladle: any;
@@ -181,7 +181,8 @@ const ChainProvider = ({ children }: any) => {
         }
 
         // arbitrum
-        if ([421611].includes(fallbackChainId)) {
+        if ([42161, 421611].includes(fallbackChainId)) {
+          console.log('🦄 ~ file: ChainContext.tsx ~ line 185 ~ useEffect ~ fallbackChainId', fallbackChainId);
           ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
             addrs.ChainlinkUSDOracle,
             fallbackProvider
@@ -201,7 +202,7 @@ const ChainProvider = ({ children }: any) => {
 
       // arbitrum
       if (
-        [421611].includes(fallbackChainId) &&
+        [42161, 421611].includes(fallbackChainId) &&
         (!Cauldron || !Ladle || !ChainlinkUSDOracle || !AccumulatorOracle || !Witch)
       )
         return;
@@ -353,7 +354,7 @@ const ChainProvider = ({ children }: any) => {
 
         const season = getSeason(series.maturity) as SeasonType;
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000) as SeasonType;
-        const [startColor, endColor, textColor]: string[] = (seasonColorMap.get(season)!);
+        const [startColor, endColor, textColor]: string[] = seasonColorMap.get(season)!;
         const [oppStartColor, oppEndColor, oppTextColor]: string[] = seasonColorMap.get(oppSeason(season))!;
         return {
           ...series,
@@ -465,7 +466,7 @@ const ChainProvider = ({ children }: any) => {
                 updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
               }
-            }),
+            })
           );
         } catch (e) {
           console.log('Error fetching series data: ', e);
