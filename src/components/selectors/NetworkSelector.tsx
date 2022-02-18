@@ -36,7 +36,7 @@ const NetworkSelector = () => {
                 // eslint-disable-next-line react/jsx-key
                 <Box direction="row" gap="small" pad="xsmall">
                   <ArbitrumLogo />
-                  <Text size="small" color={CHAIN_INFO.get(42161)?.color}>
+                  <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
                     Arbitrum
                   </Text>
                 </Box>,
@@ -62,7 +62,7 @@ const NetworkSelector = () => {
           ) : (
             <Box direction="row" gap="small">
               <ArbitrumLogo />
-              <Text size="small" color={CHAIN_INFO.get(42161)?.color}>
+              <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
                 {[4, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
               </Text>
             </Box>

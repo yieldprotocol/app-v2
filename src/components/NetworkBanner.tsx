@@ -3,11 +3,14 @@ import { Anchor, Box, Button, Text } from 'grommet';
 import styled from 'styled-components';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
-import { IChainContext } from '../types';
+import { IChainContext, IUserContext } from '../types';
 import { CHAIN_INFO } from '../config/chainData';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import { ZERO_BN } from '../utils/constants';
+
+// list of chain id's in which the banner should show
+const SHOWABLE_CHAINS = [421611, 42161];
 
 const StyledBox = styled(Box)`
   position: absolute;
@@ -20,23 +23,22 @@ const StyledBox = styled(Box)`
 const NetworkBanner = () => {
   const {
     chainState: {
-      connection: { fallbackChainId, account },
+      connection: { fallbackChainId },
     },
   } = useContext(ChainContext) as IChainContext;
 
   const {
     userState: { assetMap },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
   const [show, setShow] = useState<boolean>(true);
-  const showableChains = [421611, 42161];
   const currentChainInfo = CHAIN_INFO.get(fallbackChainId!);
 
   const ethBalance = assetMap.get(WETH)?.balance;
 
-  if (!ethBalance || !currentChainInfo || ( ethBalance && ethBalance.gt(ZERO_BN) )  ) return null;
+  if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.gt(ZERO_BN))) return null;
 
-  return showableChains.includes(fallbackChainId!) && show ? (
+  return SHOWABLE_CHAINS.includes(fallbackChainId!) && show ? (
     <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round="xsmall" gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {currentChainInfo.name}</Box>

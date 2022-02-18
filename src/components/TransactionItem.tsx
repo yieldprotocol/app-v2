@@ -61,15 +61,15 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
     >
       {!wide && (
         <Box
-          alignSelf="end"
+          style={{ position: 'absolute', top: '.5rem', right: '.5rem' }}
           onClick={() => updateTxStage(txCode, ProcessStage.PROCESS_COMPLETE_TIMEOUT)}
           hoverIndicator={{}}
         >
-          {status === TxState.FAILED && <FiX size="1.2rem" />}
+          {status === TxState.FAILED && <FiX size="1rem" />}
         </Box>
       )}
       <Box direction="row" fill justify="between" align="center">
-        <Box direction="row" align="center">
+        <Box direction="row" align="center" alignSelf="center" fill="vertical">
           <Box width="3rem">
             {status === TxState.PENDING && <Spinner color="brand" />}
             {status === TxState.SUCCESSFUL && <FiCheckCircle size="1.5rem" color={success.dark} />}
@@ -77,15 +77,16 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
           </Box>
           {status === TxState.SUCCESSFUL && link ? (
             <StyledLink to={link} color={darkMode ? textColor.dark : textColor.light}>
-              <Text
-                size="small"
-                style={{
-                  color: darkMode ? textColor.dark : textColor.light,
-                  verticalAlign: 'middle',
-                }}
-              >
-                {action}
-              </Text>
+              <Box fill>
+                <Text
+                  size="small"
+                  style={{
+                    color: darkMode ? textColor.dark : textColor.light,
+                  }}
+                >
+                  {action}
+                </Text>
+              </Box>
             </StyledLink>
           ) : (
             <Text size="small" color={textColor}>
