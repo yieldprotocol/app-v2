@@ -15,8 +15,15 @@ import {
   g2_default,
   k,
   toBn,
-  maxFyTokenOut,
   maxBaseIn,
+  maxFyTokenOut,
+  maxFyTokenOutShares,
+  maxFyTokenInShares,
+  maxFyTokenIn,
+  maxBaseInShares,
+  maxBaseOutShares,
+  maxBaseOut,
+  SECONDS_PER_YEAR,
 } from '../utils/yieldMath';
 
 chai.use(solidity);
@@ -28,7 +35,7 @@ const calcPrice = (base: BigNumber, fyToken: BigNumber, c: BigNumber | string) =
 describe('Shares YieldMath', () => {
   const g1 = toBn(g1_default);
   const g2 = toBn(g2_default);
-  const ts = toBn(k);
+  let ts = toBn(k);
 
   let baseReserves: BigNumber;
   let fyTokenReserves: BigNumber;
@@ -48,6 +55,7 @@ describe('Shares YieldMath', () => {
     c = parseUnits('1.1', decimals);
     mu = parseUnits('1.05', decimals);
     timeTillMaturity = (10000000).toString(); // 10000000 seconds
+    ts = toBn(k);
   });
 
   describe('when c is 1 and mu is 1', () => {
@@ -170,11 +178,11 @@ describe('Shares YieldMath', () => {
         expect(baseIn).to.be.closeTo(base, comparePrecision);
       });
 
-      it('should have max fyToken out of x', () => {
-        const maxShares = maxBaseIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals);
-        console.log('🦄 ~ file: yieldMath.test.ts ~ line 182 ~ it ~ maxBase', formatUnits(maxShares));
-        console.log('🦄 ~ file: yieldMath.test.ts ~ line 184 ~ it ~ timeTillMaturity', timeTillMaturity);
-      });
+      // it('should have max fyToken out of x', () => {
+      //   const maxShares = maxBaseIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals);
+      //   console.log('🦄 ~ file: yieldMath.test.ts ~ line 182 ~ it ~ maxBase', formatUnits(maxShares));
+      //   console.log('🦄 ~ file: yieldMath.test.ts ~ line 184 ~ it ~ timeTillMaturity', timeTillMaturity);
+      // });
     });
 
     describe('sellFYTokenShares (sharesOutForFYTokenIn)', () => {
@@ -403,6 +411,48 @@ describe('Shares YieldMath', () => {
         expect(fyTokensOut).to.be.closeTo(fyToken, comparePrecision);
       });
     });
+
+    describe('maxFyTokenOut', () => {
+      // https://www.desmos.com/calculator/iqymwuevdf
+      it('should output a specific number with a specific input', () => {
+        c = parseUnits('1.1', decimals);
+        mu = parseUnits('1.05', decimals);
+        ts = toBn(
+          new Decimal(
+            1 /
+              BigNumber.from(SECONDS_PER_YEAR)
+                .mul(10 * 25)
+                .toNumber()
+          ).mul(2 ** 64)
+        ); // inv of seconds in 10 years
+        baseReserves = parseUnits('1100000', decimals);
+        fyTokenReserves = parseUnits('1500000', decimals);
+        timeTillMaturity = (77760000).toString();
+        const result = maxFyTokenOutShares(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g1, decimals);
+        expect(result).to.be.closeTo(parseUnits('145104.437', decimals), comparePrecision); // 145,104.437864
+      });
+    });
+
+    describe('maxFyTokenIn', () => {
+      // https://www.desmos.com/calculator/jcdfr1qv3z
+      it('should output a specific number with a specific input', () => {
+        c = parseUnits('1.1', decimals);
+        mu = parseUnits('1.05', decimals);
+        ts = toBn(
+          new Decimal(
+            1 /
+              BigNumber.from(SECONDS_PER_YEAR)
+                .mul(10 * 25)
+                .toNumber()
+          ).mul(2 ** 64)
+        ); // inv of seconds in 10 years
+        baseReserves = parseUnits('1100000', decimals);
+        fyTokenReserves = parseUnits('1500000', decimals);
+        timeTillMaturity = (77760000).toString();
+        const result = maxFyTokenInShares(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g2, decimals);
+        expect(result).to.be.closeTo(parseUnits('1230211.594', decimals), comparePrecision); // 1,230,211.59495
+      });
+    });
   });
 
   describe('when c is 110 and mu is 105', () => {
@@ -460,11 +510,11 @@ describe('Shares YieldMath', () => {
         expect(baseIn).to.be.closeTo(base, comparePrecision);
       });
 
-      it('should have max fyToken out of x', () => {
-        const maxShares = maxBaseIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals);
-        console.log('🦄 ~ file: yieldMath.test.ts ~ line 182 ~ it ~ maxBase', formatUnits(maxShares));
-        console.log('🦄 ~ file: yieldMath.test.ts ~ line 184 ~ it ~ timeTillMaturity', timeTillMaturity);
-      });
+      // it('should have max fyToken out of x', () => {
+      //   const maxShares = maxBaseIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals);
+      //   console.log('🦄 ~ file: yieldMath.test.ts ~ line 182 ~ it ~ maxBase', formatUnits(maxShares));
+      //   console.log('🦄 ~ file: yieldMath.test.ts ~ line 184 ~ it ~ timeTillMaturity', timeTillMaturity);
+      // });
     });
 
     describe('sellFYTokenShares (sharesOutForFYTokenIn)', () => {

@@ -1648,14 +1648,14 @@ export function maxFyTokenOutShares(
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
-  const cmu = c_.mul(mu_).pow(a);
+  const cmu = c_.mul(mu_.pow(a));
 
-  const Za = cmu.mul(baseReserves_).pow(a);
+  const Za = cmu.mul(baseReserves_.pow(a));
   const Ya = mu_.mul(fyTokenReserves_.pow(a));
   const sum = Za.add(Ya);
-  const denominator = cmu.mul(ONE_DEC.div(c_).pow(a)).add(mu_);
+  const denominator = cmu.mul(ONE.div(c_).pow(a)).add(mu_);
 
-  const res = fyTokenReserves_.sub(sum.div(denominator)).pow(invA);
+  const res = fyTokenReserves_.sub(sum.div(denominator).pow(invA));
 
   /* Handle precision variations */
   const safeRes = res.gt(MAX.sub(precisionFee)) ? MAX : res.add(precisionFee);
