@@ -121,6 +121,8 @@ const PoolPosition = () => {
       {_selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
+          <ExitButton action={() => history.goBack()} />
+
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
                 <Box
@@ -139,7 +141,7 @@ const PoolPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.goBack()} />
+                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 <SectionWrap>
