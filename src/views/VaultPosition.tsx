@@ -398,7 +398,7 @@ const VaultPosition = () => {
                                 <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                                   {_selectedVault.accruedArt.gt(maxRepay) ? (
                                     <Text color="text" alignSelf="end" size="xsmall">
-                                      Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
+                                      Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}
                                       {!protocolLimited
                                         ? '(based on your token balance)'
                                         : '(limited by protocol reserves)'}
@@ -411,12 +411,17 @@ const VaultPosition = () => {
                                 </InputInfoWrap>
                               )}
 
-                              {!repayInput && minDebt?.gt(ZERO_BN) && maxRepay.gt(ZERO_BN) && minDebt.gt(maxRepay) && (
-                                <InputInfoWrap>
-                                  <Text size="xsmall">Your debt is below the current minimumn debt requirement. </Text>
-                                  <Text size="xsmall">(It is only possible to repay the full debt)</Text>
-                                </InputInfoWrap>
-                              )}
+                              {!repayInput &&
+                                minDebt?.gt(ZERO_BN) &&
+                                _selectedVault.accruedArt.gt(ZERO_BN) &&
+                                minDebt.gt(_selectedVault.accruedArt) && (
+                                  <InputInfoWrap>
+                                    <Text size="xsmall">
+                                      Your debt is below the current minimumn debt requirement.
+                                    </Text>
+                                    <Text size="xsmall">(It is only possible to repay the full debt)</Text>
+                                  </InputInfoWrap>
+                                )}
 
                               {protocolLimited && (
                                 <InputInfoWrap>
