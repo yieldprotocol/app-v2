@@ -30,74 +30,86 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   }, [collateral, debt, lendBalance, poolBalance]);
 
   return (
-    <Box gap="medium">
-      <Box gap="xxsmall" border={{ side: 'bottom' }}>
-        <Box gap="xxsmall">
+    <Box>
+        <Box gap="small" >
           <Box direction="row" justify="between">
-            <Text size="xsmall">Total Lent:</Text>
+            <Text size="small">Total Lent:</Text>
             {seriesLoading ? (
               <Skeleton width={50} />
             ) : (
-              <Text size="small">
-                {symbol}
-                {formatValue(lendBalance, digits!)}
-              </Text>
+              <Box direction="row" gap="medium">
+                <Text size="small">
+                  {symbol}
+                  {formatValue(lendBalance, digits!)}
+                </Text>
+                <FiPlus color={green} />
+              </Box>
             )}
           </Box>
-          <FiPlus color={green} />
+
           <Box direction="row" justify="between">
-            <Text size="xsmall">Total Pooled:</Text>
+            <Text size="small">Total Pooled:</Text>
             {strategiesLoading ? (
               <Skeleton width={50} />
             ) : (
-              <Text size="small">
-                {symbol}
-                {formatValue(poolBalance, digits!)}
-              </Text>
+              <Box direction="row" gap="medium">
+                <Text size="small">
+                  {symbol}
+                  {formatValue(poolBalance, digits!)}
+                </Text>
+                <FiPlus color={green} />
+              </Box>
             )}
           </Box>
-          <FiPlus color={green} />
-        </Box>
-        <Box gap="xsmall">
+
           <Box direction="row" justify="between">
-            <Text size="xsmall">Total Collateral:</Text>
+            <Text size="small">Total Collateral:</Text>
             {vaultsLoading || assetPairLoading ? (
               <Skeleton width={50} />
             ) : (
-              <Text size="small">
-                {symbol}
-                {formatValue(collateral, digits!)}
-              </Text>
+              <Box direction="row" gap="medium">
+                <Text size="small">
+                  {symbol}
+                  {formatValue(collateral, digits!)}
+                </Text>
+                <FiPlus color={green} />
+              </Box>
             )}
           </Box>
-          <FiMinus color={red} />
-        </Box>
-        <Box gap="xsmall">
+
           <Box direction="row" justify="between">
-            <Text size="xsmall">Total Debt:</Text>
+            <Text size="small">Total Debt:</Text>
             {vaultsLoading || assetPairLoading ? (
               <Skeleton width={50} />
             ) : (
-              <Text size="small">
-                {symbol}
-                {formatValue(debt, digits!)}
-              </Text>
+              <Box direction="row" gap="medium">
+                <Text size="small">
+                  {symbol}
+                  {formatValue(debt, digits!)}
+                </Text>
+                <FiMinus color={red} />
+              </Box>
             )}
           </Box>
-        </Box>
+
       </Box>
-      <Box direction="row" justify="between">
-        <Text size="small">Total:</Text>
-        {vaultsLoading || seriesLoading || strategiesLoading || (assetPairLoading && !totalBalance) ? (
-          <Skeleton width={50} />
-        ) : (
-          <Text size="medium">
-            {symbol}
-            {formatValue(totalBalance!, digits!)}
-          </Text>
-        )}
-      </Box>
+
+      <Box direction="row" justify="between" margin={{top:'medium'}} border={{ side: 'top' }}>
+            <Text size="medium">Total:</Text>
+            {vaultsLoading || seriesLoading || strategiesLoading || (assetPairLoading && !totalBalance) ? (
+              <Skeleton width={50} />
+            ) : (
+              <Box direction="row" gap="medium">
+                <Text size="medium">
+                  {symbol}
+                  {formatValue(totalBalance!, digits!)}
+                </Text>
+              </Box>
+            )}
+          </Box>
+
     </Box>
+    
   );
 };
 
