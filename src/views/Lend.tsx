@@ -91,9 +91,9 @@ const Lend = () => {
     <MainViewWrap>
       {mobile && <DashMobileButton transparent={!!lendInput} />}
       {!mobile && (
-        <PanelWrap>
+        <PanelWrap basis="30%">
           <YieldNavigation sideNavigation={true} />
-          <YieldInfo />
+          <PositionSelector actionType={ActionType.LEND} />
         </PanelWrap>
       )}
 
@@ -288,8 +288,9 @@ const Lend = () => {
       </CenterPanelWrap>
 
       {!mobile && (
-        <PanelWrap right basis="40%">
-          <PositionSelector actionType={ActionType.LEND} />
+        <PanelWrap right >
+          <Box />
+          <YieldInfo />
         </PanelWrap>
       )}
     </MainViewWrap>

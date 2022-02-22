@@ -23,9 +23,7 @@ const YieldInfo = () => {
   } = useContext(ChainContext) as IChainContext;
 
   const connectedChain = CHAIN_INFO.get(fallbackChainId!);
-
   const blockNum = useBlockNum();
-
   const handleExternal = (destination: string) => {
     // analyticsLogEvent('external_link', {
     //   action: destination
@@ -33,9 +31,11 @@ const YieldInfo = () => {
   };
 
   return (
-    <Box gap="small">
+    <Box gap="small" align='end'>
+
+
   
-      <Box>
+      <Box alignSelf='end'>
         <Text size="xsmall" color="text-weak">
           App version: v{appVersion}
         </Text>
@@ -99,7 +99,7 @@ const YieldInfo = () => {
       </Box>
 
       {connectedChain && (
-        <Box direction="row" gap="xsmall" align="center" flex>
+        <Box direction="row" gap="xsmall" align="center" flex elevation='xsmall' pad='xsmall' round={{'corner':'left' }}  >
           <NetworkSelector />
           {/* {blockNum && connectedChain.explorer && !connectedChain.name.includes('Optimism') && (
             <Anchor style={{ lineHeight: '0' }} href={`${connectedChain.explorer}/block/${blockNum}`} target="_blank">
@@ -110,6 +110,8 @@ const YieldInfo = () => {
           )} */}
         </Box>
       )}
+
+
     </Box>
   );
 };
