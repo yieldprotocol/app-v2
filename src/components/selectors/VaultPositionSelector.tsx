@@ -77,7 +77,7 @@ function VaultPositionSelector(target: any) {
       {account && (
         <Box justify="end" fill >
           {account && allVaults.length > 0 && (
-            <Box>
+            <Box gap='small' >
               <Box
                 animation="fadeIn"
                 justify="between"
