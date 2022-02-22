@@ -74,7 +74,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box>
+        <Box gap='small' >
           <Box
             animation="fadeIn"
             justify="between"

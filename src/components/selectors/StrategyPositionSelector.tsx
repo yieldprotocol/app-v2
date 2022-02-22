@@ -44,7 +44,7 @@ function StrategyPositionSelector() {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box>
+        <Box gap='small' >
           <Box
             animation="fadeIn"
             justify="between"
