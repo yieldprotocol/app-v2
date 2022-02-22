@@ -141,7 +141,7 @@ const LendPosition = () => {
       {selectedSeries && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-          <ExitButton action={() => history.goBack()} />
+          {!mobile && <ExitButton action={() => history.goBack()} />}
 
 
             <Box fill gap="small" pad={mobile ? 'medium' : 'large'}>

@@ -41,30 +41,6 @@ function ModalWrap({ children, series }: IModalWrap) {
       >
         {!mobile && (
           <>
-            {/* <Header
-              pad="large"
-              height={mobile ? undefined : 'xsmall'}
-              fill="horizontal"
-              style={{ position: 'fixed', top: '0px' }}
-            >
-              <Box align="end" elevation="xsmall" round="xsmall" fill>
-                <Box>
-                  <ItemWrap action={() => history.goBack()} index={1}>
-                    <Box direction="row" align="center">
-                      <Box pad="xsmall">
-                        <Text size="small" color={_series?.startColor || 'black'}>
-                          Close{' '}
-                        </Text>
-                      </Box>
-                      <Box pad="xsmall">
-                        <FiLogOut color={_series?.startColor || 'black'} />
-                      </Box>
-                    </Box>
-                  </ItemWrap>
-                </Box>
-              </Box>
-            </Header> */}
-
             <Box flex={!mobile} overflow="auto">
               <MainViewWrap>
                 <PanelWrap>
@@ -84,7 +60,7 @@ function ModalWrap({ children, series }: IModalWrap) {
         )}
 
         {mobile && (
-          <Box>
+          <Box >
             <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
             {menuLayerOpen ? <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
           </Box>
