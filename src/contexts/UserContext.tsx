@@ -262,7 +262,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, assetRootMap)
+        }, userState.assetMap )
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
