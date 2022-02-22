@@ -158,18 +158,29 @@ const Dashboard = () => {
         <PanelWrap right>
           {/* <Box /> */}
           {account && (
+
             <Box
-              margin={{ top: '30%' }}
+              // margin={{ top: '30%' }}
+              margin={{ top: 'xlarge' }}
               fill="horizontal"
-              background="gradient-transparent"
-              round="xsmall"
-              pad="medium"
-              elevation="medium"
+              gap='medium'
             >
-              <Box gap="small">
+              <Box direction='row' justify='between'>
+                <Text size="medium">Position Overview</Text>
                 <Box width="5rem" height="2rem">
                   <CurrencyToggle />
                 </Box>
+                
+              </Box>
+             
+              <Box gap="small"
+                            fill="horizontal"
+                            background="gradient-transparent"
+                            round="xsmall"
+                            pad="medium"
+                            elevation="medium"
+              
+              >
                 <DashboardBalanceSummary
                   debt={totalDebt!}
                   collateral={totalCollateral!}
@@ -180,6 +191,7 @@ const Dashboard = () => {
                 />
               </Box>
             </Box>
+  
           )}
 
           <YieldInfo />
