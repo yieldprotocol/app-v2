@@ -32,7 +32,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   return (
     <Box>
         <Box gap="small" >
-          <Box direction="row" justify="between">
+          <Box direction="row-responsive"  justify="between">
             <Text size="small">Total Lent:</Text>
             {seriesLoading ? (
               <Skeleton width={50} />
@@ -47,7 +47,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
             )}
           </Box>
 
-          <Box direction="row" justify="between">
+          <Box direction="row-responsive"  justify="between">
             <Text size="small">Total Pooled:</Text>
             {strategiesLoading ? (
               <Skeleton width={50} />
@@ -58,11 +58,12 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
                   {formatValue(poolBalance, digits!)}
                 </Text>
                 <FiPlus color={green} />
+                
               </Box>
             )}
           </Box>
 
-          <Box direction="row" justify="between">
+          <Box direction="row-responsive"  justify="between">
             <Text size="small">Total Collateral:</Text>
             {vaultsLoading || assetPairLoading ? (
               <Skeleton width={50} />
@@ -77,7 +78,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
             )}
           </Box>
 
-          <Box direction="row" justify="between">
+          <Box direction="row-responsive"  justify="between">
             <Text size="small">Total Debt:</Text>
             {vaultsLoading || assetPairLoading ? (
               <Skeleton width={50} />
@@ -94,7 +95,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
 
       </Box>
 
-      <Box direction="row" justify="between" margin={{top:'medium'}} border={{ side: 'top' }}>
+      <Box direction="row-responsive" justify="between" margin={{top:'medium'}} border={{ side: 'top' }}>
             <Text size="medium">Total:</Text>
             {vaultsLoading || seriesLoading || strategiesLoading || (assetPairLoading && !totalBalance) ? (
               <Skeleton width={50} />
