@@ -8,7 +8,7 @@ const StyledAvatar = styled(Avatar)`
   -moz-transition: transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
   :hover {
-    transform: scale(1.5);
+    transform: scale(1.3);
   }
   :active {
     transform: scale(1);
@@ -16,7 +16,7 @@ const StyledAvatar = styled(Avatar)`
 `;
 
 function ExitButton({ action }: { action: () => void }) {
-  const [hover, setHover] = useState<boolean>();
+  const [hover, setHover] = useState<boolean>(false);
 
   return (
     <Box
@@ -33,11 +33,11 @@ function ExitButton({ action }: { action: () => void }) {
         elevation="small"
         background="background"
       >
-        {hover && <Text size="xsmall"> close </Text>}
+        {hover && <Text size="0.5em"> Close </Text>}
         <FiLogOut color={hover ? 'text' : 'text-weak'} />
       </StyledAvatar>
     </Box>
   );
 }
 
-export default ExitButton;
+export default React.memo(ExitButton);
