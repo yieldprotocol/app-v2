@@ -12,6 +12,7 @@ import { useCachedState } from '../hooks/generalHooks';
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { ChainContext } from '../contexts/ChainContext';
+import DashMobileButton from './buttons/DashMobileButton';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -95,9 +96,10 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
 
           <Box align="center" direction="row" gap="small">
             {account && mobile && location.pathname !== '/dashboard' && (
-              <Box onClick={() => routerHistory.push(`/dashboard`)} round elevation="xsmall" pad="small">
-                <Text size="xsmall"> Dash </Text>
-              </Box>
+              // <Box onClick={() => routerHistory.push(`/dashboard`)} round elevation="xsmall" pad="small">
+              //   <Text size="xsmall"> Dash </Text>
+              // </Box>
+              <DashMobileButton /> 
             )}
             <YieldAccount />
           </Box>

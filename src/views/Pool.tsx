@@ -30,7 +30,6 @@ import ColorText from '../components/texts/ColorText';
 import { usePoolHelpers } from '../hooks/viewHelperHooks/usePoolHelpers';
 import { useProcess } from '../hooks/useProcess';
 import StrategyItem from '../components/positionItems/StrategyItem';
-import DashMobileButton from '../components/buttons/DashMobileButton';
 
 import YieldNavigation from '../components/YieldNavigation';
 
@@ -94,7 +93,6 @@ function Pool() {
 
   return (
     <MainViewWrap>
-      {mobile && <DashMobileButton transparent={!!poolInput} />}
       {!mobile && (
         <PanelWrap basis="30%">
           <YieldNavigation sideNavigation={true} />

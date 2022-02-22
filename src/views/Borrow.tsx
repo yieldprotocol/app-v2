@@ -51,7 +51,6 @@ import { useProcess } from '../hooks/useProcess';
 
 import { ChainContext } from '../contexts/ChainContext';
 import DummyVaultItem from '../components/positionItems/DummyVaultItem';
-import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../components/YieldNavigation';
 import VaultItem from '../components/positionItems/VaultItem';
@@ -243,9 +242,6 @@ const Borrow = () => {
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
-
-        {mobile && <DashMobileButton transparent={!!borrowInput} />}
-
 
         {!mobile && (
           <PanelWrap basis="30%">

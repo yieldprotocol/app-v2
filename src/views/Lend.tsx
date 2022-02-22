@@ -37,7 +37,6 @@ import { useProcess } from '../hooks/useProcess';
 import LendItem from '../components/positionItems/LendItem';
 
 import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import DashMobileButton from '../components/buttons/DashMobileButton';
 import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../components/YieldNavigation';
 
@@ -89,7 +88,6 @@ const Lend = () => {
 
   return (
     <MainViewWrap>
-      {mobile && <DashMobileButton transparent={!!lendInput} />}
       {!mobile && (
         <PanelWrap basis="30%">
           <YieldNavigation sideNavigation={true} />
