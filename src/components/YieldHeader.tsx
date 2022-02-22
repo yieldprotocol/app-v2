@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 import { FiMenu } from 'react-icons/fi';
-import { Box, Header, Grid, ResponsiveContext, Avatar } from 'grommet';
+import { Box, Header, Grid, ResponsiveContext, Avatar, Text } from 'grommet';
 
 import YieldNavigation from './YieldNavigation';
 import YieldAccount from './YieldAccount';
@@ -11,7 +11,8 @@ import YieldMark from './logos/YieldMark';
 import { useCachedState } from '../hooks/generalHooks';
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
-import NetworkSelector from './selectors/NetworkSelector';
+import { ChainContext } from '../contexts/ChainContext';
+import DashMobileButton from './buttons/DashMobileButton';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -36,11 +37,15 @@ interface IYieldHeaderProps {
 
 const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const routerHistory = useHistory();
+  const location = useLocation();
   const colorScheme = useColorScheme();
   const history = useHistory();
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
   const isPositionPath = useLocation().pathname.includes('position');
   const [yieldMarkhover, setYieldMarkHover] = useState<boolean>(false);
+
+  const { chainState: { connection: { account } } } = useContext(ChainContext);
 
   return (
     <>
@@ -50,8 +55,9 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
         style={{ position: 'fixed', top: '0px' }}
         direction="row"
         fill="horizontal"
-        background="background"
-        elevation={mobile && isPositionPath ? 'small' : undefined}
+        background={mobile ? undefined : 'background'}
+        // elevation={mobile && isPositionPath ? 'small' : undefined}
+        elevation={undefined}
       >
         <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
           <Box direction="row" gap="large" align="center">
@@ -89,6 +95,12 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           <Box />
 
           <Box align="center" direction="row" gap="small">
+            {account && mobile && location.pathname !== '/dashboard' && (
+              // <Box onClick={() => routerHistory.push(`/dashboard`)} round elevation="xsmall" pad="small">
+              //   <Text size="xsmall"> Dash </Text>
+              // </Box>
+              <DashMobileButton /> 
+            )}
             <YieldAccount />
           </Box>
         </Grid>

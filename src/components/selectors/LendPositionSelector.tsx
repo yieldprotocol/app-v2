@@ -4,12 +4,11 @@ import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
 
-import { ActionType, IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
+import { ActionType, IAsset, ISeries, IUserContext, IUserContextState } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
-import DashButton from '../buttons/DashButton';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -85,9 +84,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             <Text size="small" color="text-weak" textAlign="center">
               {showAllPositions ? `Lending Positions` : `Filtered Lending Positions`}
             </Text>
-            {/* <Text color="text-weak" textAlign="center">
-              <DashButton />
-            </Text> */}
+
           </Box>
 
           <ListWrap overflow="auto">

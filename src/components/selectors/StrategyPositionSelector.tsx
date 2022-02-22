@@ -3,12 +3,12 @@ import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
+import { IStrategy, IUserContext, IUserContextState } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
-import DashButton from '../buttons/DashButton';
+
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
@@ -55,9 +55,6 @@ function StrategyPositionSelector() {
             <Text size="small" color="text-weak" textAlign="center">
               {showAllPositions ? `Strategy Positions` : `Filtered Strategy Positions`}
             </Text>
-            {/* <Text color="text-weak" textAlign="center">
-              <DashButton />
-            </Text> */}
           </Box>
 
           <ListWrap overflow="auto">

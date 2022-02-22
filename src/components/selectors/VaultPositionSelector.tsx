@@ -5,7 +5,6 @@ import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, ISettingsContext, IUserContext, IUserContextState, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
-import DashButton from '../buttons/DashButton';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IVaultFilter {
@@ -88,9 +87,6 @@ function VaultPositionSelector(target: any) {
                 <Text size="small" color="text-weak" textAlign="center">
                   {showAllVaults ? 'My Vaults' : 'Filtered vaults '}
                 </Text>
-                {/* <Text color="text-weak" >
-                  <DashButton />
-                </Text> */}
               </Box>
 
               <ListWrap overflow="auto">
