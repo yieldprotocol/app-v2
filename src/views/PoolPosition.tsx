@@ -121,6 +121,8 @@ const PoolPosition = () => {
       {_selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
+          <ExitButton action={() => history.goBack()} />
+
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
                 <Box
@@ -139,7 +141,7 @@ const PoolPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.goBack()} />
+                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 <SectionWrap>
@@ -219,22 +221,10 @@ const PoolPosition = () => {
                           isError={removeError}
                           message={
                             <>
-                              {/* {(!removeTradePossible &&
-                                removeInput &&
-                                selectedSeries &&
-                                !selectedSeries.seriesIsMature) ||
-                                (inputTradeValue?.eq(ethers.constants.Zero) && (
-                                  <InputInfoWrap>
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Input amount exceeds maximum currently tradeable.
-                                    </Text>
-                                  </InputInfoWrap>
-                                ))} */}
-
                               {removeInput && !partialRemoveRequired && !removeError && (
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
-                                    Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
+                                    Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}
                                     {selectedBase?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
@@ -244,7 +234,7 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Removing that amount of tokens and trading immediately for{' '}
+                                      Removing that amount of tokens and trading immediately for
                                       {selectedBase?.displaySymbol} is currently not possible due to liquidity
                                       limitations.
                                     </Text>

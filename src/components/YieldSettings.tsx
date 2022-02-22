@@ -116,7 +116,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
       </Box>
 
-      {!connectionSettingsOpen && !transactionsOpen && (
+      {!connectionSettingsOpen && !transactionsOpen && !mobile && (
         <Box pad={{ horizontal: 'medium' }} background="gradient">
           <NetworkSetting />
         </Box>

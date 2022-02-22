@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Avatar, Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
@@ -270,7 +270,9 @@ const VaultPosition = () => {
     <>
       {_selectedVault && (
         <ModalWrap>
+
           <CenterPanelWrap>
+          <ExitButton action={() => history.goBack()} />
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
                 <Box
@@ -289,7 +291,7 @@ const VaultPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  <ExitButton action={() => history.goBack()} />
+                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 {_selectedVault?.isActive && (
@@ -411,12 +413,17 @@ const VaultPosition = () => {
                                 </InputInfoWrap>
                               )}
 
-                              {!repayInput && minDebt?.gt(ZERO_BN) && maxRepay.gt(ZERO_BN) && minDebt.gt(maxRepay) && (
-                                <InputInfoWrap>
-                                  <Text size="xsmall">Your debt is below the current minimumn debt requirement. </Text>
-                                  <Text size="xsmall">(It is only possible to repay the full debt)</Text>
-                                </InputInfoWrap>
-                              )}
+                              {!repayInput &&
+                                minDebt?.gt(ZERO_BN) &&
+                                _selectedVault?.accruedArt.gt(ZERO_BN) &&
+                                minDebt.gt(_selectedVault.accruedArt) && (
+                                  <InputInfoWrap>
+                                    <Text size="xsmall">
+                                      Your debt is below the current minimumn debt requirement.{' '}
+                                    </Text>
+                                    <Text size="xsmall">(It is only possible to repay the full debt)</Text>
+                                  </InputInfoWrap>
+                                )}
 
                               {protocolLimited && (
                                 <InputInfoWrap>

@@ -243,11 +243,14 @@ const Borrow = () => {
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
+
         {mobile && <DashMobileButton transparent={!!borrowInput} />}
+
+
         {!mobile && (
-          <PanelWrap>
+          <PanelWrap basis="30%">
             <YieldNavigation sideNavigation={true} />
-            <YieldInfo />
+            <VaultSelector />
           </PanelWrap>
         )}
 
@@ -599,10 +602,12 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         {!mobile && (
-          <PanelWrap right basis="40%">
-            <VaultSelector />
+          <PanelWrap right> 
+            <Box />
+            <YieldInfo />
           </PanelWrap>
         )}
+
       </MainViewWrap>
     </Keyboard>
   );

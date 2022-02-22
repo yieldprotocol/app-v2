@@ -44,7 +44,7 @@ function StrategyPositionSelector() {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+        <Box gap='small' >
           <Box
             animation="fadeIn"
             justify="between"
@@ -53,11 +53,11 @@ function StrategyPositionSelector() {
             pad={{ horizontal: 'medium', vertical: 'xsmall' }}
           >
             <Text size="small" color="text-weak" textAlign="center">
-              {showAllPositions ? `All Strategy Positions` : `Filtered Strategy Positions`}
+              {showAllPositions ? `Strategy Positions` : `Filtered Strategy Positions`}
             </Text>
-            <Text color="text-weak" textAlign="center">
+            {/* <Text color="text-weak" textAlign="center">
               <DashButton />
-            </Text>
+            </Text> */}
           </Box>
 
           <ListWrap overflow="auto">

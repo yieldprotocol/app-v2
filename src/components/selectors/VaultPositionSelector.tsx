@@ -75,9 +75,9 @@ function VaultPositionSelector(target: any) {
   return (
     <>
       {account && (
-        <Box justify="end" fill>
+        <Box justify="end" fill >
           {account && allVaults.length > 0 && (
-            <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+            <Box gap='small' >
               <Box
                 animation="fadeIn"
                 justify="between"
@@ -86,11 +86,11 @@ function VaultPositionSelector(target: any) {
                 pad={{ horizontal: 'medium', vertical: 'xsmall' }}
               >
                 <Text size="small" color="text-weak" textAlign="center">
-                  {showAllVaults ? 'All vaults' : 'Filtered vaults '}
+                  {showAllVaults ? 'My Vaults' : 'Filtered vaults '}
                 </Text>
-                <Text color="text-weak" textAlign="center">
+                {/* <Text color="text-weak" >
                   <DashButton />
-                </Text>
+                </Text> */}
               </Box>
 
               <ListWrap overflow="auto">

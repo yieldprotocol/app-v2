@@ -27,4 +27,4 @@ const GeneralButton = (props: any) => (
   </StyledBox>
 );
 
-export default GeneralButton;
+export default React.memo(GeneralButton);

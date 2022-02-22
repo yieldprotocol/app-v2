@@ -74,7 +74,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+        <Box gap='small' >
           <Box
             animation="fadeIn"
             justify="between"
@@ -83,11 +83,11 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             pad={{ horizontal: 'medium', vertical: 'xsmall' }}
           >
             <Text size="small" color="text-weak" textAlign="center">
-              {showAllPositions ? `All Lending Positions` : `Filtered Lending Positions`}
+              {showAllPositions ? `Lending Positions` : `Filtered Lending Positions`}
             </Text>
-            <Text color="text-weak" textAlign="center">
+            {/* <Text color="text-weak" textAlign="center">
               <DashButton />
-            </Text>
+            </Text> */}
           </Box>
 
           <ListWrap overflow="auto">

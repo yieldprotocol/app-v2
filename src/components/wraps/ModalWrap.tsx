@@ -41,7 +41,7 @@ function ModalWrap({ children, series }: IModalWrap) {
       >
         {!mobile && (
           <>
-            <Header
+            {/* <Header
               pad="large"
               height={mobile ? undefined : 'xsmall'}
               fill="horizontal"
@@ -63,7 +63,7 @@ function ModalWrap({ children, series }: IModalWrap) {
                   </ItemWrap>
                 </Box>
               </Box>
-            </Header>
+            </Header> */}
 
             <Box flex={!mobile} overflow="auto">
               <MainViewWrap>

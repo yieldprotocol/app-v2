@@ -96,9 +96,9 @@ function Pool() {
     <MainViewWrap>
       {mobile && <DashMobileButton transparent={!!poolInput} />}
       {!mobile && (
-        <PanelWrap>
+        <PanelWrap basis="30%">
           <YieldNavigation sideNavigation={true} />
-          <YieldInfo />
+          <StrategyPositionSelector />
         </PanelWrap>
       )}
 
@@ -306,8 +306,9 @@ function Pool() {
       </CenterPanelWrap>
 
       {!mobile && (
-        <PanelWrap right basis="40%">
-          <StrategyPositionSelector />
+        <PanelWrap right>
+          <Box />
+          <YieldInfo />
         </PanelWrap>
       )}
     </MainViewWrap>
