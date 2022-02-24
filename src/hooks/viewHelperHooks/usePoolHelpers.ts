@@ -184,6 +184,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView) {
       if (matchingVault) {
+
         /* Matching vault (with debt) exists: USE 1 , 2.1 or 2.2 */
 
         /* Check the amount of fyTokens potentially recieved */
@@ -195,7 +196,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           lpReceived
         );
 
-        diagnostics && console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
+        console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
 
         if (_fyTokenReceived.gt(matchingVault?.art!)) {
           /* Fytoken received greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
@@ -212,13 +213,14 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           setPartialRemoveRequired(true);
 
           const _fyTokenVal = _fyTokenReceived.sub(matchingVault.art);
-          const _baseVal = _baseReceived.add(matchingVault.art);
+          const _baseVal = _baseReceived // .add(matchingVault.art);
 
           setRemoveBaseReceived(_baseVal);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
           setRemoveFyTokenReceived(_fyTokenVal);
           setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenVal, strategySeries.decimals));
         } else {
+
           /* CASE> fytokenReceived less than debt : USE REMOVE OPTION 1 */
           diagnostics &&
             console.log(
@@ -226,14 +228,15 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             );
           setPartialRemoveRequired(false);
 
-          const _val = _baseReceived.add(_fyTokenReceived);
-
+          const _val = _baseReceived // .add(_fyTokenReceived);
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
           setRemoveFyTokenReceived_('0');
         }
+
       } else {
+
         /* CASE > No matching vault exists : USE REMOVE OPTION 4 */
 
         /* Check the amount of fyTokens potentially recieved */
