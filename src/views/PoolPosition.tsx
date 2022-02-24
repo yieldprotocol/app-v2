@@ -224,7 +224,7 @@ const PoolPosition = () => {
                               {removeInput && !partialRemoveRequired && !removeError && (
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
-                                    Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}
+                                    Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
                                     {selectedBase?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
