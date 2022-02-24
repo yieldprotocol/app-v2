@@ -13,7 +13,6 @@ import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
-import NetworkSelector from './selectors/NetworkSelector';
 import NetworkSetting from './settings/NetworkSetting';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
@@ -45,13 +44,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   return (
-    <Box
-      fill
-      width={mobile ? undefined : '400px'}
-      background="lightBackground"
-      elevation="xlarge"
-      justify="between"
-    >
+    <Box fill width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge" justify="between">
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
           <FiX size="1.5rem" />
@@ -112,11 +105,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
               </GeneralButton>
             </Box>
           </Collapsible>
-        </Box>   
+        </Box>
       </Box>
-  
+
       {!mobile && (
-        <Box pad='medium' background="gradient" flex={false}>
+        <Box pad="medium" background="gradient" flex={false}>
           <NetworkSetting />
         </Box>
       )}
