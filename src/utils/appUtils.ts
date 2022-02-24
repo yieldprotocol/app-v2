@@ -185,6 +185,7 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
     `;
 
 export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
+  console.log('🦄 ~ file: appUtils.ts ~ line 188 ~ getPositionPath ~ receipt', receipt);
   const action = txCode.split('_')[0];
   const positionId = txCode.split('_')[1];
 
@@ -209,7 +210,7 @@ export const getPositionPath = (txCode: string, receipt: any, contractMap?: any,
     case ActionCodes.ADD_LIQUIDITY:
     case ActionCodes.REMOVE_LIQUIDITY:
     case ActionCodes.ROLL_LIQUIDITY:
-      return `/poolposition/${positionId}`;
+      return `/poolposition/${getStrategyAddrFromReceipt(receipt)}`;
 
     default:
       return '/';
@@ -219,7 +220,7 @@ export const getPositionPath = (txCode: string, receipt: any, contractMap?: any,
 export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
   if (!receipt) return '';
   const cauldronAddr = contractMap?.get('Cauldron')?.address!;
-  const vaultIdHex = receipt.events?.filter((e: any) => e.address === cauldronAddr)[0]?.topics[1]!;
+  const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0]?.topics[1]!;
   return vaultIdHex?.slice(0, 26) || '';
 };
 
@@ -230,8 +231,13 @@ export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
   return series?.id! || '';
 };
 
+export const getStrategyAddrFromReceipt = (receipt: any) => {
+  if (!receipt) return '';
+  return receipt.events[0].address;
+};
+
 export const formatStrategyName = (name: string) => {
-  const name_ = name ? name.slice(6, 22) : '' ;
+  const name_ = name ? name.slice(6, 22) : '';
   return `${name_}`;
 };
 
@@ -242,7 +248,7 @@ export const formatValue = (x: string | number, decimals: number) =>
   numberWithCommas(Number(cleanValue(x?.toString(), decimals)));
 
 /* google analytics log event */
-export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number ) => {
+export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number) => {
   if (eventName && chainId === 1) {
     try {
       window?.gtag('event', eventName, eventParams);
