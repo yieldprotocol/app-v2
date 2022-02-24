@@ -121,7 +121,7 @@ const PoolPosition = () => {
       {_selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-          {!mobile && <ExitButton action={() => history.goBack()} />}
+            {!mobile && <ExitButton action={() => history.goBack()} />}
 
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
@@ -234,7 +234,7 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Removing that amount of tokens and trading immediately for
+                                      Removing that amount of tokens and trading immediately for{' '}
                                       {selectedBase?.displaySymbol} is currently not possible due to liquidity
                                       limitations.
                                     </Text>
