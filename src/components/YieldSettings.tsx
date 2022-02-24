@@ -51,7 +51,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       background="lightBackground"
       elevation="xlarge"
       justify="between"
-      style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
@@ -113,11 +112,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
               </GeneralButton>
             </Box>
           </Collapsible>
-        </Box>
+        </Box>   
       </Box>
-
-      {!connectionSettingsOpen && !transactionsOpen && !mobile && (
-        <Box pad={{ horizontal: 'medium' }} background="gradient">
+  
+      {!mobile && (
+        <Box pad='medium' background="gradient" flex={false}>
           <NetworkSetting />
         </Box>
       )}
