@@ -141,7 +141,6 @@ const PoolPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 <SectionWrap>
