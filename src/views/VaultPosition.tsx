@@ -270,9 +270,8 @@ const VaultPosition = () => {
     <>
       {_selectedVault && (
         <ModalWrap>
-
           <CenterPanelWrap>
-           {!mobile && <ExitButton action={() => history.goBack()} />}
+            {!mobile && <ExitButton action={() => history.goBack()} />}
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
                 <Box
@@ -291,7 +290,6 @@ const VaultPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 {_selectedVault?.isActive && (
