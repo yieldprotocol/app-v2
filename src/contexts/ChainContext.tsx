@@ -407,7 +407,7 @@ const ChainProvider = ({ children }: any) => {
           Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
           Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
         ]).catch(() => {
-          console.log('Fallback to hardcorded ASSET information required.');
+          console.log('Fallback to hardcoded ASSET information required.');
           return [[], []];
         });
 
