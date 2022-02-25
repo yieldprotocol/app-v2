@@ -318,8 +318,6 @@ const ChainProvider = ({ children }: any) => {
               domain = undefined;
             }
 
-            console.log(  name, version )
-
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
             const idToUse = assetInfo?.wrappedTokenId || id;
             const newAsset = {
