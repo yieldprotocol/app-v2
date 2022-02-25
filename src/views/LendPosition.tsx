@@ -47,7 +47,12 @@ const LendPosition = () => {
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
 
   // stepper for stepping within multiple tabs
-  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
+  const actionCodeToStepperIdx: { [actionCode: string]: number } = {
+    [ActionCodes.CLOSE_POSITION]: 0,
+    [ActionCodes.ROLL_POSITION]: 1,
+  };
+  const initialStepperState = [0, 0, 0];
+  const [stepPosition, setStepPosition] = useState<number[]>(initialStepperState);
   const [closeInput, setCloseInput] = useState<string | undefined>();
   const [rollInput, setRollInput] = useState<string | undefined>();
   const [rollToSeries, setRollToSeries] = useState<ISeries | undefined>();
@@ -89,9 +94,15 @@ const LendPosition = () => {
   /* LOCAL FNS */
   const handleStepper = (back: boolean = false) => {
     const step = back ? -1 : 1;
-    const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
-    const validatedSteps = newStepArray.map((x: number) => (x >= 0 ? x : 0));
+    const newStepArray = stepPosition.map((x, i) => (i === actionActive.index ? x + step : x));
+    const validatedSteps = newStepArray.map((x) => (x >= 0 ? x : 0));
     setStepPosition(validatedSteps);
+  };
+
+  const resetStepper = (actionCode: ActionCodes) => {
+    const newStepPositions = stepPosition;
+    newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
+    setStepPosition(newStepPositions);
   };
 
   const handleClosePosition = () => {
@@ -103,13 +114,13 @@ const LendPosition = () => {
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
+    resetStepper(actionCode);
+
     if (actionCode === ActionCodes.CLOSE_POSITION) {
-      handleStepper(true);
       setCloseInput(undefined);
       resetCloseProcess();
     }
     if (actionCode === ActionCodes.ROLL_POSITION) {
-      handleStepper(true);
       setRollInput(undefined);
       resetRollProcess();
     }
