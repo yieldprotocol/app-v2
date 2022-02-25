@@ -17,7 +17,7 @@ const StyledTableCell = styled(TableCell)`
 `;
 
 const DropContent = ({ assetMap }: { assetMap: any }) => (
-  <Box pad="small" round="xsmall" background="hoverBackground">
+  <Box pad="small" round background="hoverBackground">
     <Table>
       <TableHeader>
         <TableRow>

@@ -94,14 +94,13 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   return (
     <StyledBox
       fill="horizontal"
-      round="xsmall"
-      // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
+      round
       elevation="xsmall"
       background="hoverBackground"
     >
       <Select
         plain
-        dropProps={{ round: 'xsmall' }}
+        dropProps={{ round: 'small' }}
         id="assetSelectc"
         name="assetSelect"
         placeholder="Select Asset"

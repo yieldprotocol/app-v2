@@ -39,7 +39,7 @@ const NetworkBanner = () => {
   if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.gt(ZERO_BN))) return null;
 
   return SHOWABLE_CHAINS.includes(fallbackChainId!) && show ? (
-    <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round="xsmall" gap="small">
+    <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {currentChainInfo.name}</Box>
         <Button onClick={() => setShow(false)}>
@@ -50,7 +50,7 @@ const NetworkBanner = () => {
         gap="xsmall"
         background={{ color: currentChainInfo.color, opacity: 0.5 }}
         color="black"
-        round="xsmall"
+        round
         pad="small"
       >
         <Text size="xsmall">This is a beta release of Yield on the {currentChainInfo.name} network</Text>
@@ -60,7 +60,7 @@ const NetworkBanner = () => {
         </Text>
       </Box>
       {currentChainInfo.bridge && (
-        <Box pad="small" background="gradient" round="xsmall">
+        <Box pad="small" background="gradient" round>
           <Anchor
             style={{ textDecorationColor: 'white' }}
             href={currentChainInfo.bridge}

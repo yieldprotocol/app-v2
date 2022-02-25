@@ -117,7 +117,7 @@ function Pool() {
                 </Box>
               </YieldCardHeader>
 
-              <Box gap="large">
+              <Box >
                 <SectionWrap>
                   <Box direction="row-responsive" gap="small">
                     <Box basis={mobile ? '50%' : '60%'}>

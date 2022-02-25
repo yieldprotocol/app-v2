@@ -203,10 +203,10 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     <>
       {seriesLoading && !selectedBase && <Skeleton width={180} />}
       {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hoverBackground' : undefined}>
+        <InsetBox fill="horizontal" round='xsmall' background={mobile ? 'hoverBackground' : undefined}>
           <Select
             plain
-            dropProps={{ round: 'xsmall' }}
+            dropProps={{ round: 'small' }}
             id="seriesSelect"
             name="seriesSelect"
             placeholder="Select Series"
@@ -255,11 +255,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 )}
               </>
             ) : (
-              options.map((series: ISeries) => (
+              options.map((series: ISeries, i:number) => (
                 <StyledBox
                   key={series.id}
                   pad="xsmall"
-                  round="xsmall"
+                  round= { i%2 === 0 ? {corner:'left', size: 'large'} : {corner:'right', size: 'large'}} 
                   onClick={() => handleSelect(series)}
                   background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
                   elevation="xsmall"

@@ -283,7 +283,7 @@ const VaultPosition = () => {
         <ModalWrap>
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => history.goBack()} />}
-            <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="xsmall">
               <Box height={{ min: '250px' }} gap="2em">
                 <Box
                   direction="row"
@@ -374,11 +374,11 @@ const VaultPosition = () => {
                 )}
               </Box>
 
-              <Box height={{ min: '300px' }}>
+              <Box height={{ min: '300px' }} >
                 <SectionWrap title="Vault Actions">
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'hoverBackground' : 'hoverBackground'}>
+                  <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'} >
                     <Select
-                      dropProps={{ round: 'xsmall' }}
+                      dropProps={{ round: 'small' }}
                       plain
                       options={[
                         { text: 'Repay Debt', index: 0 },
@@ -523,7 +523,7 @@ const VaultPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="xsmall">
+                      <Box margin={{ top: 'medium' }} gap="xsmall" >
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.BORROW}

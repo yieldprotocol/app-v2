@@ -15,7 +15,7 @@ const StyledBox = styled(Box)`
 `;
 
 const ConnectButton = ({ action }: { action: () => void }) => (
-  <StyledBox round="xsmall" elevation="xsmall" onClick={() => action()} pad="small">
+  <StyledBox round elevation="xsmall" onClick={() => action()} pad="small">
     <Text size="small" color="text">
       Connect Wallet
     </Text>

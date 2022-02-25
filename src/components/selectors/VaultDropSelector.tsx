@@ -28,11 +28,11 @@ function VaultDropSelector({
   } = useContext(UserContext);
 
   return (
-    <Box round="xsmall" gap="small" justify="between" elevation="xsmall" background="hoverBackground">
+    <Box gap="small" justify="between" elevation="xsmall" background="hoverBackground" round>
       <Select
         defaultValue={undefined}
         plain
-        dropProps={{ round: 'xsmall' }}
+        dropProps={{ round: 'small' }}
         dropAlign={{ bottom: 'top' }}
         dropHeight="300px"
         disabled={vaults.length < 1}

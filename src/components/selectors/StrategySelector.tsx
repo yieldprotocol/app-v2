@@ -109,7 +109,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
         <Box
           overflow={mobile ? 'auto' : 'hidden'}
           height={mobile ? undefined : '250px'}
-          pad={{ vertical: 'small', horizontal: 'xsmall' }}
+          pad={{ vertical: 'small' }}
           gap="small"
         >
           {strategiesLoading ? (
@@ -118,7 +118,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
             <Box
               key={selectedStrategy?.address}
               pad="xsmall"
-              round="xsmall"
+              round="large"
               background={selectedStrategy?.currentSeries?.color}
               elevation="xsmall"
               margin="xsmall"
@@ -168,7 +168,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
 
                 {open && (
                   <Layer onClickOutside={() => setOpen(false)} style={{ minWidth: '500px', borderRadius: '12px' }}>
-                    <Box gap="small" pad="medium" fill background="background" round="small">
+                    <Box gap="small" pad="medium" fill background="background" >
                       <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
                       </Box>
@@ -180,7 +180,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                         <StyledBox
                           key={strategy.id}
                           pad="xsmall"
-                          round="xsmall"
+                          round="large"
                           onClick={() => handleSelect(strategy)}
                           background={strategy.currentSeries?.color}
                           elevation="xsmall"

@@ -37,7 +37,7 @@ function MaxButton({ action, clearAction, showingMax, disabled, customText }: IM
         <StyledBox
           onClick={!disabled && !showingMax ? () => action() : () => clearAction && clearAction()}
           pad="xsmall"
-          round="xsmall"
+          round
           align="center"
           width="xxsmall"
         >
