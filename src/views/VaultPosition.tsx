@@ -179,7 +179,7 @@ const VaultPosition = () => {
 
   const resetStepper = (actionCode: ActionCodes) => {
     const newStepPositions = stepPosition;
-    stepPosition[actionCodeToStepperIdx[actionCode]] = 0;
+    newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
     setStepPosition(newStepPositions);
   };
 
