@@ -54,8 +54,12 @@ const PoolPosition = () => {
   const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
 
   // multi-tracking stepper
+  const actionCodeToStepperIdx: { [actionCode: string]: number } = {
+    [ActionCodes.REMOVE_LIQUIDITY]: 0,
+  };
+  const initialStepperState = [0, 0, 0];
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
-  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
+  const [stepPosition, setStepPosition] = useState<number[]>(initialStepperState);
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
@@ -82,14 +86,20 @@ const PoolPosition = () => {
     setStepPosition(validatedSteps);
   };
 
+  const resetStepper = (actionCode: ActionCodes) => {
+    const newStepPositions = stepPosition;
+    newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
+    setStepPosition(newStepPositions);
+  };
+
   const handleRemove = () => {
     const shouldTradeExtra = partialRemoveRequired && forceDisclaimerChecked ? false : undefined;
     selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra);
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
+    resetStepper(actionCode);
     if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
-      handleStepper(true);
       setRemoveInput(undefined);
       resetRemoveProcess();
     }
