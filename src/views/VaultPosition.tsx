@@ -91,7 +91,6 @@ const VaultPosition = () => {
     [ActionCodes.REMOVE_COLLATERAL]: 3,
   };
 
-  const initialStepperState = [0, 0, 0, 0, 0, 0, 0, 0];
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
