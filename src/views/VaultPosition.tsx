@@ -84,6 +84,13 @@ const VaultPosition = () => {
 
   /* LOCAL STATE */
   // stepper for stepping within multiple tabs
+  const actionCodeToStepperIdx: { [actionCode: string]: number } = {
+    [ActionCodes.REPAY]: 0,
+    [ActionCodes.ROLL_DEBT]: 1,
+    [ActionCodes.ADD_COLLATERAL]: 2,
+    [ActionCodes.REMOVE_COLLATERAL]: 3,
+  };
+
   const initialStepperState = [0, 0, 0, 0, 0, 0, 0, 0];
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
@@ -171,7 +178,11 @@ const VaultPosition = () => {
     setStepPosition(validatedSteps);
   };
 
-  const resetStepper = () => setStepPosition(initialStepperState);
+  const resetStepper = (actionCode: ActionCodes) => {
+    const newStepPositions = stepPosition;
+    stepPosition[actionCodeToStepperIdx[actionCode]] = 0;
+    setStepPosition(newStepPositions);
+  };
 
   const handleRepay = () => {
     _selectedVault && repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
@@ -190,23 +201,21 @@ const VaultPosition = () => {
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
+    resetStepper(actionCode);
+
     switch (actionCode) {
       case ActionCodes.REPAY:
-        handleStepper(true);
         setRepayInput(undefined);
         resetRepayProcess();
         break;
       case ActionCodes.ROLL_DEBT:
-        handleStepper(true);
         resetRollProcess();
         break;
       case ActionCodes.ADD_COLLATERAL:
-        handleStepper(true);
         setAddCollatInput(undefined);
         resetAddCollateralProcess();
         break;
       case ActionCodes.REMOVE_COLLATERAL:
-        handleStepper(true);
         setRemoveCollatInput(undefined);
         resetRemoveCollateralProcess();
         break;
