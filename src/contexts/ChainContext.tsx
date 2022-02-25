@@ -289,7 +289,7 @@ const ChainProvider = ({ children }: any) => {
                 ERC20.name(),
                 ERC20.symbol(),
                 ERC20.decimals(),
-                id === USDC ? '2' : '1', // TODO ERC20.version()
+                id === USDC && chainId !== 42161 ? '2' : '1', // TODO ERC20.version()
               ]);
             } catch (e) {
               /* TODO look at finding a better way to handle the pimple that is the Maker Token */

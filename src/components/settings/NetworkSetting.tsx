@@ -11,16 +11,14 @@ const AdvancedSetting = () => {
   } = useContext(ChainContext);
 
   return (
-    <Box gap="small" pad="xsmall" fill>
-      <Box direction="row" justify="between">
-        <Box pad="xsmall" alignSelf="center">
-          <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
-            Network
-          </Text>
-        </Box>
-        <Box pad="xsmall" round background="lightblue">
-          <NetworkSelector />
-        </Box>
+    <Box direction="row" justify="between">
+      <Box alignSelf="center">
+        <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
+          Network
+        </Text>
+      </Box>
+      <Box pad="xsmall" round background="lightblue" fill="vertical">
+        <NetworkSelector />
       </Box>
     </Box>
   );

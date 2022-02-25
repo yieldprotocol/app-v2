@@ -8,7 +8,7 @@ import EtherscanButton from './buttons/EtherscanButton';
 import { getPositionPath } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
-import { SettingsContext } from '../contexts/SettingsContext';
+import { useColorScheme } from '../hooks/useColorScheme';
 
 interface ITransactionItem {
   tx: any;
@@ -31,9 +31,7 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
     txActions: { updateTxStage },
   } = useContext(TxContext);
-  const {
-    settingsState: { darkMode },
-  } = useContext(SettingsContext);
+  const colorScheme = useColorScheme();
   const theme = useContext<any>(ThemeContext);
   const { text: textColor, success, error } = theme.global.colors;
 
@@ -76,12 +74,12 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
             {status === TxState.FAILED && <FiXCircle size="1.5rem" color={error.dark} />}
           </Box>
           {status === TxState.SUCCESSFUL && link ? (
-            <StyledLink to={link} color={darkMode ? textColor.dark : textColor.light}>
+            <StyledLink to={link} color={colorScheme === 'dark' ? textColor.dark : textColor.light}>
               <Box fill>
                 <Text
                   size="small"
                   style={{
-                    color: darkMode ? textColor.dark : textColor.light,
+                    color: colorScheme === 'dark' ? textColor.dark : textColor.light,
                   }}
                 >
                   {action}

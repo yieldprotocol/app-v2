@@ -139,7 +139,7 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Amount',  _amount?.toString());
 
         /* Request the signature if using DaiType permit style */
-        if (DAI_PERMIT_ASSETS.includes( reqSig.target.symbol)) {
+        if (DAI_PERMIT_ASSETS.includes( reqSig.target.symbol) && chainId !== 42161) {
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
