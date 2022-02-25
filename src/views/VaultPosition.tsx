@@ -84,6 +84,7 @@ const VaultPosition = () => {
 
   /* LOCAL STATE */
   // stepper for stepping within multiple tabs
+  const initialStepperState = [0, 0, 0, 0, 0, 0, 0, 0];
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
@@ -170,6 +171,8 @@ const VaultPosition = () => {
     setStepPosition(validatedSteps);
   };
 
+  const resetStepper = () => setStepPosition(initialStepperState);
+
   const handleRepay = () => {
     _selectedVault && repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
   };
@@ -190,7 +193,7 @@ const VaultPosition = () => {
     switch (actionCode) {
       case ActionCodes.REPAY:
         handleStepper(true);
-        setRepayInput(null);
+        setRepayInput(undefined);
         resetRepayProcess();
         break;
       case ActionCodes.ROLL_DEBT:
@@ -413,13 +416,10 @@ const VaultPosition = () => {
 
                               {!repayInput &&
                                 minDebt?.gt(ZERO_BN) &&
-
                                 _selectedVault.accruedArt.gt(ZERO_BN) &&
                                 minDebt.gt(_selectedVault.accruedArt) && (
                                   <InputInfoWrap>
-                                    <Text size="xsmall">
-                                      Your debt is below the current minimumn debt requirement.
-                                    </Text>
+                                    <Text size="xsmall">Your debt is below the current minimumn debt requirement.</Text>
                                     <Text size="xsmall">(It is only possible to repay the full debt)</Text>
                                   </InputInfoWrap>
                                 )}
