@@ -154,8 +154,8 @@ const LendPosition = () => {
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => history.goBack()} />}
 
-            <Box fill gap="small" pad={mobile ? 'medium' : 'large'}>
-              <Box height={{ min: '250px' }} gap="2em">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
+              <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
                   justify="between"
