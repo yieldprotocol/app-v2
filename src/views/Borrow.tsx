@@ -155,6 +155,7 @@ const Borrow = () => {
     setCollatInput('');
     setStepPosition(0);
     resetProcess();
+    setDisclaimerChecked(false);
   }, [resetProcess]);
 
   /* BORROW DISABLING LOGIC */
@@ -242,7 +243,6 @@ const Borrow = () => {
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
-
         {!mobile && (
           <PanelWrap basis="30%">
             <YieldNavigation sideNavigation={true} />
@@ -532,8 +532,12 @@ const Borrow = () => {
                   <Text size="xsmall">
                     I understand the risks associated with borrowing. In particular, I understand that as a new
                     protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
-                    below the minimum collateralization requirement ( <Text size='xsmall' color='red'> {minCollatRatioPct}%</Text> ) I could lose most or all of
-                    my posted collateral.
+                    below the minimum collateralization requirement ({' '}
+                    <Text size="xsmall" color="red">
+                      {' '}
+                      {minCollatRatioPct}%
+                    </Text>{' '}
+                    ) I could lose most or all of my posted collateral.
                   </Text>
                 }
                 checked={disclaimerChecked}
@@ -598,12 +602,11 @@ const Borrow = () => {
         </CenterPanelWrap>
 
         {!mobile && (
-          <PanelWrap right> 
+          <PanelWrap right>
             <Box />
             <YieldInfo />
           </PanelWrap>
         )}
-
       </MainViewWrap>
     </Keyboard>
   );
