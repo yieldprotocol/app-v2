@@ -155,7 +155,7 @@ const LendPosition = () => {
             {!mobile && <ExitButton action={() => history.goBack()} />}
 
             <Box pad={mobile ? 'medium' : 'large'}>
-              <Box height={{ min: '250px' }} gap="2em">
+              <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
                   justify="between"
@@ -208,7 +208,7 @@ const LendPosition = () => {
               </Box>
 
               <Box gap='small' fill>
-                
+
                 <SectionWrap title="Position Actions" icon={<FiTool />}>
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
