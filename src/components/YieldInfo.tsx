@@ -37,7 +37,6 @@ const YieldInfo = () => {
           App version: v{appVersion}
         </Text>
       </Box>
-
       <Box direction="row" gap={IconGap}>
         <BoxWrap>
           <Anchor
@@ -95,28 +94,31 @@ const YieldInfo = () => {
         </BoxWrap>
       </Box>
 
-      {connectedChain &&  (
-        <Box align="end" gap="small">
-          <Box
-            // direction="row"
-            gap="xsmall"
-            justify="end"
-            flex
-            elevation="xsmall"
-            pad="xsmall"
-            round
-          >
-            <NetworkSelector />
-          </Box>
-
+      {connectedChain && (
+          <Box align="end" gap="xsmall">
+            <Box
+              // direction="row"
+              // margin={{right: '-0.5em'}}
+              gap="xsmall"
+              justify="end"
+              flex
+              elevation="xsmall"
+              pad="xsmall"
+              round
+            >
+              <NetworkSelector />
+            </Box>
+ 
+        {/* <Box fill>
           {blockNum && connectedChain.explorer && !connectedChain.name.includes('Optimism') && (
             <Anchor style={{ lineHeight: '0' }} href={`${connectedChain.explorer}/block/${blockNum}`} target="_blank">
-              <Text size="xsmall" color={connectedChain.colorSecondary || connectedChain.color}>
-                {blockNum} ♦︎
+              <Text size="0.5em" color={connectedChain.colorSecondary || connectedChain.color}>
+                Latest Block : {blockNum}
               </Text>
             </Anchor>
           )}
-        </Box>
+          </Box> */}
+          </Box>
       )}
     </Box>
   );

@@ -6,13 +6,13 @@ import Skeleton from './wraps/SkeletonWrap';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
-import ConnectButton from './buttons/ConnectButton';
 import SidebarSettings from './Sidebar';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import SettingsBalances from './SettingsBalances';
 import { useEns } from '../hooks/useEns';
+import GeneralButton from './buttons/GeneralButton';
 
 const StyledText = styled(Text)`
   svg,
@@ -94,7 +94,14 @@ const YieldAccount = (props: any) => {
           </StyledBox>
         </Box>
       ) : (
-        <ConnectButton action={() => setConnectOpen(true)} />
+        <GeneralButton
+          action={() => setConnectOpen(true)}
+          background="gradient-transparent"
+        >
+          <Text size="small" color="text">
+            Connect Wallet
+          </Text>
+        </GeneralButton>
       )}
     </>
   );
