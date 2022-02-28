@@ -34,10 +34,9 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       fill="vertical"
       width={mobile ? undefined : '400px'}
       gap="small"
-      elevation={darkMode ? undefined : 'small'}
-      background="background"
+      elevation={darkMode ? 'large' : 'small'}
+      background="lightBackground"
       round="small"
-      // margin='-100% 0em'
     >
       <Box justify="between" align="center" direction="row" background="gradient" pad="medium" round={{corner:'top', size: "small"}}>
         {account && CONNECTORS ? (
