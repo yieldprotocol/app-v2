@@ -95,7 +95,7 @@ const YieldInfo = () => {
         </BoxWrap>
       </Box>
 
-      {connectedChain && (
+      {connectedChain &&  (
         <Box align="end" gap="small">
           <Box
             // direction="row"

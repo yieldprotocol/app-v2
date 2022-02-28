@@ -10,7 +10,7 @@ import EthMark from '../logos/EthMark';
 const NetworkSelector = () => {
   const {
     chainState: {
-      connection: { fallbackChainId },
+      connection: { account, fallbackChainId },
     },
   } = useContext(ChainContext) as IChainContext;
 
@@ -31,6 +31,7 @@ const NetworkSelector = () => {
       <Select
         plain
         dropProps={{ round: 'small' }}
+        disabled={!account}
         options={
           currentNetwork === 'Ethereum'
             ? [

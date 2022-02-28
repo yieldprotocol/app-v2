@@ -1,7 +1,20 @@
 import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
 import SidebarSettings from '../Sidebar';
+
+const StyledButton = styled(Button)`
+  /* height: ${(props: any) => (props.mobile ? '2em' : '4.5em')}; */
+  border-radius: 100px;
+  :hover {
+    box-shadow: 0px 0px 0px 1px;
+  }
+  :disabled {
+    box-shadow: none;
+    opacity: ${(props: any) => (props.errorLabel ? '0.8 !important' : '0.2 !important')};
+  }
+`;
 
 function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -28,10 +41,10 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         fill="horizontal"
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
       >
-        {account ? (
+        { account ? (
           children
         ) : (
-          <Button
+          <StyledButton
             secondary
             label={<Text size={mobile ? 'small' : undefined}>Connect Wallet</Text>}
             onClick={() => setConnectOpen(true)}
