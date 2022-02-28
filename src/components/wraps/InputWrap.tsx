@@ -12,7 +12,7 @@ interface IInputWrap extends BoxProps {
 }
 
 const InsetBox = styled(Box)`
-  border-radius: 100px;
+  border-radius:  100px 0px 0px 100px;
   box-shadow: ${(props) =>
     props.theme.dark
       ? 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30'

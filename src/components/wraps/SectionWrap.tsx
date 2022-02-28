@@ -16,7 +16,7 @@ function SectionWrap({ icon, title, border, disabled, children, rightAction }: I
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-    <Box border={border} justify="center" >
+    <Box border={border} justify="center" gap='1em'>
       {title && (
         <Box pad={{ top: 'xsmall', horizontal:'small' }} direction="row" fill="horizontal" justify="between" align="center">
           <Box direction="row" gap="xsmall" align="center">

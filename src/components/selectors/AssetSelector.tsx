@@ -94,7 +94,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   return (
     <StyledBox
       fill="horizontal"
-      round
+      round = {{ corner: 'right', size: 'large'}}
       elevation="xsmall"
       background="hoverBackground"
     >

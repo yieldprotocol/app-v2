@@ -28,7 +28,7 @@ const StyledBox = styled(Box)`
 `;
 
 const CardSkeleton = () => (
-  <StyledBox pad="xsmall" round="large" elevation="xsmall" align="center">
+  <StyledBox round="large" elevation="xsmall" align="center">
     <Box pad="small" width="small" direction="row" gap="small" fill>
       <Skeleton circle width={45} height={45} />
       <Box>
@@ -106,22 +106,15 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   return (
     <>
       {cardLayout && (
-        <Box
-          overflow={mobile ? 'auto' : 'hidden'}
-          height={mobile ? undefined : '250px'}
-          pad={{ vertical: 'small' }}
-          gap="small"
-        >
+        <Box gap='small'>
           {strategiesLoading ? (
             <CardSkeleton />
           ) : (
             <Box
               key={selectedStrategy?.address}
-              pad="xsmall"
               round="large"
               background={selectedStrategy?.currentSeries?.color}
               elevation="xsmall"
-              margin="xsmall"
             >
               <Box pad="small" width="small" direction="row" gap="small" fill>
                 <Avatar

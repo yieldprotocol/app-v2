@@ -117,36 +117,43 @@ function Pool() {
                 </Box>
               </YieldCardHeader>
 
-              <Box gap="large">
-                <SectionWrap>
-                  <Box direction="row-responsive" gap="small">
-                    <Box basis={mobile ? '50%' : '60%'}>
-                      <InputWrap action={() => console.log('maxAction')} isError={poolError}>
-                        <TextInput
-                          plain
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Enter Amount"
-                          value={poolInput || ''}
-                          onChange={(event: any) =>
-                            setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))
-                          }
-                        />
-                        <MaxButton
-                          action={() => setPoolInput(maxPool)}
-                          disabled={maxPool === '0'}
-                          clearAction={() => setPoolInput('')}
-                          showingMax={!!poolInput && poolInput === maxPool}
-                        />
-                      </InputWrap>
-                    </Box>
-
-                    <Box basis={mobile ? '50%' : '40%'}>
-                      <AssetSelector />
-                    </Box>
+              <Box gap="medium">
+                <Box direction="row-responsive">
+                  <Box basis={mobile ? '50%' : '60%'}>
+                    <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        inputMode="decimal"
+                        placeholder="Enter Amount"
+                        value={poolInput || ''}
+                        onChange={(event: any) => setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))}
+                      />
+                      <MaxButton
+                        action={() => setPoolInput(maxPool)}
+                        disabled={maxPool === '0'}
+                        clearAction={() => setPoolInput('')}
+                        showingMax={!!poolInput && poolInput === maxPool}
+                      />
+                    </InputWrap>
                   </Box>
+
+                  <Box basis={mobile ? '50%' : '40%'}>
+                    <AssetSelector />
+                  </Box>
+                </Box>
+
+                <SectionWrap
+                  title={
+                    strategyMap.size > 0
+                      ? `Recomended ${selectedBase?.displaySymbol}${
+                          selectedBase && '-based'
+                        } strategy`
+                      : ''
+                  }
+                >
+                  <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
                 </SectionWrap>
-                <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
               </Box>
             </Box>
           )}

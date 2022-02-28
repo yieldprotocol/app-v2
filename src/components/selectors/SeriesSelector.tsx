@@ -24,13 +24,8 @@ background 0.3s ease-in-out;
 }
 `;
 
-const ShadeBox = styled(Box)`
-  /* -webkit-box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); 
-  box-shadow: inset 0px ${(props) => (props ? '-50px' : '50px')} 30px -30px rgba(0,0,0,0.30); */
-`;
-
 const InsetBox = styled(Box)`
-  border-radius: 8px;
+  border-radius: 100px;
   box-shadow: ${(props) =>
     props.theme.dark
       ? 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30'
@@ -204,8 +199,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     <>
       {seriesLoading && !selectedBase && <Skeleton width={180} />}
       {!cardLayout && (
-        <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hoverBackground' : undefined}>
-          <Select
+        <InsetBox fill background={mobile ? 'hoverBackground' : undefined}>
+          <Box flex={false}>
+          <Select     
             plain
             dropProps={{ round: 'small' }}
             id="seriesSelect"
@@ -216,11 +212,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             labelKey={(x: any) => optionText(x)}
             valueLabel={
               options.length ? (
-                <Box pad={mobile ? 'medium' : '0.55em'}>
+                <Box pad={mobile ? 'medium' : undefined }>
                   <Text color="text"> {optionExtended(_selectedSeries!)}</Text>
                 </Box>
               ) : (
-                <Box pad={mobile ? 'medium' : '0.55em'}>
+                <Box pad={mobile ? 'medium' : undefined}>
                   <Text color="text-weak">No available series yet.</Text>
                 </Box>
               )
@@ -229,20 +225,20 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             onChange={({ option }: any) => handleSelect(option)}
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
-              <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
+              <Box pad={mobile ? 'medium' : undefined} gap="small" direction="row">
                 <Text color="text">{optionExtended(x)}</Text>
               </Box>
             )}
           />
+          </Box>
         </InsetBox>
       )}
 
       {cardLayout && (
-        <ShadeBox
-          overflow={mobile ? 'auto' : 'auto'}
-          height={mobile ? undefined : '250px'}
-          pad={{ vertical: 'small', horizontal: 'xsmall' }}
-        >
+        // <ShadeBox
+        //   height={mobile ? undefined : '250px'}
+        //   pad={{ vertical: 'small' }}
+        // >
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {seriesLoading ? (
               <>
@@ -288,7 +284,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               ))
             )}
           </Grid>
-        </ShadeBox>
+        // </ShadeBox>
       )}
     </>
   );
