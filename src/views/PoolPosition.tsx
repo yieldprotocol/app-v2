@@ -204,10 +204,10 @@ const PoolPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Position Actions">
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'hoverBackground' : 'hoverBackground'}>
+                  <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
-                      dropProps={{ round: 'xsmall' }}
+                      dropProps={{ round: 'small' }}
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },

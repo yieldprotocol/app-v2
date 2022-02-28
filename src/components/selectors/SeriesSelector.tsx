@@ -37,8 +37,8 @@ const InsetBox = styled(Box)`
       : 'inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd'};
 `;
 
-export const CardSkeleton = () => (
-  <StyledBox pad="xsmall" round="xsmall" elevation="xsmall" align="center">
+export const CardSkeleton = (props: {rightSide?: boolean}) => (
+  <StyledBox pad="xsmall" elevation="xsmall" align="center" round={{ corner: props.rightSide? 'right': 'left', size: 'large' }}>
     <Box pad="small" width="small" direction="row" align="center" gap="small">
       <Skeleton circle width={45} height={45} />
       <Box>
@@ -46,7 +46,8 @@ export const CardSkeleton = () => (
       </Box>
     </Box>
   </StyledBox>
-);
+)
+CardSkeleton.defaultProps ={ rightSide: false };
 
 interface ISeriesSelectorProps {
   actionType: ActionType;
@@ -206,7 +207,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         <InsetBox fill="horizontal" round="xsmall" background={mobile ? 'hoverBackground' : undefined}>
           <Select
             plain
-            dropProps={{ round: 'xsmall' }}
+            dropProps={{ round: 'small' }}
             id="seriesSelect"
             name="seriesSelect"
             placeholder="Select Series"
@@ -245,21 +246,15 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
           <Grid columns={mobile ? '100%' : '40%'} gap="small">
             {seriesLoading ? (
               <>
-                <CardSkeleton />
-                <CardSkeleton />
-                {!mobile && (
-                  <>
-                    <CardSkeleton />
-                    <CardSkeleton />
-                  </>
-                )}
+                <CardSkeleton  />
+                <CardSkeleton rightSide />
               </>
             ) : (
-              options.map((series: ISeries) => (
+              options.map((series: ISeries, i: number) => (
                 <StyledBox
                   key={series.id}
                   pad="xsmall"
-                  round="xsmall"
+                  round={i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }}
                   onClick={() => handleSelect(series)}
                   background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
                   elevation="xsmall"

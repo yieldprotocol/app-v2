@@ -10,7 +10,7 @@ import EthMark from '../logos/EthMark';
 const NetworkSelector = () => {
   const {
     chainState: {
-      connection: { fallbackChainId },
+      connection: { account, fallbackChainId },
     },
   } = useContext(ChainContext) as IChainContext;
 
@@ -27,14 +27,16 @@ const NetworkSelector = () => {
     setSelectedChainId([...CHAIN_INFO.entries()].find(([, chainInfo]) => chainInfo.name === chainName)![0]);
 
   return (
-    <>
+    <Box round>
       <Select
         plain
+        dropProps={{ round: 'small' }}
+        disabled={!account}
         options={
           currentNetwork === 'Ethereum'
             ? [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" pad="xsmall">
+                <Box direction="row" gap="small" pad="xsmall" round>
                   <ArbitrumLogo />
                   <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
                     Arbitrum
@@ -43,7 +45,7 @@ const NetworkSelector = () => {
               ]
             : [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" pad="xsmall">
+                <Box direction="row" gap="small" pad="xsmall" round>
                   <EthMark />
                   <Text size="small" color={CHAIN_INFO.get(1)?.color}>
                     Ethereum
@@ -60,7 +62,7 @@ const NetworkSelector = () => {
               </Text>
             </Box>
           ) : (
-            <Box direction="row" gap="small">
+            <Box direction="row" gap="small" round>
               <ArbitrumLogo />
               <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
                 {[4, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
@@ -70,7 +72,7 @@ const NetworkSelector = () => {
         }
         onChange={() => handleNetworkChange(currentNetwork === 'Ethereum' ? 'Arbitrum' : 'Ethereum')}
       />
-    </>
+    </Box>
   );
 };
 
