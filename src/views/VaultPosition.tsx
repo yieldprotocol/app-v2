@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Avatar, Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, CheckBox, Grid, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
@@ -283,8 +283,9 @@ const VaultPosition = () => {
         <ModalWrap>
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => history.goBack()} />}
+
             <Box fill pad={mobile ? 'medium' : 'large'} gap="xsmall">
-              <Box height={{ min: '250px' }} gap="2em">
+              <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
                   justify="between"
@@ -292,6 +293,7 @@ const VaultPosition = () => {
                   align="center"
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
+
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={_selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
@@ -304,72 +306,73 @@ const VaultPosition = () => {
                 </Box>
 
                 {_selectedVault?.isActive && (
-                  <Box gap="small">
-                    <InfoBite
-                      label="Maturity date"
-                      value={`${vaultSeries?.displayName}`}
-                      icon={<FiClock color={vaultSeries?.color} />}
-                      loading={vaultsLoading}
-                    />
-                    <InfoBite
-                      label="Vault debt + interest"
-                      value={`${cleanValue(_selectedVault?.accruedArt_, vaultBase?.digitFormat!)} ${
-                        vaultBase?.displaySymbol
-                      }`}
-                      icon={<FiTrendingUp />}
-                      loading={vaultsLoading}
-                    />
-
-                    {_selectedVault?.ink.gt(ZERO_BN) && (
+                  <Box>
+                    <Box gap="small">
                       <InfoBite
-                        label="Collateral posted"
-                        value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
-                        icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                        loading={vaultsLoading}
-                      >
-                        <Box align="center" direction="row">
-                          <Text size="small">({collateralizationPercent}%)</Text>
-                        </Box>
-                      </InfoBite>
-                    )}
-
-                    {_selectedVault?.accruedArt.gt(ZERO_BN) && (
-                      <InfoBite
-                        label="Vault Liquidation"
-                        value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
-                        icon={<FiActivity />}
+                        label="Maturity date"
+                        value={`${vaultSeries?.displayName}`}
+                        icon={<FiClock color={vaultSeries?.color} />}
                         loading={vaultsLoading}
                       />
-                    )}
-
-                    <Box pad="xsmall" />
-
-                    {_selectedVault?.isActive && unhealthyCollatRatio && (
                       <InfoBite
-                        label="Vault is in danger of liquidation"
-                        value={`Minimum collateralization needed is ${minCollatRatioPct}%`}
-                        icon={<FiAlertTriangle size="1.5em" color="red" />}
-                        loading={false}
+                        label="Vault debt + interest"
+                        value={`${cleanValue(_selectedVault?.accruedArt_, vaultBase?.digitFormat!)} ${
+                          vaultBase?.displaySymbol
+                        }`}
+                        icon={<FiTrendingUp />}
+                        loading={vaultsLoading}
                       />
-                    )}
 
-                    {!_selectedVault?.isActive && !_selectedVault?.isWitchOwner && (
-                      <InfoBite
-                        label="The connected account no longer owns this vault"
-                        value={` Vault ${_selectedVault?.id} has either been transfered, deleted or liquidated`}
-                        icon={<FiAlertTriangle size="1.5em" color="red" />}
-                        loading={false}
-                      />
-                    )}
+                      {_selectedVault?.ink.gt(ZERO_BN) && (
+                        <InfoBite
+                          label="Collateral posted"
+                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
+                          icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                          loading={vaultsLoading}
+                        >
+                          <Box align="center" direction="row">
+                            <Text size="small">({collateralizationPercent}%)</Text>
+                          </Box>
+                        </InfoBite>
+                      )}
 
-                    {_selectedVault?.isWitchOwner && (
-                      <InfoBite
-                        label="Liquidation in progress."
-                        value="This vault is in the process of being liquidated and the account no longer owns this vault"
-                        icon={<FiAlertTriangle size="1.5em" color="red" />}
-                        loading={false}
-                      />
-                    )}
+                      {_selectedVault?.accruedArt.gt(ZERO_BN) && (
+                        <InfoBite
+                          label="Vault Liquidation"
+                          value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
+                          icon={<FiActivity />}
+                          loading={vaultsLoading}
+                        />
+                      )}
+                    </Box>
+                    <Box margin={{ top: 'small' }}>
+                      {_selectedVault?.isActive && unhealthyCollatRatio && (
+                        <InfoBite
+                          label="Vault is in danger of liquidation"
+                          value={`Minimum collateralization needed is ${minCollatRatioPct}%`}
+                          icon={<FiAlertTriangle size="1.5em" color="red" />}
+                          loading={false}
+                        />
+                      )}
+
+                      {!_selectedVault?.isActive && !_selectedVault?.isWitchOwner && (
+                        <InfoBite
+                          label="The connected account no longer owns this vault"
+                          value={`Vault ${_selectedVault?.id} has either been transfered, deleted or liquidated`}
+                          icon={<FiAlertTriangle size="1.5em" color="red" />}
+                          loading={false}
+                        />
+                      )}
+
+                      {_selectedVault?.isWitchOwner && (
+                        <InfoBite
+                          label="Liquidation in progress."
+                          value="This vault is in the process of being liquidated and the account no longer owns this vault"
+                          icon={<FiAlertTriangle size="1.5em" color="red" />}
+                          loading={false}
+                        />
+                      )}
+                    </Box>
                   </Box>
                 )}
               </Box>

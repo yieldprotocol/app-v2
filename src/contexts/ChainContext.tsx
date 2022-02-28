@@ -284,18 +284,13 @@ const ChainProvider = ({ children }: any) => {
             let symbol: string;
             let decimals: number;
             let version: string;
-            let domain: string|undefined;
+            let domain: string | undefined;
 
             try {
-              [name, symbol, decimals ] = await Promise.all([
-                ERC20.name(),
-                ERC20.symbol(),
-                ERC20.decimals(),
-              ]);
+              [name, symbol, decimals] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
             } catch (e) {
-              
               /* TODO look at finding a better way to handle the pimple that is the Maker Token */
-              console.log( 'Trying rsolve maker TOKEN ' );
+              console.log('Trying rsolve maker TOKEN ');
               const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
               const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
               const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
@@ -305,14 +300,14 @@ const ChainProvider = ({ children }: any) => {
             }
 
             /* try to get the token version if available */
-            try { 
+            try {
               version = await ERC20.version();
             } catch (e) {
               version = '1';
             }
 
-            /* try to get hte domain_seperator if available */
-            try { 
+            /* try to get the domain_seperator if available */
+            try {
               domain = await ERC20.DOMAIN_SEPARATOR();
             } catch (e) {
               domain = undefined;
@@ -412,7 +407,7 @@ const ChainProvider = ({ children }: any) => {
           Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
           Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
         ]).catch(() => {
-          console.log('Fallback to hardcorded ASSET information required.');
+          console.log('Fallback to hardcoded ASSET information required.');
           return [[], []];
         });
 
