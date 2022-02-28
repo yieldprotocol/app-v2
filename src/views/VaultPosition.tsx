@@ -293,7 +293,6 @@ const VaultPosition = () => {
                   align="center"
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
-
                   <Box direction="row" align="center" gap="medium">
                     <PositionAvatar position={_selectedVault!} actionType={ActionType.BORROW} />
                     <Box>
@@ -377,9 +376,9 @@ const VaultPosition = () => {
                 )}
               </Box>
 
-              <Box height={{ min: '300px' }} >
+              <Box height={{ min: '300px' }}>
                 <SectionWrap title="Vault Actions">
-                  <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'} >
+                  <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       dropProps={{ round: 'small' }}
                       plain
@@ -526,7 +525,7 @@ const VaultPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="xsmall" >
+                      <Box margin={{ top: 'medium' }} gap="xsmall">
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.BORROW}
