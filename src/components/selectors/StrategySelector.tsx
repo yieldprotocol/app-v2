@@ -28,7 +28,7 @@ const StyledBox = styled(Box)`
 `;
 
 const CardSkeleton = () => (
-  <StyledBox pad="xsmall" round="xsmall" elevation="xsmall" align="center">
+  <StyledBox pad="xsmall" round="large" elevation="xsmall" align="center">
     <Box pad="small" width="small" direction="row" gap="small" fill>
       <Skeleton circle width={45} height={45} />
       <Box>
