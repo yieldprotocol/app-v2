@@ -566,7 +566,7 @@ const VaultPosition = () => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }}>
-                        <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
+                        <InputWrap action={() => console.log('maxAction')} isError={addCollatError} round>
                           <TextInput
                             // disabled={removeCollatInput}
                             plain
@@ -623,7 +623,7 @@ const VaultPosition = () => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }}>
-                        <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
+                        <InputWrap action={() => console.log('maxAction')} isError={removeCollatError} round>
                           <TextInput
                             // disabled={addCollatInput}
                             plain

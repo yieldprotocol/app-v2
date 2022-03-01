@@ -132,7 +132,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     if (_series) {
       return `${mobile ? _series.displayNameMobile : _series.displayName}`;
     }
-    return 'Select a maturity date';
+    return 'Select a future maturity';
   };
 
   const optionExtended = (_series: ISeries | undefined) => (
