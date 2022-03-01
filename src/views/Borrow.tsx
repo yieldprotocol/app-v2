@@ -253,7 +253,6 @@ const Borrow = () => {
           <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="large">
-                
                 <YieldCardHeader>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
@@ -308,28 +307,26 @@ const Borrow = () => {
                   )}
                 </Box>
 
-
-                  {!borrowInputError && borrowInput && !borrowPossible && selectedSeries && (
-                    <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
-                      <Text size="xsmall" color="text-weak">
-                        Max borrow is{' '}
-                        <Text size="small" color="text-weak">
-                          {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
-                        </Text>{' '}
-                        (limited by protocol liquidity)
-                      </Text>
-                    </InputInfoWrap>
-                  )}
-                  {!borrowInputError && borrowInput && borrowPossible && selectedSeries && (
-                    // minCollateral.gt(selectedSeries.) &&
-                    <InputInfoWrap>
+                {!borrowInputError && borrowInput && !borrowPossible && selectedSeries && (
+                  <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                    <Text size="xsmall" color="text-weak">
+                      Max borrow is{' '}
                       <Text size="small" color="text-weak">
-                        Requires equivalent of {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
-                        {selectedIlk?.displaySymbol} collateral
-                      </Text>
-                    </InputInfoWrap>
-                  )}
-
+                        {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
+                      </Text>{' '}
+                      (limited by protocol liquidity)
+                    </Text>
+                  </InputInfoWrap>
+                )}
+                {!borrowInputError && borrowInput && borrowPossible && selectedSeries && (
+                  // minCollateral.gt(selectedSeries.) &&
+                  <InputInfoWrap>
+                    <Text size="small" color="text-weak">
+                      Requires equivalent of {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
+                      {selectedIlk?.displaySymbol} collateral
+                    </Text>
+                  </InputInfoWrap>
+                )}
               </Box>
             )}
 
@@ -378,7 +375,7 @@ const Borrow = () => {
                     </Box>
                   </Box>
 
-                  <Box gap="xlarge">
+                  <Box gap="small">
                     <SectionWrap title="Amount of collateral to add">
                       <Box direction="row-responsive">
                         <Box basis={mobile ? undefined : '60%'} fill="horizontal">
@@ -386,24 +383,6 @@ const Borrow = () => {
                             action={() => console.log('maxAction')}
                             disabled={!selectedSeries}
                             isError={collatInputError}
-                            message={
-                              !mobile ? (
-                                borrowInput &&
-                                minSafeCollateral && (
-                                  <InputInfoWrap
-                                    action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
-                                  >
-                                    <Text size="small" color="text-weak">
-                                      Use Safe Collateralization{': '}
-                                      {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)}{' '}
-                                      {selectedIlk?.displaySymbol}
-                                    </Text>
-                                  </InputInfoWrap>
-                                )
-                              ) : (
-                                <></>
-                              )
-                            }
                           >
                             <TextInput
                               plain
@@ -446,6 +425,19 @@ const Borrow = () => {
                         </SectionWrap>
                       )}
                     </Box>
+
+                    {borrowInput && minSafeCollateral && (
+                      <Box margin={{ top: 'small' }}>
+                        <InputInfoWrap
+                          action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
+                        >
+                          <Text size="small" color="text-weak">
+                            Use Safe Collateralization{': '}
+                            {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
+                          </Text>
+                        </InputInfoWrap>
+                      </Box>
+                    )}
                   </Box>
                 </Box>
               </Box>

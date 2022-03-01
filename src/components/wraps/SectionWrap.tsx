@@ -15,7 +15,7 @@ interface ISectionWrap {
 function SectionWrap({ icon, title, border, disabled, children, rightAction }: ISectionWrap) {
 
   return (
-    <Box border={border} justify="center" gap='1em'>
+    <Box border={border} gap='1em'>
       {title && (
         <Box pad={{ horizontal:'small' }} direction="row" fill="horizontal" justify="between" align="center">
           <Box direction="row" gap="xsmall" align="center">

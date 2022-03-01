@@ -197,11 +197,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     <>
       {seriesLoading && <Skeleton width={180} />}
       {!cardLayout && (
-        <InsetBox fill background={mobile ? 'hoverBackground' : undefined}>
-          <Box flex={false}>
+
+        <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select     
             plain
-            dropProps={{ round: 'small' }}
+            dropProps={{ round: 'large' }}
             id="seriesSelect"
             name="seriesSelect"
             placeholder="Select Series"
@@ -210,11 +210,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             labelKey={(x: any) => optionText(x)}
             valueLabel={
               options.length ? (
-                <Box pad={mobile ? 'medium' : undefined }>
+                <Box pad={mobile ? 'medium' : 'small' } >
                   <Text color="text"> {optionExtended(_selectedSeries!)}</Text>
                 </Box>
               ) : (
-                <Box pad={mobile ? 'medium' : undefined}>
+                <Box pad={mobile ? 'medium' : 'small'}>
                   <Text color="text-weak">No available series yet.</Text>
                 </Box>
               )
@@ -223,12 +223,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             onChange={({ option }: any) => handleSelect(option)}
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
-              <Box pad={mobile ? 'medium' : undefined} gap="small" direction="row">
+              <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
                 <Text color="text">{optionExtended(x)}</Text>
               </Box>
             )}
           />
-          </Box>
         </InsetBox>
       )}
 
