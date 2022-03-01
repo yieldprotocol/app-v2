@@ -8,12 +8,14 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
   const { green, yellow } = theme.global.colors;
   return (
     <BoxWrap
-      pad={{ horizontal: "small"}}
+      pad={{ horizontal: 'small' }}
       direction="row"
       align="center"
       animation={action ? undefined : 'zoomIn'}
       onClick={action ? () => action() : undefined}
       fill="horizontal"
+      gap="small"
+      margin={{ top: 'xsmall' }}
     >
       {action ? (
         <Box>
