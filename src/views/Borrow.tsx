@@ -253,6 +253,7 @@ const Borrow = () => {
           <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="large">
+                
                 <YieldCardHeader>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
@@ -265,13 +266,11 @@ const Borrow = () => {
                     </AltText>
                   </Box>
                 </YieldCardHeader>
+
                 <Box gap="medium">
                   <Box direction="row-responsive">
                     <Box basis={mobile ? undefined : '60%'}>
-                      <InputWrap 
-                        action={() => console.log('maxAction')} 
-                        isError={borrowInputError}
-                      >
+                      <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                         <TextInput
                           plain
                           type="number"
@@ -300,7 +299,7 @@ const Borrow = () => {
                     <SectionWrap
                       title={
                         seriesMap.size > 0
-                          ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates`
+                          ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
                           : ''
                       }
                     >
@@ -309,37 +308,33 @@ const Borrow = () => {
                   )}
                 </Box>
 
-                {!mobile ? (
-                  <Box>
-                    {borrowInput && !borrowPossible && selectedSeries && (
-                      <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
-                        <Text size="xsmall" color="text-weak">
-                          Max borrow is{' '}
-                          <Text size="small" color="text-weak">
-                            {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
-                          </Text>{' '}
-                          (limited by protocol liquidity)
-                        </Text>
-                      </InputInfoWrap>
-                    )}
-                    {borrowInput && borrowPossible && selectedSeries && (
-                      // minCollateral.gt(selectedSeries.) &&
-                      <InputInfoWrap>
+
+                  {!borrowInputError && borrowInput && !borrowPossible && selectedSeries && (
+                    <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                      <Text size="xsmall" color="text-weak">
+                        Max borrow is{' '}
                         <Text size="small" color="text-weak">
-                          Requires equivalent of {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
-                          {selectedIlk?.displaySymbol} collateral
-                        </Text>
-                      </InputInfoWrap>
-                    )}
-                  </Box>
-                ) : (
-                  <></>
-                )}
+                          {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
+                        </Text>{' '}
+                        (limited by protocol liquidity)
+                      </Text>
+                    </InputInfoWrap>
+                  )}
+                  {!borrowInputError && borrowInput && borrowPossible && selectedSeries && (
+                    // minCollateral.gt(selectedSeries.) &&
+                    <InputInfoWrap>
+                      <Text size="small" color="text-weak">
+                        Requires equivalent of {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
+                        {selectedIlk?.displaySymbol} collateral
+                      </Text>
+                    </InputInfoWrap>
+                  )}
+
               </Box>
             )}
 
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap='medium'>
+              <Box gap="medium">
                 <YieldCardHeader>
                   <BackButton action={() => handleNavAction(0)} />
                 </YieldCardHeader>

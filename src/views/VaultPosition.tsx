@@ -401,74 +401,8 @@ const VaultPosition = () => {
                 {actionActive.index === 0 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="medium">
-                        <InputWrap
-                          action={() => console.log('maxAction')}
-                          isError={repayError}
-                          message={
-                            <>
-                              {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
-                                <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
-                                  {_selectedVault.accruedArt.gt(maxRepay) ? (
-                                    <Text color="text" alignSelf="end" size="xsmall">
-                                      Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
-                                      {!protocolLimited
-                                        ? '(based on your token balance)'
-                                        : '(limited by protocol reserves)'}
-                                    </Text>
-                                  ) : (
-                                    <Text color="text" alignSelf="end" size="xsmall">
-                                      Max debt repayable ({_selectedVault?.accruedArt_!} {vaultBase?.displaySymbol!})
-                                    </Text>
-                                  )}
-                                </InputInfoWrap>
-                              )}
-
-                              {!repayInput &&
-                                minDebt?.gt(ZERO_BN) &&
-                                _selectedVault.accruedArt.gt(ZERO_BN) &&
-                                minDebt.gt(_selectedVault.accruedArt) && (
-                                  <InputInfoWrap>
-                                    <Text size="xsmall">Your debt is below the current minimumn debt requirement.</Text>
-                                    <Text size="xsmall">(It is only possible to repay the full debt)</Text>
-                                  </InputInfoWrap>
-                                )}
-
-                              {protocolLimited && (
-                                <InputInfoWrap>
-                                  <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
-                                </InputInfoWrap>
-                              )}
-
-                              {repayInput && !repayError && debtAfterRepay && (
-                                <InputInfoWrap>
-                                  {repayCollEst && parseFloat(repayCollEst) > 10000 && !debtAfterRepay.eq(ZERO_BN) && (
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Repaying this amount will leave a small amount of debt.
-                                    </Text>
-                                  )}
-
-                                  {repayCollEst &&
-                                    parseFloat(repayCollEst) < 10000 &&
-                                    parseFloat(repayCollEst) !== 0 &&
-                                    !debtAfterRepay.eq(ZERO_BN) && (
-                                      <Text color="text-weak" alignSelf="end" size="xsmall">
-                                        Collateralization ratio after repayment:{' '}
-                                        {nFormatter(parseFloat(repayCollEst), 2)}%
-                                      </Text>
-                                    )}
-
-                                  {debtAfterRepay?.eq(ZERO_BN) && (
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      All debt will be repaid ( {_selectedVault?.accruedArt_!}{' '}
-                                      {vaultBase?.displaySymbol!} ).
-                                    </Text>
-                                  )}
-                                </InputInfoWrap>
-                              )}
-                            </>
-                          }
-                        >
+                      <Box margin={{ top: 'small' }}>
+                        <InputWrap action={() => console.log('maxAction')} isError={repayError}>
                           <TextInput
                             plain
                             type="number"
@@ -487,6 +421,62 @@ const VaultPosition = () => {
                             showingMax={!!repayInput && repayInput === maxRepay_}
                           />
                         </InputWrap>
+
+                        {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
+                          <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
+                            {_selectedVault.accruedArt.gt(maxRepay) ? (
+                              <Text color="text" alignSelf="end" size="xsmall">
+                                Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
+                                {!protocolLimited ? '(based on your token balance)' : '(limited by protocol reserves)'}
+                              </Text>
+                            ) : (
+                              <Text color="text" alignSelf="end" size="xsmall">
+                                Max debt repayable ({_selectedVault?.accruedArt_!} {vaultBase?.displaySymbol!})
+                              </Text>
+                            )}
+                          </InputInfoWrap>
+                        )}
+
+                        {!repayInput &&
+                          minDebt?.gt(ZERO_BN) &&
+                          _selectedVault.accruedArt.gt(ZERO_BN) &&
+                          minDebt.gt(_selectedVault.accruedArt) && (
+                            <InputInfoWrap>
+                              <Text size="xsmall">Your debt is below the current minimumn debt requirement.</Text>
+                              <Text size="xsmall">(It is only possible to repay the full debt)</Text>
+                            </InputInfoWrap>
+                          )}
+
+                        {protocolLimited && (
+                          <InputInfoWrap>
+                            <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
+                          </InputInfoWrap>
+                        )}
+
+                        {repayInput && !repayError && debtAfterRepay && (
+                          <InputInfoWrap>
+                            {repayCollEst && parseFloat(repayCollEst) > 10000 && !debtAfterRepay.eq(ZERO_BN) && (
+                              <Text color="text-weak" alignSelf="end" size="xsmall">
+                                Repaying this amount will leave a small amount of debt.
+                              </Text>
+                            )}
+
+                            {repayCollEst &&
+                              parseFloat(repayCollEst) < 10000 &&
+                              parseFloat(repayCollEst) !== 0 &&
+                              !debtAfterRepay.eq(ZERO_BN) && (
+                                <Text color="text-weak" alignSelf="end" size="xsmall">
+                                  Collateralization ratio after repayment: {nFormatter(parseFloat(repayCollEst), 2)}%
+                                </Text>
+                              )}
+
+                            {debtAfterRepay?.eq(ZERO_BN) && (
+                              <Text color="text-weak" alignSelf="end" size="xsmall">
+                                All debt will be repaid ( {_selectedVault?.accruedArt_!} {vaultBase?.displaySymbol!} ).
+                              </Text>
+                            )}
+                          </InputInfoWrap>
+                        )}
                       </Box>
                     )}
 
@@ -525,7 +515,7 @@ const VaultPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="xsmall">
+                      <Box margin={{ top: 'small' }}>
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.BORROW}
@@ -574,26 +564,8 @@ const VaultPosition = () => {
                 {actionActive.index === 2 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }}>
-                        <InputWrap
-                          action={() => console.log('maxAction')}
-                          isError={addCollatError}
-                          message={
-                            !addCollatInput ? (
-                              <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
-                                <Text size="xsmall" color="text-weak">
-                                  Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
-                                </Text>
-                              </InputInfoWrap>
-                            ) : (
-                              <InputInfoWrap>
-                                <Text color="text" alignSelf="end" size="xsmall">
-                                  New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
-                                </Text>
-                              </InputInfoWrap>
-                            )
-                          }
-                        >
+                      <Box margin={{ top: 'small' }}>
+                        <InputWrap action={() => console.log('maxAction')} isError={addCollatError}>
                           <TextInput
                             // disabled={removeCollatInput}
                             plain
@@ -613,6 +585,20 @@ const VaultPosition = () => {
                             showingMax={!!addCollatInput && addCollatInput === maxCollateral}
                           />
                         </InputWrap>
+
+                        {!addCollatInput ? (
+                          <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
+                            <Text size="xsmall" color="text-weak">
+                              Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
+                            </Text>
+                          </InputInfoWrap>
+                        ) : (
+                          <InputInfoWrap>
+                            <Text color="text" alignSelf="end" size="xsmall">
+                              New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
+                            </Text>
+                          </InputInfoWrap>
+                        )}
                       </Box>
                     )}
 
@@ -635,34 +621,8 @@ const VaultPosition = () => {
                 {actionActive.index === 3 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }}>
-                        <InputWrap
-                          action={() => console.log('maxAction')}
-                          isError={removeCollatError}
-                          message={
-                            !removeCollatInput ? (
-                              <InputInfoWrap action={() => setRemoveCollatInput(maxRemovableCollateral)}>
-                                <Text size="xsmall" color="text-weak">
-                                  Max removable collateral: {cleanValue(maxRemovableCollateral, 6)}{' '}
-                                  {vaultIlk?.displaySymbol!}
-                                </Text>
-                              </InputInfoWrap>
-                            ) : (
-                              <InputInfoWrap>
-                                <Box>
-                                  <Text color="text" alignSelf="start" size="xsmall">
-                                    Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
-                                  </Text>
-                                  {removeCollEstUnhealthyRatio && (
-                                    <Text color="red" alignSelf="start" size="xsmall">
-                                      Removing this much collateral will make the vault in danger of liquidation
-                                    </Text>
-                                  )}
-                                </Box>
-                              </InputInfoWrap>
-                            )
-                          }
-                        >
+                      <Box margin={{ top: 'small' }}>
+                        <InputWrap action={() => console.log('maxAction')} isError={removeCollatError}>
                           <TextInput
                             // disabled={addCollatInput}
                             plain
@@ -681,6 +641,28 @@ const VaultPosition = () => {
                             showingMax={!!removeCollatInput && maxRemovableCollateral === removeCollatInput}
                           />
                         </InputWrap>
+
+                        {!removeCollatInput ? (
+                          <InputInfoWrap action={() => setRemoveCollatInput(maxRemovableCollateral)}>
+                            <Text size="xsmall" color="text-weak">
+                              Max removable collateral: {cleanValue(maxRemovableCollateral, 6)}{' '}
+                              {vaultIlk?.displaySymbol!}
+                            </Text>
+                          </InputInfoWrap>
+                        ) : (
+                          <InputInfoWrap>
+                            <Box>
+                              <Text color="text" alignSelf="start" size="xsmall">
+                                Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
+                              </Text>
+                              {removeCollEstUnhealthyRatio && (
+                                <Text color="red" alignSelf="start" size="xsmall">
+                                  Removing this much collateral will put the vault in danger of liquidation
+                                </Text>
+                              )}
+                            </Box>
+                          </InputInfoWrap>
+                        )}
                       </Box>
                     )}
 

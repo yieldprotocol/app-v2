@@ -207,8 +207,7 @@ const LendPosition = () => {
                 </SectionWrap>
               </Box>
 
-              <Box gap='small' fill>
-
+              <Box gap="small" fill>
                 <SectionWrap title="Position Actions" icon={<FiTool />}>
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
@@ -232,23 +231,11 @@ const LendPosition = () => {
                 {actionActive.index === 0 && (
                   <>
                     {stepPosition[0] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="medium">
+                      <Box margin={{ top: 'small' }}>
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={closeError}
                           disabled={!selectedSeries}
-                          message={
-                            <>
-                              {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
-                                <InputInfoWrap action={() => setCloseInput(maxClose_)}>
-                                  <Text color="text" alignSelf="end" size="xsmall">
-                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
-                                    {selectedSeries.baseReserves.eq(maxClose) && ' (limited by protocol)'}
-                                  </Text>
-                                </InputInfoWrap>
-                              )}
-                            </>
-                          }
                         >
                           <TextInput
                             plain
@@ -269,6 +256,15 @@ const LendPosition = () => {
                             showingMax={!!closeInput && closeInput === maxClose_}
                           />
                         </InputWrap>
+
+                        {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
+                          <InputInfoWrap action={() => setCloseInput(maxClose_)}>
+                            <Text color="text" alignSelf="end" size="xsmall">
+                              Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
+                              {selectedSeries.baseReserves.eq(maxClose) && ' (limited by protocol)'}
+                            </Text>
+                          </InputInfoWrap>
+                        )}
                       </Box>
                     )}
 
@@ -292,8 +288,7 @@ const LendPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="xsmall" >
-        
+                      <Box margin={{ top: 'small' }}>
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
