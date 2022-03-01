@@ -55,7 +55,6 @@ import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrat
 import YieldNavigation from '../components/YieldNavigation';
 import VaultItem from '../components/positionItems/VaultItem';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useAssetPair } from '../hooks/useAssetPair';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -252,8 +251,9 @@ const Borrow = () => {
 
         <CenterPanelWrap series={selectedSeries || undefined}>
           <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
+            
             {stepPosition === 0 && ( // INITIAL STEP
-              <Box fill gap="large">
+              <Box gap="large">
                 <YieldCardHeader>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
@@ -267,42 +267,10 @@ const Borrow = () => {
                   </Box>
                 </YieldCardHeader>
 
-                <SectionWrap>
-                  <Box direction="row-responsive" gap="small">
+                <Box gap="medium">
+                  <Box direction="row-responsive">
                     <Box basis={mobile ? undefined : '60%'}>
-                      <InputWrap
-                        action={() => console.log('maxAction')}
-                        isError={borrowInputError}
-                        message={
-                          !mobile ? (
-                            <>
-                              {borrowInput && !borrowPossible && selectedSeries && (
-                                <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
-                                  <Text size="xsmall" color="text-weak">
-                                    Max borrow is{' '}
-                                    <Text size="small" color="text-weak">
-                                      {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
-                                    </Text>{' '}
-                                    (limited by protocol liquidity)
-                                  </Text>
-                                </InputInfoWrap>
-                              )}
-                              {borrowInput && borrowPossible && selectedSeries && (
-                                // minCollateral.gt(selectedSeries.) &&
-                                <InputInfoWrap>
-                                  <Text size="small" color="text-weak">
-                                    Requires equivalent of{' '}
-                                    {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
-                                    {selectedIlk?.displaySymbol} collateral
-                                  </Text>
-                                </InputInfoWrap>
-                              )}
-                            </>
-                          ) : (
-                            <></>
-                          )
-                        }
-                      >
+                      <InputWrap action={() => console.log('maxAction')} isError={borrowInputError}>
                         <TextInput
                           plain
                           type="number"
@@ -320,139 +288,158 @@ const Borrow = () => {
                       <AssetSelector />
                     </Box>
                   </Box>
-                </SectionWrap>
+                  {mobile ? (
+                    <SeriesOrStrategySelectorModal
+                      inputValue={borrowInput}
+                      actionType={ActionType.BORROW}
+                      open={modalOpen}
+                      setOpen={toggleModal}
+                    />
+                  ) : (
+                    <SectionWrap
+                      title={
+                        seriesMap.size > 0
+                          ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
+                          : ''
+                      }
+                    >
+                      <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
+                    </SectionWrap>
+                  )}
+                </Box>
 
-                {mobile ? (
-                  <SeriesOrStrategySelectorModal
-                    inputValue={borrowInput}
-                    actionType={ActionType.BORROW}
-                    open={modalOpen}
-                    setOpen={toggleModal}
-                  />
-                ) : (
-                  <SectionWrap
-                    title={
-                      seriesMap.size > 0
-                        ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates`
-                        : ''
-                    }
-                  >
-                    <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
-                  </SectionWrap>
+                {!borrowInputError && borrowInput && !borrowPossible && selectedSeries && (
+                  <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                    <Text size="xsmall" color="text-weak">
+                      Max borrow is{' '}
+                      <Text size="small" color="text-weak">
+                        {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
+                      </Text>{' '}
+                      (limited by protocol liquidity)
+                    </Text>
+                  </InputInfoWrap>
+                )}
+                {!borrowInputError && borrowInput && borrowPossible && selectedSeries && (
+                  // minCollateral.gt(selectedSeries.) &&
+                  <InputInfoWrap>
+                    <Text size="small" color="text-weak">
+                      Requires equivalent of {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
+                      {selectedIlk?.displaySymbol} collateral
+                    </Text>
+                  </InputInfoWrap>
                 )}
               </Box>
             )}
 
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap={mobile ? undefined : 'medium'}>
+              <Box gap="medium">
                 <YieldCardHeader>
                   <BackButton action={() => handleNavAction(0)} />
                 </YieldCardHeader>
 
-                <Box gap="large" height="100%">
-                  <SectionWrap>
-                    <Box
-                      pad="medium"
-                      direction="row"
-                      gap="large"
-                      justify="center"
-                      round="small"
-                      background="gradient-transparent"
-                    >
-                      <Box justify="center">
-                        <Gauge
-                          value={parseFloat(collateralizationPercent!)}
-                          size={mobile ? '6em' : '8em'}
-                          mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
-                          setColor={handleGaugeColorChange}
-                        />
-                      </Box>
-
-                      <Box align="center" gap="small">
-                        <Box align="center">
-                          <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                            Collateralization
-                          </Text>
-                          <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
-                            {parseFloat(collateralizationPercent!) > 10000
-                              ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                              : parseFloat(collateralizationPercent!)}
-                            %
-                          </Text>
-                        </Box>
-                        <Box align="center" direction="row" gap="xsmall">
-                          <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                            {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
-                          </Text>
-                          <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </SectionWrap>
-
-                  <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row-responsive" gap="medium">
-                      <Box basis={mobile ? undefined : '60%'} fill="horizontal">
-                        <InputWrap
-                          action={() => console.log('maxAction')}
-                          disabled={!selectedSeries}
-                          isError={collatInputError}
-                          message={
-                            !mobile ? (
-                              borrowInput &&
-                              minSafeCollateral && (
-                                <InputInfoWrap
-                                  action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
-                                >
-                                  <Text size="small" color="text-weak">
-                                    Use Safe Collateralization{': '}
-                                    {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)}{' '}
-                                    {selectedIlk?.displaySymbol}
-                                  </Text>
-                                </InputInfoWrap>
-                              )
-                            ) : (
-                              <></>
-                            )
-                          }
-                        >
-                          <TextInput
-                            plain
-                            type="number"
-                            placeholder="Enter amount"
-                            // ref={(el:any) => { el && el.focus(); }}
-                            value={collatInput}
-                            onChange={(event: any) =>
-                              setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
-                            }
-                            disabled={!selectedSeries || selectedSeries.seriesIsMature}
-                          />
-                          <MaxButton
-                            action={() => maxCollateral && setCollatInput(maxCollateral)}
-                            disabled={!selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature}
-                            clearAction={() => setCollatInput('')}
-                            showingMax={!!collatInput && collatInput === maxCollateral}
-                          />
-                        </InputWrap>
-                      </Box>
-                      <Box basis={mobile ? undefined : '40%'}>
-                        <AssetSelector selectCollateral />
-                      </Box>
-                    </Box>
-                  </SectionWrap>
-
-                  {matchingVaults.length > 0 && (
-                    <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                      <VaultDropSelector
-                        vaults={matchingVaults}
-                        handleSelect={(option: any) => setVaultToUse(option)}
-                        itemSelected={vaultToUse}
-                        displayName="Create New Vault"
-                        placeholder="Create New Vault"
-                        defaultOptionValue="Create New Vault"
+                <Box gap="medium" height="100%">
+                  <Box
+                    pad="medium"
+                    direction="row"
+                    gap="large"
+                    justify="center"
+                    round="small"
+                    background="gradient-transparent"
+                  >
+                    <Box justify="center">
+                      <Gauge
+                        value={parseFloat(collateralizationPercent!)}
+                        size={mobile ? '6em' : '8em'}
+                        mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                        setColor={handleGaugeColorChange}
                       />
+                    </Box>
+
+                    <Box align="center" gap="small">
+                      <Box align="center">
+                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                          Collateralization
+                        </Text>
+                        <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
+                          {parseFloat(collateralizationPercent!) > 10000
+                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                            : parseFloat(collateralizationPercent!)}
+                          %
+                        </Text>
+                      </Box>
+                      <Box align="center" direction="row" gap="xsmall">
+                        <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
+                          {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
+                        </Text>
+                        <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
+                      </Box>
+                    </Box>
+                  </Box>
+
+                  <Box gap="small">
+                    <SectionWrap title="Amount of collateral to add">
+                      <Box direction="row-responsive">
+                        <Box basis={mobile ? undefined : '60%'} fill="horizontal">
+                          <InputWrap
+                            action={() => console.log('maxAction')}
+                            disabled={!selectedSeries}
+                            isError={collatInputError}
+                          >
+                            <TextInput
+                              plain
+                              type="number"
+                              placeholder="Enter amount"
+                              // ref={(el:any) => { el && el.focus(); }}
+                              value={collatInput}
+                              onChange={(event: any) =>
+                                setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
+                              }
+                              disabled={!selectedSeries || selectedSeries.seriesIsMature}
+                            />
+                            <MaxButton
+                              action={() => maxCollateral && setCollatInput(maxCollateral)}
+                              disabled={
+                                !selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature
+                              }
+                              clearAction={() => setCollatInput('')}
+                              showingMax={!!collatInput && collatInput === maxCollateral}
+                            />
+                          </InputWrap>
+                        </Box>
+                        <Box basis={mobile ? undefined : '40%'}>
+                          <AssetSelector selectCollateral />
+                        </Box>
+                      </Box>
                     </SectionWrap>
-                  )}
+
+                    <Box flex={false}>
+                      {matchingVaults.length > 0 && (
+                        <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                          <VaultDropSelector
+                            vaults={matchingVaults}
+                            handleSelect={(option: any) => setVaultToUse(option)}
+                            itemSelected={vaultToUse}
+                            displayName="Create New Vault"
+                            placeholder="Create New Vault"
+                            defaultOptionValue="Create New Vault"
+                          />
+                        </SectionWrap>
+                      )}
+                    </Box>
+
+                    {borrowInput && minSafeCollateral && (
+                      <Box margin={{ top: 'small' }}>
+                        <InputInfoWrap
+                          action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
+                        >
+                          <Text size="small" color="text-weak">
+                            Use Safe Collateralization{': '}
+                            {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
+                          </Text>
+                        </InputInfoWrap>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             )}

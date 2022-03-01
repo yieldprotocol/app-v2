@@ -52,7 +52,7 @@ const SlippageSetting = () => {
             <BoxWrap
               background={tolerance === slippageTolerance ? 'gradient-transparent' : 'lightBackground'}
               elevation={tolerance === slippageTolerance ? 'small' : undefined}
-              round="xsmall"
+              round
               key={tolerance}
               onClick={() => handlePresetChange(tolerance)}
               align="center"
@@ -65,7 +65,7 @@ const SlippageSetting = () => {
           <Box>
             <Box
               direction="row"
-              round="xsmall"
+              round
               border={{ color: 'lightgrey' }}
               background={customTolerance ? 'gradient-transparent' : 'lightBackground'}
               pad="0.25em"

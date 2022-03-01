@@ -59,7 +59,7 @@ export const yieldTheme = {
       placeholder: 'text-xweak',
 
       lightBackground: {
-        dark: '#1a1a1a',
+        dark: '#151515',
         light: '#FFFFFF',
       },
       background: {
