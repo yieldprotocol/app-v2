@@ -8,20 +8,22 @@ function InputInfoWrap({ action, index, children }: { children: any; index?: num
   const { green, yellow } = theme.global.colors;
   return (
     <BoxWrap
-      pad="xsmall"
+      pad={{ horizontal: 'small' }}
       direction="row"
       align="center"
       animation={action ? undefined : 'zoomIn'}
       onClick={action ? () => action() : undefined}
       fill="horizontal"
+      gap="small"
+      margin={{ top: 'xsmall' }}
     >
       {action ? (
         <Box>
-          <FiPlayCircle size="1.2rem" color={green} />
+          <FiPlayCircle size="1.75rem" color={green} />
         </Box>
       ) : (
         <Box>
-          <FiInfo size="1.2rem" color={yellow} />
+          <FiInfo size="1.75rem" color={yellow} />
         </Box>
       )}
       <Box pad="small">{children}</Box>

@@ -154,8 +154,8 @@ const LendPosition = () => {
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => history.goBack()} />}
 
-            <Box fill gap="small" pad={mobile ? 'medium' : 'large'}>
-              <Box height={{ min: '250px' }} gap="2em">
+            <Box pad={mobile ? 'medium' : 'large'} gap='1em'  >
+              <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
                   justify="between"
@@ -209,10 +209,10 @@ const LendPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Position Actions" icon={<FiTool />}>
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'hoverBackground' : 'hoverBackground'}>
+                  <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
-                      dropProps={{ round: 'xsmall' }}
+                      dropProps={{ round: 'small' }}
                       options={[
                         { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
@@ -231,23 +231,12 @@ const LendPosition = () => {
                 {actionActive.index === 0 && (
                   <>
                     {stepPosition[0] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="medium">
+                      <Box margin={{ top: 'small' }}>
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={closeError}
                           disabled={!selectedSeries}
-                          message={
-                            <>
-                              {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
-                                <InputInfoWrap action={() => setCloseInput(maxClose_)}>
-                                  <Text color="text" alignSelf="end" size="xsmall">
-                                    Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
-                                    {selectedSeries.baseReserves.eq(maxClose) && ' (limited by protocol)'}
-                                  </Text>
-                                </InputInfoWrap>
-                              )}
-                            </>
-                          }
+                          round
                         >
                           <TextInput
                             plain
@@ -268,6 +257,15 @@ const LendPosition = () => {
                             showingMax={!!closeInput && closeInput === maxClose_}
                           />
                         </InputWrap>
+
+                        {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
+                          <InputInfoWrap action={() => setCloseInput(maxClose_)}>
+                            <Text color="text" alignSelf="end" size="xsmall">
+                              Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
+                              {selectedSeries.baseReserves.eq(maxClose) && ' (limited by protocol)'}
+                            </Text>
+                          </InputInfoWrap>
+                        )}
                       </Box>
                     )}
 
@@ -291,7 +289,7 @@ const LendPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="small">
+                      <Box margin={{ top: 'small' }} gap='small' >
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
@@ -302,7 +300,9 @@ const LendPosition = () => {
                           action={() => console.log('maxAction')}
                           isError={closeError}
                           disabled={!selectedSeries || !rollToSeries}
+                          round
                         >
+
                           <TextInput
                             plain
                             type="number"
@@ -345,6 +345,7 @@ const LendPosition = () => {
 
                 {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
               </Box>
+
             </Box>
 
             <ActionButtonGroup pad>

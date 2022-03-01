@@ -37,7 +37,7 @@ const DashboardPositionList = ({
     actionType={actionType}
     showList={showList}
   >
-    <StyledBox gap="small">
+    <StyledBox gap="small" pad='medium'>
       {positions.length === 0 && (
         <Text weight={450} size="small">
           No suggested positions
