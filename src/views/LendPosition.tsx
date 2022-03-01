@@ -207,7 +207,7 @@ const LendPosition = () => {
                 </SectionWrap>
               </Box>
 
-              <Box>
+              <Box height={{ min: '300px' }}>
                 <SectionWrap title="Position Actions" icon={<FiTool />}>
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
@@ -289,7 +289,7 @@ const LendPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'small' }} gap='small'>
+                      <Box margin={{ top: 'small' }} gap='small' >
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
