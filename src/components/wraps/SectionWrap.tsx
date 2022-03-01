@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, ResponsiveContext } from 'grommet';
+import { Box } from 'grommet';
 import { BorderType } from 'grommet/utils';
 import AltText from '../texts/AltText';
 
@@ -15,14 +15,12 @@ interface ISectionWrap {
 function SectionWrap({ icon, title, border, disabled, children, rightAction }: ISectionWrap) {
 
   return (
-    <Box border={border} gap='1em'>
+    <Box border={border} gap='0.5em'>
       {title && (
         <Box pad={{ horizontal:'small' }} direction="row" fill="horizontal" justify="between" align="center">
-          <Box direction="row" gap="xsmall" align="center">
             <AltText size='xsmall' color={disabled ? 'text-xweak' : 'text-weak'}>
               {title}
             </AltText>
-          </Box>
           {rightAction}
         </Box>
       )}
