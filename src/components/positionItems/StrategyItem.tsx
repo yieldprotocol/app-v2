@@ -31,7 +31,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   return (
     <ItemWrap action={() => handleSelect(strategy)} index={index}>
 
-      
+
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
         <PositionAvatar position={strategy.currentSeries!} condensed={condensed} actionType={ActionType.POOL} />
         <Box
@@ -45,11 +45,13 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
             </Text>
             <Text size="xsmall"> Rolling: {strategy.currentSeries?.fullDate} </Text>
           </Box>
+
+
           <Box justify="center">
-            <Box direction="row" gap="medium">
-              <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
+      
+              <Box gap="xxsmall" direction='row'>
                 <Text weight={450} size="xsmall">
-                  Tokens:
+                  Tokens: 
                 </Text>
                 <Text weight={450} size="xsmall">
                   {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
@@ -60,7 +62,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
                   )}
                 </Text>
               </Box>
-              <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
+              {/* <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
                 <Text weight={450} size="xsmall">
                   Strategy %:
                 </Text>
@@ -71,9 +73,8 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
                     cleanValue(strategy.accountStrategyPercent, 2)
                   )}
                 </Text>
-              </Box>
-            </Box>
-          </Box>
+              </Box> */}
+          </Box>    
         </Box>
       </Box>
     </ItemWrap>
