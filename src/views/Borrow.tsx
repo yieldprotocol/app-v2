@@ -55,7 +55,6 @@ import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrat
 import YieldNavigation from '../components/YieldNavigation';
 import VaultItem from '../components/positionItems/VaultItem';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useAssetPair } from '../hooks/useAssetPair';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
