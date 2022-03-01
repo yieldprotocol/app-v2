@@ -284,7 +284,7 @@ const VaultPosition = () => {
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => history.goBack()} />}
 
-            <Box fill pad={mobile ? 'medium' : 'large'} gap="xsmall">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="1em">
               <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
@@ -402,7 +402,7 @@ const VaultPosition = () => {
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }}>
-                        <InputWrap action={() => console.log('maxAction')} isError={repayError}>
+                        <InputWrap action={() => console.log('maxAction')} isError={repayError} round>
                           <TextInput
                             plain
                             type="number"

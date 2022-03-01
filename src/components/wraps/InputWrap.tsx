@@ -19,7 +19,7 @@ const InsetBox = styled(Box)`
       : 'inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd'};
 `;
 
-function InputWrap({ action, disabled, isError, showErrorText, message, children, ...props }: IInputWrap) {
+function InputWrap({ action, disabled, isError, showErrorText, message, children, round, ...props }: IInputWrap) {
   const theme = useContext<any>(ThemeContext);
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
@@ -32,7 +32,7 @@ function InputWrap({ action, disabled, isError, showErrorText, message, children
         align="center"
         background={isError ? 'error' : 'hoverBackground'}
         pad={{ horizontal: 'small', vertical:'1px' }}
-        mobile ={mobile}
+        mobile ={mobile || round}
       >
         {children}
       </InsetBox>

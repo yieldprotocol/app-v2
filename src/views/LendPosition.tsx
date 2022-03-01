@@ -154,7 +154,7 @@ const LendPosition = () => {
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => history.goBack()} />}
 
-            <Box pad={mobile ? 'medium' : 'large'}>
+            <Box pad={mobile ? 'medium' : 'large'} gap='1em'  >
               <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
@@ -207,7 +207,7 @@ const LendPosition = () => {
                 </SectionWrap>
               </Box>
 
-              <Box gap="small" fill>
+              <Box>
                 <SectionWrap title="Position Actions" icon={<FiTool />}>
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
@@ -236,6 +236,7 @@ const LendPosition = () => {
                           action={() => console.log('maxAction')}
                           isError={closeError}
                           disabled={!selectedSeries}
+                          round
                         >
                           <TextInput
                             plain
@@ -288,7 +289,7 @@ const LendPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'small' }}>
+                      <Box margin={{ top: 'small' }} gap='small'>
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
@@ -299,7 +300,9 @@ const LendPosition = () => {
                           action={() => console.log('maxAction')}
                           isError={closeError}
                           disabled={!selectedSeries || !rollToSeries}
+                          round
                         >
+
                           <TextInput
                             plain
                             type="number"
@@ -342,6 +345,7 @@ const LendPosition = () => {
 
                 {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
               </Box>
+
             </Box>
 
             <ActionButtonGroup pad>

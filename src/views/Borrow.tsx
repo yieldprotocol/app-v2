@@ -251,6 +251,7 @@ const Borrow = () => {
 
         <CenterPanelWrap series={selectedSeries || undefined}>
           <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
+            
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="large">
                 <YieldCardHeader>

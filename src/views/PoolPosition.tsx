@@ -133,7 +133,7 @@ const PoolPosition = () => {
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => history.goBack()} />}
 
-            <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="1em">
               <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
@@ -225,7 +225,7 @@ const PoolPosition = () => {
                   <>
                     {stepPosition[0] === 0 && (
                       <Box margin={{ top: 'small' }}>
-                        <InputWrap action={() => console.log('maxAction')} isError={removeError}>
+                        <InputWrap action={() => console.log('maxAction')} isError={removeError} round>
                           <TextInput
                             plain
                             type="number"
