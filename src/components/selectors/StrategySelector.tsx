@@ -106,7 +106,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   return (
     <>
       {cardLayout && (
-        <Box gap='small'>
+        <Box gap="small">
           {strategiesLoading && <Skeleton width={180} />}
 
           {strategiesLoading ? (
@@ -162,8 +162,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 </Box>
 
                 {open && (
-                  <Layer onClickOutside={() => setOpen(false)} style={{ minWidth: '500px', borderRadius: '12px' }}>
-                    <Box gap="small" pad="medium" fill background="background" >
+                  <Layer onClickOutside={() => setOpen(false)} style={{ minWidth: '500px' }} >
+                    <Box gap="small" pad="medium" round="small" background="background">
                       <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
                       </Box>
@@ -209,10 +209,9 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
               </Box>
             </Box>
           )}
-          
+
           {options.length > 0 && (
             <Box>
-
               <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
                 <AltText size="xsmall" color="text-weak">
                   Choose a different strategy
