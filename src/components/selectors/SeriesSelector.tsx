@@ -197,7 +197,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
-      {seriesLoading && !selectedBase && <Skeleton width={180} />}
+      {seriesLoading && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox fill background={mobile ? 'hoverBackground' : undefined}>
           <Box flex={false}>
@@ -250,7 +250,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 <StyledBox
                   key={series.id}
                   pad="xsmall"
-                  round={i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }}
+                  // eslint-disable-next-line no-nested-ternary
+                  round={ i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' } }
                   onClick={() => handleSelect(series)}
                   background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
                   elevation="xsmall"

@@ -107,6 +107,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     <>
       {cardLayout && (
         <Box gap='small'>
+          {strategiesLoading && <Skeleton width={180} />}
+
           {strategiesLoading ? (
             <CardSkeleton />
           ) : (
@@ -207,8 +209,10 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
               </Box>
             </Box>
           )}
+          
           {options.length > 0 && (
             <Box>
+
               <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
                 <AltText size="xsmall" color="text-weak">
                   Choose a different strategy
