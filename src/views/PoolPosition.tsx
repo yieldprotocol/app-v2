@@ -54,8 +54,12 @@ const PoolPosition = () => {
   const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
 
   // multi-tracking stepper
+  const actionCodeToStepperIdx: { [actionCode: string]: number } = {
+    [ActionCodes.REMOVE_LIQUIDITY]: 0,
+  };
+  const initialStepperState = [0, 0, 0];
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
-  const [stepPosition, setStepPosition] = useState<number[]>([0, 0, 0]);
+  const [stepPosition, setStepPosition] = useState<number[]>(initialStepperState);
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
@@ -82,14 +86,20 @@ const PoolPosition = () => {
     setStepPosition(validatedSteps);
   };
 
+  const resetStepper = (actionCode: ActionCodes) => {
+    const newStepPositions = stepPosition;
+    newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
+    setStepPosition(newStepPositions);
+  };
+
   const handleRemove = () => {
     const shouldTradeExtra = partialRemoveRequired && forceDisclaimerChecked ? false : undefined;
     selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra);
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
+    resetStepper(actionCode);
     if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
-      handleStepper(true);
       setRemoveInput(undefined);
       resetRemoveProcess();
     }
@@ -121,7 +131,7 @@ const PoolPosition = () => {
       {_selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-          {!mobile && <ExitButton action={() => history.goBack()} />}
+            {!mobile && <ExitButton action={() => history.goBack()} />}
 
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
@@ -141,7 +151,6 @@ const PoolPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 <SectionWrap>
@@ -224,7 +233,7 @@ const PoolPosition = () => {
                               {removeInput && !partialRemoveRequired && !removeError && (
                                 <InputInfoWrap>
                                   <Text color="text-weak" alignSelf="end" size="small">
-                                    Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}
+                                    Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
                                     {selectedBase?.displaySymbol}
                                   </Text>
                                 </InputInfoWrap>
@@ -234,7 +243,7 @@ const PoolPosition = () => {
                                 <InputInfoWrap>
                                   <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                                     <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Removing that amount of tokens and trading immediately for
+                                      Removing that amount of tokens and trading immediately for{' '}
                                       {selectedBase?.displaySymbol} is currently not possible due to liquidity
                                       limitations.
                                     </Text>

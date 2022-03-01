@@ -123,6 +123,7 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
+  domain?: string;
 }
 
 export interface ISeriesRoot extends ISignable {

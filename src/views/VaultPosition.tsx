@@ -84,6 +84,13 @@ const VaultPosition = () => {
 
   /* LOCAL STATE */
   // stepper for stepping within multiple tabs
+  const actionCodeToStepperIdx: { [actionCode: string]: number } = {
+    [ActionCodes.REPAY]: 0,
+    [ActionCodes.ROLL_DEBT]: 1,
+    [ActionCodes.ADD_COLLATERAL]: 2,
+    [ActionCodes.REMOVE_COLLATERAL]: 3,
+  };
+
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
@@ -170,6 +177,12 @@ const VaultPosition = () => {
     setStepPosition(validatedSteps);
   };
 
+  const resetStepper = (actionCode: ActionCodes) => {
+    const newStepPositions = stepPosition;
+    newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
+    setStepPosition(newStepPositions);
+  };
+
   const handleRepay = () => {
     _selectedVault && repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
   };
@@ -187,23 +200,21 @@ const VaultPosition = () => {
   };
 
   const resetInputs = (actionCode: ActionCodes) => {
+    resetStepper(actionCode);
+
     switch (actionCode) {
       case ActionCodes.REPAY:
-        handleStepper(true);
-        setRepayInput(null);
+        setRepayInput(undefined);
         resetRepayProcess();
         break;
       case ActionCodes.ROLL_DEBT:
-        handleStepper(true);
         resetRollProcess();
         break;
       case ActionCodes.ADD_COLLATERAL:
-        handleStepper(true);
         setAddCollatInput(undefined);
         resetAddCollateralProcess();
         break;
       case ActionCodes.REMOVE_COLLATERAL:
-        handleStepper(true);
         setRemoveCollatInput(undefined);
         resetRemoveCollateralProcess();
         break;
@@ -270,9 +281,8 @@ const VaultPosition = () => {
     <>
       {_selectedVault && (
         <ModalWrap>
-
           <CenterPanelWrap>
-           {!mobile && <ExitButton action={() => history.goBack()} />}
+            {!mobile && <ExitButton action={() => history.goBack()} />}
             <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
               <Box height={{ min: '250px' }} gap="2em">
                 <Box
@@ -291,7 +301,6 @@ const VaultPosition = () => {
                       </CopyWrap>
                     </Box>
                   </Box>
-                  {/* <ExitButton action={() => history.goBack()} /> */}
                 </Box>
 
                 {_selectedVault?.isActive && (
@@ -415,12 +424,10 @@ const VaultPosition = () => {
 
                               {!repayInput &&
                                 minDebt?.gt(ZERO_BN) &&
-                                _selectedVault?.accruedArt.gt(ZERO_BN) &&
+                                _selectedVault.accruedArt.gt(ZERO_BN) &&
                                 minDebt.gt(_selectedVault.accruedArt) && (
                                   <InputInfoWrap>
-                                    <Text size="xsmall">
-                                      Your debt is below the current minimumn debt requirement.{' '}
-                                    </Text>
+                                    <Text size="xsmall">Your debt is below the current minimumn debt requirement.</Text>
                                     <Text size="xsmall">(It is only possible to repay the full debt)</Text>
                                   </InputInfoWrap>
                                 )}

@@ -284,21 +284,33 @@ const ChainProvider = ({ children }: any) => {
             let symbol: string;
             let decimals: number;
             let version: string;
+            let domain: string | undefined;
+
             try {
-              [name, symbol, decimals, version] = await Promise.all([
-                ERC20.name(),
-                ERC20.symbol(),
-                ERC20.decimals(),
-                id === USDC ? '2' : '1', // TODO ERC20.version()
-              ]);
+              [name, symbol, decimals] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
             } catch (e) {
               /* TODO look at finding a better way to handle the pimple that is the Maker Token */
+              console.log('Trying rsolve maker TOKEN ');
               const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
               const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
               const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
               name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
               symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
-              [decimals, version] = [18, '1'];
+              decimals = 18;
+            }
+
+            /* try to get the token version if available */
+            try {
+              version = await ERC20.version();
+            } catch (e) {
+              version = '1';
+            }
+
+            /* try to get the domain_seperator if available */
+            try {
+              domain = await ERC20.DOMAIN_SEPARATOR();
+            } catch (e) {
+              domain = undefined;
             }
 
             const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
@@ -311,6 +323,8 @@ const ChainProvider = ({ children }: any) => {
               symbol,
               decimals,
               version,
+
+              domain,
 
               joinAddress: joinMap.get(idToUse),
               idToUse,
@@ -393,7 +407,7 @@ const ChainProvider = ({ children }: any) => {
           Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
           Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
         ]).catch(() => {
-          console.log('Fallback to hardcorded ASSET information required.');
+          console.log('Fallback to hardcoded ASSET information required.');
           return [[], []];
         });
 

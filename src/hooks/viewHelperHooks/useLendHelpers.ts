@@ -35,7 +35,7 @@ export const useLendHelpers = (
   const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(ethers.constants.Zero);
 
   const [protocolLimited, setProtocolLimited] = useState<boolean>(false);
-  
+
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
@@ -69,14 +69,13 @@ export const useLendHelpers = (
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
-
     if (!series && selectedBase) {
       setMaxLend(userBaseBalance);
       setMaxLend_(ethers.utils.formatUnits(userBaseBalance, selectedBase.decimals).toString());
     }
 
     if (series) {
-      /* checks the protocol limits  (max Base allowed in ) */ 
+      /* checks the protocol limits  (max Base allowed in ) */
       const _maxBaseIn = maxBaseIn(
         series.baseReserves,
         series.fyTokenReserves,
@@ -87,17 +86,16 @@ export const useLendHelpers = (
       );
       diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
 
-      if (userBaseBalance.lt(_maxBaseIn) ) {
+      if (userBaseBalance.lt(_maxBaseIn)) {
         setMaxLend(userBaseBalance);
         setMaxLend_(ethers.utils.formatUnits(userBaseBalance, series.decimals).toString());
         setProtocolLimited(false);
       } else {
         setMaxLend(_maxBaseIn);
-        setMaxLend_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString())
+        setMaxLend_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
         setProtocolLimited(true);
-      }  
+      }
     }
-
   }, [userBaseBalance, series, selectedBase, diagnostics]);
 
   /* Sets max close and current market Value of fyTokens held in base tokens */
@@ -122,6 +120,9 @@ export const useLendHelpers = (
       if (value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.baseReserves)) {
         setMaxClose(baseReservesWithMargin);
         setMaxClose_(ethers.utils.formatUnits(baseReservesWithMargin, series.decimals).toString());
+      } else if (value.lte(ethers.constants.Zero)) {
+        setMaxClose(ethers.constants.Zero);
+        setMaxClose_('0');
       } else {
         setMaxClose(value);
         setMaxClose_(ethers.utils.formatUnits(value, series.decimals).toString());
@@ -187,10 +188,9 @@ export const useLendHelpers = (
         setMaxRoll_(ethers.utils.formatUnits(_fyTokenValue, series.decimals).toString());
       }
 
-      diagnostics && console.log( 'MAXBASE_IN', _maxBaseIn.toString())
-      diagnostics && console.log( 'FYTOKEN_VALUE', _fyTokenValue.toString())
-      diagnostics && console.log( 'MAXBASE_IN  <= FYTOKEN_VALUE', _maxBaseIn.lte(_fyTokenValue) )
-
+      diagnostics && console.log('MAXBASE_IN', _maxBaseIn.toString());
+      diagnostics && console.log('FYTOKEN_VALUE', _fyTokenValue.toString());
+      diagnostics && console.log('MAXBASE_IN  <= FYTOKEN_VALUE', _maxBaseIn.lte(_fyTokenValue));
     }
   }, [diagnostics, rollToSeries, series]);
 

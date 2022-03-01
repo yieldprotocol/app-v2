@@ -195,7 +195,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           lpReceived
         );
 
-        diagnostics && console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
+        console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
 
         if (_fyTokenReceived.gt(matchingVault?.art!)) {
           /* Fytoken received greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
@@ -212,7 +212,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           setPartialRemoveRequired(true);
 
           const _fyTokenVal = _fyTokenReceived.sub(matchingVault.art);
-          const _baseVal = _baseReceived.add(matchingVault.art);
+          const _baseVal = _baseReceived; // .add(matchingVault.art);
 
           setRemoveBaseReceived(_baseVal);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
@@ -226,8 +226,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             );
           setPartialRemoveRequired(false);
 
-          const _val = _baseReceived.add(_fyTokenReceived);
-
+          const _val = _baseReceived; // .add(_fyTokenReceived);
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
@@ -250,8 +249,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           _input,
           strategy?.strategyTotalSupply!,
           strategy?.strategyPoolBalance!,
-          strategySeries?.baseReserves!,
-          strategySeries?.fyTokenReserves!,
+          strategySeries?.baseReserves,
+          strategySeries?.fyTokenRealReserves,
           strategySeries?.totalSupply!,
           strategySeries.getTimeTillMaturity(),
           strategySeries.ts,
