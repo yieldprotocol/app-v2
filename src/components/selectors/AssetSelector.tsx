@@ -36,7 +36,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
-
   const [options, setOptions] = useState<IAsset[]>([]);
 
   const optionText = (asset: IAsset | undefined) =>

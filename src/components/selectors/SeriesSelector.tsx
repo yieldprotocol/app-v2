@@ -63,9 +63,6 @@ const AprText = ({
   series: ISeries;
   actionType: ActionType;
 }) => {
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext);
 
   const _inputValue = cleanValue(inputValue, series.decimals);
   const { apr } = useApr(_inputValue, actionType, series);
@@ -91,8 +88,9 @@ const AprText = ({
   return (
     <>
       {!series?.seriesIsMature && !limitHit && (
-        <Text size="medium">
-          {apr}% <Text size="xsmall">{[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
+        <Text size="1.2em">
+          {apr}{' '}
+          <Text size="xsmall">%  {[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
@@ -273,9 +271,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                     </Avatar>
 
                     <Box>
-                      <Text size="medium" color={series.id === _selectedSeries?.id ? series.textColor : undefined}>
-                        <AprText inputValue={_inputValue} series={series} actionType={actionType} />
-                      </Text>
+                      <AprText inputValue={_inputValue} series={series} actionType={actionType} />
                       <Text size="small" color={series.id === _selectedSeries?.id ? series.textColor : undefined}>
                         {series.displayName}
                       </Text>
