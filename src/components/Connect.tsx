@@ -38,7 +38,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       background="lightBackground"
       round="small"
     >
-      <Box justify="between" align="center" direction="row" background="gradient" pad="medium" round={{corner:'top', size: "small"}}>
+      <Box justify="between" align="center" direction="row" background="gradient" pad="medium" round={{corner:'top', size: "small"}} >
         {account && CONNECTORS ? (
           <BackButton
             action={() => {
@@ -60,7 +60,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
           />
         </Box>
       )}
-      <Box gap="xsmall" pad='medium'>
+      <Box pad='medium' gap={mobile?"large":"small"} >
         {[...CONNECTORS.keys()].map((name: string) => {
           const { displayName, image } = CONNECTOR_INFO.get(name);
           const currentConnector = CONNECTORS.get(name);
