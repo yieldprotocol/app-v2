@@ -28,4 +28,4 @@ function BackButton({ action }: { action: () => void }) {
   );
 }
 
-export default BackButton;
+export default React.memo(BackButton);

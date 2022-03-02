@@ -36,6 +36,7 @@ import {
 import { WAD_BN, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
+import { useCachedState } from '../hooks/generalHooks';
 
 const UserContext = React.createContext<any>({});
 
@@ -124,7 +125,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, fallbackChainId },
+    connection: { account, fallbackChainId, fallbackProvider },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -134,6 +135,8 @@ const UserProvider = ({ children }: any) => {
   const {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
+
+  const [lastVaultUpdate, setLastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
@@ -154,13 +157,13 @@ const UserProvider = ({ children }: any) => {
       const Cauldron = contractMap.get('Cauldron');
       if (!Cauldron) return new Map();
 
-      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account);
+      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
       // const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
 
       const [vaultsBuilt, vaultsReceived, vaultsDestroyed] = await Promise.all([
-        Cauldron.queryFilter(vaultsBuiltFilter, fromBlock),
-        Cauldron.queryFilter(vaultsReceivedfilter, fromBlock),
+        Cauldron.queryFilter(vaultsBuiltFilter, fromBlock, 'latest'),
+        Cauldron.queryFilter(vaultsReceivedfilter, fromBlock, 'latest'),
         [], // Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
       ]);
 
@@ -259,7 +262,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, assetRootMap)
+        }, userState.assetMap )
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -293,6 +296,7 @@ const UserProvider = ({ children }: any) => {
 
       /* get pricing if available */
       let price: BigNumber;
+
       try {
         // eslint-disable-next-line prefer-const
         [price] = await PriceOracle?.peek(
@@ -435,7 +439,7 @@ const UserProvider = ({ children }: any) => {
       const RateOracle = contractMap.get('RateOracle');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults()).values());
+      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(lastVaultUpdate)).values()); // fromblock specifically x blocks ago for arb testnet
 
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
@@ -472,7 +476,7 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
-            [accruedArt, ] = calcAccruedDebt(rate, rateAtMaturity, art);
+            [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
             rateAtMaturity = BigNumber.from('1');
@@ -542,10 +546,15 @@ const UserProvider = ({ children }: any) => {
       /* if there are no vaults provided - assume a forced refresh of all vaults : */
       const combinedVaultMap = vaultList.length > 0 ? new Map([...userState.vaultMap, ...newVaultMap]) : newVaultMap;
 
+      
       /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
       vaultFromUrl && updateState({ type: 'selectedVault', payload: vaultFromUrl });
       updateState({ type: 'vaultsLoading', payload: false });
+
+      /* Update the local cache storage */
+      setLastVaultUpdate('earliest');
+      // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
 
       console.log('VAULTS: ', combinedVaultMap);
     },
@@ -560,6 +569,7 @@ const UserProvider = ({ children }: any) => {
       assetRootMap,
       account,
       updateAssetPair,
+      fallbackChainId,
     ]
   );
 

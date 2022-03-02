@@ -64,6 +64,15 @@ export function bytesToBytes32(x: string, n: number): string {
 }
 
 /**
+ * Calculate the baseId from the series nae
+ * @param seriesId seriesID.
+ * @returns string bytes32
+ */
+export function baseIdFromSeriesId(seriesId: string): string {
+  return seriesId.slice(0, 6).concat('00000000');
+}
+
+/**
  * @param { BigNumber | string } multiplicant
  * @param { BigNumber | string } multiplier
  * @param { string } precisionDifference  // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
@@ -725,6 +734,8 @@ export function fyTokenForMint(
   );
   let minFYToken = ZERO_DEC;
 
+  if (maxFYToken.lt(2)) return [ZERO_BN, ZERO_BN]; // won't be able to parse using toBn
+
   let i = 0;
   while (true) {
     /* NB return ZERO when not converging > not mintable */
@@ -880,7 +891,7 @@ export const splitLiquidity = (
  * Calculate Slippage
  * @param { BigNumber } value
  * @param { BigNumber } slippage optional: defaults to 0.005 (0.5%)
- * @param { boolean } minimise optional: whether the resutl should be a minimum or maximum (default max)
+ * @param { boolean } minimise optional: whether the result should be a minimum or maximum (default max)
  * @returns { string } human readable string
  */
 export const calculateSlippage = (

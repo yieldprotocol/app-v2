@@ -6,9 +6,11 @@ const StyledButton = styled(Button)`
   /* height: ${(props: any) => (props.mobile ? '3rem' : '3rem')}; */
   border: ${(props) => (props.theme.dark ? '2px solid #141a1e' : '2px solid white')};
 
+  border-radius: 100px;
   :hover {
     transform: scale(1.01);
     border: 2px solid #ffffff00;
+
   }
 `;
 

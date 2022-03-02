@@ -11,6 +11,7 @@ interface IDashSummary {
   strategyBalance: string | null;
   actionType: string;
   children: any;
+  showList:boolean;
 }
 
 const Summary = ({ label, value }: { label: string; value: string | null }) => (
@@ -27,9 +28,10 @@ const DashboardPositionSummary = ({
   strategyBalance,
   actionType,
   children,
+  showList
 }: IDashSummary) => (
   <Box>
-    <Box direction="row" justify="between" background="gradient-transparent" round="xsmall" pad="small">
+    <Box direction="row" justify="between" background="gradient-transparent" round="xlarge" pad="small">
       <Box direction="row-responsive" gap="small">
         {actionType === ActionType.BORROW && <Summary label="Debt" value={debt!} />}
         {actionType === ActionType.BORROW && <Summary label="Collateral" value={collateral!} />}
@@ -38,7 +40,7 @@ const DashboardPositionSummary = ({
       </Box>
       {actionType === ActionType.BORROW && <DashboardSettings actionType={actionType} />}
     </Box>
-    <Box pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</Box>
+    {showList  && <Box pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</Box>}
   </Box>
 );
 

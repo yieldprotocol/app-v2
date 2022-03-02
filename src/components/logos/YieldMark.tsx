@@ -17,7 +17,7 @@ function YieldMark(props: ISvgProps) {
     >
       <g>
         <linearGradient id={ props.colors![0] } x1="0%" y1="0%" x2="0%" y2="100%">
-          {props.colors && props.colors.map((c:string, i:number)=> <stop key={i.toString()} offset={`${getProportion(i)}%`} stopColor={c} stopOpacity="1" /> )}
+          {props.colors && props.colors.map((c:string, i:number)=> <stop key={c.toString()} offset={`${getProportion(i)}%`} stopColor={c} stopOpacity="1" /> )}
         </linearGradient>
         <path
           fill={`url(/#${props.colors![0]})`}

@@ -17,6 +17,7 @@ interface IDashPosition {
   strategyBalance?: string | null;
   actionType: ActionType;
   positions: (ISeries | IVault | IStrategy)[];
+  showList:boolean;
 }
 
 const DashboardPositionList = ({
@@ -26,6 +27,7 @@ const DashboardPositionList = ({
   strategyBalance,
   positions,
   actionType,
+  showList,
 }: IDashPosition) => (
   <DashboardPositionSummary
     debt={debt!}
@@ -33,8 +35,9 @@ const DashboardPositionList = ({
     lendBalance={lendBalance!}
     strategyBalance={strategyBalance!}
     actionType={actionType}
+    showList={showList}
   >
-    <StyledBox gap="xsmall">
+    <StyledBox gap="small" pad='medium'>
       {positions.length === 0 && (
         <Text weight={450} size="small">
           No suggested positions

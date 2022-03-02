@@ -4,12 +4,11 @@ import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
 
-import { ActionType, IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
+import { ActionType, IAsset, ISeries, IUserContext, IUserContextState } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
-import DashButton from '../buttons/DashButton';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -74,7 +73,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+        <Box gap='small' >
           <Box
             animation="fadeIn"
             justify="between"
@@ -83,11 +82,9 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             pad={{ horizontal: 'medium', vertical: 'xsmall' }}
           >
             <Text size="small" color="text-weak" textAlign="center">
-              {showAllPositions ? `All Lending Positions` : `Filtered Lending Positions`}
+              {showAllPositions ? `Lending Positions` : `Filtered Lending Positions`}
             </Text>
-            <Text color="text-weak" textAlign="center">
-              <DashButton />
-            </Text>
+
           </Box>
 
           <ListWrap overflow="auto">

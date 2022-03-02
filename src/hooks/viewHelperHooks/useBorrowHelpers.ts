@@ -96,7 +96,7 @@ export const useBorrowHelpers = (
       const cleanedInput = cleanValue(input, futureSeries.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
 
-      const estimate = sellBase(
+      const estimate = buyBase(
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
         input_,
