@@ -70,7 +70,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
           return (
             <GeneralButton
               key={name}
-              action={() => !connected && handleConnect(name)}
+              action={() => !connected && handleConnect(name) }
               background={connected ? 'gradient' : 'gradient-transparent'}
               disabled={disclaimerChecked === false}
             >

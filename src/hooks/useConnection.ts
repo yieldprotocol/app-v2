@@ -45,19 +45,22 @@ export const useConnection = () => {
   const isConnected = (connection: string) => CONNECTORS.get(connection) === connector;
   const disconnect = () => connector && deactivate();
 
-  const connect = useCallback((connection: string ) => {
+  const connect = useCallback(async (connection: string ) => {
+
     setErrorMessage(undefined);
-    // console.log( connection )
-    activate(
+
+    await activate(
       CONNECTORS.get(connection),
       (e: Error) => {
         setErrorMessage(handleErrorMessage(e));
         setTried(true); // tried, failed, move on.
+        setConnectionName(undefined);
+        return null;
       },
       false
-    ).then( (x) => {
-      setConnectionName(connection);
-    })
+    )
+    setConnectionName(connection);
+
   }, [activate, handleErrorMessage, setConnectionName]);
 
   /**

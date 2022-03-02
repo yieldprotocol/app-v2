@@ -25,9 +25,6 @@ const YieldInfo = () => {
   const connectedChain = CHAIN_INFO.get(fallbackChainId!);
   const blockNum = useBlockNum();
   const handleExternal = (destination: string) => {
-    // analyticsLogEvent('external_link', {
-    //   action: destination
-    // });
   };
 
   return (
