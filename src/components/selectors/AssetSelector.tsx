@@ -36,7 +36,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
-
   const [options, setOptions] = useState<IAsset[]>([]);
 
   const optionText = (asset: IAsset | undefined) =>
@@ -94,14 +93,13 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   return (
     <StyledBox
       fill="horizontal"
-      round="xsmall"
-      // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
+      round = {mobile? 'large': { corner: 'right', size: 'large'}}
       elevation="xsmall"
       background="hoverBackground"
     >
       <Select
         plain
-        dropProps={{ round: 'xsmall' }}
+        dropProps={{ round: 'small' }}
         id="assetSelectc"
         name="assetSelect"
         placeholder="Select Asset"

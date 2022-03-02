@@ -32,14 +32,13 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   return (
     <Box
       fill="vertical"
-      basis="auto"
       width={mobile ? undefined : '400px'}
-      pad="medium"
       gap="small"
-      elevation={darkMode ? undefined : 'small'}
+      elevation={darkMode ? 'large' : 'small'}
       background="lightBackground"
+      round="small"
     >
-      <Box justify="between" align="center" direction="row">
+      <Box justify="between" align="center" direction="row" background="gradient" pad="medium" round={{corner:'top', size: "small"}}>
         {account && CONNECTORS ? (
           <BackButton
             action={() => {
@@ -48,19 +47,20 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
             }}
           />
         ) : (
-          <Text>Connect</Text>
+          <Text size="small" color='text'> Connect a wallet </Text>
         )}
-        <Button icon={<FiX size="1.5rem" />} onClick={() => setConnectOpen(false)} plain />
+
+        <Button icon={<FiX size="1.5rem" color='text'/>} onClick={() => setConnectOpen(false)} plain />
       </Box>
       {disclaimerChecked === false && (
-        <Box border={{ color: 'brand' }} round="xsmall">
+        <Box border={{ color: 'brand' }} round="small" pad='medium'>
           <Disclaimer
             checked={disclaimerChecked}
             onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
           />
         </Box>
       )}
-      <Box gap="xsmall" pad={{ vertical: 'large' }}>
+      <Box gap="xsmall" pad='medium'>
         {[...CONNECTORS.keys()].map((name: string) => {
           const { displayName, image } = CONNECTOR_INFO.get(name);
           const currentConnector = CONNECTORS.get(name);

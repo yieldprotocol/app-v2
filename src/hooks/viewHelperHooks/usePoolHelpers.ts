@@ -195,7 +195,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           lpReceived
         );
 
-        console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
+        diagnostics && console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
 
         if (_fyTokenReceived.gt(matchingVault?.art!)) {
           /* Fytoken received greater than debt : USE REMOVE OPTION 2.1 or 2.2 */

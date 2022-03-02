@@ -98,7 +98,7 @@ const Lend = () => {
       <CenterPanelWrap series={selectedSeries}>
         <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
           {stepPosition === 0 && (
-            <Box fill gap="large">
+            <Box gap="large">
               <YieldCardHeader>
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
@@ -112,29 +112,14 @@ const Lend = () => {
                 </Box>
               </YieldCardHeader>
 
-              <Box gap="large">
+              <Box gap="medium">
                 <SectionWrap>
-                  <Box direction="row-responsive" gap="small">
+                  <Box direction="row-responsive">
                     <Box basis={mobile ? '50%' : '60%'}>
                       <InputWrap
                         action={() => console.log('maxAction')}
                         isError={lendError}
                         disabled={selectedSeries?.seriesIsMature}
-                        message={
-                          selectedBase && selectedSeries && protocolLimited && !mobile ? (
-                            <InputInfoWrap action={() => setLendInput(maxLend_)}>
-                              <Text size="xsmall" color="text-weak">
-                                Max lend is{' '}
-                                <Text size="small" color="text-weak">
-                                  {cleanValue(maxLend_, 2)} {selectedBase?.displaySymbol}
-                                </Text>{' '}
-                                (limited by protocol liquidity)
-                              </Text>
-                            </InputInfoWrap>
-                          ) : (
-                            <></>
-                          )
-                        }
                       >
                         <TextInput
                           plain
@@ -172,7 +157,7 @@ const Lend = () => {
                   <SectionWrap
                     title={
                       seriesMap.size > 0
-                        ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity date`
+                        ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity date:`
                         : ''
                     }
                   >
@@ -180,6 +165,18 @@ const Lend = () => {
                   </SectionWrap>
                 )}
               </Box>
+
+              {selectedBase && selectedSeries && protocolLimited && (
+                <InputInfoWrap action={() => setLendInput(maxLend_)}>
+                  <Text size="xsmall" color="text-weak">
+                    Max lend is{' '}
+                    <Text size="small" color="text-weak">
+                      {cleanValue(maxLend_, 2)} {selectedBase?.displaySymbol}
+                    </Text>{' '}
+                    (limited by protocol liquidity)
+                  </Text>
+                </InputInfoWrap>
+              )}
             </Box>
           )}
 
@@ -286,7 +283,7 @@ const Lend = () => {
       </CenterPanelWrap>
 
       {!mobile && (
-        <PanelWrap right >
+        <PanelWrap right>
           <Box />
           <YieldInfo />
         </PanelWrap>

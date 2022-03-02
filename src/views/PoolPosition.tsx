@@ -133,8 +133,8 @@ const PoolPosition = () => {
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => history.goBack()} />}
 
-            <Box fill pad={mobile ? 'medium' : 'large'} gap="small">
-              <Box height={{ min: '250px' }} gap="2em">
+            <Box fill pad={mobile ? 'medium' : 'large'} gap="1em">
+              <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
                   justify="between"
@@ -204,10 +204,10 @@ const PoolPosition = () => {
 
               <Box height={{ min: '300px' }}>
                 <SectionWrap title="Position Actions">
-                  <Box elevation="xsmall" round="xsmall" background={mobile ? 'hoverBackground' : 'hoverBackground'}>
+                  <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
-                      dropProps={{ round: 'xsmall' }}
+                      dropProps={{ round: 'small' }}
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
@@ -224,35 +224,8 @@ const PoolPosition = () => {
                 {actionActive.index === 0 && (
                   <>
                     {stepPosition[0] === 0 && (
-                      <Box margin={{ top: 'medium' }} gap="medium">
-                        <InputWrap
-                          action={() => console.log('maxAction')}
-                          isError={removeError}
-                          message={
-                            <>
-                              {removeInput && !partialRemoveRequired && !removeError && (
-                                <InputInfoWrap>
-                                  <Text color="text-weak" alignSelf="end" size="small">
-                                    Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
-                                    {selectedBase?.displaySymbol}
-                                  </Text>
-                                </InputInfoWrap>
-                              )}
-
-                              {removeInput && partialRemoveRequired && !removeError && (
-                                <InputInfoWrap>
-                                  <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
-                                    <Text color="text-weak" alignSelf="end" size="xsmall">
-                                      Removing that amount of tokens and trading immediately for{' '}
-                                      {selectedBase?.displaySymbol} is currently not possible due to liquidity
-                                      limitations.
-                                    </Text>
-                                  </Box>
-                                </InputInfoWrap>
-                              )}
-                            </>
-                          }
-                        >
+                      <Box margin={{ top: 'small' }}>
+                        <InputWrap action={() => console.log('maxAction')} isError={removeError} round>
                           <TextInput
                             plain
                             type="number"
@@ -271,6 +244,26 @@ const PoolPosition = () => {
                             showingMax={!!removeInput && removeInput === maxRemove}
                           />
                         </InputWrap>
+
+                        {removeInput && !partialRemoveRequired && !removeError && (
+                          <InputInfoWrap>
+                            <Text color="text-weak" alignSelf="end" size="small">
+                              Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
+                              {selectedBase?.displaySymbol}
+                            </Text>
+                          </InputInfoWrap>
+                        )}
+
+                        {removeInput && partialRemoveRequired && !removeError && (
+                          <InputInfoWrap>
+                            <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
+                              <Text color="text-weak" alignSelf="end" size="xsmall">
+                                Removing that amount of tokens and trading immediately for {selectedBase?.displaySymbol}{' '}
+                                is currently not possible due to liquidity limitations.
+                              </Text>
+                            </Box>
+                          </InputInfoWrap>
+                        )}
                       </Box>
                     )}
 

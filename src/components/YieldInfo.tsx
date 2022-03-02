@@ -31,13 +31,12 @@ const YieldInfo = () => {
   };
 
   return (
-    <Box gap="small" align="end" style={{position:'absolute', bottom:'3em', right:'3em'}}>
+    <Box gap="small" align="end" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
       <Box alignSelf="end">
         <Text size="xsmall" color="text-weak">
           App version: v{appVersion}
         </Text>
       </Box>
-
       <Box direction="row" gap={IconGap}>
         <BoxWrap>
           <Anchor
@@ -96,24 +95,30 @@ const YieldInfo = () => {
       </Box>
 
       {connectedChain && (
-        <Box
-          direction="row"
-          gap="xsmall"
-          align="center"
-          flex
-          elevation="xsmall"
-          pad="xsmall"
-          round={{ corner: 'left' }}
-        >
-          <NetworkSelector />
-          {/* {blockNum && connectedChain.explorer && !connectedChain.name.includes('Optimism') && (
+          <Box align="end" gap="xsmall">
+            <Box
+              // direction="row"
+              // margin={{right: '-0.5em'}}
+              gap="xsmall"
+              justify="end"
+              flex
+              elevation="xsmall"
+              pad="xsmall"
+              round
+            >
+              <NetworkSelector />
+            </Box>
+ 
+        {/* <Box fill>
+          {blockNum && connectedChain.explorer && !connectedChain.name.includes('Optimism') && (
             <Anchor style={{ lineHeight: '0' }} href={`${connectedChain.explorer}/block/${blockNum}`} target="_blank">
-              <Text size="xsmall" color={connectedChain.colorSecondary || connectedChain.color}>
-                {blockNum}
+              <Text size="0.5em" color={connectedChain.colorSecondary || connectedChain.color}>
+                Latest Block : {blockNum}
               </Text>
             </Anchor>
-          )} */}
-        </Box>
+          )}
+          </Box> */}
+          </Box>
       )}
     </Box>
   );
