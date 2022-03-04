@@ -31,7 +31,7 @@ const DashboardPositionSummary = ({
   showList
 }: IDashSummary) => (
   <Box>
-    <Box direction="row" justify="between" background="gradient-transparent" round="xlarge" pad="small">
+    <Box direction="row" justify="between" background="gradient-transparent" round="xsmall" pad="small">
       <Box direction="row-responsive" gap="small">
         {actionType === ActionType.BORROW && <Summary label="Debt" value={debt!} />}
         {actionType === ActionType.BORROW && <Summary label="Collateral" value={collateral!} />}
