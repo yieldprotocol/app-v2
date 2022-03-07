@@ -23,10 +23,13 @@ export const DAI_PERMIT_ASSETS = ['DAI', DAI];
 export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WETH, yvUSDC, 'yvUSDC'];
 
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
-
 export const ASSET_INFO = new Map<string, IAssetInfo>();
 
 ASSET_INFO.set(DAI, {
+  version: '1',
+  name: 'Dai stable coin',
+  decimals: 18,
+  symbol: 'DAI',
   showToken: true,
   isWrappedToken: false,
   color: '#F5AC37',
@@ -35,20 +38,34 @@ ASSET_INFO.set(DAI, {
 });
 
 ASSET_INFO.set(USDC, {
+  version: '2',
+  name: 'USDC Stable coin',
+  decimals: 18,
+  symbol: 'USDC',
   showToken: true,
   isWrappedToken: false,
   color: '#2775CA',
   digitFormat: 2,
   tokenType: TokenType.ERC20_Permit,
 });
+
 ASSET_INFO.set(WBTC, {
+  version: '1',
+  name: 'Wrapped Bitcoin',
+  decimals: 18,
+  symbol: 'WBTC',
   showToken: true,
   isWrappedToken: false,
   color: '#5A5564',
   digitFormat: 6,
   tokenType: TokenType.ERC20,
 });
+
 ASSET_INFO.set(ENS, {
+  version: '1',
+  name: 'Ethereum Naming Service',
+  decimals: 18,
+  symbol: 'ENS',
   showToken: true,
   isWrappedToken: false,
   color: '#000000',
@@ -57,6 +74,10 @@ ASSET_INFO.set(ENS, {
 });
 
 ASSET_INFO.set(WETH, {
+  version: '1',
+  name: 'Wrapped Ether',
+  decimals: 18,
+  symbol: 'WETH',
   displaySymbol: 'ETH',
   showToken: true,
   isWrappedToken: false,
@@ -66,6 +87,10 @@ ASSET_INFO.set(WETH, {
 });
 
 ASSET_INFO.set(wstETH, {
+  version: '1',
+  name: 'Wrapped Staked Ether',
+  decimals: 18,
+  symbol: 'wstETH',
   displaySymbol: 'wstETH',
   showToken: true,
   isWrappedToken: false,
@@ -79,6 +104,10 @@ ASSET_INFO.set(wstETH, {
 });
 
 ASSET_INFO.set(stETH, {
+  version: '1',
+  name: 'Staked Eth',
+  decimals: 18,
+  symbol: 'stETH',
   showToken: false,
   isWrappedToken: false,
   wrapHandlerAddress: '0x491aB93faa921C8E634F891F96512Be14fD3DbB1',
@@ -91,57 +120,94 @@ ASSET_INFO.set(stETH, {
 });
 
 ASSET_INFO.set(LINK, {
+  version: '1',
+  name: 'ChainLink',
+  decimals: 18,
+  symbol: 'LINK',
   showToken: true,
   isWrappedToken: false,
   color: '#2A5ADA',
   digitFormat: 6,
   tokenType: TokenType.ERC20,
 });
+
 ASSET_INFO.set(yvUSDC, {
+  version: '1',
+  name: 'curve',
+  decimals: 18,
+  symbol: 'yvUSDC',
   showToken: true,
   isWrappedToken: false,
   color: '#3366CC',
   digitFormat: 2,
   tokenType: TokenType.ERC20,
 });
+
 ASSET_INFO.set(UNI, {
+  version: '1',
+  name: 'Uniswap token',
+  decimals: 18,
+  symbol: 'UNI',
   showToken: true,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
-  tokenType: TokenType.ERC20_Permit,
-});
-ASSET_INFO.set(MKR, {
-  showToken: false,
-  isWrappedToken: false,
-  color: '#FF007A',
-  digitFormat: 6,
-  tokenType: TokenType.ERC20_Permit,
+  tokenType: TokenType.ERC20,
 });
 
+ASSET_INFO.set(MKR, {
+  version: '1',
+  name: 'Maker Token',
+  decimals: 18,
+  symbol: 'MKR',
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC20_MKR,
+});
 
-ASSET_INFO.set(MKR, {
+ASSET_INFO.set(FDAI1, {
+  version: '1',
+  name: 'fdai',
+  decimals: 18,
+  symbol: 'FDAI1',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155,
 });
-ASSET_INFO.set(MKR, {
+
+ASSET_INFO.set(FDAI2, {
+  version: '1',
+  name: 'fdai',
+  decimals: 18,
+  symbol: 'FDAI2',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155,
 });
-ASSET_INFO.set(MKR, {
+
+ASSET_INFO.set(FDAI3, {
+  version: '1',
+  name: 'fdai',
+  decimals: 18,
+  symbol: 'FDAI3',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155,
 });
-ASSET_INFO.set(MKR, {
+
+ASSET_INFO.set(FDAI4, {
+  version: '1',
+  name: 'fdai',
+  decimals: 18,
+  symbol: 'FDAI4',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
