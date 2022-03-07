@@ -126,6 +126,7 @@ export interface ISignable {
   domain?: string;
 }
 
+
 export interface ISeriesRoot extends ISignable {
   id: string;
   displayName: string;
@@ -165,7 +166,26 @@ export interface ISeriesRoot extends ISignable {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
+export enum TokenType { 
+  ERC20,
+  ERC20_Permit,
+  ERC20_DaiPermit,
+  ERC20_MKR,
+  ERC1155,
+  ERC720,
+}
+
 export interface IAssetInfo {
+
+  tokenType : TokenType;
+
+  // name: string;
+  // version: string;
+  // symbol: string;
+
+  decimals: number;
+  domain?: string;
+
   showToken: boolean;
   isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (expect ETH - which is handled differently)
 
@@ -185,7 +205,7 @@ export interface IAssetInfo {
 export interface IAssetRoot extends IAssetInfo, ISignable {
   // fixed/static:
   id: string;
-  decimals: number;
+
   color: string;
   image: React.FC;
   displayName: string;

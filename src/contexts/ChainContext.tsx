@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
+import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSET_INFO, ETH_BASED_ASSETS, yvUSDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
@@ -178,6 +178,10 @@ const ChainProvider = ({ children }: any) => {
             addrs.YearnVaultMultiOracle,
             fallbackProvider
           );
+          // NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
+          //   addrs.NotionalMultiOracle,
+          //   fallbackProvider
+          // );
         }
 
         // arbitrum
@@ -275,13 +279,23 @@ const ChainProvider = ({ children }: any) => {
 
         const newAssetList: any[] = [];
 
-
-
         await Promise.all(
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
             const { assetId: id, asset: address } = x;
-            
-            const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
+
+            const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
+
+            let contract: any;
+
+            switch (assetInfo.tokenType) {
+              case ( TokenType.ERC20 || TokenType.ERC20_Permit || TokenType.ERC20_DaiPermit) :
+                contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
+                break;
+              case TokenType.ERC1155:
+                contract = contracts.ERC1155__factory.connect(address, fallbackProvider);
+            }
+
+            // const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
 
             /* Get the basic token info */
             let name: string;
@@ -289,6 +303,8 @@ const ChainProvider = ({ children }: any) => {
             let decimals: number;
             let version: string;
             let domain: string | undefined;
+
+            // [ name, symbol, decimals ] =
 
             /* as erc20 (or MKR pimple) */
             // try {
@@ -300,47 +316,46 @@ const ChainProvider = ({ children }: any) => {
             //   decimals = 18;
             // }
 
-            // try { 
+            // try {
             //   [ name ] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
             //   console.log(name)
             // } catch (e) {
             //   console.log('no name: ', id )
             // }
 
-            try {
-              [ name, symbol, decimals ] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
-            } catch (e) {
-              /* TODO look at finding a better way to handle the pimple that is the Maker Token */
-              console.log( address )
-              // console.log('Trying rsolve maker TOKEN ');
-              // const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
-              // const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
-              // const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
-              // name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
-              // symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
-              // decimals = 18;
+            // try {
+            //   [ name, symbol, decimals ] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
+            // } catch (e) {
+            //   /* TODO look at finding a better way to handle the pimple that is the Maker Token */
+            //   console.log( address )
+            //   // console.log('Trying rsolve maker TOKEN ');
+            //   // const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
+            //   // const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
+            //   // const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
+            //   // name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
+            //   // symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
+            //   // decimals = 18;
+            //     symbol = 'NERC20';
+            //     name = 'Not ERC20';
+            //     decimals = 18;
+            // }
 
-                symbol = 'NERC20';
-                name = 'Not ERC20';
-                decimals = 18;
-            }
+            // /* try to get the token version if available */
+            // try {
+            //   version = await ERC20.version();
+            // } catch (e) {
+            //   version = '1';
+            // }
 
-            /* try to get the token version if available */
-            try {
-              version = await ERC20.version();
-            } catch (e) {
-              version = '1';
-            }
+            // /* try to get the domain_seperator if available */
+            // try {
+            //   domain = await ERC20.DOMAIN_SEPARATOR();
+            // } catch (e) {
+            //   domain = undefined;
+            // }
 
-            /* try to get the domain_seperator if available */
-            try {
-              domain = await ERC20.DOMAIN_SEPARATOR();
-            } catch (e) {
-              domain = undefined;
-            }
-
-            const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
             const idToUse = assetInfo?.wrappedTokenId || id;
+
             const newAsset = {
               id,
               address,
@@ -356,7 +371,6 @@ const ChainProvider = ({ children }: any) => {
               idToUse,
 
               displaySymbol: assetInfo?.displaySymbol || symbol,
-
               isWrappedToken: assetInfo?.isWrappedToken,
               wrapHandlerAddress: assetInfo?.wrapHandlerAddress,
               wrappedTokenId: assetInfo?.wrappedTokenId,

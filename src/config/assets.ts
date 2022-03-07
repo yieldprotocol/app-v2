@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { IAssetInfo } from '../types';
+import { IAssetInfo, TokenType } from '../types';
 
 export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
@@ -18,7 +18,6 @@ export const FDAI2 = '0x313400000000';
 export const FDAI3 = '0x313500000000';
 export const FDAI4 = '0x313600000000';
 
-
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
 export const DAI_PERMIT_ASSETS = ['DAI', DAI];
 export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WETH, yvUSDC, 'yvUSDC'];
@@ -26,10 +25,36 @@ export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WET
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
-ASSET_INFO.set(DAI, { showToken: true, isWrappedToken: false, color: '#F5AC37', digitFormat: 2 });
-ASSET_INFO.set(USDC, { showToken: true, isWrappedToken: false, color: '#2775CA', digitFormat: 2 });
-ASSET_INFO.set(WBTC, { showToken: true, isWrappedToken: false, color: '#5A5564', digitFormat: 6 });
-ASSET_INFO.set(ENS, { showToken: true, isWrappedToken: false, color: '#000000', digitFormat: 2 });
+
+ASSET_INFO.set(DAI, {
+  showToken: true,
+  isWrappedToken: false,
+  color: '#F5AC37',
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_DaiPermit,
+});
+
+ASSET_INFO.set(USDC, {
+  showToken: true,
+  isWrappedToken: false,
+  color: '#2775CA',
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_Permit,
+});
+ASSET_INFO.set(WBTC, {
+  showToken: true,
+  isWrappedToken: false,
+  color: '#5A5564',
+  digitFormat: 6,
+  tokenType: TokenType.ERC20,
+});
+ASSET_INFO.set(ENS, {
+  showToken: true,
+  isWrappedToken: false,
+  color: '#000000',
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_Permit,
+});
 
 ASSET_INFO.set(WETH, {
   displaySymbol: 'ETH',
@@ -37,6 +62,7 @@ ASSET_INFO.set(WETH, {
   isWrappedToken: false,
   color: '#FFFFFF',
   digitFormat: 6,
+  tokenType: TokenType.ERC20,
 });
 
 ASSET_INFO.set(wstETH, {
@@ -49,6 +75,7 @@ ASSET_INFO.set(wstETH, {
   color: '#00A3FF',
   digitFormat: 6,
   unwrappedTokenId: '0x303500000000',
+  tokenType: TokenType.ERC20_Permit,
 });
 
 ASSET_INFO.set(stETH, {
@@ -60,14 +87,64 @@ ASSET_INFO.set(stETH, {
   color: '#00A3FF',
   digitFormat: 6,
   unwrappedTokenId: '0x303500000000',
+  tokenType: TokenType.ERC20_Permit,
 });
 
-ASSET_INFO.set(LINK, { showToken: true, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
-ASSET_INFO.set(yvUSDC, { showToken: true, isWrappedToken: false, color: '#3366CC', digitFormat: 2 });
-ASSET_INFO.set(UNI, { showToken: true, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
-ASSET_INFO.set(MKR, { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
+ASSET_INFO.set(LINK, {
+  showToken: true,
+  isWrappedToken: false,
+  color: '#2A5ADA',
+  digitFormat: 6,
+  tokenType: TokenType.ERC20,
+});
+ASSET_INFO.set(yvUSDC, {
+  showToken: true,
+  isWrappedToken: false,
+  color: '#3366CC',
+  digitFormat: 2,
+  tokenType: TokenType.ERC20,
+});
+ASSET_INFO.set(UNI, {
+  showToken: true,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC20_Permit,
+});
+ASSET_INFO.set(MKR, {
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC20_Permit,
+});
 
-ASSET_INFO.set(MKR, { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
-ASSET_INFO.set(MKR, { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
-ASSET_INFO.set(MKR, { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
-ASSET_INFO.set(MKR, { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
+
+ASSET_INFO.set(MKR, {
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155,
+});
+ASSET_INFO.set(MKR, {
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155,
+});
+ASSET_INFO.set(MKR, {
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155,
+});
+ASSET_INFO.set(MKR, {
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155,
+});
