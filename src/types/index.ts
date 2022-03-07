@@ -123,7 +123,6 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
-  domain?: string;
 }
 
 
@@ -179,12 +178,10 @@ export interface IAssetInfo {
 
   tokenType : TokenType;
 
-  // name: string;
-  // version: string;
-  // symbol: string;
-
+  name: string;
+  version: string;
+  symbol: string;
   decimals: number;
-  domain?: string;
 
   showToken: boolean;
   isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (expect ETH - which is handled differently)
