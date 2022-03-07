@@ -285,87 +285,72 @@ const ChainProvider = ({ children }: any) => {
 
             const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
 
+            console.log(id);
+
+            /* handle special pimple-case with maker ERC20 */
+            const mkrERC20 = new ethers.Contract(
+              address,
+              ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'],
+              fallbackProvider
+            );
+
             let contract: any;
-
-            switch (assetInfo.tokenType) {
-              case ( TokenType.ERC20 || TokenType.ERC20_Permit || TokenType.ERC20_DaiPermit) :
-                contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-                break;
-              case TokenType.ERC1155:
-                contract = contracts.ERC1155__factory.connect(address, fallbackProvider);
-            }
-
-            // const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
 
             /* Get the basic token info */
             let name: string;
             let symbol: string;
             let decimals: number;
             let version: string;
-            let domain: string | undefined;
 
-            // [ name, symbol, decimals ] =
+            switch (assetInfo.tokenType) {
+              
+              case TokenType.ERC20:
+                contract = contracts.ERC20__factory.connect(address, fallbackProvider);
+                [name, symbol, decimals] = await Promise.all([
+                  contract.name(),
+                  contract.symbol(),
+                  contract.decimals(),
+                ]);
+                version='1';
+                break;
 
-            /* as erc20 (or MKR pimple) */
-            // try {
-            //   [ name, symbol, decimals ] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
-            // } catch (e) {
-            //   console.log(address , ' is not ERC20')
-            //   symbol = 'NERC20';
-            //   name = 'Not ERC20';
-            //   decimals = 18;
-            // }
+              case TokenType.ERC1155:
+                contract = contracts.ERC1155__factory.connect(address, fallbackProvider);
+                name = assetInfo.name;
+                version = assetInfo.version;
+                decimals = assetInfo.decimals;
+                symbol = assetInfo.symbol;
+                break;
 
-            // try {
-            //   [ name ] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
-            //   console.log(name)
-            // } catch (e) {
-            //   console.log('no name: ', id )
-            // }
+              case TokenType.ERC20_MKR:
+                [name, symbol] = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
+                decimals = 18;
+                version = '1';
+                contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
+                break;
 
-            // try {
-            //   [ name, symbol, decimals ] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
-            // } catch (e) {
-            //   /* TODO look at finding a better way to handle the pimple that is the Maker Token */
-            //   console.log( address )
-            //   // console.log('Trying rsolve maker TOKEN ');
-            //   // const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
-            //   // const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
-            //   // const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
-            //   // name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
-            //   // symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
-            //   // decimals = 18;
-            //     symbol = 'NERC20';
-            //     name = 'Not ERC20';
-            //     decimals = 18;
-            // }
+              default:
+                // Default is ERC20Permit;
+                contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
+                [ name, symbol, decimals, version ] = await Promise.all([
+                  contract.name(),
+                  contract.symbol(),
+                  contract.decimals(),
+                  contract.version(),
+                ]);
 
-            // /* try to get the token version if available */
-            // try {
-            //   version = await ERC20.version();
-            // } catch (e) {
-            //   version = '1';
-            // }
-
-            // /* try to get the domain_seperator if available */
-            // try {
-            //   domain = await ERC20.DOMAIN_SEPARATOR();
-            // } catch (e) {
-            //   domain = undefined;
-            // }
+                break;
+            }
 
             const idToUse = assetInfo?.wrappedTokenId || id;
 
             const newAsset = {
               id,
               address,
-              name,
-
-              symbol,
-              decimals,
-              version,
-
-              domain,
+              name: name || assetInfo.name,
+              symbol : symbol || assetInfo.symbol,
+              decimals : decimals || assetInfo.decimals || 18, 
+              version : version || assetInfo.version || '1',
 
               joinAddress: joinMap.get(idToUse),
               idToUse,
