@@ -12,7 +12,7 @@ CONNECTOR_INFO.set('ledger', { displayName: 'Ledger', image: LedgerMark });
 CONNECTOR_INFO.set('walletconnect', { displayName: 'WalletConnect', image: WalletconnectMark });
 
 /* use cached connector as initial_injected connection or metamask if null */
-export const INIT_INJECTED = (JSON.parse(localStorage.getItem('connectionName')!) as string) || 'metamask';
+export const INIT_INJECTED = localStorage.getItem('connectionName') ? (JSON.parse(localStorage.getItem('connectionName')!) as string): 'metamask';
 
 export const CONNECTORS = new Map();
 
