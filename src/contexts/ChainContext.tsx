@@ -259,17 +259,30 @@ const ChainProvider = ({ children }: any) => {
               asset.wrappedTokenAddress || asset.address,
               fallbackProvider
             );
-            getBalance = async (acc) => baseContract.balanceOf(acc, '1000');
-            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender);
+            getBalance = async (acc) => baseContract.balanceOf(acc, asset.tokenIdentifier);
+            getAllowance = async (acc: string, spender: string) =>
+              baseContract.allowance(acc, spender, asset.tokenIdentifier);
             break;
 
+            // case TokenType.ERC20_MKR:
+            //   baseContract = contracts.ERC20__factory.connect(
+            //     asset.wrappedTokenAddress || asset.address,
+            //     fallbackProvider
+            //   );
+            //   getBalance = async (acc) => BigNumber.from('1');;
+            //   getAllowance = async (acc: string, spender: string) => BigNumber.from('1');
+            //   break;
+ 
           default:
             // Default is ERC20Permit;
             baseContract = contracts.ERC20Permit__factory.connect(
               asset.wrappedTokenAddress || asset.address,
               fallbackProvider
             );
-            getBalance = async (acc) => baseContract.balanceOf(acc);
+            // getBalance = async (acc) => ETH_BASED_ASSETS.includes(asset.idToUse)
+            //   ? fallbackProvider?.getBalance(acc)
+            //   : baseContract.balanceOf(acc);
+            getBalance = async (acc) => BigNumber.from('1');
             getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender);
             break;
         }

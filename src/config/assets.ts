@@ -177,6 +177,7 @@ ASSET_INFO.set(FDAI1, {
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 12312312312,
 });
 
 ASSET_INFO.set(FDAI2, {
@@ -189,6 +190,7 @@ ASSET_INFO.set(FDAI2, {
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 12312312312,
 });
 
 ASSET_INFO.set(FDAI3, {
@@ -201,6 +203,7 @@ ASSET_INFO.set(FDAI3, {
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 12312312312,
 });
 
 ASSET_INFO.set(FDAI4, {
@@ -213,4 +216,5 @@ ASSET_INFO.set(FDAI4, {
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 12312312312,
 });

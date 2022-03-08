@@ -240,6 +240,8 @@ const UserProvider = ({ children }: any) => {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
+
+              console.log( asset.name, asset.symbol, await asset.getBalance(account)  );
               const balance = await asset.getBalance(account);
               return {
                 ...asset,
@@ -251,6 +253,7 @@ const UserProvider = ({ children }: any) => {
             })
           );
         } catch (e) {
+
           console.log(e);
         }
       }

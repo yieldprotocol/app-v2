@@ -177,6 +177,7 @@ export enum TokenType {
 export interface IAssetInfo {
 
   tokenType : TokenType;
+  tokenIdentifier?: number; // used for indentifing tokens in a multitoken contract
 
   name: string;
   version: string;
