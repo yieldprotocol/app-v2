@@ -236,14 +236,13 @@ const ChainProvider = ({ children }: any) => {
         // }
 
         let baseContract: Contract;
-        let getBalance: (acc: string, asset?: string ) => Promise<BigNumber>;
+        let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
         let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
 
-        console.log( 'charging asset :', asset.id );
+        console.log('charging asset :', asset.id);
 
         switch (asset.tokenType) {
           case TokenType.ERC20_:
-
             baseContract = contracts.ERC20__factory.connect(
               asset.wrappedTokenAddress || asset.address,
               fallbackProvider
@@ -256,24 +255,22 @@ const ChainProvider = ({ children }: any) => {
             break;
 
           case TokenType.ERC1155_:
-   
             baseContract = contracts.ERC1155__factory.connect(
               asset.wrappedTokenAddress || asset.address,
               fallbackProvider
             );
-            getBalance = async (acc ) => baseContract.balanceOf(acc, '1000');
-            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender)
+            getBalance = async (acc) => baseContract.balanceOf(acc, '1000');
+            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender);
             break;
 
           default:
-
             // Default is ERC20Permit;
             baseContract = contracts.ERC20Permit__factory.connect(
               asset.wrappedTokenAddress || asset.address,
               fallbackProvider
             );
             getBalance = async (acc) => baseContract.balanceOf(acc);
-            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender)
+            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender);
             break;
         }
 
@@ -301,32 +298,24 @@ const ChainProvider = ({ children }: any) => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
 
-        /* get hardcoded join/asset values  */
-        const joinHardMap: Map<string, string> = new Map((yieldEnv.joins as any)[fallbackChainId]);
-        const assetHardMap: Map<string, string> = new Map((yieldEnv.assets as any)[fallbackChainId]);
-
-        console.log( lastAssetUpdate  )
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           Cauldron.queryFilter('AssetAdded', lastAssetUpdate, blockNum),
           Ladle.queryFilter('JoinAdded', lastAssetUpdate, blockNum),
-        ]).catch(() => {
-          assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.');
-          return [[], []];
-        });
+        ]).catch(
+          () => [[], []] // assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.');
+        );
 
         /* Create a map from the joinAdded event data or hardcoded join data if available */
-        const joinMap: Map<string, string> = joinHardMap.size
-          ? joinHardMap
-          : new Map(joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]); // event values);
+        const joinMap: Map<string, string> = new Map(
+          joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
+        ); // event values);
 
         /* Create a array from the assetAdded event data or hardcoded asset data if available */
-        const assetsAdded: { assetId: string; asset: string }[] = assetHardMap.size
-          ? Array.from(assetHardMap, ([assetId, asset]) => ({ assetId, asset }))
-          : assetAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
+        const assetsAdded: { assetId: string; asset: string }[] = assetAddedEvents.map(
+          (x: any) => Cauldron.interface.parseLog(x).args
+        );
 
         const newAssetList: any[] = [];
-
-        console.log('assets added', assetAddedEvents)
 
         await Promise.all(
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
@@ -452,32 +441,24 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-        /* get hardcoded pool/series values  */
-        const poolHardMap: Map<string, string> = new Map((yieldEnv.pools as any)[fallbackChainId]);
-        const seriesHardMap: Map<string, string> = new Map((yieldEnv.series as any)[fallbackChainId]);
-
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
           Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
           Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
-        ]).catch(() => {
-          console.log('Fallback to hardcoded ASSET information required.');
-          return [[], []];
-        });
+        ]).catch(() =>
+          // console.log('Fallback to hardcoded ASSET information required.');
+          [[], []]
+        );
 
         /* Create a map from the poolAdded event data or hardcoded pool data if available */
-        const poolMap: Map<string, string> = poolHardMap.size
-          ? poolHardMap
-          : new Map(poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]); // event values);
+        const poolMap: Map<string, string> = new Map(
+          poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
+        ); // event values);
 
         /* Create a array from the seriesAdded event data or hardcoded series data if available */
-        const seriesAdded: { seriesId: string; baseId: string; fyToken: string }[] = seriesHardMap.size
-          ? Array.from(seriesHardMap, ([seriesId, fyToken]) => ({
-              seriesId,
-              fyToken,
-              baseId: baseIdFromSeriesId(seriesId),
-            }))
-          : seriesAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
+        const seriesAdded: { seriesId: string; baseId: string; fyToken: string }[] = seriesAddedEvents.map(
+          (x: any) => Cauldron.interface.parseLog(x).args
+        );
 
         /* build a map from the poolAdded event data */
         // const poolMap: Map<string, string> = new Map(
