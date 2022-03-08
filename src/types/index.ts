@@ -1,6 +1,6 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import React from 'react';
-import { ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
+import { ERC1155, ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -166,12 +166,12 @@ export interface ISeriesRoot extends ISignable {
 }
 
 export enum TokenType { 
-  ERC20,
+  ERC20_,
   ERC20_Permit,
   ERC20_DaiPermit,
   ERC20_MKR,
-  ERC1155,
-  ERC720,
+  ERC1155_,
+  ERC720_,
 }
 
 export interface IAssetInfo {
@@ -210,7 +210,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   joinAddress: string;
 
   digitFormat: number;
-  baseContract: ERC20Permit;
+  baseContract: Contract ;
 
   isYieldBase: boolean;
   idToUse: string;

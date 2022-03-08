@@ -58,7 +58,7 @@ ASSET_INFO.set(WBTC, {
   isWrappedToken: false,
   color: '#5A5564',
   digitFormat: 6,
-  tokenType: TokenType.ERC20,
+  tokenType: TokenType.ERC20_,
 });
 
 ASSET_INFO.set(ENS, {
@@ -83,7 +83,7 @@ ASSET_INFO.set(WETH, {
   isWrappedToken: false,
   color: '#FFFFFF',
   digitFormat: 6,
-  tokenType: TokenType.ERC20,
+  tokenType: TokenType.ERC20_,
 });
 
 ASSET_INFO.set(wstETH, {
@@ -128,7 +128,7 @@ ASSET_INFO.set(LINK, {
   isWrappedToken: false,
   color: '#2A5ADA',
   digitFormat: 6,
-  tokenType: TokenType.ERC20,
+  tokenType: TokenType.ERC20_,
 });
 
 ASSET_INFO.set(yvUSDC, {
@@ -140,7 +140,7 @@ ASSET_INFO.set(yvUSDC, {
   isWrappedToken: false,
   color: '#3366CC',
   digitFormat: 2,
-  tokenType: TokenType.ERC20,
+  tokenType: TokenType.ERC20_,
 });
 
 ASSET_INFO.set(UNI, {
@@ -152,7 +152,7 @@ ASSET_INFO.set(UNI, {
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
-  tokenType: TokenType.ERC20,
+  tokenType: TokenType.ERC20_Permit,
 });
 
 ASSET_INFO.set(MKR, {
@@ -176,7 +176,7 @@ ASSET_INFO.set(FDAI1, {
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
-  tokenType: TokenType.ERC1155,
+  tokenType: TokenType.ERC1155_,
 });
 
 ASSET_INFO.set(FDAI2, {
@@ -188,7 +188,7 @@ ASSET_INFO.set(FDAI2, {
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
-  tokenType: TokenType.ERC1155,
+  tokenType: TokenType.ERC1155_,
 });
 
 ASSET_INFO.set(FDAI3, {
@@ -200,7 +200,7 @@ ASSET_INFO.set(FDAI3, {
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
-  tokenType: TokenType.ERC1155,
+  tokenType: TokenType.ERC1155_,
 });
 
 ASSET_INFO.set(FDAI4, {
@@ -212,5 +212,5 @@ ASSET_INFO.set(FDAI4, {
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
-  tokenType: TokenType.ERC1155,
+  tokenType: TokenType.ERC1155_,
 });

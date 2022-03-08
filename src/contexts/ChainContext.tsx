@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Contract, ethers } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 
 import { format } from 'date-fns';
 
@@ -230,24 +230,68 @@ const ChainProvider = ({ children }: any) => {
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
         /* attach either contract, (or contract of the wrappedToken ) */
-        let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
-        if (asset.wrappedTokenAddress) {
-          baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
+        // let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+        // if (asset.wrappedTokenAddress) {
+        //   baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
+        // }
+
+        let baseContract: Contract;
+        let getBalance: (acc: string, asset?: string ) => Promise<BigNumber>;
+        let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
+
+        switch (asset.tokenType) {
+          case TokenType.ERC20_:
+            console.log('erc20')
+            baseContract = contracts.ERC20__factory.connect(
+              asset.wrappedTokenAddress || asset.address,
+              fallbackProvider
+            );
+            getBalance = async (acc) =>
+              ETH_BASED_ASSETS.includes(asset.idToUse)
+                ? fallbackProvider?.getBalance(acc)
+                : baseContract.balanceOf(acc);
+            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender);
+            break;
+
+          case TokenType.ERC1155_:
+            console.log('erc1155')
+            baseContract = contracts.ERC1155__factory.connect(
+              asset.wrappedTokenAddress || asset.address,
+              fallbackProvider
+            );
+            getBalance = async (acc ) => baseContract.balanceOf(acc, '1000');
+            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender)
+            break;
+
+          default:
+            console.log('erc20 Permit')
+            // Default is ERC20Permit;
+            baseContract = contracts.ERC20Permit__factory.connect(
+              asset.wrappedTokenAddress || asset.address,
+              fallbackProvider
+            );
+            getBalance = async (acc) => baseContract.balanceOf(acc);
+            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender)
+            break;
         }
-        const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
 
         return {
           ...asset,
           digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
           image: markMap.get(asset.displaySymbol),
           color: ASSET_INFO.get(asset.id)?.color || '#FFFFFF', // (yieldEnv.assetColors as any)[asset.symbol],
+
           baseContract,
-          /* baked in token fns */
-          getBalance: async (acc: string) =>
-            /* if eth based get provider balance, if token based, get token balance (NOT of wrappedToken ) */
-            ETH_BASED_ASSETS.includes(asset.idToUse) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
-          // getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
+
+          getBalance,
+          getAllowance,
+
+          // /* baked in token fns */
+          // getBalance: async (acc: string) =>
+          //   /* if eth based get provider balance, if token based, get token balance (NOT of wrappedToken ) */
+          //   ETH_BASED_ASSETS.includes(asset.idToUse) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
+          // getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
+          // // getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
         };
       };
 
@@ -282,86 +326,66 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
             const { assetId: id, asset: address } = x;
-
+            /* Get the basic hardcoded token info */
             const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
+            let { name, symbol, decimals, version } = assetInfo;
 
-            console.log(id);
+            // /* handle special pimple-case with maker ERC20 */
+            // const mkrERC20 = new ethers.Contract(
+            //   address,
+            //   ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'],
+            //   fallbackProvider
+            // );
 
-            /* handle special pimple-case with maker ERC20 */
-            const mkrERC20 = new ethers.Contract(
-              address,
-              ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'],
-              fallbackProvider
-            );
+            /* ( Checks/ Corrects the ERC20 name/symbol/decimals if possible ) */
+            if (
+              assetInfo.tokenType === TokenType.ERC20_ ||
+              assetInfo.tokenType === TokenType.ERC20_Permit ||
+              assetInfo.tokenType === TokenType.ERC20_DaiPermit
+            ) {
+              const contract = contracts.ERC20__factory.connect(address, fallbackProvider);
+              try {
+                [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
+                // console.log(address, ': validation', name, symbol, decimals);
+              } catch (e) {
+                console.log(
+                  address,
+                  ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
+                );
+              }
+            }
 
-            let contract: any;
-
-            /* Get the basic token info */
-            let name: string;
-            let symbol: string;
-            let decimals: number;
-            let version: string;
-
-            switch (assetInfo.tokenType) {
-              
-              case TokenType.ERC20:
-                contract = contracts.ERC20__factory.connect(address, fallbackProvider);
-                [name, symbol, decimals] = await Promise.all([
-                  contract.name(),
-                  contract.symbol(),
-                  contract.decimals(),
-                ]);
-                version='1';
-                break;
-
-              case TokenType.ERC1155:
-                contract = contracts.ERC1155__factory.connect(address, fallbackProvider);
-                name = assetInfo.name;
-                version = assetInfo.version;
-                decimals = assetInfo.decimals;
-                symbol = assetInfo.symbol;
-                break;
-
-              case TokenType.ERC20_MKR:
-                [name, symbol] = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
-                decimals = 18;
-                version = '1';
-                contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-                break;
-
-              default:
-                // Default is ERC20Permit;
-                contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-                [ name, symbol, decimals, version ] = await Promise.all([
-                  contract.name(),
-                  contract.symbol(),
-                  contract.decimals(),
-                  contract.version(),
-                ]);
-
-                break;
+            /* Checks/Corrects the version for ERC20Permit tokens */
+            if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
+              const contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
+              try {
+                version = await contract.version();
+                // console.log(address, ': ERC20 Permit version validated ', version );
+              } catch (e) {
+                console.log(
+                  address,
+                  ': contract version auto-validation unsuccessfull. Please manually ensure version is correct.'
+                );
+              }
             }
 
             const idToUse = assetInfo?.wrappedTokenId || id;
-
             const newAsset = {
+              ...assetInfo,
               id,
               address,
-              name: name || assetInfo.name,
-              symbol : symbol || assetInfo.symbol,
-              decimals : decimals || assetInfo.decimals || 18, 
-              version : version || assetInfo.version || '1',
+              name,
+              symbol,
+              decimals,
+              version,
 
+              /* redirect the id/join if required due to using wrapped tokens */
               joinAddress: joinMap.get(idToUse),
               idToUse,
 
-              displaySymbol: assetInfo?.displaySymbol || symbol,
-              isWrappedToken: assetInfo?.isWrappedToken,
-              wrapHandlerAddress: assetInfo?.wrapHandlerAddress,
-              wrappedTokenId: assetInfo?.wrappedTokenId,
-              wrappedTokenAddress: assetInfo?.wrappedTokenAddress,
-              unwrappedTokenId: assetInfo?.unwrappedTokenId,
-              showToken: assetInfo?.showToken || false,
+              /* default setting of assetInfo fields if required */
+              displaySymbol: assetInfo.displaySymbol || symbol,
+              showToken: assetInfo.showToken || false,
             };
 
             // Update state and cache
