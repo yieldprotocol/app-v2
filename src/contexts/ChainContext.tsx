@@ -239,9 +239,11 @@ const ChainProvider = ({ children }: any) => {
         let getBalance: (acc: string, asset?: string ) => Promise<BigNumber>;
         let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
 
+        console.log( 'charging asset :', asset.id );
+
         switch (asset.tokenType) {
           case TokenType.ERC20_:
-            console.log('erc20')
+
             baseContract = contracts.ERC20__factory.connect(
               asset.wrappedTokenAddress || asset.address,
               fallbackProvider
@@ -254,7 +256,7 @@ const ChainProvider = ({ children }: any) => {
             break;
 
           case TokenType.ERC1155_:
-            console.log('erc1155')
+   
             baseContract = contracts.ERC1155__factory.connect(
               asset.wrappedTokenAddress || asset.address,
               fallbackProvider
@@ -264,7 +266,7 @@ const ChainProvider = ({ children }: any) => {
             break;
 
           default:
-            console.log('erc20 Permit')
+
             // Default is ERC20Permit;
             baseContract = contracts.ERC20Permit__factory.connect(
               asset.wrappedTokenAddress || asset.address,
@@ -303,9 +305,10 @@ const ChainProvider = ({ children }: any) => {
         const joinHardMap: Map<string, string> = new Map((yieldEnv.joins as any)[fallbackChainId]);
         const assetHardMap: Map<string, string> = new Map((yieldEnv.assets as any)[fallbackChainId]);
 
+        console.log( lastAssetUpdate  )
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
-          Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
+          Cauldron.queryFilter('AssetAdded', lastAssetUpdate, blockNum),
+          Ladle.queryFilter('JoinAdded', lastAssetUpdate, blockNum),
         ]).catch(() => {
           assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.');
           return [[], []];
@@ -322,6 +325,8 @@ const ChainProvider = ({ children }: any) => {
           : assetAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
 
         const newAssetList: any[] = [];
+
+        console.log('assets added', assetAddedEvents)
 
         await Promise.all(
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
@@ -608,7 +613,6 @@ const ChainProvider = ({ children }: any) => {
         cachedStrategies.forEach((st: IStrategyRoot) => {
           updateState({ type: 'addStrategy', payload: _chargeStrategy(st) });
         });
-
         updateState({ type: 'chainLoading', payload: false });
 
         console.log('Checking for new Assets and Series, and Strategies ...');
