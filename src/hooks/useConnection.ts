@@ -54,7 +54,7 @@ export const useConnection = () => {
       (e: Error) => {
         setErrorMessage(handleErrorMessage(e));
         setTried(true); // tried, failed, move on.
-        setConnectionName(undefined);
+        localStorage.removeItem('connectionName');
         return null;
       },
       false
