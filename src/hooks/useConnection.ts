@@ -69,14 +69,14 @@ export const useConnection = () => {
   useEffect(() => {
     if (!tried && !active ) {
       setErrorMessage(undefined);
-      if (INIT_INJECTED !== 'walletconnect') {
+      if (INIT_INJECTED === 'metamask') {
         CONNECTORS.get(INIT_INJECTED)
           .isAuthorized()
           .then((isAuthorized: boolean) => {
             if (isAuthorized) {
                 connect(INIT_INJECTED)
             } else setTried(true); // not authorsied, move on
-          }); 
+          });
       } else {
         // connect('walletconnect');
         setTried(true); // tried, failed, move on.
