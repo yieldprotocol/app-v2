@@ -8,7 +8,9 @@
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061",
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
-      "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016"
+      "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
+
+      "NotionalMultiOracle": "0x67Ac817F9433c61c7472BC6B28bE07E1959427Ab"
     },
     "4": {
       "Cauldron": "0xb2cf78ccA863675Ef61a0c696885DED0C833F8f3",
@@ -18,7 +20,9 @@
       "CompositeMultiOracle": "0x8482BF1e17ceF57109F34C259d39d5B9BB9A4e13",
       "Witch": "0x5cEe0925647722e7ed32dcaf5A2DeFD3872Edb6F",
       "lidoWrapHandler": "0x80d0CfceE7dfa135189e44d617032d5A7Cc2705b",
-      "YearnVaultMultiOracle": "0x88175a3e14F905ecCe464aF2A8E99f26159d4Cb8"
+      "YearnVaultMultiOracle": "0x88175a3e14F905ecCe464aF2A8E99f26159d4Cb8",
+      
+      "NotionalMultiOracle": "0x67Ac817F9433c61c7472BC6B28bE07E1959427Ab"
     },
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
@@ -28,7 +32,9 @@
       "CompositeMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
       "Witch": "0xA421B81481e0d150740f8F137FB10b1b747974a8",
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
-      "YearnVaultMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1"
+      "YearnVaultMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
+
+      "NotionalMultiOracle": "0x67Ac817F9433c61c7472BC6B28bE07E1959427Ab"
     },
     "421611": {
       "Cauldron": "0x64BA0F1D2E5479BF132936328e8c533c95646fE8",

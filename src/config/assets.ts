@@ -15,8 +15,8 @@ export const MKR = '0x313100000000';
 
 export const FDAI1 = '0x313300000000';
 export const FDAI2 = '0x313400000000';
-export const FDAI3 = '0x313500000000';
-export const FDAI4 = '0x313600000000';
+export const FUSDC1 = '0x313500000000';
+export const FUSDC2 = '0x313600000000';
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
 export const DAI_PERMIT_ASSETS = ['DAI', DAI];
@@ -169,52 +169,52 @@ ASSET_INFO.set(MKR, {
 
 ASSET_INFO.set(FDAI1, {
   version: '1',
-  name: 'fdai',
-  decimals: 18,
+  name: 'FDAI1',
+  decimals: 8,
   symbol: 'FDAI1',
-  showToken: false,
+  showToken: true,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 12312312312,
+  tokenIdentifier: 563371972493313,
 });
 
 ASSET_INFO.set(FDAI2, {
   version: '1',
-  name: 'fdai',
-  decimals: 18,
+  name: 'FDAI2',
+  decimals: 8,
   symbol: 'FDAI2',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 12312312312,
+  tokenIdentifier: 563373963149313,
 });
 
-ASSET_INFO.set(FDAI3, {
+ASSET_INFO.set(FUSDC1, {
   version: '1',
-  name: 'fdai',
-  decimals: 18,
-  symbol: 'FDAI3',
+  name: 'FUSDC1',
+  decimals: 8,
+  symbol: 'FUSDC1',
+  showToken: true,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844846949203969,
+});
+
+ASSET_INFO.set(FUSDC2, {
+  version: '1',
+  name: 'FUSDC2',
+  decimals: 8,
+  symbol: 'FUSDC2',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 12312312312,
-});
-
-ASSET_INFO.set(FDAI4, {
-  version: '1',
-  name: 'fdai',
-  decimals: 18,
-  symbol: 'FDAI4',
-  showToken: false,
-  isWrappedToken: false,
-  color: '#FF007A',
-  digitFormat: 6,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 12312312312,
+  tokenIdentifier: 844848939859969,
 });

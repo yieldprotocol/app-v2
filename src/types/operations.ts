@@ -28,6 +28,7 @@ export namespace LadleActions {
     REDEEM = 'redeem',
     MODULE = 'module',
   }
+  
   export namespace Args {
     export type BUILD = [seriesId_bytes6: string, ilkId_bytes6: string, salt_bytes8: string];
     export type ROLL = [vaultId: string, newSeriesId: string, loan: BigNumberish, max: BigNumberish];

@@ -13,7 +13,6 @@ CONNECTOR_INFO.set('walletconnect', { displayName: 'WalletConnect', image: Walle
 
 /* use cached connector as initial_injected connection or metamask if null */
 export const INIT_INJECTED = (JSON.parse(localStorage.getItem('connectionName')!) as string) || 'metamask';
-
 export const CONNECTORS = new Map();
 
 CONNECTORS.set(

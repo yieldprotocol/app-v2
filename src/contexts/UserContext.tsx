@@ -253,7 +253,6 @@ const UserProvider = ({ children }: any) => {
             })
           );
         } catch (e) {
-
           console.log(e);
         }
       }
@@ -281,6 +280,7 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: 'assetPairLoading', payload: true });
 
       const Cauldron = contractMap.get('Cauldron');
+      
       const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
         ?.get(baseId)
         ?.get(ilkId);
@@ -299,6 +299,8 @@ const UserProvider = ({ children }: any) => {
 
       /* get pricing if available */
       let price: BigNumber;
+
+      console.log(PriceOracle);
 
       try {
         // eslint-disable-next-line prefer-const

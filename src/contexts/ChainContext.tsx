@@ -155,6 +155,9 @@ const ChainProvider = ({ children }: any) => {
       let Witch: any;
       let LidoWrapHandler: any;
 
+      // Notional
+      let NotionalMultiOracle: any;
+
       // arbitrum
       let ChainlinkUSDOracle: any;
       let AccumulatorOracle: any;
@@ -178,10 +181,10 @@ const ChainProvider = ({ children }: any) => {
             addrs.YearnVaultMultiOracle,
             fallbackProvider
           );
-          // NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
-          //   addrs.NotionalMultiOracle,
-          //   fallbackProvider
-          // );
+          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
+            addrs.NotionalMultiOracle,
+            fallbackProvider
+          );
         }
 
         // arbitrum
@@ -222,6 +225,9 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('AccumulatorOracle', AccumulatorOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
+
+      newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
+
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
@@ -243,10 +249,7 @@ const ChainProvider = ({ children }: any) => {
 
         switch (asset.tokenType) {
           case TokenType.ERC20_:
-            baseContract = contracts.ERC20__factory.connect(
-              asset.wrappedTokenAddress || asset.address,
-              fallbackProvider
-            );
+            baseContract = contracts.ERC20__factory.connect(asset.address, fallbackProvider);
             getBalance = async (acc) =>
               ETH_BASED_ASSETS.includes(asset.idToUse)
                 ? fallbackProvider?.getBalance(acc)
@@ -264,25 +267,20 @@ const ChainProvider = ({ children }: any) => {
               baseContract.allowance(acc, spender, asset.tokenIdentifier);
             break;
 
-            // case TokenType.ERC20_MKR:
-            //   baseContract = contracts.ERC20__factory.connect(
-            //     asset.wrappedTokenAddress || asset.address,
-            //     fallbackProvider
-            //   );
-            //   getBalance = async (acc) => BigNumber.from('1');;
-            //   getAllowance = async (acc: string, spender: string) => BigNumber.from('1');
-            //   break;
- 
+          // case TokenType.ERC20_MKR:
+          //   baseContract = contracts.ERC20__factory.connect(
+          //     asset.wrappedTokenAddress || asset.address,
+          //     fallbackProvider
+          //   );
+          //   getBalance = async (acc) => BigNumber.from('1');;
+          //   getAllowance = async (acc: string, spender: string) => BigNumber.from('1');
+          //   break;
+
           default:
             // Default is ERC20Permit;
-            baseContract = contracts.ERC20Permit__factory.connect(
-              asset.wrappedTokenAddress || asset.address,
-              fallbackProvider
-            );
-            // getBalance = async (acc) => ETH_BASED_ASSETS.includes(asset.idToUse)
-            //   ? fallbackProvider?.getBalance(acc)
-            //   : baseContract.balanceOf(acc);
-            getBalance = async (acc) => BigNumber.from('1');
+            baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+            getBalance = async (acc) =>
+              ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : baseContract.balanceOf(acc);
             getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender);
             break;
         }
@@ -297,13 +295,6 @@ const ChainProvider = ({ children }: any) => {
 
           getBalance,
           getAllowance,
-
-          // /* baked in token fns */
-          // getBalance: async (acc: string) =>
-          //   /* if eth based get provider balance, if token based, get token balance (NOT of wrappedToken ) */
-          //   ETH_BASED_ASSETS.includes(asset.idToUse) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-          // getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
-          // // getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
         };
       };
 
@@ -367,7 +358,6 @@ const ChainProvider = ({ children }: any) => {
               const contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
               try {
                 version = await contract.version();
-                // console.log(address, ': ERC20 Permit version validated ', version );
               } catch (e) {
                 console.log(
                   address,
@@ -376,7 +366,21 @@ const ChainProvider = ({ children }: any) => {
               }
             }
 
+            /* TODO: get the ERC1155 token id from the associated join */
+            // if (assetInfo.tokenType === TokenType.ERC1155_) {
+            //   const joinContract =  contracts.Join1155__factory.connect(address, fallbackProvider);
+            //   try {
+            //     version = await contract.id();
+            //   } catch (e) {
+            //     console.log(
+            //       address,
+            //       ': contract version auto-validation unsuccessfull. Please manually ensure version is correct.'
+            //     );
+            //   }
+            // }
+
             const idToUse = assetInfo?.wrappedTokenId || id;
+
             const newAsset = {
               ...assetInfo,
               id,
@@ -472,11 +476,6 @@ const ChainProvider = ({ children }: any) => {
         const seriesAdded: { seriesId: string; baseId: string; fyToken: string }[] = seriesAddedEvents.map(
           (x: any) => Cauldron.interface.parseLog(x).args
         );
-
-        /* build a map from the poolAdded event data */
-        // const poolMap: Map<string, string> = new Map(
-        //   poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-        // );
 
         const newSeriesList: any[] = [];
 
