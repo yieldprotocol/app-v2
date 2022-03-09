@@ -9,7 +9,7 @@ import { useConnection } from '../hooks/useConnection';
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
-import { ASSET_INFO, ETH_BASED_ASSETS, USDC } from '../config/assets';
+import { ASSET_INFO, ETH_BASED_ASSETS } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
@@ -583,8 +583,10 @@ const ChainProvider = ({ children }: any) => {
         'series',
         'lastAssetUpdate',
         'lastSeriesUpdate',
+        'lastVaultUpdate',
         'strategies',
         'lastStrategiesUpdate',
+        'connectionName',
       ]);
       // eslint-disable-next-line no-restricted-globals
       location.reload();

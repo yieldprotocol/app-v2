@@ -18,8 +18,9 @@ const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }:
         <Layer
           modal={false}
           responsive={true}
+          full={mobile}
           position="top-right"
-          margin='small'
+          margin= {mobile? undefined: 'small'}
           style={mobile ? { minWidth: undefined, maxWidth: undefined } : { minWidth: '400px', maxWidth: '400px' }}
           onClickOutside={() => setConnectOpen(false)}
           background='lightBackground'

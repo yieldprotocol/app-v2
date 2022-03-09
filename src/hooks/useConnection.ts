@@ -45,19 +45,22 @@ export const useConnection = () => {
   const isConnected = (connection: string) => CONNECTORS.get(connection) === connector;
   const disconnect = () => connector && deactivate();
 
-  const connect = useCallback((connection: string ) => {
+  const connect = useCallback(async (connection: string ) => {
+
     setErrorMessage(undefined);
-    // console.log( connection )
-    activate(
+
+    await activate(
       CONNECTORS.get(connection),
       (e: Error) => {
         setErrorMessage(handleErrorMessage(e));
         setTried(true); // tried, failed, move on.
+        localStorage.removeItem('connectionName');
+        return null;
       },
       false
-    ).then( (x) => {
-      setConnectionName(connection);
-    })
+    )
+    setConnectionName(connection);
+
   }, [activate, handleErrorMessage, setConnectionName]);
 
   /**
@@ -66,14 +69,14 @@ export const useConnection = () => {
   useEffect(() => {
     if (!tried && !active ) {
       setErrorMessage(undefined);
-      if (INIT_INJECTED !== 'walletconnect') {
+      if (INIT_INJECTED === 'metamask') {
         CONNECTORS.get(INIT_INJECTED)
           .isAuthorized()
           .then((isAuthorized: boolean) => {
             if (isAuthorized) {
                 connect(INIT_INJECTED)
             } else setTried(true); // not authorsied, move on
-          }); 
+          });
       } else {
         // connect('walletconnect');
         setTried(true); // tried, failed, move on.
