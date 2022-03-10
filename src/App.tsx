@@ -41,6 +41,7 @@ function App() {
       
       <Box flex={!mobile} overflow="hidden">  
         {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+        <Suspense fallback={null} >
           <Switch>
             <Route path="/borrow/:series?/:asset?/:amnt?">
               <Borrow />
@@ -76,6 +77,7 @@ function App() {
 
             <Route path="/*"> 404 </Route>
           </Switch>
+          </Suspense>
       </Box>
     </Box>
   );
