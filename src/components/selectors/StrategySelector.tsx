@@ -162,7 +162,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 </Box>
 
                 {open && (
-                  <Layer onClickOutside={() => setOpen(false)} style={{ minWidth: '500px' }} >
+                  <Layer onClickOutside={() => setOpen(false)} style={{ minWidth: '500px' }}>
                     <Box gap="small" pad="medium" round="small" background="background">
                       <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
