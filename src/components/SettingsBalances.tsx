@@ -77,7 +77,7 @@ const SettingsBalances = () => {
           onOpen={() => setOpen(true)}
           onClose={() => setOpen(false)}
           dropContent={<DropContent assetMap={assetMap} />}
-          dropProps={{ align: { top: 'bottom', right: 'right' }, round: 'medium' }}
+          dropProps={{ align: { top: 'bottom', right: 'right' }, round: 'small' }}
         >
           <YieldBalances />
         </DropButton>
