@@ -15,14 +15,14 @@ import YieldMobileMenu from './components/YieldMobileMenu';
 import { useColorScheme } from './hooks/useColorScheme';
 import TransactionError from './components/TransactionError';
 
-const Borrow = lazy(() => import('./views/Borrow'));
-const Lend = lazy(() => import('./views/Lend'));
-const Pool = lazy(() => import('./views/Pool'));
-const Dashboard = lazy(() => import('./views/Dashboard'));
+const Borrow = lazy(() => import('./pages/Borrow'));
+const Lend = lazy(() => import('./pages/Lend'));
+const Pool = lazy(() => import('./pages/Pool'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 
-const VaultPosition = lazy(() => import('./views/VaultPosition'));
-const LendPosition = lazy(() => import('./views/LendPosition'));
-const PoolPosition = lazy(() => import('./views/PoolPosition'));
+const VaultPosition = lazy(() => import('./pages/VaultPosition'));
+const LendPosition = lazy(() => import('./pages/LendPosition'));
+const PoolPosition = lazy(() => import('./pages/PoolPosition'));
 
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -38,44 +38,44 @@ function App() {
       <NetworkError />
       <TransactionError />
       <ToastContainer position="top-right" />
-      
-      <Box flex={!mobile} overflow="hidden">  
+
+      <Box flex={!mobile} overflow="hidden">
         {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
-          <Switch>
-            <Route path="/borrow/:series?/:asset?/:amnt?">
-              <Borrow />
-            </Route>
+        <Switch>
+          <Route path="/borrow/:series?/:asset?/:amnt?">
+            <Borrow />
+          </Route>
 
-            <Route path="/lend/:series?/:asset?/:amnt?">
-              <Lend />
-            </Route>
+          <Route path="/lend/:series?/:asset?/:amnt?">
+            <Lend />
+          </Route>
 
-            <Route path="/pool/:series?/:asset?/:amnt?">
-              <Pool />
-            </Route>
+          <Route path="/pool/:series?/:asset?/:amnt?">
+            <Pool />
+          </Route>
 
-            <Route path="/dashboard">
-              <Dashboard />
-            </Route>
+          <Route path="/dashboard">
+            <Dashboard />
+          </Route>
 
-            <Route exact path="/">
-              <Redirect to="/borrow" />
-            </Route>
+          <Route exact path="/">
+            <Redirect to="/borrow" />
+          </Route>
 
-            <Route path="/vaultposition/:id">
-              <VaultPosition />
-            </Route>
+          <Route path="/vaultposition/:id">
+            <VaultPosition />
+          </Route>
 
-            <Route path="/lendposition/:id">
-              <LendPosition />
-            </Route>
+          <Route path="/lendposition/:id">
+            <LendPosition />
+          </Route>
 
-            <Route path="/poolposition/:id">
-              <PoolPosition />
-            </Route>
+          <Route path="/poolposition/:id">
+            <PoolPosition />
+          </Route>
 
-            <Route path="/*"> 404 </Route>
-          </Switch>
+          <Route path="/*"> 404 </Route>
+        </Switch>
       </Box>
     </Box>
   );
