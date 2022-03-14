@@ -1,7 +1,6 @@
-import React, { useContext, useState, Suspense, lazy } from 'react';
+import React, { useContext, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { Box, ResponsiveContext, Grommet, base } from 'grommet';
 import { deepMerge } from 'grommet/utils';
@@ -40,11 +39,9 @@ function App() {
 const WrappedApp = () => {
   const colorScheme = useColorScheme();
   return (
-    <Suspense fallback={null}>
-      <Grommet theme={deepMerge(base, yieldTheme)} themeMode={colorScheme} full>
-        <App />
-      </Grommet>
-    </Suspense>
+    <Grommet theme={deepMerge(base, yieldTheme)} themeMode={colorScheme} full>
+      <App />
+    </Grommet>
   );
 };
 
