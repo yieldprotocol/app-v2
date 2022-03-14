@@ -38,21 +38,7 @@ export const useRemoveCollateral = () => {
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
 
-  // const removeEth = (value: BigNumber): ICallData[] => {
-  //   /* First check if the selected Ilk is, in fact, an ETH variety */
-  //   if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!)) {
-  //     /* return the remove ETH OP */
-  //     return [
-  //       {
-  //         operation: LadleActions.Fn.EXIT_ETHER,
-  //         args: [account] as LadleActions.Args.EXIT_ETHER,
-  //         ignoreIf: value.gte(ethers.constants.Zero),
-  //       },
-  //     ];
-  //   }
-  //   /* else return empty array */
-  //   return [];
-  // };
+  const ladleAddress = contractMap.get('Ladle').address
 
   const removeCollateral = async (vault: IVault, input: string) => {
     /* generate the txCode for tx tracking and tracing */
@@ -66,7 +52,8 @@ export const useRemoveCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1);
 
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
-    let _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
+    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.id); 
+    let _pourTo = isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
     let unwrap: ICallData[] = [];
@@ -80,7 +67,7 @@ export const useRemoveCollateral = () => {
         operation: LadleActions.Fn.POUR,
         args: [
           vault.id,
-          _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
+          _pourTo, /* pour destination based on ilk/asset is an eth asset variety */
           _input,
           ethers.constants.Zero,
         ] as LadleActions.Args.POUR,

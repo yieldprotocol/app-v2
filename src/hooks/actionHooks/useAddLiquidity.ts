@@ -24,6 +24,8 @@ import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } fro
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
+import { useAddRemoveEth } from './useAddRemoveEth';
+import { ETH_BASED_ASSETS } from '../../config/assets';
 
 export const useAddLiquidity = () => {
   const {
@@ -43,6 +45,8 @@ export const useAddLiquidity = () => {
   const {
     historyActions: { updateStrategyHistory },
   } = useContext(HistoryContext);
+
+  const { addEth } = useAddRemoveEth();
 
   const addLiquidity = async (
     input: string,
@@ -65,7 +69,12 @@ export const useAddLiquidity = () => {
     const [cachedBaseReserves, cachedFyTokenReserves] = await series?.poolContract.getCache()!;
     const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!.sub(ONE_BN));
 
-    console.log('series and total supply', series.baseId, series.totalSupply.toString(), cachedFyTokenReserves.toString() );
+    console.log(
+      'series and total supply',
+      series.baseId,
+      series.totalSupply.toString(),
+      cachedFyTokenReserves.toString()
+    );
 
     const [_fyTokenToBeMinted] = fyTokenForMint(
       cachedBaseReserves,
@@ -94,6 +103,9 @@ export const useAddLiquidity = () => {
     /* if approveMAx, check if signature is still required */
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(_input);
 
+    /* if ethBase */
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId); 
+
     /* DIAGNOSITCS */
     console.log(
       'input: ',
@@ -108,10 +120,13 @@ export const useAddLiquidity = () => {
       cachedFyTokenReserves.toString(),
       '>> baseSplit: ',
       _baseToPool.toString(),
+      
       '>> fyTokenSplit: ',
       _baseToFyToken.toString(),
+    
       '>> baseSplitWithSlippage: ',
       _baseToPoolWithSlippage.toString(),
+
       '>> minRatio',
       minRatio.toString(),
       '>> maxRatio',
@@ -140,6 +155,8 @@ export const useAddLiquidity = () => {
      * */
     const calls: ICallData[] = [
       ...permits,
+
+      ...addEth( _input, !isEthBase ),
       /**
        * Provide liquidity by BUYING :
        * */

@@ -83,12 +83,7 @@ export const useRepayDebt = () => {
     );
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
-    
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
-    // const inputGreaterThanMaxBaseIn = true;
-
-    console.log( 'inputGreteaterThanDebt: ', inputGreaterThanDebt )
-    console.log( 'inputGreteaterThanMaxBaseIn: ', inputGreaterThanMaxBaseIn )
 
     const _inputforClose = vault.art.lt(_input)
       ? vault.art
@@ -98,8 +93,9 @@ export const useRepayDebt = () => {
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
-    let reclaimToAddress = reclaimCollateral && isEthCollateral  ? ladleAddress : account;
+    let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
     let unwrap: ICallData[] = [];
@@ -108,8 +104,8 @@ export const useRepayDebt = () => {
       unwrap = await unwrapAsset(ilk, account!);
     }
 
-    if ( ETH_BASED_ASSETS.includes(series.baseId)  ) {
-      reclaimToAddress = base.joinAddress;
+    if (isEthBase) {
+      reclaimToAddress = ladleAddress;
     }
 
     const alreadyApproved = (
@@ -149,7 +145,7 @@ export const useRepayDebt = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      ...addEth(_input, !ETH_BASED_ASSETS.includes( series.baseId )), 
+      ...addEth(_input, !isEthBase), 
 
       /* BEFORE MATURITY */
       {
@@ -190,7 +186,7 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collateralToRemove, ETH_BASED_ASSETS.includes( series.baseId ) ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
+      ...removeEth( _collateralToRemove, isEthBase ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
       ...unwrap,
     ];
     await transact(calls, txCode);

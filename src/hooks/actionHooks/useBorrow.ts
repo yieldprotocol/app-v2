@@ -20,8 +20,14 @@ import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import { Ladle } from '../../contracts';
+import { ChainContext } from '../../contexts/ChainContext';
 
 export const useBorrow = () => {
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
+
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
@@ -29,6 +35,7 @@ export const useBorrow = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
+
   const { activeAccount: account, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
 
@@ -36,6 +43,8 @@ export const useBorrow = () => {
 
   const { wrapAssetToJoin } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
+
+  const ladleAddress = contractMap.get('Ladle').address;
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -47,6 +56,11 @@ export const useBorrow = () => {
     const series: ISeries = vault ? seriesMap.get(vault.seriesId)! : selectedSeries!;
     const base: IAsset = assetMap.get(series.baseId)!;
     const ilk: IAsset = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk?.idToUse!)!; // note: we use the wrapped version if required
+
+    /* is ETH  used as collateral */
+    const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+    /* is ETH being Borrowed   */
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
@@ -96,8 +110,8 @@ export const useBorrow = () => {
       /* Include all the signatures gathered, if required */
       ...permits,
 
-      /* handle ETH deposit as Collateral, if required  (if collateral used is ETH-based ) */
-      ...addEth( _collInput, !ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ),
+      /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ) */
+      ...addEth(_collInput, !isEthCollateral),
 
       /* If vault is null, build a new vault, else ignore */
       {
@@ -107,15 +121,19 @@ export const useBorrow = () => {
       },
       {
         operation: LadleActions.Fn.SERVE,
-        args: [vaultId, account, _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
+        args: [
+          vaultId,
+          isEthBase ? ladleAddress : account, // if ETH is being borrowed, send the borrowed tokens (WETH) to ladle 
+          _collInput,
+          _input,
+          _expectedFyTokenWithSlippage,
+        ] as LadleActions.Args.SERVE,
         ignoreIf: false, // never ignore
       },
 
-      /* handle remove/unwrap WETH >  if ETH what is being borrowed */
-      ...removeEth(_input.mul(-1), !ETH_BASED_ASSETS.includes(series.baseId) )
-
+      /* handle remove/unwrap WETH > if ETH is what is being borrowed */
+      ...removeEth(_input.mul(-1), !isEthBase),
     ];
-
 
     /* handle the transaction */
     await transact(calls, txCode);
