@@ -37,7 +37,7 @@ export const useRepayDebt = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { removeEth } = useAddRemoveEth();
+  const { addEth, removeEth } = useAddRemoveEth();
 
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
@@ -139,6 +139,7 @@ export const useRepayDebt = () => {
 
     const calls: ICallData[] = [
       ...permits,
+      ...addEth(_input, !ETH_BASED_ASSETS.includes( series.baseId ) ), 
 
       /* BEFORE MATURITY */
       {

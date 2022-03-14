@@ -9,7 +9,6 @@ import {
   RoutedActions,
   IVault,
   ISettingsContext,
-  IStrategy,
   IAsset,
   IUserContext,
   IUserContextState,
