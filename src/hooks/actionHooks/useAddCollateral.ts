@@ -19,6 +19,7 @@ import { BLANK_VAULT } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
+import { useAddRemoveEth } from './useAddRemoveEth';
 
 export const useAddCollateral = () => {
   const {
@@ -35,22 +36,7 @@ export const useAddCollateral = () => {
   const { sign, transact } = useChain();
   const { wrapAssetToJoin } = useWrapUnwrapAsset();
 
-  const addEth = (value: BigNumber): ICallData[] => {
-    /* Check if the selected Ilk is, in fact, an ETH variety (and +ve)  */
-    if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) && value.gte(ethers.constants.Zero)) {
-      /* return the add ETH OP */
-      return [
-        {
-          operation: LadleActions.Fn.JOIN_ETHER,
-          args: [selectedIlk?.idToUse] as LadleActions.Args.JOIN_ETHER,
-          ignoreIf: false,
-          overrides: { value },
-        },
-      ];
-    }
-    /* else return empty array */
-    return [];
-  };
+  const { addEth } = useAddRemoveEth();
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
     /* use the vault id provided OR 0 if new/ not provided */
@@ -108,8 +94,11 @@ export const useAddCollateral = () => {
       },
       /* handle wrapped token deposit, if required */
       ...wrapping,
+
+
       /* handle adding eth if required */
-      ...addEth(_input),
+      ...addEth(_input, !ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!), selectedIlk?.idToUse ),
+
       /* handle permits if required */
       ...permits,
       {
@@ -130,5 +119,5 @@ export const useAddCollateral = () => {
     updateAssets([base!, ilk!, ilkForWrap!]);
   };
 
-  return { addEth, addCollateral };
+  return { addCollateral };
 };

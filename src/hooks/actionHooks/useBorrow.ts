@@ -18,12 +18,12 @@ import { BLANK_VAULT } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
-import { useAddCollateral } from './useAddCollateral';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
+import { useAddRemoveEth } from './useAddRemoveEth';
 
 export const useBorrow = () => {
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
@@ -32,7 +32,8 @@ export const useBorrow = () => {
   const { activeAccount: account, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
 
-  const { addEth } = useAddCollateral();
+  const { addEth, removeEth } = useAddRemoveEth();
+
   const { wrapAssetToJoin } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
@@ -95,8 +96,8 @@ export const useBorrow = () => {
       /* Include all the signatures gathered, if required */
       ...permits,
 
-      /* handle ETH deposit, if required */
-      ...addEth(_collInput, series),
+      /* handle ETH deposit as Collateral, if required  (if collateral used is ETH-based ) */
+      ...addEth( _collInput, !ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ),
 
       /* If vault is null, build a new vault, else ignore */
       {
@@ -109,7 +110,11 @@ export const useBorrow = () => {
         args: [vaultId, account, _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
         ignoreIf: false, // never ignore
       },
+
+      /* handle remove/unwrap WETH >  if ETH what is being borrowed */
+      ...removeEth(_input, !ETH_BASED_ASSETS.includes(series.baseId) )
     ];
+
 
     /* handle the transaction */
     await transact(calls, txCode);

@@ -17,6 +17,7 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
+import { useAddRemoveEth } from './useAddRemoveEth';
 
 // TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
@@ -34,23 +35,24 @@ export const useRemoveCollateral = () => {
 
   const { transact } = useChain();
 
+  const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
 
-  const removeEth = (value: BigNumber): ICallData[] => {
-    /* First check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!)) {
-      /* return the remove ETH OP */
-      return [
-        {
-          operation: LadleActions.Fn.EXIT_ETHER,
-          args: [account] as LadleActions.Args.EXIT_ETHER,
-          ignoreIf: value.gte(ethers.constants.Zero),
-        },
-      ];
-    }
-    /* else return empty array */
-    return [];
-  };
+  // const removeEth = (value: BigNumber): ICallData[] => {
+  //   /* First check if the selected Ilk is, in fact, an ETH variety */
+  //   if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!)) {
+  //     /* return the remove ETH OP */
+  //     return [
+  //       {
+  //         operation: LadleActions.Fn.EXIT_ETHER,
+  //         args: [account] as LadleActions.Args.EXIT_ETHER,
+  //         ignoreIf: value.gte(ethers.constants.Zero),
+  //       },
+  //     ];
+  //   }
+  //   /* else return empty array */
+  //   return [];
+  // };
 
   const removeCollateral = async (vault: IVault, input: string) => {
     /* generate the txCode for tx tracking and tracing */
@@ -84,7 +86,7 @@ export const useRemoveCollateral = () => {
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
-      ...removeEth(_input),
+      ...removeEth(_input, !ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!)),
       ...unwrap,
     ];
 
@@ -95,6 +97,5 @@ export const useRemoveCollateral = () => {
 
   return {
     removeCollateral,
-    removeEth,
   };
 };

@@ -17,7 +17,7 @@ import {
   ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT } from '../../utils/constants';
+import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
@@ -27,7 +27,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 
 export const useAddLiquidity = () => {
   const {
-    settingsState: { slippageTolerance, diagnostics, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
@@ -63,7 +63,9 @@ export const useAddLiquidity = () => {
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
     const [cachedBaseReserves, cachedFyTokenReserves] = await series?.poolContract.getCache()!;
-    const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!);
+    const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!.sub(ONE_BN));
+
+    console.log('series and total supply', series.baseId, series.totalSupply.toString(), cachedFyTokenReserves.toString() );
 
     const [_fyTokenToBeMinted] = fyTokenForMint(
       cachedBaseReserves,

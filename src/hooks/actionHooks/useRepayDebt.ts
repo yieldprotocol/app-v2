@@ -20,6 +20,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
+import { useAddRemoveEth } from './useAddRemoveEth';
 
 export const useRepayDebt = () => {
   const {
@@ -36,7 +37,8 @@ export const useRepayDebt = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { removeEth } = useRemoveCollateral();
+  const { removeEth } = useAddRemoveEth();
+
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
@@ -89,9 +91,10 @@ export const useRepayDebt = () => {
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
-    const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
-    let reclaimToAddress = reclaimCollateral && isEthBased ? ladleAddress : account;
+    const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
+
+    let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
     let unwrap: ICallData[] = [];
@@ -176,7 +179,8 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the ETH collateral (if requested).
+      ...removeEth(_collateralToRemove, false ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
+
       ...unwrap,
     ];
     await transact(calls, txCode);
