@@ -1,6 +1,6 @@
+import React, { useContext } from 'react';
 import { Anchor, Box, Text } from 'grommet';
 
-import React, { useContext } from 'react';
 import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
@@ -8,6 +8,8 @@ import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import { useBlockNum } from '../hooks/useBlockNum';
 import NetworkSelector from './selectors/NetworkSelector';
+import { IChainContext } from '../types';
+import { CHAIN_INFO } from '../config/chainData';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -15,15 +17,13 @@ const IconGap = 'small';
 const YieldInfo = () => {
   const {
     chainState: {
-      connection: { CHAIN_INFO, fallbackChainId, currentChainInfo },
+      connection: { fallbackChainId },
       appVersion,
     },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
-  const connectedChain = CHAIN_INFO?.get(fallbackChainId!);
-
+  const connectedChain = CHAIN_INFO.get(fallbackChainId!);
   const blockNum = useBlockNum();
-
   const handleExternal = (destination: string) => {
     // analyticsLogEvent('external_link', {
     //   action: destination
@@ -31,14 +31,12 @@ const YieldInfo = () => {
   };
 
   return (
-    <Box gap="small">
-      <NetworkSelector />
-      <Box>
+    <Box gap="small" align="end" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
+      <Box alignSelf="end">
         <Text size="xsmall" color="text-weak">
           App version: v{appVersion}
         </Text>
       </Box>
-
       <Box direction="row" gap={IconGap}>
         <BoxWrap>
           <Anchor
@@ -97,18 +95,30 @@ const YieldInfo = () => {
       </Box>
 
       {connectedChain && (
-        <Box direction="row" gap="xsmall" align="center" flex>
-          <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
-            {CHAIN_INFO.get(fallbackChainId)?.name}
-          </Text>
-          {blockNum && currentChainInfo?.explorer && !currentChainInfo.name.includes('Optimism') && (
-            <Anchor style={{ lineHeight: '0' }} href={`${currentChainInfo.explorer}/block/${blockNum}`} target="_blank">
-              <Text size="xsmall" color={CHAIN_INFO.get(fallbackChainId)?.color}>
-                {blockNum}
+          <Box align="end" gap="xsmall">
+            <Box
+              // direction="row"
+              // margin={{right: '-0.5em'}}
+              gap="xsmall"
+              justify="end"
+              flex
+              elevation="xsmall"
+              pad="xsmall"
+              round
+            >
+              <NetworkSelector />
+            </Box>
+ 
+        {/* <Box fill>
+          {blockNum && connectedChain.explorer && !connectedChain.name.includes('Optimism') && (
+            <Anchor style={{ lineHeight: '0' }} href={`${connectedChain.explorer}/block/${blockNum}`} target="_blank">
+              <Text size="0.5em" color={connectedChain.colorSecondary || connectedChain.color}>
+                Latest Block : {blockNum}
               </Text>
             </Anchor>
           )}
-        </Box>
+          </Box> */}
+          </Box>
       )}
     </Box>
   );

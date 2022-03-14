@@ -153,10 +153,10 @@ export const useRemoveLiquidity = () => {
 
     const alreadyApprovedStrategy =
       _strategy 
-        ? (await _strategy.strategyContract.allowance(account!, ladleAddress)).gt(_input)
+        ? (await _strategy.strategyContract.allowance(account!, ladleAddress)).gte(_input)
         : false;
     const alreadyApprovedPool =
-      !_strategy ? (await series.poolContract.allowance(account!, ladleAddress)).gt(_input) : false;
+      !_strategy ? (await series.poolContract.allowance(account!, ladleAddress)).gte(_input) : false;
 
 
     const permits: ICallData[] = await sign(

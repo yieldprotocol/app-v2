@@ -5,7 +5,6 @@ import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, ISettingsContext, IUserContext, IUserContextState, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
-import DashButton from '../buttons/DashButton';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IVaultFilter {
@@ -75,9 +74,9 @@ function VaultPositionSelector(target: any) {
   return (
     <>
       {account && (
-        <Box justify="end" fill>
+        <Box justify="end" fill >
           {account && allVaults.length > 0 && (
-            <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+            <Box gap='small' >
               <Box
                 animation="fadeIn"
                 justify="between"
@@ -86,10 +85,7 @@ function VaultPositionSelector(target: any) {
                 pad={{ horizontal: 'medium', vertical: 'xsmall' }}
               >
                 <Text size="small" color="text-weak" textAlign="center">
-                  {showAllVaults ? 'All vaults' : 'Filtered vaults '}
-                </Text>
-                <Text color="text-weak" textAlign="center">
-                  <DashButton />
+                  {showAllVaults ? 'My Vaults' : 'Filtered vaults '}
                 </Text>
               </Box>
 

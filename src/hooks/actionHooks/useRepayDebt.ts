@@ -81,10 +81,11 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+    // const inputGreaterThanMaxBaseIn = true;
 
     const _inputforClose = vault.art.lt(_input)
       ? vault.art
-      : calcAccruedDebt(vault.rate, vault.rateAtMaturity, _input)[1]; // this is the input value less the accrued amount. 
+      : calcAccruedDebt(vault.rate, vault.rateAtMaturity, _input)[1]; // this is the input value less the accrued amount.
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
@@ -100,8 +101,11 @@ export const useRepayDebt = () => {
     }
 
     const alreadyApproved = (
-      await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress)
-    ).gt(_input);
+      await base.getAllowance(
+        account!,
+        series.seriesIsMature || inputGreaterThanMaxBaseIn ? base.joinAddress : ladleAddress
+      )
+    ).gte(_input);
 
     const permits: ICallData[] = await sign(
       [
@@ -110,14 +114,21 @@ export const useRepayDebt = () => {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: series.seriesIsMature || alreadyApproved === true,
+          ignoreIf: series.seriesIsMature || alreadyApproved === true || inputGreaterThanMaxBaseIn,
+        },
+        {
+          // input gretaer than max base in
+          target: base,
+          spender: base.joinAddress,
+          amount: _input,
+          ignoreIf: series.seriesIsMature || alreadyApproved === true || !inputGreaterThanMaxBaseIn,
         },
         {
           // after maturity
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: !series.seriesIsMature || alreadyApproved === true,
+          ignoreIf: !series.seriesIsMature || alreadyApproved === true || !inputGreaterThanMaxBaseIn,
         },
       ],
       txCode
@@ -149,6 +160,13 @@ export const useRepayDebt = () => {
           series.seriesIsMature ||
           !inputGreaterThanDebt || // use if input IS more than debt OR
           inputGreaterThanMaxBaseIn,
+      },
+
+      /* Input GreaterThanMaxbaseIn */
+      {
+        operation: LadleActions.Fn.CLOSE,
+        args: [vault.id, reclaimToAddress, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        ignoreIf: series.seriesIsMature || !inputGreaterThanMaxBaseIn,
       },
 
       /* AFTER MATURITY */

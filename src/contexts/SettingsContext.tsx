@@ -12,7 +12,7 @@ const initState: ISettingsContextState = {
   approveMax: (JSON.parse(localStorage.getItem('approveMax')!) as boolean) || (false as boolean),
 
   /* Set the slippage tolerance to a particular % */
-  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.005 as number),
+  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.001 as number),
 
   /* Show diagnostic messages in the console */
   diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),

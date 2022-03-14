@@ -60,44 +60,36 @@ const Dashboard = () => {
 
   return (
     <MainViewWrap>
-      {!mobile && (
-        <PanelWrap justify="between" basis="40%">
-          <YieldNavigation sideNavigation={true} />
-          <YieldInfo />
-        </PanelWrap>
-      )}
-      <StyledBox fill pad={mobile ? 'medium' : 'large'} margin={{ top: 'xlarge' }} align="center">
+      <StyledBox pad={mobile ? 'medium' : { left: 'large', top: 'large' }} margin={{ top: 'xlarge' }} basis="60%">
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
-          <Box width={mobile ? '100%' : '500px'} gap="medium">
+          <Box width={mobile ? '100%' : undefined} gap="large">
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Vaults</Text>
                 <Box onClick={() => updateSetting('dashHideVaults', !dashHideVaults)} pad="xsmall">
                   {dashHideVaults ? (
                     <Text size="xsmall" color="text-weak">
-                      show
+                      show vaults
                     </Text>
                   ) : (
                     <Text size="xsmall" color="text-weak">
-                      hide
+                      hide vaults
                     </Text>
                   )}
                 </Box>
               </Box>
-              {!dashHideVaults && (
-                <>
-                  {vaultsLoading ? (
-                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-                  ) : (
-                    <DashboardPositionList
-                      actionType={ActionType.BORROW}
-                      positions={vaultPositions}
-                      debt={`${currencySettingSymbol}${formatValue(totalDebt!, currencySettingDigits)}`}
-                      collateral={`${currencySettingSymbol}${formatValue(totalCollateral!, currencySettingDigits)}`}
-                    />
-                  )}
-                </>
+
+              {vaultsLoading ? (
+                <Skeleton width={mobile ? 300 : undefined} count={1} height={40} />
+              ) : (
+                <DashboardPositionList
+                  actionType={ActionType.BORROW}
+                  positions={vaultPositions}
+                  debt={`${currencySettingSymbol}${formatValue(totalDebt!, currencySettingDigits)}`}
+                  collateral={`${currencySettingSymbol}${formatValue(totalCollateral!, currencySettingDigits)}`}
+                  showList={!dashHideVaults}
+                />
               )}
             </Box>
             <Box gap="medium">
@@ -106,80 +98,89 @@ const Dashboard = () => {
                 <Box onClick={() => updateSetting('dashHideLendPositions', !dashHideLendPositions)} pad="xsmall">
                   {dashHideLendPositions ? (
                     <Text size="xsmall" color="text-weak">
-                      show
+                      show positions
                     </Text>
                   ) : (
                     <Text size="xsmall" color="text-weak">
-                      hide
+                      hide positions
                     </Text>
                   )}
                 </Box>
               </Box>
-              {!dashHideLendPositions && (
-                <>
-                  {seriesLoading ? (
-                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-                  ) : (
-                    <DashboardPositionList
-                      actionType={ActionType.LEND}
-                      positions={lendPositions}
-                      lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance!, currencySettingDigits)}`}
-                    />
-                  )}
-                </>
+
+              {seriesLoading ? (
+                <Skeleton width={mobile ? 300 : undefined} count={1} height={40} />
+              ) : (
+                <DashboardPositionList
+                  actionType={ActionType.LEND}
+                  positions={lendPositions}
+                  lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance!, currencySettingDigits)}`}
+                  showList={!dashHideLendPositions}
+                />
               )}
             </Box>
+
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
-                <Text size="medium">Pool Positions</Text>
+                <Text size="medium">Liquidity </Text>
                 <Box onClick={() => updateSetting('dashHidePoolPositions', !dashHidePoolPositions)} pad="xsmall">
                   {dashHidePoolPositions ? (
                     <Text size="xsmall" color="text-weak">
-                      show
+                      show positions
                     </Text>
                   ) : (
                     <Text size="xsmall" color="text-weak">
-                      hide
+                      hide positions
                     </Text>
                   )}
                 </Box>
               </Box>
-              {!dashHidePoolPositions && (
-                <>
-                  {strategiesLoading ? (
-                    <Skeleton width={mobile ? 300 : 500} count={1} height={40} />
-                  ) : (
-                    <DashboardPositionList
-                      actionType={ActionType.POOL}
-                      positions={strategyPositions}
-                      strategyBalance={`${currencySettingSymbol}${formatValue(
-                        totalStrategyBalance!,
-                        currencySettingDigits
-                      )}`}
-                    />
-                  )}
-                </>
+
+              {strategiesLoading ? (
+                <Skeleton width={mobile ? 300 : undefined} count={1} height={40} />
+              ) : (
+                <DashboardPositionList
+                  actionType={ActionType.POOL}
+                  positions={strategyPositions}
+                  strategyBalance={`${currencySettingSymbol}${formatValue(
+                    totalStrategyBalance!,
+                    currencySettingDigits
+                  )}`}
+                  showList={!dashHidePoolPositions}
+                />
               )}
             </Box>
           </Box>
         )}
       </StyledBox>
-      {!mobile && (
-        <PanelWrap basis="40%">
-          <Box />
 
-          <Box
-            margin={{ bottom: '10%' }}
-            fill="horizontal"
-            background="gradient-transparent"
-            round="xsmall"
-            pad="xsmall"
-          >
-            {account && (
-              <Box gap="small">
+      {!mobile && (
+        <PanelWrap right>
+          {/* <Box /> */}
+          {account && (
+
+            <Box
+              // margin={{ top: '30%' }}
+              margin={{ top: 'xlarge' }}
+              fill="horizontal"
+              gap='medium'
+            >
+              <Box direction='row' justify='between'>
+                <Text size="medium">Position Overview</Text>
                 <Box width="5rem" height="2rem">
                   <CurrencyToggle />
                 </Box>
+                
+              </Box>
+             
+              <Box gap="small"
+                            fill="horizontal"
+                            background="gradient-transparent"
+                            round="xsmall"
+                            pad="medium"
+                            elevation="medium"
+              
+              >
                 <DashboardBalanceSummary
                   debt={totalDebt!}
                   collateral={totalCollateral!}
@@ -189,8 +190,11 @@ const Dashboard = () => {
                   symbol={currencySettingSymbol}
                 />
               </Box>
-            )}
-          </Box>
+            </Box>
+  
+          )}
+
+          <YieldInfo />
         </PanelWrap>
       )}
     </MainViewWrap>

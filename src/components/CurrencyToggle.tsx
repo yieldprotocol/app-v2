@@ -14,24 +14,26 @@ const CurrencyToggle = () => {
       <Box
         fill
         pad="small"
-        border={dashCurrency === 'USDC' ? undefined : { color: 'lightgrey' }}
+        // border={dashCurrency === 'USDC' ? undefined : { color: 'lightgrey' }}
         background={dashCurrency === 'USDC' ? 'gradient-transparent' : undefined}
-        round={{ corner: 'left', size: 'xsmall' }}
+        round={{ corner: 'left'  }}
         onClick={() => updateSetting('dashCurrency', 'USDC')}
         align="center"
         justify="center"
+        elevation={dashCurrency === 'USDC' ? 'xsmall': 'small' }
       >
         <Text size="xsmall">USD</Text>
       </Box>
       <Box
         fill
         pad="small"
-        border={dashCurrency === 'ETH' ? undefined : { color: 'lightgrey' }}
+        // border={dashCurrency === 'ETH' ? undefined : { color: 'lightgrey' }}
         background={dashCurrency === 'ETH' ? 'gradient-transparent' : undefined}
-        round={{ corner: 'right', size: 'xsmall' }}
+        round={{ corner: 'right' }}
         onClick={() => updateSetting('dashCurrency', 'ETH')}
         align="center"
         justify="center"
+        elevation={dashCurrency === 'ETH' ? 'xsmall': 'small' }
       >
         <Text size="xsmall">ETH</Text>
       </Box>

@@ -1,10 +1,10 @@
-import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI , yvUSDC, MKR} from './assets';
+import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI, yvUSDC, MKR } from './assets';
 
 const COMPOSITE_MULTI_ORACLE = 'CompositeMultiOracle';
 const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
 const YEARNVAULT_MULTI_ORACLE = 'YearnVaultMultiOracle';
 const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
-const ACCUMULATOR_MULTI_ORACLE = 'AccumulatorMultiOracle';
+const ACCUMULATOR_ORACLE = 'AccumulatorOracle';
 
 // map chain id to oracle info
 export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
@@ -13,9 +13,10 @@ export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
 export const CHAIN_ID_1_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_4_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_42_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
+export const CHAIN_ID_42161_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_421611_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 
-/* chain id 1, 4, 42 */
+/* chain id 1, 4, 42 (these chain id's all use the same oracle contracts) */
 // USDC base
 const usdcIlkOracle1 = new Map<string, string>();
 usdcIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
@@ -61,7 +62,7 @@ wethIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(WETH, wethIlkOracle1);
 
-/* chain id 421611 */
+/* chain id 42161, 421611 (aribtrum mainnet and arbitrum rinkeby use the same oracle contracts) */
 // USDC base
 const usdcIlkOracle421611 = new Map<string, string>();
 usdcIlkOracle421611.set(WETH, CHAINLINK_USD_ORACLE);
@@ -96,4 +97,5 @@ CHAIN_ID_421611_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle421611);
 ORACLE_INFO.set(1, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(4, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(42, CHAIN_ID_1_ASSET_ORACLE_INFO);
+ORACLE_INFO.set(42161, CHAIN_ID_421611_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(421611, CHAIN_ID_421611_ASSET_ORACLE_INFO);

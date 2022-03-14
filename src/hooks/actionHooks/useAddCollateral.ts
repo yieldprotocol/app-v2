@@ -89,7 +89,7 @@ export const useAddCollateral = () => {
     const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await ilk?.getAllowance(account!, ilk?.joinAddress)!).gt(_input);
+    const alreadyApproved = (await ilk?.getAllowance(account!, ilk?.joinAddress)!).gte(_input);
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(

@@ -37,10 +37,11 @@ function App() {
       <TransactionWidget />
       <NetworkError />
       <TransactionError />
-      <Box flex={!mobile} overflow="hidden">
-        <ToastContainer position="top-right" />
+      <ToastContainer position="top-right" />
+      
+      <Box flex={!mobile} overflow="hidden">  
         {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Box />}>
           <Switch>
             <Route path="/borrow/:series?/:asset?/:amnt?">
               <Borrow />

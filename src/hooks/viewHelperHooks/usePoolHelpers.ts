@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IStrategy, IVault } from '../../types';
+import { IAsset, ISeries, ISettingsContext, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
@@ -10,6 +10,7 @@ import {
   maxFyTokenOut,
   burnFromStrategy,
   burn,
+  calculateSlippage,
 } from '../../utils/yieldMath';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
@@ -17,7 +18,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* STATE FROM CONTEXT */
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const {
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
@@ -120,11 +121,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.decimals
       );
 
-      _fyTokenToBuy = fyTokenForMint(
+      [_fyTokenToBuy] = fyTokenForMint(
         strategySeries.baseReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.fyTokenReserves,
-        _input,
+        calculateSlippage(_input, slippageTolerance.toString(), true),
         strategySeries.getTimeTillMaturity(),
         strategySeries.ts,
         strategySeries.g1,
@@ -211,13 +212,12 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           setPartialRemoveRequired(true);
 
           const _fyTokenVal = _fyTokenReceived.sub(matchingVault.art);
-          const _baseVal = _baseReceived.add(matchingVault.art);
+          const _baseVal = _baseReceived; // .add(matchingVault.art);
 
           setRemoveBaseReceived(_baseVal);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
           setRemoveFyTokenReceived(_fyTokenVal);
           setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenVal, strategySeries.decimals));
-          
         } else {
           /* CASE> fytokenReceived less than debt : USE REMOVE OPTION 1 */
           diagnostics &&
@@ -226,8 +226,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             );
           setPartialRemoveRequired(false);
 
-          const _val = _baseReceived.add(_fyTokenReceived);
-
+          const _val = _baseReceived; // .add(_fyTokenReceived);
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
@@ -250,8 +249,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           _input,
           strategy?.strategyTotalSupply!,
           strategy?.strategyPoolBalance!,
-          strategySeries?.baseReserves!,
-          strategySeries?.fyTokenReserves!,
+          strategySeries?.baseReserves,
+          strategySeries?.fyTokenRealReserves,
           strategySeries?.totalSupply!,
           strategySeries.getTimeTillMaturity(),
           strategySeries.ts,

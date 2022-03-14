@@ -17,7 +17,7 @@ const StyledBox = styled(Box)`
 const GeneralButton = (props: any) => (
   <StyledBox
     background={props.background}
-    round="xsmall"
+    round
     elevation="xsmall"
     onClick={props.disabled ? () => null : () => props.action()}
     pad="small"
@@ -27,4 +27,4 @@ const GeneralButton = (props: any) => (
   </StyledBox>
 );
 
-export default GeneralButton;
+export default React.memo(GeneralButton);

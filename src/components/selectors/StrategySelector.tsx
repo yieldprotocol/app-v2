@@ -28,7 +28,7 @@ const StyledBox = styled(Box)`
 `;
 
 const CardSkeleton = () => (
-  <StyledBox pad="xsmall" round="xsmall" elevation="xsmall" align="center">
+  <StyledBox round="large" elevation="xsmall" align="center">
     <Box pad="small" width="small" direction="row" gap="small" fill>
       <Skeleton circle width={45} height={45} />
       <Box>
@@ -91,30 +91,32 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
     } else {
+      /* select strategy with the lowest totalSupply */
+      opts.length &&
+        userActions.setSelectedStrategy(
+          opts.reduce((prev, curr) =>
+            parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
+          )
+        );
       /* or select random strategy from opts */
-      userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
+      // userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
     }
   }, [selectedBase, strategyMap]);
 
   return (
     <>
       {cardLayout && (
-        <Box
-          overflow={mobile ? 'auto' : 'hidden'}
-          height={mobile ? undefined : '250px'}
-          pad={{ vertical: 'small', horizontal: 'xsmall' }}
-          gap="small"
-        >
+        <Box gap="small">
+          {strategiesLoading && <Skeleton width={180} />}
+
           {strategiesLoading ? (
             <CardSkeleton />
           ) : (
             <Box
               key={selectedStrategy?.address}
-              pad="xsmall"
-              round="xsmall"
+              round="large"
               background={selectedStrategy?.currentSeries?.color}
               elevation="xsmall"
-              margin="xsmall"
             >
               <Box pad="small" width="small" direction="row" gap="small" fill>
                 <Avatar
@@ -160,8 +162,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 </Box>
 
                 {open && (
-                  <Layer onClickOutside={() => setOpen(false)} style={{minWidth:'500px'}}>
-                    <Box gap="small" pad="medium" fill background="background" round="small" >
+                  <Layer onClickOutside={() => setOpen(false)} style={{ minWidth: '500px' }} >
+                    <Box gap="small" pad="medium" round="small" background="background">
                       <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
                       </Box>
@@ -173,7 +175,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                         <StyledBox
                           key={strategy.id}
                           pad="xsmall"
-                          round="xsmall"
+                          round="large"
                           onClick={() => handleSelect(strategy)}
                           background={strategy.currentSeries?.color}
                           elevation="xsmall"
@@ -192,7 +194,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                             </Avatar>
                             <Box>
                               <Text size="small" color={strategy.currentSeries?.textColor}>
-                              {formatStrategyName(selectedStrategy?.name!)}
+                                {formatStrategyName(selectedStrategy?.name!)}
                               </Text>
                               <Text size="xsmall" color={strategy.currentSeries?.textColor}>
                                 Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
@@ -207,6 +209,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
               </Box>
             </Box>
           )}
+
           {options.length > 0 && (
             <Box>
               <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>

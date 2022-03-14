@@ -22,13 +22,13 @@ export interface IChainContextState {
 }
 
 export interface IConnectionState {
-  provider: ethers.providers.JsonRpcProvider | null;
+  provider: ethers.providers.Web3Provider | null;
   chainId: number | null;
-  fallbackProvider: ethers.providers.Web3Provider | null;
+  fallbackProvider: ethers.providers.JsonRpcProvider | null;
   fallbackChainId: number | null;
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
-  connectorName: string | null;
+  connectionName: string | null;
 }
 
 export interface IHistoryList {
@@ -123,6 +123,7 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
+  domain?: string;
 }
 
 export interface ISeriesRoot extends ISignable {
@@ -179,7 +180,6 @@ export interface IAssetInfo {
 
   wrappedTokenAddress?: string;
   unwrappedTokenAddress?: string;
-
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
@@ -206,7 +206,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 export interface IAssetPair {
   baseId: string;
   ilkId: string;
-  
+
   baseDecimals: number;
   limitDecimals: number;
   minRatio: number;
@@ -270,7 +270,7 @@ export interface IVault extends IVaultRoot, IAssetPair {
 
   ink_: string;
   art_: string;
-  
+
   rateAtMaturity: BigNumber;
   rate: BigNumber;
 

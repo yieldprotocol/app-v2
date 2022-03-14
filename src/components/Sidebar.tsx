@@ -18,10 +18,11 @@ const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }:
         <Layer
           modal={false}
           responsive={true}
-          full="vertical"
-          position="right"
+          position="top-right"
+          margin='small'
           style={mobile ? { minWidth: undefined, maxWidth: undefined } : { minWidth: '400px', maxWidth: '400px' }}
           onClickOutside={() => setConnectOpen(false)}
+          background='lightBackground'
         >
           <Connect setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>
@@ -35,6 +36,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }:
           position="right"
           style={mobile ? { minWidth: undefined, maxWidth: undefined } : { minWidth: '400px', maxWidth: '400px' }}
           onClickOutside={() => setSettingsOpen(false)}
+     
         >
           <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>

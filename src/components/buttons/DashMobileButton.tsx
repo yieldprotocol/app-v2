@@ -1,16 +1,7 @@
 import React, { useContext } from 'react';
-import { Avatar, Box, Text } from 'grommet';
+import { Box, Text } from 'grommet';
 import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 import { ChainContext } from '../../contexts/ChainContext';
-
-// look to see if there is a better way
-const StyledBox = styled(Box)`
-  position: absolute;
-  bottom: 3rem;
-  right: 1rem;
-  z-index: 500;
-`;
 
 function DashMobileButton({ transparent }: { transparent?: boolean }) {
   const routerHistory = useHistory();
@@ -21,17 +12,19 @@ function DashMobileButton({ transparent }: { transparent?: boolean }) {
   } = useContext(ChainContext);
 
   return account ? (
-    <StyledBox align="center" direction="row">
-      <Avatar
-        size="medium"
-        background={transparent ? 'gradient-transparent' : 'gradient'}
-        elevation="small"
-        onClick={() => routerHistory.push(`/dashboard`)}
-      >
-        {/* <RiDashboard3Line size={mobile ? '2em' : '2em'} /> */}
-        <Text size="xsmall"> Dash </Text>
-      </Avatar>
-    </StyledBox>
+    <Box
+      align="center"
+      direction="row"
+      elevation="small"
+      onClick={() => routerHistory.push(`/dashboard`)}
+      background={transparent ? 'gradient-transparent' : 'gradient'}
+      pad="xsmall"
+      round
+    >
+      <Text size="xsmall" color="background">
+        Positions
+      </Text>
+    </Box>
   ) : null;
 }
 

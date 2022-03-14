@@ -107,7 +107,7 @@ export const useBorrowHelpers = (
       const cleanedInput = cleanValue(input, futureSeries.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
 
-      const estimate = sellBase(
+      const estimate = buyBase(
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
         input_,
@@ -201,15 +201,17 @@ export const useBorrowHelpers = (
 
         /* if maxBasein is less than debt, and set protocol Limited flag */
         if (_maxBaseIn.lt(vault.accruedArt) && !vaultSeries.seriesIsMature) {
-          setProtocolLimited(true);
+          setProtocolLimited(false);
         } else {
           setProtocolLimited(false);
         }
 
         /* set the maxRepay as the biggest of the two, human readbale and BN */
         if (_maxRepayable && _maxBaseIn && _maxRepayable.gt(_maxBaseIn)) {
-          setMaxRepay_(ethers.utils.formatUnits(_maxBaseIn, vaultBase?.decimals)?.toString());
-          setMaxRepay(_maxBaseIn);
+          setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
+          setMaxRepay(_maxRepayable);
+          // setMaxRepay_(ethers.utils.formatUnits(_maxBaseIn, vaultBase?.decimals)?.toString());
+          // setMaxRepay(_maxBaseIn);
         } else {
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxRepayable);
