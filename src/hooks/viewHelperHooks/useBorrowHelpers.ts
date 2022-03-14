@@ -6,16 +6,7 @@ import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import {
-  buyBase,
-  calculateAPR,
-  calculateMinCollateral,
-  floorDecimal,
-  maxBaseIn,
-  maxFyTokenIn,
-  secondsToFrom,
-  sellBase,
-} from '../../utils/yieldMath';
+import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
 import { useAssetPair } from '../useAssetPair';
 
 /* Collateralization hook calculates collateralization metrics */
@@ -64,8 +55,6 @@ export const useBorrowHelpers = (
   const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
   const [rollPossible, setRollPossible] = useState<boolean>(false);
   const [protocolLimited, setProtocolLimited] = useState<boolean>(false);
-
-  const [variableRate, setVariableRate] = useState<string | undefined>();
 
   /* Update the borrow limits if asset pair changes */
   useEffect(() => {
@@ -221,15 +210,6 @@ export const useBorrowHelpers = (
           const _art = vault.accruedArt;
           setMaxRepay(_art);
           setMaxRepay_(ethers.utils.formatUnits(_art, vaultBase?.decimals)?.toString());
-
-          // calculate variable interest rate
-          const secondsFromMaturity = -parseFloat(secondsToFrom(vaultSeries.maturity.toString()));
-          const _variableAPR = calculateAPR(
-            floorDecimal(vault.rateAtMaturity),
-            floorDecimal(vault.rate),
-            vaultSeries.maturity + secondsFromMaturity
-          );
-          setVariableRate(_variableAPR);
         }
       })();
     }
@@ -260,7 +240,5 @@ export const useBorrowHelpers = (
     minDebt,
     maxDebt_,
     minDebt_,
-
-    variableRate,
   };
 };
