@@ -289,13 +289,18 @@ const ChainProvider = ({ children }: any) => {
             try {
               [name, symbol, decimals] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
             } catch (e) {
+
+
               /* TODO look at finding a better way to handle the pimple that is the Maker Token */
-              console.log('Trying rsolve maker TOKEN ');
-              const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
-              const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
-              const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
-              name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
-              symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
+              // console.log('Trying rsolve maker TOKEN ');
+              // const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
+              // const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
+              // const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
+              // name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
+              // symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
+              // decimals = 18;
+              name ='UNKOWN';
+              symbol= 'UNKOWN';
               decimals = 18;
             }
 
