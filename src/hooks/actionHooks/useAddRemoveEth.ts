@@ -16,7 +16,7 @@ export const useAddRemoveEth = () => {
       ? [
           {
             operation: LadleActions.Fn.JOIN_ETHER,
-            args: [alternateEthAssetId || '0x303300000000'] as LadleActions.Args.JOIN_ETHER,
+            args: [alternateEthAssetId || '0x303000000000'] as LadleActions.Args.JOIN_ETHER,
             ignoreIf: value.lte(ethers.constants.Zero),
             overrides: { value },
           },
