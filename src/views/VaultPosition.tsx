@@ -317,7 +317,7 @@ const VaultPosition = () => {
                         label="Vault debt + interest"
                         value={`${cleanValue(_selectedVault?.accruedArt_, vaultBase?.digitFormat!)} ${
                           vaultBase?.displaySymbol
-                        }${vaultSeries?.isMature && ` (variable rate: ${variableRate})%`}`}
+                        }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading}
                       />
