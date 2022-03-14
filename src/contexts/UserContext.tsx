@@ -262,7 +262,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.assetMap )
+        }, userState.assetMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -469,6 +469,7 @@ const UserProvider = ({ children }: any) => {
           let accruedArt;
           let rateAtMaturity;
           let rate;
+          let rate_: string;
           if (await series?.isMature()) {
             rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
             [rate] = await RateOracle?.peek(
@@ -476,9 +477,11 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
+            rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
+            rate_ = '1';
             rateAtMaturity = BigNumber.from('1');
             accruedArt = art;
           }
@@ -514,6 +517,7 @@ const UserProvider = ({ children }: any) => {
             accruedArt,
             rateAtMaturity,
             rate,
+            rate_,
 
             ink_, // for display purposes only
             art_, // for display purposes only
@@ -546,7 +550,6 @@ const UserProvider = ({ children }: any) => {
       /* if there are no vaults provided - assume a forced refresh of all vaults : */
       const combinedVaultMap = vaultList.length > 0 ? new Map([...userState.vaultMap, ...newVaultMap]) : newVaultMap;
 
-      
       /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
       vaultFromUrl && updateState({ type: 'selectedVault', payload: vaultFromUrl });
