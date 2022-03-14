@@ -46,6 +46,7 @@ export const useRepayDebt = () => {
     const ladleAddress = contractMap.get('Ladle').address;
 
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
+
     const series: ISeries = seriesMap.get(vault.seriesId)!;
     const base: IAsset = assetMap.get(vault.baseId)!;
     const ilk: IAsset = assetMap.get(vault.ilkId)!;
@@ -82,8 +83,12 @@ export const useRepayDebt = () => {
     );
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
+    
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
     // const inputGreaterThanMaxBaseIn = true;
+
+    console.log( 'inputGreteaterThanDebt: ', inputGreaterThanDebt )
+    console.log( 'inputGreteaterThanMaxBaseIn: ', inputGreaterThanMaxBaseIn )
 
     const _inputforClose = vault.art.lt(_input)
       ? vault.art
@@ -94,13 +99,17 @@ export const useRepayDebt = () => {
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
 
-    let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
+    let reclaimToAddress = reclaimCollateral && isEthCollateral  ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
     let unwrap: ICallData[] = [];
     if (ilk.wrapHandlerAddress && unwrapTokens && reclaimCollateral) {
       reclaimToAddress = ilk.wrapHandlerAddress;
       unwrap = await unwrapAsset(ilk, account!);
+    }
+
+    if ( ETH_BASED_ASSETS.includes(series.baseId)  ) {
+      reclaimToAddress = base.joinAddress;
     }
 
     const alreadyApproved = (
@@ -139,7 +148,8 @@ export const useRepayDebt = () => {
 
     const calls: ICallData[] = [
       ...permits,
-      ...addEth(_input, !ETH_BASED_ASSETS.includes( series.baseId ) ), 
+
+      ...addEth(_input, !ETH_BASED_ASSETS.includes( series.baseId )), 
 
       /* BEFORE MATURITY */
       {
@@ -180,8 +190,7 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collateralToRemove, false ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
-
+      ...removeEth(_collateralToRemove, ETH_BASED_ASSETS.includes( series.baseId ) ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
       ...unwrap,
     ];
     await transact(calls, txCode);
