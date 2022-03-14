@@ -112,7 +112,8 @@ export const useBorrow = () => {
       },
 
       /* handle remove/unwrap WETH >  if ETH what is being borrowed */
-      ...removeEth(_input, !ETH_BASED_ASSETS.includes(series.baseId) )
+      ...removeEth(_input.mul(-1), !ETH_BASED_ASSETS.includes(series.baseId) )
+
     ];
 
 
