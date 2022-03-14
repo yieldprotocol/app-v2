@@ -32,41 +32,6 @@ function App() {
 
       <Box flex={!mobile} overflow="hidden">
         {menuLayerOpen && <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
-        <Switch>
-          <Route path="/borrow/:series?/:asset?/:amnt?">
-            <Borrow />
-          </Route>
-
-          <Route path="/lend/:series?/:asset?/:amnt?">
-            <Lend />
-          </Route>
-
-          <Route path="/pool/:series?/:asset?/:amnt?">
-            <Pool />
-          </Route>
-
-          <Route path="/dashboard">
-            <Dashboard />
-          </Route>
-
-          <Route exact path="/">
-            <Redirect to="/borrow" />
-          </Route>
-
-          <Route path="/vaultposition/:id">
-            <VaultPosition />
-          </Route>
-
-          <Route path="/lendposition/:id">
-            <LendPosition />
-          </Route>
-
-          <Route path="/poolposition/:id">
-            <PoolPosition />
-          </Route>
-
-          <Route path="/*"> 404 </Route>
-        </Switch>
       </Box>
     </Box>
   );
