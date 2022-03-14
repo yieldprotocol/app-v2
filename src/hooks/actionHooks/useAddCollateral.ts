@@ -1,16 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 
 import {
   ICallData,
   IVault,
-  ISeries,
   ActionCodes,
   LadleActions,
-  ISettingsContext,
   IUserContext,
   IAsset,
   IUserContextState,
@@ -28,21 +25,17 @@ export const useAddCollateral = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const {
-    settingsState: { approveMax },
-  } = useContext(SettingsContext) as ISettingsContext;
-
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
 
-  const { activeAccount: account, selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
+  const { activeAccount: account, selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();
   const { wrapAssetToJoin } = useWrapUnwrapAsset();
 
-  const addEth = (value: BigNumber, series: ISeries): ICallData[] => {
+  const addEth = (value: BigNumber): ICallData[] => {
     /* Check if the selected Ilk is, in fact, an ETH variety (and +ve)  */
     if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) && value.gte(ethers.constants.Zero)) {
       /* return the add ETH OP */
@@ -63,10 +56,9 @@ export const useAddCollateral = () => {
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
-    /* set the series and ilk based on if a vault has been selected or it's a new vault */
-    const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
+    /* set the ilk based on if a vault has been selected or it's a new vault */
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
-    
+
     const ilkForWrap: IAsset | null | undefined = ilk?.isWrappedToken && ilk.unwrappedTokenId
       ? assetMap.get(ilk.unwrappedTokenId)
       : selectedIlk; // use the unwrapped token as ilk
@@ -82,8 +74,8 @@ export const useAddCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk?.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _isEthBased = ETH_BASED_ASSETS.includes(ilk?.id!);
-    const _pourTo = _isEthBased ? ladleAddress : account;
+    const _isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.id!);
+    const _pourTo = _isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
     const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
@@ -98,7 +90,7 @@ export const useAddCollateral = () => {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthBased || alreadyApproved === true || wrapping.length>0,
+          ignoreIf: _isEthCollateral || alreadyApproved === true || wrapping.length>0,
         },
       ],
       txCode
@@ -117,7 +109,7 @@ export const useAddCollateral = () => {
       /* handle wrapped token deposit, if required */
       ...wrapping,
       /* handle adding eth if required */
-      ...addEth(_input, series!),
+      ...addEth(_input),
       /* handle permits if required */
       ...permits,
       {
