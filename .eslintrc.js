@@ -3,13 +3,17 @@ module.exports = {
   // root: true,
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
-  extends: ['airbnb-typescript', 'react-app', 'prettier'],
+  extends: ['airbnb-typescript', 'react-app', 'prettier', 'next'],
   parserOptions: {
     project: './tsconfig.json',
     tsconfigRootDir: __dirname,
   },
   rules: {
     // "@typescript-eslint/no-unused-expressions": ["error", { "allowTernary": true }],
+    'react/jsx-uses-react': 'off',
+    'react/react-in-jsx-scope': 'off',
+    'react/prop-types': 'off',
+    'react/require-default-props': 'off',
     'arrow-body-style': ['error', 'as-needed'],
     'linebreak-style': [0, 'error', 'windows'],
     '@typescript-eslint/naming-convention': [
@@ -50,7 +54,6 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'import/prefer-default-export': 'off',
     'react/jsx-boolean-value': 'off',
-    'react/prop-types': 'off',
     'react/no-unescaped-entities': 'off',
     'react/jsx-one-expression-per-line': 'off',
     'react/jsx-wrap-multilines': 'off',

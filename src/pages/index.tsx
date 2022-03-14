@@ -1,3 +1,3 @@
-import dynamic from 'next/dynamic';
+const Index = () => <></>;
 
-export default dynamic(() => import('../App'), { ssr: false });
+export default Index;
