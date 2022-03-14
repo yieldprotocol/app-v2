@@ -15,15 +15,6 @@ import YieldMobileMenu from './components/YieldMobileMenu';
 import { useColorScheme } from './hooks/useColorScheme';
 import TransactionError from './components/TransactionError';
 
-const Borrow = lazy(() => import('./pages/borrow'));
-const Lend = lazy(() => import('./pages/lend'));
-const Pool = lazy(() => import('./pages/pool'));
-const Dashboard = lazy(() => import('./pages/dashboard'));
-
-const VaultPosition = lazy(() => import('./pages/[vaultPosition]'));
-const LendPosition = lazy(() => import('./pages/[lendPosition]'));
-const PoolPosition = lazy(() => import('./pages/[poolPosition]'));
-
 function App() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
