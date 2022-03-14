@@ -143,7 +143,6 @@ const VaultPosition = () => {
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
-    variableRate,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
