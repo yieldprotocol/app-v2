@@ -1,6 +1,8 @@
 import { ethers } from 'ethers';
 import { IAssetInfo, TokenType } from '../types';
 
+export const UNKNOWN = '0x000000000000';
+
 export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
 export const USDC = '0x303200000000';
@@ -24,6 +26,18 @@ export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WET
 
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
 export const ASSET_INFO = new Map<string, IAssetInfo>();
+
+ASSET_INFO.set(UNKNOWN, {
+  version: '1',
+  name: 'UNKNOWN',
+  decimals: 18,
+  symbol: 'UNKNOWN',
+  showToken: true,
+  isWrappedToken: false,
+  color: '#FFFFFFFF',
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+});
 
 ASSET_INFO.set(DAI, {
   version: '1',
