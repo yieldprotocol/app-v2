@@ -23,7 +23,6 @@ import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
 import ENSMark from '../components/logos/ENSMark';
 
-
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
@@ -44,8 +43,7 @@ const markMap = new Map([
   ['UNI', <UNIMark key="uni" />],
   ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get(yvUSDC)!.color} />],
   ['MKR', <MakerMark key="mkr" />],
-  ['Notional', <NotionalMark color={ASSET_INFO?.get(yvUSDC)!.color} key='notional' />],
-
+  ['Notional', <NotionalMark color={ASSET_INFO?.get(yvUSDC)!.color} key="notional" />],
 ]);
 
 /* Build the context */
@@ -211,7 +209,7 @@ const ChainProvider = ({ children }: any) => {
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
-        
+
       // arbitrum
       if (
         [42161, 421611].includes(fallbackChainId) &&
@@ -250,7 +248,7 @@ const ChainProvider = ({ children }: any) => {
         let assetContract: Contract;
         let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
         let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
-        let setAllowance: ( (spender: string) => Promise<BigNumber|void> ) | undefined;
+        let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
 
         console.log('charging asset :', asset.id);
 
@@ -265,14 +263,14 @@ const ChainProvider = ({ children }: any) => {
             break;
 
           case TokenType.ERC1155_:
-            assetContract = contracts.ERC1155__factory.connect(
-              asset.wrappedTokenAddress || asset.address,
-              fallbackProvider
-            );
+            assetContract = contracts.ERC1155__factory.connect(asset.address, fallbackProvider);
             getBalance = async (acc) => assetContract.balanceOf(acc, asset.tokenIdentifier);
-            getAllowance = async (acc: string, spender: string) =>
-              assetContract.isApprovedForAll(acc, spender);
-            setAllowance = async (spender:string) => assetContract.setApprovalForAll(spender, true);
+            getAllowance = async (acc: string, spender: string) => assetContract.isApprovedForAll(acc, spender);
+            setAllowance = async (spender: string) => {
+              console.log(spender);
+              console.log(asset.address);
+              assetContract.setApprovalForAll(spender, true );
+            };
             break;
 
           default:
@@ -287,7 +285,7 @@ const ChainProvider = ({ children }: any) => {
         return {
           ...asset,
           digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
-          image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional') ,
+          image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
           color: ASSET_INFO.get(asset.id)?.color || '#FFFFFF', // (yieldEnv.assetColors as any)[asset.symbol],
 
           assetContract,

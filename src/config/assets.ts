@@ -20,7 +20,22 @@ export const FUSDC0622 = '0x313500000000';
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
 export const DAI_PERMIT_ASSETS = ['DAI', DAI];
-export const NON_PERMIT_ASSETS = ['WBTC', 'LINK', WBTC, LINK, 'ETH', 'WETH', WETH, yvUSDC, 'yvUSDC'];
+
+export const NON_PERMIT_ASSETS = [
+  'WBTC',
+  'LINK',
+  WBTC,
+  LINK,
+  'ETH',
+  'WETH',
+  WETH,
+  yvUSDC,
+  'yvUSDC',
+  FDAI0622,
+  'FDAI0622',
+  FUSDC0622,
+  'FUSDC0622',
+];
 
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
 export const ASSET_INFO = new Map<string, IAssetInfo>();
@@ -179,7 +194,6 @@ ASSET_INFO.set(MKR, {
   tokenType: TokenType.ERC20_MKR,
 });
 
-
 ASSET_INFO.set(FDAI0622, {
   version: '1',
   name: 'FDAI0622',
@@ -191,7 +205,7 @@ ASSET_INFO.set(FDAI0622, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563373963149313,
-  // minCollateralization: 100, 
+  // minCollateralization: 100,
   // safeCollateralization: 100,
 });
 
@@ -206,7 +220,7 @@ ASSET_INFO.set(FUSDC0622, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844848939859969,
-  // minCollateralization: 100, 
+  // minCollateralization: 100,
   // safeCollateralization: 100,
 });
 
@@ -234,4 +248,3 @@ ASSET_INFO.set(FUSDC0622, {
 //   tokenType: TokenType.ERC1155_,
 //   tokenIdentifier: 563371972493313,
 // });
-
