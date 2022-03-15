@@ -27,7 +27,6 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 import MakerMark from '../components/logos/MakerMark';
-import { baseIdFromSeriesId } from '../utils/yieldMath';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -143,7 +142,6 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-
       const seasonColorMap = [1, 4, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: any;
@@ -179,6 +177,10 @@ const ChainProvider = ({ children }: any) => {
           );
           YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(
             addrs.YearnVaultMultiOracle,
+            fallbackProvider
+          );
+          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
+            addrs.NotionalMultiOracle,
             fallbackProvider
           );
           NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
@@ -266,15 +268,6 @@ const ChainProvider = ({ children }: any) => {
             getAllowance = async (acc: string, spender: string) =>
               baseContract.allowance(acc, spender, asset.tokenIdentifier);
             break;
-
-          // case TokenType.ERC20_MKR:
-          //   baseContract = contracts.ERC20__factory.connect(
-          //     asset.wrappedTokenAddress || asset.address,
-          //     fallbackProvider
-          //   );
-          //   getBalance = async (acc) => BigNumber.from('1');;
-          //   getAllowance = async (acc: string, spender: string) => BigNumber.from('1');
-          //   break;
 
           default:
             // Default is ERC20Permit;
