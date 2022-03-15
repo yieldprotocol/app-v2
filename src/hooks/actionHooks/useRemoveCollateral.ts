@@ -38,7 +38,7 @@ export const useRemoveCollateral = () => {
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
 
-  const ladleAddress = contractMap.get('Ladle').address
+  
 
   const removeCollateral = async (vault: IVault, input: string) => {
     /* generate the txCode for tx tracking and tracing */
@@ -46,6 +46,7 @@ export const useRemoveCollateral = () => {
 
     /* get associated series and ilk */
     const ilk = assetMap.get(vault.ilkId)!;
+    const ladleAddress = contractMap.get('Ladle').address
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
     const cleanedInput = cleanValue(input, ilk.decimals);

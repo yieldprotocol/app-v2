@@ -46,7 +46,6 @@ export const useRepayDebt = () => {
     const ladleAddress = contractMap.get('Ladle').address;
 
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
-
     const series: ISeries = seriesMap.get(vault.seriesId)!;
     const base: IAsset = assetMap.get(vault.baseId)!;
     const ilk: IAsset = assetMap.get(vault.ilkId)!;
@@ -162,7 +161,6 @@ export const useRepayDebt = () => {
           inputGreaterThanDebt || // use if input is NOT more than debt
           inputGreaterThanMaxBaseIn,
       },
-
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
@@ -185,7 +183,7 @@ export const useRepayDebt = () => {
         args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
-
+      
       ...removeEth( _collateralToRemove, isEthBase ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
       ...unwrap,
     ];

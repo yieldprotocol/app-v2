@@ -67,7 +67,8 @@ export const useAddLiquidity = () => {
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
     const [cachedBaseReserves, cachedFyTokenReserves] = await series?.poolContract.getCache()!;
-    const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!.sub(ONE_BN));
+    // const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!.sub(ONE_BN));
+    const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!);
 
     console.log(
       'series and total supply',
@@ -104,7 +105,7 @@ export const useAddLiquidity = () => {
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(_input);
 
     /* if ethBase */
-    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId); 
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* DIAGNOSITCS */
     console.log(
@@ -120,10 +121,10 @@ export const useAddLiquidity = () => {
       cachedFyTokenReserves.toString(),
       '>> baseSplit: ',
       _baseToPool.toString(),
-      
+
       '>> fyTokenSplit: ',
       _baseToFyToken.toString(),
-    
+
       '>> baseSplitWithSlippage: ',
       _baseToPoolWithSlippage.toString(),
 
@@ -156,7 +157,8 @@ export const useAddLiquidity = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      ...addEth( _input, !isEthBase ),
+      ...addEth(_input, !isEthBase),
+
       /**
        * Provide liquidity by BUYING :
        * */
@@ -194,9 +196,14 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _baseToPoolWithSlippage] as LadleActions.Args.TRANSFER,
+        args: [
+          base.address,
+          series.poolAddress,
+          _baseToPoolWithSlippage,
+        ] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
+
       {
         operation: LadleActions.Fn.POUR,
         args: [
@@ -229,6 +236,7 @@ export const useAddLiquidity = () => {
         targetContract: strategy.strategyContract,
         ignoreIf: !strategy,
       },
+
     ];
 
     await transact(calls, txCode);

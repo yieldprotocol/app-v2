@@ -44,8 +44,6 @@ export const useBorrow = () => {
   const { wrapAssetToJoin } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
-  const ladleAddress = contractMap.get('Ladle').address;
-
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);
@@ -56,6 +54,8 @@ export const useBorrow = () => {
     const series: ISeries = vault ? seriesMap.get(vault.seriesId)! : selectedSeries!;
     const base: IAsset = assetMap.get(series.baseId)!;
     const ilk: IAsset = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk?.idToUse!)!; // note: we use the wrapped version if required
+
+    const ladleAddress = contractMap.get('Ladle').address;
 
     /* is ETH  used as collateral */
     const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!);
