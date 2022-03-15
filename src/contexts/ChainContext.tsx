@@ -266,7 +266,7 @@ const ChainProvider = ({ children }: any) => {
             );
             getBalance = async (acc) => baseContract.balanceOf(acc, asset.tokenIdentifier);
             getAllowance = async (acc: string, spender: string) =>
-              baseContract.allowance(acc, spender, asset.tokenIdentifier);
+              baseContract.isApprovedForAll(acc, spender);
             break;
 
           default:
@@ -311,7 +311,6 @@ const ChainProvider = ({ children }: any) => {
         const assetsAdded: { assetId: string; asset: string }[] = assetAddedEvents.map(
           (x: any) => Cauldron.interface.parseLog(x).args
         );
-
         const newAssetList: any[] = [];
 
         await Promise.all(

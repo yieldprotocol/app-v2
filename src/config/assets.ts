@@ -15,9 +15,7 @@ export const UNI = '0x313000000000';
 export const yvUSDC = '0x303900000000';
 export const MKR = '0x313100000000';
 
-export const FDAI0622 = '0x313300000000';
-export const FDAI2 = '0x313400000000';
-export const FUSDC1 = '0x313600000000';
+export const FDAI0622 = '0x313400000000';
 export const FUSDC0622 = '0x313500000000';
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
@@ -181,18 +179,6 @@ ASSET_INFO.set(MKR, {
   tokenType: TokenType.ERC20_MKR,
 });
 
-// ASSET_INFO.set(FDAI1, {
-//   version: '1',
-//   name: 'FDAI1',
-//   decimals: 8,
-//   symbol: 'FDAI1',
-//   showToken: true,
-//   isWrappedToken: false,
-//   color: '#FF007A',
-//   digitFormat: 6,
-//   tokenType: TokenType.ERC1155_,
-//   tokenIdentifier: 563371972493313,
-// });
 
 ASSET_INFO.set(FDAI0622, {
   version: '1',
@@ -205,6 +191,23 @@ ASSET_INFO.set(FDAI0622, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563373963149313,
+  // minCollateralization: 100, 
+  // safeCollateralization: 100,
+});
+
+ASSET_INFO.set(FUSDC0622, {
+  version: '1',
+  name: 'FUSDC0622',
+  decimals: 8,
+  symbol: 'FUSDC0622',
+  showToken: true,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844848939859969,
+  // minCollateralization: 100, 
+  // safeCollateralization: 100,
 });
 
 // ASSET_INFO.set(FUSDC1, {
@@ -219,16 +222,16 @@ ASSET_INFO.set(FDAI0622, {
 //   tokenType: TokenType.ERC1155_,
 //   tokenIdentifier: 844846949203969,
 // });
+// ASSET_INFO.set(FDAI1, {
+//   version: '1',
+//   name: 'FDAI1',
+//   decimals: 8,
+//   symbol: 'FDAI1',
+//   showToken: true,
+//   isWrappedToken: false,
+//   color: '#FF007A',
+//   digitFormat: 6,
+//   tokenType: TokenType.ERC1155_,
+//   tokenIdentifier: 563371972493313,
+// });
 
-ASSET_INFO.set(FUSDC0622, {
-  version: '1',
-  name: 'FUSDC0622',
-  decimals: 8,
-  symbol: 'FUSDC0622',
-  showToken: true,
-  isWrappedToken: false,
-  color: '#FF007A',
-  digitFormat: 6,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844848939859969,
-});
