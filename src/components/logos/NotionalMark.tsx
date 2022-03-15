@@ -2,7 +2,7 @@ import * as React from 'react';
 
 function NotionalMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg width="1em" height="1em" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 139 22" {...props}>
+    <svg width="0.75em" height="0.75em" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" {...props}>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

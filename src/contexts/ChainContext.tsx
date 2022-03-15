@@ -23,10 +23,12 @@ import StEthMark from '../components/logos/StEthMark';
 import LINKMark from '../components/logos/LinkMark';
 import ENSMark from '../components/logos/ENSMark';
 
+
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 import MakerMark from '../components/logos/MakerMark';
+import NotionalMark from '../components/logos/NotionalMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -42,6 +44,8 @@ const markMap = new Map([
   ['UNI', <UNIMark key="uni" />],
   ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get(yvUSDC)!.color} />],
   ['MKR', <MakerMark key="mkr" />],
+  ['Notional', <NotionalMark color={ASSET_INFO?.get(yvUSDC)!.color} key='notional' />],
+
 ]);
 
 /* Build the context */
@@ -281,7 +285,7 @@ const ChainProvider = ({ children }: any) => {
         return {
           ...asset,
           digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
-          image: markMap.get(asset.displaySymbol),
+          image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional') ,
           color: ASSET_INFO.get(asset.id)?.color || '#FFFFFF', // (yieldEnv.assetColors as any)[asset.symbol],
 
           baseContract,
