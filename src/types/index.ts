@@ -219,6 +219,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
+  setAllowance?: (spender:string) =>  Promise<BigNumber|void>;
 }
 
 export interface IAssetPair {

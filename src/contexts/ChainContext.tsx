@@ -211,7 +211,7 @@ const ChainProvider = ({ children }: any) => {
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
-
+        
       // arbitrum
       if (
         [42161, 421611].includes(fallbackChainId) &&
@@ -247,38 +247,40 @@ const ChainProvider = ({ children }: any) => {
         //   baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
         // }
 
-        let baseContract: Contract;
+        let assetContract: Contract;
         let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
         let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
+        let setAllowance: ( (spender: string) => Promise<BigNumber|void> ) | undefined;
 
         console.log('charging asset :', asset.id);
 
         switch (asset.tokenType) {
           case TokenType.ERC20_:
-            baseContract = contracts.ERC20__factory.connect(asset.address, fallbackProvider);
+            assetContract = contracts.ERC20__factory.connect(asset.address, fallbackProvider);
             getBalance = async (acc) =>
               ETH_BASED_ASSETS.includes(asset.idToUse)
                 ? fallbackProvider?.getBalance(acc)
-                : baseContract.balanceOf(acc);
-            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender);
+                : assetContract.balanceOf(acc);
+            getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
             break;
 
           case TokenType.ERC1155_:
-            baseContract = contracts.ERC1155__factory.connect(
+            assetContract = contracts.ERC1155__factory.connect(
               asset.wrappedTokenAddress || asset.address,
               fallbackProvider
             );
-            getBalance = async (acc) => baseContract.balanceOf(acc, asset.tokenIdentifier);
+            getBalance = async (acc) => assetContract.balanceOf(acc, asset.tokenIdentifier);
             getAllowance = async (acc: string, spender: string) =>
-              baseContract.isApprovedForAll(acc, spender);
+              assetContract.isApprovedForAll(acc, spender);
+            setAllowance = async (spender:string) => assetContract.setApprovalForAll(spender, true);
             break;
 
           default:
             // Default is ERC20Permit;
-            baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+            assetContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
             getBalance = async (acc) =>
-              ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : baseContract.balanceOf(acc);
-            getAllowance = async (acc: string, spender: string) => baseContract.allowance(acc, spender);
+              ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : assetContract.balanceOf(acc);
+            getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
             break;
         }
 
@@ -288,10 +290,11 @@ const ChainProvider = ({ children }: any) => {
           image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional') ,
           color: ASSET_INFO.get(asset.id)?.color || '#FFFFFF', // (yieldEnv.assetColors as any)[asset.symbol],
 
-          baseContract,
+          assetContract,
 
           getBalance,
           getAllowance,
+          setAllowance,
         };
       };
 
