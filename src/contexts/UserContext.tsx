@@ -262,7 +262,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.assetMap )
+        }, userState.assetMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -292,7 +292,7 @@ const UserProvider = ({ children }: any) => {
         await Cauldron?.debt(baseId, ilkId),
         await Cauldron?.spotOracles(baseId, ilkId),
       ]);
-     
+
       /* get pricing if available */
       let price: BigNumber;
 
@@ -451,7 +451,7 @@ const UserProvider = ({ children }: any) => {
             pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
-            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId);
+            pairData = await userState.assetPairMap.get(`${vault.baseId}${vault.ilkId}`);
           }
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
@@ -546,7 +546,6 @@ const UserProvider = ({ children }: any) => {
       /* if there are no vaults provided - assume a forced refresh of all vaults : */
       const combinedVaultMap = vaultList.length > 0 ? new Map([...userState.vaultMap, ...newVaultMap]) : newVaultMap;
 
-      
       /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
       vaultFromUrl && updateState({ type: 'selectedVault', payload: vaultFromUrl });
