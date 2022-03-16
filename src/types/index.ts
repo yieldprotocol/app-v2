@@ -1,6 +1,6 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import React from 'react';
-import { ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
+import { ERC1155, ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -123,8 +123,8 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
-  domain?: string;
 }
+
 
 export interface ISeriesRoot extends ISignable {
   id: string;
@@ -165,7 +165,25 @@ export interface ISeriesRoot extends ISignable {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
+export enum TokenType { 
+  ERC20_,
+  ERC20_Permit,
+  ERC20_DaiPermit,
+  ERC20_MKR,
+  ERC1155_,
+  ERC720_,
+}
+
 export interface IAssetInfo {
+
+  tokenType : TokenType;
+  tokenIdentifier?: number; // used for indentifing tokens in a multitoken contract
+
+  name: string;
+  version: string;
+  symbol: string;
+  decimals: number;
+
   showToken: boolean;
   isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (expect ETH - which is handled differently)
 
@@ -173,19 +191,20 @@ export interface IAssetInfo {
   digitFormat: number; // this is the 'resonable' number of digits to show. accuracy equavalent to +- 1 us cent.
 
   displaySymbol?: string; // override for symbol display
+  
   wrapHandlerAddress?: string;
 
   wrappedTokenId?: string;
-  unwrappedTokenId?: string;
-
   wrappedTokenAddress?: string;
+
+  unwrappedTokenId?: string;
   unwrappedTokenAddress?: string;
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
   // fixed/static:
   id: string;
-  decimals: number;
+
   color: string;
   image: React.FC;
   displayName: string;
@@ -193,7 +212,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   joinAddress: string;
 
   digitFormat: number;
-  baseContract: ERC20Permit;
+  baseContract: Contract ;
 
   isYieldBase: boolean;
   idToUse: string;
@@ -201,6 +220,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
+  setAllowance?: (spender:string) =>  Promise<BigNumber|void>;
 }
 
 export interface IAssetPair {
@@ -250,7 +270,6 @@ export interface ISeries extends ISeriesRoot {
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
-
   seriesIsMature: boolean;
 }
 
@@ -275,7 +294,6 @@ export interface IVault extends IVaultRoot, IAssetPair {
   rate: BigNumber;
 
   accruedArt_: string;
-
   liquidationPrice_: string;
 }
 

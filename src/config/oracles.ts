@@ -1,10 +1,11 @@
-import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI, yvUSDC, MKR } from './assets';
+import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI, yvUSDC, MKR, FUSDC2206, FDAI2206 } from './assets';
 
 const COMPOSITE_MULTI_ORACLE = 'CompositeMultiOracle';
 const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
 const YEARNVAULT_MULTI_ORACLE = 'YearnVaultMultiOracle';
 const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
-const ACCUMULATOR_ORACLE = 'AccumulatorOracle';
+
+const NOTIONAL_MULTI_ORACLE = 'NotionalMultiOracle';
 
 // map chain id to oracle info
 export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
@@ -30,6 +31,9 @@ usdcIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 usdcIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+/* notional additions */
+usdcIlkOracle1.set(FUSDC2206, NOTIONAL_MULTI_ORACLE);
+
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle1);
 
 // DAI base
@@ -45,6 +49,9 @@ daiIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 daiIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+/* notional additions */
+daiIlkOracle1.set(FDAI2206, NOTIONAL_MULTI_ORACLE);
+
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle1);
 
 // WETH base
@@ -63,6 +70,7 @@ wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(WETH, wethIlkOracle1);
 
 /* chain id 42161, 421611 (aribtrum mainnet and arbitrum rinkeby use the same oracle contracts) */
+
 // USDC base
 const usdcIlkOracle421611 = new Map<string, string>();
 usdcIlkOracle421611.set(WETH, CHAINLINK_USD_ORACLE);
@@ -93,6 +101,7 @@ daiIlkOracle421611.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 daiIlkOracle421611.set(MKR, CHAINLINK_USD_ORACLE);
 
 CHAIN_ID_421611_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle421611);
+
 
 ORACLE_INFO.set(1, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(4, CHAIN_ID_1_ASSET_ORACLE_INFO);
