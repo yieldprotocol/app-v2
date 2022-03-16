@@ -10,8 +10,8 @@
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
 
-      "NotionalMultiOracle": "0x67Ac817F9433c61c7472BC6B28bE07E1959427Ab",
-      "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF"
+      "NotionalMultiOracle": "",
+      "transfer1155Module": ""
     },
     "4": {
       "Cauldron": "0x040803C41fE50aDdda170b2d3facF7F1F7FF0855",
