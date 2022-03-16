@@ -26,7 +26,7 @@ export namespace LadleActions {
     TRANSFER = 'transfer',
     ROUTE = 'route',
     REDEEM = 'redeem',
-    MODULE = 'module',
+    MODULE = 'moduleCall',
   }
   export namespace Args {
     export type BUILD = [seriesId_bytes6: string, ilkId_bytes6: string, salt_bytes8: string];
@@ -50,7 +50,7 @@ export namespace LadleActions {
     export type EXIT_ETHER = [to: string];
     export type TRANSFER = [token: string, receiver: string, wad: BigNumberish];
 
-    export type ROUTE = [seriesId: string, encodedpoolCall: string];
+    
     export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
 
     export type FORWARD_PERMIT = [
@@ -73,7 +73,8 @@ export namespace LadleActions {
       s: Buffer
     ];
 
-    export type MODULE = [];
+    export type ROUTE = [targetAddress: string, encodedCall: string];
+    export type MODULE= [targetAddress: string, encodedCall: string];
   }
 }
 
@@ -116,4 +117,15 @@ export namespace RoutedActions {
     export type WRAP = [receiver:string];
     export type UNWRAP = [receiver:string];
   }
+}
+
+export namespace ModuleActions {
+  export enum Fn {
+    WRAP_ETHER_MODULE = 'wrap',
+  }
+
+  export namespace Args {
+    export type WRAP_ETHER_MODULE = [receiver: string, amount: BigNumberish];
+  }
+  
 }
