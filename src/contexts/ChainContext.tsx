@@ -620,8 +620,10 @@ const ChainProvider = ({ children }: any) => {
         'series',
         'lastAssetUpdate',
         'lastSeriesUpdate',
+        'lastVaultUpdate',
         'strategies',
         'lastStrategiesUpdate',
+        'connectionName',
       ]);
       // eslint-disable-next-line no-restricted-globals
       location.reload();

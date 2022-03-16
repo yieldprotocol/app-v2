@@ -125,7 +125,7 @@ function Pool() {
                         plain
                         type="number"
                         inputMode="decimal"
-                        placeholder="Enter Amount"
+                        placeholder="Enter amount"
                         value={poolInput || ''}
                         onChange={(event: any) => setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))}
                       />
@@ -146,9 +146,7 @@ function Pool() {
                 <SectionWrap
                   title={
                     strategyMap.size > 0
-                      ? `Recomended ${selectedBase?.displaySymbol}${
-                          selectedBase && '-based'
-                        } strategy`
+                      ? `Recomended ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
                       : ''
                   }
                 >
