@@ -125,7 +125,6 @@ export interface ISignable {
   symbol: string;
 }
 
-
 export interface ISeriesRoot extends ISignable {
   id: string;
   displayName: string;
@@ -165,7 +164,7 @@ export interface ISeriesRoot extends ISignable {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
-export enum TokenType { 
+export enum TokenType {
   ERC20_,
   ERC20_Permit,
   ERC20_DaiPermit,
@@ -175,9 +174,8 @@ export enum TokenType {
 }
 
 export interface IAssetInfo {
-
-  tokenType : TokenType;
-  tokenIdentifier?: number; // used for indentifing tokens in a multitoken contract
+  tokenType: TokenType;
+  tokenIdentifier?: number; // used for identifying tokens in a multitoken contract
 
   name: string;
   version: string;
@@ -191,7 +189,7 @@ export interface IAssetInfo {
   digitFormat: number; // this is the 'resonable' number of digits to show. accuracy equavalent to +- 1 us cent.
 
   displaySymbol?: string; // override for symbol display
-  
+
   wrapHandlerAddress?: string;
 
   wrappedTokenId?: string;
@@ -212,7 +210,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   joinAddress: string;
 
   digitFormat: number;
-  baseContract: Contract ;
+  baseContract: Contract;
 
   isYieldBase: boolean;
   idToUse: string;
@@ -220,7 +218,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
-  setAllowance?: (spender:string) =>  Promise<BigNumber|void>;
+  setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
 
 export interface IAssetPair {
