@@ -240,8 +240,6 @@ const UserProvider = ({ children }: any) => {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-
-              console.log( asset.name, asset.symbol, await asset.getBalance(account)  );
               const balance = await asset.getBalance(account);
               return {
                 ...asset,
@@ -294,9 +292,6 @@ const UserProvider = ({ children }: any) => {
         await Cauldron?.debt(baseId, ilkId),
         await Cauldron?.spotOracles(baseId, ilkId),
       ]);
-
-      console.log( baseId, ilkId, max.toString(), min.toString(), sum.toString(), dec.toString(), ratio.toString() )
-      console.log(  parseFloat(ethers.utils.formatUnits(ratio, 6))  )
      
       /* get pricing if available */
       let price: BigNumber;
