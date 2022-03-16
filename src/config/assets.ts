@@ -196,9 +196,9 @@ ASSET_INFO.set(MKR, {
 
 ASSET_INFO.set(FDAI2206, {
   version: '1',
-  name: 'FDAI0622',
+  name: 'FDAI2206',
   decimals: 8,
-  symbol: 'FDAI0622',
+  symbol: 'FDAI2206',
   showToken: true,
   isWrappedToken: false,
   color: '#FF007A',
