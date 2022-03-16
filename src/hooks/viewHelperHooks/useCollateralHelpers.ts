@@ -52,10 +52,10 @@ export const useCollateralHelpers = (
 
       /* set min collaterateralisation ratio */
       setMinCollatRatio(assetPairInfo?.minRatio);
-      setMinCollatRatioPct((assetPairInfo?.minRatio * 100).toString());
+      setMinCollatRatioPct((Math.round(assetPairInfo?.minRatio * 100) ).toString());
 
       /* set min safe coll ratio */
-      const _minSafeCollatRatio = assetPairInfo?.minRatio < 1.4 ? 1.5 : assetPairInfo?.minRatio + 1;
+      const _minSafeCollatRatio = assetPairInfo?.minRatio //  < 1.4 ? 1.5 : assetPairInfo?.minRatio + 1;
       setMinSafeCollatRatio(_minSafeCollatRatio);
       setMinSafeCollatRatioPct((_minSafeCollatRatio * 100).toString());
     }

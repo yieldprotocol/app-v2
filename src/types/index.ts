@@ -191,12 +191,13 @@ export interface IAssetInfo {
   digitFormat: number; // this is the 'resonable' number of digits to show. accuracy equavalent to +- 1 us cent.
 
   displaySymbol?: string; // override for symbol display
+  
   wrapHandlerAddress?: string;
 
   wrappedTokenId?: string;
-  unwrappedTokenId?: string;
-
   wrappedTokenAddress?: string;
+
+  unwrappedTokenId?: string;
   unwrappedTokenAddress?: string;
 }
 
@@ -269,7 +270,6 @@ export interface ISeries extends ISeriesRoot {
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
-
   seriesIsMature: boolean;
 }
 
@@ -294,7 +294,6 @@ export interface IVault extends IVaultRoot, IAssetPair {
   rate: BigNumber;
 
   accruedArt_: string;
-
   liquidationPrice_: string;
 }
 

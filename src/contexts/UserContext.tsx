@@ -280,13 +280,11 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: 'assetPairLoading', payload: true });
 
       const Cauldron = contractMap.get('Cauldron');
-      
       const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
         ?.get(baseId)
         ?.get(ilkId);
 
       const PriceOracle = contractMap.get(oracleName!);
-
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
 
@@ -297,10 +295,11 @@ const UserProvider = ({ children }: any) => {
         await Cauldron?.spotOracles(baseId, ilkId),
       ]);
 
+      console.log( baseId, ilkId, max.toString(), min.toString(), sum.toString(), dec.toString(), ratio.toString() )
+      console.log(  parseFloat(ethers.utils.formatUnits(ratio, 6))  )
+     
       /* get pricing if available */
       let price: BigNumber;
-
-      console.log(PriceOracle);
 
       try {
         // eslint-disable-next-line prefer-const
@@ -450,8 +449,9 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           let pairData: IAssetPair;
+
           /* get the asset Pair info if required */
-          if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
+          if (!userState.assetPairMap.has(`${vault.baseId}${vault.ilkId}`)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
             pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
