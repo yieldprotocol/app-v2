@@ -240,17 +240,11 @@ const ChainProvider = ({ children }: any) => {
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
         /* attach either contract, (or contract of the wrappedToken ) */
-        // let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
-        // if (asset.wrappedTokenAddress) {
-        //   baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
-        // }
 
         let assetContract: Contract;
         let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
         let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
         let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
-
-        console.log('charging asset :', asset.id);
 
         switch (asset.tokenType) {
           case TokenType.ERC20_:

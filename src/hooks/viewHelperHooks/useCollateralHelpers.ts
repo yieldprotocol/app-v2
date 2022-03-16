@@ -51,13 +51,18 @@ export const useCollateralHelpers = (
       setOraclePrice(decimalNToDecimal18(assetPairInfo.pairPrice, assetPairInfo.baseDecimals));
 
       /* set min collaterateralisation ratio */
-      setMinCollatRatio(assetPairInfo?.minRatio);
-      setMinCollatRatioPct((Math.round(assetPairInfo?.minRatio * 100) ).toString());
+      setMinCollatRatio(assetPairInfo.minRatio);
+      setMinCollatRatioPct(Math.round(assetPairInfo.minRatio * 100).toString());
 
       /* set min safe coll ratio */
-      const _minSafeCollatRatio = assetPairInfo?.minRatio //  < 1.4 ? 1.5 : assetPairInfo?.minRatio + 1;
-      setMinSafeCollatRatio(_minSafeCollatRatio);
-      setMinSafeCollatRatioPct((_minSafeCollatRatio * 100).toString());
+      const _minSafe = () => { 
+        if (assetPairInfo.minRatio >= 1.4) return assetPairInfo.minRatio + 1
+        if (assetPairInfo.minRatio === 1) return 1 
+        return 1.5
+      }
+
+      setMinSafeCollatRatio(_minSafe());
+      setMinSafeCollatRatioPct((_minSafe() * 100).toString());
     }
   }, [assetPairInfo]);
 
@@ -125,9 +130,10 @@ export const useCollateralHelpers = (
       const minSafe = minSafeWithCollat.gt(ethers.constants.Zero)
         ? ethers.utils.formatUnits(minSafeWithCollat, 18).toString()
         : undefined;
+      setMinSafeCollateral(minSafe);
+
       setMinCollateral(min as BigNumber);
       setMinCollateral_(ethers.utils.formatUnits(min, 18).toString());
-      setMinSafeCollateral(minSafe);
     } else {
       setMinCollateral(ZERO_BN);
       setMinCollateral_('0');
