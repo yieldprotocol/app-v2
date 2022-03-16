@@ -183,10 +183,10 @@ export interface IAssetInfo {
   decimals: number;
 
   showToken: boolean;
-  isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (expect ETH - which is handled differently)
+  isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (except ETH - which is handled differently)
 
   color: string;
-  digitFormat: number; // this is the 'resonable' number of digits to show. accuracy equavalent to +- 1 us cent.
+  digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
 
   displaySymbol?: string; // override for symbol display
 
