@@ -5,7 +5,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
 import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions } from '../types';
-import { MAX_256 } from '../utils/constants'; 
+import { MAX_256 } from '../utils/constants';
 import { DAI_PERMIT_ASSETS, NON_PERMIT_ASSETS } from '../config/assets';
 
 import { ERC20Permit__factory, Ladle } from '../contracts';
@@ -41,7 +41,7 @@ export const useChain = () => {
    * TRANSACTING
    * @param { ICallsData[] } calls list of callData as ICallData
    * @param { string } txCode internal transaction code
-   * 
+   *
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
@@ -57,18 +57,44 @@ export const useChain = () => {
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
       /* 'pre-encode' routed calls if required */
-      if (call.operation === LadleActions.Fn.ROUTE) {
+      if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.ROUTE) {
+        
         if (call.fnName && call.targetContract) {
           const encodedFn = (call.targetContract as any).interface.encodeFunctionData(call.fnName, call.args);
-          return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
-            call.targetContract.address,
-            encodedFn,
-          ]);
+
+          if (call.operation === LadleActions.Fn.ROUTE)
+            return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
+              call.targetContract.address,
+              encodedFn,
+            ]);
+
+          if (call.operation === LadleActions.Fn.MODULE)
+            return _contract.interface.encodeFunctionData(LadleActions.Fn.MODULE, [
+              call.targetContract.address,
+              encodedFn,
+            ]);
         }
-        throw new Error('Function name and contract target required for routing');
+        throw new Error('Function name and contract target required for routing/ module interaction');
       }
+      /* else */
       return _contract.interface.encodeFunctionData(call.operation as string, call.args);
     });
+
+    // public routeAction(target: string, calldata: string): string {
+    //   return this.ladle.interface.encodeFunctionData('route', [target, calldata])
+    // }
+
+    // public async route(target: string, calldata: string): Promise<ContractTransaction> {
+    //   return this.ladle.route(target, calldata)
+    // }
+
+    // public moduleCallAction(target: string, calldata: string): string {
+    //   return this.ladle.interface.encodeFunctionData('moduleCall', [target, calldata])
+    // }
+
+    // public async moduleCall(target: string, calldata: string): Promise<ContractTransaction> {
+    //   return this.ladle.moduleCall(target, calldata)
+    // }
 
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);
@@ -81,8 +107,7 @@ export const useChain = () => {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
       console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
     } catch (e) {
-
-      gasEst= BigNumber.from(500000);
+      gasEst = BigNumber.from(500000);
       console.log('Failed to get gas estimate', e);
       // toast.warning('It appears the transaction will likely fail. Proceed with caution...');
       gasEstFail = true;
@@ -127,16 +152,15 @@ export const useChain = () => {
 
     const signedList = await Promise.all(
       _requestedSigs.map(async (reqSig: ISignData) => {
-
         const _spender = getSpender(reqSig.spender);
         /* set as MAX if apporve max is selected */
         const _amount = approveMax ? MAX_256 : reqSig.amount?.toString();
         /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
         const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
 
-        diagnostics && console.log('Sign: Target',  reqSig.target.symbol);
-        diagnostics && console.log('Sign: Spender',  _spender);
-        diagnostics && console.log('Sign: Amount',  _amount?.toString());
+        diagnostics && console.log('Sign: Target', reqSig.target.symbol);
+        diagnostics && console.log('Sign: Spender', _spender);
+        diagnostics && console.log('Sign: Amount', _amount?.toString());
 
         /* Request the signature if using DaiType permit style */
         if (DAI_PERMIT_ASSETS.includes(reqSig.target.symbol) && chainId !== 42161) {

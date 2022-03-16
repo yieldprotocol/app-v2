@@ -155,6 +155,9 @@ const ChainProvider = ({ children }: any) => {
       let Witch: any;
       let LidoWrapHandler: any;
 
+      // modules
+      let WrapEtherModule: any;
+
       // arbitrum
       let ChainlinkUSDOracle: any;
       let AccumulatorOracle: any;
@@ -163,6 +166,9 @@ const ChainProvider = ({ children }: any) => {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+
+        // module access
+        WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
           RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
@@ -218,6 +224,11 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('AccumulatorOracle', AccumulatorOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
+
+      // modules
+      newContractMap.set('WrapEtherModule', WrapEtherModule);
+
+
       updateState({ type: 'contractMap', payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */

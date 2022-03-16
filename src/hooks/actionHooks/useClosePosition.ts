@@ -23,7 +23,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 /* Lend Actions Hook */
 export const useClosePosition = () => {
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance},
   } = useContext(SettingsContext);
 
   const {
