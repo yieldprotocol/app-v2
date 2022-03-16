@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { WETH, USDC, IGNORE_BASE_ASSETS, DAI, yvUSDC } from '../../config/assets';
+import { WETH, USDC, IGNORE_BASE_ASSETS, DAI, yvUSDC, FUSDC0622, FDAI0622 } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
@@ -33,7 +33,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
+  const { seriesMap, assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
@@ -59,6 +59,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     }
   };
 
+  console.log( 
+    Array.from(seriesMap.values())
+      .filter( (s) => s.baseId === selectedBase?.id )       
+  )
+
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values())
@@ -68,7 +73,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     const filteredOptions = selectCollateral
       ? opts
           .filter((a) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
-          .filter((a) => (selectedBase?.id === USDC ? a : a.id !== yvUSDC)) // TODO fix this temporary logic.
+          // TODO fix this temporary logic.
+          .filter((a) => (selectedBase?.id === USDC ? a : a.id !== yvUSDC)) 
+          .filter((a) => (selectedBase?.id === DAI ? a : a.id !== FDAI0622))
+          .filter((a) => (selectedBase?.id === USDC ? a : a.id !== FUSDC0622))
+
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
 
     setOptions(filteredOptions);
