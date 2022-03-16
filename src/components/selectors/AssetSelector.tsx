@@ -59,11 +59,6 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     }
   };
 
-  console.log( 
-    Array.from(seriesMap.values())
-      .filter( (s) => s.baseId === selectedBase?.id )       
-  )
-
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values())
