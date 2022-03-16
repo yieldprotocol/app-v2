@@ -69,7 +69,9 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       ? opts
           .filter((a) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
           .filter((a) => (selectedBase?.id === USDC ? a : a.id !== yvUSDC)) // TODO fix this temporary logic.
-      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
+      : opts
+          .filter((a) => a.isYieldBase) // ignore if not represented in a series
+          .filter((a) => !IGNORE_BASE_ASSETS.includes(a.id)); // ignore if in list of ginored bsed tokens.
 
     setOptions(filteredOptions);
   }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
@@ -93,7 +95,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   return (
     <StyledBox
       fill="horizontal"
-      round = {mobile? 'large': { corner: 'right', size: 'large'}}
+      round={mobile ? 'large' : { corner: 'right', size: 'large' }}
       elevation="xsmall"
       background="hoverBackground"
     >

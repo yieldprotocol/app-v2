@@ -57,28 +57,23 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         )}
 
         <Box align="end">
+          {!mobile && currentChainInfo.explorer && (
+            <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
+              <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
+              <Text margin="xxsmall" size="xsmall">
+                View on Explorer
+              </Text>
+            </Anchor>
+          )}
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
             {mobile && <YieldAvatar address={account} size={2} />}
             <CopyWrap hash={account}>
               <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(account, 6)}</Text>
             </CopyWrap>
           </Box>
-
-          {!mobile && (
-            <Box align="center" direction="row" gap="small" justify="center">
-              {currentChainInfo.explorer && (
-                <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
-                  <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
-                  <Text margin="xxsmall" size="xsmall">
-                    View on Explorer
-                  </Text>
-                </Anchor>
-              )}
-            </Box>
-          )}
         </Box>
 
-        <Box gap="medium">
+        <Box gap="small">
           <Box
             direction="row"
             justify="end"
@@ -106,6 +101,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Box>
           </Collapsible>
         </Box>
+
       </Box>
 
       {!mobile && (
