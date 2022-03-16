@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { WETH, USDC, IGNORE_BASE_ASSETS, DAI, yvUSDC, FUSDC0622, FDAI0622 } from '../../config/assets';
+import { WETH, USDC, IGNORE_BASE_ASSETS, DAI, yvUSDC, FUSDC2206, FDAI2206} from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
@@ -75,8 +75,8 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
           .filter((a) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
           // TODO fix this temporary logic.
           .filter((a) => (selectedBase?.id === USDC ? a : a.id !== yvUSDC)) 
-          .filter((a) => (selectedBase?.id === DAI ? a : a.id !== FDAI0622))
-          .filter((a) => (selectedBase?.id === USDC ? a : a.id !== FUSDC0622))
+          .filter((a) => (selectedBase?.id === DAI ? a : a.id !== FDAI2206))
+          .filter((a) => (selectedBase?.id === USDC ? a : a.id !== FUSDC2206))
 
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
 

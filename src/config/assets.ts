@@ -15,8 +15,8 @@ export const UNI = '0x313000000000';
 export const yvUSDC = '0x303900000000';
 export const MKR = '0x313100000000';
 
-export const FDAI0622 = '0x313400000000';
-export const FUSDC0622 = '0x313500000000';
+export const FDAI2206 = '0x313400000000';
+export const FUSDC2206 = '0x313500000000';
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
 export const DAI_PERMIT_ASSETS = ['DAI', DAI];
@@ -31,10 +31,10 @@ export const NON_PERMIT_ASSETS = [
   WETH,
   yvUSDC,
   'yvUSDC',
-  FDAI0622,
-  'FDAI0622',
-  FUSDC0622,
-  'FUSDC0622',
+  FDAI2206,
+  'FDAI2206',
+  FUSDC2206,
+  'FUSDC2206',
 ];
 
 export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
@@ -194,7 +194,7 @@ ASSET_INFO.set(MKR, {
   tokenType: TokenType.ERC20_MKR,
 });
 
-ASSET_INFO.set(FDAI0622, {
+ASSET_INFO.set(FDAI2206, {
   version: '1',
   name: 'FDAI0622',
   decimals: 8,
@@ -209,11 +209,11 @@ ASSET_INFO.set(FDAI0622, {
   // safeCollateralization: 100,
 });
 
-ASSET_INFO.set(FUSDC0622, {
+ASSET_INFO.set(FUSDC2206, {
   version: '1',
-  name: 'FUSDC0622',
+  name: 'FUSDC2206',
   decimals: 8,
-  symbol: 'FUSDC0622',
+  symbol: 'FUSDC2206',
   showToken: true,
   isWrappedToken: false,
   color: '#FF007A',
