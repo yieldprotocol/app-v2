@@ -18,7 +18,8 @@
       "CompositeMultiOracle": "0x577DA88C253095b874941dda194a6c59489E644f",
       "Witch": "0x92C0aa4922444E6D5a6dFE365Ea1D106Bd9279E2",
       "lidoWrapHandler": "0x80d0CfceE7dfa135189e44d617032d5A7Cc2705b",
-      "YearnVaultMultiOracle": "0x392333A9d4CfCC529a7DA3F6021c5dfc6C54e1EF"
+      "YearnVaultMultiOracle": "0x392333A9d4CfCC529a7DA3F6021c5dfc6C54e1EF",
+      "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
     },
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
