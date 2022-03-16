@@ -223,28 +223,3 @@ ASSET_INFO.set(FUSDC2206, {
   // minCollateralization: 100,
   // safeCollateralization: 100,
 });
-
-// ASSET_INFO.set(FUSDC1, {
-//   version: '1',
-//   name: 'FUSDC1',
-//   decimals: 8,
-//   symbol: 'FUSDC1',
-//   showToken: true,
-//   isWrappedToken: false,
-//   color: '#FF007A',
-//   digitFormat: 6,
-//   tokenType: TokenType.ERC1155_,
-//   tokenIdentifier: 844846949203969,
-// });
-// ASSET_INFO.set(FDAI1, {
-//   version: '1',
-//   name: 'FDAI1',
-//   decimals: 8,
-//   symbol: 'FDAI1',
-//   showToken: true,
-//   isWrappedToken: false,
-//   color: '#FF007A',
-//   digitFormat: 6,
-//   tokenType: TokenType.ERC1155_,
-//   tokenIdentifier: 563371972493313,
-// });
