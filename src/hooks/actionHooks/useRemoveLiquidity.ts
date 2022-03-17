@@ -161,6 +161,7 @@ export const useRemoveLiquidity = () => {
       : false;
 
     const isEthBase = ETH_BASED_ASSETS.includes(_base.id);
+    const toAddress = isEthBase ? ladleAddress : account;
 
     const permits: ICallData[] = await sign(
       [
@@ -235,16 +236,14 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: [matchingVaultId, isEthBase ? ladleAddress : account] as LadleActions.Args.REPAY_FROM_LADLE,
+        args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
       {
         operation: LadleActions.Fn.CLOSE_FROM_LADLE,
-        args: [matchingVaultId, isEthBase ? ladleAddress : account] as LadleActions.Args.CLOSE_FROM_LADLE,
+        args: [matchingVaultId, toAddress] as LadleActions.Args.CLOSE_FROM_LADLE,
         ignoreIf: series.seriesIsMature || fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
-
-      // NOTE : REMOVE ETH done at the end
 
       /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY  + VAULT + FYTOKEN>DEBT */
 
@@ -256,14 +255,14 @@ export const useRemoveLiquidity = () => {
       // ladle.routeAction(pool, ['sellBase', [receiver, minBaseReceived]),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, ladleAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
+        args: [toAddress, ladleAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: [matchingVaultId, account] as LadleActions.Args.REPAY_FROM_LADLE,
+        args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
 
@@ -274,7 +273,7 @@ export const useRemoveLiquidity = () => {
       // ladle.routeAction(pool, ['burnForBase', [receiver, minBaseReceived]),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE,
+        args: [toAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || useMatchingVault || !fyTokenTradeSupported,
@@ -285,7 +284,7 @@ export const useRemoveLiquidity = () => {
       // ladle.routeAction(pool, ['burnForBase', [receiver, minBaseReceived]),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, account, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
+        args: [toAddress, account, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || useMatchingVault || fyTokenTradeSupported,
@@ -304,19 +303,19 @@ export const useRemoveLiquidity = () => {
       // ladle.redeemAction(seriesId, receiver, 0),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, series.fyTokenAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
+        args: [toAddress, series.fyTokenAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: !series.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, account, '0'] as LadleActions.Args.REDEEM,
+        args: [series.id, toAddress, '0'] as LadleActions.Args.REDEEM,
         ignoreIf: !series.seriesIsMature,
       },
 
       // NOTE:  REMOVE ETH FOR ALL PATHS/OPTIONS ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero)
-      ...removeEth(isEthBase ? ONE_BN : ZERO_BN ),
+      ...removeEth(isEthBase ? ONE_BN : ZERO_BN),
     ];
 
     await transact(calls, txCode);
