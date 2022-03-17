@@ -145,13 +145,13 @@ export const useRepayDebt = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      ...addEth(isEthBase ? _input : ZERO_BN), 
-
       /* BEFORE MATURITY */
+
+      ...addEth(isEthBase && !inputGreaterThanMaxBaseIn ? _input : ZERO_BN, series.poolAddress ), 
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature || inputGreaterThanMaxBaseIn,
+        ignoreIf: series.seriesIsMature || inputGreaterThanMaxBaseIn || isEthBase,
       },
 
       {
