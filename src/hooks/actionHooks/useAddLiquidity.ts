@@ -17,7 +17,7 @@ import {
   ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
+import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
@@ -67,8 +67,7 @@ export const useAddLiquidity = () => {
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
     const [cachedBaseReserves, cachedFyTokenReserves] = await series?.poolContract.getCache()!;
-    // const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!.sub(ONE_BN));
-    const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!);
+    const cachedRealReserves = cachedFyTokenReserves.sub(series?.totalSupply!.sub(ONE_BN));
 
     console.log(
       'series and total supply',
