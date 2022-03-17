@@ -171,7 +171,7 @@ export const useRepayDebt = () => {
           inputGreaterThanMaxBaseIn,
       },
 
-      /* Input GreaterThanMaxbaseIn */
+      /* EdgeCase in lowLiq situations : Input GreaterThanMaxbaseIn */
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
@@ -185,7 +185,7 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
       
-      ...removeEth( isEthBase ? _collateralToRemove : ZERO_BN ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
+      ...removeEth( isEthCollateral ? _collateralToRemove : ZERO_BN ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
       ...unwrap,
     ];
     await transact(calls, txCode);
