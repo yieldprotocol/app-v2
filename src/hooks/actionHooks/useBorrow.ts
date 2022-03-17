@@ -110,20 +110,21 @@ export const useBorrow = () => {
       /* Include all the signatures gathered, if required */
       ...permits,
 
-      /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ) , else send ZERO_BN */
-      ...addEth(isEthCollateral ? _collInput : ZERO_BN ),
-
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault,
       },
+
+      /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ) , else send ZERO_BN */
+      ...addEth(isEthCollateral ? _collInput : ZERO_BN),
+
       {
         operation: LadleActions.Fn.SERVE,
         args: [
           vaultId,
-          isEthBase ? ladleAddress : account, // if ETH is being borrowed, send the borrowed tokens (WETH) to ladle 
+          isEthBase ? ladleAddress : account, // if ETH is being borrowed, send the borrowed tokens (WETH) to ladle
           _collInput,
           _input,
           _expectedFyTokenWithSlippage,
@@ -132,7 +133,7 @@ export const useBorrow = () => {
       },
 
       /* handle remove/unwrap WETH > if ETH is what is being borrowed */
-      ...removeEth(isEthBase ? _input: ZERO_BN),
+      ...removeEth(isEthBase ? _input : ZERO_BN),
     ];
 
     /* handle the transaction */
