@@ -20,8 +20,10 @@ import { SettingsContext } from '../contexts/SettingsContext';
 
 /* Get the sum of the value of all calls */ 
 const _getCallValue = (calls: ICallData[]): BigNumber => calls.reduce(
-  (sum: BigNumber, call: ICallData) =>
-    sum.add(call.overrides?.value ? BigNumber.from(call?.overrides?.value) : ZERO_BN),
+  (sum: BigNumber, call: ICallData) => {
+    if (call.ignoreIf) return sum.add(ZERO_BN);
+    return sum.add(call.overrides?.value ? BigNumber.from(call?.overrides?.value) : ZERO_BN)
+  },
   ZERO_BN
 );
 
