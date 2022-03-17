@@ -94,7 +94,7 @@ const VaultPosition = () => {
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
   const [repayInput, setRepayInput] = useState<any>(undefined);
-  const [reclaimCollateral, setReclaimCollateral] = useState<boolean>(false);
+  const [reclaimCollateral, setReclaimCollateral] = useState<boolean>(true);
 
   const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
   const [removeCollatInput, setRemoveCollatInput] = useState<any>(undefined);
