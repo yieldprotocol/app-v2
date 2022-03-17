@@ -24,7 +24,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 /* Lend Actions Hook */
 export const useClosePosition = () => {
   const {
-    settingsState: { slippageTolerance},
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const {
@@ -102,7 +102,7 @@ export const useClosePosition = () => {
       /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [ isEthBase ? ladleAddress : account, _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
+        args: [isEthBase ? ladleAddress : account, _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
         ignoreIf: seriesIsMature,
@@ -114,8 +114,8 @@ export const useClosePosition = () => {
         args: [series.id, isEthBase ? ladleAddress : account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
-      
-      ...removeEth(isEthBase ? ONE_BN : ZERO_BN ), // ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero)
+
+      ...removeEth(isEthBase ? ONE_BN : ZERO_BN), // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
     updateSeries([series]);
