@@ -17,6 +17,8 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
+import { useAddRemoveEth } from './useAddRemoveEth';
+import { ONE_BN, ZERO_BN } from '../../utils/constants';
 
 // TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
@@ -34,23 +36,8 @@ export const useRemoveCollateral = () => {
 
   const { transact } = useChain();
 
+  const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
-
-  const removeEth = (value: BigNumber): ICallData[] => {
-    /* First check if the selected Ilk is, in fact, an ETH variety */
-    if (ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!)) {
-      /* return the remove ETH OP */
-      return [
-        {
-          operation: LadleActions.Fn.EXIT_ETHER,
-          args: [account] as LadleActions.Args.EXIT_ETHER,
-          ignoreIf: value.gte(ethers.constants.Zero),
-        },
-      ];
-    }
-    /* else return empty array */
-    return [];
-  };
 
   const removeCollateral = async (vault: IVault, input: string) => {
     /* generate the txCode for tx tracking and tracing */
@@ -58,13 +45,17 @@ export const useRemoveCollateral = () => {
 
     /* get associated series and ilk */
     const ilk = assetMap.get(vault.ilkId)!;
+    const ladleAddress = contractMap.get('Ladle').address;
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
     const cleanedInput = cleanValue(input, ilk.decimals);
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1);
 
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
-    let _pourTo = ETH_BASED_ASSETS.includes(ilk.id) ? contractMap.get('Ladle').address : account;
+    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.id);
+    // const isEthBase = ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+
+    let _pourTo = isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
     let unwrap: ICallData[] = [];
@@ -84,7 +75,7 @@ export const useRemoveCollateral = () => {
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
-      ...removeEth(_input),
+      ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN), // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
       ...unwrap,
     ];
 
@@ -95,6 +86,5 @@ export const useRemoveCollateral = () => {
 
   return {
     removeCollateral,
-    removeEth,
   };
 };

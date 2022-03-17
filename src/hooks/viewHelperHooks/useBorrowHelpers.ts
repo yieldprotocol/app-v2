@@ -6,7 +6,7 @@ import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
+import { buyBase, calculateMinCollateral, decimalNToDecimal18, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
 import { useAssetPair } from '../useAssetPair';
 
 /* Collateralization hook calculates collateralization metrics */
@@ -26,6 +26,7 @@ export const useBorrowHelpers = (
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
+  const vaultIlk: IAsset | undefined = assetMap.get(vault?.ilkId!);
 
   const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
 
@@ -135,14 +136,14 @@ export const useBorrowHelpers = (
         futureSeries.decimals
       );
 
-      const minCollat = calculateMinCollateral(
+      const _minCollat = calculateMinCollateral(
         assetPairInfo!.pairPrice,
         newDebt,
         assetPairInfo!.minRatio.toString(),
         undefined,
         true
       );
-      diagnostics && console.log('min Collat of roll to series', minCollat.toString());
+      diagnostics && console.log('min Collat of roll to series', _minCollat.toString());
 
       /* SET MAX ROLL */
       if (vault.accruedArt.lt(_maxFyTokenIn)) {
@@ -153,10 +154,17 @@ export const useBorrowHelpers = (
         setMaxRoll_(ethers.utils.formatUnits(_maxFyTokenIn, futureSeries.decimals).toString());
       }
 
+      // conditions for allowing rolling
+      const conditionsMet = (
+       vault.accruedArt.lt(_maxFyTokenIn) &&
+       decimalNToDecimal18(vault.ink, vaultIlk?.decimals || 18).gt(_minCollat) &&
+       vault.accruedArt.gt(minDebt!))
+    
       /* SET ROLLABLE */
       const rollable = vault.accruedArt.eq(ZERO_BN) // always rollable if zero debt
         ? true
-        : vault.accruedArt.lt(_maxFyTokenIn) && vault.ink.gt(minCollat) && vault.accruedArt.gt(minDebt!);
+        : conditionsMet;
+        
       diagnostics && console.log('Roll possible: ', rollable);
       setRollPossible(rollable);
     }

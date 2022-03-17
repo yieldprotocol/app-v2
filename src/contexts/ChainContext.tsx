@@ -155,6 +155,9 @@ const ChainProvider = ({ children }: any) => {
       let Witch: any;
       let LidoWrapHandler: any;
 
+      // modules
+      let WrapEtherModule: any;
+
       // Notional
       let NotionalMultiOracle: any;
 
@@ -166,6 +169,9 @@ const ChainProvider = ({ children }: any) => {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+
+        // module access
+        WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
           RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
@@ -229,8 +235,10 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('AccumulatorOracle', AccumulatorOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
-
       newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
+
+      // modules
+      newContractMap.set('WrapEtherModule', WrapEtherModule);
 
       updateState({ type: 'contractMap', payload: newContractMap });
 
@@ -315,6 +323,7 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
             const { assetId: id, asset: address } = x;
+
             /* Get the basic hardcoded token info */
             const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
             let { name, symbol, decimals, version } = assetInfo;
@@ -370,7 +379,7 @@ const ChainProvider = ({ children }: any) => {
             //   }
             // }
 
-            const idToUse = assetInfo?.wrappedTokenId || id;
+            const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id 
 
             const newAsset = {
               ...assetInfo,

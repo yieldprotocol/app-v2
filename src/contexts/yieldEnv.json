@@ -7,11 +7,14 @@
       "ChainlinkMultiOracle": "0xcDCe5C87f691058B61f3A65913f1a3cBCbAd9F52",
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061",
+      
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
-
-      "NotionalMultiOracle": "",
-      "transfer1155Module": ""
+      
+      "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
+      "transfer1155Module": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
+      
+      "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
     },
     "4": {
       "Cauldron": "0x040803C41fE50aDdda170b2d3facF7F1F7FF0855",
@@ -20,11 +23,14 @@
       "ChainlinkMultiOracle": "0xACD6af7bf3555C63686952C65b4a1D5E51c4586b",
       "CompositeMultiOracle": "0x577DA88C253095b874941dda194a6c59489E644f",
       "Witch": "0x92C0aa4922444E6D5a6dFE365Ea1D106Bd9279E2",
+      
       "lidoWrapHandler": "0x80d0CfceE7dfa135189e44d617032d5A7Cc2705b",
       "YearnVaultMultiOracle": "0x88175a3e14F905ecCe464aF2A8E99f26159d4Cb8",
-
       "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
-      "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF"
+      "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF",
+
+      "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
+
     },
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
@@ -63,7 +69,9 @@
       "0x3b496A74A44014Fa13278E4664815F3C2f7B3D4D",
       "0x3abFD4A1cA31d831A40cBfeDADB52C22Ba3D84Ee",
       "0x8E048064164458A378a1d8225a6962e56c8eba45",
-      "0x55b7C5d4b24FB21B0F69Bf0098cf4AF2B79B6AAa"
+      "0x55b7C5d4b24FB21B0F69Bf0098cf4AF2B79B6AAa",
+      "0x1d1fAc22107a39d8D9B925974592399b9BBEb578",
+      "0x47aBE91E1d3cD31e1C7525Dd32058f8a39C25eB8"
     ],
     "42": [
       "0xad1fBd05f4FDB81C1bAE82172E9913a7c4152154",

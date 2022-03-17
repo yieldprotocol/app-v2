@@ -164,16 +164,16 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
         // !ignoredSeries?.includes(_series.baseId)
       )
-      .filter(
-        (_series) =>
-          actionType !== ActionType.BORROW ||
-          (assetMap.get(FDAI2206)?.balance.gt(ethers.constants.Zero) && _series.id !== '0x303130350000') // march dai series not applicable to fDAI
-      )
-      .filter(
-        (_series) =>
-          actionType !== ActionType.BORROW ||
-          (assetMap.get(FUSDC2206)?.balance.gt(ethers.constants.Zero) && _series.id !== '0x303230350000') // march usdc series not applicable to fUSDC
-      );
+      // .filter(
+      //   (_series) =>
+      //     actionType !== ActionType.BORROW ||
+      //     (assetMap.get(FDAI2206)?.balance.gt(ethers.constants.Zero) && _series.id !== '0x303130350000') // march dai series not applicable to fDAI
+      // )
+      // .filter(
+      //   (_series) =>
+      //     actionType !== ActionType.BORROW ||
+      //     (assetMap.get(FUSDC2206)?.balance.gt(ethers.constants.Zero) && _series.id !== '0x303230350000') // march usdc series not applicable to fUSDC
+      // );
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {

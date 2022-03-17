@@ -47,7 +47,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
               </StyledTableCell>
               <StyledTableCell plain>
                 <Text size="small" color="text">
-                  {asset.symbol}
+                  {asset.displaySymbol}
                 </Text>
               </StyledTableCell>
               <StyledTableCell plain>

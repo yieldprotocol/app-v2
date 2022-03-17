@@ -28,6 +28,7 @@ export type { Transfer1155Module } from "./Transfer1155Module";
 export type { UniswapV3Oracle } from "./UniswapV3Oracle";
 export type { Wand } from "./Wand";
 export type { Witch } from "./Witch";
+export type { WrapEtherModule } from "./WrapEtherModule";
 export type { YearnVaultMultiOracle } from "./YearnVaultMultiOracle";
 
 export { AccumulatorOracle__factory } from "./factories/AccumulatorOracle__factory";
@@ -57,4 +58,5 @@ export { Transfer1155Module__factory } from "./factories/Transfer1155Module__fac
 export { UniswapV3Oracle__factory } from "./factories/UniswapV3Oracle__factory";
 export { Wand__factory } from "./factories/Wand__factory";
 export { Witch__factory } from "./factories/Witch__factory";
+export { WrapEtherModule__factory } from "./factories/WrapEtherModule__factory";
 export { YearnVaultMultiOracle__factory } from "./factories/YearnVaultMultiOracle__factory";

@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { IAssetInfo, TokenType } from '../types';
 
 export const UNKNOWN = '0x000000000000';
@@ -7,8 +6,8 @@ export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
 export const USDC = '0x303200000000';
 export const WBTC = '0x303300000000';
-export const stETH = '0x303400000000';
-export const wstETH = '0x303500000000';
+export const stETH = '0x303500000000';
+export const wstETH = '0x303400000000';
 export const LINK = '0x303600000000';
 export const ENS = '0x303700000000';
 export const UNI = '0x313000000000';
@@ -18,9 +17,10 @@ export const MKR = '0x313100000000';
 export const FDAI2206 = '0x313400000000';
 export const FUSDC2206 = '0x313500000000';
 
-export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH, ethers.utils.formatBytes32String('ETH').slice(0, 14)];
-export const DAI_PERMIT_ASSETS = ['DAI', DAI];
+export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
+export const IGNORE_BASE_ASSETS = ['ENS'];
 
+export const DAI_PERMIT_ASSETS = ['DAI', DAI];
 export const NON_PERMIT_ASSETS = [
   'WBTC',
   'LINK',
@@ -37,7 +37,6 @@ export const NON_PERMIT_ASSETS = [
   'FUSDC2206',
 ];
 
-export const IGNORE_BASE_ASSETS = ['ETH', 'WETH', WETH];
 export const ASSET_INFO = new Map<string, IAssetInfo>();
 
 ASSET_INFO.set(UNKNOWN, {
@@ -122,7 +121,7 @@ ASSET_INFO.set(wstETH, {
   showToken: true,
   isWrappedToken: false,
   wrapHandlerAddress: '0x491aB93faa921C8E634F891F96512Be14fD3DbB1',
-  wrappedTokenId: '',
+  wrappedTokenId: '0x303400000000',
   wrappedTokenAddress: '',
   color: '#00A3FF',
   digitFormat: 6,
@@ -199,7 +198,7 @@ ASSET_INFO.set(FDAI2206, {
   name: 'FDAI2206',
   decimals: 8,
   symbol: 'FDAI2206',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
@@ -214,7 +213,7 @@ ASSET_INFO.set(FUSDC2206, {
   name: 'FUSDC2206',
   decimals: 8,
   symbol: 'FUSDC2206',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,

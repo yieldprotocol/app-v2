@@ -240,7 +240,7 @@ const UserProvider = ({ children }: any) => {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-              const balance = await asset.getBalance(account);
+              const balance = asset.name !== 'UNKOWN' ? await asset.getBalance(account) : ZERO_BN;
               return {
                 ...asset,
                 balance: balance || ethers.constants.Zero,
@@ -443,6 +443,7 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
+          
           let pairData: IAssetPair;
 
           /* get the asset Pair info if required */
@@ -476,6 +477,7 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
+            console.log('mature series : ', seriesId,  rate, rateAtMaturity, art ); 
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
