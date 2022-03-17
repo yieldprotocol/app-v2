@@ -147,7 +147,7 @@ export const useRepayDebt = () => {
 
       /* BEFORE MATURITY */
 
-      ...addEth(isEthBase && !inputGreaterThanMaxBaseIn ? _input : ZERO_BN, series.poolAddress ), 
+      ...addEth(isEthBase && !inputGreaterThanMaxBaseIn ? _input : ZERO_BN, series.poolAddress),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
@@ -185,7 +185,7 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth( isEthCollateral ? ONE_BN : ZERO_BN ), // after the complete tranasction, this will remove all the ETH collateral (if requested). ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero) 
+      ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN), // after the complete tranasction, this will remove all the ETH collateral (if requested). (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero)
       ...unwrap,
     ];
     await transact(calls, txCode);
