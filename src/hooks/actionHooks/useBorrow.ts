@@ -14,7 +14,7 @@ import {
   IUserContextState,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
+import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
@@ -132,8 +132,8 @@ export const useBorrow = () => {
         ignoreIf: false, // never ignore
       },
 
-      /* handle remove/unwrap WETH > if ETH is what is being borrowed */
-      ...removeEth(isEthBase ? _input : ZERO_BN),
+      /* handle remove/unwrap WETH > if ETH is what is being borrowed */ 
+      ...removeEth(isEthBase ? ONE_BN : ZERO_BN), // ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero)
     ];
 
     /* handle the transaction */

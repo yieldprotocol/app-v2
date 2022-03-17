@@ -48,6 +48,7 @@ export const useAddRemoveEth = () => {
         },
       ]
 
+  // NOTE:  EXIT_ETHER sweeps all out of the ladle, so *value* is not important > it must just be bigger than zero to not be ignored     
   const removeEth = (value: BigNumber, to: string|undefined = undefined): ICallData[] => [
           {
             operation: LadleActions.Fn.EXIT_ETHER,

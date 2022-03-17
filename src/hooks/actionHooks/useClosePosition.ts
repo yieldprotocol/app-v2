@@ -16,7 +16,7 @@ import {
   IUserContextActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ZERO_BN } from '../../utils/constants';
+import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -114,7 +114,8 @@ export const useClosePosition = () => {
         args: [series.id, isEthBase ? ladleAddress : account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
-      ...removeEth(isEthBase ? _fyTokenValueOfInput : ZERO_BN ),
+      
+      ...removeEth(isEthBase ? ONE_BN : ZERO_BN ), // ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
     updateSeries([series]);

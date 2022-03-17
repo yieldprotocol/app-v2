@@ -21,7 +21,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ZERO_BN } from '../../utils/constants';
+import { ONE_BN, ZERO_BN } from '../../utils/constants';
 
 export const useRepayDebt = () => {
   const {
@@ -184,8 +184,8 @@ export const useRepayDebt = () => {
         args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
-      
-      ...removeEth( isEthCollateral ? _collateralToRemove : ZERO_BN ), // after the complete tranasction, this will remove all the ETH collateral (if requested). -collateral 
+
+      ...removeEth( isEthCollateral ? ONE_BN : ZERO_BN ), // after the complete tranasction, this will remove all the ETH collateral (if requested). ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero) 
       ...unwrap,
     ];
     await transact(calls, txCode);

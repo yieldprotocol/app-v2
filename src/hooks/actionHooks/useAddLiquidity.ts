@@ -184,7 +184,7 @@ export const useAddLiquidity = () => {
       },
 
       /* addETh to joinAddress and poolAddress if isEthBase and using BORROW method */
-      ...addEth(isEthBase && method === AddLiquidityType.BORROW ? _baseToFyToken : ZERO_BN, base.joinAddress),
+      ...addEth(isEthBase && method === AddLiquidityType.BORROW ? _baseToFyToken : ZERO_BN, _base.joinAddress),
       ...addEth(
         isEthBase && method === AddLiquidityType.BORROW ? _baseToPoolWithSlippage : ZERO_BN,
         _series.poolAddress

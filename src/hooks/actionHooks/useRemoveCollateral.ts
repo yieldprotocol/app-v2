@@ -18,7 +18,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ZERO_BN } from '../../utils/constants';
+import { ONE_BN, ZERO_BN } from '../../utils/constants';
 
 // TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
@@ -77,7 +77,7 @@ export const useRemoveCollateral = () => {
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
-      ...removeEth(isEthCollateral ? _input :ZERO_BN), 
+      ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN),  // ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero)
       ...unwrap,
     ];
 
