@@ -314,7 +314,7 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      // NOTE:  REMOVE ETH FOR ALL PATHS/OPTIONS ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero)
+      // NOTE: REMOVE ETH FOR ALL PATHS/OPTIONS (exit_ether sweeps all the eth out the ladle, so exact amount is not important -> just greater than zero)
       ...removeEth(isEthBase ? ONE_BN : ZERO_BN),
     ];
 
