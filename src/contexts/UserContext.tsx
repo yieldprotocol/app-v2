@@ -262,7 +262,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.assetMap )
+        }, userState.assetMap)
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
@@ -283,7 +283,6 @@ const UserProvider = ({ children }: any) => {
         ?.get(ilkId);
 
       const PriceOracle = contractMap.get(oracleName!);
-
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
 
@@ -445,13 +444,14 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           let pairData: IAssetPair;
+
           /* get the asset Pair info if required */
-          if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
+          if (!userState.assetPairMap.has(`${vault.baseId}${vault.ilkId}`)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
             pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
-            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId);
+            pairData = await userState.assetPairMap.get(`${vault.baseId}${vault.ilkId}`);
           }
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
@@ -546,7 +546,6 @@ const UserProvider = ({ children }: any) => {
       /* if there are no vaults provided - assume a forced refresh of all vaults : */
       const combinedVaultMap = vaultList.length > 0 ? new Map([...userState.vaultMap, ...newVaultMap]) : newVaultMap;
 
-      
       /* update state */
       updateState({ type: 'vaultMap', payload: combinedVaultMap });
       vaultFromUrl && updateState({ type: 'selectedVault', payload: vaultFromUrl });

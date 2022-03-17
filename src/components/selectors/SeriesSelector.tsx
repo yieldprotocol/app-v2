@@ -10,6 +10,7 @@ import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { FDAI2206, FUSDC2206 } from '../../config/assets';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -32,8 +33,13 @@ const InsetBox = styled(Box)`
       : 'inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd'};
 `;
 
-export const CardSkeleton = (props: {rightSide?: boolean}) => (
-  <StyledBox pad="xsmall" elevation="xsmall" align="center" round={{ corner: props.rightSide? 'right': 'left', size: 'large' }}>
+export const CardSkeleton = (props: { rightSide?: boolean }) => (
+  <StyledBox
+    pad="xsmall"
+    elevation="xsmall"
+    align="center"
+    round={{ corner: props.rightSide ? 'right' : 'left', size: 'large' }}
+  >
     <Box pad="small" width="small" direction="row" align="center" gap="small">
       <Skeleton circle width={45} height={45} />
       <Box>
@@ -41,8 +47,8 @@ export const CardSkeleton = (props: {rightSide?: boolean}) => (
       </Box>
     </Box>
   </StyledBox>
-)
-CardSkeleton.defaultProps ={ rightSide: false };
+);
+CardSkeleton.defaultProps = { rightSide: false };
 
 interface ISeriesSelectorProps {
   actionType: ActionType;
@@ -63,7 +69,6 @@ const AprText = ({
   series: ISeries;
   actionType: ActionType;
 }) => {
-
   const _inputValue = cleanValue(inputValue, series.decimals);
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
@@ -89,8 +94,7 @@ const AprText = ({
     <>
       {!series?.seriesIsMature && !limitHit && (
         <Text size="1.2em">
-          {apr}{' '}
-          <Text size="xsmall">%  {[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
+          {apr} <Text size="xsmall">% {[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
 
@@ -119,7 +123,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
+  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault, assetMap } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -155,10 +159,21 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     const opts = Array.from(seriesMap.values());
 
     /* filter out options based on base Id and if mature */
-    let filteredOpts = opts.filter(
-      (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
-      // !ignoredSeries?.includes(_series.baseId)
-    );
+    let filteredOpts = opts
+      .filter(
+        (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
+        // !ignoredSeries?.includes(_series.baseId)
+      )
+      .filter(
+        (_series) =>
+          actionType !== ActionType.BORROW ||
+          (assetMap.get(FDAI2206)?.balance.gt(ethers.constants.Zero) && _series.id !== '0x303130350000') // march dai series not applicable to fDAI
+      )
+      .filter(
+        (_series) =>
+          actionType !== ActionType.BORROW ||
+          (assetMap.get(FUSDC2206)?.balance.gt(ethers.constants.Zero) && _series.id !== '0x303230350000') // march usdc series not applicable to fUSDC
+      );
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
@@ -197,9 +212,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     <>
       {seriesLoading && <Skeleton width={180} />}
       {!cardLayout && (
-
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
-          <Select     
+          <Select
             plain
             dropProps={{ round: 'large' }}
             id="seriesSelect"
@@ -210,7 +224,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             labelKey={(x: any) => optionText(x)}
             valueLabel={
               options.length ? (
-                <Box pad={mobile ? 'medium' : 'small' } >
+                <Box pad={mobile ? 'medium' : 'small'}>
                   <Text color="text"> {optionExtended(_selectedSeries!)}</Text>
                 </Box>
               ) : (
@@ -236,50 +250,50 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         //   height={mobile ? undefined : '250px'}
         //   pad={{ vertical: 'small' }}
         // >
-          <Grid columns={mobile ? '100%' : '40%'} gap="small">
-            {seriesLoading ? (
-              <>
-                <CardSkeleton  />
-                <CardSkeleton rightSide />
-              </>
-            ) : (
-              options.map((series: ISeries, i: number) => (
-                <StyledBox
-                  key={series.id}
-                  pad="xsmall"
-                  // eslint-disable-next-line no-nested-ternary
-                  round={ i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' } }
-                  onClick={() => handleSelect(series)}
-                  background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
-                  elevation="xsmall"
-                  align="center"
-                >
-                  <Box pad="small" width="small" direction="row" align="center" gap="small">
-                    <Avatar
-                      background={
-                        series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
-                      }
-                      style={{
-                        boxShadow:
-                          series.id === _selectedSeries?.id
-                            ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
-                            : undefined,
-                      }}
-                    >
-                      {series.seriesMark}
-                    </Avatar>
+        <Grid columns={mobile ? '100%' : '40%'} gap="small">
+          {seriesLoading ? (
+            <>
+              <CardSkeleton />
+              <CardSkeleton rightSide />
+            </>
+          ) : (
+            options.map((series: ISeries, i: number) => (
+              <StyledBox
+                key={series.id}
+                pad="xsmall"
+                // eslint-disable-next-line no-nested-ternary
+                round={i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }}
+                onClick={() => handleSelect(series)}
+                background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
+                elevation="xsmall"
+                align="center"
+              >
+                <Box pad="small" width="small" direction="row" align="center" gap="small">
+                  <Avatar
+                    background={
+                      series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
+                    }
+                    style={{
+                      boxShadow:
+                        series.id === _selectedSeries?.id
+                          ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
+                          : undefined,
+                    }}
+                  >
+                    {series.seriesMark}
+                  </Avatar>
 
-                    <Box>
-                      <AprText inputValue={_inputValue} series={series} actionType={actionType} />
-                      <Text size="small" color={series.id === _selectedSeries?.id ? series.textColor : undefined}>
-                        {series.displayName}
-                      </Text>
-                    </Box>
+                  <Box>
+                    <AprText inputValue={_inputValue} series={series} actionType={actionType} />
+                    <Text size="small" color={series.id === _selectedSeries?.id ? series.textColor : undefined}>
+                      {series.displayName}
+                    </Text>
                   </Box>
-                </StyledBox>
-              ))
-            )}
-          </Grid>
+                </Box>
+              </StyledBox>
+            ))
+          )}
+        </Grid>
         // </ShadeBox>
       )}
     </>

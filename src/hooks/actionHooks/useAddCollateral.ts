@@ -66,11 +66,10 @@ export const useAddCollateral = () => {
     /* set the series and ilk based on if a vault has been selected or it's a new vault */
     const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
-    
-    const ilkForWrap: IAsset | null | undefined = ilk?.isWrappedToken && ilk.unwrappedTokenId
-      ? assetMap.get(ilk.unwrappedTokenId)
-      : selectedIlk; // use the unwrapped token as ilk
-    
+
+    const ilkForWrap: IAsset | null | undefined =
+      ilk?.isWrappedToken && ilk.unwrappedTokenId ? assetMap.get(ilk.unwrappedTokenId) : selectedIlk; // use the unwrapped token as ilk
+
     const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -88,8 +87,9 @@ export const useAddCollateral = () => {
     /* handle wrapped tokens:  */
     const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
 
-    /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await ilk?.getAllowance(account!, ilk?.joinAddress)!).gte(_input);
+    /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
+    const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);
+    const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_input) : _allowance;
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
@@ -98,7 +98,7 @@ export const useAddCollateral = () => {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthBased || alreadyApproved === true || wrapping.length>0,
+          ignoreIf: _isEthBased || alreadyApproved === true || wrapping.length > 0,
         },
       ],
       txCode
