@@ -6,9 +6,10 @@ import { TxContext } from '../contexts/TxContext';
 
 import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions } from '../types';
 import { MAX_256, ZERO_BN } from '../utils/constants';
+
 import { DAI_PERMIT_ASSETS, NON_PERMIT_ASSETS } from '../config/assets';
 
-import { ERC20Permit__factory, Ladle } from '../contracts';
+import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
 
@@ -152,8 +153,6 @@ export const useChain = () => {
         const _spender = getSpender(reqSig.spender);
         /* set as MAX if apporve max is selected */
         const _amount = approveMax ? MAX_256 : reqSig.amount?.toString();
-        /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-        const tokenContract = ERC20Permit__factory.connect(reqSig.target.address, signer) as any;
 
         diagnostics && console.log('Sign: Target', reqSig.target.symbol);
         diagnostics && console.log('Sign: Spender', _spender);
@@ -176,8 +175,14 @@ export const useChain = () => {
                 account,
                 _spender
               ),
-            /* This is the function  to call if using fallback approvals */
-            () => handleTx(() => tokenContract.approve(_spender, _amount), txCode, true),
+            /* This is the function  to call if using fallback Dai approvals */
+            () =>
+              handleTx(
+                /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
+                () => ERC20Permit__factory.connect(reqSig.target.address, signer).approve(_spender, _amount as string),
+                txCode,
+                true
+              ),
             txCode,
             approvalMethod
           );
@@ -221,7 +226,16 @@ export const useChain = () => {
               _amount
             ),
           /* this is the function for if using fallback approvals */
-          () => handleTx(() => tokenContract.approve(_spender, _amount), txCode, true),
+          () =>
+            handleTx(
+              /* get an ERC20 or ERC1155 contract instance. Used in the case of fallback tx (when signing is not available) or token is ERC1155 */
+              (reqSig.target as any).setAllowance
+                ? () => ERC1155__factory.connect(reqSig.target.address, signer).setApprovalForAll(_spender, true)
+                : () =>
+                    ERC20Permit__factory.connect(reqSig.target.address, signer).approve(_spender, _amount as string),
+              txCode,
+              true
+            ),
           txCode,
           NON_PERMIT_ASSETS.includes(reqSig.target.symbol) ? ApprovalType.TX : approvalMethod
         );

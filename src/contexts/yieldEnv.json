@@ -8,7 +8,10 @@
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061",
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
-      "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016"
+      "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
+
+      "NotionalMultiOracle": "",
+      "transfer1155Module": ""
     },
     "4": {
       "Cauldron": "0x040803C41fE50aDdda170b2d3facF7F1F7FF0855",
@@ -18,8 +21,14 @@
       "CompositeMultiOracle": "0x577DA88C253095b874941dda194a6c59489E644f",
       "Witch": "0x92C0aa4922444E6D5a6dFE365Ea1D106Bd9279E2",
       "lidoWrapHandler": "0x80d0CfceE7dfa135189e44d617032d5A7Cc2705b",
-      "YearnVaultMultiOracle": "0x392333A9d4CfCC529a7DA3F6021c5dfc6C54e1EF",
+
       "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
+
+      "YearnVaultMultiOracle": "0x88175a3e14F905ecCe464aF2A8E99f26159d4Cb8",
+      
+      "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
+      "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF"
+
     },
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
@@ -32,11 +41,11 @@
       "YearnVaultMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1"
     },
     "421611": {
-      "Cauldron": "0x5DcC4152b5b685e9B094705f36D672Ae5D04134f",
-      "Ladle": "0xfdf43681C87Fcb0F9B601902CC668D7E6291Ce41",
+      "Cauldron": "0x64BA0F1D2E5479BF132936328e8c533c95646fE8",
+      "Ladle": "0xC5A62972418195031F931944f9C156d563De1fb4",
       "ChainlinkUSDOracle": "0xb952fF816F0F1065D9A653D21bD4d8Ce96AE7b20",
-      "AccumulatorOracle": "0x07B7e44d6A78b2cAa3246866B2c9b4d49EF8A9b0",
-      "Witch": "0xadBCeeC6387840140A6b765fdC8b32B5ad508c76"
+      "AccumulatorOracle": "0xbBB7870227750119ab1f230c8785Be8C4e0C5f1A",
+      "Witch": "0xf8eD39321927F5fae30EC33311F1fe596078ccbD"
     },
     "42161": {
       "Cauldron": "0x23cc87FBEBDD67ccE167Fa9Ec6Ad3b7fE3892E30",
@@ -45,56 +54,6 @@
       "AccumulatorOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
       "Witch": "0x08173D0885B00BDD640aaE57D05AbB74cd00d669"
     }
-  },
-
-  "joins" : {
-    "1": [],
-    "4": [],
-    "42": [],
-    "42161" :[],
-    "421611": [
-      ["0x303000000000", "0xb4d9EF404c17E3e7288c3023d2801D64e38a28f5"],
-      ["0x303100000000", "0xe182Ce0384F7F1543Ca659e0798B08CCE4cd66eD"],
-      ["0x303200000000", "0xC37309c88577E9750EcF8B37a337373adA9FF2a4"]
-    ]
-  },
-
-  "assets": {
-    "1": [],
-    "4": [],
-    "42": [],
-    "42161" :[],
-    "421611": [
-      ["0x303000000000", "0xb3b95e6aee64b403d0586379f0073b0437f85c13"],
-      ["0x303100000000", "0x358871f2f233ee078743be4d965fac23bb0bfedd"],
-      ["0x303200000000", "0x461b6d0e560c27ad1c383de0b1a0d1ef13dcb0e6"]
-    ]
-  },
-
-  "series": {
-    "1": [],
-    "4": [],
-    "42": [],
-    "42161" :[],
-    "421611": [
-      ["0x303130350000", "0x0D8329e2CFb80d111bA2eF3f1AE8B38CEfc96e3c"],
-      ["0x303230350000", "0x2ae94ec45A78E90fFD7bdfeE8F2f61cDEd3fCf28"],
-      ["0x303130360000", "0x6bd69fc6406f5DF7b5e1747A77B7cb3245567d3B"],
-      ["0x303230360000", "0x4cc81a019052D73E83f3eB8b9F4B55BE56199722"]
-    ]
-  },
-
-  "pools": {
-    "1": [],
-    "4": [],
-    "42": [],
-    "42161" :[],
-    "421611": [
-      ["0x303130350000", "0xFd31C1706Ca8AF982F36Fe939bC3E076744964eb"],
-      ["0x303230350000", "0xF1DB19998f58F800a881F4f31B28F7DFd98e6c2D"],
-      ["0x303130360000", "0x0566890E4C910aaF848F6AD1Fe09D5A48bc985B0"],
-      ["0x303230360000", "0xD2e1eD284C25da82b29829b501cB9224B20Fbd18"]
-    ]
   },
 
   "strategies": {
@@ -126,7 +85,7 @@
       "0xE6C0feb62C65196D5C50c65C3B4854dCe6D5f122",
       "0xFe0682B834865E541900311b991453cd0de11517"
     ],
-    "42161" :[
+    "42161": [
       "0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1",
       "0xE7214Af14BD70F6AAC9c16B0c1Ec9ee1CcC7EFDA",
       "0x92A5B31310a3ED4546e0541197a32101fCfBD5c8",

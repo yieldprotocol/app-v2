@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Contract, ethers } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 
 import { format } from 'date-fns';
 
@@ -8,8 +8,8 @@ import { useConnection } from '../hooks/useConnection';
 
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
-import { ASSET_INFO, ETH_BASED_ASSETS } from '../config/assets';
+import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { ASSET_INFO, ETH_BASED_ASSETS, yvUSDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
@@ -27,7 +27,7 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 import MakerMark from '../components/logos/MakerMark';
-import { baseIdFromSeriesId } from '../utils/yieldMath';
+import NotionalMark from '../components/logos/NotionalMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -41,8 +41,9 @@ const markMap = new Map([
   ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
   ['UNI', <UNIMark key="uni" />],
-  ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get('yvUSDC')!.color} />],
+  ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get(yvUSDC)!.color} />],
   ['MKR', <MakerMark key="mkr" />],
+  ['Notional', <NotionalMark color={ASSET_INFO?.get(yvUSDC)!.color} key="notional" />],
 ]);
 
 /* Build the context */
@@ -143,7 +144,6 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-
       const seasonColorMap = [1, 4, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: any;
@@ -157,6 +157,9 @@ const ChainProvider = ({ children }: any) => {
 
       // modules
       let WrapEtherModule: any;
+
+      // Notional
+      let NotionalMultiOracle: any;
 
       // arbitrum
       let ChainlinkUSDOracle: any;
@@ -182,6 +185,14 @@ const ChainProvider = ({ children }: any) => {
           );
           YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(
             addrs.YearnVaultMultiOracle,
+            fallbackProvider
+          );
+          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
+            addrs.NotionalMultiOracle,
+            fallbackProvider
+          );
+          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
+            addrs.NotionalMultiOracle,
             fallbackProvider
           );
         }
@@ -224,10 +235,10 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('AccumulatorOracle', AccumulatorOracle);
       newContractMap.set('LidoWrapHandler', LidoWrapHandler);
+      newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
 
       // modules
       newContractMap.set('WrapEtherModule', WrapEtherModule);
-
 
       updateState({ type: 'contractMap', payload: newContractMap });
 
@@ -237,24 +248,53 @@ const ChainProvider = ({ children }: any) => {
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
         /* attach either contract, (or contract of the wrappedToken ) */
-        let baseContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
-        if (asset.wrappedTokenAddress) {
-          baseContract = contracts.ERC20Permit__factory.connect(asset.wrappedTokenAddress, fallbackProvider);
+
+        let assetContract: Contract;
+        let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
+        let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
+        let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
+
+        switch (asset.tokenType) {
+          case TokenType.ERC20_:
+            assetContract = contracts.ERC20__factory.connect(asset.address, fallbackProvider);
+            getBalance = async (acc) =>
+              ETH_BASED_ASSETS.includes(asset.idToUse)
+                ? fallbackProvider?.getBalance(acc)
+                : assetContract.balanceOf(acc);
+            getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
+            break;
+
+          case TokenType.ERC1155_:
+            assetContract = contracts.ERC1155__factory.connect(asset.address, fallbackProvider);
+            getBalance = async (acc) => assetContract.balanceOf(acc, asset.tokenIdentifier);
+            getAllowance = async (acc: string, spender: string) => assetContract.isApprovedForAll(acc, spender);
+            setAllowance = async (spender: string) => {
+              console.log(spender);
+              console.log(asset.address);
+              assetContract.setApprovalForAll(spender, true );
+            };
+            break;
+
+          default:
+            // Default is ERC20Permit;
+            assetContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+            getBalance = async (acc) =>
+              ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : assetContract.balanceOf(acc);
+            getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
+            break;
         }
-        const ERC20Permit = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
 
         return {
           ...asset,
-          digitFormat: ASSET_INFO.get(asset.symbol)?.digitFormat || 6,
-          image: markMap.get(asset.displaySymbol),
-          color: ASSET_INFO.get(asset.symbol)?.color || '#FFFFFF', // (yieldEnv.assetColors as any)[asset.symbol],
-          baseContract,
-          /* baked in token fns */
-          getBalance: async (acc: string) =>
-            /* if eth based get provider balance, if token based, get token balance (NOT of wrappedToken ) */
-            ETH_BASED_ASSETS.includes(asset.idToUse) ? fallbackProvider?.getBalance(acc) : ERC20Permit.balanceOf(acc),
-          getAllowance: async (acc: string, spender: string) => baseContract.allowance(acc, spender),
-          // getAllowance: async (acc: string, spender: string) => ERC20Permit.allowance(acc, spender),
+          digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
+          image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
+          color: ASSET_INFO.get(asset.id)?.color || '#FFFFFF', // (yieldEnv.assetColors as any)[asset.symbol],
+
+          assetContract,
+
+          getBalance,
+          getAllowance,
+          setAllowance,
         };
       };
 
@@ -262,97 +302,126 @@ const ChainProvider = ({ children }: any) => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
 
-        /* get hardcoded join/asset values  */
-        const joinHardMap: Map<string, string> = new Map((yieldEnv.joins as any)[fallbackChainId]);
-        const assetHardMap: Map<string, string> = new Map((yieldEnv.assets as any)[fallbackChainId]);
-
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('AssetAdded' as any, lastAssetUpdate),
-          Ladle.queryFilter('JoinAdded' as any, lastAssetUpdate),
-        ]).catch(() => {
-          assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.');
-          return [[], []];
-        });
+          Cauldron.queryFilter('AssetAdded', lastAssetUpdate, blockNum),
+          Ladle.queryFilter('JoinAdded', lastAssetUpdate, blockNum),
+        ]).catch(
+          () => [[], []] // assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.');
+        );
 
         /* Create a map from the joinAdded event data or hardcoded join data if available */
-        const joinMap: Map<string, string> = joinHardMap.size
-          ? joinHardMap
-          : new Map(joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]); // event values);
+        const joinMap: Map<string, string> = new Map(
+          joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
+        ); // event values);
 
         /* Create a array from the assetAdded event data or hardcoded asset data if available */
-        const assetsAdded: { assetId: string; asset: string }[] = assetHardMap.size
-          ? Array.from(assetHardMap, ([assetId, asset]) => ({ assetId, asset }))
-          : assetAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
-
+        const assetsAdded: { assetId: string; asset: string }[] = assetAddedEvents.map(
+          (x: any) => Cauldron.interface.parseLog(x).args
+        );
         const newAssetList: any[] = [];
 
         await Promise.all(
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
             const { assetId: id, asset: address } = x;
-            /* Get the basic token info */
-            const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-            let name: string;
-            let symbol: string;
-            let decimals: number;
-            let version: string;
-            let domain: string | undefined;
+// <<<<<<< feat/ETHAsBase
+//             /* Get the basic token info */
+//             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
+//             let name: string;
+//             let symbol: string;
+//             let decimals: number;
+//             let version: string;
+//             let domain: string | undefined;
 
-            try {
-              [name, symbol, decimals] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
-            } catch (e) {
+//             try {
+//               [name, symbol, decimals] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
+//             } catch (e) {
 
 
-              /* TODO look at finding a better way to handle the pimple that is the Maker Token */
-              // console.log('Trying rsolve maker TOKEN ');
-              // const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
-              // const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
-              // const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
-              // name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
-              // symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
-              // decimals = 18;
-              name ='UNKOWN';
-              symbol= 'UNKOWN';
-              decimals = 18;
+//               /* TODO look at finding a better way to handle the pimple that is the Maker Token */
+//               // console.log('Trying rsolve maker TOKEN ');
+//               // const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
+//               // const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
+//               // const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
+//               // name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
+//               // symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
+//               // decimals = 18;
+//               name ='UNKOWN';
+//               symbol= 'UNKOWN';
+//               decimals = 18;
+// =======
+            /* Get the basic hardcoded token info */
+            const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
+            let { name, symbol, decimals, version } = assetInfo;
+
+            // /* handle special pimple-case with maker ERC20 */
+            // const mkrERC20 = new ethers.Contract(
+            //   address,
+            //   ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'],
+            //   fallbackProvider
+            // );
+
+            /* ( Checks/ Corrects the ERC20 name/symbol/decimals if possible ) */
+            if (
+              assetInfo.tokenType === TokenType.ERC20_ ||
+              assetInfo.tokenType === TokenType.ERC20_Permit ||
+              assetInfo.tokenType === TokenType.ERC20_DaiPermit
+            ) {
+              const contract = contracts.ERC20__factory.connect(address, fallbackProvider);
+              try {
+                [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
+                // console.log(address, ': validation', name, symbol, decimals);
+              } catch (e) {
+                console.log(
+                  address,
+                  ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
+                );
+              }
             }
 
-            /* try to get the token version if available */
-            try {
-              version = await ERC20.version();
-            } catch (e) {
-              version = '1';
+            /* Checks/Corrects the version for ERC20Permit tokens */
+            if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
+              const contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
+              try {
+                version = await contract.version();
+              } catch (e) {
+                console.log(
+                  address,
+                  ': contract version auto-validation unsuccessfull. Please manually ensure version is correct.'
+                );
+              }
             }
 
-            /* try to get the domain_seperator if available */
-            try {
-              domain = await ERC20.DOMAIN_SEPARATOR();
-            } catch (e) {
-              domain = undefined;
-            }
+            /* TODO: get the ERC1155 token id from the associated join */
+            // if (assetInfo.tokenType === TokenType.ERC1155_) {
+            //   const joinContract =  contracts.Join1155__factory.connect(address, fallbackProvider);
+            //   try {
+            //     version = await contract.id();
+            //   } catch (e) {
+            //     console.log(
+            //       address,
+            //       ': contract version auto-validation unsuccessfull. Please manually ensure version is correct.'
+            //     );
+            //   }
+            // }
 
-            const assetInfo = ASSET_INFO.get(symbol) as IAssetInfo;
             const idToUse = assetInfo?.wrappedTokenId || id;
+
             const newAsset = {
+              ...assetInfo,
               id,
               address,
               name,
-
               symbol,
               decimals,
               version,
 
-              domain,
-
+              /* redirect the id/join if required due to using wrapped tokens */
               joinAddress: joinMap.get(idToUse),
               idToUse,
 
-              displaySymbol: assetInfo?.displaySymbol || symbol,
-
-              isWrappedToken: assetInfo?.isWrappedToken,
-              wrapHandlerAddress: assetInfo?.wrapHandlerAddress,
-              wrappedTokenId: assetInfo?.wrappedTokenId,
-              wrappedTokenAddress: assetInfo?.wrappedTokenAddress,
-              unwrappedTokenId: assetInfo?.unwrappedTokenId,
-              showToken: assetInfo?.showToken || false,
+              /* default setting of assetInfo fields if required */
+              displaySymbol: assetInfo.displaySymbol || symbol,
+              showToken: assetInfo.showToken || false,
             };
 
             // Update state and cache
@@ -414,37 +483,24 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-        /* get hardcoded pool/series values  */
-        const poolHardMap: Map<string, string> = new Map((yieldEnv.pools as any)[fallbackChainId]);
-        const seriesHardMap: Map<string, string> = new Map((yieldEnv.series as any)[fallbackChainId]);
-
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
           Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
           Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
-        ]).catch(() => {
-          console.log('Fallback to hardcoded ASSET information required.');
-          return [[], []];
-        });
+        ]).catch(() =>
+          // console.log('Fallback to hardcoded ASSET information required.');
+          [[], []]
+        );
 
         /* Create a map from the poolAdded event data or hardcoded pool data if available */
-        const poolMap: Map<string, string> = poolHardMap.size
-          ? poolHardMap
-          : new Map(poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]); // event values);
+        const poolMap: Map<string, string> = new Map(
+          poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
+        ); // event values);
 
         /* Create a array from the seriesAdded event data or hardcoded series data if available */
-        const seriesAdded: { seriesId: string; baseId: string; fyToken: string }[] = seriesHardMap.size
-          ? Array.from(seriesHardMap, ([seriesId, fyToken]) => ({
-              seriesId,
-              fyToken,
-              baseId: baseIdFromSeriesId(seriesId),
-            }))
-          : seriesAddedEvents.map((x: any) => Cauldron.interface.parseLog(x).args);
-
-        /* build a map from the poolAdded event data */
-        // const poolMap: Map<string, string> = new Map(
-        //   poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-        // );
+        const seriesAdded: { seriesId: string; baseId: string; fyToken: string }[] = seriesAddedEvents.map(
+          (x: any) => Cauldron.interface.parseLog(x).args
+        );
 
         const newSeriesList: any[] = [];
 
@@ -575,7 +631,6 @@ const ChainProvider = ({ children }: any) => {
         cachedStrategies.forEach((st: IStrategyRoot) => {
           updateState({ type: 'addStrategy', payload: _chargeStrategy(st) });
         });
-
         updateState({ type: 'chainLoading', payload: false });
 
         console.log('Checking for new Assets and Series, and Strategies ...');

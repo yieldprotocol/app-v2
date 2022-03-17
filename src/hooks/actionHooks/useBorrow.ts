@@ -15,6 +15,7 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
+
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
@@ -80,10 +81,13 @@ export const useBorrow = () => {
     );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
-    /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await ilk.getAllowance(account!, ilk.joinAddress)).gte(_collInput);
+    /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
+    const _allowance = await ilk.getAllowance(account!, ilk.joinAddress);
+    const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_collInput) : _allowance;
 
     const wrapping: ICallData[] = await wrapAssetToJoin(_collInput, selectedIlk!, txCode); // note: selected ilk used here, not wrapped version
+
+    console.log('Already approved', alreadyApproved);
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permits: ICallData[] = await sign(
