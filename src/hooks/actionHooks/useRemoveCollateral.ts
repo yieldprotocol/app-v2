@@ -77,7 +77,7 @@ export const useRemoveCollateral = () => {
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
-      ...removeEth(isEthCollateral ? _input:ZERO_BN),
+      ...removeEth(isEthCollateral ? _input :ZERO_BN), 
       ...unwrap,
     ];
 

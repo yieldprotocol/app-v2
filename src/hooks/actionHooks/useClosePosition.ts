@@ -93,10 +93,10 @@ export const useClosePosition = () => {
         operation: LadleActions.Fn.TRANSFER,
         args: [
           fyTokenAddress,
-          seriesIsMature ? fyTokenAddress : poolAddress, // select dest based on maturity
+          seriesIsMature ? fyTokenAddress : poolAddress, // select destination based on maturity
           _fyTokenValueOfInput,
         ] as LadleActions.Args.TRANSFER,
-        ignoreIf: false, // never ignore even after maturity because we go through the ladle.
+        ignoreIf: false, // never ignore, even after maturity because we go through the ladle.
       },
 
       /* BEFORE MATURITY */
@@ -114,7 +114,6 @@ export const useClosePosition = () => {
         args: [series.id, isEthBase ? ladleAddress : account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
-
       ...removeEth(isEthBase ? _fyTokenValueOfInput : ZERO_BN ),
     ];
     await transact(calls, txCode);

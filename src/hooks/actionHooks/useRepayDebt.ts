@@ -185,7 +185,7 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
       
-      ...removeEth( isEthCollateral ? _collateralToRemove : ZERO_BN ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
+      ...removeEth( isEthCollateral ? _collateralToRemove : ZERO_BN ), // after the complete tranasction, this will remove all the ETH collateral (if requested). -collateral 
       ...unwrap,
     ];
     await transact(calls, txCode);

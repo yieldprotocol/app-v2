@@ -48,12 +48,12 @@ export const useAddRemoveEth = () => {
         },
       ]
 
-
+ 
   const removeEth = (value: BigNumber, to: string|undefined = undefined): ICallData[] => [
           {
             operation: LadleActions.Fn.EXIT_ETHER,
             args: [to || account] as LadleActions.Args.EXIT_ETHER,
-            ignoreIf: value.gte(ZERO_BN), // ignores if value is ZERO or negative
+            ignoreIf: value.eq(ZERO_BN), // ignores if value is ZERO. NB NOTE: sign (+-) is irrelevant here
           },
         ]
 
