@@ -1,27 +1,39 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import {
+  ICallData,
+  ISeries,
+  ActionCodes,
+  LadleActions,
+  RoutedActions,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
+} from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
+import { ZERO_BN } from '../../utils/constants';
 import { calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
+import { useAddRemoveEth } from './useAddRemoveEth';
 
 /* Lend Actions Hook */
 export const useLend = () => {
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-    const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
+  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
-  ) as IUserContext;;
+  ) as IUserContext;
   const { activeAccount: account, assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
@@ -30,6 +42,8 @@ export const useLend = () => {
   } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
+
+  const { addEth } = useAddRemoveEth();
 
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -55,13 +69,16 @@ export const useLend = () => {
     /* if approveMAx, check if signature is required */
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(_input);
 
+    /* ETH is used as a base */
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+
     const permits: ICallData[] = await sign(
       [
         {
           target: base,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: alreadyApproved===true,
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode
@@ -69,10 +86,12 @@ export const useLend = () => {
 
     const calls: ICallData[] = [
       ...permits,
+
+      ...addEth(isEthBase ? _input : ZERO_BN, series.poolAddress),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: false,
+        ignoreIf: isEthBase,
       },
       {
         operation: LadleActions.Fn.ROUTE,

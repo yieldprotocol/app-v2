@@ -17,7 +17,7 @@ const StyledTableCell = styled(TableCell)`
 `;
 
 const DropContent = ({ assetMap }: { assetMap: any }) => (
-  <Box pad="small" round background="hoverBackground">
+  <Box pad="small" background="hoverBackground">
     <Table>
       <TableHeader>
         <TableRow>
@@ -39,25 +39,25 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
       </TableHeader>
       <TableBody>
         {[...assetMap.values()]
-        .filter((asset: IAsset) => asset.showToken )
-        .map((asset: IAsset) => (
-          <TableRow key={asset.address}>
-            <StyledTableCell plain>
-              <Text size="medium">{asset.image}</Text>
-            </StyledTableCell>
-            <StyledTableCell plain>
-              <Text size="small" color="text">
-                {asset.symbol}
-              </Text>
-            </StyledTableCell>
-            <StyledTableCell plain>
-              <Text size="small">{asset.balance_}</Text>
-            </StyledTableCell>
-            <StyledTableCell plain>
-              <AddTokenToMetamask address={asset.address} symbol={asset.symbol} decimals={asset.decimals} image="" />
-            </StyledTableCell>
-          </TableRow>
-        ))}
+          .filter((asset: IAsset) => asset.showToken)
+          .map((asset: IAsset) => (
+            <TableRow key={asset.address}>
+              <StyledTableCell plain>
+                <Text size="medium">{asset.image}</Text>
+              </StyledTableCell>
+              <StyledTableCell plain>
+                <Text size="small" color="text">
+                  {asset.displaySymbol}
+                </Text>
+              </StyledTableCell>
+              <StyledTableCell plain>
+                <Text size="small">{asset.balance_}</Text>
+              </StyledTableCell>
+              <StyledTableCell plain>
+                <AddTokenToMetamask address={asset.address} symbol={asset.symbol} decimals={asset.decimals} image="" />
+              </StyledTableCell>
+            </TableRow>
+          ))}
       </TableBody>
     </Table>
   </Box>
@@ -74,12 +74,10 @@ const SettingsBalances = () => {
       <BoxWrap>
         <DropButton
           open={open}
-          onOpen={()=>setOpen(true)}
-          onClose={()=>setOpen(false)}
+          onOpen={() => setOpen(true)}
+          onClose={() => setOpen(false)}
           dropContent={<DropContent assetMap={assetMap} />}
-          dropProps={{ align: { top: 'bottom', right: 'right' } }}
-          // style={{ borderRadius: '8px' }}
-          
+          dropProps={{ align: { top: 'bottom', right: 'right' }, round: 'small' }}
         >
           <YieldBalances />
         </DropButton>

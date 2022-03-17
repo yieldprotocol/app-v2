@@ -240,7 +240,7 @@ const UserProvider = ({ children }: any) => {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-              const balance = await asset.getBalance(account);
+              const balance = asset.name !== 'UNKOWN' ? await asset.getBalance(account) : ZERO_BN;
               return {
                 ...asset,
                 balance: balance || ethers.constants.Zero,
@@ -283,7 +283,6 @@ const UserProvider = ({ children }: any) => {
         ?.get(ilkId);
 
       const PriceOracle = contractMap.get(oracleName!);
-
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
 
@@ -445,13 +444,14 @@ const UserProvider = ({ children }: any) => {
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
           let pairData: IAssetPair;
+
           /* get the asset Pair info if required */
-          if (!userState.assetPairMap.has(vault.baseId + vault.ilkId)) {
+          if (!userState.assetPairMap.has(`${vault.baseId}${vault.ilkId}`)) {
             diagnostics && console.log('AssetPairInfo queued for fetching from network');
             pairData = await updateAssetPair(vault.baseId, vault.ilkId);
           } else {
             diagnostics && console.log('AssetPairInfo exists in assetPairMap');
-            pairData = await userState.assetPairMap.get(vault.baseId + vault.ilkId);
+            pairData = await userState.assetPairMap.get(`${vault.baseId}${vault.ilkId}`);
           }
           const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
 
@@ -478,6 +478,7 @@ const UserProvider = ({ children }: any) => {
               '0'
             );
             rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
+            console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
