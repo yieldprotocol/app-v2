@@ -63,13 +63,13 @@ export const useBorrow = () => {
     /* is ETH being Borrowed   */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
-    /* parse inputs  ( clean down to base/ilk decimals so that there is never an underlow)  */
+    /* parse inputs  (clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
     const cleanCollInput = cleanValue(collInput, ilk.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals) : ethers.constants.Zero;
 
-    /* Calculate expected debt(fytokens) */
+    /* Calculate expected debt (fytokens) */
     const _expectedFyToken = buyBase(
       series.baseReserves,
       series.fyTokenReserves,
@@ -121,7 +121,7 @@ export const useBorrow = () => {
         ignoreIf: !!vault,
       },
 
-      /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ) , else send ZERO_BN */
+      /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ), else send ZERO_BN */
       ...addEth(isEthCollateral ? _collInput : ZERO_BN),
 
       {
@@ -136,8 +136,8 @@ export const useBorrow = () => {
         ignoreIf: false, // never ignore
       },
 
-      /* handle remove/unwrap WETH > if ETH is what is being borrowed */ 
-      ...removeEth(isEthBase ? ONE_BN : ZERO_BN), // ( exit_ether sweeps all the eth out the lade, so exact amount is not importnat -> just greater than zero)
+      /* handle remove/unwrap WETH > if ETH is what is being borrowed */
+      ...removeEth(isEthBase ? ONE_BN : ZERO_BN), // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
 
     /* handle the transaction */
