@@ -5,18 +5,25 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
 import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions } from '../types';
-import { MAX_256 } from '../utils/constants';
+import { MAX_256, ZERO_BN } from '../utils/constants';
 import { DAI_PERMIT_ASSETS, NON_PERMIT_ASSETS } from '../config/assets';
 
 import { ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
 
-/* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
-const _getCallValue = (calls: ICallData[]): BigNumber => {
-  const joinEtherCall = calls.find((call: any) => call.operation === LadleActions.Fn.JOIN_ETHER);
-  return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
-};
+// /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
+// const _getCallValue = (calls: ICallData[]): BigNumber => {
+//   const joinEtherCall = calls.find((call: any) => call.operation === LadleActions.Fn.JOIN_ETHER);
+//   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
+// };
+
+/* Get the sum of the value of all calls */ 
+const _getCallValue = (calls: ICallData[]): BigNumber => calls.reduce(
+  (sum: BigNumber, call: ICallData) =>
+    sum.add(call.overrides?.value ? BigNumber.from(call?.overrides?.value) : ZERO_BN),
+  ZERO_BN
+);
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
@@ -56,16 +63,12 @@ export const useChain = () => {
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
-
-      console.log(call.targetContract,  call.fnName, call.args );
-      
       /* 'pre-encode' routed calls if required */
-      if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.ROUTE) {
-        
+      if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.MODULE) {
         if (call.fnName && call.targetContract) {
           const encodedFn = (call.targetContract as any).interface.encodeFunctionData(call.fnName, call.args);
 
-          if (call.operation === LadleActions.Fn.ROUTE)
+          if (call.operation === LadleActions.Fn.ROUTE) 
             return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
               call.targetContract.address,
               encodedFn,
@@ -76,6 +79,7 @@ export const useChain = () => {
               call.targetContract.address,
               encodedFn,
             ]);
+
         }
         throw new Error('Function name and contract target required for routing/ module interaction');
       }
@@ -83,21 +87,9 @@ export const useChain = () => {
       return _contract.interface.encodeFunctionData(call.operation as string, call.args);
     });
 
-    // public routeAction(target: string, calldata: string): string {
-    //   return this.ladle.interface.encodeFunctionData('route', [target, calldata])
-    // }
-
-    // public async route(target: string, calldata: string): Promise<ContractTransaction> {
-    //   return this.ladle.route(target, calldata)
-    // }
-
-    // public moduleCallAction(target: string, calldata: string): string {
-    //   return this.ladle.interface.encodeFunctionData('moduleCall', [target, calldata])
-    // }
-
-    // public async moduleCall(target: string, calldata: string): Promise<ContractTransaction> {
-    //   return this.ladle.moduleCall(target, calldata)
-    // }
+    // const calldata = wrapEtherModule.interface.encodeFunctionData('wrap', [other, WAD])
+    // await ladle.ladle.moduleCall(wrapEtherModule.address, calldata, { value: WAD })
+    // expect(await weth.balanceOf(other)).to.equal(WAD)
 
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);
