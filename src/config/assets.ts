@@ -127,6 +127,7 @@ ASSET_INFO.set(wstETH, {
   digitFormat: 6,
   unwrappedTokenId: '0x303500000000',
   tokenType: TokenType.ERC20_Permit,
+  oracleIlkId: stETH,
 });
 
 ASSET_INFO.set(stETH, {

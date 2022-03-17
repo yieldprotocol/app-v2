@@ -277,10 +277,12 @@ const UserProvider = ({ children }: any) => {
     async (baseId: string, ilkId: string): Promise<IAssetPair> => {
       updateState({ type: 'assetPairLoading', payload: true });
 
+      const oracleIlkId = assetRootMap.get(ilkId)?.oracleIlkId! || ilkId;
+
       const Cauldron = contractMap.get('Cauldron');
       const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
         ?.get(baseId)
-        ?.get(ilkId);
+        ?.get(oracleIlkId);
 
       const PriceOracle = contractMap.get(oracleName!);
       const base = assetRootMap.get(baseId);
@@ -299,7 +301,7 @@ const UserProvider = ({ children }: any) => {
       try {
         // eslint-disable-next-line prefer-const
         [price] = await PriceOracle?.peek(
-          bytesToBytes32(ilkId, 6),
+          bytesToBytes32(oracleIlkId, 6),
           bytesToBytes32(baseId, 6),
           decimal18ToDecimalN(WAD_BN, ilk?.decimals!)
         );
@@ -307,13 +309,14 @@ const UserProvider = ({ children }: any) => {
           console.log(
             'Price fetched:',
             decimal18ToDecimalN(WAD_BN, ilk?.decimals!).toString(),
-            ilkId,
+            oracleIlkId,
             'for',
             price.toString(),
             baseId
           );
       } catch (error) {
-        diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+        diagnostics &&
+          console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(oracleIlkId, 6));
         diagnostics && console.log(error);
         price = ethers.constants.Zero;
       }
@@ -443,7 +446,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-          
           let pairData: IAssetPair;
 
           /* get the asset Pair info if required */
@@ -477,7 +479,7 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
-            console.log('mature series : ', seriesId,  rate, rateAtMaturity, art ); 
+            console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');

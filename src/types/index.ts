@@ -197,6 +197,8 @@ export interface IAssetInfo {
 
   unwrappedTokenId?: string;
   unwrappedTokenAddress?: string;
+
+  oracleIlkId?: string; // used when there is a deviation between the actual id and the oracle ilk id to fetch the price
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
