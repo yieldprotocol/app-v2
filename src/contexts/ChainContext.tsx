@@ -323,32 +323,7 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
             const { assetId: id, asset: address } = x;
-// <<<<<<< feat/ETHAsBase
-//             /* Get the basic token info */
-//             const ERC20 = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-//             let name: string;
-//             let symbol: string;
-//             let decimals: number;
-//             let version: string;
-//             let domain: string | undefined;
-
-//             try {
-//               [name, symbol, decimals] = await Promise.all([ERC20.name(), ERC20.symbol(), ERC20.decimals()]);
-//             } catch (e) {
-
-
-//               /* TODO look at finding a better way to handle the pimple that is the Maker Token */
-//               // console.log('Trying rsolve maker TOKEN ');
-//               // const mkrABI = ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'];
-//               // const mkrERC20 = new ethers.Contract(address, mkrABI, fallbackProvider);
-//               // const mkrInfo = await Promise.all([mkrERC20.name(), mkrERC20.symbol()]);
-//               // name = ethers.utils.parseBytes32String(mkrInfo[0]) as string;
-//               // symbol = ethers.utils.parseBytes32String(mkrInfo[1]) as string;
-//               // decimals = 18;
-//               name ='UNKOWN';
-//               symbol= 'UNKOWN';
-//               decimals = 18;
-// =======
+            
             /* Get the basic hardcoded token info */
             const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
             let { name, symbol, decimals, version } = assetInfo;
