@@ -158,7 +158,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [_base.address, _series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ingore if not BUY and POOL or isETHbase
+        ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ignore if not BUY and POOL or isETHbase
       },
 
       {
@@ -172,7 +172,7 @@ export const useAddLiquidity = () => {
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: _series.poolContract,
-        ignoreIf: method !== AddLiquidityType.BUY, // ingore if not BUY and POOL
+        ignoreIf: method !== AddLiquidityType.BUY, // ignore if not BUY and POOL
       },
 
       /**
@@ -181,7 +181,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.BUILD,
         args: [_series.id, _base.idToUse, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ingore if not BORROW and POOL
+        ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ignore if not BORROW and POOL
       },
 
       /* addETh to joinAddress and poolAddress if isEthBase and using BORROW method */
