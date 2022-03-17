@@ -146,13 +146,6 @@ ASSET_INFO.set(stETH, {
   tokenType: TokenType.ERC20_Permit,
 });
 
-// <<<<<<< feat/ETHAsBase
-// ASSET_INFO.set('LINK', { showToken: true, isWrappedToken: false, color: '#2A5ADA', digitFormat: 6 });
-// ASSET_INFO.set('yvUSDC', { showToken: true, isWrappedToken: false, color: '#3366CC', digitFormat: 2 });
-// ASSET_INFO.set('UNI', { showToken: true, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
-// ASSET_INFO.set('MKR', { showToken: false, isWrappedToken: false, color: '#FF007A', digitFormat: 6 });
-// ASSET_INFO.set('UNKOWN', { showToken: false, isWrappedToken: false, color: '#F5AC37', digitFormat: 2 });
-
 ASSET_INFO.set(LINK, {
   version: '1',
   name: 'ChainLink',
@@ -206,7 +199,7 @@ ASSET_INFO.set(FDAI2206, {
   name: 'FDAI2206',
   decimals: 8,
   symbol: 'FDAI2206',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
@@ -221,7 +214,7 @@ ASSET_INFO.set(FUSDC2206, {
   name: 'FUSDC2206',
   decimals: 8,
   symbol: 'FUSDC2206',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
