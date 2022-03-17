@@ -32,7 +32,7 @@ export const useAddRemoveEth = () => {
         {
           operation: LadleActions.Fn.MODULE,
           fnName: ModuleActions.Fn.WRAP_ETHER_MODULE,
-          args: [account, value] as ModuleActions.Args.WRAP_ETHER_MODULE,
+          args: [ to || account, value ] as ModuleActions.Args.WRAP_ETHER_MODULE,
           targetContract: WrapEtherModuleContract,
           ignoreIf: value.lte(ZERO_BN), // ignores if value is 0 or negative
           overrides: { value },
