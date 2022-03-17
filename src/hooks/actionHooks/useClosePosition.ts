@@ -102,7 +102,7 @@ export const useClosePosition = () => {
       /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
+        args: [ isEthBase ? ladleAddress : account, _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
         ignoreIf: seriesIsMature,
@@ -111,11 +111,11 @@ export const useClosePosition = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, isEthBase? ladleAddress : account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
+        args: [series.id, isEthBase ? ladleAddress : account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
 
-      ...removeEth((seriesIsMature && isEthBase) ? _fyTokenValueOfInput : ZERO_BN ),
+      ...removeEth(isEthBase ? _fyTokenValueOfInput : ZERO_BN ),
     ];
     await transact(calls, txCode);
     updateSeries([series]);
