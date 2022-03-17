@@ -15,7 +15,7 @@ import {
 } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT } from '../../utils/constants';
+import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
@@ -45,10 +45,9 @@ export const useAddCollateral = () => {
     /* set the ilk based on if a vault has been selected or it's a new vault */
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
 
-    const ilkForWrap: IAsset | null | undefined = ilk?.isWrappedToken && ilk.unwrappedTokenId
-      ? assetMap.get(ilk.unwrappedTokenId)
-      : selectedIlk; // use the unwrapped token as ilk
-    
+    const ilkForWrap: IAsset | null | undefined =
+      ilk?.isWrappedToken && ilk.unwrappedTokenId ? assetMap.get(ilk.unwrappedTokenId) : selectedIlk; // use the unwrapped token as ilk
+
     const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -76,7 +75,7 @@ export const useAddCollateral = () => {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthCollateral || alreadyApproved === true || wrapping.length>0,
+          ignoreIf: _isEthCollateral || alreadyApproved === true || wrapping.length > 0,
         },
       ],
       txCode
@@ -95,9 +94,8 @@ export const useAddCollateral = () => {
       /* handle wrapped token deposit, if required */
       ...wrapping,
 
-
-      /* handle adding eth if required */
-      ...addEth(_input, !ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!), selectedIlk?.idToUse ),
+      /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
+      ...addEth(ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ? _input : ZERO_BN, undefined, selectedIlk?.idToUse),
 
       /* handle permits if required */
       ...permits,

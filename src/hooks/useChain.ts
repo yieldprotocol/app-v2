@@ -56,6 +56,9 @@ export const useChain = () => {
 
     /* Encode each of the calls OR preEncoded route calls */
     const encodedCalls = _calls.map((call: ICallData) => {
+
+      console.log(call.targetContract,  call.fnName, call.args );
+      
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.ROUTE) {
         

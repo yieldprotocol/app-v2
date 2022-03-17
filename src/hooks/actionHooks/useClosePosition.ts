@@ -16,6 +16,7 @@ import {
   IUserContextActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
+import { ZERO_BN } from '../../utils/constants';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -114,7 +115,7 @@ export const useClosePosition = () => {
         ignoreIf: !seriesIsMature,
       },
 
-      ...removeEth(_fyTokenValueOfInput, (!seriesIsMature && !isEthBase)  ),
+      ...removeEth((seriesIsMature && isEthBase) ? _fyTokenValueOfInput : ZERO_BN ),
     ];
     await transact(calls, txCode);
     updateSeries([series]);

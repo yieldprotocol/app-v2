@@ -17,7 +17,7 @@ import {
   ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
+import { BLANK_VAULT, ZERO_BN} from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
@@ -26,6 +26,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS } from '../../config/assets';
+import { ModuleActions } from '../../types/operations';
 
 export const useAddLiquidity = () => {
   const {
@@ -157,7 +158,16 @@ export const useAddLiquidity = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      ...addEth(_input, !isEthBase),
+
+      ...addEth(isEthBase ? _input : ZERO_BN ),
+
+      // {
+      //   operation: LadleActions.Fn.MODULE,
+      //   fnName: ModuleActions.Fn.WRAP_ETHER_MODULE,
+      //   args: [ account, _input] as ModuleActions.Args.WRAP_ETHER_MODULE,
+      //   targetContract: contractMap.get('WrapEtherModule'),
+      //   ignoreIf: false
+      // },
 
       /**
        * Provide liquidity by BUYING :
@@ -167,6 +177,7 @@ export const useAddLiquidity = () => {
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BUY, // ingore if not BUY and POOL
       },
+
       {
         operation: LadleActions.Fn.ROUTE,
         args: [

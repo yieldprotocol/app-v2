@@ -120,10 +120,10 @@ export namespace RoutedActions {
 }
 
 export namespace ModuleActions {
+
   export enum Fn {
     WRAP_ETHER_MODULE = 'wrap',
   }
-
   export namespace Args {
     export type WRAP_ETHER_MODULE = [receiver: string, amount: BigNumberish];
   }

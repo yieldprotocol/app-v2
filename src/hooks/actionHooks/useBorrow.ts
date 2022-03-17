@@ -14,7 +14,7 @@ import {
   IUserContextState,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT } from '../../utils/constants';
+import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
@@ -110,8 +110,8 @@ export const useBorrow = () => {
       /* Include all the signatures gathered, if required */
       ...permits,
 
-      /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ) */
-      ...addEth(_collInput, !isEthCollateral),
+      /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ) , else send ZERO_BN */
+      ...addEth(isEthCollateral ? _collInput : ZERO_BN ),
 
       /* If vault is null, build a new vault, else ignore */
       {
@@ -132,7 +132,7 @@ export const useBorrow = () => {
       },
 
       /* handle remove/unwrap WETH > if ETH is what is being borrowed */
-      ...removeEth(_input.mul(-1), !isEthBase),
+      ...removeEth(isEthBase ? _input.mul(-1): ZERO_BN),
     ];
 
     /* handle the transaction */

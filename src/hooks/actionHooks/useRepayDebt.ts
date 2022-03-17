@@ -21,6 +21,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import { ZERO_BN } from '../../utils/constants';
 
 export const useRepayDebt = () => {
   const {
@@ -144,7 +145,7 @@ export const useRepayDebt = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      ...addEth(_input, !isEthBase), 
+      ...addEth(isEthBase ? _input : ZERO_BN), 
 
       /* BEFORE MATURITY */
       {
@@ -184,7 +185,7 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
       
-      ...removeEth( _collateralToRemove, isEthBase ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
+      ...removeEth( isEthBase ? _collateralToRemove : ZERO_BN ), // after the complete tranasction, this will remove all the ETH collateral (if requested).
       ...unwrap,
     ];
     await transact(calls, txCode);

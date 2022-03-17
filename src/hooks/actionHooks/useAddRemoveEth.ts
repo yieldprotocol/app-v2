@@ -1,39 +1,61 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import { useContext } from 'react';
+import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 
-import { ICallData, LadleActions, IUserContext, IUserContextState, IUserContextActions} from '../../types';
+import { ICallData, LadleActions, IUserContext, IUserContextState, IUserContextActions } from '../../types';
+import { ModuleActions } from '../../types/operations';
+import { ZERO_BN } from '../../utils/constants';
 
 export const useAddRemoveEth = () => {
+
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
+  
   const { userState }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
 
   const { activeAccount: account } = userState;
+  const WrapEtherModuleContract =  contractMap.get('WrapEtherModule');
 
-  const addEth = (value: BigNumber, ignoreIf: boolean, alternateEthAssetId?: string|undefined ): ICallData[] =>
-    !ignoreIf
+
+  const addEth = (
+    value: BigNumber,
+    to: string | undefined = undefined,
+    alternateEthAssetId: string | undefined = undefined
+  ): ICallData[] =>
+    /* if there is a destination 'to' then use the ladle module (wrapEtherModule) */
+    to
       ? [
-          {
-            operation: LadleActions.Fn.JOIN_ETHER,
-            args: [alternateEthAssetId || '0x303000000000'] as LadleActions.Args.JOIN_ETHER,
-            ignoreIf: value.lte(ethers.constants.Zero),
-            overrides: { value },
-          },
-        ]
-      : [];
+        {
+          operation: LadleActions.Fn.MODULE,
+          fnName: ModuleActions.Fn.WRAP_ETHER_MODULE,
+          args: [account, value] as ModuleActions.Args.WRAP_ETHER_MODULE,
+          targetContract: WrapEtherModuleContract,
+          ignoreIf: value.lte(ZERO_BN), // ignores if value is 0 or negative
+          overrides: { value },
+        },
+      ]:
+      /* else use simple JOIN_ETHER  with optional */ 
+      [
+        {
+          operation: LadleActions.Fn.JOIN_ETHER,
+          args: [alternateEthAssetId || '0x303000000000'] as LadleActions.Args.JOIN_ETHER,
+          ignoreIf: value.lte(ZERO_BN), // ignores if value is zero or negative
+          overrides: { value },
+        },
+      ]
 
 
-  const removeEth = (value: BigNumber, ignoreIf: boolean, ): ICallData[] =>
-    !ignoreIf
-      ? [
+  const removeEth = (value: BigNumber, to: string|undefined = undefined): ICallData[] => [
           {
             operation: LadleActions.Fn.EXIT_ETHER,
-            args: [account] as LadleActions.Args.EXIT_ETHER,
-            ignoreIf: value.gte(ethers.constants.Zero),
+            args: [to || account] as LadleActions.Args.EXIT_ETHER,
+            ignoreIf: value.gte(ZERO_BN), // ignores if value is ZERO or negative
           },
         ]
-      : [];
 
   return { addEth, removeEth };
 };

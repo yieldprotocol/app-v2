@@ -18,6 +18,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import { ZERO_BN } from '../../utils/constants';
 
 // TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
@@ -54,6 +55,8 @@ export const useRemoveCollateral = () => {
 
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.id); 
+    // const isEthBase = ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+
     let _pourTo = isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
@@ -74,7 +77,7 @@ export const useRemoveCollateral = () => {
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
-      ...removeEth(_input, !ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!)),
+      ...removeEth(isEthCollateral ? _input:ZERO_BN),
       ...unwrap,
     ];
 
