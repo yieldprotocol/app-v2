@@ -230,7 +230,7 @@ const UserProvider = ({ children }: any) => {
           return {
             ...asset,
             isYieldBase,
-            displaySymbol: showWrappedTokens ? asset.symbol : asset.displaySymbol, // if showing wrapped tokens, show the true token names
+            displaySymbol: asset.displaySymbol,
           };
         })
       );
