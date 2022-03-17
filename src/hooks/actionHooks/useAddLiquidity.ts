@@ -17,7 +17,7 @@ import {
   ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ZERO_BN} from '../../utils/constants';
+import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
@@ -26,7 +26,6 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS } from '../../config/assets';
-import { ModuleActions } from '../../types/operations';
 
 export const useAddLiquidity = () => {
   const {
@@ -158,24 +157,16 @@ export const useAddLiquidity = () => {
     const calls: ICallData[] = [
       ...permits,
 
-
-      ...addEth(isEthBase ? _input : ZERO_BN ),
-
-      // {
-      //   operation: LadleActions.Fn.MODULE,
-      //   fnName: ModuleActions.Fn.WRAP_ETHER_MODULE,
-      //   args: [ account, _input] as ModuleActions.Args.WRAP_ETHER_MODULE,
-      //   targetContract: contractMap.get('WrapEtherModule'),
-      //   ignoreIf: false
-      // },
-
       /**
        * Provide liquidity by BUYING :
        * */
+
+      /* addETh to poolAddress if isEthBase and using BUY method */
+      ...addEth(isEthBase && method === AddLiquidityType.BUY ? _input : ZERO_BN, series.poolAddress),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== AddLiquidityType.BUY, // ingore if not BUY and POOL
+        ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ingore if not BUY and POOL or isETHbase
       },
 
       {
@@ -200,19 +191,23 @@ export const useAddLiquidity = () => {
         args: [series.id, base.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ingore if not BORROW and POOL
       },
+
+      /* addETh to joinAddress and poolAddress if isEthBase and using BORROW method */
+      ...addEth(isEthBase && method === AddLiquidityType.BORROW ? _baseToFyToken : ZERO_BN, base.joinAddress),
+      ...addEth(
+        isEthBase && method === AddLiquidityType.BORROW ? _baseToPoolWithSlippage : ZERO_BN,
+        series.poolAddress
+      ),
+
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== AddLiquidityType.BORROW,
+        ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [
-          base.address,
-          series.poolAddress,
-          _baseToPoolWithSlippage,
-        ] as LadleActions.Args.TRANSFER,
-        ignoreIf: method !== AddLiquidityType.BORROW,
+        args: [base.address, series.poolAddress, _baseToPoolWithSlippage] as LadleActions.Args.TRANSFER,
+        ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
 
       {
@@ -247,7 +242,6 @@ export const useAddLiquidity = () => {
         targetContract: strategy.strategyContract,
         ignoreIf: !strategy,
       },
-
     ];
 
     await transact(calls, txCode);
