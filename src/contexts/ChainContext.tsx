@@ -323,7 +323,7 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
             const { assetId: id, asset: address } = x;
-            
+
             /* Get the basic hardcoded token info */
             const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
             let { name, symbol, decimals, version } = assetInfo;
@@ -379,7 +379,7 @@ const ChainProvider = ({ children }: any) => {
             //   }
             // }
 
-            const idToUse = assetInfo?.wrappedTokenId || id;
+            const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id 
 
             const newAsset = {
               ...assetInfo,
