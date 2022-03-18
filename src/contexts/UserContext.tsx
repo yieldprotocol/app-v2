@@ -277,12 +277,10 @@ const UserProvider = ({ children }: any) => {
     async (baseId: string, ilkId: string): Promise<IAssetPair> => {
       updateState({ type: 'assetPairLoading', payload: true });
 
-      const oracleIlkId = assetRootMap.get(ilkId)?.oracleIlkId! || ilkId;
-
       const Cauldron = contractMap.get('Cauldron');
       const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
         ?.get(baseId)
-        ?.get(oracleIlkId);
+        ?.get(ilkId);
 
       const PriceOracle = contractMap.get(oracleName!);
       const base = assetRootMap.get(baseId);
@@ -301,7 +299,7 @@ const UserProvider = ({ children }: any) => {
       try {
         // eslint-disable-next-line prefer-const
         [price] = await PriceOracle?.peek(
-          bytesToBytes32(oracleIlkId, 6),
+          bytesToBytes32(ilkId, 6),
           bytesToBytes32(baseId, 6),
           decimal18ToDecimalN(WAD_BN, ilk?.decimals!)
         );
@@ -309,14 +307,14 @@ const UserProvider = ({ children }: any) => {
           console.log(
             'Price fetched:',
             decimal18ToDecimalN(WAD_BN, ilk?.decimals!).toString(),
-            oracleIlkId,
+            ilkId,
             'for',
             price.toString(),
             baseId
           );
       } catch (error) {
         diagnostics &&
-          console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(oracleIlkId, 6));
+          console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
         diagnostics && console.log(error);
         price = ethers.constants.Zero;
       }
