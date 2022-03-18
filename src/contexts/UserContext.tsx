@@ -470,6 +470,7 @@ const UserProvider = ({ children }: any) => {
           let accruedArt;
           let rateAtMaturity;
           let rate;
+          let rate_: string;
           if (await series?.isMature()) {
             rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
             [rate] = await RateOracle?.peek(
@@ -477,10 +478,13 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
+
+            rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
             console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
+            rate_ = '1';
             rateAtMaturity = BigNumber.from('1');
             accruedArt = art;
           }
@@ -516,6 +520,7 @@ const UserProvider = ({ children }: any) => {
             accruedArt,
             rateAtMaturity,
             rate,
+            rate_,
 
             ink_, // for display purposes only
             art_, // for display purposes only

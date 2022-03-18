@@ -291,6 +291,7 @@ export interface IVault extends IVaultRoot, IAssetPair {
 
   rateAtMaturity: BigNumber;
   rate: BigNumber;
+  rate_: string;
 
   accruedArt_: string;
   liquidationPrice_: string;
