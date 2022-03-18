@@ -266,7 +266,6 @@ const UserProvider = ({ children }: any) => {
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
-
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: 'assetsLoading', payload: false });
     },
@@ -480,7 +479,7 @@ const UserProvider = ({ children }: any) => {
             );
 
             rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
-            console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
+            diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
