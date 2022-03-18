@@ -125,7 +125,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, fallbackChainId, fallbackProvider },
+    connection: { account, fallbackChainId },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -133,7 +133,7 @@ const UserProvider = ({ children }: any) => {
   } = chainState;
 
   const {
-    settingsState: { showWrappedTokens, diagnostics },
+    settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const [lastVaultUpdate, setLastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
@@ -230,7 +230,7 @@ const UserProvider = ({ children }: any) => {
           return {
             ...asset,
             isYieldBase,
-            displaySymbol: showWrappedTokens ? asset.symbol : asset.displaySymbol, // if showing wrapped tokens, show the true token names
+            displaySymbol: asset.displaySymbol,
           };
         })
       );
@@ -266,11 +266,10 @@ const UserProvider = ({ children }: any) => {
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
-
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: 'assetsLoading', payload: false });
     },
-    [account, assetRootMap, seriesRootMap, showWrappedTokens]
+    [account, assetRootMap, seriesRootMap]
   );
 
   const updateAssetPair = useCallback(
@@ -313,7 +312,8 @@ const UserProvider = ({ children }: any) => {
             baseId
           );
       } catch (error) {
-        diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+        diagnostics &&
+          console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
         diagnostics && console.log(error);
         price = ethers.constants.Zero;
       }
@@ -443,7 +443,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-          
           let pairData: IAssetPair;
 
           /* get the asset Pair info if required */
@@ -470,6 +469,7 @@ const UserProvider = ({ children }: any) => {
           let accruedArt;
           let rateAtMaturity;
           let rate;
+          let rate_: string;
           if (await series?.isMature()) {
             rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
             [rate] = await RateOracle?.peek(
@@ -477,10 +477,13 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
-            console.log('mature series : ', seriesId,  rate, rateAtMaturity, art ); 
+
+            rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
+            diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
             rate = BigNumber.from('1');
+            rate_ = '1';
             rateAtMaturity = BigNumber.from('1');
             accruedArt = art;
           }
@@ -516,6 +519,7 @@ const UserProvider = ({ children }: any) => {
             accruedArt,
             rateAtMaturity,
             rate,
+            rate_,
 
             ink_, // for display purposes only
             art_, // for display purposes only

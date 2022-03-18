@@ -197,6 +197,7 @@ export interface IAssetInfo {
 
   unwrappedTokenId?: string;
   unwrappedTokenAddress?: string;
+
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
@@ -290,6 +291,7 @@ export interface IVault extends IVaultRoot, IAssetPair {
 
   rateAtMaturity: BigNumber;
   rate: BigNumber;
+  rate_: string;
 
   accruedArt_: string;
   liquidationPrice_: string;

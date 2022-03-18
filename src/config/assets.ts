@@ -119,14 +119,15 @@ ASSET_INFO.set(wstETH, {
   symbol: 'wstETH',
   displaySymbol: 'wstETH',
   showToken: true,
-  isWrappedToken: false,
-  wrapHandlerAddress: '0x491aB93faa921C8E634F891F96512Be14fD3DbB1',
-  wrappedTokenId: '0x303400000000',
+  isWrappedToken: true,
+  wrapHandlerAddress: '',
+  wrappedTokenId: '',
   wrappedTokenAddress: '',
   color: '#00A3FF',
   digitFormat: 6,
   unwrappedTokenId: '0x303500000000',
   tokenType: TokenType.ERC20_Permit,
+
 });
 
 ASSET_INFO.set(stETH, {
