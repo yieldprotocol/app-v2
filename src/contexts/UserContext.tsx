@@ -37,6 +37,7 @@ import { WAD_BN, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
 import { useCachedState } from '../hooks/generalHooks';
+import { ETH_BASED_ASSETS } from '../config/assets';
 
 const UserContext = React.createContext<any>({});
 
@@ -357,11 +358,13 @@ const UserProvider = ({ children }: any) => {
             series.isMature(),
           ]);
 
+          const rateCheckAmount =  ethers.utils.parseUnits( ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1', series.decimals) ;
+
           /* Calculates the base/fyToken unit selling price */
           const _sellRate = sellFYToken(
             baseReserves,
             fyTokenReserves,
-            ethers.utils.parseUnits('1', series.decimals),
+            rateCheckAmount,
             secondsToFrom(series.maturity.toString()),
             series.ts,
             series.g2,
@@ -369,7 +372,7 @@ const UserProvider = ({ children }: any) => {
           );
 
           const apr =
-            calculateAPR(floorDecimal(_sellRate), ethers.utils.parseUnits('1', series.decimals), series.maturity) ||
+            calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) ||
             '0';
 
           return {
