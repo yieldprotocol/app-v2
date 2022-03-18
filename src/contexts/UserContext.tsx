@@ -125,7 +125,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, fallbackChainId, fallbackProvider },
+    connection: { account, fallbackChainId },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -133,7 +133,7 @@ const UserProvider = ({ children }: any) => {
   } = chainState;
 
   const {
-    settingsState: { showWrappedTokens, diagnostics },
+    settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const [lastVaultUpdate, setLastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
@@ -230,7 +230,7 @@ const UserProvider = ({ children }: any) => {
           return {
             ...asset,
             isYieldBase,
-            displaySymbol: showWrappedTokens ? asset.symbol : asset.displaySymbol, // if showing wrapped tokens, show the true token names
+            displaySymbol: asset.displaySymbol,
           };
         })
       );
@@ -270,7 +270,7 @@ const UserProvider = ({ children }: any) => {
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: 'assetsLoading', payload: false });
     },
-    [account, assetRootMap, seriesRootMap, showWrappedTokens]
+    [account, assetRootMap, seriesRootMap]
   );
 
   const updateAssetPair = useCallback(
@@ -313,7 +313,8 @@ const UserProvider = ({ children }: any) => {
             baseId
           );
       } catch (error) {
-        diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+        diagnostics &&
+          console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
         diagnostics && console.log(error);
         price = ethers.constants.Zero;
       }
@@ -477,6 +478,7 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
+
             rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
             console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);

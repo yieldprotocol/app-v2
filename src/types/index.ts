@@ -197,6 +197,7 @@ export interface IAssetInfo {
 
   unwrappedTokenId?: string;
   unwrappedTokenAddress?: string;
+
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {

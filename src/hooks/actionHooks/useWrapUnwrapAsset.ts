@@ -2,17 +2,11 @@ import { BigNumber, Contract } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import {
-  ICallData,
-  LadleActions,
-  IAsset,
-  RoutedActions,
-} from '../../types';
+import { ICallData, LadleActions, IAsset, RoutedActions } from '../../types';
 import { MAX_256, ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 export const useWrapUnwrapAsset = () => {
-  
   const {
     chainState: {
       connection: { account, provider },
@@ -29,23 +23,14 @@ export const useWrapUnwrapAsset = () => {
   const { sign } = useChain();
 
   const wrapHandlerAbi = ['function wrap(address to)', 'function unwrap(address to)'];
-  
-  const wrapAssetToJoin = async (value: BigNumber, asset: IAsset, txCode: string) : Promise<ICallData[]> => {
 
+  const wrapAssetToJoin = async (value: BigNumber, asset: IAsset, txCode: string): Promise<ICallData[]> => {
     const ladleAddress = contractMap.get('Ladle').address;
-    
-    if (
-      asset.wrappedTokenId && 
-      asset.wrapHandlerAddress &&
-      value.gt(ZERO_BN)
-    ) {
-      const wraphandlerContract: Contract = new Contract(
-        asset.wrapHandlerAddress,
-        wrapHandlerAbi,
-        signer
-      );
-      const unwrappedAssetContract = assetRootMap.get(asset.id)
-      diagnostics && console.log('Asset Contract to be signed for wrapping: ', unwrappedAssetContract  )
+
+    if (!asset.isWrappedToken && asset.wrappedTokenId && asset.wrapHandlerAddress && value.gt(ZERO_BN)) {
+      const wraphandlerContract: Contract = new Contract(asset.wrapHandlerAddress, wrapHandlerAbi, signer);
+      const unwrappedAssetContract = assetRootMap.get(asset.id);
+      diagnostics && console.log('Asset Contract to be signed for wrapping: ', unwrappedAssetContract);
 
       /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
       const permit: ICallData[] = await sign(
@@ -80,18 +65,10 @@ export const useWrapUnwrapAsset = () => {
     return [];
   };
 
-  const unwrapAsset = async (
-    asset: IAsset,
-    receiver: string
-  ) : Promise<ICallData[]> => {
-    
-    if (unwrapTokens && asset.wrapHandlerAddress ) {
+  const unwrapAsset = async (asset: IAsset, receiver: string): Promise<ICallData[]> => {
+    if (unwrapTokens && asset.wrapHandlerAddress) {
       diagnostics && console.log('Unwrapping tokens before return');
-      const wraphandlerContract: Contract = new Contract(
-        asset.wrapHandlerAddress,
-        wrapHandlerAbi,
-        signer
-      );
+      const wraphandlerContract: Contract = new Contract(asset.wrapHandlerAddress, wrapHandlerAbi, signer);
 
       return [
         {
@@ -104,7 +81,7 @@ export const useWrapUnwrapAsset = () => {
       ];
     }
     /* else return empty array */
-    diagnostics && console.log('NOT unwrapping tokens before return')
+    diagnostics && console.log('NOT unwrapping tokens before return');
     return [];
   };
 
