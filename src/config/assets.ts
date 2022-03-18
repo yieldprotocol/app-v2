@@ -168,6 +168,7 @@ ASSET_INFO.set(yvUSDC, {
   color: '#3366CC',
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
+  limitToSeries: ['0x303230350000', '0x303230360000'],
 });
 
 ASSET_INFO.set(UNI, {
@@ -199,14 +200,13 @@ ASSET_INFO.set(FDAI2206, {
   name: 'FDAI2206',
   decimals: 8,
   symbol: 'FDAI2206',
-  showToken: false,
+  showToken: true,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563373963149313,
-  // minCollateralization: 100,
-  // safeCollateralization: 100,
+  limitToSeries: ['0x303130360000']
 });
 
 ASSET_INFO.set(FUSDC2206, {
@@ -214,12 +214,11 @@ ASSET_INFO.set(FUSDC2206, {
   name: 'FUSDC2206',
   decimals: 8,
   symbol: 'FUSDC2206',
-  showToken: false,
+  showToken: true,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844848939859969,
-  // minCollateralization: 100,
-  // safeCollateralization: 100,
+  limitToSeries: ['0x303230360000']
 });
