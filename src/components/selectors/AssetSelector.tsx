@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { WETH, USDC, IGNORE_BASE_ASSETS, DAI, yvUSDC, FUSDC2206, FDAI2206 } from '../../config/assets';
+import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IAssetSelectorProps {
@@ -68,9 +68,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     const filteredOptions = selectCollateral
       ? opts
           .filter((a) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
-          .filter((a) =>
-            a.limitToSeries?.length ?  a.limitToSeries.includes(selectedSeries!.id) : true
-          ) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
+          .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
 
     setOptions(filteredOptions);
