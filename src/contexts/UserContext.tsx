@@ -125,7 +125,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, fallbackChainId, fallbackProvider },
+    connection: { account, fallbackChainId },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -133,7 +133,7 @@ const UserProvider = ({ children }: any) => {
   } = chainState;
 
   const {
-    settingsState: { showWrappedTokens, diagnostics },
+    settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const [lastVaultUpdate, setLastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
@@ -270,7 +270,7 @@ const UserProvider = ({ children }: any) => {
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: 'assetsLoading', payload: false });
     },
-    [account, assetRootMap, seriesRootMap, showWrappedTokens]
+    [account, assetRootMap, seriesRootMap]
   );
 
   const updateAssetPair = useCallback(
