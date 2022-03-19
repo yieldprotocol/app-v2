@@ -301,14 +301,12 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           Cauldron.queryFilter('AssetAdded', lastAssetUpdate, blockNum),
           Ladle.queryFilter('JoinAdded', lastAssetUpdate, blockNum),
         ]).catch(
           () => [[], []] // assetHardMap.size && joinHardMap.size && console.log('Fallback to hardcorded ASSET information required.');
         );
-
         /* Create a map from the joinAdded event data or hardcoded join data if available */
         const joinMap: Map<string, string> = new Map(
           joinAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
@@ -328,14 +326,7 @@ const ChainProvider = ({ children }: any) => {
             const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
             let { name, symbol, decimals, version } = assetInfo;
 
-            // /* handle special pimple-case with maker ERC20 */
-            // const mkrERC20 = new ethers.Contract(
-            //   address,
-            //   ['function name() view returns (bytes32)', 'function symbol() view returns (bytes32)'],
-            //   fallbackProvider
-            // );
-
-            /* ( Checks/ Corrects the ERC20 name/symbol/decimals if possible ) */
+            /* On first load Checks/Corrects the ERC20 name/symbol/decimals  (if possible ) */
             if (
               assetInfo.tokenType === TokenType.ERC20_ ||
               assetInfo.tokenType === TokenType.ERC20_Permit ||
@@ -344,7 +335,6 @@ const ChainProvider = ({ children }: any) => {
               const contract = contracts.ERC20__factory.connect(address, fallbackProvider);
               try {
                 [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
-                // console.log(address, ': validation', name, symbol, decimals);
               } catch (e) {
                 console.log(
                   address,

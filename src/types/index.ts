@@ -198,6 +198,8 @@ export interface IAssetInfo {
   unwrappedTokenId?: string;
   unwrappedTokenAddress?: string;
 
+  limitToSeries?: string[];
+
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
