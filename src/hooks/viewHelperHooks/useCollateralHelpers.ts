@@ -1,18 +1,24 @@
 import { BigNumber, ethers } from 'ethers';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { PriceContext } from '../../contexts/PriceContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import { calculateCollateralizationRatio, calculateMinCollateral, decimalNToDecimal18 } from '../../utils/yieldMath';
-import { useAssetPair } from '../useAssetPair';
+import {
+  calcLiquidationPrice,
+  calculateCollateralizationRatio,
+  calculateMinCollateral,
+  decimalNToDecimal18,
+} from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
   debtInput: string | undefined,
   collInput: string | undefined,
-  vault: IVault | undefined
+  vault: IVault | undefined,
+  assetPairInfo: IAssetPair| undefined,
 ) => {
   /* STATE FROM CONTEXT */
   const {
@@ -30,6 +36,8 @@ export const useCollateralHelpers = (
 
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
+  const [liquidationPrice_, setLiquidationPrice_] = useState<string>('0');
+
   const [minCollateral, setMinCollateral] = useState<BigNumber>();
   const [minCollateral_, setMinCollateral_] = useState<string | undefined>();
 
@@ -42,8 +50,6 @@ export const useCollateralHelpers = (
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
   const [totalCollateral_, setTotalCollateral_] = useState<string | undefined>();
 
-  const assetPairInfo: IAssetPair | undefined = useAssetPair(_selectedBase, _selectedIlk);
-
   /* update the prices/limits if anything changes with the asset pair */
   useEffect(() => {
     if (assetPairInfo) {
@@ -55,16 +61,24 @@ export const useCollateralHelpers = (
       setMinCollatRatioPct(Math.round(assetPairInfo.minRatio * 100).toString());
 
       /* set min safe coll ratio */
-      const _minSafe = () => { 
-        if (assetPairInfo.minRatio >= 1.4) return assetPairInfo.minRatio + 1
-        if (assetPairInfo.minRatio === 1) return 1 
-        return 1.5
-      }
+      const _minSafe = () => {
+        if (assetPairInfo.minRatio >= 1.4) return assetPairInfo.minRatio + 1;
+        if (assetPairInfo.minRatio === 1) return 1;
+        return 1.5;
+      };
 
       setMinSafeCollatRatio(_minSafe());
       setMinSafeCollatRatioPct((_minSafe() * 100).toString());
+
+      const liqPrice =
+        vault &&
+        cleanValue(
+          calcLiquidationPrice(vault?.ink_, vault.accruedArt_, assetPairInfo.minRatio),
+          _selectedBase?.digitFormat
+        );
+      setLiquidationPrice_(liqPrice || '0');
     }
-  }, [assetPairInfo]);
+  }, [_selectedBase, assetPairInfo, vault]);
 
   /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {
@@ -160,10 +174,10 @@ export const useCollateralHelpers = (
     vault &&
     vault.art?.gt(ethers.constants.Zero) &&
     parseFloat(collateralizationRatio) > 0 &&
-    parseFloat(collateralizationRatio) < vault.minRatio + 0.2
+    parseFloat(collateralizationRatio) < assetPairInfo?.minRatio! + 0.2
       ? setUnhealthyCollatRatio(true)
       : setUnhealthyCollatRatio(false);
-  }, [collateralizationRatio, minCollatRatio, vault]);
+  }, [assetPairInfo?.minRatio, collateralizationRatio, minCollatRatio, vault]);
 
   return {
     collateralizationRatio,
@@ -178,5 +192,7 @@ export const useCollateralHelpers = (
     maxRemovableCollateral,
     unhealthyCollatRatio,
     totalCollateral_,
+
+    liquidationPrice_,
   };
 };
