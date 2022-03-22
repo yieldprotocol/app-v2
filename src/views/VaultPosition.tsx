@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box, CheckBox, Grid, ResponsiveContext, Select, Text, TextInput } from 'grommet';
+import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
@@ -43,6 +43,7 @@ import CopyWrap from '../components/wraps/CopyWrap';
 import { useProcess } from '../hooks/useProcess';
 import ExitButton from '../components/buttons/ExitButton';
 import { ZERO_BN } from '../utils/constants';
+import { useAssetPair } from '../hooks/useAssetPair';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -55,7 +56,7 @@ const VaultPosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, seriesMap, vaultMap, selectedVault, vaultsLoading } = userState;
+  const { activeAccount: account, assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const _selectedVault = vaultMap.get(idFromUrl);
@@ -63,6 +64,8 @@ const VaultPosition = () => {
   const vaultBase = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap.get(_selectedVault?.seriesId!);
+
+  const assetPairInfo = useAssetPair(vaultBase, vaultIlk) 
 
   /* TX info (for disabling buttons) */
   const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(
@@ -117,19 +120,30 @@ const VaultPosition = () => {
   const { addCollateral } = useAddCollateral();
   const { removeCollateral } = useRemoveCollateral();
 
-  const { maxCollateral, collateralizationPercent, maxRemovableCollateral, minCollatRatioPct, unhealthyCollatRatio } =
-    useCollateralHelpers('0', '0', _selectedVault);
+  const {
+    maxCollateral,
+    collateralizationPercent,
+    maxRemovableCollateral,
+    minCollatRatioPct,
+    unhealthyCollatRatio,
+    liquidationPrice_,
+  } = useCollateralHelpers('0', '0', _selectedVault, assetPairInfo);
+
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
     `-${repayInput! || '0'}`,
     '0',
-    _selectedVault
+    _selectedVault,
+    assetPairInfo
   );
+
   const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
-    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault);
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPairInfo);
+
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
-    _selectedVault
+    _selectedVault,
+    assetPairInfo
   );
 
   const {
@@ -143,7 +157,7 @@ const VaultPosition = () => {
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
-  } = useBorrowHelpers(repayInput, undefined, _selectedVault, rollToSeries);
+  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
@@ -338,7 +352,7 @@ const VaultPosition = () => {
                       {_selectedVault?.accruedArt.gt(ZERO_BN) && (
                         <InfoBite
                           label="Vault Liquidation"
-                          value={`1 ${vaultIlk?.displaySymbol} : ${selectedVault?.liquidationPrice_} ${vaultBase?.displaySymbol}`}
+                          value={`1 ${vaultIlk?.displaySymbol} : ${liquidationPrice_} ${vaultBase?.displaySymbol}`}
                           icon={<FiActivity />}
                           loading={vaultsLoading}
                         />
