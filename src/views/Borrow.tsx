@@ -145,7 +145,6 @@ const Borrow = () => {
   const handleNavAction = (_stepPosition: number) => {
     setStepPosition(_stepPosition);
     analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
-    diagnostics && console.log('nav: ', { screen: 'BORROW', step: _stepPosition, renderId });
   };
 
   const handleGaugeColorChange: any = (val: string) => {
