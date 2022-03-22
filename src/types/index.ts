@@ -48,10 +48,18 @@ export interface IChainContextActions {
   isConnected: (connection: string) => void;
 }
 
+export interface IPriceContextState {
+  pairMap: Map<string, IAssetPair>;
+  pairLoading: string[];
+  updateAssetPair: (baseId: string, ilkId: string) => Promise<void>;
+}
+
+
 export interface IUserContext {
   userState: IUserContextState;
   userActions: IUserContextActions;
 }
+
 export interface IUserContextState {
   userLoading: boolean;
   activeAccount: string | null;
@@ -61,13 +69,10 @@ export interface IUserContextState {
   vaultMap: Map<string, IVault>;
   strategyMap: Map<string, IStrategy>;
 
-  assetPairMap: Map<string, IAssetPair>;
-
   vaultsLoading: boolean;
   seriesLoading: boolean;
   assetsLoading: boolean;
   strategiesLoading: boolean;
-  assetPairLoading: boolean;
 
   selectedSeries: ISeries | null;
   selectedIlk: IAsset | null;
@@ -81,8 +86,6 @@ export interface IUserContextActions {
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
   updateStrategies: (strategyList: IStrategy[]) => void;
-
-  updateAssetPair: (baseId: string, ilkId: string) => Promise<IAssetPair>;
 
   setSelectedSeries: (series: ISeries | null) => void;
   setSelectedIlk: (ilk: IAsset | null) => void;
@@ -228,8 +231,11 @@ export interface IAssetPair {
   baseId: string;
   ilkId: string;
 
+  oracle: string;
+
   baseDecimals: number;
   limitDecimals: number;
+
   minRatio: number;
 
   minDebtLimit: BigNumber;
@@ -237,7 +243,8 @@ export interface IAssetPair {
   pairPrice: BigNumber;
   pairTotalDebt: BigNumber;
 
-  oracle?: string;
+  lastUpdate?: number;
+
 }
 
 export interface IStrategyRoot extends ISignable {
@@ -280,7 +287,7 @@ export interface IAsset extends IAssetRoot {
 }
 
 export interface IDummyVault extends IVaultRoot {}
-export interface IVault extends IVaultRoot, IAssetPair {
+export interface IVault extends IVaultRoot {
   owner: string;
   isWitchOwner: boolean;
   isActive: boolean;
@@ -296,7 +303,7 @@ export interface IVault extends IVaultRoot, IAssetPair {
   rate_: string;
 
   accruedArt_: string;
-  liquidationPrice_: string;
+  // liquidationPrice_: string;
 }
 
 export interface IStrategy extends IStrategyRoot {
