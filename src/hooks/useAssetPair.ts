@@ -1,43 +1,54 @@
-import { useContext, useState, useEffect, useCallback } from 'react';
+import { useContext, useState, useEffect } from 'react';
 
-import { IAsset, IAssetPair, ISettingsContext, IUserContext } from '../types';
-import { SettingsContext } from '../contexts/SettingsContext';
+import { IAsset, IAssetPair } from '../types';
+import { PriceContext } from '../contexts/PriceContext';
 import { UserContext } from '../contexts/UserContext';
 
 /* Generic hook for chain transactions */
-export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | undefined => {
-  /* CONTEXT STATE */
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
-
-  const {
-    userState: { assetPairMap, assetPairLoading },
-    userActions: { updateAssetPair },
-  } = useContext(UserContext) as IUserContext;
+export const useAssetPair = (base?: IAsset, collateral?: IAsset): IAssetPair | undefined => {
+  
+  const { pairMap, updateAssetPair, pairLoading } = useContext(PriceContext);
+  const { selectedBase, selectedIlk } = useContext(UserContext);
 
   /* LOCAL STATE */
-  const [assetPair, setAssetPair] = useState<IAssetPair | undefined>();
-
-  /* update pair if required */
-  const updatePair = useCallback(
-    async (_b: IAsset, _c: IAsset) => {
-      diagnostics && console.log('Updating assetPair.... from hook');
-      const pair_: IAssetPair = await updateAssetPair(_b.id, _c.id);
-      setAssetPair(pair_);
-    },
-    [updateAssetPair]
-  );
+  const [assetPair, setAssetPair] = useState<IAssetPair>();
+  const [pairId, setPairId] = useState<string>();
 
   useEffect(() => {
-    if (base?.id && collateral?.id && !assetPairLoading) {
-      /* try get from state first */
-      const pair_ = assetPairMap.get(`${base.id}${collateral.id}`);
-      pair_ && setAssetPair(pair_);
-      /* else update the pair data */
-      !pair_ && (async () => updatePair(base, collateral))();
-    }
-  }, [assetPairLoading, assetPairMap, base, collateral, updatePair]);
+    !!base && !!collateral && setPairId(`${base.id}${base.id}`);
+  }, [base, collateral]);
+
+  useEffect(() => {
+
+ 
+    if (base && collateral) {
+        pairMap.has(base.id + collateral.id) &&
+          setAssetPair(pairMap.get(base.id + collateral.id));
+
+        !pairMap.has(base.id + collateral.id) &&
+          !pairLoading.includes(base.id + collateral.id) &&
+          updateAssetPair(base.id, collateral.id);
+      }
+
+    // if (!pairLoading.includes(pairId)) {
+    //   pairMap.has(pairId) && setAssetPair(pairMap.get(pairId));
+    //   !pairMap.has(pairId) &&
+    //     !pairLoading.includes(pairId) &&
+    //     updateAssetPair(base?.id || selectedBase, collateral?.id || selectedIlk);
+    // }
+  }, [base, collateral, pairMap, pairLoading]);
 
   return assetPair;
 };
+
+// const { pairMap, updateAssetPair, pairLoading } = useContext(PriceContext);
+// const [assetPairInfo, setAssetPairInfo] = useState<IAssetPair>();
+// useEffect(() => {
+//   if (vaultBase && vaultIlk) {
+//     pairMap.has(vaultBase.id + vaultIlk.id) &&
+//       setAssetPairInfo(pairMap.get(vaultBase.id + vaultIlk.id));
+//     !pairMap.has(vaultBase.id + vaultIlk.id) &&
+//       !pairLoading.includes(vaultBase.id + vaultIlk.id) &&
+//       updateAssetPair(vaultBase.id, vaultIlk.id);
+//   }
+// }, [ vaultBase, vaultIlk, pairMap, pairLoading]);
