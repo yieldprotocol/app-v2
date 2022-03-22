@@ -11,7 +11,6 @@ import PanelWrap from '../components/wraps/PanelWrap';
 
 import DashboardPositionList from '../components/DashboardPositionList';
 import CurrencyToggle from '../components/CurrencyToggle';
-import YieldNavigation from '../components/YieldNavigation';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { useDashboardHelpers } from '../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../contexts/UserContext';
