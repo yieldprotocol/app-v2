@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useReducer, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
 import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
@@ -11,6 +11,35 @@ import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
 
 const PriceContext = React.createContext<any>({});
+
+const initState = {
+  pairMap: new Map() as Map<string,IAssetPair>,
+  pairLoading: [] as string[]
+}
+
+const priceReducer = (state: any, action:any) => {
+
+    /* Reducer switch */
+    switch (action.type) {
+      case 'UPDATE_PAIR':
+        return {
+          ...state,
+          pairMap: state.pairMap.set(action.payload.pairId, action.payload.pairInfo),
+        };
+      case 'START_PAIR_FETCH':
+        return {
+          ...state,
+          pairLoading: [ ...state.pairLoading,  action.payload ],
+        };
+      case 'END_PAIR_FETCH':
+        return {
+          ...state,
+          pairLoading: state.pairLoading.filter((s: string) => s === action.payload),
+        };
+      default:
+        return state;
+    }
+}
 
 const PriceProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
@@ -26,78 +55,82 @@ const PriceProvider = ({ children }: any) => {
   } = useContext(SettingsContext) as ISettingsContext;
 
   /* LOCAL STATE */
-  const [pairLoading, setPairLoading] = useState([] as string[]);
-  const [pairMap, setPairMap] = useState(new Map() as Map<string, IAssetPair>);
-   
-  const updateAssetPair = useCallback ( async (baseId: string, ilkId: string) => {
-    
-    diagnostics && console.log('Prices currently being fetched: ', pairLoading);
-    const pairId = `${baseId}${ilkId}`;
+  const [priceState, updateState] = useReducer(priceReducer, initState);
 
-    setPairLoading([...pairLoading, pairId]);
+  const updateAssetPair = // useCallback(
+    async (baseId: string, ilkId: string): Promise<void> => {
+      
+      diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading );
+      const pairId = `${baseId}${ilkId}`;
 
-    const Cauldron = contractMap.get('Cauldron');
-    const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
-      ?.get(baseId)
-      ?.get(ilkId);
+      const Cauldron = contractMap.get('Cauldron');
+      const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
+        ?.get(baseId)
+        ?.get(ilkId);
 
-    const PriceOracle = contractMap.get(oracleName!);
-    const base = assetRootMap.get(baseId);
-    const ilk = assetRootMap.get(ilkId);
+      const PriceOracle = contractMap.get(oracleName!);
+      const base = assetRootMap.get(baseId);
+      const ilk = assetRootMap.get(ilkId);
 
-    diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+      diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
 
-    // /* Get debt params and spot ratios */
-    const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
-      Cauldron?.debt(baseId, ilkId),
-      Cauldron?.spotOracles(baseId, ilkId),
-    ]);
+      /* if all the parts are there update the pairInfo */
 
-    /* get pricing if available */
-    let price: BigNumber;
-    try {
-      // eslint-disable-next-line prefer-const
-      [price] = await PriceOracle?.peek(
-        bytesToBytes32(ilkId, 6),
-        bytesToBytes32(baseId, 6),
-        decimal18ToDecimalN(WAD_BN, ilk?.decimals!)
-      );
-      diagnostics &&
-        console.log(
-          'Price fetched:',
-          decimal18ToDecimalN(WAD_BN, ilk?.decimals!).toString(),
+      if (Cauldron && PriceOracle && base && ilk) {
+
+        updateState( { type: 'START_PAIR_FETCH', payload: pairId })
+
+        // /* Get debt params and spot ratios */
+        const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
+          Cauldron.debt(baseId, ilkId),
+          Cauldron.spotOracles(baseId, ilkId),
+        ]);
+
+        /* get pricing if available */
+        let price: BigNumber;
+        try {
+          // eslint-disable-next-line prefer-const
+          [price] = await PriceOracle.peek(
+            bytesToBytes32(ilkId, 6),
+            bytesToBytes32(baseId, 6),
+            decimal18ToDecimalN(WAD_BN, ilk.decimals!)
+          );
+          diagnostics &&
+            console.log(
+              'Price fetched:',
+              decimal18ToDecimalN(WAD_BN, ilk.decimals!).toString(),
+              ilkId,
+              'for',
+              price.toString(),
+              baseId
+            );
+        } catch (error) {
+          diagnostics &&
+            console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6), error);
+          price = ethers.constants.Zero;
+          // updateState( { type: 'END_PAIR_FETCH', payload: pairId })
+        }
+
+        const newPair: IAssetPair = {
+          baseId,
           ilkId,
-          'for',
-          price.toString(),
-          baseId
-        );
-    } catch (error) {
-      diagnostics &&
-        console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6), error);
-      price = ethers.constants.Zero;
+          limitDecimals: dec,
+          minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
+          maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
+          pairTotalDebt: sum,
+          pairPrice: price, // value of 1 ilk (1x10**n) in terms of base.
+          minRatio: parseFloat(ethers.utils.formatUnits(ratio, 6)), // pre-format ratio
+          baseDecimals: base.decimals!,
+          oracle: oracleName || '',
+        };
+
+        updateState( { type: 'UPDATE_PAIR', payload: { pairId, pairInfo: newPair }  })
+        updateState( { type: 'END_PAIR_FETCH', payload: pairId })
+      }
     }
 
-    const newPair: IAssetPair = {
-      baseId,
-      ilkId,
-      limitDecimals: dec,
-      minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
-      maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
-      pairTotalDebt: sum,
-      pairPrice: price, // value of 1 ilk (1x10**n) in terms of base.
-      minRatio: parseFloat(ethers.utils.formatUnits(ratio, 6)), // pre-format ratio
-      baseDecimals: base?.decimals!,
-      oracle: oracleName || '',
-    };
-
-    pairMap.set(pairId, newPair);
-    setPairMap(pairMap);
-    setPairLoading(pairLoading.filter((s: string) => s === pairId));
-  }, 
-  [assetRootMap, contractMap, diagnostics, fallbackChainId, pairLoading, pairMap]);
-
   return (
-    <PriceContext.Provider value={{ pairMap, pairLoading, updateAssetPair } as IPriceContextState}>
+    <PriceContext.Provider value={ { priceState,  updateAssetPair } }>
       {children}
     </PriceContext.Provider>
   );
