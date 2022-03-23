@@ -58,7 +58,7 @@ export const useCollateralHelpers = (
       const _minSafe = () => { 
         if (assetPairInfo.minRatio >= 1.4) return assetPairInfo.minRatio + 1
         if (assetPairInfo.minRatio === 1) return 1 
-        return 1.5
+        return assetPairInfo.minRatio
       }
 
       setMinSafeCollatRatio(_minSafe());
