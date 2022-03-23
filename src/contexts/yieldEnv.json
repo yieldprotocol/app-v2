@@ -11,8 +11,8 @@
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
       
-      "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
-      "transfer1155Module": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
+      "NotionalMultiOracle": "0x660bB2F1De01AacA46FCD8004e852234Cf65F3fb",
+      "transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
       
       "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
     },
@@ -26,6 +26,7 @@
       
       "lidoWrapHandler": "0x80d0CfceE7dfa135189e44d617032d5A7Cc2705b",
       "YearnVaultMultiOracle": "0x88175a3e14F905ecCe464aF2A8E99f26159d4Cb8",
+
       "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
       "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF",
 
