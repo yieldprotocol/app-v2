@@ -14,8 +14,8 @@ export const UNI = '0x313000000000';
 export const yvUSDC = '0x303900000000';
 export const MKR = '0x313100000000';
 
-export const FDAI2206 = '0x313400000000';
-export const FUSDC2206 = '0x313500000000';
+export const FDAI2203 = '0x313200000000';
+export const FUSDC2203 = '0x313300000000';
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
@@ -31,10 +31,10 @@ export const NON_PERMIT_ASSETS = [
   WETH,
   yvUSDC,
   'yvUSDC',
-  FDAI2206,
-  'FDAI2206',
-  FUSDC2206,
-  'FUSDC2206',
+  FDAI2203,
+  'FDAI2203',
+  FUSDC2203,
+  'FUSDC2203',
 ];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
@@ -195,11 +195,11 @@ ASSET_INFO.set(MKR, {
   tokenType: TokenType.ERC20_MKR,
 });
 
-ASSET_INFO.set(FDAI2206, {
+ASSET_INFO.set(FDAI2203, {
   version: '1',
-  name: 'FDAI2206',
+  name: 'FDAI2203',
   decimals: 8,
-  symbol: 'FDAI2206',
+  symbol: 'FDAI2203',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
@@ -209,11 +209,11 @@ ASSET_INFO.set(FDAI2206, {
   limitToSeries: ['0x303130360000']
 });
 
-ASSET_INFO.set(FUSDC2206, {
+ASSET_INFO.set(FUSDC2203, {
   version: '1',
-  name: 'FUSDC2206',
+  name: 'FUSDC2203',
   decimals: 8,
-  symbol: 'FUSDC2206',
+  symbol: 'FUSDC2203',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',

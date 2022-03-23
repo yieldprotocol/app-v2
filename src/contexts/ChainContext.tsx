@@ -322,6 +322,7 @@ const ChainProvider = ({ children }: any) => {
           assetsAdded.map(async (x: { assetId: string; asset: string }) => {
             const { assetId: id, asset: address } = x;
 
+            console.log( id )
             /* Get the basic hardcoded token info */
             const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
             let { name, symbol, decimals, version } = assetInfo;
