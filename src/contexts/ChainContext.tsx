@@ -569,7 +569,7 @@ const ChainProvider = ({ children }: any) => {
             })
           );
         } catch (e) {
-          console.log('Error getching strategies', e);
+          console.log('Error fetching strategies', e);
         }
 
         setCachedStrategies([...cachedStrategies, ...newStrategyList]);
