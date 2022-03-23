@@ -38,6 +38,10 @@ export const NON_PERMIT_ASSETS = [
   'FDAI2203',
   FUSDC2203,
   'FUSDC2203',
+  FDAI2206,
+  'FDAI2206',
+  FUSDC2206,
+  'FUSDC2206',
 ];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
