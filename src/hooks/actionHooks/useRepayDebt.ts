@@ -20,6 +20,8 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
+import { useAddRemoveEth } from './useAddRemoveEth';
+import { ONE_BN, ZERO_BN } from '../../utils/constants';
 
 export const useRepayDebt = () => {
   const {
@@ -36,7 +38,8 @@ export const useRepayDebt = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { removeEth } = useRemoveCollateral();
+  const { addEth, removeEth } = useAddRemoveEth();
+
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
@@ -81,7 +84,6 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
-    // const inputGreaterThanMaxBaseIn = true;
 
     const _inputforClose = vault.art.lt(_input)
       ? vault.art
@@ -89,15 +91,21 @@ export const useRepayDebt = () => {
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
-    const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
 
-    let reclaimToAddress = reclaimCollateral && isEthBased ? ladleAddress : account;
+    const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+
+    let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
     let unwrap: ICallData[] = [];
     if (ilk.wrapHandlerAddress && unwrapTokens && reclaimCollateral) {
       reclaimToAddress = ilk.wrapHandlerAddress;
       unwrap = await unwrapAsset(ilk, account!);
+    }
+
+    if (isEthBase) {
+      reclaimToAddress = ladleAddress;
     }
 
     const alreadyApproved = (
@@ -138,10 +146,12 @@ export const useRepayDebt = () => {
       ...permits,
 
       /* BEFORE MATURITY */
+
+      ...addEth(isEthBase && !inputGreaterThanMaxBaseIn ? _input : ZERO_BN, series.poolAddress),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature || inputGreaterThanMaxBaseIn,
+        ignoreIf: series.seriesIsMature || inputGreaterThanMaxBaseIn || isEthBase,
       },
 
       {
@@ -152,7 +162,6 @@ export const useRepayDebt = () => {
           inputGreaterThanDebt || // use if input is NOT more than debt
           inputGreaterThanMaxBaseIn,
       },
-
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
@@ -162,7 +171,7 @@ export const useRepayDebt = () => {
           inputGreaterThanMaxBaseIn,
       },
 
-      /* Input GreaterThanMaxbaseIn */
+      /* EdgeCase in lowLiq situations : Input GreaterThanMaxbaseIn */
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
@@ -176,7 +185,7 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the ETH collateral (if requested).
+      ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN), // after the complete tranasction, this will remove all the ETH collateral (if requested). (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero)
       ...unwrap,
     ];
     await transact(calls, txCode);

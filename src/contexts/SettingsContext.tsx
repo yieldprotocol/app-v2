@@ -33,7 +33,8 @@ const initState: ISettingsContextState = {
   forceTransactions: (JSON.parse(localStorage.getItem('forceTransactions')!) as boolean) || (false as boolean),
 
   /* Show wrapped tokens */
-  showWrappedTokens: (JSON.parse(localStorage.getItem('showWrappedTokens')!) as boolean) || (false as boolean),
+  showWrappedTokens: (JSON.parse(localStorage.getItem('showWrappedTokens')!) as boolean) || (true as boolean),
+
   /* Always Unwrap tokens when removing them */
   unwrapTokens: (JSON.parse(localStorage.getItem('unwrapTokens')!) as boolean) || (false as boolean),
 

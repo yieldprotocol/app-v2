@@ -7,7 +7,6 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
 
-
 const StyledText = styled(Text)`
   svg,
   span {
@@ -33,13 +32,13 @@ const Balances = () => {
     userState: { selectedBase, selectedIlk, assetsLoading, assetMap },
   } = useContext(UserContext);
 
-  const [baseBalance, setBaseBalance ] = useState<string>(selectedBase?.balance_);
-  const [ilkBalance, setIlkBalance ] = useState<string>(selectedIlk?.balance_);
-  
+  const [baseBalance, setBaseBalance] = useState<string>(selectedBase?.balance_);
+  const [ilkBalance, setIlkBalance] = useState<string>(selectedIlk?.balance_);
+
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
-    selectedBase && setBaseBalance(assetMap.get(selectedBase.id).balance_ ) ;
-    selectedIlk && setIlkBalance(assetMap.get(selectedIlk.id).balance_ ) ;
+    selectedBase && setBaseBalance(assetMap.get(selectedBase.id).balance_);
+    selectedIlk && setIlkBalance(assetMap.get(selectedIlk.id).balance_);
   }, [assetMap, selectedBase, selectedIlk]);
 
   const { pathname } = useLocation();
@@ -52,12 +51,10 @@ const Balances = () => {
 
   return (
     <Box pad="small" justify="center" align="start">
-      <Box>
-        <Balance image={selectedBase?.image} balance={baseBalance} loading={assetsLoading} />
-        {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.idToUse !== WETH && (
-          <Balance image={selectedIlk?.image} balance={ilkBalance} loading={assetsLoading} />
-        )}
-      </Box>
+      <Balance image={selectedBase?.image} balance={baseBalance} loading={assetsLoading} />
+      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.idToUse !== WETH && (
+        <Balance image={selectedIlk?.image} balance={ilkBalance} loading={assetsLoading} />
+      )}
     </Box>
   );
 };

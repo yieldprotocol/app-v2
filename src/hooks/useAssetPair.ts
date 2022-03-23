@@ -22,7 +22,7 @@ export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | und
   /* update pair if required */
   const updatePair = useCallback(
     async (_b: IAsset, _c: IAsset) => {
-      diagnostics && console.log('Updating assetPAir.... from hook '); 
+      diagnostics && console.log('Updating assetPair.... from hook');
       const pair_: IAssetPair = await updateAssetPair(_b.id, _c.id);
       setAssetPair(pair_);
     },
@@ -32,7 +32,7 @@ export const useAssetPair = (base: IAsset, collateral: IAsset): IAssetPair | und
   useEffect(() => {
     if (base?.id && collateral?.id && !assetPairLoading) {
       /* try get from state first */
-      const pair_ = assetPairMap.get(base.id + collateral.id);
+      const pair_ = assetPairMap.get(`${base.id}${collateral.id}`);
       pair_ && setAssetPair(pair_);
       /* else update the pair data */
       !pair_ && (async () => updatePair(base, collateral))();
