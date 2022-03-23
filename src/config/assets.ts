@@ -108,7 +108,7 @@ ASSET_INFO.set(WETH, {
   decimals: 18,
   symbol: 'WETH',
   displaySymbol: 'ETH',
-  showToken: false,
+  showToken: true,
   isWrappedToken: false,
   color: '#FFFFFF',
   digitFormat: 6,
