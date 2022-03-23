@@ -356,18 +356,6 @@ const ChainProvider = ({ children }: any) => {
               }
             }
 
-            /* TODO: get the ERC1155 token id from the associated join */
-            // if (assetInfo.tokenType === TokenType.ERC1155_) {
-            //   const joinContract =  contracts.Join1155__factory.connect(address, fallbackProvider);
-            //   try {
-            //     version = await contract.id();
-            //   } catch (e) {
-            //     console.log(
-            //       address,
-            //       ': contract version auto-validation unsuccessfull. Please manually ensure version is correct.'
-            //     );
-            //   }
-            // }
 
             const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id 
 
