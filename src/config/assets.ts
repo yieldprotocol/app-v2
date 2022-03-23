@@ -205,7 +205,7 @@ ASSET_INFO.set(FDAI2203, {
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 563373963149313,
+  tokenIdentifier: 563371972493313,
   limitToSeries: ['0x303130350000']
 });
 
@@ -219,6 +219,6 @@ ASSET_INFO.set(FUSDC2203, {
   color: '#FF007A',
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844848939859969,
+  tokenIdentifier: 844846949203969,
   limitToSeries: ['0x303230350000']
 });
