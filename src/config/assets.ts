@@ -64,7 +64,7 @@ ASSET_INFO.set(DAI, {
 });
 
 ASSET_INFO.set(USDC, {
-  version: '2',
+  version: '1',
   name: 'USDC Stable coin',
   decimals: 18,
   symbol: 'USDC',
