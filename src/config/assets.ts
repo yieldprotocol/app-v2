@@ -17,6 +17,9 @@ export const MKR = '0x313100000000';
 export const FDAI2203 = '0x313200000000';
 export const FUSDC2203 = '0x313300000000';
 
+export const FDAI2206 = '0x313400000000';
+export const FUSDC2206 = '0x313500000000';
+
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
@@ -105,7 +108,7 @@ ASSET_INFO.set(WETH, {
   decimals: 18,
   symbol: 'WETH',
   displaySymbol: 'ETH',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FFFFFF',
   digitFormat: 6,
@@ -214,6 +217,34 @@ ASSET_INFO.set(FUSDC2203, {
   name: 'FUSDC2203',
   decimals: 8,
   symbol: 'FUSDC2203',
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844848939859969,
+  limitToSeries: ['0x303230360000']
+});
+
+ASSET_INFO.set(FDAI2206, {
+  version: '1',
+  name: 'FDAI2206',
+  decimals: 8,
+  symbol: 'FDAI2206',
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563373963149313,
+  limitToSeries: ['0x303130360000']
+});
+
+ASSET_INFO.set(FUSDC2206, {
+  version: '1',
+  name: 'FUSDC2206',
+  decimals: 8,
+  symbol: 'FUSDC2206',
   showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
