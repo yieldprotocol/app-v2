@@ -1,7 +1,7 @@
-import React, { useCallback, useContext, useReducer, useState } from 'react';
+import React, { useCallback, useContext, useReducer} from 'react';
 import { BigNumber, ethers } from 'ethers';
 
-import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
+import { IAssetPair, IChainContext, ISettingsContext } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { bytesToBytes32, decimal18ToDecimalN } from '../utils/yieldMath';
@@ -24,7 +24,7 @@ const priceReducer = (state: any, action:any) => {
       case 'UPDATE_PAIR':
         return {
           ...state,
-          pairMap: state.pairMap.set(action.payload.pairId, action.payload.pairInfo),
+          pairMap: new Map( state.pairMap.set(action.payload.pairId, action.payload.pairInfo) ),
         };
       case 'START_PAIR_FETCH':
         return {
@@ -57,17 +57,15 @@ const PriceProvider = ({ children }: any) => {
   /* LOCAL STATE */
   const [priceState, updateState] = useReducer(priceReducer, initState);
 
-  const updateAssetPair = // useCallback(
-    async (baseId: string, ilkId: string): Promise<void> => {
+  const updateAssetPair = useCallback(
+    async (baseId: string, ilkId: string): Promise<IAssetPair| null> => {
       
       diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading );
       const pairId = `${baseId}${ilkId}`;
-
       const Cauldron = contractMap.get('Cauldron');
       const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
         ?.get(baseId)
         ?.get(ilkId);
-
       const PriceOracle = contractMap.get(oracleName!);
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
@@ -126,8 +124,11 @@ const PriceProvider = ({ children }: any) => {
 
         updateState( { type: 'UPDATE_PAIR', payload: { pairId, pairInfo: newPair }  })
         updateState( { type: 'END_PAIR_FETCH', payload: pairId })
+        return newPair;
       }
-    }
+      return null;
+
+    } , [assetRootMap, contractMap, diagnostics, fallbackChainId, priceState.pairLoading]); 
 
   return (
     <PriceContext.Provider value={ { priceState,  updateAssetPair } }>
