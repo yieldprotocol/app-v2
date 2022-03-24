@@ -14,6 +14,9 @@ export const UNI = '0x313000000000';
 export const yvUSDC = '0x303900000000';
 export const MKR = '0x313100000000';
 
+export const FDAI2203 = '0x313200000000';
+export const FUSDC2203 = '0x313300000000';
+
 export const FDAI2206 = '0x313400000000';
 export const FUSDC2206 = '0x313500000000';
 
@@ -31,6 +34,10 @@ export const NON_PERMIT_ASSETS = [
   WETH,
   yvUSDC,
   'yvUSDC',
+  FDAI2203,
+  'FDAI2203',
+  FUSDC2203,
+  'FUSDC2203',
   FDAI2206,
   'FDAI2206',
   FUSDC2206,
@@ -64,7 +71,7 @@ ASSET_INFO.set(DAI, {
 });
 
 ASSET_INFO.set(USDC, {
-  version: '2',
+  version: '1',
   name: 'USDC Stable coin',
   decimals: 18,
   symbol: 'USDC',
@@ -195,12 +202,40 @@ ASSET_INFO.set(MKR, {
   tokenType: TokenType.ERC20_MKR,
 });
 
+ASSET_INFO.set(FDAI2203, {
+  version: '1',
+  name: 'FDAI2203',
+  decimals: 8,
+  symbol: 'FDAI2203',
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563373963149313,
+  limitToSeries: ['0x303130360000']
+});
+
+ASSET_INFO.set(FUSDC2203, {
+  version: '1',
+  name: 'FUSDC2203',
+  decimals: 8,
+  symbol: 'FUSDC2203',
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844848939859969,
+  limitToSeries: ['0x303230360000']
+});
+
 ASSET_INFO.set(FDAI2206, {
   version: '1',
   name: 'FDAI2206',
   decimals: 8,
   symbol: 'FDAI2206',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
@@ -214,7 +249,7 @@ ASSET_INFO.set(FUSDC2206, {
   name: 'FUSDC2206',
   decimals: 8,
   symbol: 'FUSDC2206',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,

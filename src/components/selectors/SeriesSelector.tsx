@@ -10,7 +10,6 @@ import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { FDAI2206, FUSDC2206 } from '../../config/assets';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -164,16 +163,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
         // !ignoredSeries?.includes(_series.baseId)
       )
-      // .filter(
-      //   (_series) =>
-      //     actionType !== ActionType.BORROW ||
-      //     (assetMap.get(FDAI2206)?.balance.gt(ethers.constants.Zero) && _series.id !== '0x303130350000') // march dai series not applicable to fDAI
-      // )
-      // .filter(
-      //   (_series) =>
-      //     actionType !== ActionType.BORROW ||
-      //     (assetMap.get(FUSDC2206)?.balance.gt(ethers.constants.Zero) && _series.id !== '0x303230350000') // march usdc series not applicable to fUSDC
-      // );
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
