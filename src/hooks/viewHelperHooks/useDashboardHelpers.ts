@@ -156,8 +156,8 @@ export const useDashboardHelpers = () => {
 
     /* calc total collateral */
     const _collateral = vaultPositions.map((position) =>
-      pairMap.has(currencySettingAssetId + position.baseId)
-        ? convertValue(currencySettingAssetId, position.baseId, position.ink_)
+      pairMap.has(currencySettingAssetId + position.ilkId)
+        ? convertValue(currencySettingAssetId, position.ilkId, position.ink_)
         : 0
     );
     setTotalCollateral(
