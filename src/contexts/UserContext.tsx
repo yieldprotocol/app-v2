@@ -30,9 +30,8 @@ import {
   calcAccruedDebt,
 } from '../utils/yieldMath';
 
-import { WAD_BN, ZERO_BN } from '../utils/constants';
+import { ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ORACLE_INFO } from '../config/oracles';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 
@@ -114,7 +113,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, fallbackChainId },
+    connection: { account },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -403,7 +402,7 @@ const UserProvider = ({ children }: any) => {
               '0'
             );
 
-            rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
+            rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
             diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
             [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
           } else {
