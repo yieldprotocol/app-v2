@@ -3,6 +3,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
+  IPriceContext,
   ISeries,
   ISettingsContext,
   IStrategy,
@@ -35,9 +36,10 @@ export const useDashboardHelpers = () => {
     userState: { vaultMap, seriesMap, strategyMap },
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
 
-  const { priceState, updateAssetPair } = useContext(PriceContext);
+  const { priceState, priceActions } = useContext(PriceContext) as IPriceContext;
 
-  const { pairMap, pairLoading } = priceState;
+  const { pairMap } = priceState;
+  const { updateAssetPair } = priceActions;
 
   const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : USDC;
   const currencySettingDigits = 2;

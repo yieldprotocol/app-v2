@@ -51,9 +51,16 @@ export interface IChainContextActions {
 export interface IPriceContextState {
   pairMap: Map<string, IAssetPair>;
   pairLoading: string[];
+}
+
+export interface IPriceContextActions {
   updateAssetPair: (baseId: string, ilkId: string) => Promise<void>;
 }
 
+export interface IPriceContext {
+  priceState: IPriceContextState;
+  priceActions: IPriceContextActions;
+}
 
 export interface IUserContext {
   userState: IUserContextState;
@@ -202,7 +209,6 @@ export interface IAssetInfo {
   unwrappedTokenAddress?: string;
 
   limitToSeries?: string[];
-
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
@@ -244,7 +250,6 @@ export interface IAssetPair {
   pairTotalDebt: BigNumber;
 
   lastUpdate?: number;
-
 }
 
 export interface IStrategyRoot extends ISignable {

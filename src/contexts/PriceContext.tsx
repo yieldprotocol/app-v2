@@ -1,7 +1,7 @@
-import React, { useCallback, useContext, useReducer} from 'react';
+import React, { useCallback, useContext, useReducer } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
-import { IAssetPair, IChainContext, ISettingsContext } from '../types';
+import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { bytesToBytes32, decimal18ToDecimalN } from '../utils/yieldMath';
@@ -12,34 +12,33 @@ import { ORACLE_INFO } from '../config/oracles';
 
 const PriceContext = React.createContext<any>({});
 
-const initState = {
-  pairMap: new Map() as Map<string,IAssetPair>,
-  pairLoading: [] as string[]
-}
+const initState: IPriceContextState = {
+  pairMap: new Map() as Map<string, IAssetPair>,
+  pairLoading: [] as string[],
+};
 
-const priceReducer = (state: any, action:any) => {
-
-    /* Reducer switch */
-    switch (action.type) {
-      case 'UPDATE_PAIR':
-        return {
-          ...state,
-          pairMap: new Map( state.pairMap.set(action.payload.pairId, action.payload.pairInfo) ),
-        };
-      case 'START_PAIR_FETCH':
-        return {
-          ...state,
-          pairLoading: [ ...state.pairLoading,  action.payload ],
-        };
-      case 'END_PAIR_FETCH':
-        return {
-          ...state,
-          pairLoading: state.pairLoading.filter((s: string) => s === action.payload),
-        };
-      default:
-        return state;
-    }
-}
+const priceReducer = (state: any, action: any) => {
+  /* Reducer switch */
+  switch (action.type) {
+    case 'UPDATE_PAIR':
+      return {
+        ...state,
+        pairMap: new Map(state.pairMap.set(action.payload.pairId, action.payload.pairInfo)),
+      };
+    case 'START_PAIR_FETCH':
+      return {
+        ...state,
+        pairLoading: [...state.pairLoading, action.payload],
+      };
+    case 'END_PAIR_FETCH':
+      return {
+        ...state,
+        pairLoading: state.pairLoading.filter((s: string) => s === action.payload),
+      };
+    default:
+      return state;
+  }
+};
 
 const PriceProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
@@ -58,9 +57,8 @@ const PriceProvider = ({ children }: any) => {
   const [priceState, updateState] = useReducer(priceReducer, initState);
 
   const updateAssetPair = useCallback(
-    async (baseId: string, ilkId: string): Promise<IAssetPair| null> => {
-      
-      diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading );
+    async (baseId: string, ilkId: string): Promise<IAssetPair | null> => {
+      diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading);
       const pairId = `${baseId}${ilkId}`;
       const Cauldron = contractMap.get('Cauldron');
       const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
@@ -75,8 +73,7 @@ const PriceProvider = ({ children }: any) => {
       /* if all the parts are there update the pairInfo */
 
       if (Cauldron && PriceOracle && base && ilk) {
-
-        updateState( { type: 'START_PAIR_FETCH', payload: pairId })
+        updateState({ type: 'START_PAIR_FETCH', payload: pairId });
 
         // /* Get debt params and spot ratios */
         const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
@@ -122,19 +119,17 @@ const PriceProvider = ({ children }: any) => {
           oracle: oracleName || '',
         };
 
-        updateState( { type: 'UPDATE_PAIR', payload: { pairId, pairInfo: newPair }  })
-        updateState( { type: 'END_PAIR_FETCH', payload: pairId })
+        updateState({ type: 'UPDATE_PAIR', payload: { pairId, pairInfo: newPair } });
+        updateState({ type: 'END_PAIR_FETCH', payload: pairId });
         return newPair;
       }
       return null;
-
-    } , [assetRootMap, contractMap, diagnostics, fallbackChainId, priceState.pairLoading]); 
-
-  return (
-    <PriceContext.Provider value={ { priceState,  updateAssetPair } }>
-      {children}
-    </PriceContext.Provider>
+    },
+    [assetRootMap, contractMap, diagnostics, fallbackChainId, priceState.pairLoading]
   );
+
+  const priceActions = { updateAssetPair };
+  return <PriceContext.Provider value={{ priceState, priceActions }}>{children}</PriceContext.Provider>;
 };
 
 export { PriceContext, PriceProvider };
