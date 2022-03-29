@@ -313,8 +313,7 @@ const UserProvider = ({ children }: any) => {
             baseId
           );
       } catch (error) {
-        diagnostics &&
-          console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+        diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
         diagnostics && console.log(error);
         price = ethers.constants.Zero;
       }
@@ -358,7 +357,10 @@ const UserProvider = ({ children }: any) => {
             series.isMature(),
           ]);
 
-          const rateCheckAmount =  ethers.utils.parseUnits( ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1', series.decimals) ;
+          const rateCheckAmount = ethers.utils.parseUnits(
+            ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
+            series.decimals
+          );
 
           /* Calculates the base/fyToken unit selling price */
           const _sellRate = sellFYToken(
@@ -371,9 +373,7 @@ const UserProvider = ({ children }: any) => {
             series.decimals
           );
 
-          const apr =
-            calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) ||
-            '0';
+          const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
 
           return {
             ...series,
@@ -475,17 +475,17 @@ const UserProvider = ({ children }: any) => {
           let rate_: string;
 
           if (await series?.isMature()) {
-
             rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
             [rate] = await RateOracle?.peek(
               bytesToBytes32(vault.baseId, 6),
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
-
             rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
             diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
-            [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
+            [accruedArt] = rateAtMaturity.gt(ZERO_BN)
+              ? calcAccruedDebt(rate, rateAtMaturity, art)
+              : calcAccruedDebt(rate, rate, art);
           } else {
             rate = BigNumber.from('1');
             rate_ = '1';
