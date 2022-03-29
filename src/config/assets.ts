@@ -175,7 +175,7 @@ ASSET_INFO.set(yvUSDC, {
   color: '#3366CC',
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303230350000', '0x303230360000'],
+  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000' ],
 });
 
 ASSET_INFO.set(UNI, {
