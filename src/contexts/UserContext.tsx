@@ -394,6 +394,7 @@ const UserProvider = ({ children }: any) => {
           let rateAtMaturity;
           let rate;
           let rate_: string;
+
           if (await series?.isMature()) {
             rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
             [rate] = await RateOracle?.peek(
@@ -404,7 +405,9 @@ const UserProvider = ({ children }: any) => {
 
             rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
             diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
-            [accruedArt] = calcAccruedDebt(rate, rateAtMaturity, art);
+            [accruedArt] = rateAtMaturity.gt(ZERO_BN)
+              ? calcAccruedDebt(rate, rateAtMaturity, art)
+              : calcAccruedDebt(rate, rate, art);
           } else {
             rate = BigNumber.from('1');
             rate_ = '1';
