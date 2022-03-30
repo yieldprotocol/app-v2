@@ -83,10 +83,12 @@ const HistoryProvider = ({ children }: any) => {
     connection: { fallbackProvider },
     seriesRootMap,
     assetRootMap,
+    chainLoading
+
   } = chainState;
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext);
-  const { activeAccount: account } = userState;
+  const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
 
   const [ lastSeriesUpdate ] = useCachedState('lastSeriesUpdate', 'earliest');
@@ -485,26 +487,26 @@ const HistoryProvider = ({ children }: any) => {
     ]
   );
 
-  // useEffect(() => {
-  //   /* When the chainContext is finished loading get the Pool and Trade historical  data */
-  //   if (account && !chainLoading) {
-  //     // seriesMap.size && updateTradeHistory(Array.from(seriesMap.values()) as ISeries[]);
-  //   }
-  // }, [account, seriesMap, chainLoading]); // updateXHistory omiteed on purpose
+  useEffect(() => {
+    /* When the chainContext is finished loading get the Pool and Trade historical  data */
+    if (account && !chainLoading) {
+      seriesMap.size && updateTradeHistory(Array.from(seriesMap.values()) as ISeries[]);
+    }
+  }, [account, seriesMap, chainLoading]); // updateXHistory omiteed on purpose
 
-  // useEffect(() => {
-  //   /* When the chainContext is finished loading get the Pool and Trade historical  data */
-  //   if (account && !chainLoading) {
-  //     // strategyMap.size && updateStrategyHistory(Array.from(strategyMap.values()) as IStrategy[]);
-  //   }
-  // }, [account, strategyMap, chainLoading]); // updateXHistory omiteed on purpose
+  useEffect(() => {
+    /* When the chainContext is finished loading get the Pool and Trade historical  data */
+    if (account && !chainLoading) {
+      strategyMap.size && updateStrategyHistory(Array.from(strategyMap.values()) as IStrategy[]);
+    }
+  }, [account, strategyMap, chainLoading]); // updateXHistory omiteed on purpose
 
-  // useEffect(() => {
-  //   /* When the chainContext is finished loading get the historical data */
-  //   if (account && !chainLoading) {
-  //     // vaultMap.size && updateVaultHistory(Array.from(vaultMap.values()) as IVault[]);
-  //   }
-  // }, [account, chainLoading, vaultMap]); // updateVaultHisotry omittted on purpose
+  useEffect(() => {
+    /* When the chainContext is finished loading get the historical data */
+    if (account && !chainLoading) {
+      vaultMap.size && updateVaultHistory(Array.from(vaultMap.values()) as IVault[]);
+    }
+  }, [account, chainLoading, vaultMap]); // updateVaultHisotry omittted on purpose
 
   /* Exposed userActions */
   const historyActions = {
