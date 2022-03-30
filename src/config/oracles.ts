@@ -1,4 +1,20 @@
-import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI, yvUSDC, MKR, FUSDC2203, FDAI2203 } from './assets';
+import {
+  WETH,
+  DAI,
+  USDC,
+  WBTC,
+  stETH,
+  wstETH,
+  ENS,
+  LINK,
+  UNI,
+  yvUSDC,
+  MKR,
+  FUSDC2203,
+  FDAI2203,
+  FDAI2206,
+  FUSDC2206,
+} from './assets';
 
 const COMPOSITE_MULTI_ORACLE = 'CompositeMultiOracle';
 const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
@@ -25,7 +41,7 @@ usdcIlkOracle1.set(DAI, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(USDC, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(WBTC, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(stETH, CHAINLINK_MULTI_ORACLE);
-usdcIlkOracle1.set(wstETH, CHAINLINK_MULTI_ORACLE);
+usdcIlkOracle1.set(wstETH, COMPOSITE_MULTI_ORACLE);
 usdcIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 usdcIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
@@ -33,6 +49,7 @@ usdcIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 usdcIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 /* notional additions */
 usdcIlkOracle1.set(FUSDC2203, NOTIONAL_MULTI_ORACLE);
+usdcIlkOracle1.set(FUSDC2206, NOTIONAL_MULTI_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle1);
 
@@ -51,6 +68,7 @@ daiIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 daiIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 /* notional additions */
 daiIlkOracle1.set(FDAI2203, NOTIONAL_MULTI_ORACLE);
+daiIlkOracle1.set(FDAI2206, NOTIONAL_MULTI_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle1);
 

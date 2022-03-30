@@ -3,6 +3,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
+  IPriceContext,
   ISeries,
   ISettingsContext,
   IStrategy,
@@ -35,9 +36,10 @@ export const useDashboardHelpers = () => {
     userState: { vaultMap, seriesMap, strategyMap },
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
 
-  const { priceState, updateAssetPair } = useContext(PriceContext);
+  const { priceState, priceActions } = useContext(PriceContext) as IPriceContext;
 
-  const { pairMap, pairLoading } = priceState;
+  const { pairMap } = priceState;
+  const { updateAssetPair } = priceActions;
 
   const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : USDC;
   const currencySettingDigits = 2;
@@ -184,46 +186,6 @@ export const useDashboardHelpers = () => {
       cleanValue(_strategyBalances.reduce((sum, loaned) => sum + loaned, 0).toString(), currencySettingDigits)
     );
   }, [convertValue, currencySettingAssetId, lendPositions, pairMap, strategyPositions, vaultPositions]);
-
-  /* get vault, lend, and pool position total debt, collateral, and balances */
-  // useEffect(() => {
-  // async function getBalances() {
-  //     // const _debts = vaultPositions.map(async (position) =>
-  //     //   convertValue(currencySettingAssetId, position.baseId, position.accruedArt_)
-  //     // )
-  //     // setTotalDebt(
-  //     //   cleanValue( _debts.reduce(async (sum, debt) => sum + debt, 0).toString(), currencySettingDigits)
-  //     // );
-  //     const _debts = await Promise.all(
-  //       vaultPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.accruedArt_))
-  //     );
-  //     setTotalCollateral(
-  //       cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits)
-  //     );
-  //   const _collaterals = await Promise.all(
-  //     vaultPositions.map((position) => convertValue(currencySettingAssetId, position.ilkId, position.ink_))
-  //   );
-  //   setTotalCollateral(
-  //     cleanValue(_collaterals.reduce((sum, collateral) => sum + collateral, 0).toString(), currencySettingDigits)
-  //   );
-  //   const _lendBalances = await Promise.all(
-  //     lendPositions.map((position) => convertValue(currencySettingAssetId, position.baseId, position.currentValue_!))
-  //   );
-  //   // using the current fyToken Value denominated in currency setting
-  //   setTotalLendBalance(
-  //     cleanValue(_lendBalances.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits)
-  //   );
-  //   const _strategyBalances = await Promise.all(
-  //     strategyPositions.map((position) =>
-  //       convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
-  //     )
-  //   );
-  //   setTotalStrategyBalance(
-  //     cleanValue(_strategyBalances.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits)
-  //   );
-  // }
-  // getBalances();
-  // }, [currencySettingAssetId, convertValue, currencySettingDigits, vaultPositions, lendPositions, strategyPositions]);
 
   return {
     vaultPositions,

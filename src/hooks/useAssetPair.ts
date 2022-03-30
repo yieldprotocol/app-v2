@@ -1,12 +1,14 @@
 import { useContext, useState, useEffect } from 'react';
 
-import { IAsset, IAssetPair } from '../types';
+import { IAsset, IAssetPair, IPriceContext } from '../types';
 import { PriceContext } from '../contexts/PriceContext';
 
 /* Generic hook for chain transactions */
 export const useAssetPair = (base?: IAsset, collateral?: IAsset): IAssetPair | undefined => {
-  const { priceState, updateAssetPair } = useContext(PriceContext);
-  const { pairMap, pairLoading } = priceState;
+  const {
+    priceState: { pairMap, pairLoading },
+    priceActions: { updateAssetPair },
+  } = useContext(PriceContext) as IPriceContext;
 
   /* LOCAL STATE */
   const [assetPair, setAssetPair] = useState<IAssetPair>();
@@ -18,8 +20,7 @@ export const useAssetPair = (base?: IAsset, collateral?: IAsset): IAssetPair | u
         !pairLoading.includes(base.id + collateral.id) &&
         updateAssetPair(base.id, collateral.id);
     }
-
-  }, [base, collateral, pairMap, pairLoading ]);
+  }, [base, collateral, pairMap, pairLoading]);
 
   return assetPair;
 };

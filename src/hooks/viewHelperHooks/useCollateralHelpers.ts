@@ -1,6 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { PriceContext } from '../../contexts/PriceContext';
+import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
@@ -18,7 +17,7 @@ export const useCollateralHelpers = (
   debtInput: string | undefined,
   collInput: string | undefined,
   vault: IVault | undefined,
-  assetPairInfo: IAssetPair| undefined,
+  assetPairInfo: IAssetPair | undefined
 ) => {
   /* STATE FROM CONTEXT */
   const {
