@@ -15,6 +15,8 @@ import YieldMobileMenu from './components/YieldMobileMenu';
 import { useColorScheme } from './hooks/useColorScheme';
 import TransactionError from './components/TransactionError';
 
+import ErrorBoundary from './components/errorBounds/ErrorBoundary';
+
 const Borrow = lazy(() => import('./views/Borrow'));
 const Lend = lazy(() => import('./views/Lend'));
 const Pool = lazy(() => import('./views/Pool'));
@@ -32,7 +34,10 @@ function App() {
 
   return (
     <Box fill background="background">
+
       <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+
+      <ErrorBoundary>
       <NetworkBanner />
       <TransactionWidget />
       <NetworkError />
@@ -80,6 +85,7 @@ function App() {
           </Switch>
           </Suspense>
       </Box>
+      </ErrorBoundary>
     </Box>
   );
 }
