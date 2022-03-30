@@ -136,7 +136,7 @@ export const useRepayDebt = () => {
           target: base,
           spender: base.joinAddress,
           amount: _input,
-          ignoreIf: !series.seriesIsMature || alreadyApproved === true || !inputGreaterThanMaxBaseIn,
+          ignoreIf: !series.seriesIsMature || alreadyApproved === true ,
         },
       ],
       txCode

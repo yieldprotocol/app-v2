@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
@@ -44,6 +44,7 @@ import { useProcess } from '../hooks/useProcess';
 import ExitButton from '../components/buttons/ExitButton';
 import { ZERO_BN } from '../utils/constants';
 import { useAssetPair } from '../hooks/useAssetPair';
+import { HistoryContext } from '../contexts/HistoryContext';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -56,6 +57,12 @@ const VaultPosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
+
+  const {
+    historyState,
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext);
+
   const { activeAccount: account, assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
@@ -65,7 +72,7 @@ const VaultPosition = () => {
   const vaultIlk = assetMap.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap.get(_selectedVault?.seriesId!);
 
-  const assetPairInfo = useAssetPair(vaultBase, vaultIlk) 
+  const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
   /* TX info (for disabling buttons) */
   const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(
@@ -183,7 +190,7 @@ const VaultPosition = () => {
     [0, maxRoll_]
   );
 
-  /* LOCAL FNS */
+  /* LOCAL COMPNENT FNS */
   const handleStepper = (back: boolean = false) => {
     const step = back ? -1 : 1;
     const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
@@ -191,11 +198,14 @@ const VaultPosition = () => {
     setStepPosition(validatedSteps);
   };
 
-  const resetStepper = (actionCode: ActionCodes) => {
-    const newStepPositions = stepPosition;
-    newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
-    setStepPosition(newStepPositions);
-  };
+  const resetStepper = useCallback(
+    (actionCode: ActionCodes) => {
+      const newStepPositions = stepPosition;
+      newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
+      setStepPosition(newStepPositions);
+    },
+    [stepPosition]
+  );
 
   const handleRepay = () => {
     _selectedVault && repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
@@ -213,27 +223,29 @@ const VaultPosition = () => {
     }
   };
 
-  const resetInputs = (actionCode: ActionCodes) => {
-    resetStepper(actionCode);
-
-    switch (actionCode) {
-      case ActionCodes.REPAY:
-        setRepayInput(undefined);
-        resetRepayProcess();
-        break;
-      case ActionCodes.ROLL_DEBT:
-        resetRollProcess();
-        break;
-      case ActionCodes.ADD_COLLATERAL:
-        setAddCollatInput(undefined);
-        resetAddCollateralProcess();
-        break;
-      case ActionCodes.REMOVE_COLLATERAL:
-        setRemoveCollatInput(undefined);
-        resetRemoveCollateralProcess();
-        break;
-    }
-  };
+  const resetInputs = useCallback(
+    (actionCode: ActionCodes) => {
+      resetStepper(actionCode);
+      switch (actionCode) {
+        case ActionCodes.REPAY:
+          setRepayInput(undefined);
+          resetRepayProcess();
+          break;
+        case ActionCodes.ROLL_DEBT:
+          resetRollProcess();
+          break;
+        case ActionCodes.ADD_COLLATERAL:
+          setAddCollatInput(undefined);
+          resetAddCollateralProcess();
+          break;
+        case ActionCodes.REMOVE_COLLATERAL:
+          setRemoveCollatInput(undefined);
+          resetRemoveCollateralProcess();
+          break;
+      }
+    },
+    [resetAddCollateralProcess, resetRemoveCollateralProcess, resetRepayProcess, resetRollProcess, resetStepper]
+  );
 
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
@@ -289,7 +301,9 @@ const VaultPosition = () => {
     removeCollateralProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT &&
       resetInputs(ActionCodes.REMOVE_COLLATERAL);
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_DEBT);
-  }, [addCollateralProcess, removeCollateralProcess, repayProcess, rollProcess]);
+  }, [addCollateralProcess, removeCollateralProcess, repayProcess, resetInputs, rollProcess]);
+
+  useEffect(() => {});
 
   return (
     <>
@@ -700,7 +714,9 @@ const VaultPosition = () => {
                   </>
                 )}
 
-                {actionActive.index === 4 && <YieldHistory seriesOrVault={_selectedVault!} view={['VAULT']} />}
+                {actionActive.index === 4 && updateVaultHistory([_selectedVault!]) && (
+                  <YieldHistory seriesOrVault={_selectedVault!} view={['VAULT']} />
+                )}
               </Box>
             </Box>
 
