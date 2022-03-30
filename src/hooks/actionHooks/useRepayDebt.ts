@@ -20,7 +20,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { MAX_256, ONE_BN, ZERO_BN } from '../../utils/constants';
 
 export const useRepayDebt = () => {
   const {
@@ -131,7 +131,7 @@ export const useRepayDebt = () => {
           // after maturity
           target: base,
           spender: base.joinAddress,
-          amount: _input,
+          amount: MAX_256,
           ignoreIf: !series.seriesIsMature || alreadyApproved === true,
         },
       ],
