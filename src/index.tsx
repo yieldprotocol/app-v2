@@ -11,6 +11,7 @@ import { TxProvider } from './contexts/TxContext';
 import { UserProvider } from './contexts/UserContext';
 import { HistoryProvider } from './contexts/HistoryContext';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { PriceProvider } from './contexts/PriceContext';
 
 declare global {
   interface Window {
@@ -50,7 +51,9 @@ ReactDOM.render(
               <UserProvider>
                 <TxProvider>
                   <HistoryProvider>
-                    <App />
+                    <PriceProvider>
+                      <App />
+                    </PriceProvider>
                   </HistoryProvider>
                 </TxProvider>
               </UserProvider>

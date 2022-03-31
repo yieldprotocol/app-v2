@@ -45,9 +45,10 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
   return (
 
-    <Box fill width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge" justify="between"  style={{ overflow:'scroll' }}>
-
+    <Box fill width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge" justify="between"  style={{ overflow:'auto' }}>
+      
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false} >
+
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
           <FiX size="1.5rem" />
         </Box>
@@ -81,7 +82,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             justify="end"
             onClick={() => setConnectionSettingsOpen(!connectionSettingsOpen)}
             gap="medium"
-            margin={{ top: 'large' }}
+            margin={{ top: 'medium' }}
           >
             <BoxWrap direction="row" gap="small">
               {connectionName && (
@@ -94,16 +95,15 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           <Collapsible open={connectionSettingsOpen}>
             <Box gap="xsmall">
               <GeneralButton action={handleChangeConnectType} background="gradient-transparent">
-                <Text size="xsmall"> Change Connection</Text>
+                <Text size="xsmall">Change Connection</Text>
               </GeneralButton>
 
               <GeneralButton action={() => disconnect()} background="gradient-transparent">
-                <Text size="xsmall"> Disconnect </Text>
+                <Text size="xsmall">Disconnect</Text>
               </GeneralButton>
             </Box>
           </Collapsible>
         </Box>
-
       </Box>
 
       {!mobile && (
@@ -138,7 +138,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         gap="small"
         background="gradient-transparent"
         round={{ size: 'xsmall', corner: 'top' }}
-        flex={false}
       >
         <Box align="center" direction="row" justify="between" onClick={() => setTransactionsOpen(!transactionsOpen)}>
           <Text size="small">Recent Transactions</Text>

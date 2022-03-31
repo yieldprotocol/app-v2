@@ -6,6 +6,7 @@ import { IAsset } from '../types';
 import AddTokenToMetamask from './AddTokenToMetamask';
 import YieldBalances from './YieldBalances';
 import BoxWrap from './wraps/BoxWrap';
+import { ZERO_BN } from '../utils/constants';
 
 const StyledTableCell = styled(TableCell)`
   padding: 0.3rem 0.5rem;
@@ -40,6 +41,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
       <TableBody>
         {[...assetMap.values()]
           .filter((asset: IAsset) => asset.showToken)
+          .filter((asset: IAsset) => asset.balance.gt(ZERO_BN))
           .map((asset: IAsset) => (
             <TableRow key={asset.address}>
               <StyledTableCell plain>
