@@ -6,6 +6,7 @@ import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext } from '../types';
+import { PriceContext } from '../contexts/PriceContext';
 
 interface IDashboardBalance {
   debt: string;
@@ -20,7 +21,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   const theme = useContext(ThemeContext);
   const { green, red } = theme.global.colors;
   const {
-    userState: { vaultsLoading, seriesLoading, assetPairLoading, strategiesLoading },
+    userState: { vaultsLoading, seriesLoading, strategiesLoading },
   } = useContext(UserContext) as IUserContext;
 
   const [totalBalance, setTotalBalance] = useState<number>();
@@ -65,7 +66,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
 
           <Box direction="row-responsive"  justify="between">
             <Text size="small">Total Collateral:</Text>
-            {vaultsLoading || assetPairLoading ? (
+            {vaultsLoading ? (
               <Skeleton width={50} />
             ) : (
               <Box direction="row" gap="medium">
@@ -80,7 +81,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
 
           <Box direction="row-responsive"  justify="between">
             <Text size="small">Total Debt:</Text>
-            {vaultsLoading || assetPairLoading ? (
+            {vaultsLoading ? (
               <Skeleton width={50} />
             ) : (
               <Box direction="row" gap="medium">
@@ -97,7 +98,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
 
       <Box direction="row-responsive" justify="between" margin={{top:'medium'}} border={{ side: 'top' }}>
             <Text size="medium">Total:</Text>
-            {vaultsLoading || seriesLoading || strategiesLoading || (assetPairLoading && !totalBalance) ? (
+            {vaultsLoading || seriesLoading || strategiesLoading || (!totalBalance) ? (
               <Skeleton width={50} />
             ) : (
               <Box direction="row" gap="medium">

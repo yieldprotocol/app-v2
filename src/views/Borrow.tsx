@@ -55,6 +55,7 @@ import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrat
 import YieldNavigation from '../components/YieldNavigation';
 import VaultItem from '../components/positionItems/VaultItem';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { useAssetPair } from '../hooks/useAssetPair';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -101,6 +102,7 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
+  const assetPairInfo = useAssetPair(selectedBase!, selectedIlk!);
   const {
     collateralizationPercent,
     undercollateralized,
@@ -110,12 +112,13 @@ const Borrow = () => {
     minSafeCollatRatioPct,
     minCollatRatioPct,
     totalCollateral_,
-  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse);
+  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPairInfo);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,
+    assetPairInfo,
     selectedSeries
   );
 
@@ -142,11 +145,11 @@ const Borrow = () => {
   useEffect(() => {
     setRenderId(new Date().getTime().toString(36));
   }, []);
+
   const handleNavAction = (_stepPosition: number) => {
     _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
     analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
-    diagnostics && console.log('nav: ', { screen: 'BORROW', step: _stepPosition, renderId });
   };
 
   const handleGaugeColorChange: any = (val: string) => {
@@ -239,7 +242,6 @@ const Borrow = () => {
     ) {
       setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contractMap)!);
     }
-
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [borrowProcess, resetInputs]);
 
@@ -263,8 +265,7 @@ const Borrow = () => {
                     <AltText color="text-weak" size="xsmall">
                       Borrow popular ERC20 tokens at a {' '}
                       <Text size="small" color="text">
-                        {' '}
-                        fixed rate{' '}
+                        fixed rate
                       </Text>
                     </AltText>
                   </Box>
@@ -323,7 +324,6 @@ const Borrow = () => {
                   </InputInfoWrap>
                 )}
                 {!borrowInputError && borrowInput && borrowPossible && selectedSeries && (
-                  // minCollateral.gt(selectedSeries.) &&
                   <InputInfoWrap>
                     <Text size="small" color="text-weak">
                       Requires equivalent of {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
