@@ -61,7 +61,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
 
   return (
     <Box margin={{ top: 'medium' }} height={{ max: '200px' }} style={{ overflow: 'auto' }}>
-      {histLoading ? (
+      { histLoading && !histList.length ? (
         <Box>
           <Skeleton />
           <Skeleton />
