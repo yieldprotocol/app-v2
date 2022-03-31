@@ -20,6 +20,9 @@ export const FUSDC2203 = '0x313300000000';
 export const FDAI2206 = '0x313400000000';
 export const FUSDC2206 = '0x313500000000';
 
+export const FDAI2209 = '0x313600000000';
+export const FUSDC2209 = '0x313700000000';
+
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
@@ -42,6 +45,10 @@ export const NON_PERMIT_ASSETS = [
   'FDAI2206',
   FUSDC2206,
   'FUSDC2206',
+  FUSDC2209,
+  'FUSDC2209',
+  FDAI2209,
+  'FDAI2209',
 ];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
@@ -235,7 +242,7 @@ ASSET_INFO.set(FDAI2206, {
   name: 'FDAI2206',
   decimals: 8,
   symbol: 'FDAI2206',
-  showToken: false,
+  showToken: true,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
@@ -249,7 +256,7 @@ ASSET_INFO.set(FUSDC2206, {
   name: 'FUSDC2206',
   decimals: 8,
   symbol: 'FUSDC2206',
-  showToken: false,
+  showToken: true,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
@@ -258,30 +265,30 @@ ASSET_INFO.set(FUSDC2206, {
   limitToSeries: ['0x303230360000']
 });
 
-// ASSET_INFO.set(FDAI2209, {
-//   version: '1',
-//   name: 'FDAI2209',
-//   decimals: 8,
-//   symbol: 'FDAI2209',
-//   showToken: false,
-//   isWrappedToken: false,
-//   color: '#FF007A',
-//   digitFormat: 6,
-//   tokenType: TokenType.ERC1155_,
-//   tokenIdentifier: 563373963149313,
-//   limitToSeries: ['0x303130360000']
-// });
+ASSET_INFO.set(FDAI2209, {
+  version: '1',
+  name: 'FDAI2209',
+  decimals: 8,
+  symbol: 'FDAI2209',
+  showToken: true,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563375953805313,
+  limitToSeries: ['0x303130360000']
+});
 
-// ASSET_INFO.set(FUSDC2209, {
-//   version: '1',
-//   name: 'FUSDC2206',
-//   decimals: 8,
-//   symbol: 'FUSDC2206',
-//   showToken: false,
-//   isWrappedToken: false,
-//   color: '#FF007A',
-//   digitFormat: 6,
-//   tokenType: TokenType.ERC1155_,
-//   tokenIdentifier: 844848939859969,
-//   limitToSeries: ['0x303230360000']
-// });
+ASSET_INFO.set(FUSDC2209, {
+  version: '1',
+  name: 'FUSDC2206',
+  decimals: 8,
+  symbol: 'FUSDC2206',
+  showToken: true,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844850930515969,
+  limitToSeries: ['0x303230360000']
+});
