@@ -45,7 +45,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
   return (
 
-    <Box fill width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge" justify="between"  style={{ overflow:'scroll' }}>
+    <Box fill width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge" justify="between"  style={{ overflow:'auto' }}>
       
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false} >
 
