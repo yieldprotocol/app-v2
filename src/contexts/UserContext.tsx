@@ -13,7 +13,6 @@ import {
   IUserContext,
   IStrategyRoot,
   IStrategy,
-  IAssetPair,
   IChainContext,
   ISettingsContext,
 } from '../types';
@@ -28,14 +27,11 @@ import {
   mulDecimal,
   secondsToFrom,
   sellFYToken,
-  decimal18ToDecimalN,
-  calcLiquidationPrice,
   calcAccruedDebt,
 } from '../utils/yieldMath';
 
-import { WAD_BN, ZERO_BN } from '../utils/constants';
+import { ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ORACLE_INFO } from '../config/oracles';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 
@@ -52,14 +48,10 @@ const initState: IUserContextState = {
   vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
 
-  /* map of asset prices/limits  */
-  assetPairMap: new Map<string, IAssetPair>(),
-
   vaultsLoading: true as boolean,
   seriesLoading: true as boolean,
   assetsLoading: true as boolean,
   strategiesLoading: true as boolean,
-  assetPairLoading: false as boolean,
 
   /* Current User selections */
   selectedSeries: null,
@@ -83,16 +75,13 @@ function userReducer(state: any, action: any) {
       return { ...state, activeAccount: onlyIfChanged(action) };
 
     case 'assetMap':
-      return { ...state, assetMap: onlyIfChanged(action) };
+      return { ...state, assetMap: new Map( [ ...state.assetMap, ...action.payload] ) };
     case 'seriesMap':
-      return { ...state, seriesMap: onlyIfChanged(action) };
+      return { ...state, seriesMap: new Map( [ ...state.seriesMap, ...action.payload] ) };
     case 'vaultMap':
-      return { ...state, vaultMap: onlyIfChanged(action) };
+      return { ...state, vaultMap: new Map( [ ...state.vaultMap, ...action.payload] ) };
     case 'strategyMap':
-      return { ...state, strategyMap: onlyIfChanged(action) };
-
-    case 'assetPairMap':
-      return { ...state, assetPairMap: action.payload };
+      return { ...state, strategyMap: new Map( [ ...state.strategyMap, ...action.payload] ) };
 
     case 'vaultsLoading':
       return { ...state, vaultsLoading: onlyIfChanged(action) };
@@ -102,8 +91,6 @@ function userReducer(state: any, action: any) {
       return { ...state, assetsLoading: onlyIfChanged(action) };
     case 'strategiesLoading':
       return { ...state, strategiesLoading: onlyIfChanged(action) };
-    case 'assetPairLoading':
-      return { ...state, assetPairLoading: onlyIfChanged(action) };
 
     case 'selectedVault':
       return { ...state, selectedVault: action.payload };
@@ -126,7 +113,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, fallbackChainId },
+    connection: { account },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -215,7 +202,7 @@ const UserProvider = ({ children }: any) => {
       /* Update the local cache storage */
       // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
     },
-    [account, contractMap, seriesRootMap]
+    [account, contractMap, diagnostics, seriesRootMap]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -257,85 +244,20 @@ const UserProvider = ({ children }: any) => {
       }
       const _combinedData = _accountData.length ? _accountData : _publicData;
 
-      /* get the previous version (Map) of the vaultMap and update it */
+      /* reduce the asset list into a new map */
       const newAssetMap = new Map(
         _combinedData.reduce((acc: any, item: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.assetMap)
+        }, new Map() )
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: 'assetsLoading', payload: false });
     },
-    [account, assetRootMap, seriesRootMap]
-  );
-
-  const updateAssetPair = useCallback(
-    async (baseId: string, ilkId: string): Promise<IAssetPair> => {
-      updateState({ type: 'assetPairLoading', payload: true });
-
-      const Cauldron = contractMap.get('Cauldron');
-      const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
-        ?.get(baseId)
-        ?.get(ilkId);
-
-      const PriceOracle = contractMap.get(oracleName!);
-      const base = assetRootMap.get(baseId);
-      const ilk = assetRootMap.get(ilkId);
-
-      diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
-      // /* Get debt params and spot ratios */
-      const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
-        await Cauldron?.debt(baseId, ilkId),
-        await Cauldron?.spotOracles(baseId, ilkId),
-      ]);
-
-      /* get pricing if available */
-      let price: BigNumber;
-
-      try {
-        // eslint-disable-next-line prefer-const
-        [price] = await PriceOracle?.peek(
-          bytesToBytes32(ilkId, 6),
-          bytesToBytes32(baseId, 6),
-          decimal18ToDecimalN(WAD_BN, ilk?.decimals!)
-        );
-        diagnostics &&
-          console.log(
-            'Price fetched:',
-            decimal18ToDecimalN(WAD_BN, ilk?.decimals!).toString(),
-            ilkId,
-            'for',
-            price.toString(),
-            baseId
-          );
-      } catch (error) {
-        diagnostics && console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
-        diagnostics && console.log(error);
-        price = ethers.constants.Zero;
-      }
-
-      const newPair = {
-        baseId,
-        ilkId,
-        limitDecimals: dec,
-        minDebtLimit: BigNumber.from(min).mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
-        maxDebtLimit: max.mul(BigNumber.from('10').pow(dec)), // NB use limit decimals here > might not be same as base/ilk decimals
-        pairTotalDebt: sum,
-        pairPrice: price, // value of 1 ilk (1x10**n) in terms of base.
-        minRatio: parseFloat(ethers.utils.formatUnits(ratio, 6)), // pre-format ratio
-        baseDecimals: base?.decimals!,
-      };
-
-      updateState({ type: 'assetPairMap', payload: userState.assetPairMap.set(baseId + ilkId, newPair) });
-      updateState({ type: 'assetPairLoading', payload: false });
-
-      return newPair;
-    },
-    [assetRootMap, contractMap, diagnostics, fallbackChainId, userState.assetPairMap]
+    [account, seriesRootMap]
   );
 
   /* Updates the series with relevant *user* data */
@@ -418,7 +340,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.seriesMap)
+        }, new Map() )
       ) as Map<string, ISeries>;
 
       // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
@@ -446,20 +368,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-          let pairData: IAssetPair;
-
-          /* get the asset Pair info if required */
-          if (!userState.assetPairMap.has(`${vault.baseId}${vault.ilkId}`)) {
-            diagnostics && console.log('AssetPairInfo queued for fetching from network');
-            pairData = await updateAssetPair(vault.baseId, vault.ilkId);
-          } else {
-            diagnostics && console.log('AssetPairInfo exists in assetPairMap');
-            pairData = await userState.assetPairMap.get(`${vault.baseId}${vault.ilkId}`);
-          }
-          const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
-
-          diagnostics &&
-            console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
 
           /* Get dynamic vault data */
           const [
@@ -481,7 +389,8 @@ const UserProvider = ({ children }: any) => {
               '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
               '0'
             );
-            rate_ = ethers.utils.formatUnits(rate, 18); // always 18 decimals when getting rate from rate oracle
+
+            rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
             diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
             [accruedArt] = rateAtMaturity.gt(ZERO_BN)
               ? calcAccruedDebt(rate, rateAtMaturity, art)
@@ -507,11 +416,6 @@ const UserProvider = ({ children }: any) => {
           diagnostics && console.log(vault.displayName, ' art: ', art.toString());
           diagnostics && console.log(vault.displayName, ' accArt: ', accruedArt.toString());
 
-          const liquidationPrice_ = cleanValue(
-            calcLiquidationPrice(ink_, accruedArt_, minRatio),
-            baseRoot?.digitFormat
-          );
-
           return {
             ...vault,
             owner, // refreshed in case owner has been updated
@@ -529,18 +433,6 @@ const UserProvider = ({ children }: any) => {
             ink_, // for display purposes only
             art_, // for display purposes only
             accruedArt_, // display purposes
-
-            /* attach extra pairwaise data for convenience */
-            minDebtLimit,
-            maxDebtLimit,
-            minRatio,
-            pairPrice,
-            pairTotalDebt,
-
-            baseDecimals: baseRoot?.decimals!,
-            limitDecimals,
-
-            liquidationPrice_,
           };
         })
       );
@@ -571,15 +463,14 @@ const UserProvider = ({ children }: any) => {
     [
       contractMap,
       _getVaults,
+      lastVaultUpdate,
       userState.vaultMap,
-      userState.assetPairMap,
       vaultFromUrl,
-      diagnostics,
+      setLastVaultUpdate,
       seriesRootMap,
       assetRootMap,
+      diagnostics,
       account,
-      updateAssetPair,
-      fallbackChainId,
     ]
   );
 
@@ -685,7 +576,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.address, item);
           return _map;
-        }, userState.strategyMap)
+        }, new Map() )
       );
 
       const combinedMap = newStrategyMap;
@@ -730,8 +621,6 @@ const UserProvider = ({ children }: any) => {
     updateAssets,
     updateVaults,
     updateStrategies,
-
-    updateAssetPair,
 
     setSelectedVault: useCallback((vault: IVault | null) => updateState({ type: 'selectedVault', payload: vault }), []),
     setSelectedIlk: useCallback((asset: IAsset | null) => updateState({ type: 'selectedIlk', payload: asset }), []),
