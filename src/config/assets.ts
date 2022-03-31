@@ -49,6 +49,13 @@ export const NON_PERMIT_ASSETS = [
   'FUSDC2209',
   FDAI2209,
   'FDAI2209',
+  
+  'fDAI2203',
+  'fUSDC2203',
+  'fDAI2206',
+  'fUSDC2206',
+  'fUSDC2209',
+  'fDAI2209',
 ];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
@@ -214,7 +221,7 @@ ASSET_INFO.set(FDAI2203, {
   name: 'fDAI2203',
   decimals: 8,
   symbol: 'FDAI2203',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
@@ -228,7 +235,7 @@ ASSET_INFO.set(FUSDC2203, {
   name: 'fUSDC2203',
   decimals: 8,
   symbol: 'FUSDC2203',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#FF007A',
   digitFormat: 6,
