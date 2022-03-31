@@ -86,8 +86,8 @@ const HistoryProvider = ({ children }: any) => {
   const { userState }: { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount: account } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
-  const [lastSeriesUpdate] = useCachedState('lastSeriesUpdate', 'earliest');
-  const [lastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
+  const [ lastSeriesUpdate ] =  ['earliest'] // useCachedState('lastSeriesUpdate', 'earliest');
+  const [ lastVaultUpdate ] =  ['earliest'] // useCachedState('lastVaultUpdate', 'earliest');
 
   const {
     settingsState: { diagnostics },
@@ -150,12 +150,9 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
 
+
       updateState({ type: 'strategyHistory', payload: liqHistMap });
-      diagnostics &&
-        console.log(
-          'Strategy History updated: ',
-          strategyList.map((s) => s.id)
-        );
+      diagnostics && console.log('Strategy History updated: ', strategyList.map(s=>s.id)  );
     },
 
     [account, diagnostics, fallbackProvider, lastSeriesUpdate]
@@ -229,7 +226,6 @@ const HistoryProvider = ({ children }: any) => {
             eventList
               .filter((log: any) => poolContract.interface.parseLog(log).args.from !== contractMap.get('Ladle')) // TODO make this for any ladle (Past/future)
               .map(async (log: any) => {
-                
                 const { blockNumber, transactionHash } = log;
                 const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
                 const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
@@ -265,16 +261,10 @@ const HistoryProvider = ({ children }: any) => {
           tradeHistMap.set(seriesId, tradeLogs);
         })
       );
-
-      console.log(tradeHistMap);
       updateState({ type: 'tradeHistory', payload: tradeHistMap });
-      diagnostics &&
-        console.log(
-          'Trade history updated: ',
-          seriesList.map((s) => s.id)
-        );
-    },
-    [account, assetRootMap, contractMap, diagnostics, fallbackProvider, lastSeriesUpdate]
+      diagnostics && console.log('Trade history updated: ', seriesList.map(s=>s.id));
+    }
+    ,[account, assetRootMap, contractMap, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
 
   /*  Updates VAULT history */
@@ -468,11 +458,7 @@ const HistoryProvider = ({ children }: any) => {
       );
 
       updateState({ type: 'vaultHistory', payload: vaultHistMap });
-      diagnostics &&
-        console.log(
-          'Vault history updated: ',
-          vaultList.map((v) => v.id)
-        );
+      diagnostics && console.log('Vault history updated: ', vaultList.map(v=>v.id));
     },
     [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, diagnostics, lastVaultUpdate, seriesRootMap]
   );
