@@ -44,7 +44,6 @@ import { useProcess } from '../hooks/useProcess';
 import ExitButton from '../components/buttons/ExitButton';
 import { ZERO_BN } from '../utils/constants';
 import { useAssetPair } from '../hooks/useAssetPair';
-import { HistoryContext } from '../contexts/HistoryContext';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -58,20 +57,13 @@ const VaultPosition = () => {
     UserContext
   ) as IUserContext;
 
-  const {
-    historyState,
-    historyActions: { updateVaultHistory },
-  } = useContext(HistoryContext);
-
   const { activeAccount: account, assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const _selectedVault = vaultMap.get(idFromUrl);
-
   const vaultBase = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap.get(_selectedVault?.seriesId!);
-
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
   /* TX info (for disabling buttons) */

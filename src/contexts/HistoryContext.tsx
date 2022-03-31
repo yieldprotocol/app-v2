@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useCallback } from 'react';
+import React, { useContext, useReducer, useCallback, useMemo } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
@@ -74,7 +74,6 @@ function historyReducer(state: any, action: any) {
 }
 
 const HistoryProvider = ({ children }: any) => {
-  
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext);
   const {
@@ -87,8 +86,8 @@ const HistoryProvider = ({ children }: any) => {
   const { userState }: { userState: IUserContextState } = useContext(UserContext);
   const { activeAccount: account } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
-  const [ lastSeriesUpdate ] = useCachedState('lastSeriesUpdate', 'earliest');
-  const [ lastVaultUpdate ] = useCachedState('lastVaultUpdate', 'earliest');
+  const [lastSeriesUpdate] = useCachedState('lastSeriesUpdate', 'earliest');
+  const [lastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
 
   const {
     settingsState: { diagnostics },
@@ -105,12 +104,6 @@ const HistoryProvider = ({ children }: any) => {
           const { strategyContract, id, decimals } = strategy;
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
           const _transferOutFilter = strategyContract.filters.Transfer(account);
-
-          // TODO add in start and end events if required
-          // const _startedFilter = strategyContract.filters.PoolStarted(null);
-          // const _endedFilter = strategyContract.filters.PoolEnded(null);
-          // const startEventList = await strategyContract.queryFilter(_startedFilter, 0);
-          // const endEventList = await strategyContract.queryFilter(_endedFilter, 0);
 
           const inEventList = await strategyContract.queryFilter(_transferInFilter, lastSeriesUpdate); // originally 0
           const outEventList = await strategyContract.queryFilter(_transferOutFilter, lastSeriesUpdate); // originally 0
@@ -158,7 +151,11 @@ const HistoryProvider = ({ children }: any) => {
       );
 
       updateState({ type: 'strategyHistory', payload: liqHistMap });
-      diagnostics && console.log('Strategy History updated.');
+      diagnostics &&
+        console.log(
+          'Strategy History updated: ',
+          strategyList.map((s) => s.id)
+        );
     },
 
     [account, diagnostics, fallbackProvider, lastSeriesUpdate]
@@ -232,6 +229,7 @@ const HistoryProvider = ({ children }: any) => {
             eventList
               .filter((log: any) => poolContract.interface.parseLog(log).args.from !== contractMap.get('Ladle')) // TODO make this for any ladle (Past/future)
               .map(async (log: any) => {
+                
                 const { blockNumber, transactionHash } = log;
                 const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
                 const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
@@ -268,8 +266,13 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
 
+      console.log(tradeHistMap);
       updateState({ type: 'tradeHistory', payload: tradeHistMap });
-      diagnostics && console.log('Trade history updated.');
+      diagnostics &&
+        console.log(
+          'Trade history updated: ',
+          seriesList.map((s) => s.id)
+        );
     },
     [account, assetRootMap, contractMap, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
@@ -465,7 +468,11 @@ const HistoryProvider = ({ children }: any) => {
       );
 
       updateState({ type: 'vaultHistory', payload: vaultHistMap });
-      diagnostics && console.log('Vault history updated.');
+      diagnostics &&
+        console.log(
+          'Vault history updated: ',
+          vaultList.map((v) => v.id)
+        );
     },
     [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, diagnostics, lastVaultUpdate, seriesRootMap]
   );
