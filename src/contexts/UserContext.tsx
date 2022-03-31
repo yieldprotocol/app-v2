@@ -75,13 +75,13 @@ function userReducer(state: any, action: any) {
       return { ...state, activeAccount: onlyIfChanged(action) };
 
     case 'assetMap':
-      return { ...state, assetMap: onlyIfChanged(action) };
+      return { ...state, assetMap: new Map( [ ...state.assetMap, ...action.payload] ) };
     case 'seriesMap':
-      return { ...state, seriesMap: onlyIfChanged(action) };
+      return { ...state, seriesMap: new Map( [ ...state.seriesMap, ...action.payload] ) };
     case 'vaultMap':
-      return { ...state, vaultMap: onlyIfChanged(action) };
+      return { ...state, vaultMap: new Map( [ ...state.vaultMap, ...action.payload] ) };
     case 'strategyMap':
-      return { ...state, strategyMap: onlyIfChanged(action) };
+      return { ...state, strategyMap: new Map( [ ...state.strategyMap, ...action.payload] ) };
 
     case 'vaultsLoading':
       return { ...state, vaultsLoading: onlyIfChanged(action) };
@@ -244,20 +244,20 @@ const UserProvider = ({ children }: any) => {
       }
       const _combinedData = _accountData.length ? _accountData : _publicData;
 
-      /* get the previous version (Map) of the vaultMap and update it */
+      /* reduce the asset list into a new map */
       const newAssetMap = new Map(
         _combinedData.reduce((acc: any, item: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.assetMap)
+        }, new Map() )
       );
 
       updateState({ type: 'assetMap', payload: newAssetMap });
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: 'assetsLoading', payload: false });
     },
-    [account, assetRootMap, seriesRootMap]
+    [account, seriesRootMap]
   );
 
   /* Updates the series with relevant *user* data */
@@ -340,7 +340,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, userState.seriesMap)
+        }, new Map() )
       ) as Map<string, ISeries>;
 
       // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
@@ -368,19 +368,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-          // let pairData: IAssetPair;
-          // /* get the asset Pair info if required */
-          // if (!userState.assetPairMap.has(`${vault.baseId}${vault.ilkId}`)) {
-          //   diagnostics && console.log('AssetPairInfo queued for fetching from network');
-          //   await _getAssetPair(vault.baseId, vault.ilkId);
-          //   pairData = userState.assetPairMap.get(`${vault.baseId}${vault.ilkId}`);
-          // } else {
-          //   diagnostics && console.log('AssetPairInfo exists in assetPairMap');
-          //   pairData = await userState.assetPairMap.get(`${vault.baseId}${vault.ilkId}`);
-          // }
-          // const { minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals } = pairData;
-          // diagnostics &&
-          //   console.log(vault.id, minDebtLimit, maxDebtLimit, minRatio, pairTotalDebt, pairPrice, limitDecimals);
 
           /* Get dynamic vault data */
           const [
@@ -446,17 +433,6 @@ const UserProvider = ({ children }: any) => {
             ink_, // for display purposes only
             art_, // for display purposes only
             accruedArt_, // display purposes
-
-            // /* attach extra pairwaise data for convenience */
-            // minDebtLimit,
-            // maxDebtLimit,
-            // minRatio,
-            // pairPrice,
-            // pairTotalDebt,
-            // baseDecimals: baseRoot?.decimals!,
-            // limitDecimals,
-
-            // liquidationPrice_,
           };
         })
       );
@@ -600,7 +576,7 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.address, item);
           return _map;
-        }, userState.strategyMap)
+        }, new Map() )
       );
 
       const combinedMap = newStrategyMap;
