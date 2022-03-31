@@ -66,8 +66,11 @@ const Borrow = () => {
       connection: { chainId },
     },
   } = useContext(ChainContext);
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
+    UserContext
+  ) as IUserContext;
+  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { setSelectedIlk } = userActions;
 
   const {
     settingsState: { diagnostics },
@@ -140,6 +143,7 @@ const Borrow = () => {
     setRenderId(new Date().getTime().toString(36));
   }, []);
   const handleNavAction = (_stepPosition: number) => {
+    _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
     analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
     diagnostics && console.log('nav: ', { screen: 'BORROW', step: _stepPosition, renderId });
@@ -251,7 +255,6 @@ const Borrow = () => {
 
         <CenterPanelWrap series={selectedSeries || undefined}>
           <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
-            
             {stepPosition === 0 && ( // INITIAL STEP
               <Box gap="large">
                 <YieldCardHeader>
