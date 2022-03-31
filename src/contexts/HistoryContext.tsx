@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useCallback } from 'react';
+import React, { useContext, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
@@ -24,14 +24,13 @@ import { useCachedState } from '../hooks/generalHooks';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
-const _inferType = (art: BigNumber, ink: BigNumber) => {
+const _inferTransactionType = (art: BigNumber, ink: BigNumber) => {
   if (art.eq(ZERO_BN)) return ink.gt(ZERO_BN) ? ActionCodes.ADD_COLLATERAL : ActionCodes.REMOVE_COLLATERAL;
   if (art.lt(ZERO_BN)) return ActionCodes.REPAY;
   return ActionCodes.BORROW;
 };
 
 const HistoryContext = React.createContext<any>({});
-
 const initState = {
   historyLoading: true,
   vaultHistory: new Map([]),
@@ -41,7 +40,7 @@ const initState = {
 };
 
 function historyReducer(state: any, action: any) {
-  /* Helper: only change the state if different from existing */ // TODO if even reqd.?
+  /* Helper: only change the state if different from existing */
   const onlyIfChanged = (_action: any) =>
     state[action.type] === _action.payload ? state[action.type] : _action.payload;
 
@@ -52,22 +51,22 @@ function historyReducer(state: any, action: any) {
     case 'tradeHistory':
       return {
         ...state,
-        tradeHistory: action.payload,
+        tradeHistory: new Map([...state.tradeHistory, ...action.payload]),
       };
     case 'poolHistory':
       return {
         ...state,
-        poolHistory: action.payload,
+        poolHistory: new Map([...state.poolHistory, ...action.payload]),
       };
     case 'strategyHistory':
       return {
         ...state,
-        strategyHistory: action.payload,
+        strategyHistory: new Map([...state.strategyHistory, ...action.payload]),
       };
     case 'vaultHistory':
       return {
         ...state,
-        vaultHistory: action.payload,
+        vaultHistory: new Map([...state.vaultHistory, ...action.payload]),
       };
     default:
       return state;
@@ -75,22 +74,19 @@ function historyReducer(state: any, action: any) {
 }
 
 const HistoryProvider = ({ children }: any) => {
+  
   /* STATE FROM CONTEXT */
-  // TODO const [cachedVaults, setCachedVaults] = useCachedState('vaults', { data: [], lastBlock: Number(process.env.REACT_APP_DEPLOY_BLOCK) });
   const { chainState } = useContext(ChainContext);
   const {
     contractMap,
     connection: { fallbackProvider },
     seriesRootMap,
     assetRootMap,
-    chainLoading
-
   } = chainState;
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext);
-  const { activeAccount: account, vaultMap, seriesMap, strategyMap } = userState;
+  const { activeAccount: account } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
-
   const [ lastSeriesUpdate ] = useCachedState('lastSeriesUpdate', 'earliest');
   const [ lastVaultUpdate ] = useCachedState('lastVaultUpdate', 'earliest');
 
@@ -161,12 +157,11 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
 
-      const combinedStrategyMap = new Map([...historyState.strategyHistory, ...liqHistMap]);
-      updateState({ type: 'strategyHistory', payload: combinedStrategyMap });
-      diagnostics && console.log('Strategy History updated: ', combinedStrategyMap);
+      updateState({ type: 'strategyHistory', payload: liqHistMap });
+      diagnostics && console.log('Strategy History updated.');
     },
 
-    [account, fallbackProvider, lastSeriesUpdate]
+    [account, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
 
   /* update Pool Historical data */
@@ -215,9 +210,9 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
       updateState({ type: 'poolHistory', payload: liqHistMap });
-      diagnostics && console.log('Pool History updated: ', liqHistMap);
+      diagnostics && console.log('Pool History updated.');
     },
-    [account, fallbackProvider, lastSeriesUpdate]
+    [account, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
 
   /* update Trading Historical data  */
@@ -273,11 +268,10 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
 
-      const combinedTradeMap = new Map([...historyState.tradeHistory, ...tradeHistMap]);
-      updateState({ type: 'tradeHistory', payload: combinedTradeMap });
-      diagnostics && console.log('Trade history updated: ', combinedTradeMap);
+      updateState({ type: 'tradeHistory', payload: tradeHistMap });
+      diagnostics && console.log('Trade history updated.');
     },
-    [account, assetRootMap, fallbackProvider, historyState.tradeHistory, lastSeriesUpdate]
+    [account, assetRootMap, contractMap, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
 
   /*  Updates VAULT history */
@@ -288,7 +282,6 @@ const HistoryProvider = ({ children }: any) => {
   // event VaultLocked(bytes12 indexed vaultId, uint256 indexed timestamp);
   // event VaultStirred(bytes12 indexed from, bytes12 indexed to, uint128 ink, uint128 art);
   // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
-
   const _parsePourLogs = useCallback(
     (eventList: ethers.Event[], contract: Cauldron, series: ISeries) => {
       const base_ = assetRootMap.get(series?.baseId!);
@@ -311,8 +304,7 @@ const HistoryProvider = ({ children }: any) => {
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           const ilk = assetRootMap.get(ilkId);
 
-          const actionCode = _inferType(art, ink);
-
+          const actionCode = _inferTransactionType(art, ink);
           const tradeApr = calculateAPR(baseTraded.abs(), art.abs(), series?.maturity, date);
 
           let primaryInfo: string = '';
@@ -472,41 +464,11 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
 
-      updateState({ type: 'vaultHistory', payload: new Map([...historyState.vaultHistory, ...vaultHistMap]) });
-      diagnostics && console.log('Vault history updated: ', vaultHistMap);
+      updateState({ type: 'vaultHistory', payload: vaultHistMap });
+      diagnostics && console.log('Vault history updated.');
     },
-    [
-      _parseGivenLogs,
-      _parsePourLogs,
-      _parseRolledLogs,
-      contractMap,
-      diagnostics,
-      historyState.vaultHistory,
-      seriesRootMap,
-      lastVaultUpdate,
-    ]
+    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, diagnostics, lastVaultUpdate, seriesRootMap]
   );
-
-  useEffect(() => {
-    /* When the chainContext is finished loading get the Pool and Trade historical  data */
-    if (account && !chainLoading) {
-      seriesMap.size && updateTradeHistory(Array.from(seriesMap.values()) as ISeries[]);
-    }
-  }, [account, seriesMap, chainLoading]); // updateXHistory omiteed on purpose
-
-  useEffect(() => {
-    /* When the chainContext is finished loading get the Pool and Trade historical  data */
-    if (account && !chainLoading) {
-      strategyMap.size && updateStrategyHistory(Array.from(strategyMap.values()) as IStrategy[]);
-    }
-  }, [account, strategyMap, chainLoading]); // updateXHistory omiteed on purpose
-
-  useEffect(() => {
-    /* When the chainContext is finished loading get the historical data */
-    if (account && !chainLoading) {
-      vaultMap.size && updateVaultHistory(Array.from(vaultMap.values()) as IVault[]);
-    }
-  }, [account, chainLoading, vaultMap]); // updateVaultHisotry omittted on purpose
 
   /* Exposed userActions */
   const historyActions = {
