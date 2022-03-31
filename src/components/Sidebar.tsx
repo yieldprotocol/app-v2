@@ -38,7 +38,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }:
           style={mobile ? { minWidth: undefined, maxWidth: undefined } : { minWidth: '400px', maxWidth: '400px' }}
           onClickOutside={() => setSettingsOpen(false)}
         >
-          <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
+            <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>
       )}
     </>

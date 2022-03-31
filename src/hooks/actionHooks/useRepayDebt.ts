@@ -14,14 +14,13 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calcAccruedDebt, calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
-import { useRemoveCollateral } from './useRemoveCollateral';
+import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { MAX_256, ONE_BN, ZERO_BN } from '../../utils/constants';
 
 export const useRepayDebt = () => {
   const {
@@ -84,10 +83,8 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
-
-    const _inputforClose = vault.art.lt(_input)
-      ? vault.art
-      : calcAccruedDebt(vault.rate, vault.rateAtMaturity, _input)[1]; // this is the input value less the accrued amount.
+    
+    const _inputforClose = (vault.accruedArt.gt(ZERO_BN) && vault.accruedArt.lte(_input)) ? vault.accruedArt : _input;
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
@@ -108,12 +105,19 @@ export const useRepayDebt = () => {
       reclaimToAddress = ladleAddress;
     }
 
-    const alreadyApproved = (
+    const alreadyApproved = !series.seriesIsMature && (
       await base.getAllowance(
         account!,
-        series.seriesIsMature || inputGreaterThanMaxBaseIn ? base.joinAddress : ladleAddress
+       inputGreaterThanMaxBaseIn ? base.joinAddress : ladleAddress
       )
     ).gte(_input);
+
+    const alreadyApprovedPostMaturity =  series.seriesIsMature && (
+      await base.getAllowance(
+        account!,
+       base.joinAddress
+      )
+    ).gte(_inputforClose.mul(2));
 
     const permits: ICallData[] = await sign(
       [
@@ -135,8 +139,8 @@ export const useRepayDebt = () => {
           // after maturity
           target: base,
           spender: base.joinAddress,
-          amount: _input,
-          ignoreIf: !series.seriesIsMature || alreadyApproved === true ,
+          amount: MAX_256,
+          ignoreIf: !series.seriesIsMature || alreadyApprovedPostMaturity === true,
         },
       ],
       txCode
