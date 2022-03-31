@@ -9,7 +9,7 @@ import { useConnection } from '../hooks/useConnection';
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { ASSET_INFO, ETH_BASED_ASSETS, yvUSDC } from '../config/assets';
+import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN, yvUSDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
 import DaiMark from '../components/logos/DaiMark';
@@ -271,7 +271,7 @@ const ChainProvider = ({ children }: any) => {
             setAllowance = async (spender: string) => {
               console.log(spender);
               console.log(asset.address);
-              assetContract.setApprovalForAll(spender, true );
+              assetContract.setApprovalForAll(spender, true);
             };
             break;
 
@@ -323,7 +323,9 @@ const ChainProvider = ({ children }: any) => {
             const { assetId: id, asset: address } = x;
 
             /* Get the basic hardcoded token info */
-            const assetInfo = ASSET_INFO.get(id) as IAssetInfo;
+            const assetInfo = ASSET_INFO.has(id)
+              ? (ASSET_INFO.get(id) as IAssetInfo)
+              : (ASSET_INFO.get(UNKNOWN) as IAssetInfo);
             let { name, symbol, decimals, version } = assetInfo;
 
             /* On first load Checks/Corrects the ERC20 name/symbol/decimals  (if possible ) */
@@ -356,8 +358,7 @@ const ChainProvider = ({ children }: any) => {
               }
             }
 
-
-            const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id 
+            const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id
 
             const newAsset = {
               ...assetInfo,

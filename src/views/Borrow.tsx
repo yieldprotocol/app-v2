@@ -147,7 +147,7 @@ const Borrow = () => {
   }, []);
 
   const handleNavAction = (_stepPosition: number) => {
-    _stepPosition === 0 && setSelectedIlk( assetMap.get('0x303000000000')! );
+    _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
     analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
   };

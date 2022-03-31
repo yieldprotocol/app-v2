@@ -228,7 +228,7 @@ const UserProvider = ({ children }: any) => {
         try {
           _accountData = await Promise.all(
             _publicData.map(async (asset: IAssetRoot): Promise<IAsset> => {
-              const balance = asset.name !== 'UNKOWN' ? await asset.getBalance(account) : ZERO_BN;
+              const balance = asset.name !== 'UNKNOWN' ? await asset.getBalance(account) : ZERO_BN;
               return {
                 ...asset,
                 balance: balance || ethers.constants.Zero,
