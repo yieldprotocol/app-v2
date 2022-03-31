@@ -1,9 +1,8 @@
-import React, { useReducer, useEffect, useState, useContext } from 'react';
+import React, { useReducer, useEffect, useContext } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
 import { analyticsLogEvent } from '../utils/appUtils';
-import { UserContext } from './UserContext';
 import { ChainContext } from './ChainContext';
 
 const TxContext = React.createContext<any>({});
@@ -107,9 +106,6 @@ const TxProvider = ({ children }: any) => {
 
   const { chainState } = useContext(ChainContext);
   const { connection : { chainId } } = chainState;
-
-  const { userState } = useContext(UserContext);
-  const { activeAccount: account } = userState;
 
   const _resetProcess = (txCode: string) => updateState({ type: 'resetProcess', payload: txCode });
 
