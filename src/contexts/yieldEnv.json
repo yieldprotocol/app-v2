@@ -7,13 +7,13 @@
       "ChainlinkMultiOracle": "0xcDCe5C87f691058B61f3A65913f1a3cBCbAd9F52",
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061",
-      
+
       "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
-      
+
       "NotionalMultiOracle": "0x660bB2F1De01AacA46FCD8004e852234Cf65F3fb",
       "transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
-      
+
       "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA"
     },
     "4": {
@@ -23,7 +23,7 @@
       "ChainlinkMultiOracle": "0xACD6af7bf3555C63686952C65b4a1D5E51c4586b",
       "CompositeMultiOracle": "0x577DA88C253095b874941dda194a6c59489E644f",
       "Witch": "0x92C0aa4922444E6D5a6dFE365Ea1D106Bd9279E2",
-      
+
       "lidoWrapHandler": "0x80d0CfceE7dfa135189e44d617032d5A7Cc2705b",
       "YearnVaultMultiOracle": "0x88175a3e14F905ecCe464aF2A8E99f26159d4Cb8",
 
@@ -31,7 +31,6 @@
       "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF",
 
       "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
-
     },
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
@@ -51,7 +50,6 @@
       "AccumulatorOracle": "0xbBB7870227750119ab1f230c8785Be8C4e0C5f1A",
       "Witch": "0xf8eD39321927F5fae30EC33311F1fe596078ccbD",
       "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
-
     },
     "42161": {
       "Cauldron": "0x23cc87FBEBDD67ccE167Fa9Ec6Ad3b7fE3892E30",
@@ -60,7 +58,6 @@
       "AccumulatorOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
       "Witch": "0x08173D0885B00BDD640aaE57D05AbB74cd00d669",
       "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
-
     }
   },
 
@@ -69,7 +66,9 @@
       "0x7ACFe277dEd15CabA6a8Da2972b1eb93fe1e2cCD",
       "0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295",
       "0xFBc322415CBC532b54749E31979a803009516b5D",
-      "0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39"
+      "0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39",
+      "0xcf30A5A994f9aCe5832e30C138C9697cda5E1247",
+      "0x831dF23f7278575BA0b136296a285600cD75d076"
     ],
     "4": [
       "0x3b496A74A44014Fa13278E4664815F3C2f7B3D4D",

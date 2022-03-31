@@ -17,6 +17,9 @@ export const MKR = '0x313100000000';
 export const FDAI2203 = '0x313200000000';
 export const FUSDC2203 = '0x313300000000';
 
+export const FDAI2206 = '0x313400000000';
+export const FUSDC2206 = '0x313500000000';
+
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
@@ -35,6 +38,10 @@ export const NON_PERMIT_ASSETS = [
   'FDAI2203',
   FUSDC2203,
   'FUSDC2203',
+  FDAI2206,
+  'FDAI2206',
+  FUSDC2206,
+  'FUSDC2206',
 ];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
@@ -64,7 +71,7 @@ ASSET_INFO.set(DAI, {
 });
 
 ASSET_INFO.set(USDC, {
-  version: '2',
+  version: '1',
   name: 'USDC Stable coin',
   decimals: 18,
   symbol: 'USDC',
@@ -168,7 +175,7 @@ ASSET_INFO.set(yvUSDC, {
   color: '#3366CC',
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303230350000', '0x303230360000'],
+  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000' ],
 });
 
 ASSET_INFO.set(UNI, {
@@ -221,4 +228,32 @@ ASSET_INFO.set(FUSDC2203, {
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844846949203969,
   limitToSeries: ['0x303230350000']
+});
+
+ASSET_INFO.set(FDAI2206, {
+  version: '1',
+  name: 'FDAI2206',
+  decimals: 8,
+  symbol: 'FDAI2206',
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563373963149313,
+  limitToSeries: ['0x303130360000']
+});
+
+ASSET_INFO.set(FUSDC2206, {
+  version: '1',
+  name: 'FUSDC2206',
+  decimals: 8,
+  symbol: 'FUSDC2206',
+  showToken: false,
+  isWrappedToken: false,
+  color: '#FF007A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844848939859969,
+  limitToSeries: ['0x303230360000']
 });
