@@ -60,11 +60,11 @@ export const useCollateralHelpers = (
       setMinCollatRatioPct(Math.round(assetPairInfo.minRatio * 100).toString());
 
       /* set min safe coll ratio */
-      const _minSafe = () => {
-        if (assetPairInfo.minRatio >= 1.4) return assetPairInfo.minRatio + 1;
-        if (assetPairInfo.minRatio === 1) return 1;
-        return 1.5;
-      };
+      const _minSafe = () => { 
+        if (assetPairInfo.minRatio >= 1.4) return assetPairInfo.minRatio + 1
+        if (assetPairInfo.minRatio === 1) return 1 
+        return assetPairInfo.minRatio
+      }
 
       setMinSafeCollatRatio(_minSafe());
       setMinSafeCollatRatioPct((_minSafe() * 100).toString());
