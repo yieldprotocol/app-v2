@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, BoxTypes } from 'grommet';
 
 interface IPanelWrap extends BoxTypes {

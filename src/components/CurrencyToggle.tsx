@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
@@ -16,11 +16,11 @@ const CurrencyToggle = () => {
         pad="small"
         // border={dashCurrency === 'USDC' ? undefined : { color: 'lightgrey' }}
         background={dashCurrency === 'USDC' ? 'gradient-transparent' : undefined}
-        round={{ corner: 'left'  }}
+        round={{ corner: 'left' }}
         onClick={() => updateSetting('dashCurrency', 'USDC')}
         align="center"
         justify="center"
-        elevation={dashCurrency === 'USDC' ? 'xsmall': 'small' }
+        elevation={dashCurrency === 'USDC' ? 'xsmall' : 'small'}
       >
         <Text size="xsmall">USD</Text>
       </Box>
@@ -33,7 +33,7 @@ const CurrencyToggle = () => {
         onClick={() => updateSetting('dashCurrency', 'ETH')}
         align="center"
         justify="center"
-        elevation={dashCurrency === 'ETH' ? 'xsmall': 'small' }
+        elevation={dashCurrency === 'ETH' ? 'xsmall' : 'small'}
       >
         <Text size="xsmall">ETH</Text>
       </Box>

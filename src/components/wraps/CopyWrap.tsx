@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box } from 'grommet';
 import { FiCheckCircle as Check, FiCopy as Copy } from 'react-icons/fi';
 import { copyToClipboard } from '../../utils/appUtils';

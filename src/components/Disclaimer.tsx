@@ -1,4 +1,3 @@
-import React from 'react';
 import { Anchor, Box, CheckBox, Text } from 'grommet';
 import SectionWrap from './wraps/SectionWrap';
 

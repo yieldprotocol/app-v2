@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Text } from 'grommet';
 import styled from 'styled-components';
 
@@ -17,7 +16,7 @@ interface IDashPosition {
   strategyBalance?: string | null;
   actionType: ActionType;
   positions: (ISeries | IVault | IStrategy)[];
-  showList:boolean;
+  showList: boolean;
 }
 
 const DashboardPositionList = ({
@@ -37,7 +36,7 @@ const DashboardPositionList = ({
     actionType={actionType}
     showList={showList}
   >
-    <StyledBox gap="small" pad='medium'>
+    <StyledBox gap="small" pad="medium">
       {positions.length === 0 && (
         <Text weight={450} size="small">
           No suggested positions

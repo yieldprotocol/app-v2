@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Spinner, Text, ThemeContext } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';

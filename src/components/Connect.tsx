@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Box, Button, ResponsiveContext, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';

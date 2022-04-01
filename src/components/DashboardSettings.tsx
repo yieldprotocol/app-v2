@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Button, DropButton, Text, Box } from 'grommet';
 import { FiMoreVertical } from 'react-icons/fi';
 import { ActionType } from '../types';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box } from 'grommet';
 import styled from 'styled-components';
 
@@ -24,7 +23,7 @@ function ItemWrap({ action, index, children }: { children: any; index: number; a
       elevation="xsmall"
       flex={false}
       fill="horizontal"
-      background='lightBackground'
+      background="lightBackground"
     >
       {children}
     </StyledBox>

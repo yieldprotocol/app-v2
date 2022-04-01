@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
@@ -8,7 +8,6 @@ import { IStrategy, IUserContext, IUserContextState } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
-
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
@@ -44,7 +43,7 @@ function StrategyPositionSelector() {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box gap='small' >
+        <Box gap="small">
           <Box
             animation="fadeIn"
             justify="between"

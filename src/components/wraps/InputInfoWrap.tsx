@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Box, ThemeContext } from 'grommet';
 import { FiInfo, FiPlayCircle } from 'react-icons/fi';
 import BoxWrap from './BoxWrap';

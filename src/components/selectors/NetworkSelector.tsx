@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Box, Select, Text } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
 import { CHAIN_INFO } from '../../config/chainData';

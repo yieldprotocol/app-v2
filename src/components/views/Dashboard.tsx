@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import Skeleton from '../wraps/SkeletonWrap';

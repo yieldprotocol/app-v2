@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Box, Text } from 'grommet';
 import { FiExternalLink } from 'react-icons/fi';
 import styled from 'styled-components';

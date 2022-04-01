@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { forwardRef, useContext, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
@@ -52,7 +52,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   } = useContext(ChainContext) as IChainContext;
 
   // eslint-disable-next-line react/display-name
-  const YieldAvatar = React.forwardRef(({ onClick, href }: any, ref: any) => (
+  const YieldAvatar = forwardRef(({ onClick, href }: any, ref: any) => (
     <a href={href} onClick={onClick} ref={ref}>
       <StyledAvatar
         background="hoverBackground"

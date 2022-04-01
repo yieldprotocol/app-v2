@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Box, Collapsible, Text } from 'grommet';
 import Skeleton from 'react-loading-skeleton';
 import { HistoryContext } from '../contexts/HistoryContext';
@@ -26,7 +26,6 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   const [histLoading, setHistLoading] = useState<boolean>(true);
 
   useEffect(() => {
-
     if (view.includes('VAULT')) {
       vaultHistory.has(seriesOrVault.id)
         ? setHistList(vaultHistory.get(seriesOrVault.id))
@@ -56,13 +55,12 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
             setHistLoading(false);
           })();
     }
-
   }, [seriesOrVault, strategyHistory, tradeHistory, vaultHistory, view]);
 
   return (
     <Box margin={{ top: 'medium' }} height={{ max: '200px' }} style={{ overflow: 'auto' }}>
-      { histLoading && !histList.length ? (
-        <Box pad='small'>
+      {histLoading && !histList.length ? (
+        <Box pad="small">
           <Skeleton />
           <Skeleton />
           <Skeleton />

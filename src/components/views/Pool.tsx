@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Tip } from 'grommet';
 import { FiInfo, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';

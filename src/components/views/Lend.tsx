@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { Box, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';

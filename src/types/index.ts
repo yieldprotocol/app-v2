@@ -1,5 +1,4 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
-import React from 'react';
 import { ERC1155, ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';

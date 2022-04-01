@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Box, Button, Layer, Text } from 'grommet';
 import { FiAlertCircle } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
