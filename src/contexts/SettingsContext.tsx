@@ -114,9 +114,13 @@ const SettingsProvider = ({ children }: any) => {
 
   /* Update all settings in state based on localStorage */
   useEffect(() => {
-    Object.values(SettingsState).forEach((setting) => {
-      updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)) });
-    });
+    if (typeof window !== 'undefined') {
+      Object.values(SettingsState).forEach((setting) => {
+        if (JSON.parse(localStorage.getItem(setting))) {
+          updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)) });
+        }
+      });
+    }
   }, []);
 
   return <SettingsContext.Provider value={{ settingsState, settingsActions }}>{children}</SettingsContext.Provider>;

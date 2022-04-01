@@ -2,11 +2,10 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 
 /* Simple Hook for caching & retrieved data */
 export const useCachedState = (key: string, initialValue: any, account?: string) => {
-  const genKey = account ? `${account}_${key}` : key;
-  const [storedValue, setStoredValue] = useState(() => {
+  const getValue = () => {
     try {
       if (typeof window !== 'undefined') {
-        const item = window.localStorage.getItem(genKey);
+        const item = localStorage.getItem(genKey);
         /* Parse stored json or if none, return initialValue */
         return item ? JSON.parse(item) : initialValue;
       }
@@ -15,14 +14,18 @@ export const useCachedState = (key: string, initialValue: any, account?: string)
       return initialValue;
     }
     return initialValue;
-  });
+  };
+
+  const genKey = account ? `${account}_${key}` : key;
+  const [storedValue, setStoredValue] = useState(() => getValue());
+
   const setValue = (value: any) => {
     try {
       if (typeof window !== 'undefined') {
         // For same API as useState
         const valueToStore = value instanceof Function ? value(storedValue) : value;
         setStoredValue(valueToStore);
-        window.localStorage.setItem(genKey, JSON.stringify(valueToStore));
+        localStorage.setItem(genKey, JSON.stringify(valueToStore));
       }
     } catch (error) {
       // TODO: handle the error cases needs work
@@ -30,7 +33,12 @@ export const useCachedState = (key: string, initialValue: any, account?: string)
       console.log(error);
     }
   };
-  const clearAll = () => typeof window !== 'undefined' && window.localStorage.clear();
+
+  const clearAll = () => typeof window !== 'undefined' && localStorage.clear();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') localStorage.setItem(genKey, storedValue);
+  }, [genKey, storedValue]);
 
   return [storedValue, setValue, clearAll] as const;
 };
