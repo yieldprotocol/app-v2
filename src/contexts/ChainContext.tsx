@@ -46,6 +46,16 @@ const markMap = new Map([
   ['Notional', <NotionalMark color={ASSET_INFO?.get(yvUSDC)!.color} key="notional" />],
 ]);
 
+enum ChainState {
+  CHAIN_LOADING = 'chainLoading',
+  APP_VERSION = 'appVersion',
+  CONNECTION = 'connection',
+  CONTRACT_MAP = 'contractMap',
+  ADD_SERIES = 'addSeries',
+  ADD_ASSET = 'addAsset',
+  ADD_STRATEGY = 'addStrategy',
+}
+
 /* Build the context */
 const ChainContext = React.createContext<any>({});
 
@@ -82,31 +92,31 @@ function chainReducer(state: any, action: any) {
 
   /* Reducer switch */
   switch (action.type) {
-    case 'chainLoading':
+    case ChainState.CHAIN_LOADING:
       return { ...state, chainLoading: onlyIfChanged(action) };
 
-    case 'appVersion':
+    case ChainState.APP_VERSION:
       return { ...state, appVersion: onlyIfChanged(action) };
 
-    case 'connection':
+    case ChainState.CONNECTION:
       return { ...state, connection: onlyIfChanged(action) };
 
-    case 'contractMap':
+    case ChainState.CONTRACT_MAP:
       return { ...state, contractMap: onlyIfChanged(action) };
 
-    case 'addSeries':
+    case ChainState.ADD_SERIES:
       return {
         ...state,
         seriesRootMap: state.seriesRootMap.set(action.payload.id, action.payload),
       };
 
-    case 'addAsset':
+    case ChainState.ADD_ASSET:
       return {
         ...state,
         assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
       };
 
-    case 'addStrategy':
+    case ChainState.ADD_STRATEGY:
       return {
         ...state,
         strategyRootMap: state.strategyRootMap.set(action.payload.address, action.payload),
@@ -240,7 +250,7 @@ const ChainProvider = ({ children }: any) => {
       // modules
       newContractMap.set('WrapEtherModule', WrapEtherModule);
 
-      updateState({ type: 'contractMap', payload: newContractMap });
+      updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = (yieldEnv.strategies as any)[fallbackChainId];
@@ -379,7 +389,7 @@ const ChainProvider = ({ children }: any) => {
             };
 
             // Update state and cache
-            updateState({ type: 'addAsset', payload: _chargeAsset(newAsset) });
+            updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
             newAssetList.push(newAsset);
           })
         );
@@ -502,7 +512,7 @@ const ChainProvider = ({ children }: any) => {
                   g1,
                   g2,
                 };
-                updateState({ type: 'addSeries', payload: _chargeSeries(newSeries) });
+                updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
               }
             })
@@ -552,7 +562,7 @@ const ChainProvider = ({ children }: any) => {
                   decimals,
                 };
                 // update state and cache
-                updateState({ type: 'addStrategy', payload: _chargeStrategy(newStrategy) });
+                updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
                 newStrategyList.push(newStrategy);
               }
             })
@@ -572,20 +582,20 @@ const ChainProvider = ({ children }: any) => {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
           await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
-          updateState({ type: 'chainLoading', payload: false });
+          updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
       } else {
         // get assets, series and strategies from cache and 'charge' them, and add to state:
         cachedAssets.forEach((a: IAssetRoot) => {
-          updateState({ type: 'addAsset', payload: _chargeAsset(a) });
+          updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
         });
         cachedSeries.forEach((s: ISeriesRoot) => {
-          updateState({ type: 'addSeries', payload: _chargeSeries(s) });
+          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
-          updateState({ type: 'addStrategy', payload: _chargeStrategy(st) });
+          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
-        updateState({ type: 'chainLoading', payload: false });
+        updateState({ type: ChainState.CHAIN_LOADING, payload: false });
 
         console.log('Checking for new Assets and Series, and Strategies ...');
         // then async check for any updates (they should automatically populate the map):
@@ -625,7 +635,7 @@ const ChainProvider = ({ children }: any) => {
    */
   useEffect(() => {
     updateState({
-      type: 'connection',
+      type: ChainState.CONNECTION,
       payload: connectionState,
     });
   }, [
