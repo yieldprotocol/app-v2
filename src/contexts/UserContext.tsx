@@ -35,6 +35,24 @@ import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 
+enum UserState {
+  USER_LOADING = 'userLoading',
+  ACTIVE_ACCOUNT = 'activeAccount',
+  ASSET_MAP = 'assetMap',
+  SERIES_MAP = 'seriesMap',
+  VAULT_MAP = 'vaultMap',
+  STRATEGY_MAP = 'strategyMap',
+  VAULTS_LOADING = 'vaultsLoading',
+  SERIES_LOADING = 'seriesLoading',
+  ASSETS_LOADING = 'assetsLoading',
+  STRATEGIES_LOADING = 'strategiesLoading',
+  SELECTED_VAULT = 'selectedVault',
+  SELECTED_SERIES = 'selectedSeries',
+  SELECTED_ILK = 'selectedIlk',
+  SELECTED_BASE = 'selectedBase',
+  SELECTED_STRATEGY = 'selectedStrategy',
+}
+
 const UserContext = React.createContext<any>({});
 
 const initState: IUserContextState = {
@@ -68,39 +86,39 @@ function userReducer(state: any, action: any) {
 
   /* Reducer switch */
   switch (action.type) {
-    case 'userLoading':
+    case UserState.USER_LOADING:
       return { ...state, userLoading: onlyIfChanged(action) };
 
-    case 'activeAccount':
+    case UserState.ACTIVE_ACCOUNT:
       return { ...state, activeAccount: onlyIfChanged(action) };
 
-    case 'assetMap':
-      return { ...state, assetMap: new Map( [ ...state.assetMap, ...action.payload] ) };
-    case 'seriesMap':
-      return { ...state, seriesMap: new Map( [ ...state.seriesMap, ...action.payload] ) };
-    case 'vaultMap':
-      return { ...state, vaultMap: new Map( [ ...state.vaultMap, ...action.payload] ) };
-    case 'strategyMap':
-      return { ...state, strategyMap: new Map( [ ...state.strategyMap, ...action.payload] ) };
+    case UserState.ASSET_MAP:
+      return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
+    case UserState.SERIES_MAP:
+      return { ...state, seriesMap: new Map([...state.seriesMap, ...action.payload]) };
+    case UserState.VAULT_MAP:
+      return { ...state, vaultMap: new Map([...state.vaultMap, ...action.payload]) };
+    case UserState.STRATEGY_MAP:
+      return { ...state, strategyMap: new Map([...state.strategyMap, ...action.payload]) };
 
-    case 'vaultsLoading':
+    case UserState.VAULTS_LOADING:
       return { ...state, vaultsLoading: onlyIfChanged(action) };
-    case 'seriesLoading':
+    case UserState.SERIES_LOADING:
       return { ...state, seriesLoading: onlyIfChanged(action) };
-    case 'assetsLoading':
+    case UserState.ASSETS_LOADING:
       return { ...state, assetsLoading: onlyIfChanged(action) };
-    case 'strategiesLoading':
+    case UserState.STRATEGIES_LOADING:
       return { ...state, strategiesLoading: onlyIfChanged(action) };
 
-    case 'selectedVault':
+    case UserState.SELECTED_VAULT:
       return { ...state, selectedVault: action.payload };
-    case 'selectedSeries':
+    case UserState.SELECTED_SERIES:
       return { ...state, selectedSeries: action.payload };
-    case 'selectedIlk':
+    case UserState.SELECTED_ILK:
       return { ...state, selectedIlk: action.payload };
-    case 'selectedBase':
+    case UserState.SELECTED_BASE:
       return { ...state, selectedBase: action.payload };
-    case 'selectedStrategy':
+    case UserState.SELECTED_STRATEGY:
       return { ...state, selectedStrategy: action.payload };
 
     default:
@@ -250,12 +268,12 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, new Map() )
+        }, new Map())
       );
 
-      updateState({ type: 'assetMap', payload: newAssetMap });
+      updateState({ type: UserState.ASSET_MAP, payload: newAssetMap });
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
-      updateState({ type: 'assetsLoading', payload: false });
+      updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
     [account, seriesRootMap]
   );
@@ -263,7 +281,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
     async (seriesList: ISeriesRoot[]): Promise<Map<string, ISeries>> => {
-      updateState({ type: 'seriesLoading', payload: true });
+      updateState({ type: UserState.SERIES_LOADING, payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];
 
@@ -340,13 +358,13 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
-        }, new Map() )
+        }, new Map())
       ) as Map<string, ISeries>;
 
       // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
-      updateState({ type: 'seriesMap', payload: newSeriesMap });
+      updateState({ type: UserState.SERIES_MAP, payload: newSeriesMap });
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
-      updateState({ type: 'seriesLoading', payload: false });
+      updateState({ type: UserState.SERIES_LOADING, payload: false });
 
       return newSeriesMap;
     },
@@ -356,7 +374,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[]) => {
-      updateState({ type: 'vaultsLoading', payload: true });
+      updateState({ type: UserState.VAULTS_LOADING, payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
       const Witch = contractMap.get('Witch');
@@ -368,7 +386,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic vault data by mapping the vaults list */
       const vaultListMod = await Promise.all(
         _vaultList.map(async (vault: IVaultRoot): Promise<IVault> => {
-
           /* Get dynamic vault data */
           const [
             { ink, art },
@@ -450,9 +467,9 @@ const UserProvider = ({ children }: any) => {
       const combinedVaultMap = vaultList.length > 0 ? new Map([...userState.vaultMap, ...newVaultMap]) : newVaultMap;
 
       /* update state */
-      updateState({ type: 'vaultMap', payload: combinedVaultMap });
-      vaultFromUrl && updateState({ type: 'selectedVault', payload: vaultFromUrl });
-      updateState({ type: 'vaultsLoading', payload: false });
+      updateState({ type: UserState.VAULT_MAP, payload: combinedVaultMap });
+      vaultFromUrl && updateState({ type: UserState.SELECTED_VAULT, payload: vaultFromUrl });
+      updateState({ type: UserState.VAULTS_LOADING, payload: false });
 
       /* Update the local cache storage */
       setLastVaultUpdate('earliest');
@@ -477,7 +494,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
-      updateState({ type: 'strategiesLoading', payload: true });
+      updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
 
@@ -576,13 +593,13 @@ const UserProvider = ({ children }: any) => {
           const _map = acc;
           _map.set(item.address, item);
           return _map;
-        }, new Map() )
+        }, new Map())
       );
 
       const combinedMap = newStrategyMap;
 
-      updateState({ type: 'strategyMap', payload: combinedMap });
-      updateState({ type: 'strategiesLoading', payload: false });
+      updateState({ type: UserState.STRATEGY_MAP, payload: combinedMap });
+      updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
 
       console.log('STRATEGIES updated (with dynamic data): ', combinedMap);
 
@@ -612,7 +629,7 @@ const UserProvider = ({ children }: any) => {
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
-    updateState({ type: 'activeAccount', payload: account });
+    updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
   /* Exposed userActions */
@@ -622,15 +639,24 @@ const UserProvider = ({ children }: any) => {
     updateVaults,
     updateStrategies,
 
-    setSelectedVault: useCallback((vault: IVault | null) => updateState({ type: 'selectedVault', payload: vault }), []),
-    setSelectedIlk: useCallback((asset: IAsset | null) => updateState({ type: 'selectedIlk', payload: asset }), []),
-    setSelectedSeries: useCallback(
-      (series: ISeries | null) => updateState({ type: 'selectedSeries', payload: series }),
+    setSelectedVault: useCallback(
+      (vault: IVault | null) => updateState({ type: UserState.SELECTED_VAULT, payload: vault }),
       []
     ),
-    setSelectedBase: useCallback((asset: IAsset | null) => updateState({ type: 'selectedBase', payload: asset }), []),
+    setSelectedIlk: useCallback(
+      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_ILK, payload: asset }),
+      []
+    ),
+    setSelectedSeries: useCallback(
+      (series: ISeries | null) => updateState({ type: UserState.SELECTED_SERIES, payload: series }),
+      []
+    ),
+    setSelectedBase: useCallback(
+      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_BASE, payload: asset }),
+      []
+    ),
     setSelectedStrategy: useCallback(
-      (strategy: IStrategy | null) => updateState({ type: 'selectedStrategy', payload: strategy }),
+      (strategy: IStrategy | null) => updateState({ type: UserState.SELECTED_STRATEGY, payload: strategy }),
       []
     ),
   };
