@@ -158,7 +158,7 @@ const ChainProvider = ({ children }: any) => {
 
       let Cauldron: contracts.Cauldron;
       let Ladle: contracts.Ladle;
-      let RateOracle: any;
+      let RateOracle: contracts.CompoundMultiOracle | contracts.AccumulatorOracle;
       let ChainlinkMultiOracle: contracts.ChainlinkMultiOracle;
       let CompositeMultiOracle: contracts.CompositeMultiOracle;
       let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
