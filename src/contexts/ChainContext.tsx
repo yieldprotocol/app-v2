@@ -85,7 +85,7 @@ const initState: IChainContextState = {
   strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
-function chainReducer(state: any, action: any) {
+function chainReducer(state: IChainContextState, action: any) {
   /* Helper: only change the state if different from existing */
   const onlyIfChanged = (_action: any) =>
     state[action.type] === _action.payload ? state[action.type] : _action.payload;
