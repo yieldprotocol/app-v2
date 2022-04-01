@@ -43,7 +43,7 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
           .filter((asset) => asset.showToken)
           .filter((asset) => asset.balance.gt(ZERO_BN))
           .map((asset) => (
-            <TableRow key={asset.address}>
+            <TableRow key={asset.id}>
               <StyledTableCell plain>
                 <Text size="medium">{asset.image}</Text>
               </StyledTableCell>
