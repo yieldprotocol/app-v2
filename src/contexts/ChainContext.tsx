@@ -156,24 +156,24 @@ const ChainProvider = ({ children }: any) => {
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
       const seasonColorMap = [1, 4, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
 
-      let Cauldron: any;
-      let Ladle: any;
+      let Cauldron: contracts.Cauldron;
+      let Ladle: contracts.Ladle;
       let RateOracle: any;
-      let ChainlinkMultiOracle: any;
-      let CompositeMultiOracle: any;
-      let YearnVaultMultiOracle: any;
-      let Witch: any;
-      let LidoWrapHandler: any;
+      let ChainlinkMultiOracle: contracts.ChainlinkMultiOracle;
+      let CompositeMultiOracle: contracts.CompositeMultiOracle;
+      let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
+      let Witch: contracts.Witch;
+      let LidoWrapHandler: contracts.LidoWrapHandler;
 
       // modules
-      let WrapEtherModule: any;
+      let WrapEtherModule: contracts.WrapEtherModule;
 
       // Notional
-      let NotionalMultiOracle: any;
+      let NotionalMultiOracle: contracts.NotionalMultiOracle;
 
       // arbitrum
-      let ChainlinkUSDOracle: any;
-      let AccumulatorOracle: any;
+      let ChainlinkUSDOracle: contracts.ChainlinkUSDOracle;
+      let AccumulatorOracle: contracts.AccumulatorOracle;
 
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
