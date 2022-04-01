@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import { useRouter } from 'next/router';
+import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { useHistory } from 'react-router-dom';
 import { ChainContext } from '../../contexts/ChainContext';
 
 function DashMobileButton({ transparent }: { transparent?: boolean }) {
-  const routerHistory = useHistory();
+  const router = useRouter();
   const {
     chainState: {
       connection: { account },
@@ -16,7 +16,7 @@ function DashMobileButton({ transparent }: { transparent?: boolean }) {
       align="center"
       direction="row"
       elevation="small"
-      onClick={() => routerHistory.push(`/dashboard`)}
+      onClick={() => router.push(`/dashboard`)}
       background={transparent ? 'gradient-transparent' : 'gradient'}
       pad="xsmall"
       round

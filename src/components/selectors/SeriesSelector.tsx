@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import styled from 'styled-components';
 import { ActionType, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { maxBaseIn, maxBaseOut } from '../../utils/yieldMath';
+import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -122,7 +122,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault, assetMap } = userState;
+  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -158,11 +158,10 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     const opts = Array.from(seriesMap.values());
 
     /* filter out options based on base Id and if mature */
-    let filteredOpts = opts
-      .filter(
-        (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
-        // !ignoredSeries?.includes(_series.baseId)
-      )
+    let filteredOpts = opts.filter(
+      (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
+      // !ignoredSeries?.includes(_series.baseId)
+    );
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {

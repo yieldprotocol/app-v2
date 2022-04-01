@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { arc } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 

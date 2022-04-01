@@ -5,27 +5,32 @@ export const useCachedState = (key: string, initialValue: any, account?: string)
   const genKey = account ? `${account}_${key}` : key;
   const [storedValue, setStoredValue] = useState(() => {
     try {
-      const item = window.localStorage.getItem(genKey);
-      /* Parse stored json or if none, return initialValue */
-      return item ? JSON.parse(item) : initialValue;
+      if (typeof window !== 'undefined') {
+        const item = window.localStorage.getItem(genKey);
+        /* Parse stored json or if none, return initialValue */
+        return item ? JSON.parse(item) : initialValue;
+      }
     } catch (error) {
       // If error also return initialValue and handle error - needs work
       return initialValue;
     }
+    return initialValue;
   });
   const setValue = (value: any) => {
     try {
-      // For same API as useState
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(genKey, JSON.stringify(valueToStore));
+      if (typeof window !== 'undefined') {
+        // For same API as useState
+        const valueToStore = value instanceof Function ? value(storedValue) : value;
+        setStoredValue(valueToStore);
+        window.localStorage.setItem(genKey, JSON.stringify(valueToStore));
+      }
     } catch (error) {
       // TODO: handle the error cases needs work
       // eslint-disable-next-line no-console
       console.log(error);
     }
   };
-  const clearAll = () => window.localStorage.clear();
+  const clearAll = () => typeof window !== 'undefined' && window.localStorage.clear();
 
   return [storedValue, setValue, clearAll] as const;
 };
@@ -76,17 +81,19 @@ export const useTimeout = (
 };
 
 export const useWindowSize = () => {
-  const [width, setWidth] = useState<number>(window.innerWidth);
-  const [height, setHeight] = useState<number>(window.innerHeight);
+  const [width, setWidth] = useState<number>(typeof window !== 'undefined' && window.innerWidth);
+  const [height, setHeight] = useState<number>(typeof window !== 'undefined' && window.innerHeight);
 
-  window.addEventListener(
-    'resize',
-    () => {
-      setWidth(window.innerWidth);
-      setHeight(window.innerHeight);
-    },
-    true
-  );
+  if (typeof window !== 'undefined') {
+    window.addEventListener(
+      'resize',
+      () => {
+        setWidth(window.innerWidth);
+        setHeight(window.innerHeight);
+      },
+      true
+    );
+  }
   return [height, width];
 };
 

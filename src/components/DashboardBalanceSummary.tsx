@@ -6,7 +6,6 @@ import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import { IUserContext } from '../types';
-import { PriceContext } from '../contexts/PriceContext';
 
 interface IDashboardBalance {
   debt: string;
@@ -32,86 +31,82 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
 
   return (
     <Box>
-        <Box gap="small" >
-          <Box direction="row-responsive"  justify="between">
-            <Text size="small">Total Lent:</Text>
-            {seriesLoading ? (
-              <Skeleton width={50} />
-            ) : (
-              <Box direction="row" gap="medium">
-                <Text size="small">
-                  {symbol}
-                  {formatValue(lendBalance, digits!)}
-                </Text>
-                <FiPlus color={green} />
-              </Box>
-            )}
-          </Box>
+      <Box gap="small">
+        <Box direction="row-responsive" justify="between">
+          <Text size="small">Total Lent:</Text>
+          {seriesLoading ? (
+            <Skeleton width={50} />
+          ) : (
+            <Box direction="row" gap="medium">
+              <Text size="small">
+                {symbol}
+                {formatValue(lendBalance, digits!)}
+              </Text>
+              <FiPlus color={green} />
+            </Box>
+          )}
+        </Box>
 
-          <Box direction="row-responsive"  justify="between">
-            <Text size="small">Total Pooled:</Text>
-            {strategiesLoading ? (
-              <Skeleton width={50} />
-            ) : (
-              <Box direction="row" gap="medium">
-                <Text size="small">
-                  {symbol}
-                  {formatValue(poolBalance, digits!)}
-                </Text>
-                <FiPlus color={green} />
-                
-              </Box>
-            )}
-          </Box>
+        <Box direction="row-responsive" justify="between">
+          <Text size="small">Total Pooled:</Text>
+          {strategiesLoading ? (
+            <Skeleton width={50} />
+          ) : (
+            <Box direction="row" gap="medium">
+              <Text size="small">
+                {symbol}
+                {formatValue(poolBalance, digits!)}
+              </Text>
+              <FiPlus color={green} />
+            </Box>
+          )}
+        </Box>
 
-          <Box direction="row-responsive"  justify="between">
-            <Text size="small">Total Collateral:</Text>
-            {vaultsLoading ? (
-              <Skeleton width={50} />
-            ) : (
-              <Box direction="row" gap="medium">
-                <Text size="small">
-                  {symbol}
-                  {formatValue(collateral, digits!)}
-                </Text>
-                <FiPlus color={green} />
-              </Box>
-            )}
-          </Box>
+        <Box direction="row-responsive" justify="between">
+          <Text size="small">Total Collateral:</Text>
+          {vaultsLoading ? (
+            <Skeleton width={50} />
+          ) : (
+            <Box direction="row" gap="medium">
+              <Text size="small">
+                {symbol}
+                {formatValue(collateral, digits!)}
+              </Text>
+              <FiPlus color={green} />
+            </Box>
+          )}
+        </Box>
 
-          <Box direction="row-responsive"  justify="between">
-            <Text size="small">Total Debt:</Text>
-            {vaultsLoading ? (
-              <Skeleton width={50} />
-            ) : (
-              <Box direction="row" gap="medium">
-                <Text size="small">
-                  {symbol}
-                  {formatValue(debt, digits!)}
-                </Text>
-                <FiMinus color={red} />
-              </Box>
-            )}
-          </Box>
-
+        <Box direction="row-responsive" justify="between">
+          <Text size="small">Total Debt:</Text>
+          {vaultsLoading ? (
+            <Skeleton width={50} />
+          ) : (
+            <Box direction="row" gap="medium">
+              <Text size="small">
+                {symbol}
+                {formatValue(debt, digits!)}
+              </Text>
+              <FiMinus color={red} />
+            </Box>
+          )}
+        </Box>
       </Box>
 
-      <Box direction="row-responsive" justify="between" margin={{top:'medium'}} border={{ side: 'top' }}>
-            <Text size="medium">Total:</Text>
-            {vaultsLoading || seriesLoading || strategiesLoading || (!totalBalance) ? (
-              <Skeleton width={50} />
-            ) : (
-              <Box direction="row" gap="medium">
-                <Text size="medium">
-                  {symbol}
-                  {formatValue(totalBalance!, digits!)}
-                </Text>
-              </Box>
-            )}
+      <Box direction="row-responsive" justify="between" margin={{ top: 'medium' }} border={{ side: 'top' }}>
+        <Text size="medium">Total:</Text>
+        {vaultsLoading || seriesLoading || strategiesLoading || !totalBalance ? (
+          <Skeleton width={50} />
+        ) : (
+          <Box direction="row" gap="medium">
+            <Text size="medium">
+              {symbol}
+              {formatValue(totalBalance!, digits!)}
+            </Text>
           </Box>
-
+        )}
+      </Box>
     </Box>
-    
   );
 };
 

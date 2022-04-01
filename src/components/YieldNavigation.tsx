@@ -1,15 +1,16 @@
-import React, { useContext } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { useContext } from 'react';
 import styled, { CSSProperties } from 'styled-components';
-import { Box, ThemeContext, ResponsiveContext } from 'grommet';
+import { Box, ThemeContext, ResponsiveContext, Text } from 'grommet';
 import NavText from './texts/NavText';
 import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { ISettingsContext } from '../types';
 
-const StyledLink = styled(NavLink)`
+const StyledLink = styled(Text)`
   text-decoration: none;
-  /* padding: 8px; */
   border-radius: 5px;
 
   -webkit-transition: background 0.3s ease-in-out;
@@ -26,7 +27,7 @@ const StyledLink = styled(NavLink)`
 
   :hover {
     transform: scale(1.2);
-    /* background: #ffffff69; */
+    cursor: pointer;
   }
 `;
 
@@ -37,6 +38,7 @@ interface IYieldNavigationProps {
 
 const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const router = useRouter();
   const [height] = useWindowSize();
   const {
     chainState: {
@@ -45,13 +47,14 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   } = useContext(ChainContext);
   const {
     settingsState: { darkMode },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text;
-  const activeStyle = {
-    transform: !sideNavigation ? 'scale(1.3)' : 'scale(1.3)',
+
+  const activelinkStyle = {
     color: darkMode ? `${textColor.dark}` : `${textColor.light}`,
+    transform: !sideNavigation ? 'scale(1.3)' : 'scale(1.3)',
     marginLeft: !mobile && sideNavigation ? '1em' : undefined,
   } as CSSProperties;
 
@@ -62,10 +65,12 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
     { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
   ];
 
-  const Link = ({ link }: { link: any }) => (
-    <StyledLink to={link.to} activeStyle={activeStyle} onClick={() => callbackFn()} style={{ color: 'text' }}>
-      <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
-    </StyledLink>
+  const NavLink = ({ link }: { link: any }) => (
+    <Link href={link.to} passHref>
+      <StyledLink style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}>
+        <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
+      </StyledLink>
+    </Link>
   );
 
   return (
@@ -79,19 +84,19 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
           justify={mobile ? undefined : 'center'}
           fill={mobile}
         >
-          {linksArr.map((x: any) => (!x.disabled ? <Link link={x} key={x.label} /> : null))}
+          {linksArr.map((x) => (!x.disabled ? <NavLink link={x} key={x.label} /> : null))}
         </Box>
       )}
 
       {mobile && (
         <Box direction="column" gap="medium" pad={{ vertical: 'xlarge' }} align="center" fill>
-          {linksArr.map((x: any) => (!x.disabled ? <Link link={x} key={x.label} /> : null))}
+          {linksArr.map((x) => (!x.disabled ? <NavLink link={x} key={x.label} /> : null))}
         </Box>
       )}
 
       {!mobile && sideNavigation && height < 800 ? (
         <Box pad={{ vertical: '3em' }} direction="column" gap="small">
-          {linksArr.map((x: any) => (!x.disabled ? <Link link={x} key={x.label} /> : null))}
+          {linksArr.map((x) => (!x.disabled ? <NavLink link={x} key={x.label} /> : null))}
         </Box>
       ) : (
         <Box />

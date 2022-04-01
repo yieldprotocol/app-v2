@@ -1,5 +1,5 @@
+import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { BigNumber, ethers } from 'ethers';
 
 import {
@@ -131,7 +131,7 @@ const UserProvider = ({ children }: any) => {
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
 
   /* HOOKS */
-  const { pathname } = useLocation();
+  const { pathname } = useRouter();
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {

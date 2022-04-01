@@ -4,12 +4,13 @@ import { FiPercent } from 'react-icons/fi';
 import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import BoxWrap from '../wraps/BoxWrap';
+import { ISettingsContext } from '../../types';
 
 const SlippageSetting = () => {
   const {
     settingsState: { slippageTolerance },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const tolerances: number[] = [0.001, 0.005, 0.01];
   const customTolerance = !tolerances.includes(slippageTolerance);

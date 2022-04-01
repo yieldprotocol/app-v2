@@ -3,16 +3,16 @@ import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'gro
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
-import SeriesSelector from '../components/selectors/SeriesSelector';
-import MainViewWrap from '../components/wraps/MainViewWrap';
-import AssetSelector from '../components/selectors/AssetSelector';
-import InputWrap from '../components/wraps/InputWrap';
-import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
-import SectionWrap from '../components/wraps/SectionWrap';
+import SeriesSelector from '../selectors/SeriesSelector';
+import MainViewWrap from '../wraps/MainViewWrap';
+import AssetSelector from '../selectors/AssetSelector';
+import InputWrap from '../wraps/InputWrap';
+import ActionButtonWrap from '../wraps/ActionButtonWrap';
+import SectionWrap from '../wraps/SectionWrap';
 
-import MaxButton from '../components/buttons/MaxButton';
+import MaxButton from '../buttons/MaxButton';
 
-import { UserContext } from '../contexts/UserContext';
+import { UserContext } from '../../contexts/UserContext';
 import {
   ActionCodes,
   ActionType,
@@ -22,40 +22,40 @@ import {
   IVault,
   ProcessStage,
   TxState,
-} from '../types';
-import PanelWrap from '../components/wraps/PanelWrap';
-import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import VaultSelector from '../components/selectors/VaultPositionSelector';
-import ActiveTransaction from '../components/ActiveTransaction';
+} from '../../types';
+import PanelWrap from '../wraps/PanelWrap';
+import CenterPanelWrap from '../wraps/CenterPanelWrap';
+import VaultSelector from '../selectors/VaultPositionSelector';
+import ActiveTransaction from '../ActiveTransaction';
 
-import { analyticsLogEvent, cleanValue, getVaultIdFromReceipt, nFormatter } from '../utils/appUtils';
+import { analyticsLogEvent, cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
-import YieldInfo from '../components/YieldInfo';
-import BackButton from '../components/buttons/BackButton';
-import { Gauge } from '../components/Gauge';
-import InfoBite from '../components/InfoBite';
-import NextButton from '../components/buttons/NextButton';
-import TransactButton from '../components/buttons/TransactButton';
-import { useApr } from '../hooks/useApr';
-import PositionAvatar from '../components/PositionAvatar';
-import VaultDropSelector from '../components/selectors/VaultDropSelector';
-import { useInputValidation } from '../hooks/useInputValidation';
-import AltText from '../components/texts/AltText';
-import YieldCardHeader from '../components/YieldCardHeader';
-import { useBorrow } from '../hooks/actionHooks/useBorrow';
-import { useCollateralHelpers } from '../hooks/viewHelperHooks/useCollateralHelpers';
-import { useBorrowHelpers } from '../hooks/viewHelperHooks/useBorrowHelpers';
-import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import ColorText from '../components/texts/ColorText';
-import { useProcess } from '../hooks/useProcess';
+import YieldInfo from '../YieldInfo';
+import BackButton from '../buttons/BackButton';
+import { Gauge } from '../Gauge';
+import InfoBite from '../InfoBite';
+import NextButton from '../buttons/NextButton';
+import TransactButton from '../buttons/TransactButton';
+import { useApr } from '../../hooks/useApr';
+import PositionAvatar from '../PositionAvatar';
+import VaultDropSelector from '../selectors/VaultDropSelector';
+import { useInputValidation } from '../../hooks/useInputValidation';
+import AltText from '../texts/AltText';
+import YieldCardHeader from '../YieldCardHeader';
+import { useBorrow } from '../../hooks/actionHooks/useBorrow';
+import { useCollateralHelpers } from '../../hooks/viewHelperHooks/useCollateralHelpers';
+import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
+import InputInfoWrap from '../wraps/InputInfoWrap';
+import ColorText from '../texts/ColorText';
+import { useProcess } from '../../hooks/useProcess';
 
-import { ChainContext } from '../contexts/ChainContext';
-import DummyVaultItem from '../components/positionItems/DummyVaultItem';
-import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
-import YieldNavigation from '../components/YieldNavigation';
-import VaultItem from '../components/positionItems/VaultItem';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { useAssetPair } from '../hooks/useAssetPair';
+import { ChainContext } from '../../contexts/ChainContext';
+import DummyVaultItem from '../positionItems/DummyVaultItem';
+import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
+import YieldNavigation from '../YieldNavigation';
+import VaultItem from '../positionItems/VaultItem';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { useAssetPair } from '../../hooks/useAssetPair';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -243,7 +243,7 @@ const Borrow = () => {
       setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contractMap)!);
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
-  }, [borrowProcess, resetInputs]);
+  }, [borrowProcess, contractMap, resetInputs, vaultToUse]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">

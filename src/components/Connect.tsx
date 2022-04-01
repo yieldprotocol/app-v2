@@ -38,7 +38,14 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       background="lightBackground"
       round="small"
     >
-      <Box justify="between" align="center" direction="row" background="gradient" pad="medium" round={{corner:'top', size: "small"}} >
+      <Box
+        justify="between"
+        align="center"
+        direction="row"
+        background="gradient"
+        pad="medium"
+        round={{ corner: 'top', size: 'small' }}
+      >
         {account && CONNECTORS ? (
           <BackButton
             action={() => {
@@ -47,20 +54,23 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
             }}
           />
         ) : (
-          <Text size="small" color='text'> Connect a wallet </Text>
+          <Text size="small" color="text">
+            {' '}
+            Connect a wallet{' '}
+          </Text>
         )}
 
-        <Button icon={<FiX size="1.5rem" color='text'/>} onClick={() => setConnectOpen(false)} plain />
+        <Button icon={<FiX size="1.5rem" color="text" />} onClick={() => setConnectOpen(false)} plain />
       </Box>
       {disclaimerChecked === false && (
-        <Box border={{ color: 'brand' }} round="small" pad='medium'>
+        <Box border={{ color: 'brand' }} round="small" pad="medium">
           <Disclaimer
             checked={disclaimerChecked}
             onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
           />
         </Box>
       )}
-      <Box pad='medium' gap={mobile?"large":"small"} >
+      <Box pad="medium" gap={mobile ? 'large' : 'small'}>
         {[...CONNECTORS.keys()].map((name: string) => {
           const { displayName, image } = CONNECTOR_INFO.get(name);
           const currentConnector = CONNECTORS.get(name);
@@ -70,7 +80,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
           return (
             <GeneralButton
               key={name}
-              action={() => !connected && handleConnect(name) }
+              action={() => !connected && handleConnect(name)}
               background={connected ? 'gradient' : 'gradient-transparent'}
               disabled={disclaimerChecked === false}
             >

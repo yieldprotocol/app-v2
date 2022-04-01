@@ -6,7 +6,6 @@ import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
-import { useBlockNum } from '../hooks/useBlockNum';
 import NetworkSelector from './selectors/NetworkSelector';
 import { IChainContext } from '../types';
 import { CHAIN_INFO } from '../config/chainData';
@@ -23,9 +22,7 @@ const YieldInfo = () => {
   } = useContext(ChainContext) as IChainContext;
 
   const connectedChain = CHAIN_INFO.get(fallbackChainId!);
-  const blockNum = useBlockNum();
-  const handleExternal = (destination: string) => {
-  };
+  const handleExternal = (destination: string) => {};
 
   return (
     <Box gap="small" align="end" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
@@ -92,30 +89,11 @@ const YieldInfo = () => {
       </Box>
 
       {connectedChain && (
-          <Box align="end" gap="xsmall">
-            <Box
-              // direction="row"
-              // margin={{right: '-0.5em'}}
-              gap="xsmall"
-              justify="end"
-              flex
-              elevation="xsmall"
-              pad="xsmall"
-              round
-            >
-              <NetworkSelector />
-            </Box>
- 
-        {/* <Box fill>
-          {blockNum && connectedChain.explorer && !connectedChain.name.includes('Optimism') && (
-            <Anchor style={{ lineHeight: '0' }} href={`${connectedChain.explorer}/block/${blockNum}`} target="_blank">
-              <Text size="0.5em" color={connectedChain.colorSecondary || connectedChain.color}>
-                Latest Block : {blockNum}
-              </Text>
-            </Anchor>
-          )}
-          </Box> */}
+        <Box align="end" gap="xsmall">
+          <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
+            <NetworkSelector />
           </Box>
+        </Box>
       )}
     </Box>
   );

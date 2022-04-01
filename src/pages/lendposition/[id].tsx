@@ -1,38 +1,38 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { useHistory, useParams } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
-import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
-import InputWrap from '../components/wraps/InputWrap';
-import SeriesSelector from '../components/selectors/SeriesSelector';
-import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
-import SectionWrap from '../components/wraps/SectionWrap';
+import ActionButtonGroup from '../../components/wraps/ActionButtonWrap';
+import InputWrap from '../../components/wraps/InputWrap';
+import SeriesSelector from '../../components/selectors/SeriesSelector';
+import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
+import SectionWrap from '../../components/wraps/SectionWrap';
 
-import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../types';
-import MaxButton from '../components/buttons/MaxButton';
-import InfoBite from '../components/InfoBite';
-import ActiveTransaction from '../components/ActiveTransaction';
-import PositionAvatar from '../components/PositionAvatar';
-import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import NextButton from '../components/buttons/NextButton';
-import TransactButton from '../components/buttons/TransactButton';
-import YieldHistory from '../components/YieldHistory';
-import { useInputValidation } from '../hooks/useInputValidation';
-import ModalWrap from '../components/wraps/ModalWrap';
-import { useLendHelpers } from '../hooks/viewHelperHooks/useLendHelpers';
-import { useClosePosition } from '../hooks/actionHooks/useClosePosition';
-import { useRollPosition } from '../hooks/actionHooks/useRollPosition';
-import CopyWrap from '../components/wraps/CopyWrap';
-import { useProcess } from '../hooks/useProcess';
-import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import ExitButton from '../components/buttons/ExitButton';
+import { UserContext } from '../../contexts/UserContext';
+import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../../types';
+import MaxButton from '../../components/buttons/MaxButton';
+import InfoBite from '../../components/InfoBite';
+import ActiveTransaction from '../../components/ActiveTransaction';
+import PositionAvatar from '../../components/PositionAvatar';
+import CenterPanelWrap from '../../components/wraps/CenterPanelWrap';
+import NextButton from '../../components/buttons/NextButton';
+import TransactButton from '../../components/buttons/TransactButton';
+import YieldHistory from '../../components/YieldHistory';
+import { useInputValidation } from '../../hooks/useInputValidation';
+import ModalWrap from '../../components/wraps/ModalWrap';
+import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
+import { useClosePosition } from '../../hooks/actionHooks/useClosePosition';
+import { useRollPosition } from '../../hooks/actionHooks/useRollPosition';
+import CopyWrap from '../../components/wraps/CopyWrap';
+import { useProcess } from '../../hooks/useProcess';
+import InputInfoWrap from '../../components/wraps/InputInfoWrap';
+import ExitButton from '../../components/buttons/ExitButton';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const history = useHistory();
-  const { id: idFromUrl } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { id: idFromUrl } = router.query;
 
   /* STATE FROM CONTEXT */
   const {
@@ -47,10 +47,14 @@ const LendPosition = () => {
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
 
   // stepper for stepping within multiple tabs
-  const actionCodeToStepperIdx: { [actionCode: string]: number } = {
-    [ActionCodes.CLOSE_POSITION]: 0,
-    [ActionCodes.ROLL_POSITION]: 1,
-  };
+  const actionCodeToStepperIdx: { [actionCode: string]: number } = useMemo(
+    () => ({
+      [ActionCodes.CLOSE_POSITION]: 0,
+      [ActionCodes.ROLL_POSITION]: 1,
+    }),
+    []
+  );
+
   const initialStepperState = [0, 0, 0];
   const [stepPosition, setStepPosition] = useState<number[]>(initialStepperState);
   const [closeInput, setCloseInput] = useState<string | undefined>();
@@ -99,11 +103,14 @@ const LendPosition = () => {
     setStepPosition(validatedSteps);
   };
 
-  const resetStepper = (actionCode: ActionCodes) => {
-    const newStepPositions = stepPosition;
-    newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
-    setStepPosition(newStepPositions);
-  };
+  const resetStepper = useCallback(
+    (actionCode: ActionCodes) => {
+      const newStepPositions = stepPosition;
+      newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
+      setStepPosition(newStepPositions);
+    },
+    [actionCodeToStepperIdx, stepPosition]
+  );
 
   const handleClosePosition = () => {
     !closeDisabled && closePosition(closeInput, selectedSeries!);
@@ -113,18 +120,21 @@ const LendPosition = () => {
     !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
   };
 
-  const resetInputs = (actionCode: ActionCodes) => {
-    resetStepper(actionCode);
+  const resetInputs = useCallback(
+    (actionCode: ActionCodes) => {
+      resetStepper(actionCode);
 
-    if (actionCode === ActionCodes.CLOSE_POSITION) {
-      setCloseInput(undefined);
-      resetCloseProcess();
-    }
-    if (actionCode === ActionCodes.ROLL_POSITION) {
-      setRollInput(undefined);
-      resetRollProcess();
-    }
-  };
+      if (actionCode === ActionCodes.CLOSE_POSITION) {
+        setCloseInput(undefined);
+        resetCloseProcess();
+      }
+      if (actionCode === ActionCodes.ROLL_POSITION) {
+        setRollInput(undefined);
+        resetRollProcess();
+      }
+    },
+    [resetCloseProcess, resetRollProcess, resetStepper]
+  );
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
@@ -136,10 +146,10 @@ const LendPosition = () => {
   useEffect(() => {
     closeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.CLOSE_POSITION);
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_POSITION);
-  }, [closeProcess?.stage, rollProcess?.stage]);
+  }, [closeProcess?.stage, resetInputs, rollProcess?.stage]);
 
   useEffect(() => {
-    const _series = seriesMap.get(idFromUrl) || null;
+    const _series = seriesMap.get(idFromUrl as string) || null;
     const _base = assetMap.get(_series?.baseId!);
     if (idFromUrl) {
       setSelectedSeries(_series);
@@ -152,9 +162,9 @@ const LendPosition = () => {
       {selectedSeries && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-            {!mobile && <ExitButton action={() => history.goBack()} />}
+            {!mobile && <ExitButton action={() => router.back()} />}
 
-            <Box pad={mobile ? 'medium' : 'large'} gap='1em'  >
+            <Box pad={mobile ? 'medium' : 'large'} gap="1em">
               <Box height={{ min: '250px' }} gap="medium">
                 <Box
                   direction="row"
@@ -289,7 +299,7 @@ const LendPosition = () => {
                 {actionActive.index === 1 && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
-                      <Box margin={{ top: 'small' }} gap='small' >
+                      <Box margin={{ top: 'small' }} gap="small">
                         <SeriesSelector
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
@@ -302,7 +312,6 @@ const LendPosition = () => {
                           disabled={!selectedSeries || !rollToSeries}
                           round
                         >
-
                           <TextInput
                             plain
                             type="number"
@@ -345,7 +354,6 @@ const LendPosition = () => {
 
                 {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
               </Box>
-
             </Box>
 
             <ActionButtonGroup pad>

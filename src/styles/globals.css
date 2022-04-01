@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  font-family: 'Raleway';
+  font-weight: 700;
+  height: 100%;
+}
+
+[data-theme='dark'],
+[data-theme='dark'] body {
+  background: #111111;
+}

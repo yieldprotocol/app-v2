@@ -10,10 +10,9 @@ function ListWrap({ children, ...props }: IListWrap) {
     <Box
       pad={{ horizontal: 'medium', bottom: 'xlarge', top: 'xsmall' }}
       gap="small"
-
       height={{ max: '350px' }}
       width="300px"
-      margin={{bottom:'3em'}}
+      margin={{ bottom: '3em' }}
       {...props}
     >
       {children}

@@ -1,20 +1,20 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
-import Skeleton from '../components/wraps/SkeletonWrap';
-import { ChainContext } from '../contexts/ChainContext';
-import { ActionType, ISettingsContext, IUserContextState } from '../types';
-import YieldInfo from '../components/YieldInfo';
-import DashboardBalanceSummary from '../components/DashboardBalanceSummary';
-import MainViewWrap from '../components/wraps/MainViewWrap';
-import PanelWrap from '../components/wraps/PanelWrap';
+import Skeleton from '../wraps/SkeletonWrap';
+import { ChainContext } from '../../contexts/ChainContext';
+import { ActionType, ISettingsContext, IUserContextState } from '../../types';
+import YieldInfo from '../YieldInfo';
+import DashboardBalanceSummary from '../DashboardBalanceSummary';
+import MainViewWrap from '../wraps/MainViewWrap';
+import PanelWrap from '../wraps/PanelWrap';
 
-import DashboardPositionList from '../components/DashboardPositionList';
-import CurrencyToggle from '../components/CurrencyToggle';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { useDashboardHelpers } from '../hooks/viewHelperHooks/useDashboardHelpers';
-import { UserContext } from '../contexts/UserContext';
-import { formatValue } from '../utils/appUtils';
+import DashboardPositionList from '../DashboardPositionList';
+import CurrencyToggle from '../CurrencyToggle';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHelpers';
+import { UserContext } from '../../contexts/UserContext';
+import { formatValue } from '../../utils/appUtils';
 
 const StyledBox = styled(Box)`
   * {
@@ -157,28 +157,26 @@ const Dashboard = () => {
         <PanelWrap right>
           {/* <Box /> */}
           {account && (
-
             <Box
               // margin={{ top: '30%' }}
               margin={{ top: 'xlarge' }}
               fill="horizontal"
-              gap='medium'
+              gap="medium"
             >
-              <Box direction='row' justify='between'>
+              <Box direction="row" justify="between">
                 <Text size="medium">Position Overview</Text>
                 <Box width="5rem" height="2rem">
                   <CurrencyToggle />
                 </Box>
-                
               </Box>
-             
-              <Box gap="small"
-                            fill="horizontal"
-                            background="gradient-transparent"
-                            round="xsmall"
-                            pad="medium"
-                            elevation="medium"
-              
+
+              <Box
+                gap="small"
+                fill="horizontal"
+                background="gradient-transparent"
+                round="xsmall"
+                pad="medium"
+                elevation="medium"
               >
                 <DashboardBalanceSummary
                   debt={totalDebt!}
@@ -190,7 +188,6 @@ const Dashboard = () => {
                 />
               </Box>
             </Box>
-  
           )}
 
           <YieldInfo />

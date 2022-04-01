@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Spinner, Text, ThemeContext } from 'grommet';
-import { FiAlertCircle, FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import { IYieldProcess, ProcessStage } from '../types';
 import TransactionItem from './TransactionItem';

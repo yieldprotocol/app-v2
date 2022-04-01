@@ -44,11 +44,15 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   };
 
   return (
-
-    <Box fill width={mobile ? undefined : '400px'} background="lightBackground" elevation="xlarge" justify="between"  style={{ overflow:'auto' }}>
-      
-      <Box gap="small" pad="medium" background="gradient-transparent" flex={false} >
-
+    <Box
+      fill
+      width={mobile ? undefined : '400px'}
+      background="lightBackground"
+      elevation="xlarge"
+      justify="between"
+      style={{ overflow: 'auto' }}
+    >
+      <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
         <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
           <FiX size="1.5rem" />
         </Box>
@@ -59,7 +63,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           </Box>
         )}
 
-        <Box align="end" >
+        <Box align="end">
           {!mobile && currentChainInfo.explorer && (
             <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
               <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
@@ -112,13 +116,13 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
       )}
 
-      <Box pad="medium" gap="medium" flex={false} >
+      <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />
         <ApprovalSetting />
         <SlippageSetting />
       </Box>
 
-      <Box pad="medium" gap="small" flex={false} >
+      <Box pad="medium" gap="small" flex={false}>
         <Text size="small"> Troubleshooting </Text>
         <GeneralButton action={handleResetApp} background="background">
           <Tip

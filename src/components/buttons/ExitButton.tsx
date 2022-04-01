@@ -1,4 +1,4 @@
-import { Avatar, Box, Text } from 'grommet';
+import { Avatar, Text } from 'grommet';
 import React, { useState } from 'react';
 import { FiLogOut } from 'react-icons/fi';
 import styled from 'styled-components';

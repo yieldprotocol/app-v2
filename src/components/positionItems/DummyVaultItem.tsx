@@ -1,5 +1,4 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useRouter } from 'next/router';
 
 import { Box, Text } from 'grommet';
 import { ActionType, ISeries } from '../../types';
@@ -19,11 +18,11 @@ function DummyVaultItem({
   index?: number;
   condensed?: boolean;
 }) {
-  const history = useHistory();
+  const router = useRouter();
 
   const handleSelect = (_vaultId: string) => {
     // setSelectedVault(dummyVault);
-    history.push(`/vaultposition/${_vaultId}`);
+    router.push(`/vaultposition/${_vaultId}`);
   };
 
   return (
