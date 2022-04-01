@@ -116,7 +116,7 @@ const SettingsProvider = ({ children }: any) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       Object.values(SettingsState).forEach((setting) => {
-        if (JSON.parse(localStorage.getItem(setting))) {
+        if (JSON.parse(localStorage.getItem(setting)) !== null) {
           updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)) });
         }
       });
