@@ -21,8 +21,6 @@ const StyledButton = styled(Button)`
 function BackButton({ action }: { action: () => void }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  // arbitrary comment for commit
-
   return (
     <Box align="center" direction="row">
       <StyledButton onClick={() => action()} icon={<FiArrowLeft size={mobile ? '1.5em' : '1.5em'} />} />
