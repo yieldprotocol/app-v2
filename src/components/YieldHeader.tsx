@@ -9,7 +9,6 @@ import YieldNavigation from './YieldNavigation';
 import YieldAccount from './YieldAccount';
 import YieldMark from './logos/YieldMark';
 
-import { useCachedState } from '../hooks/generalHooks';
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { ChainContext } from '../contexts/ChainContext';
@@ -41,7 +40,6 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
   const isPositionPath = router.pathname.includes('position');
   const [yieldMarkhover, setYieldMarkHover] = useState<boolean>(false);
 
@@ -96,7 +94,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
             )}
             {mobile && isPositionPath && <BackButton action={() => router.back()} />}
             {!mobile && (
-              <Link href={`/${prevLoc}`} passHref>
+              <Link href="/borrow" passHref>
                 <YieldAvatar />
               </Link>
             )}
