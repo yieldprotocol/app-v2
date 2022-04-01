@@ -19,26 +19,29 @@ export const useCachedState = (key: string, initialValue: any, account?: string)
   const genKey = account ? `${account}_${key}` : key;
   const [storedValue, setStoredValue] = useState(() => getValue());
 
-  const setValue = (value: any) => {
-    try {
-      if (typeof window !== 'undefined') {
-        // For same API as useState
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
-        setStoredValue(valueToStore);
-        localStorage.setItem(genKey, JSON.stringify(valueToStore));
+  const setValue = useCallback(
+    (value: any) => {
+      try {
+        if (typeof window !== 'undefined') {
+          // For same API as useState
+          const valueToStore = value instanceof Function ? value(storedValue) : value;
+          setStoredValue(valueToStore);
+          localStorage.setItem(genKey, JSON.stringify(valueToStore));
+        }
+      } catch (error) {
+        // TODO: handle the error cases needs work
+        // eslint-disable-next-line no-console
+        console.log(error);
       }
-    } catch (error) {
-      // TODO: handle the error cases needs work
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  };
+    },
+    [genKey, storedValue]
+  );
 
   const clearAll = () => typeof window !== 'undefined' && localStorage.clear();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') localStorage.setItem(genKey, storedValue);
-  }, [genKey, storedValue]);
+    if (typeof window !== 'undefined') setValue(storedValue);
+  }, [genKey, setValue, storedValue]);
 
   return [storedValue, setValue, clearAll] as const;
 };
