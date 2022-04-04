@@ -158,14 +158,12 @@ const UserProvider = ({ children }: any) => {
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(
-    // async (fromBlock: number = 27096000) => {
     async (fromBlock: number = 1) => {
       const Cauldron = contractMap.get('Cauldron');
       if (!Cauldron) return new Map();
 
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
-      // const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
 
       const [vaultsBuilt, vaultsReceived] = await Promise.all([
         Cauldron.queryFilter(vaultsBuiltFilter, fromBlock, 'latest'),
