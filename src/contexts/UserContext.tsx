@@ -80,7 +80,7 @@ const initState: IUserContextState = {
   selectedStrategy: null,
 };
 
-function userReducer(state: any, action: any) {
+function userReducer(state: IUserContextState, action: any) {
   /* Helper: only change the state if different from existing */ // TODO if even reqd.?
   const onlyIfChanged = (_action: any) =>
     state[action.type] === _action.payload ? state[action.type] : _action.payload;
