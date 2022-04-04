@@ -167,10 +167,9 @@ const UserProvider = ({ children }: any) => {
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
       // const vaultsDestroyedfilter = Cauldron.filters.VaultDestroyed(null);
 
-      const [vaultsBuilt, vaultsReceived, vaultsDestroyed] = await Promise.all([
+      const [vaultsBuilt, vaultsReceived] = await Promise.all([
         Cauldron.queryFilter(vaultsBuiltFilter, fromBlock, 'latest'),
         Cauldron.queryFilter(vaultsReceivedfilter, fromBlock, 'latest'),
-        [], // Cauldron.queryFilter(vaultsDestroyedfilter, fromBlock),
       ]);
 
       const buildEventList: IVaultRoot[] = vaultsBuilt?.map((x: ethers.Event): IVaultRoot => {
@@ -202,13 +201,8 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
-      const destroyedEventsList: string[] = vaultsDestroyed.map((x: any) => Cauldron.interface.parseLog(x).args[0]);
-      diagnostics && console.log('DESTROYED VAULTS: ', destroyedEventsList);
-
-      /* all vault excluding deleted vaults */
-      const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList].filter(
-        (x: IVaultRoot) => !destroyedEventsList.includes(x.id)
-      );
+      /* all vaults */
+      const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList];
 
       const newVaultMap = vaultList.reduce((acc: any, item: any) => {
         const _map = acc;
