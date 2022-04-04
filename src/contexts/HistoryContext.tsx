@@ -23,7 +23,7 @@ import { Cauldron } from '../contracts';
 import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
-import { LiquidityEvent } from '../contracts/Pool';
+import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -238,10 +238,10 @@ const HistoryProvider = ({ children }: any) => {
 
           const tradeLogs = await Promise.all(
             eventList
-              .filter((log: any) => poolContract.interface.parseLog(log).args.from !== contractMap.get('Ladle')) // TODO make this for any ladle (Past/future)
-              .map(async (log: any) => {
-                const { blockNumber, transactionHash } = log;
-                const { maturity, bases, fyTokens } = poolContract.interface.parseLog(log).args;
+              .filter((e: TradeEvent) => e.args.from !== contractMap.get('Ladle').address) // TODO make this for any ladle (Past/future)
+              .map(async (e: TradeEvent) => {
+                const { blockNumber, transactionHash } = e;
+                const { maturity, bases, fyTokens } = e.args;
                 const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
                 const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
                 const tradeApr = calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
