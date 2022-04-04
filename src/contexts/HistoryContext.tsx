@@ -231,7 +231,7 @@ const HistoryProvider = ({ children }: any) => {
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
           const { poolContract, id: seriesId, baseId, decimals } = series;
-          const base: IAsset = assetRootMap.get(baseId);
+          const base = assetRootMap.get(baseId) as IAsset;
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
           const eventList = await poolContract.queryFilter(_filter, lastSeriesUpdate);
@@ -405,7 +405,7 @@ const HistoryProvider = ({ children }: any) => {
           // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
           const { seriesId: toSeries, art } = contract.interface.parseLog(log).args;
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-          const toSeries_: ISeries = seriesRootMap.get(toSeries);
+          const toSeries_ = seriesRootMap.get(toSeries) as ISeries;
           return {
             /* histItem base */
             blockNumber,
@@ -438,7 +438,7 @@ const HistoryProvider = ({ children }: any) => {
         vaultList.map(async (vault: IVault) => {
           const { id: vaultId, seriesId } = vault;
           const vaultId32 = bytesToBytes32(vaultId, 12);
-          const series = seriesRootMap.get(seriesId);
+          const series = seriesRootMap.get(seriesId) as ISeries;
 
           const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
           const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
