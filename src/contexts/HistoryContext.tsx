@@ -10,7 +10,6 @@ import {
   IBaseHistItem,
   IAsset,
   IStrategy,
-  IUserContextState,
   IChainContext,
   IUserContext,
   ISettingsContext,
@@ -23,6 +22,8 @@ import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
 import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
 import { SettingsContext } from './SettingsContext';
+import { TransferEvent } from '../contracts/Strategy';
+import { LiquidityEvent } from '../contracts/Pool';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -110,7 +111,7 @@ const HistoryProvider = ({ children }: any) => {
 
       /* Get all the Liquidity history transactions */
       await Promise.all(
-        strategyList.map(async (strategy: IStrategy) => {
+        strategyList.map(async (strategy) => {
           const { strategyContract, id, decimals } = strategy;
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
           const _transferOutFilter = strategyContract.filters.Transfer(account);
@@ -119,10 +120,10 @@ const HistoryProvider = ({ children }: any) => {
           const outEventList = await strategyContract.queryFilter(_transferOutFilter, lastSeriesUpdate); // originally 0
 
           const events = await Promise.all([
-            ...inEventList.map(async (log: any) => {
-              const { blockNumber, transactionHash } = log;
+            ...inEventList.map(async (e: TransferEvent) => {
+              const { blockNumber, transactionHash } = e;
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-              const { value } = strategyContract.interface.parseLog(log).args;
+              const { value } = e.args;
               return {
                 blockNumber,
                 transactionHash,
@@ -136,10 +137,10 @@ const HistoryProvider = ({ children }: any) => {
               };
             }),
 
-            ...outEventList.map(async (log: any) => {
-              const { blockNumber, transactionHash } = log;
+            ...outEventList.map(async (e: TransferEvent) => {
+              const { blockNumber, transactionHash } = e;
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-              const { value } = strategyContract.interface.parseLog(log).args;
+              const { value } = e.args;
               return {
                 id,
                 blockNumber,
@@ -177,16 +178,16 @@ const HistoryProvider = ({ children }: any) => {
       const liqHistMap = new Map<string, IHistItemPosition[]>([]);
       /* Get all the Liquidity history transactions */
       await Promise.all(
-        seriesList.map(async (series: ISeries) => {
+        seriesList.map(async (series) => {
           const { poolContract, id: seriesId, decimals } = series;
           // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
           const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
           const eventList = await poolContract.queryFilter(_liqFilter, lastSeriesUpdate);
 
           const liqLogs = await Promise.all(
-            eventList.map(async (log: any) => {
-              const { blockNumber, transactionHash } = log;
-              const { maturity, bases, fyTokens, poolTokens } = poolContract.interface.parseLog(log).args;
+            eventList.map(async (e: LiquidityEvent) => {
+              const { blockNumber, transactionHash } = e;
+              const { maturity, bases, fyTokens, poolTokens } = e.args;
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
 
