@@ -11,6 +11,9 @@ import {
   IAsset,
   IStrategy,
   IUserContextState,
+  IChainContext,
+  IUserContext,
+  ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -82,7 +85,7 @@ function historyReducer(state: any, action: any) {
 
 const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext);
+  const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
     connection: { fallbackProvider },
@@ -90,7 +93,7 @@ const HistoryProvider = ({ children }: any) => {
     assetRootMap,
   } = chainState;
 
-  const { userState }: { userState: IUserContextState } = useContext(UserContext);
+  const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount: account } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const [lastSeriesUpdate] = ['earliest']; // useCachedState('lastSeriesUpdate', 'earliest');
@@ -98,7 +101,7 @@ const HistoryProvider = ({ children }: any) => {
 
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   /* update Pool Historical data */
   const updateStrategyHistory = useCallback(
