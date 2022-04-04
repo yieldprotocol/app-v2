@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN, yvUSDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
@@ -28,8 +28,8 @@ import UNIMark from '../components/logos/UNIMark';
 import YFIMark from '../components/logos/YFIMark';
 import MakerMark from '../components/logos/MakerMark';
 import NotionalMark from '../components/logos/NotionalMark';
-import { AssetAddedEvent } from '../contracts/Cauldron';
-import { JoinAddedEvent } from '../contracts/Ladle';
+import { AssetAddedEvent, SeriesAddedEvent } from '../contracts/Cauldron';
+import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -410,10 +410,10 @@ const ChainProvider = ({ children }: any) => {
         const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
 
-        const season = getSeason(series.maturity) as SeasonType;
-        const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000) as SeasonType;
-        const [startColor, endColor, textColor]: string[] = seasonColorMap.get(season)!;
-        const [oppStartColor, oppEndColor, oppTextColor]: string[] = seasonColorMap.get(oppSeason(season))!;
+        const season = getSeason(series.maturity);
+        const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
+        const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
+        const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
         return {
           ...series,
 
@@ -445,35 +445,28 @@ const ChainProvider = ({ children }: any) => {
       const _getSeries = async () => {
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('SeriesAdded' as any, lastSeriesUpdate),
-          Ladle.queryFilter('PoolAdded' as any, lastSeriesUpdate),
-        ]).catch(() =>
-          // console.log('Fallback to hardcoded ASSET information required.');
-          [[], []]
-        );
+          Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, lastSeriesUpdate),
+          Ladle.queryFilter('PoolAdded' as ethers.EventFilter, lastSeriesUpdate),
+        ]);
 
         /* Create a map from the poolAdded event data or hardcoded pool data if available */
-        const poolMap: Map<string, string> = new Map(
-          poolAddedEvents.map((log: any) => Ladle.interface.parseLog(log).args) as [[string, string]]
-        ); // event values);
+        const poolMap = new Map(poolAddedEvents.map((e: PoolAddedEvent) => e.args)); // event values);
 
         /* Create a array from the seriesAdded event data or hardcoded series data if available */
-        const seriesAdded: { seriesId: string; baseId: string; fyToken: string }[] = seriesAddedEvents.map(
-          (x: any) => Cauldron.interface.parseLog(x).args
-        );
+        const seriesAdded = seriesAddedEvents.map((e: SeriesAddedEvent) => e.args);
 
         const newSeriesList: any[] = [];
 
         /* Add in any extra static series */
         try {
           await Promise.all(
-            seriesAdded.map(async (x: any): Promise<void> => {
+            seriesAdded.map(async (x): Promise<void> => {
               const { seriesId: id, baseId, fyToken } = x;
               const { maturity } = await Cauldron.series(id);
 
               if (poolMap.has(id)) {
                 // only add series if it has a pool
-                const poolAddress: string = poolMap.get(id) as string;
+                const poolAddress = poolMap.get(id);
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
                 const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
@@ -536,7 +529,7 @@ const ChainProvider = ({ children }: any) => {
         const newStrategyList: any[] = [];
         try {
           await Promise.all(
-            strategyAddresses.map(async (strategyAddr: string) => {
+            strategyAddresses.map(async (strategyAddr) => {
               /* if the strategy is already in the cache : */
               if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
                 const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
