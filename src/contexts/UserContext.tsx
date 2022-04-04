@@ -499,8 +499,8 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
-          const currentSeries = userState.seriesMap.get(currentSeriesId);
-          const nextSeries = userState.seriesMap.get(nextSeriesId);
+          const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
+          const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
 
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
