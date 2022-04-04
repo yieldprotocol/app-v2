@@ -34,6 +34,7 @@ import { ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
+import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -170,39 +171,39 @@ const UserProvider = ({ children }: any) => {
         Cauldron.queryFilter(vaultsReceivedfilter, fromBlock, 'latest'),
       ]);
 
-      const buildEventList: IVaultRoot[] = vaultsBuilt?.map((x: ethers.Event): IVaultRoot => {
-        const { vaultId: id, ilkId, seriesId } = Cauldron?.interface.parseLog(x).args;
+      const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
+        const { vaultId: id, ilkId, seriesId } = x.args;
         const series = seriesRootMap.get(seriesId);
         return {
           id,
           seriesId,
-          baseId: series?.baseId!,
+          baseId: series.baseId,
           ilkId,
           displayName: generateVaultName(id),
-          decimals: series?.decimals!,
+          decimals: series.decimals,
         };
       });
 
-      const recievedEventsList: IVaultRoot[] = await Promise.all(
-        vaultsReceived.map(async (x: ethers.Event): Promise<IVaultRoot> => {
-          const { vaultId: id } = Cauldron.interface.parseLog(x).args;
+      const recievedEventsList = await Promise.all(
+        vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
+          const { vaultId: id } = x.args;
           const { ilkId, seriesId } = await Cauldron.vaults(id);
           const series = seriesRootMap.get(seriesId);
           return {
             id,
             seriesId,
-            baseId: series?.baseId!,
+            baseId: series.baseId,
             ilkId,
             displayName: generateVaultName(id),
-            decimals: series?.decimals!,
+            decimals: series.decimals,
           };
         })
       );
 
       /* all vaults */
-      const vaultList: IVaultRoot[] = [...buildEventList, ...recievedEventsList];
+      const vaultList = [...buildEventList, ...recievedEventsList];
 
-      const newVaultMap = vaultList.reduce((acc: any, item: any) => {
+      const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
         const _map = acc;
         _map.set(item.id, item);
         return _map;
@@ -212,7 +213,7 @@ const UserProvider = ({ children }: any) => {
       /* Update the local cache storage */
       // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
     },
-    [account, contractMap, diagnostics, seriesRootMap]
+    [account, contractMap, seriesRootMap]
   );
 
   /* Updates the assets with relevant *user* data */
