@@ -24,6 +24,7 @@ import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
 import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
+import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -298,10 +299,10 @@ const HistoryProvider = ({ children }: any) => {
       const base_ = assetRootMap.get(series?.baseId!);
 
       return Promise.all(
-        eventList.map(async (log: any) => {
-          const { blockNumber, transactionHash } = log;
+        eventList.map(async (e: VaultPouredEvent) => {
+          const { blockNumber, transactionHash } = e;
           // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art)
-          const { ilkId, ink, art } = contract.interface.parseLog(log).args;
+          const { ilkId, ink, art } = e.args;
           const tradeIface = new ethers.utils.Interface([
             'event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens)',
           ]);
@@ -374,10 +375,10 @@ const HistoryProvider = ({ children }: any) => {
   const _parseGivenLogs = useCallback(
     (eventList: ethers.Event[], contract: Cauldron, series: ISeries) =>
       Promise.all(
-        eventList.map(async (log: any) => {
-          const { blockNumber, transactionHash } = log;
+        eventList.map(async (e: VaultGivenEvent) => {
+          const { blockNumber, transactionHash } = e;
           // event VaultGiven(bytes12 indexed vaultId, address indexed receiver);
-          const { receiver } = contract.interface.parseLog(log).args;
+          const { receiver } = e.args;
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           return {
             /* histItem base */
@@ -400,10 +401,10 @@ const HistoryProvider = ({ children }: any) => {
   const _parseRolledLogs = useCallback(
     (eventList: ethers.Event[], contract: Cauldron, series: ISeries) =>
       Promise.all(
-        eventList.map(async (log: any) => {
-          const { blockNumber, transactionHash } = log;
+        eventList.map(async (e: VaultRolledEvent) => {
+          const { blockNumber, transactionHash } = e;
           // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
-          const { seriesId: toSeries, art } = contract.interface.parseLog(log).args;
+          const { seriesId: toSeries, art } = e.args;
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           const toSeries_ = seriesRootMap.get(toSeries) as ISeries;
           return {
@@ -435,7 +436,7 @@ const HistoryProvider = ({ children }: any) => {
       const cauldronContract = contractMap.get('Cauldron') as Cauldron;
       /* Get all the Vault historical Pour transactions */
       await Promise.all(
-        vaultList.map(async (vault: IVault) => {
+        vaultList.map(async (vault) => {
           const { id: vaultId, seriesId } = vault;
           const vaultId32 = bytesToBytes32(vaultId, 12);
           const series = seriesRootMap.get(seriesId) as ISeries;
