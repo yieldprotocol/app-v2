@@ -154,7 +154,8 @@ const UserProvider = ({ children }: any) => {
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
-    pathname && setVaultFromUrl(userState.vaultMap.get(pathname.split('/')[2]));
+    const vaultId = pathname.split('/')[2];
+    pathname && userState.vaultMap.has(vaultId) && setVaultFromUrl(vaultId);
   }, [pathname, userState.vaultMap]);
 
   /* internal function for getting the users vaults */
@@ -454,7 +455,8 @@ const UserProvider = ({ children }: any) => {
       ) as Map<string, IVault>;
 
       /* if there are no vaults provided - assume a forced refresh of all vaults : */
-      const combinedVaultMap = vaultList.length > 0 ? new Map([...userState.vaultMap, ...newVaultMap]) : newVaultMap;
+      const combinedVaultMap =
+        vaultList.length > 0 ? (new Map([...userState.vaultMap, ...newVaultMap]) as Map<string, IVault>) : newVaultMap;
 
       /* update state */
       updateState({ type: UserState.VAULT_MAP, payload: combinedVaultMap });
