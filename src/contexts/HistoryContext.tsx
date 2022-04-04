@@ -444,34 +444,22 @@ const HistoryProvider = ({ children }: any) => {
           const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
           const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
           const rolledFilter = cauldronContract.filters.VaultRolled(vaultId32);
-          // const destroyedFilter = cauldronContract.filters.VaultDestroyed(vaultId32);
-          // const stirredFilter = cauldronContract.filters.VaultStirred(vaultId32);
 
           /* get all the logs available */
-          const [pourEventList, givenEventList, rolledEventList]: // destroyedEventList,
-          // stirredEventList,
-          ethers.Event[][] = await Promise.all([
+          const [pourEventList, givenEventList, rolledEventList]: ethers.Event[][] = await Promise.all([
             cauldronContract.queryFilter(pourFilter, lastVaultUpdate),
             cauldronContract.queryFilter(givenFilter, lastVaultUpdate),
             cauldronContract.queryFilter(rolledFilter, lastVaultUpdate),
-            // cauldronContract.queryFilter(destroyedFilter, 0),
-            // cauldronContract.queryFilter(stirredFilter, 0),
           ]);
 
           /* parse/process the log information  */
-          const [pourLogs, givenLogs, rolledLogs]: // destroyedLogs,
-          // strirredLogs,
-          IBaseHistItem[][] = await Promise.all([
+          const [pourLogs, givenLogs, rolledLogs] = await Promise.all([
             _parsePourLogs(pourEventList, cauldronContract, series),
             _parseGivenLogs(givenEventList, cauldronContract, series),
             _parseRolledLogs(rolledEventList, cauldronContract, series),
-            // _parseDestroyedLogs(destroyedEventList, cauldronContract),
-            // _parseStirredLogs(stirredEventList, cauldronContract),
           ]);
 
-          const combinedLogs: IBaseHistItem[] = [...pourLogs, ...givenLogs, ...rolledLogs].sort(
-            (a: IBaseHistItem, b: IBaseHistItem) => a.blockNumber - b.blockNumber
-          );
+          const combinedLogs = [...pourLogs, ...givenLogs, ...rolledLogs].sort((a, b) => a.blockNumber - b.blockNumber);
           vaultHistMap.set(vaultId, combinedLogs);
         })
       );
