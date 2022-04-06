@@ -31,8 +31,8 @@
       "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF",
 
       "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44",
-      "convexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6",
-      "cvx3CrvOracle": "0xB7Ea53dB91EeC2725557d01441ee64F748868c18"
+      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6",
+      "CVX3CRVOracle": "0xB7Ea53dB91EeC2725557d01441ee64F748868c18"
     },
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
