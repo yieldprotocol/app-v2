@@ -24,7 +24,7 @@ const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
 const YEARNVAULT_MULTI_ORACLE = 'YearnVaultMultiOracle';
 const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
 const NOTIONAL_MULTI_ORACLE = 'NotionalMultiOracle';
-const CVX3CRV_ORACLE = 'cvx3CrvOracle';
+const CVX3CRV_ORACLE = 'CVX3CRVOracle';
 
 // map chain id to oracle info
 export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
