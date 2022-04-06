@@ -23,6 +23,8 @@ export const FUSDC2206 = '0x313500000000';
 export const FDAI2209 = '0x313600000000';
 export const FUSDC2209 = '0x313700000000';
 
+export const CVX3CRV = '0x313800000000';
+
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
@@ -49,7 +51,7 @@ export const NON_PERMIT_ASSETS = [
   'FUSDC2209',
   FDAI2209,
   'FDAI2209',
-  
+
   'fDAI2203',
   'fUSDC2203',
   'fDAI2206',
@@ -148,7 +150,6 @@ ASSET_INFO.set(wstETH, {
   digitFormat: 6,
   unwrappedTokenId: '0x303500000000',
   tokenType: TokenType.ERC20_Permit,
-
 });
 
 ASSET_INFO.set(stETH, {
@@ -189,7 +190,7 @@ ASSET_INFO.set(yvUSDC, {
   color: '#3366CC',
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000' ],
+  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000'],
 });
 
 ASSET_INFO.set(UNI, {
@@ -227,7 +228,7 @@ ASSET_INFO.set(FDAI2203, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563371972493313,
-  limitToSeries: ['0x303130350000']
+  limitToSeries: ['0x303130350000'],
 });
 
 ASSET_INFO.set(FUSDC2203, {
@@ -241,7 +242,7 @@ ASSET_INFO.set(FUSDC2203, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844846949203969,
-  limitToSeries: ['0x303230350000']
+  limitToSeries: ['0x303230350000'],
 });
 
 ASSET_INFO.set(FDAI2206, {
@@ -255,7 +256,7 @@ ASSET_INFO.set(FDAI2206, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563373963149313,
-  limitToSeries: ['0x303130360000']
+  limitToSeries: ['0x303130360000'],
 });
 
 ASSET_INFO.set(FUSDC2206, {
@@ -269,7 +270,7 @@ ASSET_INFO.set(FUSDC2206, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844848939859969,
-  limitToSeries: ['0x303230360000']
+  limitToSeries: ['0x303230360000'],
 });
 
 ASSET_INFO.set(FDAI2209, {
@@ -283,7 +284,7 @@ ASSET_INFO.set(FDAI2209, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563375953805313,
-  limitToSeries: ['0x303130370000']
+  limitToSeries: ['0x303130370000'],
 });
 
 ASSET_INFO.set(FUSDC2209, {
@@ -297,5 +298,18 @@ ASSET_INFO.set(FUSDC2209, {
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844850930515969,
-  limitToSeries: ['0x303230370000']
+  limitToSeries: ['0x303230370000'],
+});
+
+ASSET_INFO.set(CVX3CRV, {
+  version: '1',
+  name: 'cvx3crv',
+  decimals: 18,
+  symbol: 'cvx3crv',
+  showToken: true,
+  isWrappedToken: false,
+  color: '#3A3A3A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [], // limit to stable debt assets
 });
