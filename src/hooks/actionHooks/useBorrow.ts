@@ -21,7 +21,6 @@ import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { Ladle } from '../../contracts';
 import { ChainContext } from '../../contexts/ChainContext';
 
 export const useBorrow = () => {
