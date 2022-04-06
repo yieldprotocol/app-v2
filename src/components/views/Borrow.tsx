@@ -196,7 +196,6 @@ const Borrow = () => {
     !selectedSeries ||
     borrowInputError ||
     selectedSeries?.seriesIsMature ||
-    borrowInputError ||
     (stepPosition === 1 && undercollateralized) ||
     (stepPosition === 1 && collatInputError) ||
     selectedSeries.baseId !== selectedBase?.id
