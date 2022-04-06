@@ -7,6 +7,8 @@ export type { ChainlinkMultiOracle } from "./ChainlinkMultiOracle";
 export type { ChainlinkUSDOracle } from "./ChainlinkUSDOracle";
 export type { CompositeMultiOracle } from "./CompositeMultiOracle";
 export type { CompoundMultiOracle } from "./CompoundMultiOracle";
+export type { ConvexLadleModule } from "./ConvexLadleModule";
+export type { CVX3CRVOracle } from "./CVX3CRVOracle";
 export type { ERC1155 } from "./ERC1155";
 export type { ERC20 } from "./ERC20";
 export type { ERC20Permit } from "./ERC20Permit";
@@ -31,6 +33,8 @@ export { ChainlinkMultiOracle__factory } from "./factories/ChainlinkMultiOracle_
 export { ChainlinkUSDOracle__factory } from "./factories/ChainlinkUSDOracle__factory";
 export { CompositeMultiOracle__factory } from "./factories/CompositeMultiOracle__factory";
 export { CompoundMultiOracle__factory } from "./factories/CompoundMultiOracle__factory";
+export { ConvexLadleModule__factory } from "./factories/ConvexLadleModule__factory";
+export { CVX3CRVOracle__factory } from "./factories/CVX3CRVOracle__factory";
 export { ERC1155__factory } from "./factories/ERC1155__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { ERC20Permit__factory } from "./factories/ERC20Permit__factory";
