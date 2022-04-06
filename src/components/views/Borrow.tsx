@@ -263,7 +263,7 @@ const Borrow = () => {
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
                     <AltText color="text-weak" size="xsmall">
-                      Borrow popular ERC20 tokens at a {' '}
+                      Borrow popular ERC20 tokens at a{' '}
                       <Text size="small" color="text">
                         fixed rate
                       </Text>
