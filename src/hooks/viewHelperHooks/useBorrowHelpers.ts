@@ -211,12 +211,13 @@ export const useBorrowHelpers = (
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxRepayable);
         }
-        /* or, if the series is mature re-set max as all debt */
+        /* or, if the series is mature re-set max as all debt ( if balance allows) */
         if (vaultSeries.seriesIsMature) {
-          const _art = vault.accruedArt;
+          const _art = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt
           setMaxRepay(_art);
           setMaxRepay_(ethers.utils.formatUnits(_art, vaultBase?.decimals)?.toString());
         }
+
       })();
     }
   }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);

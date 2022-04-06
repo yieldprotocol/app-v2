@@ -197,21 +197,21 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
         diagnostics && console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
 
-        if (_fyTokenReceived.gt(matchingVault?.art!)) {
+        if (_fyTokenReceived.gt(matchingVault?.accruedArt!)) {
           /* Fytoken received greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
           diagnostics &&
             console.log(
               'FyTokens received will be greater than debt: an extra sellFytoken trade is required: REMOVE OPTION 2.1 or 2.2 '
             );
 
-          const _extraFyTokensToSell = _fyTokenReceived.sub(matchingVault.art);
+          const _extraFyTokensToSell = _fyTokenReceived.sub(matchingVault.accruedArt);
           diagnostics && console.log(_extraFyTokensToSell.toString(), 'FyTokens Need to be sold');
 
           /* CASE> extra fyToken TRADE NOT POSSIBLE ( limited by protocol ): USE REMOVE OPTION 2.2 */
           diagnostics && console.log('USE REMOVE OPTION 2.2');
           setPartialRemoveRequired(true);
 
-          const _fyTokenVal = _fyTokenReceived.sub(matchingVault.art);
+          const _fyTokenVal = _fyTokenReceived.sub(matchingVault.accruedArt);
           const _baseVal = _baseReceived; // .add(matchingVault.art);
 
           setRemoveBaseReceived(_baseVal);

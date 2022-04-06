@@ -58,7 +58,7 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     const _vaultPositions = Array.from(vaultMap.values())
       .filter((vault) => (dashHideInactiveVaults ? vault.isActive : true))
-      .filter((vault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.art.gt(ZERO_BN) : true))
+      .filter((vault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.accruedArt.gt(ZERO_BN) : true))
       .filter((vault) => vault.baseId !== vault.ilkId)
       .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
     setVaultPositions(_vaultPositions);

@@ -170,7 +170,7 @@ export const useCollateralHelpers = (
 
     collateralizationRatio &&
     vault &&
-    vault.art?.gt(ethers.constants.Zero) &&
+    vault.accruedArt?.gt(ethers.constants.Zero) &&
     parseFloat(collateralizationRatio) > 0 &&
     parseFloat(collateralizationRatio) < assetPairInfo?.minRatio! + 0.2
       ? setUnhealthyCollatRatio(true)
