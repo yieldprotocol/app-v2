@@ -24,7 +24,6 @@ const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
 const YEARNVAULT_MULTI_ORACLE = 'YearnVaultMultiOracle';
 const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
 const NOTIONAL_MULTI_ORACLE = 'NotionalMultiOracle';
-const CVX3CRV_ORACLE = 'CVX3CRVOracle';
 
 // map chain id to oracle info
 export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
@@ -55,7 +54,7 @@ usdcIlkOracle1.set(FUSDC2203, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2206, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2209, NOTIONAL_MULTI_ORACLE);
 /* convex */
-usdcIlkOracle1.set(CVX3CRV, CVX3CRV_ORACLE);
+usdcIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle1);
 
@@ -77,7 +76,7 @@ daiIlkOracle1.set(FDAI2203, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2206, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2209, NOTIONAL_MULTI_ORACLE);
 /* convex */
-daiIlkOracle1.set(CVX3CRV, CVX3CRV_ORACLE);
+daiIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle1);
 
