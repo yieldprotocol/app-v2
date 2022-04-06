@@ -30,6 +30,7 @@ import MakerMark from '../components/logos/MakerMark';
 import NotionalMark from '../components/logos/NotionalMark';
 import { AssetAddedEvent, SeriesAddedEvent } from '../contracts/Cauldron';
 import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
+import CVXMark from '../components/logos/CVXMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -46,6 +47,7 @@ const markMap = new Map([
   ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get(yvUSDC)!.color} />],
   ['MKR', <MakerMark key="mkr" />],
   ['Notional', <NotionalMark color={ASSET_INFO?.get(yvUSDC)!.color} key="notional" />],
+  ['Cvx3Crv Mock', <CVXMark key="cvx3crv" />],
 ]);
 
 enum ChainState {
@@ -169,6 +171,7 @@ const ChainProvider = ({ children }: any) => {
 
       // modules
       let WrapEtherModule: contracts.WrapEtherModule;
+      let ConvexLadleModule: contracts.ConvexLadleModule;
 
       // Notional
       let NotionalMultiOracle: contracts.NotionalMultiOracle;
@@ -184,6 +187,7 @@ const ChainProvider = ({ children }: any) => {
 
         // module access
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
+        ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
           RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
@@ -251,6 +255,7 @@ const ChainProvider = ({ children }: any) => {
 
       // modules
       newContractMap.set('WrapEtherModule', WrapEtherModule);
+      newContractMap.set('ConvexLadleModule', ConvexLadleModule);
 
       updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
 
