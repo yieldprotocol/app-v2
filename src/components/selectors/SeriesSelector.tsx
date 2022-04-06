@@ -3,7 +3,14 @@ import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
-import { ActionType, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import {
+  ActionType,
+  ISeries,
+  ISettingsContext,
+  IUserContext,
+  IUserContextActions,
+  IUserContextState,
+} from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
@@ -117,7 +124,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
