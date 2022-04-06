@@ -30,7 +30,9 @@
       "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
       "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF",
 
-      "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
+      "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44",
+      "convexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6",
+      "cvx3CrvOracle": "0xB7Ea53dB91EeC2725557d01441ee64F748868c18"
     },
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
