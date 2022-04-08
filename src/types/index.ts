@@ -492,7 +492,7 @@ export enum ActionCodes {
 
 export interface IBaseHistItem {
   blockNumber: number;
-  date: Date;
+  date: number;
   transactionHash: string;
   series: ISeries;
   actionCode: ActionCodes;
