@@ -61,7 +61,7 @@ export const NON_PERMIT_ASSETS = [
   'fUSDC2206',
   'fUSDC2209',
   'fDAI2209',
-  CVX3CRV,
+  // CVX3CRV,
   'CVX3CRV',
   'Cvx3Crv Mock',
   FRAX,
