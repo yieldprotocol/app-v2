@@ -26,8 +26,8 @@ export const FDAI2209 = '0x313600000000';
 export const FUSDC2209 = '0x313700000000';
 
 /* Convex Curve LP token assets */
-export const CVX3CRV = '0x313800000000';
-export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK'];
+// export const CVX3CRV = '0x313800000000';
+// export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK'];
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
@@ -308,18 +308,18 @@ ASSET_INFO.set(FUSDC2209, {
   limitToSeries: ['0x303230370000'],
 });
 
-ASSET_INFO.set(CVX3CRV, {
-  version: '1',
-  name: 'cvx3crv',
-  decimals: 18,
-  symbol: 'cvx3crv',
-  showToken: false,
-  isWrappedToken: false,
-  color: '#3A3A3A',
-  digitFormat: 6,
-  tokenType: TokenType.ERC20_,
-  limitToSeries: [], // limit to stable debt assets
-});
+// ASSET_INFO.set(CVX3CRV, {
+//   version: '1',
+//   name: 'cvx3crv',
+//   decimals: 18,
+//   symbol: 'cvx3crv',
+//   showToken: false,
+//   isWrappedToken: false,
+//   color: '#3A3A3A',
+//   digitFormat: 6,
+//   tokenType: TokenType.ERC20_,
+//   limitToSeries: [], // limit to stable debt assets
+// });
 
 ASSET_INFO.set(FRAX, {
   version: '1',
