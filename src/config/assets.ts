@@ -13,7 +13,9 @@ export const ENS = '0x303700000000';
 export const UNI = '0x313000000000';
 export const yvUSDC = '0x303900000000';
 export const MKR = '0x313100000000';
+export const FRAX = '0x313800000000';
 
+/* Notional fCash assets */
 export const FDAI2203 = '0x313200000000';
 export const FUSDC2203 = '0x313300000000';
 
@@ -23,6 +25,7 @@ export const FUSDC2206 = '0x313500000000';
 export const FDAI2209 = '0x313600000000';
 export const FUSDC2209 = '0x313700000000';
 
+/* Convex Curve LP token assets */
 export const CVX3CRV = '0x313800000000';
 export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK'];
 
@@ -52,17 +55,16 @@ export const NON_PERMIT_ASSETS = [
   'FUSDC2209',
   FDAI2209,
   'FDAI2209',
-
   'fDAI2203',
   'fUSDC2203',
   'fDAI2206',
   'fUSDC2206',
   'fUSDC2209',
   'fDAI2209',
-
   CVX3CRV,
   'CVX3CRV',
   'Cvx3Crv Mock',
+  FRAX,
 ];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
@@ -311,10 +313,23 @@ ASSET_INFO.set(CVX3CRV, {
   name: 'cvx3crv',
   decimals: 18,
   symbol: 'cvx3crv',
-  showToken: true,
+  showToken: false,
   isWrappedToken: false,
   color: '#3A3A3A',
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
   limitToSeries: [], // limit to stable debt assets
+});
+
+ASSET_INFO.set(FRAX, {
+  version: '1',
+  name: 'frax',
+  decimals: 18,
+  symbol: 'FRAX',
+  showToken: true,
+  isWrappedToken: false,
+  color: '#000000',
+  digitFormat: 6,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [],
 });
