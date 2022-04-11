@@ -30,7 +30,7 @@ import MakerMark from '../components/logos/MakerMark';
 import NotionalMark from '../components/logos/NotionalMark';
 import { AssetAddedEvent, SeriesAddedEvent } from '../contracts/Cauldron';
 import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
-import CVXMark from '../components/logos/CVXMark';
+import TriCRVCVXMark from '../components/logos/3CRVMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -47,7 +47,7 @@ const markMap = new Map([
   ['yvUSDC', <YFIMark key="yvusdc" color={ASSET_INFO?.get(yvUSDC)!.color} />],
   ['MKR', <MakerMark key="mkr" />],
   ['Notional', <NotionalMark color={ASSET_INFO?.get(yvUSDC)!.color} key="notional" />],
-  ['Cvx3Crv Mock', <CVXMark key="cvx3crv" />],
+  ['Cvx3Crv Mock', <TriCRVCVXMark key="cvx3crv" />],
 ]);
 
 enum ChainState {
