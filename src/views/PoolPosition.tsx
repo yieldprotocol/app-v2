@@ -292,13 +292,6 @@ const PoolPosition = () => {
                   <CheckBox
                     label={
                       <Box>
-                        {/* <Text size="xsmall">Force Removal: </Text> */}
-                        {/* <Text size="xsmall">
-                            {`( You will receive `}
-                            {cleanValue(removeFyTokenReceived_, 2)} fy{selectedBase?.displaySymbol}{' '}
-                            {removeFyTokenReceived?.gt(ethers.constants.Zero) &&
-                              ` and ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} )`}
-                          </Text> */}
                         <Text size="xsmall">
                           Force Removal:
                           {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
