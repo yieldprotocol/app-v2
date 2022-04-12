@@ -485,4 +485,5 @@ const HistoryProvider = ({ children }: any) => {
   return <HistoryContext.Provider value={{ historyState, historyActions }}>{children}</HistoryContext.Provider>;
 };
 
-export { HistoryContext, HistoryProvider };
+export { HistoryContext };
+export default HistoryProvider;

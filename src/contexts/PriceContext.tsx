@@ -138,4 +138,5 @@ const PriceProvider = ({ children }: any) => {
   return <PriceContext.Provider value={{ priceState, priceActions }}>{children}</PriceContext.Provider>;
 };
 
-export { PriceContext, PriceProvider };
+export { PriceContext };
+export default PriceProvider;

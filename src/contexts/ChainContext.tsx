@@ -651,4 +651,5 @@ const ChainProvider = ({ children }: any) => {
   return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;
 };
 
-export { ChainContext, ChainProvider };
+export { ChainContext };
+export default ChainProvider;

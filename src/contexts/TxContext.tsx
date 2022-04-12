@@ -299,3 +299,4 @@ const TxProvider = ({ children }: any) => {
 };
 
 export { TxContext, TxProvider };
+export default TxProvider;

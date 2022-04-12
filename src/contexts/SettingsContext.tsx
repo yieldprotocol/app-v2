@@ -126,4 +126,5 @@ const SettingsProvider = ({ children }: any) => {
   return <SettingsContext.Provider value={{ settingsState, settingsActions }}>{children}</SettingsContext.Provider>;
 };
 
-export { SettingsContext, SettingsProvider };
+export { SettingsContext };
+export default SettingsProvider;

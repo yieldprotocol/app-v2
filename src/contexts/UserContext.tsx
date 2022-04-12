@@ -656,4 +656,5 @@ const UserProvider = ({ children }: any) => {
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
 };
 
-export { UserContext, UserProvider };
+export { UserContext };
+export default UserProvider;
