@@ -16,6 +16,7 @@ import {
   FDAI2206,
   FUSDC2209,
   FDAI2209,
+  FRAX,
   // CVX3CRV,
 } from './assets';
 
@@ -94,6 +95,21 @@ wethIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(WETH, wethIlkOracle1);
+
+// FRAX base
+const fraxIlkOracle1 = new Map<string, string>();
+fraxIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(DAI, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(USDC, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(WBTC, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(stETH, COMPOSITE_MULTI_ORACLE);
+fraxIlkOracle1.set(wstETH, COMPOSITE_MULTI_ORACLE);
+fraxIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
+fraxIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
+fraxIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+CHAIN_ID_1_ASSET_ORACLE_INFO.set(FRAX, fraxIlkOracle1);
 
 /* chain id 42161, 421611 (aribtrum mainnet and arbitrum rinkeby use the same oracle contracts) */
 
