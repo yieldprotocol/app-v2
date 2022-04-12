@@ -16,6 +16,8 @@ const initState = {
   /* process active flags for convenience */
   anyProcessActive: false as boolean,
   txWillFail: false as boolean,
+
+  txWillFailInfo: { error: undefined, transaction: undefined },
 };
 
 interface IYieldSignature {
@@ -89,6 +91,12 @@ function txReducer(_state: any, action: any) {
         txWillFail: _onlyIfChanged(action),
       };
 
+    case 'txWillFailInfo':
+      return {
+        ..._state,
+        txWillFailInfo: _onlyIfChanged(action),
+      };
+
     default:
       return _state;
   }
@@ -105,7 +113,9 @@ const TxProvider = ({ children }: any) => {
   };
 
   const { chainState } = useContext(ChainContext);
-  const { connection : { chainId } } = chainState;
+  const {
+    connection: { chainId },
+  } = chainState;
 
   const _resetProcess = (txCode: string) => updateState({ type: 'resetProcess', payload: txCode });
 
@@ -145,12 +155,16 @@ const TxProvider = ({ children }: any) => {
     analyticsLogEvent('TX_FAILED', { txCode }, chainId);
   };
 
-  const handleTxWillFail = (txCode?: string | undefined) => {
+  const handleTxWillFail = (error: any, txCode?: string | undefined, transaction?: any) => {
     /* simply toggles the txWillFail txState */
     if (txState.txWillFail === false) {
       updateState({ type: 'txWillFail', payload: true });
       /* extra actions */
-      toast.error('Transaction Aborted. It appears the transaction would have more than likely failed.');
+      toast.error(`Transaction Aborted`);
+
+      console.log(transaction);
+      updateState({ type: 'txWillFailInfo', payload: { error, transaction } });
+      
       txCode && updateState({ type: 'resetProcess', payload: txCode });
     } else {
       updateState({ type: 'txWillFail', payload: false });
