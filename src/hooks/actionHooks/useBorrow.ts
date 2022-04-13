@@ -66,7 +66,6 @@ export const useBorrow = () => {
 
     /* is convex-type collateral */
     const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.idToUse!);
-    const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
 
     /* parse inputs  (clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
@@ -126,13 +125,11 @@ export const useBorrow = () => {
         ignoreIf: !!vault,
       },
 
-      /* If convex-type collateral, add vault using convex ladle module */
+      /* If convex-type collateral, pour */
       {
-        operation: LadleActions.Fn.MODULE,
-        fnName: ModuleActions.Fn.ADD_VAULT,
-        args: [selectedIlk.joinAddress, vaultId] as ModuleActions.Args.ADD_VAULT,
-        targetContract: ConvexLadleModuleContract,
-        ignoreIf: !!vault || !isConvexCollateral,
+        operation: LadleActions.Fn.POUR,
+        args: [vaultId, account, _collInput, _input] as LadleActions.Args.POUR,
+        ignoreIf: (!!vault && !isConvexCollateral) || !isConvexCollateral,
       },
 
       /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ), else send ZERO_BN */
@@ -147,7 +144,7 @@ export const useBorrow = () => {
           _input,
           _expectedFyTokenWithSlippage,
         ] as LadleActions.Args.SERVE,
-        ignoreIf: false, // never ignore
+        ignoreIf: isConvexCollateral,
       },
 
       /* handle remove/unwrap WETH > if ETH is what is being borrowed */
