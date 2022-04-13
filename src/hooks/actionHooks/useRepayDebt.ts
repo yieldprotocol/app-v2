@@ -93,16 +93,12 @@ export const useRepayDebt = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
-
-    /* handle wrapped tokens:  */
+    
+    /* handle wrapped tokens: */
     let unwrap: ICallData[] = [];
     if (ilk.wrapHandlerAddress && unwrapTokens && reclaimCollateral) {
       reclaimToAddress = ilk.wrapHandlerAddress;
       unwrap = await unwrapAsset(ilk, account!);
-    }
-
-    if (isEthBase) {
-      reclaimToAddress = ladleAddress;
     }
 
     const alreadyApproved = !series.seriesIsMature && (
@@ -165,6 +161,7 @@ export const useRepayDebt = () => {
           inputGreaterThanDebt || // use if input is NOT more than debt
           inputGreaterThanMaxBaseIn,
       },
+
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
