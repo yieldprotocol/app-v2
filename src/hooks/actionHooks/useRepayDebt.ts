@@ -165,9 +165,10 @@ export const useRepayDebt = () => {
           inputGreaterThanDebt || // use if input is NOT more than debt
           inputGreaterThanMaxBaseIn,
       },
+      
       {
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
+        args: [vault.id, account, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
           !inputGreaterThanDebt || // use if input IS more than debt OR
