@@ -91,20 +91,14 @@ export const useChain = () => {
 
     /* calculate the gas required */
     let gasEst: BigNumber;
-    let gasEstFail: boolean = false;
+    // let gasEstFail: boolean = false;
     try {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
       console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
-    } catch (e) {
+    } catch (e: any) {
       gasEst = BigNumber.from(500000);
-      console.log('Failed to get gas estimate', e);
-      // toast.warning('It appears the transaction will likely fail. Proceed with caution...');
-      gasEstFail = true;
-    }
-
-    /* handle if the tx if going to fail and transactions aren't forced */
-    if (gasEstFail && !forceTransactions) {
-      return handleTxWillFail(txCode);
+       /* handle if the tx if going to fail and transactions aren't forced */
+      if (!forceTransactions) return handleTxWillFail(e.error, txCode, e.transaction)
     }
 
     /* Finally, send out the transaction */

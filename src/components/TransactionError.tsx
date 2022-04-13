@@ -1,21 +1,25 @@
-import { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Layer, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
-import { ChainContext } from '../contexts/ChainContext';
 import GeneralButton from './buttons/GeneralButton';
+import CopyWrap from './wraps/CopyWrap';
+import { SettingsContext } from '../contexts/SettingsContext';
+import { ApprovalType } from '../types';
+import ApprovalSetting from './settings/ApprovalSetting';
 
 const TransactionError = () => {
+  const {
+    settingsActions: { updateSetting },
+  } = useContext(SettingsContext);
   const { txState, txActions } = useContext(TxContext);
 
-  const {
-    chainActions: { connect },
-  } = useContext(ChainContext);
-
-  const handleChangeConnection = (connection: string) => {
-    connect(connection);
+  const handleSetApprovalMethod = () => {
+    updateSetting('approvalMethod', ApprovalType.TX);
     txActions.handleTxWillFail();
   };
+
+  const [showDiagnostics, setShowDiagnostics] = useState<boolean>(false);
 
   return (
     <>
@@ -28,36 +32,64 @@ const TransactionError = () => {
 
             <Box pad="small">
               <Text size="small">
-                It seems your transaction was likely to fail, and so it was aborted before being submitted.{' '}
+                It seems your transaction was likely to fail, and so it was aborted before being submitted.
               </Text>
             </Box>
 
-            <Box pad="small" gap="medium">
-              <Box gap="xsmall">
-                <Text size="small">
-                  The most common cause is using a using a wallet (eg. Ledger, Trezor or contract wallet) that does not
-                  support signing EIP-2612 permits.
-                </Text>
-                <Text size="small">
-                  These wallets can still be used on the protocol, but you will be required to make individual approval
-                  transactions.
-                </Text>
-              </Box>
+            {txState.txWillFailInfo.error &&
+              txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
+                'ERC20: insufficient allowance' && (
+                <Box pad="medium" gap="small">
+                  <Box gap="small">
+                    <Text size="small" weight="bold">
+                      Not all wallets support signing EIP-2612 permits (eg. Ledger, Trezor or contract wallets).
+                    </Text>
+                    <Text size="small">
+                      Most wallets can still be used on the protocol, but you will be required to make token approvals
+                      as individual transactions (Optionally, you can also set the approval to the maximum amount).
+                    </Text>
+                  </Box>
+                  <ApprovalSetting />
+                </Box>
+              )}
 
-              <Box gap="xsmall">
-                <Text size="small"> Possible solutions: </Text>
+            <Box pad="small">
+              {txState.txWillFailInfo.error && (
+                <Box gap="small">
+                  <Text size="small"> Diagnostics</Text>
+                  <Box pad="small" border gap="small" round="small">
+                    <Text size="xsmall">
+                      Reason for revert: {txState.txWillFailInfo.error.message.split('execution reverted: ')[1]}
+                    </Text>
 
-                <GeneralButton
-                  action={() => handleChangeConnection('ledgerWithMetamask')}
-                  background="gradient-transparent"
-                >
-                  <Text size="small"> Change to Ledger/Trezor supporting connection </Text>
-                </GeneralButton>
+                    <Box onClick={() => setShowDiagnostics(!showDiagnostics)}>
+                      {showDiagnostics ? (
+                        <Text size="xsmall" wordBreak="break-word">
+                          {JSON.stringify({
+                            transaction: txState.txWillFailInfo.transaction,
+                            error: txState.txWillFailInfo.error,
+                          })}
+                        </Text>
+                      ) : (
+                        <Text size="xsmall" truncate>
+                          {JSON.stringify(txState.txWillFailInfo.transaction.data)}
+                        </Text>
+                      )}
+                    </Box>
 
-                <GeneralButton action={() => handleChangeConnection('walletconnect')} background="gradient-transparent">
-                  <Text size="small"> Change to walletConnect supporting connection </Text>
-                </GeneralButton>
-              </Box>
+                    <Box alignSelf="end">
+                      <CopyWrap
+                        hash={JSON.stringify({
+                          transaction: txState.txWillFailInfo.transaction,
+                          error: txState.txWillFailInfo.error,
+                        })}
+                      >
+                        <Text size="xsmall">Copy diagnostic information</Text>
+                      </CopyWrap>
+                    </Box>
+                  </Box>
+                </Box>
+              )}
             </Box>
           </Box>
         </Layer>

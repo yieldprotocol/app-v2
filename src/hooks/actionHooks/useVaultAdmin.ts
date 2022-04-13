@@ -42,7 +42,9 @@ export const useVaultAdmin = () => {
     const base: IAsset = assetMap.get(vault.baseId)!;
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const alreadyApproved = approveMax ? (await base.getAllowance(account!, ladleAddress)).gte(vault.art) : false;
+    const alreadyApproved = approveMax
+      ? (await base.getAllowance(account!, ladleAddress)).gte(vault.accruedArt)
+      : false;
 
     const permits: ICallData[] = await sign(
       [
@@ -77,7 +79,7 @@ export const useVaultAdmin = () => {
     const calls: ICallData[] = [
       {
         operation: LadleActions.Fn.STIR,
-        args: [vault.id, to.id, vault.ink, vault.art] as LadleActions.Args.STIR,
+        args: [vault.id, to.id, vault.ink, vault.accruedArt] as LadleActions.Args.STIR,
         // TODO: #82 refactor to actually allow for custom ink and art values (right now seems like formatting issues) @marcomariscal
         // args: [vault.id, to.id, _ink, _art] as LadleActions.Args.STIR,
         ignoreIf: series?.seriesIsMature,
@@ -85,7 +87,7 @@ export const useVaultAdmin = () => {
       {
         operation: LadleActions.Fn.DESTROY,
         args: [vault.id] as LadleActions.Args.DESTROY,
-        ignoreIf: !deleteVault || vault.art.gt(ethers.constants.Zero) || vault.ink.gt(ethers.constants.Zero),
+        ignoreIf: !deleteVault || vault.accruedArt.gt(ethers.constants.Zero) || vault.ink.gt(ethers.constants.Zero),
       },
     ];
     await transact(calls, txCode);
