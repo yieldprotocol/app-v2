@@ -11,6 +11,7 @@ enum TxStateItem {
   RESET_PROCESS = 'resetProcess',
   PROCESS_ACTIVE = 'processActive',
   TX_WILL_FAIL = 'txWillFail',
+  TX_WILL_FAIL_INFO = 'txWillFailInfo',
 }
 
 const TxContext = React.createContext<any>({});
@@ -99,7 +100,7 @@ function txReducer(_state: any, action: any) {
         txWillFail: _onlyIfChanged(action),
       };
 
-    case 'txWillFailInfo':
+    case TxStateItem.TX_WILL_FAIL_INFO:
       return {
         ..._state,
         txWillFailInfo: _onlyIfChanged(action),
@@ -171,9 +172,9 @@ const TxProvider = ({ children }: any) => {
       toast.error(`Transaction Aborted`);
 
       console.log(transaction);
-      updateState({ type: 'txWillFailInfo', payload: { error, transaction } });
-      
-      txCode && updateState({ type: 'resetProcess', payload: txCode });
+      updateState({ type: TxStateItem.TX_WILL_FAIL_INFO, payload: { error, transaction } });
+
+      txCode && updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
     } else {
       updateState({ type: TxStateItem.TX_WILL_FAIL, payload: false });
       analyticsLogEvent('TX_WILL_FAIL', { txCode }, chainId);
