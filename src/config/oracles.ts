@@ -50,6 +50,7 @@ usdcIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 usdcIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+usdcIlkOracle1.set(FRAX, COMPOSITE_MULTI_ORACLE);
 /* notional additions */
 usdcIlkOracle1.set(FUSDC2203, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2206, NOTIONAL_MULTI_ORACLE);
@@ -72,6 +73,7 @@ daiIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 daiIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+daiIlkOracle1.set(FRAX, COMPOSITE_MULTI_ORACLE);
 /* notional additions */
 daiIlkOracle1.set(FDAI2203, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2206, NOTIONAL_MULTI_ORACLE);
@@ -94,6 +96,7 @@ wethIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+wethIlkOracle1.set(FRAX, COMPOSITE_MULTI_ORACLE);
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(WETH, wethIlkOracle1);
 
 // FRAX base
