@@ -1,23 +1,12 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Box, Layer, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
-import GeneralButton from './buttons/GeneralButton';
 import CopyWrap from './wraps/CopyWrap';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { ApprovalType } from '../types';
 import ApprovalSetting from './settings/ApprovalSetting';
 
 const TransactionError = () => {
-  const {
-    settingsActions: { updateSetting },
-  } = useContext(SettingsContext);
   const { txState, txActions } = useContext(TxContext);
-
-  const handleSetApprovalMethod = () => {
-    updateSetting('approvalMethod', ApprovalType.TX);
-    txActions.handleTxWillFail();
-  };
 
   const [showDiagnostics, setShowDiagnostics] = useState<boolean>(false);
 
