@@ -125,13 +125,6 @@ export const useBorrow = () => {
         ignoreIf: !!vault,
       },
 
-      /* If convex-type collateral, pour */
-      {
-        operation: LadleActions.Fn.POUR,
-        args: [vaultId, account, _collInput, _input] as LadleActions.Args.POUR,
-        ignoreIf: (!!vault && !isConvexCollateral) || !isConvexCollateral,
-      },
-
       /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ), else send ZERO_BN */
       ...addEth(isEthCollateral ? _collInput : ZERO_BN),
 
@@ -144,7 +137,7 @@ export const useBorrow = () => {
           _input,
           _expectedFyTokenWithSlippage,
         ] as LadleActions.Args.SERVE,
-        ignoreIf: isConvexCollateral,
+        ignoreIf: false,
       },
 
       /* handle remove/unwrap WETH > if ETH is what is being borrowed */
