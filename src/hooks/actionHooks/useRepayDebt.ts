@@ -11,16 +11,18 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
+  RoutedActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { MAX_256, ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ConvexJoin__factory } from '../../contracts';
 
 export const useRepayDebt = () => {
   const {
@@ -34,7 +36,7 @@ export const useRepayDebt = () => {
   const { updateVaults, updateAssets } = userActions;
 
   const {
-    chainState: { contractMap },
+    chainState: { contractMap, provider },
   } = useContext(ChainContext);
 
   const { addEth, removeEth } = useAddRemoveEth();
@@ -83,8 +85,8 @@ export const useRepayDebt = () => {
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
     const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
-    
-    const _inputforClose = (vault.accruedArt.gt(ZERO_BN) && vault.accruedArt.lte(_input)) ? vault.accruedArt : _input;
+
+    const _inputforClose = vault.accruedArt.gt(ZERO_BN) && vault.accruedArt.lte(_input) ? vault.accruedArt : _input;
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
@@ -93,6 +95,10 @@ export const useRepayDebt = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
+
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(ilk.idToUse);
+    const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
 
     /* handle wrapped tokens:  */
     let unwrap: ICallData[] = [];
@@ -105,19 +111,12 @@ export const useRepayDebt = () => {
       reclaimToAddress = ladleAddress;
     }
 
-    const alreadyApproved = !series.seriesIsMature && (
-      await base.getAllowance(
-        account!,
-       inputGreaterThanMaxBaseIn ? base.joinAddress : ladleAddress
-      )
-    ).gte(_input);
+    const alreadyApproved =
+      !series.seriesIsMature &&
+      (await base.getAllowance(account!, inputGreaterThanMaxBaseIn ? base.joinAddress : ladleAddress)).gte(_input);
 
-    const alreadyApprovedPostMaturity =  series.seriesIsMature && (
-      await base.getAllowance(
-        account!,
-       base.joinAddress
-      )
-    ).gte(_inputforClose.mul(2));
+    const alreadyApprovedPostMaturity =
+      series.seriesIsMature && (await base.getAllowance(account!, base.joinAddress)).gte(_inputforClose.mul(2));
 
     const permits: ICallData[] = await sign(
       [
@@ -129,7 +128,7 @@ export const useRepayDebt = () => {
           ignoreIf: series.seriesIsMature || alreadyApproved === true || inputGreaterThanMaxBaseIn,
         },
         {
-          // input gretaer than max base in
+          // input greater than max base in or convex
           target: base,
           spender: base.joinAddress,
           amount: _input,
@@ -155,6 +154,15 @@ export const useRepayDebt = () => {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: series.seriesIsMature || inputGreaterThanMaxBaseIn || isEthBase,
+      },
+
+      /* convex-type collateral; ensure checkpoint before giving collateral back to account */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [vault.owner] as RoutedActions.Args.CHECKPOINT,
+        fnName: RoutedActions.Fn.CHECKPOINT,
+        targetContract: convexJoinContract, // use the convex join contract to checkpoint
+        ignoreIf: !isConvexCollateral || _collateralToRemove.eq(ethers.constants.Zero),
       },
 
       {
