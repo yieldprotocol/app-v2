@@ -119,7 +119,7 @@ export namespace RoutedActions {
     export type WRAP = [receiver: string];
     export type UNWRAP = [receiver: string];
 
-    export type CHECKPOINT = [receiver: string];
+    export type CHECKPOINT = [vaultOwner: string];
   }
 }
 
