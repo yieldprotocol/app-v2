@@ -37,8 +37,19 @@ const TransactionError = () => {
             </Box>
 
             {txState.txWillFailInfo.error &&
+
+             ( 
               txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
-                'ERC20: insufficient allowance' && (
+                'ERC20: Insufficient approval' ||
+              txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
+                'Dai/insufficient-allowance' || 
+              txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
+                'ERC20: transfer amount exceeds allowance' ||
+                txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
+                'ERC20: insufficient allowance' ||
+                txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
+                'ERC20: transfer amount exceeds allowance'
+              ) && (
               <Box pad="medium" gap="small">
                 <Box gap="small">
                   <Text size="small" weight="bold">
