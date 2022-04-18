@@ -146,7 +146,7 @@ export const useRepayDebt = () => {
       ...permits,
 
       /* BEFORE MATURITY */
-      ...addEth(isEthBase && !inputGreaterThanMaxBaseIn ? _input : ZERO_BN, series.poolAddress),
+      ...addEth(isEthBase ? _input : ZERO_BN, series.poolAddress),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
