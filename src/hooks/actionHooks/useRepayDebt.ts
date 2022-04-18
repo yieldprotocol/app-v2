@@ -82,8 +82,13 @@ export const useRepayDebt = () => {
     );
 
     const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
-    const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
     
+    /* Check the max amount the pool can handle */ 
+    const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+    /* in low liq situations send repay funds to join not pool */
+    const transferToAddress = inputGreaterThanMaxBaseIn? base.joinAddress : series.poolAddress
+    
+    /* check that if input is greater, only repay the max debt (or accrued debt) */
     const _inputforClose = (vault.accruedArt.gt(ZERO_BN) && vault.accruedArt.lte(_input)) ? vault.accruedArt : _input;
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
@@ -92,6 +97,7 @@ export const useRepayDebt = () => {
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
+    /* address to send the funds to either ladle  ( if eth is used as collateral ) or account */
     let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
     
     /* handle wrapped tokens: */
@@ -145,12 +151,12 @@ export const useRepayDebt = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      /* BEFORE MATURITY */
-      ...addEth(isEthBase ? _input : ZERO_BN, series.poolAddress),
+      /* BEFORE MATURITY - !series.seriesIsMature */
+      ...addEth(isEthBase && !series.seriesIsMature ? _input : ZERO_BN, transferToAddress ), // destination = either join or series depending if tradeable
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature || inputGreaterThanMaxBaseIn || isEthBase,
+        args: [base.address, transferToAddress, _input] as LadleActions.Args.TRANSFER,
+        ignoreIf: series.seriesIsMature || isEthBase,
       },
 
       {
@@ -178,7 +184,8 @@ export const useRepayDebt = () => {
         ignoreIf: series.seriesIsMature || !inputGreaterThanMaxBaseIn,
       },
 
-      /* AFTER MATURITY */
+      /* AFTER MATURITY  - series.seriesIsMature */
+      /* No Transfer? */ 
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
