@@ -10,7 +10,7 @@ function getFallbackLibrary(provider: any) {
   return library;
 }
 
-const Web3FallbackProviderForSSR = ({ children }) => (
+const Web3FallbackProviderForSSR = ({ children } : { children: any }) => (
   <Web3FallbackProvider getLibrary={getFallbackLibrary}>{children}</Web3FallbackProvider>
 );
 

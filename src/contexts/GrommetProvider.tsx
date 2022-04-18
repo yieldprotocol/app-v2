@@ -3,7 +3,7 @@ import { deepMerge } from 'grommet/utils';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { yieldTheme } from '../themes';
 
-const GrommetProviderForSSR = ({ children }) => {
+const GrommetProviderForSSR = ({ children } : { children:any }) => {
   const colorScheme = useColorScheme();
   return (
     <Grommet theme={deepMerge(base, yieldTheme) as any} themeMode={colorScheme} full>

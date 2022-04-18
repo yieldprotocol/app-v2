@@ -93,7 +93,7 @@ const initState: IChainContextState = {
 
 function chainReducer(state: IChainContextState, action: any) {
   /* Helper: only change the state if different from existing */
-  const onlyIfChanged = (_action: any) =>
+  const onlyIfChanged = (_action: any): IChainContextState =>
     state[action.type] === _action.payload ? state[action.type] : _action.payload;
 
   /* Reducer switch */
