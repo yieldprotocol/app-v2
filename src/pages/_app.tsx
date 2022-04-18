@@ -6,13 +6,12 @@ import '../styles/globals.css';
 
 const Web3FallbackProvider = dynamic(() => import('../contexts/FallbackProvider'), { ssr: false });
 const Web3ReactProvider = dynamic(() => import('../contexts/Web3ReactProvider'), { ssr: false });
-const DynamicChainProvider = dynamic(() => import('../contexts/ChainContext'), { ssr: false });
+const DynamicChainProvider = dynamic(() => import('../contexts/ChainContext'), { ssr: true }); // this is set to true now
 const DynamicSettingsProvider = dynamic(() => import('../contexts/SettingsContext'), { ssr: false });
 const DynamicUserProvider = dynamic(() => import('../contexts/UserContext'), { ssr: false });
 const DynamicTxProvider = dynamic(() => import('../contexts/TxContext'), { ssr: false });
 const DynamicPriceProvider = dynamic(() => import('../contexts/PriceContext'), { ssr: false });
 const DynamicHistoryProvider = dynamic(() => import('../contexts/HistoryContext'), { ssr: false });
-const DynamicGrommet = dynamic(() => import('../contexts/GrommetProvider'), { ssr: false });
 const DynamicLayout = dynamic(() => import('../components/Layout'), { ssr: false });
 
 declare global {
@@ -40,11 +39,9 @@ const App = ({ Component, pageProps }: AppProps) => {
               <DynamicTxProvider>
                 <DynamicPriceProvider>
                   <DynamicHistoryProvider>
-                    <DynamicGrommet>
                       <DynamicLayout>
                         <Component {...pageProps} />
                       </DynamicLayout>
-                    </DynamicGrommet>
                   </DynamicHistoryProvider>
                 </DynamicPriceProvider>
               </DynamicTxProvider>

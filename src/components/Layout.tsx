@@ -1,9 +1,13 @@
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
 import Head from 'next/head';
-import { ResponsiveContext, Box } from 'grommet';
+import { base, Grommet, ResponsiveContext, Box } from 'grommet';
 import { FC, useContext, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
+
+import { deepMerge } from 'grommet/utils';
+import { useColorScheme } from '../hooks/useColorScheme';
+import { yieldTheme } from '../themes';
 
 // get dynaimc imports for applicable components (to account for non-ssr)
 const DynamicYieldHeader = dynamic(() => import('./YieldHeader'), { ssr: false });
@@ -16,6 +20,7 @@ const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ss
 const Layout: FC = ({ children }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
+  const colorScheme = useColorScheme();
 
   return (
     <>
@@ -42,18 +47,21 @@ const Layout: FC = ({ children }) => {
         <link rel="apple-touch-icon" href="/logo.svg" />
         <link rel="manifest" href="/favicons/site.webmanifest" />
       </Head>
-      <Box fill background="background">
-        <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-        <DynamicNetworkBanner />
-        <DynamicTransactionWidget />
-        <DynamicNetworkError />
-        <DynamicTransactionError />
-        <ToastContainer position="top-right" />
-        <Box flex={!mobile} overflow="hidden">
-          {menuLayerOpen && <DynamicYieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+
+      <Grommet theme={deepMerge(base, yieldTheme) as any} themeMode={colorScheme} full>
+        <Box fill background="background">
+          <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+          <DynamicNetworkBanner />
+          <DynamicTransactionWidget />
+          <DynamicNetworkError />
+          <DynamicTransactionError />
+          <ToastContainer position="top-right" />
+          <Box flex={!mobile} overflow="hidden">
+            {menuLayerOpen && <DynamicYieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
+          </Box>
+          {children}
         </Box>
-        {children}
-      </Box>
+      </Grommet>
     </>
   );
 };
