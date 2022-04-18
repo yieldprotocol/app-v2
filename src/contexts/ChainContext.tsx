@@ -652,4 +652,5 @@ const ChainProvider = ({ children }: any) => {
 };
 
 export { ChainContext };
+
 export default ChainProvider;

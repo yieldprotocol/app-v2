@@ -4,8 +4,8 @@ import { AppProps } from 'next/app';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 
-const Web3FallbackProvider = dynamic(() => import('../contexts/FallbackProvider'), { ssr: false });
-const Web3ReactProvider = dynamic(() => import('../contexts/Web3ReactProvider'), { ssr: false });
+const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
+
 const DynamicChainProvider = dynamic(() => import('../contexts/ChainContext'), { ssr: true }); // this is set to true now
 const DynamicSettingsProvider = dynamic(() => import('../contexts/SettingsContext'), { ssr: false });
 const DynamicUserProvider = dynamic(() => import('../contexts/UserContext'), { ssr: false });
@@ -31,25 +31,23 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, []);
 
   return (
-    <Web3FallbackProvider>
-      <Web3ReactProvider>
+    <ProviderContext>
         <DynamicChainProvider>
           <DynamicSettingsProvider>
             <DynamicUserProvider>
               <DynamicTxProvider>
                 <DynamicPriceProvider>
                   <DynamicHistoryProvider>
-                      <DynamicLayout>
-                        <Component {...pageProps} />
-                      </DynamicLayout>
+                    <DynamicLayout>
+                      <Component {...pageProps} />
+                    </DynamicLayout>
                   </DynamicHistoryProvider>
                 </DynamicPriceProvider>
               </DynamicTxProvider>
             </DynamicUserProvider>
           </DynamicSettingsProvider>
         </DynamicChainProvider>
-      </Web3ReactProvider>
-    </Web3FallbackProvider>
+    </ProviderContext>
   );
 };
 
