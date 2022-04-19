@@ -28,7 +28,7 @@ function LendItem({
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
   const seriesBase: IAsset = assetMap.get(series.baseId)!;
-  const isSelectedBaseAndSeries = series.baseId === seriesBase.id && series.id === selectedSeries?.id;
+  const isSelectedBaseAndSeries = series.baseId === seriesBase.proxyId && series.id === selectedSeries?.id;
 
   const handleSelect = (_series: ISeries) => {
     userActions.setSelectedBase(selectedBase);

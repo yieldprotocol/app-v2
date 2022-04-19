@@ -48,7 +48,7 @@ export const useRemoveCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1); // NOTE: negated value!
 
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
-    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.id);
+    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
     const _pourTo = isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */

@@ -38,7 +38,7 @@ export const useWrapUnwrapAsset = () => {
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
 
       const wrapHandlerContract: Contract = new Contract(wrapHandlerAddress, wrapHandlerAbi, signer);
-      const assetContract = assetRootMap.get(asset.id);
+      const assetContract = assetRootMap.get(asset.id); // note -> this is NOT the proxyID
       diagnostics && console.log('Asset Contract to be signed for wrapping: ', assetContract);
 
       /* Gather all the required signatures - sign() processes them and returns them as ICallData types */

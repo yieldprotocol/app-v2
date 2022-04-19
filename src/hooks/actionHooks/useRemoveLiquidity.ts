@@ -160,7 +160,7 @@ export const useRemoveLiquidity = () => {
       ? (await series.poolContract.allowance(account!, ladleAddress)).gte(_input)
       : false;
 
-    const isEthBase = ETH_BASED_ASSETS.includes(_base.id);
+    const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
     const toAddress = isEthBase ? ladleAddress : account;
 
     const permits: ICallData[] = await sign(

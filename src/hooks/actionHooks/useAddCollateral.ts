@@ -54,7 +54,7 @@ export const useAddCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk?.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.id!);
+    const _isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.proxyId!);
     const _pourTo = _isEthCollateral ? ladleAddress : account;
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */

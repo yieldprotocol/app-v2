@@ -97,7 +97,7 @@ export const useAddLiquidity = () => {
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
 
     /* if ethBase */
-    const isEthBase = ETH_BASED_ASSETS.includes(_base.id);
+    const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
 
     /* DIAGNOSITCS */
     console.log(

@@ -198,7 +198,7 @@ const Borrow = () => {
     selectedSeries?.seriesIsMature ||
     (stepPosition === 1 && undercollateralized) ||
     (stepPosition === 1 && collatInputError) ||
-    selectedSeries.baseId !== selectedBase?.id
+    selectedSeries.baseId !== selectedBase?.proxyId
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
@@ -210,7 +210,7 @@ const Borrow = () => {
     collatInput,
     undercollateralized,
     collatInputError,
-    selectedBase?.id,
+    selectedBase?.proxyId,
   ]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
@@ -541,7 +541,7 @@ const Borrow = () => {
                 // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {borrowInput && (!selectedSeries || selectedBase?.id !== selectedSeries.baseId)
+                    {borrowInput && (!selectedSeries || selectedBase?.proxyId !== selectedSeries.baseId)
                       ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
                       : 'Next Step'}
                   </Text>
