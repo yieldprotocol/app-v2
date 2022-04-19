@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useReducer } from 'react';
 import { ApprovalType, IChainContext, ISettingsContextState } from '../types';
 import { ChainContext } from './ChainContext';
 
-enum SettingsState {
+export enum Settings {
   APPROVAL_METHOD = 'approvalMethod',
   APPROVAL_MAX = 'approveMax',
   SLIPPAGE_TOLERANCE = 'slippageTolerance',
@@ -56,7 +56,7 @@ const initState: ISettingsContextState = {
   showWrappedTokens: true,
 
   /* Always Unwrap tokens when removing them */
-  unwrapTokens: false,
+  unwrapTokens: true,
 
   /* Dashboard settings */
   dashHideEmptyVaults: false,
@@ -91,7 +91,7 @@ const SettingsProvider = ({ children }: any) => {
   /* watch & handle linked approval and effect appropriate settings */
   useEffect(() => {
     if (settingsState.approvalMethod === ApprovalType.SIG) {
-      updateState({ type: SettingsState.APPROVAL_MAX, payload: false });
+      updateState({ type: Settings.APPROVAL_MAX, payload: false });
     }
   }, [settingsState.approvalMethod]);
 
@@ -99,11 +99,11 @@ const SettingsProvider = ({ children }: any) => {
   useEffect(() => {
     if (connection.connectionName && connection.connectionName !== 'metamask') {
       console.log('Using manual ERC20 approval transactions');
-      updateState({ type: SettingsState.APPROVAL_MAX, payload: ApprovalType.TX });
+      updateState({ type: Settings.APPROVAL_MAX, payload: ApprovalType.TX });
     } else if (connection.connectionName === 'metamask') {
       /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
-      updateState({ type: SettingsState.APPROVAL_METHOD, payload: ApprovalType.SIG });
+      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
     }
   }, [connection.connectionName]);
 
@@ -115,7 +115,7 @@ const SettingsProvider = ({ children }: any) => {
   /* Update all settings in state based on localStorage */
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      Object.values(SettingsState).forEach((setting) => {
+      Object.values(Settings).forEach((setting) => {
         if (JSON.parse(localStorage.getItem(setting)) !== null) {
           updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)) });
         }

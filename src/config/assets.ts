@@ -27,13 +27,14 @@ export const FUSDC2209 = '0x313700000000';
 
 /* Convex Curve LP token assets */
 export const CVX3CRV = '';
-export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK'];
 
+export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK'];
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
 
+/* Unknown token for temporarily handling new tokens added */ 
 ASSET_INFO.set(UNKNOWN, {
   version: '1',
   name: 'UNKNOWN',
@@ -96,7 +97,6 @@ ASSET_INFO.set(WETH, {
   symbol: 'WETH',
   displaySymbol: 'ETH',
   showToken: true,
-  // isWrappedToken: false,
   color: '#FFFFFF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
@@ -111,9 +111,7 @@ ASSET_INFO.set(wstETH, {
   showToken: true,
   color: '#00A3FF',
   digitFormat: 6,
-  // unwrappedTokenId: '0x303500000000',
   tokenType: TokenType.ERC20_Permit,
-
   wrapHandlerAddresses:new Map([]),
   unwrapHandlerAddresses:new Map([[4,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1'], ])
 });
@@ -127,7 +125,6 @@ ASSET_INFO.set(stETH, {
   color: '#00A3FF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
-  // proxyId: '0x303500000000',
   wrapHandlerAddresses:new Map([[4,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1'], ]),
   unwrapHandlerAddresses:new Map([])
 });
