@@ -132,6 +132,7 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
+  tokenType: TokenType;
 }
 
 export interface ISeriesRoot extends ISignable {
