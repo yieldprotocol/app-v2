@@ -141,7 +141,6 @@ ASSET_INFO.set(wstETH, {
   displaySymbol: 'wstETH',
   showToken: true,
   isWrappedToken: true,
-  wrapHandlerAddress: '',
   wrappedTokenId: '',
   wrappedTokenAddress: '',
   color: '#00A3FF',

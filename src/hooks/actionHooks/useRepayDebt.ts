@@ -53,6 +53,11 @@ export const useRepayDebt = () => {
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
+    
+    /* check that if input is greater than debt, after maturity only repay the max debt (or accrued debt) */
+    const _inputCapped = vault.accruedArt.gt(ZERO_BN) && vault.accruedArt.lte(_input) ? vault.accruedArt : _input;
+    /* cap the amount to transfer at the debt after maturity */
+    const amountToTransfer = series.seriesIsMature ? _inputCapped : _input;
 
     const _MaxBaseIn = maxBaseIn(
       series.baseReserves,
@@ -62,7 +67,11 @@ export const useRepayDebt = () => {
       series.g1,
       series.decimals
     );
+    /* Check the max amount of the trade that the pool can handle */
+    // const isTradePossible = _MaxBaseIn.gte(_input);
+    const tradeIsNotPossible = _input.gt(_MaxBaseIn); 
 
+  
     const _inputAsFyToken = series.seriesIsMature
       ? _input
       : sellBase(
@@ -74,52 +83,36 @@ export const useRepayDebt = () => {
           series.g1,
           series.decimals
         );
-
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
       slippageTolerance.toString(),
       true // minimize
     );
 
-    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
-    
-    /* Check the max amount the pool can handle */ 
-    const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
-    /* in low liq situations send repay funds to join not pool */
-    const transferToAddress = inputGreaterThanMaxBaseIn? base.joinAddress : series.poolAddress
-    
-    /* check that if input is greater, only repay the max debt (or accrued debt) */
-    const _inputforClose = (vault.accruedArt.gt(ZERO_BN) && vault.accruedArt.lte(_input)) ? vault.accruedArt : _input;
+    const inputGreaterThanEqualDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
+
+    /* in low liq situations/ or mature send repay funds to join not pool */
+    const transferToAddress =
+     tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
     /* if requested, and all debt will be repaid, automatically remove collateral */
-    const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
+    const _collateralToRemove =
+      reclaimCollateral && inputGreaterThanEqualDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
-    /* address to send the funds to either ladle  ( if eth is used as collateral ) or account */
-    let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
-    
-    /* handle wrapped tokens: */
-    let unwrap: ICallData[] = [];
-    if (ilk.wrapHandlerAddress && unwrapTokens && reclaimCollateral) {
-      reclaimToAddress = ilk.wrapHandlerAddress;
-      unwrap = await unwrapAsset(ilk, account!);
-    }
+    /* address to send the funds to either ladle  (if eth is used as collateral) or account */
+    const reclaimToAddress = isEthCollateral ? ladleAddress : account;
 
-    const alreadyApproved = !series.seriesIsMature && (
-      await base.getAllowance(
-        account!,
-       inputGreaterThanMaxBaseIn ? base.joinAddress : ladleAddress
-      )
-    ).gte(_input);
+    const alreadyApproved =
+      // !series.seriesIsMature &&
+      (await base.getAllowance(account!, ladleAddress)).gte(
+        amountToTransfer
+      );
 
-    const alreadyApprovedPostMaturity =  series.seriesIsMature && (
-      await base.getAllowance(
-        account!,
-       base.joinAddress
-      )
-    ).gte(_inputforClose.mul(2));
+    // const alreadyApprovedPostMaturity =
+    //   series.seriesIsMature && (await base.getAllowance(account!, base.joinAddress)).gte(_inputCapped.mul(2));
 
     const permits: ICallData[] = await sign(
       [
@@ -127,23 +120,23 @@ export const useRepayDebt = () => {
           // before maturity
           target: base,
           spender: 'LADLE',
-          amount: _input,
-          ignoreIf: series.seriesIsMature || alreadyApproved === true || inputGreaterThanMaxBaseIn,
+          amount: amountToTransfer.mul(2), // generous permits
+          ignoreIf: alreadyApproved === true , // || inputGreaterThanMaxBaseIn,
         },
-        {
-          // input gretaer than max base in
-          target: base,
-          spender: base.joinAddress,
-          amount: _input,
-          ignoreIf: series.seriesIsMature || alreadyApproved === true || !inputGreaterThanMaxBaseIn,
-        },
-        {
-          // after maturity
-          target: base,
-          spender: base.joinAddress,
-          amount: MAX_256,
-          ignoreIf: !series.seriesIsMature || alreadyApprovedPostMaturity === true,
-        },
+        // {
+        //   // input gretaer than max base in
+        //   target: base,
+        //   spender: base.joinAddress,
+        //   amount: _input,
+        //   ignoreIf: series.seriesIsMature || alreadyApproved === true || !inputGreaterThanMaxBaseIn,
+        // },
+        // {
+        //   // after maturity
+        //   target: base,
+        //   spender: base.joinAddress,
+        //   amount: MAX_256,
+        //   ignoreIf: !series.seriesIsMature || alreadyApprovedPostMaturity === true,
+        // },
       ],
       txCode
     );
@@ -151,52 +144,54 @@ export const useRepayDebt = () => {
     const calls: ICallData[] = [
       ...permits,
 
-      /* BEFORE MATURITY - !series.seriesIsMature */
-      ...addEth(isEthBase && !series.seriesIsMature ? _input : ZERO_BN, transferToAddress ), // destination = either join or series depending if tradeable
+      /* Both before and after maturity  - send token to either join or pool */
+      ...addEth(isEthBase ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, transferToAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature || isEthBase,
+        args: [
+          base.address,
+          transferToAddress,
+          amountToTransfer,
+        ] as LadleActions.Args.TRANSFER,
+        ignoreIf: isEthBase,
       },
 
+      /* BEFORE MATURITY - !series.seriesIsMature */
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
         ignoreIf:
           series.seriesIsMature ||
-          inputGreaterThanDebt || // use if input is NOT more than debt
-          inputGreaterThanMaxBaseIn,
+          inputGreaterThanEqualDebt || // use if input is NOT more than debt
+          tradeIsNotPossible, 
       },
-
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
-          !inputGreaterThanDebt || // use if input IS more than debt OR
-          inputGreaterThanMaxBaseIn,
+          !inputGreaterThanEqualDebt || // use if input IS more than debt OR
+          tradeIsNotPossible,
       },
 
-      /* EdgeCase in lowLiq situations : Input GreaterThanMaxbaseIn */
+      /* EdgeCase in lowLiq situations : Input GreaterThanMaxbaseIn ( user incurs a penalty because repaid at 1:1 ) */
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, reclaimToAddress, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
-        ignoreIf: series.seriesIsMature || !inputGreaterThanMaxBaseIn,
+        ignoreIf: series.seriesIsMature || !tradeIsNotPossible, // (ie. ignore if trade IS possible )
       },
 
       /* AFTER MATURITY  - series.seriesIsMature */
-      /* No Transfer? */ 
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputCapped.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 
       ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN), // after the complete tranasction, this will remove all the ETH collateral (if requested). (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero)
-      ...unwrap,
     ];
     await transact(calls, txCode);
-    updateVaults([vault]);
+    updateVaults([ vault ]);
     updateAssets([base, ilk, userState.selectedIlk!]);
   };
 
