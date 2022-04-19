@@ -34,6 +34,7 @@ export const useWrapUnwrapAsset = () => {
     const toAddress = to || asset.joinAddress
     const wrapHandlerAddress = asset.wrapHandlerAddresses?.get(chainId)
 
+    /* if a wraphandler exists, we assume that it is Yield uses the wrapped version of the token */
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
 
       const wrapHandlerContract: Contract = new Contract(wrapHandlerAddress, wrapHandlerAbi, signer);
@@ -77,6 +78,7 @@ export const useWrapUnwrapAsset = () => {
 
     const unwrapHandlerAddress = asset.unwrapHandlerAddresses?.get(chainId)
 
+    /* if there is an unwrap handler we assume the token needs to be unwrapped  ( unless the 'unwrapTokens' setting is false) */
     if (unwrapTokens && unwrapHandlerAddress) {
       diagnostics && console.log('Unwrapping tokens before return');
       const wraphandlerContract: Contract = new Contract(unwrapHandlerAddress, wrapHandlerAbi, signer);

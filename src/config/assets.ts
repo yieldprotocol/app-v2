@@ -121,7 +121,7 @@ ASSET_INFO.set(stETH, {
   name: 'Staked Eth',
   decimals: 18,
   symbol: 'stETH',
-  showToken: false,
+  showToken: true,
   color: '#00A3FF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,

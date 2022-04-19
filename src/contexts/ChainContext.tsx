@@ -333,6 +333,8 @@ const ChainProvider = ({ children }: any) => {
 
         const newAssetList: any[] = [];
 
+        console.log(assetsAdded)
+
         await Promise.all(
           assetsAdded.map(async (x) => {
             const { assetId: id, asset: address } = x;
