@@ -311,6 +311,8 @@ const ChainProvider = ({ children }: any) => {
 
           assetContract,
 
+          unwrapHandlerAddresses: assetInfo.unwrapHandlerAddresses
+
           getBalance,
           getAllowance,
           setAllowance,
@@ -332,8 +334,6 @@ const ChainProvider = ({ children }: any) => {
         const assetsAdded = assetAddedEvents.map((e: AssetAddedEvent) => e.args);
 
         const newAssetList: any[] = [];
-
-        console.log(assetsAdded)
 
         await Promise.all(
           assetsAdded.map(async (x) => {

@@ -96,7 +96,7 @@ export const useRepayDebt = () => {
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
-    const unwraphandlerAddress = ilk.unwrapHandlerAddresses?.get(chainId); 
+    const unwraphandlerAddress = ilk.unwrapHandlerAddresses && ilk.unwrapHandlerAddresses.get(chainId); 
 
     // let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
     // /* handle wrapped tokens: */
@@ -145,7 +145,7 @@ export const useRepayDebt = () => {
           ignoreIf: series.seriesIsMature || alreadyApproved === true || inputGreaterThanMaxBaseIn,
         },
         {
-          // input gretaer than max base in
+          // input greater than max base in
           target: base,
           spender: base.joinAddress,
           amount: _input,
@@ -221,7 +221,7 @@ export const useRepayDebt = () => {
 
       // after the complete tranasction, this will remove all the ETH collateral (if requested). (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero)
       ...removeEthCallData, 
-      ...unwrapAssetCallData,
+      // ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
     updateVaults([vault]);
