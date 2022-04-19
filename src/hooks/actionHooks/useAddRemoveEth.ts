@@ -2,7 +2,6 @@ import { BigNumber } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-
 import { ICallData, LadleActions, IUserContext, IUserContextState, IUserContextActions } from '../../types';
 import { ModuleActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
@@ -19,7 +18,6 @@ export const useAddRemoveEth = () => {
 
   const { activeAccount: account } = userState;
   const WrapEtherModuleContract =  contractMap.get('WrapEtherModule');
-
 
   const addEth = (
     value: BigNumber,
@@ -48,7 +46,7 @@ export const useAddRemoveEth = () => {
         },
       ]
 
-  // NOTE:  EXIT_ETHER sweeps all out of the ladle, so *value* is not important > it must just be bigger than zero to not be ignored     
+  // NOTE: EXIT_ETHER sweeps all out of the ladle, so *value* is not important > it must just be bigger than zero to not be ignored     
   const removeEth = (value: BigNumber, to: string|undefined = undefined): ICallData[] => [
           {
             operation: LadleActions.Fn.EXIT_ETHER,

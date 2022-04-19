@@ -34,11 +34,10 @@ export const useRepayDebt = () => {
   const { updateVaults, updateAssets } = userActions;
 
   const {
-    chainState: { contractMap },
+    chainState: { contractMap, connection:{ chainId } },
   } = useContext(ChainContext);
 
   const { addEth, removeEth } = useAddRemoveEth();
-
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
@@ -97,14 +96,26 @@ export const useRepayDebt = () => {
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
-    /* address to send the funds to either ladle  ( if eth is used as collateral ) or account */
-    let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
-    
-    /* handle wrapped tokens: */
-    let unwrap: ICallData[] = [];
-    if (ilk.wrapHandlerAddress && unwrapTokens && reclaimCollateral) {
-      reclaimToAddress = ilk.wrapHandlerAddress;
-      unwrap = await unwrapAsset(ilk, account!);
+    const unwraphandlerAddress = ilk.unwrapHandlerAddresses?.get(chainId); 
+
+    // let reclaimToAddress = reclaimCollateral && isEthCollateral ? ladleAddress : account;
+    // /* handle wrapped tokens: */
+    // let unwrap: ICallData[] = [];
+    // if (ilk.wrapHandlerAddress && unwrapTokens && reclaimCollateral) {
+    //   reclaimToAddress = ilk.wrapHandlerAddress;
+    //   unwrap = await unwrapAsset(ilk, account!);
+    // }
+    // if (isEthBase) {
+    //   reclaimToAddress = ladleAddress;
+    // }
+
+    /* logic to determine the 'to' Address to send the reclaimed funds */
+    const getReclaimToAddress = () : string => {
+      if (unwraphandlerAddress && reclaimCollateral) return unwraphandlerAddress // if there is an unwrap handler send it there for unwrapping
+      if (!unwraphandlerAddress && reclaimCollateral && isEthCollateral) return ladleAddress // if no unwrap handler, and eth-based collateral send to ladle
+      // Eth is the base ( )
+      if (!unwraphandlerAddress && isEthBase) return ladleAddress
+      return account!; 
     }
 
     const alreadyApproved = !series.seriesIsMature && (
@@ -114,6 +125,7 @@ export const useRepayDebt = () => {
       )
     ).gte(_input);
 
+    /* a bit hacky fix this logic  */
     const alreadyApprovedPostMaturity =  series.seriesIsMature && (
       await base.getAllowance(
         account!,
@@ -121,7 +133,9 @@ export const useRepayDebt = () => {
       )
     ).gte(_inputforClose.mul(2));
 
-    const permits: ICallData[] = await sign(
+    const unwrapAssetCallData : ICallData[] = reclaimCollateral ?  await unwrapAsset(ilk, account!): [] ;
+
+    const permitCallData: ICallData[] = await sign(
       [
         {
           // before maturity
@@ -138,7 +152,7 @@ export const useRepayDebt = () => {
           ignoreIf: series.seriesIsMature || alreadyApproved === true || !inputGreaterThanMaxBaseIn,
         },
         {
-          // after maturity
+          // After maturity
           target: base,
           spender: base.joinAddress,
           amount: MAX_256,
@@ -148,17 +162,30 @@ export const useRepayDebt = () => {
       txCode
     );
 
-    const calls: ICallData[] = [
-      ...permits,
+    const addEthCallData = addEth(isEthBase && !inputGreaterThanMaxBaseIn ? _input : ZERO_BN, transferToAddress);
+    const removeEthCallData = removeEth(isEthCollateral ? ONE_BN : ZERO_BN);
 
-      /* BEFORE MATURITY - !series.seriesIsMature */
-      ...addEth(isEthBase && !series.seriesIsMature ? _input : ZERO_BN, transferToAddress ), // destination = either join or series depending if tradeable
+    /**
+     * 
+     * Collate the call data
+     * 
+     * */
+    const calls: ICallData[] = [
+      
+       /* add in the the permit calls */
+      ...permitCallData, 
+
+      /**
+       * 
+       * BEFORE MATURITY
+       * 
+       * */
+      ...addEthCallData, /* the add eth calldata if repaying in ETH */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, transferToAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: series.seriesIsMature || isEthBase,
       },
-
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
@@ -170,17 +197,17 @@ export const useRepayDebt = () => {
 
       {
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
+        args: [vault.id, getReclaimToAddress(), _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
           !inputGreaterThanDebt || // use if input IS more than debt OR
           inputGreaterThanMaxBaseIn,
       },
 
-      /* EdgeCase in lowLiq situations : Input GreaterThanMaxbaseIn */
+      /* !! EDGECASE !!  in lowLiq situations : Input GreaterThanMaxbaseIn */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, getReclaimToAddress(), _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: series.seriesIsMature || !inputGreaterThanMaxBaseIn,
       },
 
@@ -188,12 +215,13 @@ export const useRepayDebt = () => {
       /* No Transfer? */ 
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, getReclaimToAddress(), _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN), // after the complete tranasction, this will remove all the ETH collateral (if requested). (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero)
-      ...unwrap,
+      // after the complete tranasction, this will remove all the ETH collateral (if requested). (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero)
+      ...removeEthCallData, 
+      ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
     updateVaults([vault]);

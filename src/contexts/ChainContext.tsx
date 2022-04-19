@@ -337,11 +337,13 @@ const ChainProvider = ({ children }: any) => {
           assetsAdded.map(async (x) => {
             const { assetId: id, asset: address } = x;
 
-            /* Get the basic hardcoded token info */
-            const assetInfo = ASSET_INFO.has(id) ? ASSET_INFO.get(id) : ASSET_INFO.get(UNKNOWN);
+            /* Get the basic hardcoded token info, if tooken is known, else get 'UNKNOWN' token */
+            const assetInfo = ASSET_INFO.has(id)
+              ? (ASSET_INFO.get(id) as IAssetInfo)
+              : (ASSET_INFO.get(UNKNOWN) as IAssetInfo);
             let { name, symbol, decimals, version } = assetInfo;
 
-            /* On first load Checks/Corrects the ERC20 name/symbol/decimals  (if possible ) */
+            /* On first load checks & corrects the ERC20 name/symbol/decimals (if possible ) */
             if (
               assetInfo.tokenType === TokenType.ERC20_ ||
               assetInfo.tokenType === TokenType.ERC20_Permit ||
@@ -358,7 +360,7 @@ const ChainProvider = ({ children }: any) => {
               }
             }
 
-            /* Checks/Corrects the version for ERC20Permit tokens */
+            /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
             if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
               const contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
               try {
@@ -366,12 +368,22 @@ const ChainProvider = ({ children }: any) => {
               } catch (e) {
                 console.log(
                   address,
-                  ': contract version auto-validation unsuccessfull. Please manually ensure version is correct.'
+                  ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
                 );
               }
             }
 
-            const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id
+            // const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id
+            const idToUse = id; // here we are using the unwrapped id
+
+            /* check if a unwrapping handler is provided, if so, the token is considered to be a wrpaped token */
+            const isWrappedToken =
+              assetInfo.unwrapHandlerAddresses && assetInfo.unwrapHandlerAddresses.has(chainId as number);
+
+            /* check if a wrapping handler is provided, if so, wrapping is required */
+            const wrappingRequired =
+              assetInfo.wrapHandlerAddresses && assetInfo.wrapHandlerAddresses.has(chainId as number);
+            // const unwrappingRequired = assetInfo.wrapHandlerAddresses && assetInfo.wrapHandlerAddresses.has(chainId as number);
 
             const newAsset = {
               ...assetInfo,
@@ -382,11 +394,15 @@ const ChainProvider = ({ children }: any) => {
               decimals,
               version,
 
-              /* redirect the id/join if required due to using wrapped tokens */
+              /* Redirect the id/join if required due to using wrapped tokens */
               joinAddress: joinMap.get(idToUse),
               idToUse,
 
-              /* default setting of assetInfo fields if required */
+              isWrappedToken,
+              wrappingRequired,
+              // unwrappingRequired,
+
+              /* Default setting of assetInfo fields if required */
               displaySymbol: assetInfo.displaySymbol || symbol,
               showToken: assetInfo.showToken || false,
             };

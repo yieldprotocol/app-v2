@@ -43,21 +43,26 @@ export const useBorrow = () => {
 
   const { addEth, removeEth } = useAddRemoveEth();
 
-  const { wrapAssetToJoin } = useWrapUnwrapAsset();
+  const { wrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
-  const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
+  const borrow = async (
+    vault: IVault | undefined,
+    input: string | undefined,
+    collInput: string | undefined,
+    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
+  ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
+    const ladleAddress = contractMap.get('Ladle').address;
+
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series: ISeries = vault ? seriesMap.get(vault.seriesId)! : selectedSeries!;
     const base: IAsset = assetMap.get(series.baseId)!;
     const ilk: IAsset = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk?.idToUse!)!; // note: we use the wrapped version if required
-
-    const ladleAddress = contractMap.get('Ladle').address;
 
     /* is ETH  used as collateral */
     const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!);
@@ -74,8 +79,10 @@ export const useBorrow = () => {
     const cleanCollInput = cleanValue(collInput, ilk.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals) : ethers.constants.Zero;
 
-    /* Calculate expected debt (fytokens) */
-    const _expectedFyToken = buyBase(
+    /* Calculate expected debt (fytokens) from either network or calculated */
+    const _expectedFyToken = getValuesFromNetwork
+    ? await series.poolContract.buyBasePreview(_input)
+    : buyBase(
       series.baseReserves,
       series.fyTokenReserves,
       _input,
@@ -89,13 +96,17 @@ export const useBorrow = () => {
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilk.getAllowance(account!, ilk.joinAddress);
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_collInput) : _allowance;
-
-    const wrapping: ICallData[] = await wrapAssetToJoin(_collInput, selectedIlk!, txCode); // note: selected ilk used here, not wrapped version
-
     console.log('Already approved', alreadyApproved);
 
+    /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ), else send ZERO_BN */
+    const addEthCallData: ICallData[] = addEth(isEthCollateral ? _collInput : ZERO_BN);
+    /* handle remove/unwrap WETH > if ETH is what is being borrowed */
+    const removeEthCallData: ICallData[] = removeEth(isEthBase ? ONE_BN : ZERO_BN); // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+    /* handle wrapping of collateral if required */
+    const wrapAssetCallData: ICallData[] = await wrapAsset(_collInput, selectedIlk!, txCode); // note: selected ilk used here, not wrapped version
+
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
-    const permits: ICallData[] = await sign(
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: ilk,
@@ -105,19 +116,26 @@ export const useBorrow = () => {
             alreadyApproved === true ||
             ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ||
             _collInput.eq(ethers.constants.Zero) ||
-            wrapping.length > 0,
+            wrapAssetCallData.length > 0,
         },
       ],
       txCode
     );
 
-    /* Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed) */
+    /**
+     *
+     * Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed)
+     *
+     * */
     const calls: ICallData[] = [
       /* handle wrapped token deposit, if required */
-      ...wrapping,
+      ...wrapAssetCallData,
 
       /* Include all the signatures gathered, if required */
-      ...permits,
+      ...permitCallData,
+
+      /* add in the ETH deposit if required */
+      ...addEthCallData,
 
       /* If vault is null, build a new vault, else ignore */
       {
@@ -150,11 +168,10 @@ export const useBorrow = () => {
         ignoreIf: false, // never ignore
       },
 
-      /* handle remove/unwrap WETH > if ETH is what is being borrowed */
-      ...removeEth(isEthBase ? ONE_BN : ZERO_BN), // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+      ...removeEthCallData,
     ];
 
-    /* handle the transaction */
+    /* finally, handle the transaction */
     await transact(calls, txCode);
 
     /* When complete, update vaults.

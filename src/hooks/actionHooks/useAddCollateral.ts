@@ -34,8 +34,7 @@ export const useAddCollateral = () => {
   const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();
-  const { wrapAssetToJoin } = useWrapUnwrapAsset();
-
+  const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
@@ -44,10 +43,6 @@ export const useAddCollateral = () => {
 
     /* set the ilk based on if a vault has been selected or it's a new vault */
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
-
-    const ilkForWrap: IAsset | null | undefined =
-      ilk?.isWrappedToken && ilk.unwrappedTokenId ? assetMap.get(ilk.unwrappedTokenId) : selectedIlk; // use the unwrapped token as ilk
-
     const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -62,24 +57,32 @@ export const useAddCollateral = () => {
     const _isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.id!);
     const _pourTo = _isEthCollateral ? ladleAddress : account;
 
-    /* handle wrapped tokens:  */
-    const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
-
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_input) : _allowance;
 
+    /* handle wrapped tokens:  */
+    const wrapAssetCallData: ICallData[] = await wrapAsset(_input, ilk!, txCode);
+
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
-    const permits: ICallData[] = await sign(
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthCollateral || alreadyApproved === true || wrapping.length > 0,
+          /* ignore if: 1) collateral is ETH 2) approved already 3) wrapAssets call is > 0 (because the permit is handled with wrapping) */
+          ignoreIf: _isEthCollateral || alreadyApproved === true || wrapAssetCallData.length > 0, 
         },
       ],
       txCode
+    );
+
+     /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
+    const addEthCallData: ICallData[] = addEth(
+      ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ? _input : ZERO_BN,
+      undefined,
+      selectedIlk?.idToUse
     );
 
     /**
@@ -92,14 +95,16 @@ export const useAddCollateral = () => {
         args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
-      /* handle wrapped token deposit, if required */
-      ...wrapping,
 
-      /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
-      ...addEth(ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ? _input : ZERO_BN, undefined, selectedIlk?.idToUse),
+      /* handle wrapped token deposit, if required */
+      ...wrapAssetCallData,
+
+      /* add in add ETH calls */ 
+      ...addEthCallData,
 
       /* handle permits if required */
-      ...permits,
+      ...permitCallData,
+
       {
         operation: LadleActions.Fn.POUR,
         args: [
@@ -114,8 +119,10 @@ export const useAddCollateral = () => {
 
     /* TRANSACT */
     await transact(calls, txCode);
+
+    /* then update UI */
     updateVaults([vault!]);
-    updateAssets([base!, ilk!, ilkForWrap!]);
+    updateAssets([base!, ilk!]);
   };
 
   return { addCollateral };
