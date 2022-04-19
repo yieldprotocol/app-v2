@@ -18,13 +18,12 @@ import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../uti
 import { ChainContext } from '../../contexts/ChainContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { MAX_256, ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ONE_BN, ZERO_BN } from '../../utils/constants';
 
 export const useRepayDebt = () => {
   const {
-    settingsState: { slippageTolerance, unwrapTokens },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
@@ -38,8 +37,6 @@ export const useRepayDebt = () => {
   } = useContext(ChainContext);
 
   const { addEth, removeEth } = useAddRemoveEth();
-
-  const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
@@ -68,10 +65,8 @@ export const useRepayDebt = () => {
       series.decimals
     );
     /* Check the max amount of the trade that the pool can handle */
-    // const isTradePossible = _MaxBaseIn.gte(_input);
     const tradeIsNotPossible = _input.gt(_MaxBaseIn); 
 
-  
     const _inputAsFyToken = series.seriesIsMature
       ? _input
       : sellBase(
@@ -106,37 +101,17 @@ export const useRepayDebt = () => {
     const reclaimToAddress = isEthCollateral ? ladleAddress : account;
 
     const alreadyApproved =
-      // !series.seriesIsMature &&
-      (await base.getAllowance(account!, ladleAddress)).gte(
-        amountToTransfer
-      );
-
-    // const alreadyApprovedPostMaturity =
-    //   series.seriesIsMature && (await base.getAllowance(account!, base.joinAddress)).gte(_inputCapped.mul(2));
+      (await base.getAllowance(account!, ladleAddress)).gte( amountToTransfer);
 
     const permits: ICallData[] = await sign(
       [
-        {
+       {
           // before maturity
           target: base,
           spender: 'LADLE',
           amount: amountToTransfer.mul(2), // generous permits
           ignoreIf: alreadyApproved === true , // || inputGreaterThanMaxBaseIn,
         },
-        // {
-        //   // input gretaer than max base in
-        //   target: base,
-        //   spender: base.joinAddress,
-        //   amount: _input,
-        //   ignoreIf: series.seriesIsMature || alreadyApproved === true || !inputGreaterThanMaxBaseIn,
-        // },
-        // {
-        //   // after maturity
-        //   target: base,
-        //   spender: base.joinAddress,
-        //   amount: MAX_256,
-        //   ignoreIf: !series.seriesIsMature || alreadyApprovedPostMaturity === true,
-        // },
       ],
       txCode
     );
@@ -162,7 +137,7 @@ export const useRepayDebt = () => {
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
         ignoreIf:
           series.seriesIsMature ||
-          inputGreaterThanEqualDebt || // use if input is NOT more than debt
+          inputGreaterThanEqualDebt ||
           tradeIsNotPossible, 
       },
       {
@@ -170,7 +145,7 @@ export const useRepayDebt = () => {
         args: [vault.id, reclaimToAddress, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
-          !inputGreaterThanEqualDebt || // use if input IS more than debt OR
+          !inputGreaterThanEqualDebt || // ie ignore if use if input IS NOT more than debt
           tradeIsNotPossible,
       },
 
