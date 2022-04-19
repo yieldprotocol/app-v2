@@ -80,9 +80,9 @@ export const useAddCollateral = () => {
 
      /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
     const addEthCallData: ICallData[] = addEth(
-      ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ? _input : ZERO_BN,
+      ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!) ? _input : ZERO_BN,
       undefined,
-      selectedIlk?.idToUse
+      selectedIlk?.proxyId
     );
 
     /**
@@ -92,7 +92,7 @@ export const useAddCollateral = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeries?.id, selectedIlk?.proxyId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
 

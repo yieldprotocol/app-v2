@@ -277,7 +277,7 @@ const ChainProvider = ({ children }: any) => {
           case TokenType.ERC20_:
             assetContract = contracts.ERC20__factory.connect(asset.address, fallbackProvider);
             getBalance = async (acc) =>
-              ETH_BASED_ASSETS.includes(asset.idToUse)
+              ETH_BASED_ASSETS.includes(asset.proxyId)
                 ? fallbackProvider?.getBalance(acc)
                 : assetContract.balanceOf(acc);
             getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
@@ -375,9 +375,6 @@ const ChainProvider = ({ children }: any) => {
               }
             }
 
-            // const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id
-            const idToUse = id; // here we are using the unwrapped id
-
             /* check if a unwrapping handler is provided, if so, the token is considered to be a wrpaped token */
             const isWrappedToken =
               assetInfo.unwrapHandlerAddresses && assetInfo.unwrapHandlerAddresses.has(chainId as number);
@@ -397,11 +394,11 @@ const ChainProvider = ({ children }: any) => {
               version,
 
               /* Redirect the id/join if required due to using wrapped tokens */
-              joinAddress: joinMap.get(idToUse),
-              idToUse,
+              joinAddress: assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) :  joinMap.get(id),
 
               isWrappedToken,
               wrappingRequired,
+              proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined) 
 
               /* Default setting of assetInfo fields if required */
               displaySymbol: assetInfo.displaySymbol || symbol,

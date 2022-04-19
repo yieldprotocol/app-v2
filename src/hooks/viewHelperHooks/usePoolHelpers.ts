@@ -32,7 +32,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     selectedStrategy ? strategy?.currentSeriesId : selectedSeries
   );
 
-  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.idToUse);
+  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.proxyId);
 
   /* LOCAL STATE */
 
@@ -72,8 +72,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
         .find(
           (v: IVault) =>
-            v.ilkId === strategyBase.idToUse &&
-            v.baseId === strategyBase.idToUse &&
+            v.ilkId === strategyBase.proxyId &&
+            v.baseId === strategyBase.proxyId &&
             v.seriesId === strategySeries.id &&
             v.isActive
         );

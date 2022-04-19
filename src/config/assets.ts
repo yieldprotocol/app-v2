@@ -113,7 +113,7 @@ ASSET_INFO.set(wstETH, {
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
   wrapHandlerAddresses:new Map([]),
-  unwrapHandlerAddresses:new Map([[4,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1'], ])
+  unwrapHandlerAddresses:new Map([[4,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1'], ]),
 });
 
 ASSET_INFO.set(stETH, {
@@ -125,8 +125,9 @@ ASSET_INFO.set(stETH, {
   color: '#00A3FF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
-  wrapHandlerAddresses:new Map([[4,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1'], ]),
-  unwrapHandlerAddresses:new Map([])
+  wrapHandlerAddresses:new Map([[1,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1'], [4,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1']]),
+  unwrapHandlerAddresses:new Map([]),
+  proxyId: wstETH,
 });
 
 ASSET_INFO.set(LINK, {

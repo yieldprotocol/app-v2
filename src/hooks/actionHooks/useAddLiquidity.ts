@@ -180,7 +180,7 @@ export const useAddLiquidity = () => {
        * */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [_series.id, _base.idToUse, '0'] as LadleActions.Args.BUILD,
+        args: [_series.id, _base.proxyId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ignore if not BORROW and POOL
       },
 

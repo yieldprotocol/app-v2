@@ -1,5 +1,5 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
-import { ERC1155, ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
+import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -185,9 +185,7 @@ export enum TokenType {
 
 export interface IAssetInfo {
   tokenType: TokenType;
-  // approvalType?: ApprovalType;
-
-  tokenIdentifier?: number; // used for identifying tokens in a multitoken contract
+  tokenIdentifier?: number|string; // used for identifying tokens in a multitoken contract
 
   name: string;
   version: string;
@@ -195,22 +193,16 @@ export interface IAssetInfo {
   decimals: number;
 
   showToken: boolean; // Display/hide the token on the UI 
-  // isWrappedToken: boolean; // Note: this is if it a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
 
   color: string;
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
-
   displaySymbol?: string; // override for symbol display
-
-  // wrapHandlerAddress?: string;
-  // unwrapHandlerAddress?: string;
-  // wrappedTokenId?: string;
-  // unwrappedTokenId?: string;
 
   limitToSeries?: string[];
 
   wrapHandlerAddresses?: Map<number,string>;
   unwrapHandlerAddresses?: Map<number,string>;
+  proxyId?: string;
 
 }
 
@@ -231,8 +223,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   
   isWrappedToken: boolean; // Note: this is if it a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;
-  
-  idToUse: string; // idToUse for wrapped tokens? 
+  proxyId: string; // id to use for wrapped tokens? 
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;

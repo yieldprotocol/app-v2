@@ -64,7 +64,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
     const filteredOpts = opts
-      .filter((_st) => _st.baseId === selectedBase?.idToUse && !_st.currentSeries?.seriesIsMature)
+      .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .filter((_st) => _st.id !== selectedStrategy?.id)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
     setOptions(filteredOpts);
@@ -84,7 +84,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts: IStrategy[] = Array.from(strategyMap.values()).filter(
-      (_st: IStrategy) => _st.baseId === selectedBase?.idToUse && !_st.currentSeries?.seriesIsMature
+      (_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature
     );
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
     /* select strategy with existing balance */
