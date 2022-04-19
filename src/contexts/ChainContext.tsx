@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN, yvUSDC } from '../config/assets';
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
@@ -400,7 +400,6 @@ const ChainProvider = ({ children }: any) => {
 
               isWrappedToken,
               wrappingRequired,
-              // unwrappingRequired,
 
               /* Default setting of assetInfo fields if required */
               displaySymbol: assetInfo.displaySymbol || symbol,

@@ -32,41 +32,6 @@ export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK'];
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
-export const DAI_PERMIT_ASSETS = ['DAI', DAI];
-export const NON_PERMIT_ASSETS = [
-  'WBTC',
-  'LINK',
-  WBTC,
-  LINK,
-  'ETH',
-  'WETH',
-  WETH,
-  yvUSDC,
-  'yvUSDC',
-  FDAI2203,
-  'FDAI2203',
-  FUSDC2203,
-  'FUSDC2203',
-  FDAI2206,
-  'FDAI2206',
-  FUSDC2206,
-  'FUSDC2206',
-  FUSDC2209,
-  'FUSDC2209',
-  FDAI2209,
-  'FDAI2209',
-  'fDAI2203',
-  'fUSDC2203',
-  'fDAI2206',
-  'fUSDC2206',
-  'fUSDC2209',
-  'fDAI2209',
-  // CVX3CRV,
-  'CVX3CRV',
-  'Cvx3Crv Mock',
-  FRAX,
-];
-
 export const ASSET_INFO = new Map<string, IAssetInfo>();
 
 ASSET_INFO.set(UNKNOWN, {
