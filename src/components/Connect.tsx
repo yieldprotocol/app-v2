@@ -4,7 +4,7 @@ import { FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
-import { SettingsContext } from '../contexts/SettingsContext';
+import { Settings, SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import GeneralButton from './buttons/GeneralButton';
 
@@ -66,7 +66,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         <Box border={{ color: 'brand' }} round="small" pad="medium">
           <Disclaimer
             checked={disclaimerChecked}
-            onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
+            onChange={(event: any) => updateSetting(Settings.DISCLAIMER_CHECKED, event.target.checked)}
           />
         </Box>
       )}
