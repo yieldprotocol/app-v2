@@ -89,25 +89,26 @@ export const useRepayDebt = () => {
       true // minimize
     );
 
+    /* Check if input is more than the debt */
     const inputGreaterThanEqualDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
 
-    /* if requested, and all debt will be repaid, automatically remove collateral */
+    /* If requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove =
       reclaimCollateral && inputGreaterThanEqualDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
 
-    /* address to send the funds to either ladle (if eth is used as collateral) or account */
+    /* Address to send the funds to either ladle (if eth is used as collateral) or account */
     const reclaimToAddress = isEthCollateral ? ladleAddress : account;
 
-    /* check that if input is greater than debt, used after maturity only repay the max debt (or accrued debt) */
+    /* Cap the amount to transfer: check that if input is greater than debt, used after maturity only repay the max debt (or accrued debt) */
     const _inputCappedAtArt = vault.art.gt(ZERO_BN) && vault.art.lte(_input) ? vault.art : _input;
 
-    /* Cap the amount to transfer after maturity */
-    const amountToTransfer = series.seriesIsMature ? _input.mul(1001).div(1000) : _input; // after maturity + 0.1% for increases during tx time
+    /* Set the amount to transfer ( + 0.1% after maturity ) */
+    const amountToTransfer = series.seriesIsMature ? _input.mul(1001).div(1000) : _input; // After maturity + 0.1% for increases during tx time
     
-    /* in low liq situations/ or mature send repay funds to join not pool */
+    /* In low liq situations/or mature,  send repay funds to join not pool */
     const transferToAddress = tradeIsNotPossible ? base.joinAddress : series.poolAddress;
 
-    /* check if already apporved */ 
+    /* Check if already apporved */ 
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer)
 
     const permits: ICallData[] = await sign(
@@ -116,7 +117,7 @@ export const useRepayDebt = () => {
           // before maturity
           target: base,
           spender: 'LADLE',
-          amount: amountToTransfer.mul(110).div(100), // generous permits on repayment we can refine at a later stage
+          amount: amountToTransfer.mul(110).div(100), // generous approval permits on repayment we can refine at a later stage
           ignoreIf: series.seriesIsMature || alreadyApproved === true, // || inputGreaterThanMaxBaseIn,
         },
       ],
@@ -125,11 +126,11 @@ export const useRepayDebt = () => {
 
     const calls: ICallData[] = [
       ...permits,
-
-      /* Send ETH to either base join or pool */ 
+      
+      /* If ethBase, Send ETH to either base join or pool  */ 
       ...addEth(isEthBase && !series.seriesIsMature ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
       ...addEth(isEthBase && series.seriesIsMature ? amountToTransfer : ZERO_BN), // no destination defined after maturity , input +1% will will go to weth join
-      
+      /* else, Send Token to either join or pool via a ladle.transfer() */ 
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, transferToAddress, amountToTransfer] as LadleActions.Args.TRANSFER,
