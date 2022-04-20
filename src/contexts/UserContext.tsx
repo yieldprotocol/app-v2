@@ -392,9 +392,11 @@ const UserProvider = ({ children }: any) => {
 
             rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
             diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
-            [accruedArt] = rateAtMaturity.gt(ZERO_BN)
+            const [ _accruedArt ] = rateAtMaturity.gt(ZERO_BN)
               ? calcAccruedDebt(rate, rateAtMaturity, art)
-              : calcAccruedDebt(rate, rate, art);
+              : calcAccruedDebt(rate, rate, art);   
+            accruedArt = _accruedArt // .mul(10001).div(10000);  // add 0.01% to account for slippage during tx time
+
           } else {
             rate = BigNumber.from('1');
             rate_ = '1';

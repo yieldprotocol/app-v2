@@ -69,6 +69,7 @@ export const useRepayDebt = () => {
       series.g1,
       series.decimals
     );
+
     /* Check the max amount of the trade that the pool can handle */
     const tradeIsNotPossible = _input.gt(_maxBaseIn);
 
@@ -106,7 +107,7 @@ export const useRepayDebt = () => {
     const amountToTransfer = series.seriesIsMature ? _input.mul(1001).div(1000) : _input; // After maturity + 0.1% for increases during tx time
     
     /* In low liq situations/or mature,  send repay funds to join not pool */
-    const transferToAddress = tradeIsNotPossible ? base.joinAddress : series.poolAddress;
+    const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
     /* Check if already apporved */ 
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer)
@@ -118,7 +119,7 @@ export const useRepayDebt = () => {
           target: base,
           spender: 'LADLE',
           amount: amountToTransfer.mul(110).div(100), // generous approval permits on repayment we can refine at a later stage
-          ignoreIf: series.seriesIsMature || alreadyApproved === true, // || inputGreaterThanMaxBaseIn,
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode
