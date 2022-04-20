@@ -201,23 +201,16 @@ export const useBorrowHelpers = (
           setProtocolLimited(false);
         }
 
-        /* set the maxRepay as the biggest of the two, human readbale and BN */
-        if (_maxRepayable && _maxBaseIn && _maxRepayable.gt(_maxBaseIn)) {
-          setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
-          setMaxRepay(_maxRepayable);
-          // setMaxRepay_(ethers.utils.formatUnits(_maxBaseIn, vaultBase?.decimals)?.toString());
-          // setMaxRepay(_maxBaseIn);
+        /* if the series is mature re-set max as all debt ( if balance allows) */
+        if (vaultSeries.seriesIsMature) {
+          const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt
+          setMaxRepay(_accruedArt);
+          setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
         } else {
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxRepayable);
         }
-        /* or, if the series is mature re-set max as all debt ( if balance allows) */
-        if (vaultSeries.seriesIsMature) {
-          const _art = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt
-          setMaxRepay(_art);
-          setMaxRepay_(ethers.utils.formatUnits(_art, vaultBase?.decimals)?.toString());
-        }
-
+        
       })();
     }
   }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);

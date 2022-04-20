@@ -29,6 +29,7 @@ export const useRepayDebt = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
+
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 
@@ -39,24 +40,28 @@ export const useRepayDebt = () => {
   const { addEth, removeEth } = useAddRemoveEth();
   const { sign, transact } = useChain();
 
+  /**
+   * REPAY FN
+   * @param vault
+   * @param input
+   * @param reclaimCollateral
+   */
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
-    const ladleAddress = contractMap.get('Ladle').address;
-
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
+
+    const ladleAddress = contractMap.get('Ladle').address;
     const series: ISeries = seriesMap.get(vault.seriesId)!;
     const base: IAsset = assetMap.get(vault.baseId)!;
     const ilk: IAsset = assetMap.get(vault.ilkId)!;
 
+    const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
-    
-    /* check that if input is greater than debt, after maturity only repay the max debt (or accrued debt) */
-    const _inputCapped = vault.accruedArt.gt(ZERO_BN) && vault.accruedArt.lte(_input) ? vault.accruedArt : _input;
-    /* cap the amount to transfer at the debt after maturity */
-    const amountToTransfer = series.seriesIsMature ? _inputCapped : _input;
 
-    const _MaxBaseIn = maxBaseIn(
+    const _maxBaseIn = maxBaseIn(
       series.baseReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
@@ -64,8 +69,9 @@ export const useRepayDebt = () => {
       series.g1,
       series.decimals
     );
+
     /* Check the max amount of the trade that the pool can handle */
-    const tradeIsNotPossible = _input.gt(_MaxBaseIn); 
+    const tradeIsNotPossible = _input.gt(_maxBaseIn);
 
     const _inputAsFyToken = series.seriesIsMature
       ? _input
@@ -84,33 +90,36 @@ export const useRepayDebt = () => {
       true // minimize
     );
 
+    /* Check if input is more than the debt */
     const inputGreaterThanEqualDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
 
-    /* in low liq situations/ or mature send repay funds to join not pool */
-    const transferToAddress =
-     tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
-
-    /* if requested, and all debt will be repaid, automatically remove collateral */
+    /* If requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove =
       reclaimCollateral && inputGreaterThanEqualDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
 
-    const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
-    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
-
-    /* address to send the funds to either ladle  (if eth is used as collateral) or account */
+    /* Address to send the funds to either ladle (if eth is used as collateral) or account */
     const reclaimToAddress = isEthCollateral ? ladleAddress : account;
 
-    const alreadyApproved =
-      (await base.getAllowance(account!, ladleAddress)).gte( amountToTransfer);
+    /* Cap the amount to transfer: check that if input is greater than debt, used after maturity only repay the max debt (or accrued debt) */
+    const _inputCappedAtArt = vault.art.gt(ZERO_BN) && vault.art.lte(_input) ? vault.art : _input;
+
+    /* Set the amount to transfer ( + 0.1% after maturity ) */
+    const amountToTransfer = series.seriesIsMature ? _input.mul(1001).div(1000) : _input; // After maturity + 0.1% for increases during tx time
+    
+    /* In low liq situations/or mature,  send repay funds to join not pool */
+    const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
+
+    /* Check if already apporved */ 
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer)
 
     const permits: ICallData[] = await sign(
       [
-       {
+        {
           // before maturity
           target: base,
           spender: 'LADLE',
-          amount: amountToTransfer.mul(2), // generous permits
-          ignoreIf: alreadyApproved === true , // || inputGreaterThanMaxBaseIn,
+          amount: amountToTransfer.mul(110).div(100), // generous approval permits on repayment we can refine at a later stage
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode
@@ -118,16 +127,14 @@ export const useRepayDebt = () => {
 
     const calls: ICallData[] = [
       ...permits,
-
-      /* Both before and after maturity  - send token to either join or pool */
-      ...addEth(isEthBase ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
+      
+      /* If ethBase, Send ETH to either base join or pool  */ 
+      ...addEth(isEthBase && !series.seriesIsMature ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
+      ...addEth(isEthBase && series.seriesIsMature ? amountToTransfer : ZERO_BN), // no destination defined after maturity , input +1% will will go to weth join
+      /* else, Send Token to either join or pool via a ladle.transfer() */ 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [
-          base.address,
-          transferToAddress,
-          amountToTransfer,
-        ] as LadleActions.Args.TRANSFER,
+        args: [base.address, transferToAddress, amountToTransfer] as LadleActions.Args.TRANSFER,
         ignoreIf: isEthBase,
       },
 
@@ -135,10 +142,7 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
-        ignoreIf:
-          series.seriesIsMature ||
-          inputGreaterThanEqualDebt ||
-          tradeIsNotPossible, 
+        ignoreIf: series.seriesIsMature || inputGreaterThanEqualDebt || tradeIsNotPossible,
       },
       {
         operation: LadleActions.Fn.REPAY_VAULT,
@@ -152,21 +156,21 @@ export const useRepayDebt = () => {
       /* EdgeCase in lowLiq situations : Input GreaterThanMaxbaseIn ( user incurs a penalty because repaid at 1:1 ) */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _input.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputCappedAtArt.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: series.seriesIsMature || !tradeIsNotPossible, // (ie. ignore if trade IS possible )
       },
 
       /* AFTER MATURITY  - series.seriesIsMature */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputCapped.mul(-1)] as LadleActions.Args.CLOSE,
+        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputCappedAtArt.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
 
       ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN), // after the complete tranasction, this will remove all the ETH collateral (if requested). (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
-    updateVaults([ vault ]);
+    updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
   };
 
