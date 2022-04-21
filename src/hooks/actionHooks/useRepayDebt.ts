@@ -104,7 +104,7 @@ export const useRepayDebt = () => {
     const _inputCappedAtArt = vault.art.gt(ZERO_BN) && vault.art.lte(_input) ? vault.art : _input;
 
     /* Set the amount to transfer ( + 0.1% after maturity ) */
-    const amountToTransfer = series.seriesIsMature ? _input.mul(1001).div(1000) : _input; // After maturity + 0.1% for increases during tx time
+    const amountToTransfer = series.seriesIsMature ? _input.mul(10001).div(10000) : _input; // After maturity + 0.1% for increases during tx time
     
     /* In low liq situations/or mature,  send repay funds to join not pool */
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
