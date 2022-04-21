@@ -59,7 +59,11 @@ const Dashboard = () => {
 
   return (
     <MainViewWrap>
-      <StyledBox pad={mobile ? 'medium' : { left: 'large', top: 'large' }} margin={{ top: 'xlarge' }} basis="60%">
+      <StyledBox
+        pad={mobile ? 'medium' : { left: 'large', top: 'large' }}
+        margin={{ top: 'xlarge' }}
+        basis={mobile ? undefined : '60%'}
+      >
         {!account && !chainLoading && <Text>Please connect to your account</Text>}
         {account && (
           <Box width={mobile ? '100%' : undefined} gap="large">
