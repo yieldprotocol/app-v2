@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { FiPlusCircle } from 'react-icons/fi';
 import { ActionType, IVault } from '../../types';

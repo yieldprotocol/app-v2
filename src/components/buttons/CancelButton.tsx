@@ -1,5 +1,5 @@
 import { Box, Text } from 'grommet';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 

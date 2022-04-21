@@ -13,7 +13,7 @@ export const useBorrowHelpers = (
   input: string | undefined,
   collateralInput: string | undefined,
   vault: IVault | undefined,
-  assetPairInfo: IAssetPair| undefined,
+  assetPairInfo: IAssetPair | undefined,
   futureSeries: ISeries | null = null // Future or rollToSeries
 ) => {
   /* STATE FROM CONTEXT */

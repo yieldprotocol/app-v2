@@ -1,23 +1,12 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Box, Layer, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
-import GeneralButton from './buttons/GeneralButton';
 import CopyWrap from './wraps/CopyWrap';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { ApprovalType } from '../types';
 import ApprovalSetting from './settings/ApprovalSetting';
 
 const TransactionError = () => {
-  const {
-    settingsActions: { updateSetting },
-  } = useContext(SettingsContext);
   const { txState, txActions } = useContext(TxContext);
-
-  const handleSetApprovalMethod = () => {
-    updateSetting('approvalMethod', ApprovalType.TX);
-    txActions.handleTxWillFail();
-  };
 
   const [showDiagnostics, setShowDiagnostics] = useState<boolean>(false);
 
@@ -37,32 +26,29 @@ const TransactionError = () => {
             </Box>
 
             {txState.txWillFailInfo.error &&
-
-             ( 
-              txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
+              (txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
                 'ERC20: Insufficient approval' ||
-              txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
-                'Dai/insufficient-allowance' || 
-              txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
-                'ERC20: transfer amount exceeds allowance' ||
                 txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
-                'ERC20: insufficient allowance' ||
+                  'Dai/insufficient-allowance' ||
                 txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
-                'ERC20: transfer amount exceeds allowance'
-              ) && (
-              <Box pad="medium" gap="small">
-                <Box gap="small">
-                  <Text size="small" weight="bold">
-                    Not all wallets support signing EIP-2612 permits (eg. Ledger, Trezor or contract wallets).
-                  </Text>
-                  <Text size="small">
-                    Most wallets can still be used on the protocol, but you will be required to make token approvals as
-                    individual transactions (Optionally, you can also set the approval to the maximum amount).
-                  </Text>
+                  'ERC20: transfer amount exceeds allowance' ||
+                txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
+                  'ERC20: insufficient allowance' ||
+                txState.txWillFailInfo.error.message.split('execution reverted: ')[1] ===
+                  'ERC20: transfer amount exceeds allowance') && (
+                <Box pad="medium" gap="small">
+                  <Box gap="small">
+                    <Text size="small" weight="bold">
+                      Not all wallets support signing EIP-2612 permits (eg. Ledger, Trezor or contract wallets).
+                    </Text>
+                    <Text size="small">
+                      Most wallets can still be used on the protocol, but you will be required to make token approvals
+                      as individual transactions (Optionally, you can also set the approval to the maximum amount).
+                    </Text>
+                  </Box>
+                  <ApprovalSetting />
                 </Box>
-                <ApprovalSetting />
-              </Box>
-            )}
+              )}
 
             <Box pad="small">
               {txState.txWillFailInfo.error && (

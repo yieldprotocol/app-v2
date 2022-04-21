@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
@@ -94,10 +94,7 @@ const YieldAccount = (props: any) => {
           </StyledBox>
         </Box>
       ) : (
-        <GeneralButton
-          action={() => setConnectOpen(true)}
-          background="gradient-transparent"
-        >
+        <GeneralButton action={() => setConnectOpen(true)} background="gradient-transparent">
           <Text size="small" color="text">
             Connect Wallet
           </Text>

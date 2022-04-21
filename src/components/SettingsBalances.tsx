@@ -1,8 +1,8 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Box, DropButton, Table, TableHeader, TableCell, TableRow, Text, TableBody } from 'grommet';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { IAsset } from '../types';
+import { IAsset, IUserContext } from '../types';
 import AddTokenToMetamask from './AddTokenToMetamask';
 import YieldBalances from './YieldBalances';
 import BoxWrap from './wraps/BoxWrap';
@@ -17,7 +17,7 @@ const StyledTableCell = styled(TableCell)`
   }
 `;
 
-const DropContent = ({ assetMap }: { assetMap: any }) => (
+const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
   <Box pad="small" background="hoverBackground">
     <Table>
       <TableHeader>
@@ -40,10 +40,10 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
       </TableHeader>
       <TableBody>
         {[...assetMap.values()]
-          .filter((asset: IAsset) => asset.showToken)
-          .filter((asset: IAsset) => asset.balance.gt(ZERO_BN))
-          .map((asset: IAsset) => (
-            <TableRow key={asset.address}>
+          .filter((asset) => asset.showToken)
+          .filter((asset) => asset.balance.gt(ZERO_BN))
+          .map((asset) => (
+            <TableRow key={asset.id}>
               <StyledTableCell plain>
                 <Text size="medium">{asset.image}</Text>
               </StyledTableCell>
@@ -68,7 +68,7 @@ const DropContent = ({ assetMap }: { assetMap: any }) => (
 const SettingsBalances = () => {
   const {
     userState: { assetMap },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
   const [open, setOpen] = useState<boolean>(false);
   return (

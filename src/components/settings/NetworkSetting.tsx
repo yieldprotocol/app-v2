@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
 import NetworkSelector from '../selectors/NetworkSelector';

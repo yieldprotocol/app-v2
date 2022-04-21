@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'grommet';
-import { useLocation } from 'react-router-dom';
 
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
@@ -41,7 +41,7 @@ const Balances = () => {
     selectedIlk && setIlkBalance(assetMap.get(selectedIlk.id).balance_);
   }, [assetMap, selectedBase, selectedIlk]);
 
-  const { pathname } = useLocation();
+  const { pathname } = useRouter();
   const [path, setPath] = useState<string>();
 
   /* If the url references a series/vault...set that one as active */

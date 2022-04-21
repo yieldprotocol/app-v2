@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Avatar, Box, Layer, ResponsiveContext, Text } from 'grommet';
 import { toast } from 'react-toastify';

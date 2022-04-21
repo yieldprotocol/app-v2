@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Layer } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import SeriesSelector from './SeriesSelector';

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Anchor, Box, Button, Text } from 'grommet';
 import styled from 'styled-components';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
@@ -46,13 +46,7 @@ const NetworkBanner = () => {
           <FiX color="white" />
         </Button>
       </Box>
-      <Box
-        gap="xsmall"
-        background={{ color: currentChainInfo.color, opacity: 0.5 }}
-        color="black"
-        round
-        pad="small"
-      >
+      <Box gap="xsmall" background={{ color: currentChainInfo.color, opacity: 0.5 }} color="black" round pad="small">
         <Text size="xsmall">This is a beta release of Yield on the {currentChainInfo.name} network</Text>
         <Text size="xsmall" weight="bold">
           You must bridge assets from Ethereum Mainnet to {currentChainInfo.name} before using Yield on{' '}

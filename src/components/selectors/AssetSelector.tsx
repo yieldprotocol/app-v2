@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Box, ResponsiveContext, Select, Text } from 'grommet';
+import { Avatar, Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
-import styled from 'styled-components';
+import styled, { ThemeConsumer } from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
@@ -25,6 +25,7 @@ const StyledBox = styled(Box)`
 
 function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const theme = useContext<any>(ThemeContext);
 
   const {
     settingsState: { showWrappedTokens, diagnostics },
@@ -33,15 +34,16 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { seriesMap, assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
+  const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
-      <Box direction="row" align="center" gap="xsmall">
-        <Box flex={false}>{asset.image}</Box>
+      <Box direction="row" align="center" gap="xsmall" >
+        <Avatar size='xsmall' background={theme.dark ? 'text': undefined }> {asset.image} </Avatar>
+        
         {asset?.displaySymbol}
       </Box>
     ) : (
@@ -80,7 +82,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       !selectedBase && setSelectedBase(assetMap.get(USDC)!);
       !selectedIlk && setSelectedIlk(assetMap.get(WETH)!);
     }
-  }, [assetMap, selectedBase, selectedIlk]);
+  }, [assetMap, selectedBase, selectedIlk, setSelectedBase, setSelectedIlk]);
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {

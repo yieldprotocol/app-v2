@@ -1,7 +1,9 @@
 # don't ever lint node_modules
 node_modules
 
+
 # don't lint build output or public
+.next
 build/*
 public/*
 src/react-app-env.d.ts
