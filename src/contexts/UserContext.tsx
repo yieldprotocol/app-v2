@@ -392,10 +392,11 @@ const UserProvider = ({ children }: any) => {
 
             rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
             diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
-            const [ _accruedArt ] = rateAtMaturity.gt(ZERO_BN)
+
+
+           [ accruedArt ] = rateAtMaturity.gt(ZERO_BN)
               ? calcAccruedDebt(rate, rateAtMaturity, art)
-              : calcAccruedDebt(rate, rate, art);   
-            accruedArt = _accruedArt // .mul(10001).div(10000);  // add 0.01% to account for slippage during tx time
+              : calcAccruedDebt(rate, rate, art);
 
           } else {
             rate = BigNumber.from('1');
@@ -403,6 +404,11 @@ const UserProvider = ({ children }: any) => {
             rateAtMaturity = BigNumber.from('1');
             accruedArt = art;
           }
+
+          diagnostics && console.log( 'RATE', rate.toString() )
+          diagnostics && console.log( 'RATEATMATURITY', rateAtMaturity.toString() )
+          diagnostics && console.log( 'ART' , art.toString() )
+          diagnostics && console.log( 'ACCRUED_ ART' , accruedArt.toString() )
 
           const baseRoot = assetRootMap.get(vault.baseId);
           const ilkRoot = assetRootMap.get(ilkId);
