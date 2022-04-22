@@ -2,7 +2,7 @@ import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
 import { ethers } from 'ethers';
 
 /* Init the signing web3 environment */
-function getLibrary(provider: ethers.providers.ExternalProvider, connector: any) {
+function getLibrary(provider: ethers.providers.ExternalProvider) {
   const library = new ethers.providers.Web3Provider(provider);
   library.pollingInterval = 6000;
   return library;
@@ -28,9 +28,8 @@ function getFallbackLibrary(provider: any) {
       library.pollingInterval = 6000;
       return library;
     }
+    console.log('Could not connect to fallback provider');
     return undefined;
-  } finally {
-    console.log('Could not connect to a fallback provider');
   }
 }
 
