@@ -72,7 +72,7 @@ const initState: IChainContextState = {
     provider: null as ethers.providers.Web3Provider | null,
     chainId: null as number | null,
 
-    fallbackProvider: null as ethers.providers.Web3Provider | null,
+    provider: null as ethers.providers.Web3Provider | null,
     fallbackChainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
 
     signer: null as ethers.providers.JsonRpcSigner | null,
@@ -148,13 +148,13 @@ const ChainProvider = ({ children }: any) => {
 
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
-  const { chainId, fallbackProvider, fallbackChainId } = connectionState;
+  const { chainId, provider, fallbackChainId } = connectionState;
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   useEffect(() => {
-    if (fallbackProvider && fallbackChainId) {
+    if (provider && fallbackChainId) {
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('Primary ChainId: ', chainId);
 
@@ -183,45 +183,30 @@ const ChainProvider = ({ children }: any) => {
       let AccumulatorOracle: contracts.AccumulatorOracle;
 
       try {
-        Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
-        Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
-        Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+        Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, provider);
+        Ladle = contracts.Ladle__factory.connect(addrs.Ladle, provider);
+        Witch = contracts.Witch__factory.connect(addrs.Witch, provider);
 
         // module access
-        WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
-        // ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
+        WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
+        // ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, provider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
-          RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
-          ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
-            addrs.ChainlinkMultiOracle,
-            fallbackProvider
-          );
-          CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
-            addrs.CompositeMultiOracle,
-            fallbackProvider
-          );
+          RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, provider);
+          ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkMultiOracle, provider);
+          CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(addrs.CompositeMultiOracle, provider);
           YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(
             addrs.YearnVaultMultiOracle,
-            fallbackProvider
+            provider
           );
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
-            addrs.NotionalMultiOracle,
-            fallbackProvider
-          );
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
-            addrs.NotionalMultiOracle,
-            fallbackProvider
-          );
+          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(addrs.NotionalMultiOracle, provider);
+          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(addrs.NotionalMultiOracle, provider);
         }
 
         // arbitrum
         if ([42161, 421611].includes(fallbackChainId)) {
-          ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
-            addrs.ChainlinkUSDOracle,
-            fallbackProvider
-          );
-          AccumulatorOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorOracle, fallbackProvider);
+          ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(addrs.ChainlinkUSDOracle, provider);
+          AccumulatorOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorOracle, provider);
           RateOracle = AccumulatorOracle;
         }
       } catch (e) {
@@ -275,16 +260,14 @@ const ChainProvider = ({ children }: any) => {
 
         switch (asset.tokenType) {
           case TokenType.ERC20_:
-            assetContract = contracts.ERC20__factory.connect(asset.address, fallbackProvider);
+            assetContract = contracts.ERC20__factory.connect(asset.address, provider);
             getBalance = async (acc) =>
-              ETH_BASED_ASSETS.includes(asset.idToUse)
-                ? fallbackProvider?.getBalance(acc)
-                : assetContract.balanceOf(acc);
+              ETH_BASED_ASSETS.includes(asset.idToUse) ? provider?.getBalance(acc) : assetContract.balanceOf(acc);
             getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
             break;
 
           case TokenType.ERC1155_:
-            assetContract = contracts.ERC1155__factory.connect(asset.address, fallbackProvider);
+            assetContract = contracts.ERC1155__factory.connect(asset.address, provider);
             getBalance = async (acc) => assetContract.balanceOf(acc, asset.tokenIdentifier);
             getAllowance = async (acc: string, spender: string) => assetContract.isApprovedForAll(acc, spender);
             setAllowance = async (spender: string) => {
@@ -296,9 +279,9 @@ const ChainProvider = ({ children }: any) => {
 
           default:
             // Default is ERC20Permit;
-            assetContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
+            assetContract = contracts.ERC20Permit__factory.connect(asset.address, provider);
             getBalance = async (acc) =>
-              ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : assetContract.balanceOf(acc);
+              ETH_BASED_ASSETS.includes(asset.id) ? provider?.getBalance(acc) : assetContract.balanceOf(acc);
             getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
             break;
         }
@@ -319,7 +302,7 @@ const ChainProvider = ({ children }: any) => {
 
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
-        const blockNum = await fallbackProvider.getBlockNumber();
+        const blockNum = await provider.getBlockNumber();
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
           Ladle.queryFilter('JoinAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
@@ -347,7 +330,7 @@ const ChainProvider = ({ children }: any) => {
               assetInfo.tokenType === TokenType.ERC20_Permit ||
               assetInfo.tokenType === TokenType.ERC20_DaiPermit
             ) {
-              const contract = contracts.ERC20__factory.connect(address, fallbackProvider);
+              const contract = contracts.ERC20__factory.connect(address, provider);
               try {
                 [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
               } catch (e) {
@@ -360,7 +343,7 @@ const ChainProvider = ({ children }: any) => {
 
             /* Checks/Corrects the version for ERC20Permit tokens */
             if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
-              const contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
+              const contract = contracts.ERC20Permit__factory.connect(address, provider);
               try {
                 version = await contract.version();
               } catch (e) {
@@ -414,8 +397,8 @@ const ChainProvider = ({ children }: any) => {
         fyTokenAddress: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
-        const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
+        const poolContract = contracts.Pool__factory.connect(series.poolAddress, provider);
+        const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, provider);
 
         const season = getSeason(series.maturity);
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
@@ -444,7 +427,7 @@ const ChainProvider = ({ children }: any) => {
 
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
-          isMature: async () => series.maturity < (await fallbackProvider.getBlock('latest')).timestamp,
+          isMature: async () => series.maturity < (await provider.getBlock('latest')).timestamp,
           getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
@@ -474,8 +457,8 @@ const ChainProvider = ({ children }: any) => {
               if (poolMap.has(id)) {
                 // only add series if it has a pool
                 const poolAddress = poolMap.get(id);
-                const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-                const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
+                const poolContract = contracts.Pool__factory.connect(poolAddress, provider);
+                const fyTokenContract = contracts.FYToken__factory.connect(fyToken, provider);
                 const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
                   await Promise.all([
                     fyTokenContract.name(),
@@ -516,7 +499,7 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log('Error fetching series data: ', e);
         }
-        setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
+        setLastSeriesUpdate(await provider?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
 
         console.log('Yield Protocol Series data updated.');
@@ -524,7 +507,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* Attach contract instance */
       const _chargeStrategy = (strategy: any) => {
-        const Strategy = contracts.Strategy__factory.connect(strategy.address, fallbackProvider);
+        const Strategy = contracts.Strategy__factory.connect(strategy.address, provider);
         return {
           ...strategy,
           strategyContract: Strategy,
@@ -539,7 +522,7 @@ const ChainProvider = ({ children }: any) => {
             strategyAddresses.map(async (strategyAddr) => {
               /* if the strategy is already in the cache : */
               if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
-                const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
+                const Strategy = contracts.Strategy__factory.connect(strategyAddr, provider);
                 const [name, symbol, baseId, decimals, version] = await Promise.all([
                   Strategy.name(),
                   Strategy.symbol(),
@@ -598,7 +581,7 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [fallbackChainId, fallbackProvider]);
+  }, [fallbackChainId, provider]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
