@@ -90,7 +90,7 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { provider },
+    connection: { fallbackProvider },
     seriesRootMap,
     assetRootMap,
   } = chainState;
@@ -123,7 +123,7 @@ const HistoryProvider = ({ children }: any) => {
           const events = await Promise.all([
             ...inEventList.map(async (e: TransferEvent) => {
               const { blockNumber, transactionHash } = e;
-              const date = (await provider.getBlock(blockNumber)).timestamp;
+              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const { value } = e.args;
               return {
                 blockNumber,
@@ -140,7 +140,7 @@ const HistoryProvider = ({ children }: any) => {
 
             ...outEventList.map(async (e: TransferEvent) => {
               const { blockNumber, transactionHash } = e;
-              const date = (await provider.getBlock(blockNumber)).timestamp;
+              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const { value } = e.args;
               return {
                 id,
@@ -170,7 +170,7 @@ const HistoryProvider = ({ children }: any) => {
         );
     },
 
-    [account, diagnostics, provider, lastSeriesUpdate]
+    [account, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
 
   /* update Pool Historical data */
@@ -189,7 +189,7 @@ const HistoryProvider = ({ children }: any) => {
             eventList.map(async (e: LiquidityEvent) => {
               const { blockNumber, transactionHash } = e;
               const { maturity, bases, fyTokens, poolTokens } = e.args;
-              const date = (await provider.getBlock(blockNumber)).timestamp;
+              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
 
               return {
@@ -221,7 +221,7 @@ const HistoryProvider = ({ children }: any) => {
       updateState({ type: HistoryState.POOL_HISTORY, payload: liqHistMap });
       diagnostics && console.log('Pool History updated.');
     },
-    [account, diagnostics, provider, lastSeriesUpdate]
+    [account, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
 
   /* update Trading Historical data  */
@@ -243,7 +243,7 @@ const HistoryProvider = ({ children }: any) => {
               .map(async (e: TradeEvent) => {
                 const { blockNumber, transactionHash } = e;
                 const { maturity, bases, fyTokens } = e.args;
-                const date = (await provider.getBlock(blockNumber)).timestamp;
+                const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
                 const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
                 const tradeApr = calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
 
@@ -283,7 +283,7 @@ const HistoryProvider = ({ children }: any) => {
           seriesList.map((s) => s.id)
         );
     },
-    [account, assetRootMap, contractMap, diagnostics, provider, lastSeriesUpdate]
+    [account, assetRootMap, contractMap, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
 
   /*  Updates VAULT history */
@@ -307,13 +307,13 @@ const HistoryProvider = ({ children }: any) => {
             'event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens)',
           ]);
           const topic = tradeIface.getEventTopic('Trade');
-          const { logs: receiptLogs } = await provider.getTransactionReceipt(transactionHash);
+          const { logs: receiptLogs } = await fallbackProvider.getTransactionReceipt(transactionHash);
           const tradelog = receiptLogs.find((_log: any) => _log.topics.includes(topic));
           const { bases: baseTraded, fyTokens: fyTokenTraded } = tradelog
             ? tradeIface.parseLog(tradelog).args
             : { bases: ZERO_BN, fyTokens: ZERO_BN };
 
-          const date = (await provider.getBlock(blockNumber)).timestamp;
+          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           const ilk = assetRootMap.get(ilkId);
 
           const actionCode = _inferTransactionType(art, ink);
@@ -369,7 +369,7 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
     },
-    [assetRootMap, provider]
+    [assetRootMap, fallbackProvider]
   );
 
   const _parseGivenLogs = useCallback(
@@ -379,7 +379,7 @@ const HistoryProvider = ({ children }: any) => {
           const { blockNumber, transactionHash } = e;
           // event VaultGiven(bytes12 indexed vaultId, address indexed receiver);
           const { receiver } = e.args;
-          const date = (await provider.getBlock(blockNumber)).timestamp;
+          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           return {
             /* histItem base */
             series,
@@ -395,7 +395,7 @@ const HistoryProvider = ({ children }: any) => {
           } as IBaseHistItem;
         })
       ),
-    [provider]
+    [fallbackProvider]
   );
 
   const _parseRolledLogs = useCallback(
@@ -405,7 +405,7 @@ const HistoryProvider = ({ children }: any) => {
           const { blockNumber, transactionHash } = e;
           // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
           const { seriesId: toSeries, art } = e.args;
-          const date = (await provider.getBlock(blockNumber)).timestamp;
+          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
           const toSeries_ = seriesRootMap.get(toSeries) as ISeries;
           return {
             /* histItem base */
@@ -427,7 +427,7 @@ const HistoryProvider = ({ children }: any) => {
           } as IBaseHistItem;
         })
       ),
-    [provider, seriesRootMap]
+    [fallbackProvider, seriesRootMap]
   );
 
   const updateVaultHistory = useCallback(
