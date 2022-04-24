@@ -65,6 +65,7 @@ export const NON_PERMIT_ASSETS = [
   'CVX3CRV',
   'Cvx3Crv Mock',
   FRAX,
+  'FRAX',
 ];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
