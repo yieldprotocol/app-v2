@@ -79,7 +79,11 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
 
-    setOptions(filteredOptions);
+    const sortedOptions = selectCollateral
+      ? filteredOptions.sort((a, b) => (a.balance.lt(b.balance) ? 1 : -1))
+      : filteredOptions;
+
+    setOptions(sortedOptions);
   }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
