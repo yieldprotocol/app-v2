@@ -3,7 +3,7 @@ import * as React from 'react';
 
 function WBTCMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <Avatar background="white" height="auto" width="auto">
+    <Avatar background="white" size="auto">
       <svg {...props} xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 109.26 109.26">
         <title>wrapped-bitcoin-wbtc</title>
         <g id="Layer_2" data-name="Layer 2">
