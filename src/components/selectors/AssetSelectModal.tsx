@@ -27,7 +27,14 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
   return open ? (
     <Layer animation="fadeIn" onEsc={() => setOpen(false)} onClickOutside={() => setOpen(false)}>
       <Box background="background" round="xsmall">
-        <Box direction="row" justify="between" align="center" pad="medium">
+        <Box
+          direction="row"
+          justify="between"
+          align="center"
+          pad="medium"
+          background="gradient-transparent"
+          round={{ corner: 'top', size: 'xsmall' }}
+        >
           <Text size="small">Select Collateral</Text>
           <Box onClick={() => setOpen(false)}>
             <FiX size="1.5rem" />
@@ -69,7 +76,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
 
         <Line color={theme === 'dark' ? gradient.dark : gradient.light} />
 
-        <Box pad="medium" />
+        <Box pad="medium" background="gradient-transparent" round={{ corner: 'bottom', size: 'xsmall' }} />
       </Box>
     </Layer>
   ) : null;
