@@ -1,15 +1,13 @@
-import React, { useContext, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, Header, Keyboard, Layer, ResponsiveContext, Text } from 'grommet';
+import { useRouter } from 'next/router';
+import { useContext, useState } from 'react';
+import { Box, Keyboard, Layer, ResponsiveContext } from 'grommet';
 
-import { FiLogOut } from 'react-icons/fi';
 import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries, IUserContextState } from '../../types';
 import YieldHeader from '../YieldHeader';
-import ItemWrap from './ItemWrap';
 import YieldMobileMenu from '../YieldMobileMenu';
 
 interface IModalWrap {
@@ -18,7 +16,7 @@ interface IModalWrap {
 }
 
 function ModalWrap({ children, series }: IModalWrap) {
-  const history = useHistory();
+  const router = useRouter();
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
@@ -31,7 +29,7 @@ function ModalWrap({ children, series }: IModalWrap) {
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
 
   return (
-    <Keyboard onEsc={() => history.goBack()}>
+    <Keyboard onEsc={() => router.back()}>
       <Layer
         full
         background={`linear-gradient( 45deg ,  ${_series?.startColor.toString()} , ${_series?.endColor
@@ -60,7 +58,7 @@ function ModalWrap({ children, series }: IModalWrap) {
         )}
 
         {mobile && (
-          <Box >
+          <Box>
             <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
             {menuLayerOpen ? <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
           </Box>

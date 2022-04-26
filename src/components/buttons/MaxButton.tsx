@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import { Box, Text } from 'grommet';
 import { UserContext } from '../../contexts/UserContext';
@@ -28,7 +28,7 @@ const StyledBox = styled(Box)`
 
 function MaxButton({ action, clearAction, showingMax, disabled, customText }: IMaxButtonProps) {
   /* state from context */
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { activeAccount } = userState;
 
   return (

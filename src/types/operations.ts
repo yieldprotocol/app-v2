@@ -28,7 +28,7 @@ export namespace LadleActions {
     REDEEM = 'redeem',
     MODULE = 'moduleCall',
   }
-  
+
   export namespace Args {
     export type BUILD = [seriesId_bytes6: string, ilkId_bytes6: string, salt_bytes8: string];
     export type ROLL = [vaultId: string, newSeriesId: string, loan: BigNumberish, max: BigNumberish];
@@ -51,7 +51,6 @@ export namespace LadleActions {
     export type EXIT_ETHER = [to: string];
     export type TRANSFER = [token: string, receiver: string, wad: BigNumberish];
 
-    
     export type REDEEM = [seriesId: string, to: string, wad: BigNumberish];
 
     export type FORWARD_PERMIT = [
@@ -75,7 +74,7 @@ export namespace LadleActions {
     ];
 
     export type ROUTE = [targetAddress: string, encodedCall: string];
-    export type MODULE= [targetAddress: string, encodedCall: string];
+    export type MODULE = [targetAddress: string, encodedCall: string];
   }
 }
 
@@ -115,18 +114,18 @@ export namespace RoutedActions {
     export type MINT_STRATEGY_TOKENS = [receiver: string];
     export type BURN_STRATEGY_TOKENS = [receiver: string];
 
-    export type WRAP = [receiver:string];
-    export type UNWRAP = [receiver:string];
+    export type WRAP = [receiver: string];
+    export type UNWRAP = [receiver: string];
   }
 }
 
 export namespace ModuleActions {
-
   export enum Fn {
     WRAP_ETHER_MODULE = 'wrap',
+    ADD_VAULT = 'addVault',
   }
   export namespace Args {
     export type WRAP_ETHER_MODULE = [receiver: string, amount: BigNumberish];
+    export type ADD_VAULT = [convexJoin: string, vaultId: string]; // when using convex-type collateral
   }
-  
 }

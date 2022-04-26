@@ -1,18 +1,19 @@
-import React, { useContext, useState } from 'react';
+import { forwardRef, useContext, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import styled from 'styled-components';
-import { NavLink, useHistory, useLocation } from 'react-router-dom';
 import { FiMenu } from 'react-icons/fi';
-import { Box, Header, Grid, ResponsiveContext, Avatar, Text } from 'grommet';
+import { Box, Header, Grid, ResponsiveContext, Avatar } from 'grommet';
 
 import YieldNavigation from './YieldNavigation';
 import YieldAccount from './YieldAccount';
 import YieldMark from './logos/YieldMark';
 
-import { useCachedState } from '../hooks/generalHooks';
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { ChainContext } from '../contexts/ChainContext';
 import DashMobileButton from './buttons/DashMobileButton';
+import { IChainContext } from '../types';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -37,15 +38,41 @@ interface IYieldHeaderProps {
 
 const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const routerHistory = useHistory();
-  const location = useLocation();
+  const router = useRouter();
   const colorScheme = useColorScheme();
-  const history = useHistory();
-  const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
-  const isPositionPath = useLocation().pathname.includes('position');
+  const isPositionPath = router.pathname.includes('position');
   const [yieldMarkhover, setYieldMarkHover] = useState<boolean>(false);
 
-  const { chainState: { connection: { account } } } = useContext(ChainContext);
+  const {
+    chainState: {
+      connection: { account },
+    },
+  } = useContext(ChainContext) as IChainContext;
+
+  // eslint-disable-next-line react/display-name
+  const YieldAvatar = forwardRef(({ onClick, href }: any, ref: any) => (
+    <a href={href} onClick={onClick} ref={ref}>
+      <StyledAvatar
+        background="hoverBackground"
+        size="3rem"
+        onMouseOver={() => setYieldMarkHover(true)}
+        onMouseLeave={() =>
+          setTimeout(() => {
+            setYieldMarkHover(false);
+          }, 300)
+        }
+      >
+        {yieldMarkhover ? (
+          <YieldMark
+            height="1.75rem"
+            colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82']}
+          />
+        ) : (
+          <YieldMark colors={colorScheme === 'dark' ? ['white'] : ['black']} height="1.75rem" />
+        )}
+      </StyledAvatar>
+    </a>
+  ));
 
   return (
     <>
@@ -56,7 +83,6 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
         direction="row"
         fill="horizontal"
         background={mobile ? undefined : 'background'}
-        // elevation={mobile && isPositionPath ? 'small' : undefined}
         elevation={undefined}
       >
         <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
@@ -66,41 +92,18 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
                 <FiMenu size="1.5rem" />
               </Box>
             )}
-            {mobile && isPositionPath && <BackButton action={() => history.goBack()} />}
+            {mobile && isPositionPath && <BackButton action={() => router.back()} />}
             {!mobile && (
-              <StyledAvatar
-                background="hoverBackground"
-                size="3rem"
-                onMouseOver={() => setYieldMarkHover(true)}
-                onMouseLeave={() =>
-                  setTimeout(() => {
-                    setYieldMarkHover(false);
-                  }, 300)
-                }
-              >
-                <NavLink to={`/${prevLoc}`} style={{ height: '50%' }}>
-                  {yieldMarkhover ? (
-                    <YieldMark
-                      height="1.75rem"
-                      colors={['#f79533', '#f37055', '#ef4e7b', '#a166ab', '#5073b8', '#1098ad', '#07b39b', '#6fba82']}
-                    />
-                  ) : (
-                    <YieldMark colors={colorScheme === 'dark' ? ['white'] : ['black']} height="1.75rem" />
-                  )}
-                </NavLink>
-              </StyledAvatar>
+              <Link href="/borrow" passHref>
+                <YieldAvatar />
+              </Link>
             )}
             {!mobile && <YieldNavigation />}
           </Box>
           <Box />
 
           <Box align="center" direction="row" gap="small">
-            {account && mobile && location.pathname !== '/dashboard' && (
-              // <Box onClick={() => routerHistory.push(`/dashboard`)} round elevation="xsmall" pad="small">
-              //   <Text size="xsmall"> Dash </Text>
-              // </Box>
-              <DashMobileButton /> 
-            )}
+            {account && mobile && router.pathname !== '/dashboard' && <DashMobileButton />}
             <YieldAccount />
           </Box>
         </Grid>

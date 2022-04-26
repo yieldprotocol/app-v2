@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import Switch from 'react-switch';
 
 import { Box, Text } from 'grommet';
@@ -20,12 +20,12 @@ const ThemeSettings = () => {
           width={55}
           checked={autoTheme}
           uncheckedIcon={
-            <Box align="end" justify="center" fill pad="xsmall">
+            <Box align="center" justify="center" fill pad="xsmall">
               <Text size="0.5em"> Off </Text>
             </Box>
           }
           checkedIcon={
-            <Box align="end" justify="center" fill pad="xsmall">
+            <Box align="center" justify="center" fill pad="xsmall">
               <Text size="0.5em"> Auto </Text>
             </Box>
           }

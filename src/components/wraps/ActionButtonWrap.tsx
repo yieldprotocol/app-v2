@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -41,7 +41,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         fill="horizontal"
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
       >
-        { account ? (
+        {account ? (
           children
         ) : (
           <StyledButton

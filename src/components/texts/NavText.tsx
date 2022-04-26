@@ -1,4 +1,3 @@
-import React from 'react';
 import { Text } from 'grommet';
 import styled from 'styled-components';
 
@@ -12,6 +11,10 @@ const StyledText = styled(Text)`
   filter: drop-shadow(2px 2px 2px #ddd);  */
 `;
 
-const NavText = (props: any) => <StyledText {...props} selected={props.selected}>{props.children}</StyledText>;
+const NavText = (props: any) => (
+  <StyledText {...props} selected={props.selected}>
+    {props.children}
+  </StyledText>
+);
 
 export default NavText;

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Box } from 'grommet';
 import { ActionType, IUserContext } from '../types';
 import { UserContext } from '../contexts/UserContext';

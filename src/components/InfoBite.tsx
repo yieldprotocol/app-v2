@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { Box, Text } from 'grommet';
 import Skeleton from './wraps/SkeletonWrap';
 

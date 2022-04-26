@@ -1,38 +1,38 @@
-import React, { useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { useHistory, useParams } from 'react-router-dom';
 import { FiArrowRight, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
 
-import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
-import InputWrap from '../components/wraps/InputWrap';
-import { abbreviateHash, cleanValue, formatStrategyName, nFormatter } from '../utils/appUtils';
-import SectionWrap from '../components/wraps/SectionWrap';
+import ActionButtonGroup from '../wraps/ActionButtonWrap';
+import InputWrap from '../wraps/InputWrap';
+import { abbreviateHash, cleanValue, formatStrategyName, nFormatter } from '../../utils/appUtils';
+import SectionWrap from '../wraps/SectionWrap';
 
-import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../types';
-import MaxButton from '../components/buttons/MaxButton';
-import InfoBite from '../components/InfoBite';
-import ActiveTransaction from '../components/ActiveTransaction';
-import PositionAvatar from '../components/PositionAvatar';
-import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import NextButton from '../components/buttons/NextButton';
+import { UserContext } from '../../contexts/UserContext';
+import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../../types';
+import MaxButton from '../buttons/MaxButton';
+import InfoBite from '../InfoBite';
+import ActiveTransaction from '../ActiveTransaction';
+import PositionAvatar from '../PositionAvatar';
+import CenterPanelWrap from '../wraps/CenterPanelWrap';
+import NextButton from '../buttons/NextButton';
 
-import YieldMark from '../components/logos/YieldMark';
-import TransactButton from '../components/buttons/TransactButton';
-import YieldHistory from '../components/YieldHistory';
-import { useInputValidation } from '../hooks/useInputValidation';
-import ModalWrap from '../components/wraps/ModalWrap';
-import { useRemoveLiquidity } from '../hooks/actionHooks/useRemoveLiquidity';
-import CopyWrap from '../components/wraps/CopyWrap';
-import { useProcess } from '../hooks/useProcess';
-import { usePoolHelpers } from '../hooks/viewHelperHooks/usePoolHelpers';
-import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import ExitButton from '../components/buttons/ExitButton';
+import YieldMark from '../logos/YieldMark';
+import TransactButton from '../buttons/TransactButton';
+import YieldHistory from '../YieldHistory';
+import { useInputValidation } from '../../hooks/useInputValidation';
+import ModalWrap from '../wraps/ModalWrap';
+import { useRemoveLiquidity } from '../../hooks/actionHooks/useRemoveLiquidity';
+import CopyWrap from '../wraps/CopyWrap';
+import { useProcess } from '../../hooks/useProcess';
+import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
+import InputInfoWrap from '../wraps/InputInfoWrap';
+import ExitButton from '../buttons/ExitButton';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const history = useHistory();
-  const { id: idFromUrl } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { id: idFromUrl } = router.query;
 
   /* STATE FROM CONTEXT */
   const {
@@ -41,7 +41,7 @@ const PoolPosition = () => {
   } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
-  const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl);
+  const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl as string);
 
   const selectedSeries = _selectedStrategy?.currentSeries;
   const selectedBase = assetMap.get(_selectedStrategy?.baseId!);
@@ -54,9 +54,11 @@ const PoolPosition = () => {
   const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
 
   // multi-tracking stepper
-  const actionCodeToStepperIdx: { [actionCode: string]: number } = {
-    [ActionCodes.REMOVE_LIQUIDITY]: 0,
-  };
+  const actionCodeToStepperIdx: { [actionCode: string]: number } = useMemo(
+    () => ({ [ActionCodes.REMOVE_LIQUIDITY]: 0 }),
+    []
+  );
+
   const initialStepperState = [0, 0, 0];
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
   const [stepPosition, setStepPosition] = useState<number[]>(initialStepperState);
@@ -86,24 +88,30 @@ const PoolPosition = () => {
     setStepPosition(validatedSteps);
   };
 
-  const resetStepper = (actionCode: ActionCodes) => {
-    const newStepPositions = stepPosition;
-    newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
-    setStepPosition(newStepPositions);
-  };
+  const resetStepper = useCallback(
+    (actionCode: ActionCodes) => {
+      const newStepPositions = stepPosition;
+      newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
+      setStepPosition(newStepPositions);
+    },
+    [actionCodeToStepperIdx, stepPosition]
+  );
 
   const handleRemove = () => {
     const shouldTradeExtra = partialRemoveRequired && forceDisclaimerChecked ? false : undefined;
     selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra);
   };
 
-  const resetInputs = (actionCode: ActionCodes) => {
-    resetStepper(actionCode);
-    if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
-      setRemoveInput(undefined);
-      resetRemoveProcess();
-    }
-  };
+  const resetInputs = useCallback(
+    (actionCode: ActionCodes) => {
+      resetStepper(actionCode);
+      if (actionCode === ActionCodes.REMOVE_LIQUIDITY) {
+        setRemoveInput(undefined);
+        resetRemoveProcess();
+      }
+    },
+    [resetRemoveProcess, resetStepper]
+  );
 
   /* SET MAX VALUES */
   useEffect(() => {
@@ -117,21 +125,21 @@ const PoolPosition = () => {
   }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
 
   useEffect(() => {
-    const _strategy = strategyMap.get(idFromUrl) || null;
+    const _strategy = strategyMap.get(idFromUrl as string) || null;
     idFromUrl && setSelectedStrategy(_strategy);
   }, [idFromUrl, setSelectedStrategy, strategyMap]);
 
   /* watch process timeouts */
   useEffect(() => {
     removeProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.REMOVE_LIQUIDITY);
-  }, [removeProcess?.stage]);
+  }, [removeProcess?.stage, resetInputs]);
 
   return (
     <>
       {_selectedStrategy && (
         <ModalWrap series={selectedSeries}>
           <CenterPanelWrap>
-            {!mobile && <ExitButton action={() => history.goBack()} />}
+            {!mobile && <ExitButton action={() => router.back()} />}
 
             <Box fill pad={mobile ? 'medium' : 'large'} gap="1em">
               <Box height={{ min: '250px' }} gap="medium">
@@ -292,13 +300,6 @@ const PoolPosition = () => {
                   <CheckBox
                     label={
                       <Box>
-                        {/* <Text size="xsmall">Force Removal: </Text> */}
-                        {/* <Text size="xsmall">
-                            {`( You will receive `}
-                            {cleanValue(removeFyTokenReceived_, 2)} fy{selectedBase?.displaySymbol}{' '}
-                            {removeFyTokenReceived?.gt(ethers.constants.Zero) &&
-                              ` and ${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} )`}
-                          </Text> */}
                         <Text size="xsmall">
                           Force Removal:
                           {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${

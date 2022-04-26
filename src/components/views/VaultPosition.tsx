@@ -1,12 +1,12 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useRouter } from 'next/router';
+import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
-import { abbreviateHash, cleanValue, nFormatter } from '../utils/appUtils';
-import { UserContext } from '../contexts/UserContext';
-import InputWrap from '../components/wraps/InputWrap';
-import InfoBite from '../components/InfoBite';
+import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
+import { UserContext } from '../../contexts/UserContext';
+import InputWrap from '../wraps/InputWrap';
+import InfoBite from '../InfoBite';
 import {
   ActionCodes,
   ActionType,
@@ -15,42 +15,42 @@ import {
   IUserContextActions,
   IUserContextState,
   ProcessStage,
-} from '../types';
+} from '../../types';
 
-import ActionButtonWrap from '../components/wraps/ActionButtonWrap';
-import SectionWrap from '../components/wraps/SectionWrap';
-import SeriesSelector from '../components/selectors/SeriesSelector';
-import MaxButton from '../components/buttons/MaxButton';
-import ActiveTransaction from '../components/ActiveTransaction';
-import PositionAvatar from '../components/PositionAvatar';
-import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
-import NextButton from '../components/buttons/NextButton';
-import { Gauge } from '../components/Gauge';
-import YieldHistory from '../components/YieldHistory';
-import TransactButton from '../components/buttons/TransactButton';
-import { useInputValidation } from '../hooks/useInputValidation';
-import ModalWrap from '../components/wraps/ModalWrap';
+import ActionButtonWrap from '../wraps/ActionButtonWrap';
+import SectionWrap from '../wraps/SectionWrap';
+import SeriesSelector from '../selectors/SeriesSelector';
+import MaxButton from '../buttons/MaxButton';
+import ActiveTransaction from '../ActiveTransaction';
+import PositionAvatar from '../PositionAvatar';
+import CenterPanelWrap from '../wraps/CenterPanelWrap';
+import NextButton from '../buttons/NextButton';
+import { Gauge } from '../Gauge';
+import YieldHistory from '../YieldHistory';
+import TransactButton from '../buttons/TransactButton';
+import { useInputValidation } from '../../hooks/useInputValidation';
+import ModalWrap from '../wraps/ModalWrap';
 
-import { useCachedState } from '../hooks/generalHooks';
-import { useRepayDebt } from '../hooks/actionHooks/useRepayDebt';
-import { useRollDebt } from '../hooks/actionHooks/useRollDebt';
-import { useCollateralHelpers } from '../hooks/viewHelperHooks/useCollateralHelpers';
-import { useAddCollateral } from '../hooks/actionHooks/useAddCollateral';
-import { useRemoveCollateral } from '../hooks/actionHooks/useRemoveCollateral';
-import { useBorrowHelpers } from '../hooks/viewHelperHooks/useBorrowHelpers';
-import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import CopyWrap from '../components/wraps/CopyWrap';
-import { useProcess } from '../hooks/useProcess';
-import ExitButton from '../components/buttons/ExitButton';
-import { ZERO_BN } from '../utils/constants';
-import { useAssetPair } from '../hooks/useAssetPair';
+import { useCachedState } from '../../hooks/generalHooks';
+import { useRepayDebt } from '../../hooks/actionHooks/useRepayDebt';
+import { useRollDebt } from '../../hooks/actionHooks/useRollDebt';
+import { useCollateralHelpers } from '../../hooks/viewHelperHooks/useCollateralHelpers';
+import { useAddCollateral } from '../../hooks/actionHooks/useAddCollateral';
+import { useRemoveCollateral } from '../../hooks/actionHooks/useRemoveCollateral';
+import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
+import InputInfoWrap from '../wraps/InputInfoWrap';
+import CopyWrap from '../wraps/CopyWrap';
+import { useProcess } from '../../hooks/useProcess';
+import ExitButton from '../buttons/ExitButton';
+import { ZERO_BN } from '../../utils/constants';
+import { useAssetPair } from '../../hooks/useAssetPair';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
-  const history = useHistory();
-  const { id: idFromUrl } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { id: idFromUrl } = router.query;
 
   /* STATE FROM CONTEXT */
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
@@ -60,10 +60,12 @@ const VaultPosition = () => {
   const { activeAccount: account, assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
-  const _selectedVault = vaultMap.get(idFromUrl);
+  const _selectedVault = vaultMap.get(idFromUrl as string);
+
   const vaultBase = assetMap.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap.get(_selectedVault?.seriesId!);
+
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
   /* TX info (for disabling buttons) */
@@ -86,12 +88,15 @@ const VaultPosition = () => {
 
   /* LOCAL STATE */
   // stepper for stepping within multiple tabs
-  const actionCodeToStepperIdx: { [actionCode: string]: number } = {
-    [ActionCodes.REPAY]: 0,
-    [ActionCodes.ROLL_DEBT]: 1,
-    [ActionCodes.ADD_COLLATERAL]: 2,
-    [ActionCodes.REMOVE_COLLATERAL]: 3,
-  };
+  const actionCodeToStepperIdx: { [actionCode: string]: number } = useMemo(
+    () => ({
+      [ActionCodes.REPAY]: 0,
+      [ActionCodes.ROLL_DEBT]: 1,
+      [ActionCodes.ADD_COLLATERAL]: 2,
+      [ActionCodes.REMOVE_COLLATERAL]: 3,
+    }),
+    []
+  );
 
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
@@ -196,7 +201,7 @@ const VaultPosition = () => {
       newStepPositions[actionCodeToStepperIdx[actionCode]] = 0;
       setStepPosition(newStepPositions);
     },
-    [stepPosition]
+    [actionCodeToStepperIdx, stepPosition]
   );
 
   const handleRepay = () => {
@@ -282,8 +287,8 @@ const VaultPosition = () => {
   ]);
 
   useEffect(() => {
-    if (_selectedVault && account !== _selectedVault?.owner) history.push(prevLoc);
-  }, [account, _selectedVault, history, prevLoc]);
+    if (_selectedVault && account !== _selectedVault?.owner) router.push(prevLoc);
+  }, [account, _selectedVault, prevLoc, router]);
 
   /* watch if the processes timeout - if so, reset() */
   useEffect(() => {
@@ -295,14 +300,12 @@ const VaultPosition = () => {
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_DEBT);
   }, [addCollateralProcess, removeCollateralProcess, repayProcess, resetInputs, rollProcess]);
 
-  useEffect(() => {});
-
   return (
     <>
       {_selectedVault && (
         <ModalWrap>
           <CenterPanelWrap>
-            {!mobile && <ExitButton action={() => history.goBack()} />}
+            {!mobile && <ExitButton action={() => router.back()} />}
 
             <Box fill pad={mobile ? 'medium' : 'large'} gap="1em">
               <Box height={{ min: '250px' }} gap="medium">

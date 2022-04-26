@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
@@ -16,12 +16,10 @@ interface IPositionFilter {
 }
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
-
   /* STATE FROM CONTEXT */
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, seriesMap, selectedSeries, selectedBase } =
-    userState;
-    
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, seriesMap, selectedSeries, selectedBase } = userState;
+
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
 
@@ -37,7 +35,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
         .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (base ? _series.baseId === base.idToUse : true))
-        .filter((_series: ISeries) => (series ? _series.id === series.id : true))
+        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
@@ -73,7 +71,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box gap='small' >
+        <Box gap="small">
           <Box
             animation="fadeIn"
             justify="between"
@@ -84,7 +82,6 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             <Text size="small" color="text-weak" textAlign="center">
               {showAllPositions ? `Lending Positions` : `Filtered Lending Positions`}
             </Text>
-
           </Box>
 
           <ListWrap overflow="auto">

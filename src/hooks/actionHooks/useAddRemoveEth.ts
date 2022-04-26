@@ -20,7 +20,6 @@ export const useAddRemoveEth = () => {
   const { activeAccount: account } = userState;
   const WrapEtherModuleContract =  contractMap.get('WrapEtherModule');
 
-
   const addEth = (
     value: BigNumber,
     to: string | undefined = undefined,
@@ -38,7 +37,7 @@ export const useAddRemoveEth = () => {
           overrides: { value },
         },
       ]:
-      /* else use simple JOIN_ETHER  with optional */ 
+      /* else use simple JOIN_ETHER with optional */ 
       [
         {
           operation: LadleActions.Fn.JOIN_ETHER,
@@ -46,7 +45,7 @@ export const useAddRemoveEth = () => {
           ignoreIf: value.lte(ZERO_BN), // ignores if value is zero OR NEGATIVE
           overrides: { value },
         },
-      ]
+      ];
 
   // NOTE:  EXIT_ETHER sweeps all out of the ladle, so *value* is not important > it must just be bigger than zero to not be ignored     
   const removeEth = (value: BigNumber, to: string|undefined = undefined): ICallData[] => [

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Box, BoxTypes, ResponsiveContext } from 'grommet';
 
 interface IMainViewWrapProps extends BoxTypes {

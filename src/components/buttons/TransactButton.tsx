@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Button } from 'grommet';
 import styled from 'styled-components';
 
@@ -10,7 +9,6 @@ const StyledButton = styled(Button)`
   :hover {
     transform: scale(1.01);
     border: 2px solid #ffffff00;
-
   }
 `;
 

@@ -10,6 +10,12 @@ import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
 
+enum PriceState {
+  UPDATE_PAIR = 'updatePair',
+  START_PAIR_FETCH = 'startPairFetch',
+  END_PAIR_FETCH = 'endPairFetch',
+}
+
 const PriceContext = React.createContext<any>({});
 
 const initState: IPriceContextState = {
@@ -17,20 +23,20 @@ const initState: IPriceContextState = {
   pairLoading: [] as string[],
 };
 
-const priceReducer = (state: any, action: any) => {
+const priceReducer = (state: IPriceContextState, action: any) => {
   /* Reducer switch */
   switch (action.type) {
-    case 'UPDATE_PAIR':
+    case PriceState.UPDATE_PAIR:
       return {
         ...state,
         pairMap: new Map(state.pairMap.set(action.payload.pairId, action.payload.pairInfo)),
       };
-    case 'START_PAIR_FETCH':
+    case PriceState.START_PAIR_FETCH:
       return {
         ...state,
         pairLoading: [...state.pairLoading, action.payload],
       };
-    case 'END_PAIR_FETCH':
+    case PriceState.END_PAIR_FETCH:
       return {
         ...state,
         pairLoading: state.pairLoading.filter((s: string) => s === action.payload),
@@ -73,7 +79,7 @@ const PriceProvider = ({ children }: any) => {
       /* if all the parts are there update the pairInfo */
 
       if (Cauldron && PriceOracle && base && ilk) {
-        updateState({ type: 'START_PAIR_FETCH', payload: pairId });
+        updateState({ type: PriceState.START_PAIR_FETCH, payload: pairId });
 
         // /* Get debt params and spot ratios */
         const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
@@ -119,8 +125,8 @@ const PriceProvider = ({ children }: any) => {
           oracle: oracleName || '',
         };
 
-        updateState({ type: 'UPDATE_PAIR', payload: { pairId, pairInfo: newPair } });
-        updateState({ type: 'END_PAIR_FETCH', payload: pairId });
+        updateState({ type: PriceState.UPDATE_PAIR, payload: { pairId, pairInfo: newPair } });
+        updateState({ type: PriceState.END_PAIR_FETCH, payload: pairId });
         return newPair;
       }
       return null;
@@ -132,4 +138,5 @@ const PriceProvider = ({ children }: any) => {
   return <PriceContext.Provider value={{ priceState, priceActions }}>{children}</PriceContext.Provider>;
 };
 
-export { PriceContext, PriceProvider };
+export { PriceContext };
+export default PriceProvider;

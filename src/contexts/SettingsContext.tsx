@@ -1,53 +1,73 @@
 import React, { useContext, useEffect, useReducer } from 'react';
-import { ApprovalType, ISettingsContextState } from '../types';
+import { ApprovalType, IChainContext, ISettingsContextState } from '../types';
 import { ChainContext } from './ChainContext';
+
+enum SettingsState {
+  APPROVAL_METHOD = 'approvalMethod',
+  APPROVAL_MAX = 'approveMax',
+  SLIPPAGE_TOLERANCE = 'slippageTolerance',
+  DIAGNOSTICS = 'diagnostics',
+  DARK_MODE = 'darkMode',
+  AUTO_THEME = 'autoTheme',
+  DISCLAIMER_CHECKED = 'disclaimerChecked',
+  POWER_USER = 'powerUser',
+  FORCE_TRANSACTIONS = 'forceTransactions',
+  SHOW_WRAPPED_TOKENS = 'showWrappedTokens',
+  UNWRAP_TOKENS = 'unwrapTokens',
+  DASH_HIDE_EMPTY_VAULTS = 'dashHideEmptyVaults',
+  DASH_HIDE_INACTIVE_VAULTS = 'dashHideInactiveVaults',
+  DASH_HIDE_VAULTS = 'dashHideVaults',
+  DASH_HIDE_LEND_POSITIONS = 'dashHideLendPositions',
+  DASH_HIDE_POOL_POSITIONS = 'dashHidePoolPositions',
+  DASH_CURRENCY = 'dashCurrency',
+}
 
 const SettingsContext = React.createContext<any>({});
 
 const initState: ISettingsContextState = {
   /* Use token approval by individual tranasaction */
-  approvalMethod: (JSON.parse(localStorage.getItem('approvalMethod')!) as ApprovalType) || ApprovalType.SIG,
+  approvalMethod: ApprovalType.SIG,
 
   /* Approve MAX amount, so only one approval transaction is required */
-  approveMax: (JSON.parse(localStorage.getItem('approveMax')!) as boolean) || (false as boolean),
+  approveMax: false,
 
   /* Set the slippage tolerance to a particular % */
-  slippageTolerance: (JSON.parse(localStorage.getItem('slippageTolerance')!) as number) || (0.001 as number),
+  slippageTolerance: 0.001,
 
   /* Show diagnostic messages in the console */
-  diagnostics: (JSON.parse(localStorage.getItem('diagnostics')!) as boolean) || (false as boolean),
+  diagnostics: false,
 
   /* Color theme */
-  darkMode: (JSON.parse(localStorage.getItem('darkMode')!) as boolean) || (false as boolean),
+  darkMode: false,
 
   /* Set color theme based on system */
-  autoTheme: (JSON.parse(localStorage.getItem('autoTheme')!) as boolean) || (false as boolean),
+  autoTheme: false,
 
   /* Has the usage disclaimer been checked? */
-  disclaimerChecked: (JSON.parse(localStorage.getItem('disclaimerChecked')!) as boolean) || (false as boolean),
+  disclaimerChecked: false,
 
   /* Is the user a 'power user' - future access to advanced settings/features */
-  powerUser: (JSON.parse(localStorage.getItem('powerUser')!) as boolean) || (false as boolean),
+  powerUser: false,
 
   /* Always force transctions to the chain -> even if they will likely fail */
-  forceTransactions: (JSON.parse(localStorage.getItem('forceTransactions')!) as boolean) || (false as boolean),
+  forceTransactions: false,
 
   /* Show wrapped tokens */
-  showWrappedTokens: (JSON.parse(localStorage.getItem('showWrappedTokens')!) as boolean) || (true as boolean),
+  showWrappedTokens: true,
 
   /* Always Unwrap tokens when removing them */
-  unwrapTokens: (JSON.parse(localStorage.getItem('unwrapTokens')!) as boolean) || (false as boolean),
+  unwrapTokens: false,
 
   /* Dashboard settings */
-  dashHideEmptyVaults: (JSON.parse(localStorage.getItem('dashHideEmptyVaults')!) as boolean) || false,
-  dashHideInactiveVaults: (JSON.parse(localStorage.getItem('dashHideInactiveVaults')!) as boolean) || false,
-  dashHideVaults: (JSON.parse(localStorage.getItem('dashHideVaults')!) as boolean) || false,
-  dashHideLendPositions: (JSON.parse(localStorage.getItem('dashHideLendPostions')!) as boolean) || false,
-  dashHidePoolPositions: (JSON.parse(localStorage.getItem('dashHidePoolPositions')!) as boolean) || false,
-  dashCurrency: (JSON.parse(localStorage.getItem('dashCurrency')!) as string) || 'USDC',
+  dashHideEmptyVaults: false,
+  dashHideInactiveVaults: false,
+  dashHideVaults: false,
+  dashHideLendPositions: false,
+  dashHidePoolPositions: false,
+  dashCurrency: 'USDC',
 };
 
-function settingsReducer(state: any, action: any) {
+function settingsReducer(state: ISettingsContextState, action: any) {
   /* Helper: if different from existing , update the state and cache */
   const cacheAndUpdate = (_action: any) => {
     if (state[action.type] === _action.payload) {
@@ -66,12 +86,12 @@ const SettingsProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const {
     chainState: { connection },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
   /* watch & handle linked approval and effect appropriate settings */
   useEffect(() => {
     if (settingsState.approvalMethod === ApprovalType.SIG) {
-      updateState({ type: 'approveMax', payload: false });
+      updateState({ type: SettingsState.APPROVAL_MAX, payload: false });
     }
   }, [settingsState.approvalMethod]);
 
@@ -79,11 +99,11 @@ const SettingsProvider = ({ children }: any) => {
   useEffect(() => {
     if (connection.connectionName && connection.connectionName !== 'metamask') {
       console.log('Using manual ERC20 approval transactions');
-      updateState({ type: 'approvalMethod', payload: ApprovalType.TX });
+      updateState({ type: SettingsState.APPROVAL_MAX, payload: ApprovalType.TX });
     } else if (connection.connectionName === 'metamask') {
       /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
-      updateState({ type: 'approvalMethod', payload: ApprovalType.SIG });
+      updateState({ type: SettingsState.APPROVAL_METHOD, payload: ApprovalType.SIG });
     }
   }, [connection.connectionName]);
 
@@ -92,7 +112,19 @@ const SettingsProvider = ({ children }: any) => {
     updateSetting: (setting: string, value: string) => updateState({ type: setting, payload: value }),
   };
 
+  /* Update all settings in state based on localStorage */
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      Object.values(SettingsState).forEach((setting) => {
+        if (JSON.parse(localStorage.getItem(setting)) !== null) {
+          updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)) });
+        }
+      });
+    }
+  }, []);
+
   return <SettingsContext.Provider value={{ settingsState, settingsActions }}>{children}</SettingsContext.Provider>;
 };
 
-export { SettingsContext, SettingsProvider };
+export { SettingsContext };
+export default SettingsProvider;

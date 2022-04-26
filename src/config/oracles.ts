@@ -1,10 +1,29 @@
-import { WETH, DAI, USDC, WBTC, stETH, wstETH, ENS, LINK, UNI, yvUSDC, MKR, FUSDC2203, FDAI2203, FUSDC2206, FDAI2206, FUSDC2209, FDAI2209 } from './assets';
+import {
+  WETH,
+  DAI,
+  USDC,
+  WBTC,
+  stETH,
+  wstETH,
+  ENS,
+  LINK,
+  UNI,
+  yvUSDC,
+  MKR,
+  FUSDC2203,
+  FDAI2203,
+  FUSDC2206,
+  FDAI2206,
+  FUSDC2209,
+  FDAI2209,
+  FRAX,
+  // CVX3CRV,
+} from './assets';
 
 const COMPOSITE_MULTI_ORACLE = 'CompositeMultiOracle';
 const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
 const YEARNVAULT_MULTI_ORACLE = 'YearnVaultMultiOracle';
 const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
-
 const NOTIONAL_MULTI_ORACLE = 'NotionalMultiOracle';
 
 // map chain id to oracle info
@@ -31,10 +50,13 @@ usdcIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 usdcIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+usdcIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
 /* notional additions */
 usdcIlkOracle1.set(FUSDC2203, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2206, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2209, NOTIONAL_MULTI_ORACLE);
+/* convex */
+// usdcIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle1);
 
@@ -51,10 +73,13 @@ daiIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 daiIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+daiIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
 /* notional additions */
 daiIlkOracle1.set(FDAI2203, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2206, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2209, NOTIONAL_MULTI_ORACLE);
+/* convex */
+// daiIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle1);
 
@@ -71,7 +96,22 @@ wethIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+wethIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(WETH, wethIlkOracle1);
+
+// FRAX base
+const fraxIlkOracle1 = new Map<string, string>();
+fraxIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(DAI, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(USDC, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(WBTC, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(stETH, COMPOSITE_MULTI_ORACLE);
+fraxIlkOracle1.set(wstETH, COMPOSITE_MULTI_ORACLE);
+fraxIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
+fraxIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
+fraxIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+CHAIN_ID_1_ASSET_ORACLE_INFO.set(FRAX, fraxIlkOracle1);
 
 /* chain id 42161, 421611 (aribtrum mainnet and arbitrum rinkeby use the same oracle contracts) */
 

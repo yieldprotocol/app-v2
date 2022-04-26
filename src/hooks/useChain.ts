@@ -13,20 +13,12 @@ import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
 
-// /* Get ETH value from JOIN_ETHER OPCode, else zero -> N.B. other values sent in with other OPS are ignored for now */
-// const _getCallValue = (calls: ICallData[]): BigNumber => {
-//   const joinEtherCall = calls.find((call: any) => call.operation === LadleActions.Fn.JOIN_ETHER);
-//   return joinEtherCall ? BigNumber.from(joinEtherCall?.overrides?.value) : ethers.constants.Zero;
-// };
-
-/* Get the sum of the value of all calls */ 
-const _getCallValue = (calls: ICallData[]): BigNumber => calls.reduce(
-  (sum: BigNumber, call: ICallData) => {
+/* Get the sum of the value of all calls */
+const _getCallValue = (calls: ICallData[]): BigNumber =>
+  calls.reduce((sum: BigNumber, call: ICallData) => {
     if (call.ignoreIf) return sum.add(ZERO_BN);
-    return sum.add(call.overrides?.value ? BigNumber.from(call?.overrides?.value) : ZERO_BN)
-  },
-  ZERO_BN
-);
+    return sum.add(call.overrides?.value ? BigNumber.from(call?.overrides?.value) : ZERO_BN);
+  }, ZERO_BN);
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
@@ -71,7 +63,7 @@ export const useChain = () => {
         if (call.fnName && call.targetContract) {
           const encodedFn = (call.targetContract as any).interface.encodeFunctionData(call.fnName, call.args);
 
-          if (call.operation === LadleActions.Fn.ROUTE) 
+          if (call.operation === LadleActions.Fn.ROUTE)
             return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
               call.targetContract.address,
               encodedFn,
@@ -82,7 +74,6 @@ export const useChain = () => {
               call.targetContract.address,
               encodedFn,
             ]);
-
         }
         throw new Error('Function name and contract target required for routing/ module interaction');
       }
@@ -100,20 +91,14 @@ export const useChain = () => {
 
     /* calculate the gas required */
     let gasEst: BigNumber;
-    let gasEstFail: boolean = false;
+    // let gasEstFail: boolean = false;
     try {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
       console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
-    } catch (e) {
+    } catch (e: any) {
       gasEst = BigNumber.from(500000);
-      console.log('Failed to get gas estimate', e);
-      // toast.warning('It appears the transaction will likely fail. Proceed with caution...');
-      gasEstFail = true;
-    }
-
-    /* handle if the tx if going to fail and transactions aren't forced */
-    if (gasEstFail && !forceTransactions) {
-      return handleTxWillFail(txCode);
+       /* handle if the tx if going to fail and transactions aren't forced */
+      if (!forceTransactions) return handleTxWillFail(e.error, txCode, e.transaction)
     }
 
     /* Finally, send out the transaction */

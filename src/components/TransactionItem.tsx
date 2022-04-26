@@ -1,5 +1,5 @@
-import React, { useEffect, useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useContext, useState } from 'react';
+import Link from 'next/link';
 import styled, { ThemeContext } from 'styled-components';
 import { Box, Text, Spinner } from 'grommet';
 import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
@@ -15,12 +15,12 @@ interface ITransactionItem {
   wide?: boolean;
 }
 
-const StyledLink = styled(Link)`
+const StyledBox = styled(Box)`
   text-decoration: none;
   vertical-align: middle;
   :hover {
     text-decoration: underline;
-    text-decoration-color: ${(props) => props.color};
+    text-decoration-color: ${(props: any) => props.color};
   }
 `;
 
@@ -74,18 +74,20 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
             {status === TxState.FAILED && <FiXCircle size="1.5rem" color={error.dark} />}
           </Box>
           {status === TxState.SUCCESSFUL && link ? (
-            <StyledLink to={link} color={colorScheme === 'dark' ? textColor.dark : textColor.light}>
-              <Box fill>
-                <Text
-                  size="small"
-                  style={{
-                    color: colorScheme === 'dark' ? textColor.dark : textColor.light,
-                  }}
-                >
-                  {action}
-                </Text>
-              </Box>
-            </StyledLink>
+            <Link href={link} passHref>
+              <StyledBox color={colorScheme === 'dark' ? textColor.dark : textColor.light}>
+                <Box fill>
+                  <Text
+                    size="small"
+                    style={{
+                      color: colorScheme === 'dark' ? textColor.dark : textColor.light,
+                    }}
+                  >
+                    {action}
+                  </Text>
+                </Box>
+              </StyledBox>
+            </Link>
           ) : (
             <Text size="small" color={textColor}>
               {action}

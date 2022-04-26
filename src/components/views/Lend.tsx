@@ -1,44 +1,44 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { Box, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
-import ActionButtonGroup from '../components/wraps/ActionButtonWrap';
-import AssetSelector from '../components/selectors/AssetSelector';
-import InputWrap from '../components/wraps/InputWrap';
-import MainViewWrap from '../components/wraps/MainViewWrap';
-import SeriesSelector from '../components/selectors/SeriesSelector';
-import { cleanValue, nFormatter } from '../utils/appUtils';
-import SectionWrap from '../components/wraps/SectionWrap';
+import ActionButtonGroup from '../wraps/ActionButtonWrap';
+import AssetSelector from '../selectors/AssetSelector';
+import InputWrap from '../wraps/InputWrap';
+import MainViewWrap from '../wraps/MainViewWrap';
+import SeriesSelector from '../selectors/SeriesSelector';
+import { cleanValue, nFormatter } from '../../utils/appUtils';
+import SectionWrap from '../wraps/SectionWrap';
 
-import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, ProcessStage, TxState } from '../types';
-import MaxButton from '../components/buttons/MaxButton';
-import PanelWrap from '../components/wraps/PanelWrap';
-import CenterPanelWrap from '../components/wraps/CenterPanelWrap';
+import { UserContext } from '../../contexts/UserContext';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, ProcessStage, TxState } from '../../types';
+import MaxButton from '../buttons/MaxButton';
+import PanelWrap from '../wraps/PanelWrap';
+import CenterPanelWrap from '../wraps/CenterPanelWrap';
 
-import PositionSelector from '../components/selectors/LendPositionSelector';
-import ActiveTransaction from '../components/ActiveTransaction';
-import YieldInfo from '../components/YieldInfo';
-import BackButton from '../components/buttons/BackButton';
+import PositionSelector from '../selectors/LendPositionSelector';
+import ActiveTransaction from '../ActiveTransaction';
+import YieldInfo from '../YieldInfo';
+import BackButton from '../buttons/BackButton';
 
-import NextButton from '../components/buttons/NextButton';
-import InfoBite from '../components/InfoBite';
-import TransactButton from '../components/buttons/TransactButton';
+import NextButton from '../buttons/NextButton';
+import InfoBite from '../InfoBite';
+import TransactButton from '../buttons/TransactButton';
 
-import { useInputValidation } from '../hooks/useInputValidation';
-import AltText from '../components/texts/AltText';
-import YieldCardHeader from '../components/YieldCardHeader';
-import { useLendHelpers } from '../hooks/viewHelperHooks/useLendHelpers';
-import { useLend } from '../hooks/actionHooks/useLend';
+import { useInputValidation } from '../../hooks/useInputValidation';
+import AltText from '../texts/AltText';
+import YieldCardHeader from '../YieldCardHeader';
+import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
+import { useLend } from '../../hooks/actionHooks/useLend';
 
-import ColorText from '../components/texts/ColorText';
-import { useProcess } from '../hooks/useProcess';
-import LendItem from '../components/positionItems/LendItem';
+import ColorText from '../texts/ColorText';
+import { useProcess } from '../../hooks/useProcess';
+import LendItem from '../positionItems/LendItem';
 
-import InputInfoWrap from '../components/wraps/InputInfoWrap';
-import SeriesOrStrategySelectorModal from '../components/selectors/SeriesOrStrategySelectorModal';
-import YieldNavigation from '../components/YieldNavigation';
+import InputInfoWrap from '../wraps/InputInfoWrap';
+import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
+import YieldNavigation from '../YieldNavigation';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
