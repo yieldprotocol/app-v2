@@ -45,11 +45,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
       <Box direction="row" align="center" gap="xsmall">
-        <Avatar size="xsmall" background={theme.dark ? 'text' : undefined}>
-          {' '}
-          {asset.image}{' '}
-        </Avatar>
-
+        <Box height="24px" width="24px">
+          {asset.image}
+        </Box>
         {asset?.displaySymbol}
       </Box>
     ) : (

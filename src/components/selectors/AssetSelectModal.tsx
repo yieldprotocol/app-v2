@@ -57,9 +57,9 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
               >
                 <Box justify="between" direction="row" align="center" pad={{ horizontal: 'medium', vertical: 'small' }}>
                   <Box direction="row" gap="small" align="center">
-                    <Avatar size="xsmall" background={theme === 'dark' ? 'text' : undefined}>
+                    <Box height="24px" width="24px">
                       {a.image}
-                    </Avatar>
+                    </Box>
                     <Box>
                       <Text size="small">{a.displaySymbol}</Text>
                       <Text size="xsmall" color="text-weak">
