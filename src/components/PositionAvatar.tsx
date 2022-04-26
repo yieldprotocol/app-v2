@@ -33,7 +33,7 @@ function PositionAvatar({
           background={series?.seriesIsMature ? 'lightGrey' : series?.color}
           size={condensed ? '1.5rem' : undefined}
         >
-          <Box round="large" background="lightBackground" pad={condensed ? 'none' : 'xxsmall'} align="center">
+          <Box round="large" background="white" pad={condensed ? 'none' : 'xxsmall'} align="center">
             <Box height="24px" width="24px">
               {base?.image}
             </Box>
