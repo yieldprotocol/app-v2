@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Avatar, Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
+import { Avatar, Box, Button, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -8,9 +8,11 @@ import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '..
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import AssetSelectModal from './AssetSelectModal';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
+  isModal?: boolean;
 }
 
 const StyledBox = styled(Box)`
@@ -23,7 +25,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
+function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const theme = useContext<any>(ThemeContext);
 
@@ -38,6 +40,7 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
+  const [modalOpen, toggleModal] = useState<boolean>(false);
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -101,33 +104,39 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       round={mobile ? 'large' : { corner: 'right', size: 'large' }}
       elevation="xsmall"
       background="hoverBackground"
+      onClick={() => isModal && toggleModal(!modalOpen)}
     >
-      <Select
-        plain
-        dropProps={{ round: 'small' }}
-        id="assetSelect"
-        name="assetSelect"
-        placeholder="Select Asset"
-        options={options}
-        value={selectCollateral ? selectedIlk! : selectedBase!}
-        labelKey={(x: IAsset | undefined) => optionText(x)}
-        valueLabel={
-          <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
-            <Text color="text"> {optionText(selectCollateral ? selectedIlk! : selectedBase!)} </Text>
-          </Box>
-        }
-        onChange={({ option }: any) => handleSelect(option)}
-        disabled={
-          (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
-          (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
-        }
-        // eslint-disable-next-line react/no-children-prop
-        children={(x: any) => (
-          <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
-            <Text color="text"> {optionText(x)} </Text>
-          </Box>
-        )}
-      />
+      {isModal && modalOpen && (
+        <AssetSelectModal assets={options} handleSelect={handleSelect} open={modalOpen} setOpen={toggleModal} />
+      )}
+      {!modalOpen && (
+        <Select
+          plain
+          dropProps={{ round: 'small' }}
+          id="assetSelect"
+          name="assetSelect"
+          placeholder="Select Asset"
+          options={options}
+          value={selectCollateral ? selectedIlk! : selectedBase!}
+          labelKey={(x: IAsset | undefined) => optionText(x)}
+          valueLabel={
+            <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
+              <Text color="text"> {optionText(selectCollateral ? selectedIlk! : selectedBase!)}</Text>
+            </Box>
+          }
+          onChange={({ option }: any) => handleSelect(option)}
+          disabled={
+            (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
+            (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
+          }
+          // eslint-disable-next-line react/no-children-prop
+          children={(x: any) => (
+            <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
+              <Text color="text"> {optionText(x)} </Text>
+            </Box>
+          )}
+        />
+      )}
     </StyledBox>
   );
 }
