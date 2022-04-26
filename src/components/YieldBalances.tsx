@@ -17,8 +17,10 @@ const StyledText = styled(Text)`
 const Balance = ({ image, balance, loading }: { image: any; balance: string; loading: boolean }) => (
   <Box direction="row" gap="small" align="center">
     <StyledText size="small" color="text">
-      {loading && <Skeleton circle height={15} width={15} />}
-      {!loading && image}
+      {loading && <Skeleton circle height={20} width={20} />}
+      <Box height="20px" width="20px">
+        {!loading && image}
+      </Box>
     </StyledText>
     <StyledText size="small" color="text">
       {loading && <Skeleton width={40} />}
