@@ -2,7 +2,7 @@ import * as React from 'react';
 
 function EthLogo(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg height="1em" width="1em" viewBox="-162 -67.65 1404 405.9" {...props}>
+    <svg height="100%" width="100%" viewBox="-162 -67.65 1404 405.9" {...props}>
       <path fill="#8891B1" d="M83 100.1V0L0 137.8z" />
       <path fill="#63688E" d="M83 186.9v-86.8L0 137.8zm0-86.8l83.1 37.7L83 0z" />
       <path fill="#464A75" d="M83 100.1v86.8l83.1-49.1z" />
