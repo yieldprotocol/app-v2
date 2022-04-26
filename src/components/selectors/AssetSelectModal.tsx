@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Avatar, Box, Button, Layer, Text, ThemeContext } from 'grommet';
+import { Box, Button, Layer, Text, ThemeContext } from 'grommet';
 import { useContext } from 'react';
 import { FiX } from 'react-icons/fi';
 import styled from 'styled-components';

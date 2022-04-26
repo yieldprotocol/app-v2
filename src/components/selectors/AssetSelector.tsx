@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Avatar, Box, Button, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
+import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -27,7 +27,6 @@ const StyledBox = styled(Box)`
 
 function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const theme = useContext<any>(ThemeContext);
 
   const {
     settingsState: { showWrappedTokens, diagnostics },
