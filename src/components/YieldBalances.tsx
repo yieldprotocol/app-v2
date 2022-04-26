@@ -52,7 +52,7 @@ const Balances = () => {
   }, [pathname]);
 
   return (
-    <Box pad="small" justify="center" align="start">
+    <Box pad="small" justify="center" align="start" gap="xsmall">
       <Balance image={selectedBase?.image} balance={baseBalance} loading={assetsLoading} />
       {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.idToUse !== WETH && (
         <Balance image={selectedIlk?.image} balance={ilkBalance} loading={assetsLoading} />
