@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Avatar, Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
-import styled, { ThemeConsumer } from 'styled-components';
+import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
@@ -41,9 +41,12 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
-      <Box direction="row" align="center" gap="xsmall" >
-        <Avatar size='xsmall' background={theme.dark ? 'text': undefined }> {asset.image} </Avatar>
-        
+      <Box direction="row" align="center" gap="xsmall">
+        <Avatar size="xsmall" background={theme.dark ? 'text' : undefined}>
+          {' '}
+          {asset.image}{' '}
+        </Avatar>
+
         {asset?.displaySymbol}
       </Box>
     ) : (
