@@ -45,7 +45,9 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
           .map((asset) => (
             <TableRow key={asset.id}>
               <StyledTableCell plain>
-                <Text size="medium">{asset.image}</Text>
+                <Box height="20px" width="20px">
+                  {asset.image}
+                </Box>
               </StyledTableCell>
               <StyledTableCell plain>
                 <Text size="small" color="text">
