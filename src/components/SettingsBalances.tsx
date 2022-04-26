@@ -23,13 +23,13 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
       <TableHeader>
         <TableRow>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell align="center" plain>
             <Text color="text" size="xsmall">
