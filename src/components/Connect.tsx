@@ -94,7 +94,9 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
                     <Text size="small" color={connected ? 'white' : 'text'} textAlign="center">
                       {displayName}
                     </Text>
-                    {image()}
+                    <Box height="24px" width="24px">
+                      {image()}
+                    </Box>
                   </Box>
                 )}
               </Box>
