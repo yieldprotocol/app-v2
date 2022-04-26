@@ -36,16 +36,20 @@ function PositionAvatar({
           <Box
             round="large"
             background={base?.color || 'lightBackground'}
-            pad={condensed ? 'none' : 'xsmall'}
+            pad={condensed ? 'none' : 'xxsmall'}
             align="center"
           >
-            {base?.image}
+            <Box height="24px" width="24px">
+              {base?.image}
+            </Box>
           </Box>
         </Avatar>
 
         {actionType === ActionType.BORROW && (
           <Avatar background="lightBackground" size={condensed ? '0.75rem' : 'xsmall'}>
-            {ilk?.image}
+            <Box height="20px" width="20px">
+              {ilk?.image}
+            </Box>
           </Avatar>
         )}
         {actionType === ActionType.POOL && (
