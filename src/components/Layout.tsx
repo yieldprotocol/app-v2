@@ -56,7 +56,7 @@ const Layout: FC = ({ children }) => {
           <DynamicNetworkError />
           <DynamicTransactionError />
           <ToastContainer position="top-right" />
-          <Box flex={!mobile} overflow="hidden">
+          <Box overflow="hidden">
             {menuLayerOpen && <DynamicYieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
           </Box>
           {children}

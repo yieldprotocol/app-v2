@@ -1202,10 +1202,9 @@ export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt
   const debt_ = new Decimal(debt.toString());
 
   const accRatio_ = rate_.div(rateAtMaturity_);
-
   const invRatio_ = rateAtMaturity_.div(rate_); // to reverse calc the debt LESS the accrued value
 
-  const accruedDebt = !accRatio_.isNaN ? debt_.mul(accRatio_) : debt_;
+  const accruedDebt = !accRatio_.isNaN() ? debt_.mul(accRatio_) : debt_;
   const debtLessAccrued = debt_.mul(invRatio_);
 
   return [toBn(accruedDebt), toBn(debtLessAccrued)];

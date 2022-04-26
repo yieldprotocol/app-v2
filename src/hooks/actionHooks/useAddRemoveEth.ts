@@ -16,7 +16,7 @@ export const useAddRemoveEth = () => {
   ) as IUserContext;
 
   const { activeAccount: account } = userState;
-  const WrapEtherModuleContract = contractMap.get('WrapEtherModule');
+  const WrapEtherModuleContract =  contractMap.get('WrapEtherModule');
 
   const addEth = (
     value: BigNumber,
