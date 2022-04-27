@@ -5,6 +5,7 @@ import { FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { IAsset } from '../../types';
+import Logo from '../logos/Logo';
 
 const Line = styled(Box)`
   width: 100%;
@@ -57,9 +58,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
               >
                 <Box justify="between" direction="row" align="center" pad={{ horizontal: 'medium', vertical: 'small' }}>
                   <Box direction="row" gap="small" align="center">
-                    <Box height="24px" width="24px">
-                      {a.image}
-                    </Box>
+                    <Logo image={a.image} />
                     <Box>
                       <Text size="small">{a.displaySymbol}</Text>
                       <Text size="xsmall" color="text-weak">

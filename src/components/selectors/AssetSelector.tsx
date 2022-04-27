@@ -9,6 +9,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
+import Logo from '../logos/Logo';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -44,9 +45,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
       <Box direction="row" align="center" gap="small">
-        <Box height="24px" width="24px">
-          {asset.image}
-        </Box>
+        <Logo image={asset.image} />
         {asset?.displaySymbol}
       </Box>
     ) : (

@@ -4,6 +4,7 @@ import { FiClock } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType, IUserContextState } from '../types';
+import Logo from './logos/Logo';
 
 function PositionAvatar({
   position,
@@ -32,17 +33,13 @@ function PositionAvatar({
     <Stack anchor="top-right">
       <Avatar background={series?.seriesIsMature ? 'lightGrey' : series?.color} size={condensed ? '36px' : undefined}>
         <Box round="large" background="white" pad="xxsmall">
-          <Box height={baseImageSize} width={baseImageSize} align="center">
-            {base?.image}
-          </Box>
+          <Logo image={base.image} height={baseImageSize} width={baseImageSize} />
         </Box>
       </Avatar>
 
       {actionType === ActionType.BORROW && (
         <Avatar background="lightBackground" size={ilkImageSize}>
-          <Box height={ilkImageSize} width={ilkImageSize} align="center">
-            {ilk?.image}
-          </Box>
+          <Logo image={ilk.image} height={ilkImageSize} width={ilkImageSize} />
         </Avatar>
       )}
       {actionType === ActionType.POOL && (
