@@ -436,7 +436,11 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRepayInput(cleanValue(event.target.value, vaultBase?.decimals))
                             }
-                            icon={<>{vaultBase?.image}</>}
+                            icon={
+                              <Box height="24px" width="24px">
+                                {vaultBase?.image}
+                              </Box>
+                            }
                           />
                           <MaxButton
                             action={() => setRepayInput(maxRepay.gt(minRepayable) ? maxRepay_ : minRepayable_)}

@@ -210,7 +210,11 @@ const LendPosition = () => {
                               selectedBase?.digitFormat!
                             )} ${selectedBase?.displaySymbol!}`
                       }
-                      icon={selectedBase?.image}
+                      icon={
+                        <Box height="24px" width="24px">
+                          {selectedBase?.image}
+                        </Box>
+                      }
                       loading={seriesLoading}
                     />
                   </Box>
@@ -258,7 +262,11 @@ const LendPosition = () => {
                               setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries}
-                            icon={<>{selectedBase?.image}</>}
+                            icon={
+                              <Box height="24px" width="24px">
+                                {selectedBase?.image}
+                              </Box>
+                            }
                           />
                           <MaxButton
                             action={() => setCloseInput(maxClose_)}
@@ -321,7 +329,11 @@ const LendPosition = () => {
                               setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries || !rollToSeries}
-                            icon={<>{selectedBase?.image}</>}
+                            icon={
+                              <Box height="24px" width="24px">
+                                {selectedBase?.image}
+                              </Box>
+                            }
                           />
                           <MaxButton
                             action={() => setRollInput(maxRoll_)}
