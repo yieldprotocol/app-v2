@@ -273,7 +273,6 @@ const ChainProvider = ({ children }: any) => {
           ...asset,
           digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
           image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
-          color: ASSET_INFO.get(asset.id)?.color || '#FFFFFF', // (yieldEnv.assetColors as any)[asset.symbol],
 
           assetContract,
 
