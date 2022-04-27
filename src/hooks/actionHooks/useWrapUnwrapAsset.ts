@@ -31,10 +31,11 @@ export const useWrapUnwrapAsset = () => {
     to?: string | undefined // optional send destination : DEFAULT is assetJoin address
   ): Promise<ICallData[]> => {
     const ladleAddress = contractMap.get('Ladle').address;
+    /* SET the destination address DEFAULTs to the assetJoin Address */
     const toAddress = to || asset.joinAddress
     const wrapHandlerAddress = asset.wrapHandlerAddresses ? asset.wrapHandlerAddresses.get(chainId) : undefined
 
-    /* if a wraphandler exists, we assume that it is Yield uses the wrapped version of the token */
+    /* NB! IF a wraphandler exists, we assume that it is Yield uses the wrapped version of the token */
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
 
       const wrapHandlerContract: Contract = new Contract(wrapHandlerAddress, wrapHandlerAbi, signer);
@@ -45,7 +46,7 @@ export const useWrapUnwrapAsset = () => {
       const permitCallData: ICallData[] = await sign(
         [
           {
-            target: assetContract, // full target contract
+            target: assetContract, // full target contract 
             spender: ladleAddress,
             amount: value,
             ignoreIf: false,

@@ -52,7 +52,7 @@ export const useRemoveCollateral = () => {
     const _pourTo = isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
-    const unwrappingCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account!) : [];
+    const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account!) : [];
     const removeEthCallData: ICallData[] =  removeEth(isEthCollateral ? ONE_BN : ZERO_BN) // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
 
     const calls: ICallData[] = [
@@ -61,14 +61,14 @@ export const useRemoveCollateral = () => {
         args: [
           vault.id,
           /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */
-          unwrappingCallData.length ? unwrapHandlerAddress : _pourTo ,
+          unwrapCallData.length ? unwrapHandlerAddress : _pourTo ,
           _input,
           ZERO_BN,
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
       ...removeEthCallData, 
-      ...unwrappingCallData,
+      ...unwrapCallData,
     ];
 
     await transact(calls, txCode);

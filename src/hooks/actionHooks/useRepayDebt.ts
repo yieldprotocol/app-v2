@@ -114,6 +114,7 @@ export const useRepayDebt = () => {
     /* Check if already apporved */ 
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer)
 
+    // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
     const unwrapAssetCallData : ICallData[] = reclaimCollateral ?  await unwrapAsset(ilk, account!): [] ;
 
     const permitCallData: ICallData[] = await sign(
@@ -129,13 +130,20 @@ export const useRepayDebt = () => {
       txCode
     );
 
+    /* Remove ETH collateral. (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero) */
+    const removeEthCallData = removeEth(isEthCollateral ? ONE_BN : ZERO_BN);
+
     const calls: ICallData[] = [
       ...permitCallData,
+
+      /* Reqd. when we have a wrappedBase */
+      // ...wrapAssetCallData
       
       /* If ethBase, Send ETH to either base join or pool  */ 
       ...addEth(isEthBase && !series.seriesIsMature ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
       ...addEth(isEthBase && series.seriesIsMature ? amountToTransfer : ZERO_BN), // no destination defined after maturity , input +1% will will go to weth join
-      /* else, Send Token to either join or pool via a ladle.transfer() */ 
+      
+      /* Else, Send Token to either join or pool via a ladle.transfer() */ 
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, transferToAddress, amountToTransfer] as LadleActions.Args.TRANSFER,
@@ -171,7 +179,8 @@ export const useRepayDebt = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN), // after the complete tranasction, this will remove all the ETH collateral (if requested). (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero)
+      ...removeEthCallData, 
+      ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
     updateVaults([vault]);

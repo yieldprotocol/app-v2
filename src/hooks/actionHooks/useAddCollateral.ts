@@ -61,7 +61,8 @@ export const useAddCollateral = () => {
     const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_input) : _allowance;
 
-    /* handle wrapped tokens:  */
+    
+    /* Handle wrapping of tokens:  */
     const wrapAssetCallData: ICallData[] = await wrapAsset(_input, ilk!, txCode);
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
@@ -89,6 +90,7 @@ export const useAddCollateral = () => {
      * BUILD CALL DATA ARRAY
      * */
     const calls: ICallData[] = [
+
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,

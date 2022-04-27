@@ -131,7 +131,7 @@ export const useAddLiquidity = () => {
     /**
      * GET SIGNTURE/APPROVAL DATA
      * */
-    const permits: ICallData[] = await sign(
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: _base,
@@ -147,7 +147,7 @@ export const useAddLiquidity = () => {
      * BUILD CALL DATA ARRAY
      * */
     const calls: ICallData[] = [
-      ...permits,
+      ...permitCallData,
 
       /**
        * Provide liquidity by BUYING :
@@ -160,7 +160,6 @@ export const useAddLiquidity = () => {
         args: [_base.address, _series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ignore if not BUY and POOL or isETHbase
       },
-
       {
         operation: LadleActions.Fn.ROUTE,
         args: [
@@ -190,7 +189,6 @@ export const useAddLiquidity = () => {
         isEthBase && method === AddLiquidityType.BORROW ? _baseToPoolWithSlippage : ZERO_BN,
         _series.poolAddress
       ),
-
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [_base.address, _base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,

@@ -113,10 +113,10 @@ export const useBorrow = () => {
           spender: ilk.joinAddress,
           amount: _collInput,
           ignoreIf:
-            alreadyApproved === true ||
-            ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!) ||
-            _collInput.eq(ethers.constants.Zero) ||
-            wrapAssetCallData.length > 0,
+            alreadyApproved === true || // Ignore if already approved 
+            ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!) || // Ignore if dealing with an eTH based collateral 
+            _collInput.eq(ethers.constants.Zero) || // ignore if zero collateral value
+            wrapAssetCallData.length > 0, // Ignore if dealing with a wrapped collateral
         },
       ],
       txCode
@@ -152,9 +152,6 @@ export const useBorrow = () => {
         targetContract: ConvexLadleModuleContract,
         ignoreIf: !!vault || !isConvexCollateral,
       },
-
-      /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ), else send ZERO_BN */
-      ...addEth(isEthCollateral ? _collInput : ZERO_BN),
 
       {
         operation: LadleActions.Fn.SERVE,
