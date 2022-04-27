@@ -8,13 +8,13 @@
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "Witch": "0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061",
 
-      "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
 
       "NotionalMultiOracle": "0x660bB2F1De01AacA46FCD8004e852234Cf65F3fb",
       "transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
+      "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA",
 
-      "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA"
+      "StEthConvertor": "0x64BA0F1D2E5479BF132936328e8c533c95646fE8"
     },
     "4": {
       "Cauldron": "0x84EFA55faA9d774B4846c7a51c1C470232DFE50f",
@@ -24,24 +24,14 @@
       "CompositeMultiOracle": "0x577DA88C253095b874941dda194a6c59489E644f",
       "Witch": "0x2CEFcB458Ad3da4E880F11611CE7AFA81afe059e",
 
-      "lidoWrapHandler": "",
       "YearnVaultMultiOracle": "0x392333A9d4CfCC529a7DA3F6021c5dfc6C54e1EF",
       "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
       "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF",
 
+      "StEthConvertor": "0x64BA0F1D2E5479BF132936328e8c533c95646fE8",
       "WrapEtherModule": "0x6C688D4257204FEe0Fce47d3feb9AE81e8B86283",
+      
       "ConvexLadleModule": ""
-    },
-    "42": {
-      "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
-      "Ladle": "0xe7bae0445B9a1DBE834a7379fbE23C6d2Bd61C59",
-      "CompoundMultiOracle": "0x23F5F7a17117ba794Fcc5F46Fbf635edD2596Bb6",
-      "ChainlinkMultiOracle": "0xBcdc8bad83ca8053DFA6B1CBAEB7E71699254a3b",
-      "CompositeMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
-      "Witch": "0xA421B81481e0d150740f8F137FB10b1b747974a8",
-      "lidoWrapHandler": "0x491aB93faa921C8E634F891F96512Be14fD3DbB1",
-      "YearnVaultMultiOracle": "0xaF45D0277399E79Bf599d72fF4521f8Dc4A060E1",
-      "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
     },
     "421611": {
       "Cauldron": "0x64BA0F1D2E5479BF132936328e8c533c95646fE8",

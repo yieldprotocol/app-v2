@@ -169,7 +169,8 @@ const ChainProvider = ({ children }: any) => {
       let CompositeMultiOracle: contracts.CompositeMultiOracle;
       let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
       let Witch: contracts.Witch;
-      let LidoWrapHandler: contracts.LidoWrapHandler;
+
+      // let LidoWrapHandler: contracts.LidoWrapHandler;
 
       // modules
       let WrapEtherModule: contracts.WrapEtherModule;
@@ -252,7 +253,6 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('AccumulatorOracle', AccumulatorOracle);
-      newContractMap.set('LidoWrapHandler', LidoWrapHandler);
       newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
 
       // modules
