@@ -100,7 +100,7 @@ export const useConnection = () => {
       fallbackActivate(
         new NetworkConnector({
           urls: SUPPORTED_RPC_URLS,
-          defaultChainId: lastChainId,
+          defaultChainId: lastChainId || process.env.REACT_APP_DEFAULT_CHAINID,
         }),
         (e: Error) => {
           setFallbackErrorMessage(handleErrorMessage(e));
