@@ -153,6 +153,12 @@ export const useConnection = () => {
     }
   }, [fallbackChainId, lastChainId, setLastChainId]);
 
+  /* Use the connected provider if available, else use fallback */
+  const getFallbackProvider = () => {
+    if ([42161, 421611].includes(chainId)) return fallbackProvider; // always use fallback for arbitrum (testnet) to access historical data
+    return provider ?? fallbackProvider;
+  };
+
   return {
     connectionState: {
       /* constants */
@@ -164,8 +170,8 @@ export const useConnection = () => {
       connectionName,
       connector,
       provider,
-      fallbackProvider,
       chainId,
+      fallbackProvider: getFallbackProvider(),
       fallbackChainId,
       lastChainId,
 
