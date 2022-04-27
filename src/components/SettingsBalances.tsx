@@ -79,7 +79,7 @@ const SettingsBalances = () => {
           open={open}
           onOpen={() => setOpen(true)}
           onClose={() => setOpen(false)}
-          dropContent={hasBalance ? <DropContent assetMap={assetMap} /> : null}
+          dropContent={hasBalance ? <DropContent assetMap={assetMap} /> : <></>}
           dropProps={{ align: { top: 'bottom', right: 'right' }, round: 'small' }}
         >
           <YieldBalances />
