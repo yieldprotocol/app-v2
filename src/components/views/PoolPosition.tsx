@@ -243,7 +243,7 @@ const PoolPosition = () => {
                             onChange={(event: any) =>
                               setRemoveInput(cleanValue(event.target.value, selectedSeries?.decimals))
                             }
-                            icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
+                            icon={<YieldMark height="24px" width="24px" colors={[selectedSeries?.startColor!]} />}
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}

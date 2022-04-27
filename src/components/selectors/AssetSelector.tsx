@@ -1,16 +1,19 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Avatar, Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
+import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
 
-import styled, { ThemeConsumer } from 'styled-components';
+import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import AssetSelectModal from './AssetSelectModal';
+import Logo from '../logos/Logo';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
+  isModal?: boolean;
 }
 
 const StyledBox = styled(Box)`
@@ -23,9 +26,8 @@ const StyledBox = styled(Box)`
   }
 `;
 
-function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
+function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const theme = useContext<any>(ThemeContext);
 
   const {
     settingsState: { showWrappedTokens, diagnostics },
@@ -38,12 +40,12 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
+  const [modalOpen, toggleModal] = useState<boolean>(false);
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
-      <Box direction="row" align="center" gap="xsmall" >
-        <Avatar size='xsmall' background={theme.dark ? 'text': undefined }> {asset.image} </Avatar>
-        
+      <Box direction="row" align="center" gap="small">
+        <Logo image={asset.image} />
         {asset?.displaySymbol}
       </Box>
     ) : (
@@ -73,7 +75,11 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
 
-    setOptions(filteredOptions);
+    const sortedOptions = selectCollateral
+      ? filteredOptions.sort((a, b) => (a.balance.lt(b.balance) ? 1 : -1))
+      : filteredOptions;
+
+    setOptions(sortedOptions);
   }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
@@ -98,33 +104,39 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       round={mobile ? 'large' : { corner: 'right', size: 'large' }}
       elevation="xsmall"
       background="hoverBackground"
+      onClick={() => isModal && toggleModal(!modalOpen)}
     >
-      <Select
-        plain
-        dropProps={{ round: 'small' }}
-        id="assetSelect"
-        name="assetSelect"
-        placeholder="Select Asset"
-        options={options}
-        value={selectCollateral ? selectedIlk! : selectedBase!}
-        labelKey={(x: IAsset | undefined) => optionText(x)}
-        valueLabel={
-          <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
-            <Text color="text"> {optionText(selectCollateral ? selectedIlk! : selectedBase!)} </Text>
-          </Box>
-        }
-        onChange={({ option }: any) => handleSelect(option)}
-        disabled={
-          (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
-          (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
-        }
-        // eslint-disable-next-line react/no-children-prop
-        children={(x: any) => (
-          <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
-            <Text color="text"> {optionText(x)} </Text>
-          </Box>
-        )}
-      />
+      {isModal && modalOpen && (
+        <AssetSelectModal assets={options} handleSelect={handleSelect} open={modalOpen} setOpen={toggleModal} />
+      )}
+      {!modalOpen && (
+        <Select
+          plain
+          dropProps={{ round: 'small' }}
+          id="assetSelect"
+          name="assetSelect"
+          placeholder="Select Asset"
+          options={options}
+          value={selectCollateral ? selectedIlk! : selectedBase!}
+          labelKey={(x: IAsset | undefined) => optionText(x)}
+          valueLabel={
+            <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
+              <Text color="text"> {optionText(selectCollateral ? selectedIlk! : selectedBase!)}</Text>
+            </Box>
+          }
+          onChange={({ option }: any) => handleSelect(option)}
+          disabled={
+            (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
+            (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
+          }
+          // eslint-disable-next-line react/no-children-prop
+          children={(x: any) => (
+            <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
+              <Text color="text"> {optionText(x)} </Text>
+            </Box>
+          )}
+        />
+      )}
     </StyledBox>
   );
 }

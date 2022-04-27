@@ -28,6 +28,7 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
+import Logo from '../logos/Logo';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -210,7 +211,7 @@ const LendPosition = () => {
                               selectedBase?.digitFormat!
                             )} ${selectedBase?.displaySymbol!}`
                       }
-                      icon={selectedBase?.image}
+                      icon={<Logo image={selectedBase.image} />}
                       loading={seriesLoading}
                     />
                   </Box>
@@ -258,7 +259,7 @@ const LendPosition = () => {
                               setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries}
-                            icon={<>{selectedBase?.image}</>}
+                            icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
                             action={() => setCloseInput(maxClose_)}
@@ -321,7 +322,7 @@ const LendPosition = () => {
                               setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries || !rollToSeries}
-                            icon={<>{selectedBase?.image}</>}
+                            icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
                             action={() => setRollInput(maxRoll_)}

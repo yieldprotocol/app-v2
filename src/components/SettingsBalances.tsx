@@ -7,6 +7,7 @@ import AddTokenToMetamask from './AddTokenToMetamask';
 import YieldBalances from './YieldBalances';
 import BoxWrap from './wraps/BoxWrap';
 import { ZERO_BN } from '../utils/constants';
+import Logo from './logos/Logo';
 
 const StyledTableCell = styled(TableCell)`
   padding: 0.3rem 0.5rem;
@@ -23,13 +24,13 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
       <TableHeader>
         <TableRow>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell align="center" plain>
             <Text color="text" size="xsmall">
@@ -45,9 +46,9 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
           .map((asset) => (
             <TableRow key={asset.id}>
               <StyledTableCell plain>
-                <Text size="medium">{asset.image}</Text>
+                <Logo image={asset.image} height="20px" width="20px" />
               </StyledTableCell>
-              <StyledTableCell plain>
+              <StyledTableCell plain align="left">
                 <Text size="small" color="text">
                   {asset.displaySymbol}
                 </Text>

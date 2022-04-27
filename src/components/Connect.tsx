@@ -55,8 +55,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
           />
         ) : (
           <Text size="small" color="text">
-            {' '}
-            Connect a wallet{' '}
+            Connect a wallet
           </Text>
         )}
 
@@ -90,11 +89,13 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
                     'Connecting'
                   </Text>
                 ) : (
-                  <Box direction="row" gap="small">
+                  <Box direction="row" gap="small" align="center">
                     <Text size="small" color={connected ? 'white' : 'text'} textAlign="center">
                       {displayName}
                     </Text>
-                    {image()}
+                    <Box height="24px" width="24px">
+                      {image()}
+                    </Box>
                   </Box>
                 )}
               </Box>
