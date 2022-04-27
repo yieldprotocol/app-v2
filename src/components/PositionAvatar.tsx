@@ -25,35 +25,32 @@ function PositionAvatar({
   const series: ISeries | undefined = vault ? seriesMap.get(vault.seriesId!) : (position as ISeries);
 
   const ilk: IAsset | undefined = vault && assetMap.get(vault.ilkId); // doesn't exist on series
+  const baseImageSize = condensed ? '20px' : '24px';
+  const ilkImageSize = condensed ? '16px' : '20px';
 
   return (
-    <>
-      <Stack anchor="top-right">
-        <Avatar
-          background={series?.seriesIsMature ? 'lightGrey' : series?.color}
-          size={condensed ? '1.5rem' : undefined}
-        >
-          <Box round="large" background="white" pad={condensed ? 'none' : 'xxsmall'} align="center">
-            <Box height="24px" width="24px">
-              {base?.image}
-            </Box>
+    <Stack anchor="top-right">
+      <Avatar background={series?.seriesIsMature ? 'lightGrey' : series?.color} size={condensed ? '36px' : undefined}>
+        <Box round="large" background="white" pad="xxsmall">
+          <Box height={baseImageSize} width={baseImageSize} align="center">
+            {base?.image}
+          </Box>
+        </Box>
+      </Avatar>
+
+      {actionType === ActionType.BORROW && (
+        <Avatar background="lightBackground" size={ilkImageSize}>
+          <Box height={ilkImageSize} width={ilkImageSize} align="center">
+            {ilk?.image}
           </Box>
         </Avatar>
-
-        {actionType === ActionType.BORROW && (
-          <Avatar background="lightBackground" size={condensed ? '0.75rem' : 'xsmall'}>
-            <Box height="20px" width="20px">
-              {ilk?.image}
-            </Box>
-          </Avatar>
-        )}
-        {actionType === ActionType.POOL && (
-          <Avatar background="lightBackground" size={condensed ? '0.75rem' : 'xsmall'}>
-            {series?.seriesIsMature ? <FiClock /> : <MdAutorenew />}
-          </Avatar>
-        )}
-      </Stack>
-    </>
+      )}
+      {actionType === ActionType.POOL && (
+        <Avatar background="lightBackground" size={ilkImageSize}>
+          {series?.seriesIsMature ? <FiClock /> : <MdAutorenew />}
+        </Avatar>
+      )}
+    </Stack>
   );
 }
 
