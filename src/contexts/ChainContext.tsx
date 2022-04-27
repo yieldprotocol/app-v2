@@ -311,7 +311,7 @@ const ChainProvider = ({ children }: any) => {
 
           assetContract,
 
-          unwrapHandlerAddresses: assetInfo.unwrapHandlerAddresses
+          unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses, 
 
           getBalance,
           getAllowance,
