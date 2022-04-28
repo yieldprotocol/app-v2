@@ -220,7 +220,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 
   isYieldBase: boolean;
 
-  isWrappedToken: boolean; // Note: this is if it a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
+  isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;
   proxyId: string; // id to use for wrapped tokens?
 
