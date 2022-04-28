@@ -312,8 +312,8 @@ const ChainProvider = ({ children }: any) => {
           assetContract,
 
           /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
-          wrapHandlerAddresses: ASSET_INFO.get(asset.id)?.wrapHandlerAddresses, 
-          unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses, 
+          wrapHandlerAddresses: ASSET_INFO.get(asset.id)?.wrapHandlerAddresses,
+          unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses,
 
           getBalance,
           getAllowance,
@@ -377,7 +377,7 @@ const ChainProvider = ({ children }: any) => {
               }
             }
 
-            /* check if a unwrapping handler is provided, if so, the token is considered to be a wrpaped token */
+            /* check if a unwrapping handler is provided, if so, the token is considered to be a wrapped token */
             const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId as number);
             /* check if a wrapping handler is provided, if so, wrapping is required */
             const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId as number);
@@ -392,11 +392,11 @@ const ChainProvider = ({ children }: any) => {
               version,
 
               /* Redirect the id/join if required due to using wrapped tokens */
-              joinAddress: assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) :  joinMap.get(id),
+              joinAddress: assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
 
               isWrappedToken,
               wrappingRequired,
-              proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined) 
+              proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
 
               /* Default setting of assetInfo fields if required */
               displaySymbol: assetInfo.displaySymbol || symbol,
