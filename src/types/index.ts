@@ -200,8 +200,8 @@ export interface IAssetInfo {
 
   limitToSeries?: string[];
 
-  wrapHandlerAddresses?: Map<number, string>;
-  unwrapHandlerAddresses?: Map<number, string>;
+  wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
+  unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
   proxyId?: string;
 }
 
