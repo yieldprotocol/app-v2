@@ -15,6 +15,7 @@ import {
   IUserContextActions,
   IUserContextState,
   ISettingsContext,
+  IHistoryContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
@@ -45,7 +46,7 @@ export const useAddLiquidity = () => {
   const { sign, transact } = useChain();
   const {
     historyActions: { updateStrategyHistory },
-  } = useContext(HistoryContext);
+  } = useContext(HistoryContext) as IHistoryContext;
 
   const { addEth } = useAddRemoveEth();
 
