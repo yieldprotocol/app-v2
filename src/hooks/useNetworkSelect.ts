@@ -31,7 +31,7 @@ export const useNetworkSelect = (chainId: number) => {
   }, [connectionName]);
 
   useEffect(() => {
-    const providerRequest = provider?.provider.request;
+    const providerRequest = provider?.provider?.request;
     if (chainId !== fallbackChainId && isMetamask && chainId && providerRequest) {
       (async () => {
         const hexChainId = ethers.utils.hexValue(chainId);
