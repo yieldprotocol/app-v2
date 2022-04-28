@@ -163,7 +163,11 @@ export const useRemoveLiquidity = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
     const toAddress = isEthBase ? ladleAddress : account;
 
-    const permits: ICallData[] = await sign(
+    /* handle removeing eth BAse tokens:  */
+    // NOTE: REMOVE ETH FOR ALL PATHS/OPTIONS (exit_ether sweeps all the eth out the ladle, so exact amount is not important -> just greater than zero)
+    const removeEthCallData: ICallData[] =  removeEth(isEthBase ? ONE_BN : ZERO_BN)
+
+    const permitCallData: ICallData[] = await sign(
       [
         /* give strategy permission to sell tokens to pool */
         {
@@ -192,7 +196,7 @@ export const useRemoveLiquidity = () => {
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
 
     const calls: ICallData[] = [
-      ...permits,
+      ...permitCallData,
 
       /* FOR ALL REMOVES (when using a strategy) > move tokens from strategy to pool tokens  */
       {
@@ -314,8 +318,7 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !series.seriesIsMature,
       },
 
-      // NOTE: REMOVE ETH FOR ALL PATHS/OPTIONS (exit_ether sweeps all the eth out the ladle, so exact amount is not important -> just greater than zero)
-      ...removeEth(isEthBase ? ONE_BN : ZERO_BN),
+      ...removeEthCallData,
     ];
 
     await transact(calls, txCode);
