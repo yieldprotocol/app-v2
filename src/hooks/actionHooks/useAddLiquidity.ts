@@ -17,7 +17,7 @@ import {
   ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
+import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 
@@ -143,17 +143,15 @@ export const useAddLiquidity = () => {
       txCode
     );
 
-    /* if  Eth base, build the correct add ethCalls */ 
+    /* if  Eth base, build the correct add ethCalls */
     const addEthCallData = () => {
       /* BUY send WETH to  poolAddress */
-      if ( isEthBase && method === AddLiquidityType.BUY)  return addEth( _input, _series.poolAddress )
+      if (isEthBase && method === AddLiquidityType.BUY) return addEth(_input, _series.poolAddress);
       /* BORROW send WETH to both basejoin and poolAddress */
-      if ( isEthBase && method === AddLiquidityType.BORROW)  return  [
-        ...addEth( _baseToFyToken, _base.joinAddress ),
-        ...addEth( _baseToPoolWithSlippage, _series.poolAddress )
-      ]
+      if (isEthBase && method === AddLiquidityType.BORROW)
+        return [...addEth(_baseToFyToken, _base.joinAddress), ...addEth(_baseToPoolWithSlippage, _series.poolAddress)];
       return []; // sends back an empty array [] if not eth base
-    }
+    };
 
     /**
      * BUILD CALL DATA ARRAY
@@ -161,7 +159,7 @@ export const useAddLiquidity = () => {
     const calls: ICallData[] = [
       ...permitCallData,
 
-       /* addETh calldata */
+      /* addETh calldata */
 
       ...addEthCallData(),
 
@@ -169,7 +167,7 @@ export const useAddLiquidity = () => {
        * Provide liquidity by BUYING :
        * */
 
-    {
+      {
         operation: LadleActions.Fn.TRANSFER,
         args: [_base.address, _series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ignore if not BUY and POOL or isETHbase
@@ -197,7 +195,6 @@ export const useAddLiquidity = () => {
         ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ignore if not BORROW and POOL
       },
 
-      
       /* Note: two transfers */
       {
         operation: LadleActions.Fn.TRANSFER,
