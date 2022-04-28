@@ -37,7 +37,6 @@ const SlippageSetting = () => {
   };
 
   return (
-    // <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Text size="small">Slippage Tolerance</Text>
       <Box direction="row" justify="between">
