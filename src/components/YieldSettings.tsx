@@ -14,6 +14,7 @@ import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
 import NetworkSetting from './settings/NetworkSetting';
+import UnwrapSetting from './settings/UnwrapSetting';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -119,6 +120,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />
         <ApprovalSetting />
+        <UnwrapSetting />
         <SlippageSetting />
       </Box>
 
