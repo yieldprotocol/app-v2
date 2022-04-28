@@ -12,6 +12,7 @@ import {
   IAsset,
   IUserContextState,
   IUserContextActions,
+  IChainContext,
 } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -24,7 +25,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 export const useAddCollateral = () => {
   const {
     chainState: { contractMap },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
@@ -71,13 +72,13 @@ export const useAddCollateral = () => {
           spender: ilk?.joinAddress!,
           amount: _input,
           /* ignore if: 1) collateral is ETH 2) approved already 3) wrapAssets call is > 0 (because the permit is handled with wrapping) */
-          ignoreIf: isEthCollateral || alreadyApproved === true || wrapAssetCallData.length > 0, 
+          ignoreIf: isEthCollateral || alreadyApproved === true || wrapAssetCallData.length > 0,
         },
       ],
       txCode
     );
 
-     /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
+    /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
     const addEthCallData: ICallData[] = addEth(
       ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!) ? _input : ZERO_BN,
       undefined,
@@ -86,16 +87,14 @@ export const useAddCollateral = () => {
 
     /* pour destination based on ilk/asset is an eth asset variety */
     const pourToAddress = () => {
-      if  (isEthCollateral) return ladleAddress;
+      if (isEthCollateral) return ladleAddress;
       return account;
-    }
+    };
 
-    
     /**
      * BUILD CALL DATA ARRAY
      * */
     const calls: ICallData[] = [
-
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
@@ -106,7 +105,7 @@ export const useAddCollateral = () => {
       /* handle wrapped token deposit, if required */
       ...wrapAssetCallData,
 
-      /* add in add ETH calls */ 
+      /* add in add ETH calls */
       ...addEthCallData,
 
       /* handle permits if required */
@@ -114,12 +113,7 @@ export const useAddCollateral = () => {
 
       {
         operation: LadleActions.Fn.POUR,
-        args: [
-          vaultId,
-          pourToAddress(),
-          _input,
-          ethers.constants.Zero,
-        ] as LadleActions.Args.POUR,
+        args: [vaultId, pourToAddress(), _input, ethers.constants.Zero] as LadleActions.Args.POUR,
         ignoreIf: false, // never ignore
       },
     ];
