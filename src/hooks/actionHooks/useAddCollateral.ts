@@ -54,14 +54,12 @@ export const useAddCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk?.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.proxyId!);
-    const _pourTo = _isEthCollateral ? ladleAddress : account;
+    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.proxyId!);
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_input) : _allowance;
 
-    
     /* Handle wrapping of tokens:  */
     const wrapAssetCallData: ICallData[] = await wrapAsset(_input, ilk!, txCode);
 
@@ -73,7 +71,7 @@ export const useAddCollateral = () => {
           spender: ilk?.joinAddress!,
           amount: _input,
           /* ignore if: 1) collateral is ETH 2) approved already 3) wrapAssets call is > 0 (because the permit is handled with wrapping) */
-          ignoreIf: _isEthCollateral || alreadyApproved === true || wrapAssetCallData.length > 0, 
+          ignoreIf: isEthCollateral || alreadyApproved === true || wrapAssetCallData.length > 0, 
         },
       ],
       txCode
@@ -86,6 +84,13 @@ export const useAddCollateral = () => {
       selectedIlk?.proxyId
     );
 
+    /* pour destination based on ilk/asset is an eth asset variety */
+    const pourToAddress = () => {
+      if  (isEthCollateral) return ladleAddress;
+      return account;
+    }
+
+    
     /**
      * BUILD CALL DATA ARRAY
      * */
@@ -111,7 +116,7 @@ export const useAddCollateral = () => {
         operation: LadleActions.Fn.POUR,
         args: [
           vaultId,
-          _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
+          pourToAddress(),
           _input,
           ethers.constants.Zero,
         ] as LadleActions.Args.POUR,
