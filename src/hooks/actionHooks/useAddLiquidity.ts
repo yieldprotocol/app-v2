@@ -143,19 +143,33 @@ export const useAddLiquidity = () => {
       txCode
     );
 
+    /* if  Eth base, build the correct add ethCalls */ 
+    const addEthCallData = () => {
+      /* BUY send WETH to  poolAddress */
+      if ( isEthBase && method === AddLiquidityType.BUY)  return addEth( _input, _series.poolAddress )
+      /* BORROW send WETH to both basejoin and poolAddress */
+      if ( isEthBase && method === AddLiquidityType.BORROW)  return  [
+        ...addEth( _baseToFyToken, _base.joinAddress ),
+        ...addEth( _baseToPoolWithSlippage, _series.poolAddress )
+      ]
+      return []; // sends back an empty array [] if not eth base
+    }
+
     /**
      * BUILD CALL DATA ARRAY
      * */
     const calls: ICallData[] = [
       ...permitCallData,
 
+       /* addETh calldata */
+
+      ...addEthCallData(),
+
       /**
        * Provide liquidity by BUYING :
        * */
 
-      /* addETh to poolAddress if isEthBase and using BUY method */
-      ...addEth(isEthBase && method === AddLiquidityType.BUY ? _input : ZERO_BN, _series.poolAddress),
-      {
+    {
         operation: LadleActions.Fn.TRANSFER,
         args: [_base.address, _series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ignore if not BUY and POOL or isETHbase
@@ -163,7 +177,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.ROUTE,
         args: [
-          strategy.id || account, // receiver is _strategyAddress (if it exists) or else account
+          strategy.id || account, // NOTE GOTCHA: receiver is _strategyAddress (if it exists) or else account
           account,
           _fyTokenToBeMinted,
           minRatio,
@@ -183,12 +197,8 @@ export const useAddLiquidity = () => {
         ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ignore if not BORROW and POOL
       },
 
-      /* addETh to joinAddress and poolAddress if isEthBase and using BORROW method */
-      ...addEth(isEthBase && method === AddLiquidityType.BORROW ? _baseToFyToken : ZERO_BN, _base.joinAddress),
-      ...addEth(
-        isEthBase && method === AddLiquidityType.BORROW ? _baseToPoolWithSlippage : ZERO_BN,
-        _series.poolAddress
-      ),
+      
+      /* Note: two transfers */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [_base.address, _base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
