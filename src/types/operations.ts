@@ -110,7 +110,6 @@ export namespace RoutedActions {
       maxRatio: BigNumberish
     ];
     export type BURN_FOR_BASE = [receiver: string, minRatio: BigNumberish, maxRatio: BigNumberish];
-
     export type MINT_STRATEGY_TOKENS = [receiver: string];
     export type BURN_STRATEGY_TOKENS = [receiver: string];
 

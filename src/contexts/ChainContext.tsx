@@ -311,6 +311,8 @@ const ChainProvider = ({ children }: any) => {
 
           assetContract,
 
+          /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
+          wrapHandlerAddresses: ASSET_INFO.get(asset.id)?.wrapHandlerAddresses, 
           unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses, 
 
           getBalance,
@@ -376,13 +378,9 @@ const ChainProvider = ({ children }: any) => {
             }
 
             /* check if a unwrapping handler is provided, if so, the token is considered to be a wrpaped token */
-            const isWrappedToken =
-              assetInfo.unwrapHandlerAddresses && assetInfo.unwrapHandlerAddresses.has(chainId as number);
-
+            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId as number);
             /* check if a wrapping handler is provided, if so, wrapping is required */
-            const wrappingRequired =
-              assetInfo.wrapHandlerAddresses && assetInfo.wrapHandlerAddresses.has(chainId as number);
-            // const unwrappingRequired = assetInfo.wrapHandlerAddresses && assetInfo.wrapHandlerAddresses.has(chainId as number);
+            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId as number);
 
             const newAsset = {
               ...assetInfo,
