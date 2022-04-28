@@ -140,19 +140,19 @@ export interface ISeriesRoot extends ISignable {
   displayNameMobile: string;
   maturity: number;
 
-  fullDate: Date;
-  fyTokenContract: FYToken;
+  fullDate?: Date;
+  fyTokenContract?: FYToken;
   fyTokenAddress: string;
-  poolContract: Pool;
+  poolContract?: Pool;
   poolAddress: string;
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
 
   decimals: number;
-  ts: BigNumber;
-  g1: BigNumber;
-  g2: BigNumber;
+  ts?: BigNumber;
+  g1?: BigNumber;
+  g2?: BigNumber;
 
   baseId: string;
 
@@ -165,12 +165,12 @@ export interface ISeriesRoot extends ISignable {
   oppStartColor: string;
   oppEndColor: string;
 
-  seriesMark: React.ElementType;
+  seriesMark?: React.ElementType;
 
   // baked in token fns
-  getTimeTillMaturity: () => string;
-  isMature: () => boolean;
-  getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
+  getTimeTillMaturity?: () => string;
+  isMature?: () => boolean;
+  getBaseAddress?: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
 export enum TokenType {
