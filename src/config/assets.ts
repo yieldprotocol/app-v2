@@ -34,7 +34,7 @@ export const IGNORE_BASE_ASSETS = ['ENS'];
 
 export const ASSET_INFO = new Map<string, IAssetInfo>();
 
-/* Unknown token for temporarily handling new tokens added */ 
+/* Unknown token for temporarily handling new tokens added */
 ASSET_INFO.set(UNKNOWN, {
   version: '1',
   name: 'UNKNOWN',
@@ -112,8 +112,11 @@ ASSET_INFO.set(wstETH, {
   color: '#00A3FF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
-  wrapHandlerAddresses:new Map([]),
-  unwrapHandlerAddresses:new Map ( [[1,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1'],[4,'0x64BA0F1D2E5479BF132936328e8c533c95646fE8'], ]),
+  wrapHandlerAddresses: new Map([]),
+  unwrapHandlerAddresses: new Map([
+    [1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1'],
+    [4, '0x64BA0F1D2E5479BF132936328e8c533c95646fE8'],
+  ]),
 });
 
 ASSET_INFO.set(stETH, {
@@ -125,8 +128,11 @@ ASSET_INFO.set(stETH, {
   color: '#00A3FF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
-  wrapHandlerAddresses:new Map([[1,'0x491aB93faa921C8E634F891F96512Be14fD3DbB1'], [4,'0x64BA0F1D2E5479BF132936328e8c533c95646fE8']]),
-  unwrapHandlerAddresses:new Map([]),
+  wrapHandlerAddresses: new Map([
+    [1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1'],
+    [4, '0x64BA0F1D2E5479BF132936328e8c533c95646fE8'],
+  ]),
+  unwrapHandlerAddresses: new Map([]),
   proxyId: wstETH,
 });
 
