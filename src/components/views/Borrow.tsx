@@ -16,6 +16,8 @@ import { UserContext } from '../../contexts/UserContext';
 import {
   ActionCodes,
   ActionType,
+  IAssetRoot,
+  ISeriesRoot,
   ISettingsContext,
   IUserContext,
   IUserContextState,
@@ -57,7 +59,12 @@ import VaultItem from '../positionItems/VaultItem';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAssetPair } from '../../hooks/useAssetPair';
 
-const Borrow = () => {
+interface IBorrowProps {
+  assetMapProps: Map<string, IAssetRoot>;
+  seriesMapProps: Map<string, ISeriesRoot>;
+}
+
+const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -70,8 +77,18 @@ const Borrow = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const {
+    activeAccount,
+    assetMap: _assetMap,
+    vaultMap,
+    seriesMap: _seriesMap,
+    selectedSeries,
+    selectedIlk,
+    selectedBase,
+  } = userState;
   const { setSelectedIlk } = userActions;
+  const assetMap = _assetMap ?? assetMapProps;
+  const seriesMap = _seriesMap ?? seriesMapProps;
 
   const {
     settingsState: { diagnostics },
