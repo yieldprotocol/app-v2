@@ -75,7 +75,7 @@ export const useClosePosition = () => {
     /* if approveMAx, check if signature is required */
     const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress)).gte(_fyTokenValueOfInput);
 
-    const permits: ICallData[] = await sign(
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: series,
@@ -87,13 +87,26 @@ export const useClosePosition = () => {
       txCode
     );
 
+    /* Set the transferTo address based on series maturity */
+    const transferToAddress = () => {
+      if (seriesIsMature) return fyTokenAddress;
+      return poolAddress
+    };
+
+    /* receiver based on whether base is ETH (- or wrapped Base) */
+    const receiverAddress = () => {
+      if (isEthBase) return ladleAddress;
+      // if ( unwrapping) return unwrapHandlerAddress;
+      return account;
+    }
+
     const calls: ICallData[] = [
-      ...permits,
+      ...permitCallData,
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [
           fyTokenAddress,
-          seriesIsMature ? fyTokenAddress : poolAddress, // select destination based on maturity
+          transferToAddress(), // select destination based on maturity
           _fyTokenValueOfInput,
         ] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore, even after maturity because we go through the ladle.
@@ -102,7 +115,7 @@ export const useClosePosition = () => {
       /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [isEthBase ? ladleAddress : account, _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
+        args: [receiverAddress(), _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
         ignoreIf: seriesIsMature,
@@ -111,7 +124,7 @@ export const useClosePosition = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, isEthBase ? ladleAddress : account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
+        args: [series.id, receiverAddress(), _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
 
