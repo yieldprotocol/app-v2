@@ -18,7 +18,6 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 
-// TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
   const {
     chainState: { contractMap, connection : { chainId } },
@@ -40,30 +39,34 @@ export const useRemoveCollateral = () => {
     /* get associated series and ilk */
     const ilk = assetMap.get(vault.ilkId)!;
     const ladleAddress = contractMap.get('Ladle').address;
-
+    /* get unwrap handler if required */
     const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chainId);
+    /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
+    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
     const cleanedInput = cleanValue(input, ilk.decimals);
-    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1); // NOTE: negated value!
-
-    /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
-    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
-    const _pourTo = isEthCollateral ? ladleAddress : account;
-
+    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals)
+    
     /* handle wrapped tokens:  */
     const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account!) : [];
     const removeEthCallData: ICallData[] =  removeEth(isEthCollateral ? ONE_BN : ZERO_BN) // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+
+    /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */
+    const pourToAddress = () => {
+      if (isEthCollateral) return ladleAddress;
+      if (unwrapCallData.length) return unwrapHandlerAddress; // if there is somethign to unwrap
+      return account
+    }
 
     const calls: ICallData[] = [
       {
         operation: LadleActions.Fn.POUR,
         args: [
-          vault.id,
-          /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */
-          unwrapCallData.length ? unwrapHandlerAddress : _pourTo ,
-          _input,
-          ZERO_BN,
+          vault.id,  
+          pourToAddress(),
+          _input.mul(-1), // NOTE: negated value!
+          ZERO_BN, // No debt written off
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
