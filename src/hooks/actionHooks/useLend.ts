@@ -72,7 +72,7 @@ export const useLend = () => {
     /* ETH is used as a base */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
-    const permits: ICallData[] = await sign(
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: base,
@@ -84,10 +84,14 @@ export const useLend = () => {
       txCode
     );
 
-    const calls: ICallData[] = [
-      ...permits,
+    const addEthCallData = () => {
+      if (isEthBase) return addEth( _input, series.poolAddress)
+      return [] 
+    }
 
-      ...addEth(isEthBase ? _input : ZERO_BN, series.poolAddress),
+    const calls: ICallData[] = [
+      ...permitCallData,
+      ...addEthCallData(),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
