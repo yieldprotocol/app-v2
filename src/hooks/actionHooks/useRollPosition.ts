@@ -54,10 +54,9 @@ export const useRollPosition = () => {
     console.log( _fyTokenValueOfInput.toString());
 
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
-
     const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress) ).gte(_input);
 
-    const permits: ICallData[] = await sign(
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: fromSeries,
@@ -69,14 +68,20 @@ export const useRollPosition = () => {
       txCode
     );
 
+    /* Reciever of transfer (based on maturity ) the series maturity */
+    const transferToAddress = () => {
+      if  ( fromSeries.seriesIsMature ) return fromSeries.fyTokenAddress;
+      return fromSeries.poolAddress
+    }
+
     const calls: ICallData[] = [
-      ...permits,
+      ...permitCallData,
 
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [
           fromSeries.fyTokenAddress, 
-          fromSeries.seriesIsMature ? fromSeries.fyTokenAddress : fromSeries.poolAddress,  // mature/not
+          transferToAddress(),
           _fyTokenValueOfInput
         ] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore
