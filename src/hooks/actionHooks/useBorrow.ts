@@ -122,6 +122,13 @@ export const useBorrow = () => {
       txCode
     );
 
+    /* if ETH is being borrowed, send the borrowed tokens (WETH) to ladle for unwrapping */
+    const serveToAddress = () => {
+      if (isEthBase) return ladleAddress
+      // if ( wrapping  ) return wrapHandler
+      return account
+    }
+
     /**
      *
      * Collate all the calls required for the process (including depositing ETH, signing permits, and building vault if needed)
@@ -157,14 +164,13 @@ export const useBorrow = () => {
         operation: LadleActions.Fn.SERVE,
         args: [
           vaultId,
-          isEthBase ? ladleAddress : account, // if ETH is being borrowed, send the borrowed tokens (WETH) to ladle
+          serveToAddress(),
           _collInput,
           _input,
           _expectedFyTokenWithSlippage,
         ] as LadleActions.Args.SERVE,
         ignoreIf: false, // never ignore
       },
-
       ...removeEthCallData,
     ];
 
