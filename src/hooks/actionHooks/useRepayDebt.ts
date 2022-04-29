@@ -11,15 +11,17 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
+  RoutedActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ConvexJoin__factory } from '../../contracts';
 
 export const useRepayDebt = () => {
   const {
@@ -34,7 +36,7 @@ export const useRepayDebt = () => {
   const { updateVaults, updateAssets } = userActions;
 
   const {
-    chainState: { contractMap },
+    chainState: { contractMap, provider },
   } = useContext(ChainContext);
 
   const { addEth, removeEth } = useAddRemoveEth();
@@ -56,6 +58,10 @@ export const useRepayDebt = () => {
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(ilk.idToUse);
+    const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
 
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
@@ -105,12 +111,12 @@ export const useRepayDebt = () => {
 
     /* Set the amount to transfer ( + 0.1% after maturity ) */
     const amountToTransfer = series.seriesIsMature ? _input.mul(10001).div(10000) : _input; // After maturity + 0.1% for increases during tx time
-    
+
     /* In low liq situations/or mature,  send repay funds to join not pool */
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
-    /* Check if already apporved */ 
-    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer)
+    /* Check if already apporved */
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer);
 
     const permits: ICallData[] = await sign(
       [
@@ -127,11 +133,11 @@ export const useRepayDebt = () => {
 
     const calls: ICallData[] = [
       ...permits,
-      
-      /* If ethBase, Send ETH to either base join or pool  */ 
+
+      /* If ethBase, Send ETH to either base join or pool  */
       ...addEth(isEthBase && !series.seriesIsMature ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
       ...addEth(isEthBase && series.seriesIsMature ? amountToTransfer : ZERO_BN), // no destination defined after maturity , input +1% will will go to weth join
-      /* else, Send Token to either join or pool via a ladle.transfer() */ 
+      /* else, Send Token to either join or pool via a ladle.transfer() */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, transferToAddress, amountToTransfer] as LadleActions.Args.TRANSFER,
@@ -139,6 +145,15 @@ export const useRepayDebt = () => {
       },
 
       /* BEFORE MATURITY - !series.seriesIsMature */
+      /* convex-type collateral; ensure checkpoint before giving collateral back to account */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [vault.owner] as RoutedActions.Args.CHECKPOINT,
+        fnName: RoutedActions.Fn.CHECKPOINT,
+        targetContract: convexJoinContract, // use the convex join contract to checkpoint
+        ignoreIf: !isConvexCollateral || _collateralToRemove.eq(ethers.constants.Zero),
+      },
+
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,

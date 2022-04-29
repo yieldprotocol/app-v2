@@ -93,6 +93,8 @@ export namespace RoutedActions {
 
     WRAP = 'wrap',
     UNWRAP = 'unwrap',
+
+    CHECKPOINT = 'checkpoint', // convex
   }
 
   export namespace Args {
@@ -116,16 +118,16 @@ export namespace RoutedActions {
 
     export type WRAP = [receiver: string];
     export type UNWRAP = [receiver: string];
+
+    export type CHECKPOINT = [vaultOwner: string];
   }
 }
 
 export namespace ModuleActions {
   export enum Fn {
     WRAP_ETHER_MODULE = 'wrap',
-    ADD_VAULT = 'addVault',
   }
   export namespace Args {
     export type WRAP_ETHER_MODULE = [receiver: string, amount: BigNumberish];
-    export type ADD_VAULT = [convexJoin: string, vaultId: string]; // when using convex-type collateral
   }
 }
