@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Box, Collapsible, Text } from 'grommet';
 import Skeleton from 'react-loading-skeleton';
 import { HistoryContext } from '../contexts/HistoryContext';
-import { IBaseHistItem, ISeries, IStrategy, IVault } from '../types';
+import { IBaseHistItem, ISeries, IStrategy, IVault, IHistoryContext } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 import { useColorScheme } from '../hooks/useColorScheme';
 
@@ -13,7 +13,7 @@ interface IYieldHistory {
 
 const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   /* STATE FROM CONTEXT */
-  const { historyState, historyActions } = useContext(HistoryContext);
+  const { historyState, historyActions } = useContext(HistoryContext) as IHistoryContext;
   const colorScheme = useColorScheme();
   const color = colorScheme === 'dark' ? 'hoverBackground' : '#f9f9f9';
 
@@ -31,7 +31,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
         ? setHistList(vaultHistory.get(seriesOrVault.id))
         : (async () => {
             setHistLoading(true);
-            await updateVaultHistory([seriesOrVault]);
+            await updateVaultHistory([seriesOrVault as IVault]);
             setHistLoading(false);
           })();
     }
@@ -41,7 +41,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
         ? setHistList(strategyHistory.get(seriesOrVault.id))
         : (async () => {
             setHistLoading(true);
-            await updateStrategyHistory([seriesOrVault]);
+            await updateStrategyHistory([seriesOrVault as IStrategy]);
             setHistLoading(false);
           })();
     }
@@ -51,7 +51,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
         ? setHistList(tradeHistory.get(seriesOrVault.id))
         : (async () => {
             setHistLoading(true);
-            await updateTradeHistory([seriesOrVault]);
+            await updateTradeHistory([seriesOrVault as ISeries]);
             setHistLoading(false);
           })();
     }
