@@ -22,8 +22,6 @@ import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ModuleActions } from '../../types/operations';
-import { ConvexLadleModule } from '../../contracts';
 
 export const useBorrow = () => {
   const {
