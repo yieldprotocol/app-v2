@@ -173,7 +173,7 @@ const ChainProvider = ({ children }: any) => {
 
       // modules
       let WrapEtherModule: contracts.WrapEtherModule;
-      // let ConvexLadleModule: contracts.ConvexLadleModule;
+      let ConvexLadleModule: contracts.ConvexLadleModule;
 
       // Notional
       let NotionalMultiOracle: contracts.NotionalMultiOracle;
@@ -189,7 +189,7 @@ const ChainProvider = ({ children }: any) => {
 
         // module access
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
-        // ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
+        ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
 
         if ([1, 4, 42].includes(fallbackChainId)) {
           RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
@@ -257,7 +257,7 @@ const ChainProvider = ({ children }: any) => {
 
       // modules
       newContractMap.set('WrapEtherModule', WrapEtherModule);
-      // newContractMap.set('ConvexLadleModule', ConvexLadleModule);
+      newContractMap.set('ConvexLadleModule', ConvexLadleModule);
 
       updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
 
