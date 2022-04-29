@@ -10,6 +10,8 @@ import Logo from './logos/Logo';
 const Outer = styled(Box)`
   position: relative;
   z-index: 0;
+  width: ${(props) => props.width ?? undefined};
+  min-width: ${(props) => (props.width ? `unset` : undefined)};
 `;
 
 const Inner = styled(Box)`
@@ -48,7 +50,7 @@ function PositionAvatar({
   const ilkImageSize = condensed ? '16px' : '20px';
 
   return (
-    <Outer>
+    <Outer width={condensed ? '36px' : undefined}>
       <Avatar background={series?.seriesIsMature ? 'lightGrey' : series?.color} size={condensed ? '36px' : undefined}>
         <Box round="large" background="white" pad="xxsmall">
           <Logo image={base.image} height={baseImageSize} width={baseImageSize} />
