@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
+import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
