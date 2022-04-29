@@ -1,4 +1,4 @@
-import { BigNumber, Contract, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -20,7 +20,7 @@ import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
-import { ConvexJoin__factory, Join__factory } from '../../contracts';
+import { ConvexJoin__factory } from '../../contracts';
 
 // TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
