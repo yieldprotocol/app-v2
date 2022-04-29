@@ -308,18 +308,18 @@ ASSET_INFO.set(FUSDC2209, {
   limitToSeries: ['0x303230370000'],
 });
 
-// ASSET_INFO.set(CVX3CRV, {
-//   version: '1',
-//   name: 'cvx3crv',
-//   decimals: 18,
-//   symbol: 'cvx3crv',
-//   showToken: false,
-//   isWrappedToken: false,
-//   color: '#3A3A3A',
-//   digitFormat: 6,
-//   tokenType: TokenType.ERC20_,
-//   limitToSeries: [], // limit to stable debt assets
-// });
+ASSET_INFO.set(CVX3CRV, {
+  version: '1',
+  name: 'cvx3crv',
+  decimals: 18,
+  symbol: 'cvx3crv',
+  showToken: false,
+  isWrappedToken: false,
+  color: '#3A3A3A',
+  digitFormat: 6,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [], // limit to stable debt assets
+});
 
 ASSET_INFO.set(FRAX, {
   version: '1',
