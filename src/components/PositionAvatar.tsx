@@ -56,13 +56,11 @@ function PositionAvatar({
 
         <Inner>
           {actionType === ActionType.BORROW && (
-            <Outer>
-              <Avatar background="lightBackground" size={ilkImageSize}>
-                <Stack>
-                  <Logo image={ilk.image} height={ilkImageSize} width={ilkImageSize} />
-                </Stack>
-              </Avatar>
-            </Outer>
+            <Avatar background="lightBackground" size={ilkImageSize}>
+              <Stack>
+                <Logo image={ilk.image} height={ilkImageSize} width={ilkImageSize} />
+              </Stack>
+            </Avatar>
           )}
           {actionType === ActionType.POOL && (
             <Avatar background="lightBackground" size={ilkImageSize}>
