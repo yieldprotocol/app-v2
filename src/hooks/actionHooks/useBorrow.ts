@@ -62,9 +62,6 @@ export const useBorrow = () => {
     /* is ETH being Borrowed   */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
-    /* is convex-type collateral */
-    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.idToUse!);
-
     /* parse inputs  (clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
