@@ -44,6 +44,7 @@ import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
+import Logo from '../logos/Logo';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -436,7 +437,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRepayInput(cleanValue(event.target.value, vaultBase?.decimals))
                             }
-                            icon={<>{vaultBase?.image}</>}
+                            icon={<Logo image={vaultBase.image} />}
                           />
                           <MaxButton
                             action={() => setRepayInput(maxRepay.gt(minRepayable) ? maxRepay_ : minRepayable_)}
@@ -599,7 +600,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setAddCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                            icon={<>{vaultIlk?.image}</>}
+                            icon={<Logo image={vaultIlk.image} />}
                           />
                           <MaxButton
                             // disabled={removeCollatInput}
@@ -656,7 +657,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRemoveCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                            icon={<>{vaultIlk?.image}</>}
+                            icon={<Logo image={vaultIlk.image} />}
                           />
                           <MaxButton
                             action={() => setRemoveCollatInput(maxRemovableCollateral)}

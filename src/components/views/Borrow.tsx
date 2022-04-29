@@ -409,7 +409,7 @@ const Borrow = () => {
                           </InputWrap>
                         </Box>
                         <Box basis={mobile ? undefined : '40%'}>
-                          <AssetSelector selectCollateral />
+                          <AssetSelector selectCollateral isModal={true} />
                         </Box>
                       </Box>
                     </SectionWrap>

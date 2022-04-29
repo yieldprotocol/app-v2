@@ -37,7 +37,9 @@ const NetworkSelector = () => {
             ? [
                 // eslint-disable-next-line react/jsx-key
                 <Box direction="row" gap="small" pad="xsmall" round>
-                  <ArbitrumLogo />
+                  <Box height="20px" width="20px">
+                    <ArbitrumLogo />
+                  </Box>
                   <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
                     Arbitrum
                   </Text>
@@ -56,14 +58,18 @@ const NetworkSelector = () => {
         value={
           currentNetwork === 'Ethereum' ? (
             <Box direction="row" gap="small">
-              <EthMark />
+              <Box height="20px" width="20px">
+                <EthMark />
+              </Box>
               <Text size="small" color={CHAIN_INFO.get(1)?.color}>
                 Ethereum {[4, 42, 421611].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name}
               </Text>
             </Box>
           ) : (
             <Box direction="row" gap="small" round>
-              <ArbitrumLogo />
+              <Box height="20px" width="20px">
+                <ArbitrumLogo />
+              </Box>
               <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
                 {[4, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
               </Text>
