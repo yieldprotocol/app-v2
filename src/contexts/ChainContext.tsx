@@ -170,8 +170,6 @@ const ChainProvider = ({ children }: any) => {
       let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
       let Witch: contracts.Witch;
 
-      // let LidoWrapHandler: contracts.LidoWrapHandler;
-
       // modules
       let WrapEtherModule: contracts.WrapEtherModule;
       // let ConvexLadleModule: contracts.ConvexLadleModule;
@@ -312,8 +310,8 @@ const ChainProvider = ({ children }: any) => {
           assetContract,
 
           /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
-          wrapHandlerAddresses: ASSET_INFO.get(asset.id)?.wrapHandlerAddresses, 
-          unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses, 
+          wrapHandlerAddresses: ASSET_INFO.get(asset.id)?.wrapHandlerAddresses,
+          unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses,
 
           getBalance,
           getAllowance,
@@ -392,11 +390,11 @@ const ChainProvider = ({ children }: any) => {
               version,
 
               /* Redirect the id/join if required due to using wrapped tokens */
-              joinAddress: assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) :  joinMap.get(id),
+              joinAddress: assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
 
               isWrappedToken,
               wrappingRequired,
-              proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined) 
+              proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
 
               /* Default setting of assetInfo fields if required */
               displaySymbol: assetInfo.displaySymbol || symbol,
@@ -579,7 +577,13 @@ const ChainProvider = ({ children }: any) => {
           console.log('Error fetching strategies', e);
         }
 
-        setCachedStrategies([...cachedStrategies, ...newStrategyList]);
+        const _filteredCachedStrategies = cachedStrategies
+        .filter((s:any) =>
+          strategyAddresses.includes(s.address)
+        )
+        .map((s:any)=> _chargeStrategy(s))
+
+        setCachedStrategies([..._filteredCachedStrategies, ...newStrategyList]);
         console.log('Yield Protocol Strategy data updated.');
       };
 
