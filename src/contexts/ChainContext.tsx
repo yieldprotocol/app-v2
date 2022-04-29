@@ -546,9 +546,14 @@ const ChainProvider = ({ children }: any) => {
         const newStrategyList: any[] = [];
         try {
           await Promise.all(
-            strategyAddresses.map(async (strategyAddr) => {
-              /* if the strategy is already in the cache : */
-              if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
+            strategyAddresses
+            .map(async (strategyAddr) => {
+
+              /* if the strategy is NOT already in the cache : */
+              if ( cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
+
+                console.log( 'updating constracrt ', strategyAddr)
+
                 const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
                 const [name, symbol, baseId, decimals, version] = await Promise.all([
                   Strategy.name(),
@@ -581,7 +586,6 @@ const ChainProvider = ({ children }: any) => {
         .filter((s:any) =>
           strategyAddresses.includes(s.address)
         )
-        .map((s:any)=> _chargeStrategy(s))
 
         setCachedStrategies([..._filteredCachedStrategies, ...newStrategyList]);
         console.log('Yield Protocol Strategy data updated.');
@@ -605,7 +609,10 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
+
+          strategyAddresses.includes( st.address ) &&
           updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
+          
         });
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
 
