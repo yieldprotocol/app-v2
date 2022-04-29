@@ -27,7 +27,7 @@ export const FUSDC2209 = '0x313700000000';
 
 /* Convex Curve LP token assets */
 export const CVX3CRV = '0x313800000000';
-export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK'];
+export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK', 'Curve.fi DAI/USDC/USDT Convex Deposit Mock'];
 
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
