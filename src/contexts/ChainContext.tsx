@@ -375,10 +375,10 @@ const ChainProvider = ({ children }: any) => {
               }
             }
 
-            /* check if a unwrapping handler is provided, if so, the token is considered to be a wrpaped token */
-            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId as number);
+            /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
+            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
             /* check if a wrapping handler is provided, if so, wrapping is required */
-            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId as number);
+            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
 
             const newAsset = {
               ...assetInfo,

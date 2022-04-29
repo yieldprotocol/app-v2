@@ -17,7 +17,6 @@ const UnwrapSetting = () => {
   } = useContext(SettingsContext);
 
   return (
-    // <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
         <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>

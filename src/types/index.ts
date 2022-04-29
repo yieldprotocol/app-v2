@@ -185,14 +185,14 @@ export enum TokenType {
 
 export interface IAssetInfo {
   tokenType: TokenType;
-  tokenIdentifier?: number|string; // used for identifying tokens in a multitoken contract
+  tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
   name: string;
   version: string;
   symbol: string;
   decimals: number;
 
-  showToken: boolean; // Display/hide the token on the UI 
+  showToken: boolean; // Display/hide the token on the UI
 
   color: string;
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
@@ -200,10 +200,9 @@ export interface IAssetInfo {
 
   limitToSeries?: string[];
 
-  wrapHandlerAddresses?: Map<number,string>;
-  unwrapHandlerAddresses?: Map<number,string>;
+  wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
+  unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
   proxyId?: string;
-
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
@@ -220,10 +219,10 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   baseContract: Contract;
 
   isYieldBase: boolean;
-  
-  isWrappedToken: boolean; // Note: this is if it a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
+
+  isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;
-  proxyId: string; // id to use for wrapped tokens? 
+  proxyId: string; // id to use for wrapped tokens?
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
