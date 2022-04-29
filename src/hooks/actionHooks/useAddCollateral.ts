@@ -9,7 +9,6 @@ import {
   ActionCodes,
   LadleActions,
   IUserContext,
-  IAsset,
   IUserContextState,
   IUserContextActions,
   IChainContext,
@@ -43,33 +42,33 @@ export const useAddCollateral = () => {
     const vaultId = vault?.id || BLANK_VAULT;
 
     /* set the ilk based on if a vault has been selected or it's a new vault */
-    const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
-    const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
+    const ilk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
+    const base = vault ? assetMap.get(vault.baseId) : selectedBase;
     const ladleAddress = contractMap.get('Ladle').address;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
 
     /* parse inputs to BigNumber in Wei */
-    const cleanedInput = cleanValue(input, ilk?.decimals);
-    const _input = ethers.utils.parseUnits(cleanedInput, ilk?.decimals);
+    const cleanedInput = cleanValue(input, ilk.decimals);
+    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.proxyId!);
+    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
-    const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);
+    const _allowance = await ilk.getAllowance(account, ilk.joinAddress);
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_input) : _allowance;
 
     /* Handle wrapping of tokens:  */
-    const wrapAssetCallData: ICallData[] = await wrapAsset(_input, ilk!, txCode);
+    const wrapAssetCallData = await wrapAsset(_input, ilk, txCode);
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
-    const permitCallData: ICallData[] = await sign(
+    const permitCallData = await sign(
       [
         {
-          target: ilk!,
-          spender: ilk?.joinAddress!,
+          target: ilk,
+          spender: ilk.joinAddress,
           amount: _input,
           /* ignore if: 1) collateral is ETH 2) approved already 3) wrapAssets call is > 0 (because the permit is handled with wrapping) */
           ignoreIf: isEthCollateral || alreadyApproved === true || wrapAssetCallData.length > 0,
@@ -79,10 +78,10 @@ export const useAddCollateral = () => {
     );
 
     /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
-    const addEthCallData: ICallData[] = addEth(
-      ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!) ? _input : ZERO_BN,
+    const addEthCallData = addEth(
+      ETH_BASED_ASSETS.includes(selectedIlk.proxyId) ? _input : ZERO_BN,
       undefined,
-      selectedIlk?.proxyId
+      selectedIlk.proxyId
     );
 
     /* pour destination based on ilk/asset is an eth asset variety */
@@ -98,7 +97,7 @@ export const useAddCollateral = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeries?.id, selectedIlk?.proxyId, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeries.id, selectedIlk.proxyId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
 
@@ -123,7 +122,7 @@ export const useAddCollateral = () => {
 
     /* then update UI */
     updateVaults([vault!]);
-    updateAssets([base!, ilk!]);
+    updateAssets([base, ilk]);
   };
 
   return { addCollateral };
