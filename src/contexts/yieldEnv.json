@@ -17,18 +17,18 @@
       "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA"
     },
     "4": {
-      "Cauldron": "0x84EFA55faA9d774B4846c7a51c1C470232DFE50f",
-      "Ladle": "0xAE53c79926cb960feA17aF2369DE10938f5D0d52",
-      "CompoundMultiOracle": "0xe3D47c23c7EBddF81702421657fF7836d700bDF4",
-      "ChainlinkMultiOracle": "0xACD6af7bf3555C63686952C65b4a1D5E51c4586b",
-      "CompositeMultiOracle": "0x577DA88C253095b874941dda194a6c59489E644f",
-      "Witch": "0x2CEFcB458Ad3da4E880F11611CE7AFA81afe059e",
+      "Cauldron": "0xb2cf78ccA863675Ef61a0c696885DED0C833F8f3",
+      "Ladle": "0x45f502A7358ec631c7a422270922d7dFA142cb9C",
+      "CompoundMultiOracle": "0xeCA876c39DF7b75281Ea78eB35912fa1CC8f9482",
+      "ChainlinkMultiOracle": "0xBDBF01Ee32485aF94e316C395765F5Af2bf4b4dB",
+      "CompositeMultiOracle": "0x8482BF1e17ceF57109F34C259d39d5B9BB9A4e13",
+      "Witch": "0x5cEe0925647722e7ed32dcaf5A2DeFD3872Edb6F",
 
       "lidoWrapHandler": "",
-      "YearnVaultMultiOracle": "0x392333A9d4CfCC529a7DA3F6021c5dfc6C54e1EF",
+      "YearnVaultMultiOracle": "0x88175a3e14F905ecCe464aF2A8E99f26159d4Cb8",
 
-      "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
-      "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF",
+      "NotionalMultiOracle": "0x67Ac817F9433c61c7472BC6B28bE07E1959427Ab",
+      "transfer1155Module": "0x39a4f3D170613e609823A699C9e09475E757ede4",
 
       "WrapEtherModule": "0x6C688D4257204FEe0Fce47d3feb9AE81e8B86283",
       "ConvexLadleModule": ""
