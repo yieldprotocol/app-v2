@@ -13,6 +13,7 @@ import {
   IChainContext,
   IUserContext,
   ISettingsContext,
+  IHistoryContextState,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -43,7 +44,7 @@ enum HistoryState {
 }
 
 const HistoryContext = React.createContext<any>({});
-const initState = {
+const initState: IHistoryContextState = {
   historyLoading: true,
   vaultHistory: new Map([]),
   tradeHistory: new Map([]),
