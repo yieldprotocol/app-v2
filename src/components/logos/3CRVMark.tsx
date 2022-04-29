@@ -10,7 +10,7 @@ const Outer = styled(Box)`
 
 const CRVWrap = styled(Box)`
   position: absolute;
-  z-index: 1;
+  z-index: 10;
   top: -5px;
   left: -8px;
 `;
