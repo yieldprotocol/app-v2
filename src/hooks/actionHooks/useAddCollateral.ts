@@ -98,6 +98,7 @@ export const useAddCollateral = () => {
         args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
+
       /* If convex-type collateral, add vault using convex ladle module */
       {
         operation: LadleActions.Fn.MODULE,
@@ -106,6 +107,7 @@ export const useAddCollateral = () => {
         targetContract: ConvexLadleModuleContract,
         ignoreIf: !!vault || !isConvexCollateral,
       },
+
       /* handle wrapped token deposit, if required */
       ...wrapping,
 
