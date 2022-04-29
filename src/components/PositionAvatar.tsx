@@ -50,7 +50,7 @@ function PositionAvatar({
   const ilkImageSize = condensed ? '16px' : '20px';
 
   return (
-    <Outer width={condensed ? '36px' : undefined}>
+    <Outer width={condensed ? '36px' : 'auto'}>
       <Avatar background={series?.seriesIsMature ? 'lightGrey' : series?.color} size={condensed ? '36px' : undefined}>
         <Box round="large" background="white" pad="xxsmall">
           <Logo image={base.image} height={baseImageSize} width={baseImageSize} />
