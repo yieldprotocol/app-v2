@@ -42,9 +42,10 @@ export interface IHistoryContext {
 
 export interface IHistoryContextState {
   historyLoading: boolean;
-  tradeHistory: IHistoryList;
-  poolHistory: IHistoryList;
-  vaultHistory: IHistoryList;
+  tradeHistory: Map<string, IHistItemPosition[]>;
+  poolHistory: Map<string, IHistItemPosition[]>;
+  vaultHistory: Map<string, IBaseHistItem[]>;
+  strategyHistory: Map<string, any[]>;
 }
 
 export interface IHistoryContextActions {
