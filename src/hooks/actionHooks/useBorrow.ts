@@ -22,6 +22,8 @@ import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ChainContext } from '../../contexts/ChainContext';
+import { ModuleActions } from '../../types/operations';
+import { ConvexLadleModule } from '../../contracts';
 
 export const useBorrow = () => {
   const {
@@ -61,6 +63,10 @@ export const useBorrow = () => {
     const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!);
     /* is ETH being Borrowed   */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+    const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
 
     /* parse inputs  (clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
@@ -118,6 +124,15 @@ export const useBorrow = () => {
         operation: LadleActions.Fn.BUILD,
         args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault,
+      },
+
+      /* If convex-type collateral, add vault using convex ladle module */
+      {
+        operation: LadleActions.Fn.MODULE,
+        fnName: ModuleActions.Fn.ADD_VAULT,
+        args: [selectedIlk.joinAddress, vaultId] as ModuleActions.Args.ADD_VAULT,
+        targetContract: ConvexLadleModuleContract,
+        ignoreIf: !!vault || !isConvexCollateral,
       },
 
       /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ), else send ZERO_BN */
