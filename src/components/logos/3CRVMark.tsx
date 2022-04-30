@@ -10,7 +10,7 @@ const Outer = styled(Box)`
   max-width: fit-content;
 `;
 
-const CRVWrap = styled(Box)`
+const Inner = styled(Box)`
   position: absolute;
   z-index: 10;
   top: -5px;
@@ -26,9 +26,9 @@ const TriCRVCVXMark = () => {
   return (
     <Outer>
       <Logo image={<CVXMark />} height={bottomStackSize} width={bottomStackSize} />
-      <CRVWrap>
+      <Inner>
         <Logo image={<CRVMark />} height={topStackSize} width={topStackSize} />
-      </CRVWrap>
+      </Inner>
     </Outer>
   );
 };
