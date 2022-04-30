@@ -12,7 +12,7 @@ import UNIMark from '../components/logos/UNIMark';
 import USDCMark from '../components/logos/USDCMark';
 import USDTMark from '../components/logos/USDTMark';
 import WBTCMark from '../components/logos/WBTCMark';
-import YFIMark from '../components/logos/YFIMark';
+import YVUSDCMark from '../components/logos/YVUSDCMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -26,7 +26,7 @@ const markMap = new Map([
   ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
   ['UNI', <UNIMark key="uni" />],
-  ['yvUSDC', <YFIMark key="yvusdc" />],
+  ['yvUSDC', <YVUSDCMark key="yvusdc" />],
   ['MKR', <MakerMark key="mkr" />],
   ['Notional', <NotionalMark key="notional" />],
   ['Cvx3Crv Mock', <TriCRVCVXMark key="cvx3crv" />],
