@@ -46,7 +46,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     asset ? (
       <Box direction="row" align="center" gap="small">
         <Logo image={asset.image} />
-        {asset?.displaySymbol}
+        <Text color="text">{asset?.displaySymbol}</Text>
       </Box>
     ) : (
       <Skeleton width={50} />
@@ -121,7 +121,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           labelKey={(x: IAsset | undefined) => optionText(x)}
           valueLabel={
             <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
-              <Text color="text"> {optionText(selectCollateral ? selectedIlk! : selectedBase!)}</Text>
+              {optionText(selectCollateral ? selectedIlk! : selectedBase!)}
             </Box>
           }
           onChange={({ option }: any) => handleSelect(option)}
@@ -132,7 +132,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           // eslint-disable-next-line react/no-children-prop
           children={(x: any) => (
             <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
-              <Text color="text"> {optionText(x)} </Text>
+              {optionText(x)}
             </Box>
           )}
         />
