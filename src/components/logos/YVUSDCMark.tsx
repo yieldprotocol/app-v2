@@ -21,7 +21,7 @@ const YVUSDCMark = () => {
   const { pathname } = useRouter();
   const isDash = pathname.includes('dashboard');
   const bottomStackSize = isDash ? '16px' : '24px';
-  const topStackSize = isDash ? '12px' : '16px';
+  const topStackSize = isDash ? '12px' : '14px';
 
   return (
     <Outer>
