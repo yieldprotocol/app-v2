@@ -18,7 +18,6 @@ const DynamicTransactionWidget = dynamic(() => import('./TransactionWidget'), { 
 const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ssr: false });
 
 const Layout: FC = ({ children }) => {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
   const colorScheme = useColorScheme();
 

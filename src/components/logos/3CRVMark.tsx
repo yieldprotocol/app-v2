@@ -1,4 +1,4 @@
-import { Box, Text } from 'grommet';
+import { Box } from 'grommet';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import CRVMark from './CRVMark';
