@@ -1,4 +1,4 @@
-import { Box } from 'grommet';
+import { Box, Text } from 'grommet';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import CRVMark from './CRVMark';
@@ -17,6 +17,14 @@ const Inner = styled(Box)`
   left: -8px;
 `;
 
+const TinyNum = styled(Box)`
+  position: absolute;
+  z-index: 11;
+  top: 1px;
+  left: 15px;
+  font-size: 11px;
+`;
+
 const TriCRVCVXMark = () => {
   const { pathname } = useRouter();
   const isDash = pathname.includes('dashboard');
@@ -27,7 +35,12 @@ const TriCRVCVXMark = () => {
     <Outer>
       <Logo image={<CVXMark />} height={bottomStackSize} width={bottomStackSize} />
       <Inner>
-        <Logo image={<CRVMark />} height={topStackSize} width={topStackSize} />
+        <Outer>
+          <Logo image={<CRVMark />} height={topStackSize} width={topStackSize} />
+          <Inner>
+            <TinyNum>3</TinyNum>
+          </Inner>
+        </Outer>
       </Inner>
     </Outer>
   );
