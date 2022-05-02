@@ -2,16 +2,11 @@ import { ethers } from 'ethers';
 import { Box, Button, Layer, ResponsiveContext, Text, ThemeContext } from 'grommet';
 import { useContext } from 'react';
 import { FiX } from 'react-icons/fi';
-import styled from 'styled-components';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { IAsset } from '../../types';
+import Line from '../elements/Line';
 import Logo from '../logos/Logo';
 
-const Line = styled(Box)`
-  width: 100%;
-  height: 0.5px;
-  background: ${(props) => props.color ?? '#262626'};
-`;
 
 interface IAssetSelectModalProps {
   assets: IAsset[];
@@ -23,9 +18,6 @@ interface IAssetSelectModalProps {
 const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectModalProps) => {
   const theme = useColorScheme();
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
-  const globalTheme = useContext<any>(ThemeContext);
-  const { gradient } = globalTheme.global.colors;
 
   return open ? (
     <Layer 
@@ -48,7 +40,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
           </Box>
         </Box>
 
-        <Line color={theme === 'dark' ? gradient.dark : gradient.light} />
+        <Line />
 
         <Box width="550px">
           <Box overflow="auto" height={{ max: '500px' }}>
@@ -79,9 +71,9 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
           </Box>
         </Box>
 
-        <Line color={theme === 'dark' ? gradient.dark : gradient.light} />
-
+        <Line />
         <Box pad="medium" background="gradient-transparent" round={{ corner: 'bottom', size: 'xsmall' }} />
+
       </Box>
     </Layer>
   ) : null;
