@@ -223,11 +223,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             valueLabel={
               options.length ? (
                 <Box pad={mobile ? 'medium' : 'small'}>
-                  <Text color="text"> {optionExtended(_selectedSeries!)}</Text>
+                  <Text color="text" size='small'> {optionExtended(_selectedSeries!)}</Text>
                 </Box>
               ) : (
                 <Box pad={mobile ? 'medium' : 'small'}>
-                  <Text color="text-weak">No available series yet.</Text>
+                  <Text color="text-weak" size='small'>No available series yet.</Text>
                 </Box>
               )
             }
@@ -236,7 +236,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
               <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
-                <Text color="text">{optionExtended(x)}</Text>
+                <Text color="text" size='small'>{optionExtended(x)}</Text>
               </Box>
             )}
           />
