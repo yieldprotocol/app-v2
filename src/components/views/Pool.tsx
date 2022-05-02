@@ -102,6 +102,9 @@ function Pool() {
       )}
 
       <CenterPanelWrap series={selectedStrategy?.currentSeries}>
+
+        <Box id='topsection'>
+
         {stepPosition === 0 && (
           <Box fill gap="large" height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
             <YieldCardHeader>
@@ -159,7 +162,6 @@ function Pool() {
         {stepPosition === 1 && (
           <>
             <Box
-              height={{ max: '66%' }}
               background="gradient-transparent"
               round={{ corner: 'top', size: 'xsmall' }}
               pad="medium"
@@ -259,7 +261,9 @@ function Pool() {
             <Line />
           </>
         )}
+        </Box>
 
+        <Box id='midSection' >
         {stepPosition === 1 && !poolProcess?.processActive && (
           <CheckBox
             pad={{ vertical: 'small', horizontal: 'large' }}
@@ -283,6 +287,7 @@ function Pool() {
               <StrategyItem strategy={strategyMap.get(selectedStrategy?.id!)!} index={0} condensed />
             </Box>
           )}
+        </Box>
 
         <ActionButtonGroup pad>
           {stepPosition !== 1 && (
@@ -331,6 +336,7 @@ function Pool() {
               />
             )}
         </ActionButtonGroup>
+
       </CenterPanelWrap>
 
       {!mobile && (
