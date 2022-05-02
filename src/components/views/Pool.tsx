@@ -102,191 +102,200 @@ function Pool() {
       )}
 
       <CenterPanelWrap series={selectedStrategy?.currentSeries}>
-
-        <Box id='topsection'>
-
-        {stepPosition === 0 && (
-          <Box fill gap="large" height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
-            <YieldCardHeader>
-              <Box gap={mobile ? undefined : 'xsmall'}>
-                <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
-                <AltText color="text-weak" size="xsmall">
-                  Pool tokens for{' '}
-                  <Text size="small" color="text">
-                    variable returns
-                  </Text>{' '}
-                  based on protocol usage.
-                </AltText>
-              </Box>
-            </YieldCardHeader>
-
-            <Box gap="medium">
-              <Box direction="row-responsive">
-                <Box basis={mobile ? '50%' : '60%'}>
-                  <InputWrap action={() => console.log('maxAction')} isError={poolError}>
-                    <TextInput
-                      plain
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="Enter amount"
-                      value={poolInput || ''}
-                      onChange={(event: any) => setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))}
-                    />
-                    <MaxButton
-                      action={() => setPoolInput(maxPool)}
-                      disabled={maxPool === '0'}
-                      clearAction={() => setPoolInput('')}
-                      showingMax={!!poolInput && poolInput === maxPool}
-                    />
-                  </InputWrap>
-                </Box>
-
-                <Box basis={mobile ? '50%' : '40%'}>
-                  <AssetSelector />
-                </Box>
-              </Box>
-
-              <SectionWrap
-                title={
-                  strategyMap.size > 0
-                    ? `Recomended ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
-                    : ''
-                }
-              >
-                <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
-              </SectionWrap>
-            </Box>
-          </Box>
-        )}
-
-        {stepPosition === 1 && (
-          <>
-            <Box
-              background="gradient-transparent"
-              round={{ corner: 'top', size: 'xsmall' }}
-              pad="medium"
-              gap="medium"
-            >
+        <Box id="topsection">
+          {stepPosition === 0 && (
+            <Box fill gap="large" height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
               <YieldCardHeader>
-                {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                  <BackButton action={() => setStepPosition(0)} />
-                ) : (
-                  <Box pad="1em" />
-                )}
+                <Box gap={mobile ? undefined : 'xsmall'}>
+                  <ColorText size={mobile ? 'medium' : '2rem'}>PROVIDE LIQUIDITY</ColorText>
+                  <AltText color="text-weak" size="xsmall">
+                    Pool tokens for{' '}
+                    <Text size="small" color="text">
+                      variable returns
+                    </Text>{' '}
+                    based on protocol usage.
+                  </AltText>
+                </Box>
               </YieldCardHeader>
 
-              <ActiveTransaction full txProcess={poolProcess}>
-                    <Box
-                      gap="small"
-                      pad={{ horizontal: 'medium', vertical: 'medium' }}
-                      animation={{ type: 'zoomIn', size: 'small' }}
-                      flex={false}
-                    >
-                      <InfoBite
-                        label="Maximum Amount to Pool"
-                        icon={<BiMessageSquareAdd />}
-                        value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
+              <Box gap="medium">
+                <Box direction="row-responsive">
+                  <Box basis={mobile ? '50%' : '60%'}>
+                    <InputWrap action={() => console.log('maxAction')} isError={poolError}>
+                      <TextInput
+                        plain
+                        type="number"
+                        inputMode="decimal"
+                        placeholder="Enter amount"
+                        value={poolInput || ''}
+                        onChange={(event: any) => setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))}
                       />
-                      <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
-                      <InfoBite
-                        label="Strategy Ownership"
-                        icon={<FiPercent />}
-                        value={`${cleanValue(poolPercentPreview, 2)}%`}
+                      <MaxButton
+                        action={() => setPoolInput(maxPool)}
+                        disabled={maxPool === '0'}
+                        clearAction={() => setPoolInput('')}
+                        showingMax={!!poolInput && poolInput === maxPool}
                       />
-                    </Box>
-  
-                    <Box direction="row" justify="between" fill align="center" pad={{ horizontal: 'small'}} >
-                      {!mobile && (
-                        <Box direction="row" gap="xsmall">
-                          <Tip
-                            plain
-                            content={
-                              <Box gap="small" background="background" pad="medium" width={{ max: '500px' }}>
-                                <Text size="small">
-                                  Providing liquidity requires adding both {selectedBase?.symbol} and fy
-                                  {selectedBase?.symbol} into the protocol. This is handled automatically in one of two
-                                  ways:
-                                </Text>
+                    </InputWrap>
+                  </Box>
 
-                                <Box>
-                                  <Text size="xsmall">Buy & Pool:</Text>
-                                  <Text size="xsmall" weight="lighter">
-                                    Provide liquidity by using {selectedBase?.symbol} to buy the fy
-                                    {selectedBase?.symbol} required.
-                                  </Text>
-                                  <Text size="xsmall" weight="lighter">
-                                    This is the preferred/cheapest method.
-                                  </Text>
-                                </Box>
-                                <Box>
-                                  <Text size="xsmall">Borrow & Pool:</Text>
-                                  <Text size="xsmall" weight="lighter">
-                                    Provide liquidity by using {selectedBase?.symbol} to borrow the required fy
-                                    {selectedBase?.symbol} from the protocol.
-                                  </Text>
-                                  <Text size="xsmall" weight="lighter">
-                                    ( This method is typically used when providing a large amount of liquidity, or in
-                                    liquidity-limited situations )
-                                  </Text>
-                                </Box>
-                              </Box>
-                            }
-                            dropProps={{
-                              align: { bottom: 'top', left: 'left' },
-                            }}
-                          >
-                            <Box direction="row">
-                              <Text size="small">Pooling method:</Text>
-                              <FiInfo size=".75rem" />
-                            </Box>
-                          </Tip>
-                        </Box>
-                      )}
-                      <RadioButtonGroup
-                        name="strategy"
-                        options={[
-                          { label: <Text size="xsmall">Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
-                          { label: <Text size="xsmall">Borrow & Pool</Text>, value: 'BORROW' },
-                        ]}
-                        value={poolMethod}
-                        onChange={(event: any) => setPoolMethod(event.target.value)}
-                        direction="row"
-                        justify="between"
-                      />
-                    </Box>
+                  <Box basis={mobile ? '50%' : '40%'}>
+                    <AssetSelector />
+                  </Box>
+                </Box>
 
-              </ActiveTransaction>
-
-            </Box>
-            <Line />
-          </>
-        )}
-        </Box>
-
-        <Box id='midSection' >
-        {stepPosition === 1 && !poolProcess?.processActive && (
-          <CheckBox
-            pad={{ vertical: 'small', horizontal: 'large' }}
-            label={
-              <Text size="xsmall">
-                I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in the
-                payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
-                demand.
-              </Text>
-            }
-            checked={disclaimerChecked}
-            onChange={() => setDisclaimerChecked(!disclaimerChecked)}
-          />
-        )}
-
-        {stepPosition === 1 &&
-          poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
-          poolProcess?.tx.status === TxState.SUCCESSFUL && (
-            <Box pad="small" gap="small" height="auto">
-              <Text size="small"> View strategy Position: </Text>
-              <StrategyItem strategy={strategyMap.get(selectedStrategy?.id!)!} index={0} condensed />
+                <SectionWrap
+                  title={
+                    strategyMap.size > 0
+                      ? `Recomended ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
+                      : ''
+                  }
+                >
+                  <Box flex={false}>
+                    <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
+                  </Box>
+                </SectionWrap>
+              </Box>
             </Box>
           )}
+
+          {stepPosition === 1 && (
+            <>
+              <Box
+                background="gradient-transparent"
+                round={{ corner: 'top', size: 'xsmall' }}
+                pad="medium"
+                gap="medium"
+              >
+                <YieldCardHeader>
+                  {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
+                    <BackButton action={() => setStepPosition(0)} />
+                  ) : (
+                    <Box pad="1em" />
+                  )}
+                </YieldCardHeader>
+
+                <ActiveTransaction full txProcess={poolProcess}>
+                  <Box
+                    gap="small"
+                    pad={{ horizontal: 'medium', vertical: 'medium' }}
+                    animation={{ type: 'zoomIn', size: 'small' }}
+                    flex={false}
+                  >
+                    <InfoBite
+                      label="Maximum Amount to Pool"
+                      icon={<BiMessageSquareAdd />}
+                      value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
+                    />
+                    <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
+                    <InfoBite
+                      label="Strategy Ownership"
+                      icon={<FiPercent />}
+                      value={`${cleanValue(poolPercentPreview, 2)}%`}
+                    />
+                  </Box>
+                </ActiveTransaction>
+              </Box>
+
+              <Line />
+            </>
+          )}
+        </Box>
+
+        <Box id="midSection" gap="small">
+          {stepPosition === 1 && !poolProcess?.processActive && (
+            <Box direction="row" justify="between" fill align="center" pad={{ horizontal: 'large' }}>
+              {!mobile && (
+                <Box direction="row" gap="xsmall">
+                  <Tip
+                    plain
+                    content={
+                      <Box
+                        gap="small"
+                        background="background"
+                        pad="medium"
+                        width={{ max: '500px' }}
+                        border={{ color: 'gradient-transparent' }}
+                        elevation="small"
+                        margin={{ vertical: 'small' }}
+                        round='small'
+                      >
+                        <Text size="small">
+                          Providing liquidity requires adding both {selectedBase?.symbol} and fy
+                          {selectedBase?.symbol} into the protocol. This is handled automatically in one of two ways:
+                        </Text>
+
+                        <Box>
+                          <Text size="xsmall">Buy & Pool:</Text>
+                          <Text size="xsmall" weight="lighter">
+                            Provide liquidity by using {selectedBase?.symbol} to buy the fy
+                            {selectedBase?.symbol} required.
+                          </Text>
+                          <Text size="xsmall" weight="lighter">
+                            This is the preferred/cheapest method.
+                          </Text>
+                        </Box>
+                        <Box>
+                          <Text size="xsmall">Borrow & Pool:</Text>
+                          <Text size="xsmall" weight="lighter">
+                            Provide liquidity by using {selectedBase?.symbol} to borrow the required fy
+                            {selectedBase?.symbol} from the protocol.
+                          </Text>
+                          <Text size="xsmall" weight="lighter">
+                            ( This method is typically used when providing a large amount of liquidity, or in
+                            liquidity-limited situations )
+                          </Text>
+                        </Box>
+                      </Box>
+                    }
+                    dropProps={{
+                      align: { bottom: 'top', left: 'left' },
+                    }}
+                  >
+                    <Box direction="row">
+                      <Text size="small">Pooling method:</Text>
+                      <FiInfo size=".75rem" />
+                    </Box>
+                  </Tip>
+                </Box>
+              )}
+              <RadioButtonGroup
+                name="strategy"
+                options={[
+                  { label: <Text size="xsmall">Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
+                  { label: <Text size="xsmall">Borrow & Pool</Text>, value: 'BORROW' },
+                ]}
+                value={poolMethod}
+                onChange={(event: any) => setPoolMethod(event.target.value)}
+                direction="row"
+                justify="between"
+              />
+            </Box>
+          )}
+
+          {stepPosition === 1 && !poolProcess?.processActive && (
+            <CheckBox
+              pad={{ vertical: 'small', horizontal: 'large' }}
+              label={
+                <Text size="xsmall" weight="lighter">
+                  I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
+                  the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
+                  demand.
+                </Text>
+              }
+              checked={disclaimerChecked}
+              onChange={() => setDisclaimerChecked(!disclaimerChecked)}
+            />
+          )}
+
+          {stepPosition === 1 &&
+            poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+            poolProcess?.tx.status === TxState.SUCCESSFUL && (
+              <Box pad="small" gap="small" height="auto">
+                <Text size="small"> View strategy Position: </Text>
+                <StrategyItem strategy={strategyMap.get(selectedStrategy?.id!)!} index={0} condensed />
+              </Box>
+            )}
         </Box>
 
         <ActionButtonGroup pad>
@@ -336,7 +345,6 @@ function Pool() {
               />
             )}
         </ActionButtonGroup>
-
       </CenterPanelWrap>
 
       {!mobile && (
