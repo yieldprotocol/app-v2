@@ -4,12 +4,10 @@ import { Box, ResponsiveContext, Stack } from 'grommet';
 import { useSpring, animated, to } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
 import styled from 'styled-components';
-import Line from '../elements/Line';
 
 interface IPanelWrap {
   children: any;
   series?: any;
-  headerContent?: React.ElementType;
 }
 
 const StyledBox: any = styled(Box)`
@@ -39,7 +37,7 @@ const StyledBox: any = styled(Box)`
 const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 300;
 const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 300;
 
-function CenterPanelWrap({ children, series, headerContent }: IPanelWrap) {
+function CenterPanelWrap({ children, series }: IPanelWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const [flipped] = useState(false);
@@ -118,11 +116,6 @@ function CenterPanelWrap({ children, series, headerContent }: IPanelWrap) {
               >
 
                 <Box fill round="xsmall" background="lightBackground">
-                  {headerContent &&
-                  <Box background = 'gradient-transparent'  pad='smal'>
-                    { headerContent }
-                    <Line /> 
-                  </Box>}
                   {children}
                 </Box>
               </Box>

@@ -13,7 +13,6 @@ const Line = () => {
   const theme = useColorScheme();
   const globalTheme = useContext<any>(ThemeContext);
   const { gradient } = globalTheme.global.colors;
-
   return <LineStyled color={theme === 'dark' ? gradient.dark : gradient.light} />;
 };
 
