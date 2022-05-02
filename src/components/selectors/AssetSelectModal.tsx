@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Box, Button, Layer, Text, ThemeContext } from 'grommet';
+import { Box, Button, Layer, ResponsiveContext, Text, ThemeContext } from 'grommet';
 import { useContext } from 'react';
 import { FiX } from 'react-icons/fi';
 import styled from 'styled-components';
@@ -22,11 +22,18 @@ interface IAssetSelectModalProps {
 
 const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectModalProps) => {
   const theme = useColorScheme();
+  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
   const globalTheme = useContext<any>(ThemeContext);
   const { gradient } = globalTheme.global.colors;
 
   return open ? (
-    <Layer animation="fadeIn" onEsc={() => setOpen(false)} onClickOutside={() => setOpen(false)}>
+    <Layer 
+      animation="fadeIn" 
+      onEsc={() => setOpen(false)} onClickOutside={() => setOpen(false)}
+      style={{ minWidth: mobile ? undefined : '500px', borderRadius: '12px' }}
+    >
+      
       <Box background="background" round="small">
         <Box
           direction="row"
@@ -34,7 +41,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
           align="center"
           pad="medium"
           background="gradient-transparent"
-          round={{ corner: 'top', size: 'xsmall' }}
+          round={{ corner: 'top', size: 'small' }}
         >
           <Text size="small">Select Collateral</Text>
           <Box onClick={() => setOpen(false)}>
@@ -44,7 +51,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
 
         <Line color={theme === 'dark' ? gradient.dark : gradient.light} />
 
-        <Box width="medium">
+        <Box width="550px">
           <Box overflow="auto" height={{ max: '500px' }}>
             {assets.map((a) => (
               <Button
