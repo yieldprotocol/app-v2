@@ -6,6 +6,7 @@ import { useColorScheme } from '../../hooks/useColorScheme';
 import { IAsset } from '../../types';
 import Line from '../elements/Line';
 import Logo from '../logos/Logo';
+import BoxWrap from '../wraps/BoxWrap';
 
 
 interface IAssetSelectModalProps {
@@ -43,7 +44,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
         <Line />
 
         <Box width="550px">
-          <Box overflow="auto" height={{ max: '500px' }} pad='medium'>
+          <Box overflow="auto" height={{ max: '600px' }} pad={{vertical:'small', horizontal:'large'}} gap='small'>
             {assets.map((a) => (
               <Button
                 key={a.id}
@@ -51,21 +52,29 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
                   handleSelect(a);
                   setOpen(false);
                 }}
-                hoverIndicator={theme === 'dark' ? 'hoverBackground' : 'background'}
                 disabled={a.balance.eq(ethers.constants.Zero)}
               >
-                <Box justify="between" direction="row" align="center" pad={{ horizontal: 'medium', vertical: mobile? 'medium': 'small' }}>
+                <BoxWrap 
+                  justify="between" 
+                  direction="row" 
+                  align="center" 
+                  pad={{ horizontal: 'large', vertical: 'small' }}
+                  round='large'
+                  elevation='xsmall'
+                  hoverIndicator={theme === 'dark' ? 'hoverBackground' : 'background'}
+                >
                   <Box direction="row" gap="small" align="center">
                     <Logo image={a.image} />
                     <Box>
-                      <Text size="small">{a.displaySymbol}</Text>
+                      <Text size="medium">{a.displaySymbol}</Text>
                       <Text size="xsmall" color="text-weak">
                         {a.name}
                       </Text>
                     </Box>
                   </Box>
                   <Text size="small">{a.balance_}</Text>
-                </Box>
+                </BoxWrap>
+
               </Button>
             ))}
           </Box>
