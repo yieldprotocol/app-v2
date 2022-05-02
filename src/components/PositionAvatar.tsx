@@ -49,23 +49,24 @@ function PositionAvatar({
   const baseImageSize = condensed ? '20px' : '24px';
   const ilkImageSize = condensed ? '16px' : '20px';
 
+  const ilkBorderSize = condensed ? '18px': '22px';
+
   return (
     <Outer width={condensed ? '36px' : 'auto'}>
       <Avatar background={series?.seriesIsMature ? 'lightGrey' : series?.color} size={condensed ? '36px' : undefined}>
         <Box round="large" background="white" pad="xxsmall">
           <Logo image={base.image} height={baseImageSize} width={baseImageSize} />
         </Box>
-
         <Inner>
           {actionType === ActionType.BORROW && (
-            <Avatar background="lightBackground" size={ilkImageSize}>
+            <Avatar background="lightBackground" size={ilkBorderSize} >
               <Stack>
                 <Logo image={ilk.image} height={ilkImageSize} width={ilkImageSize} />
               </Stack>
             </Avatar>
           )}
           {actionType === ActionType.POOL && (
-            <Avatar background="lightBackground" size={ilkImageSize}>
+            <Avatar background="lightBackground" size={ilkBorderSize}>
               {series?.seriesIsMature ? <FiClock /> : <MdAutorenew />}
             </Avatar>
           )}

@@ -13,21 +13,21 @@ const Outer = styled(Box)`
 const Inner = styled(Box)`
   position: absolute;
   z-index: 10;
-  top: -5px;
-  left: -8px;
+  top: 12px;
+  left: 12px;
 `;
 
 const YVUSDCMark = () => {
   const { pathname } = useRouter();
   const isDash = pathname.includes('dashboard');
-  const bottomStackSize = isDash ? '16px' : '24px';
-  const topStackSize = isDash ? '12px' : '14px';
+  const bottomStackSize = isDash ? '20px' : '24px';
+  const topStackSize = isDash ? '14px' : '14px';
 
   return (
     <Outer>
-      <Logo image={<USDCMark />} height={bottomStackSize} width={bottomStackSize} />
+      <Logo image={<YFIMark />} height={bottomStackSize} width={bottomStackSize} />
       <Inner>
-        <Logo image={<YFIMark />} height={topStackSize} width={topStackSize} />
+        <Logo image={<USDCMark /> } height={topStackSize} width={topStackSize} />
       </Inner>
     </Outer>
   );
