@@ -29,7 +29,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
 
   return open ? (
     <Layer 
-      animation="fadeIn" 
+      // animation="fadeIn" 
       onEsc={() => setOpen(false)} onClickOutside={() => setOpen(false)}
       style={{ minWidth: mobile ? undefined : '500px', borderRadius: '12px' }}
     >
