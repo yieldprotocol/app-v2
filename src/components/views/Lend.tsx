@@ -39,6 +39,7 @@ import LendItem from '../positionItems/LendItem';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
+import Line from '../elements/Line';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -95,10 +96,10 @@ const Lend = () => {
         </PanelWrap>
       )}
 
-      <CenterPanelWrap series={selectedSeries}>
-        <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
-          {stepPosition === 0 && (
-            <Box gap="large">
+      <CenterPanelWrap series={selectedSeries} >
+        {stepPosition === 0 && (
+          <>
+            <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }} gap="large">
               <YieldCardHeader>
                 <Box gap={mobile ? undefined : 'xsmall'}>
                   <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
@@ -178,25 +179,26 @@ const Lend = () => {
                 </InputInfoWrap>
               )}
             </Box>
-          )}
+          </>
+        )}
 
-          {stepPosition === 1 && (
-            <Box gap="medium">
-              <YieldCardHeader>
-                {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                  <BackButton action={() => setStepPosition(0)} />
-                ) : (
-                  <Box pad="1em" />
-                )}
-              </YieldCardHeader>
+        {stepPosition === 1 && (
+          <>
+            <Box
+              height={{ max: "66%" }}
+              background="gradient-transparent"
+              round={{ corner: 'top', size: 'xsmall' }}
+              pad="medium"
+              gap="large"
+            >
+              {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
+                <BackButton action={() => setStepPosition(0)} />
+              ) : (
+                <Box pad="1em" />
+              )}
 
               <ActiveTransaction full txProcess={lendProcess}>
-                <Box
-                  gap="small"
-                  pad={{ horizontal: 'large', vertical: 'medium' }}
-                  round="xsmall"
-                  animation={{ type: 'zoomIn', size: 'small' }}
-                >
+                <Box gap="small" round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
                   <InfoBite
                     label="Amount to lend"
                     icon={<BiMessageSquareAdd />}
@@ -212,22 +214,19 @@ const Lend = () => {
                 </Box>
               </ActiveTransaction>
             </Box>
-          )}
+            <Line />
+            <Box />
+          </>
+        )}
 
-          {stepPosition === 1 &&
-            lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
-            lendProcess?.tx.status === TxState.SUCCESSFUL && (
-              <Box pad="large" gap="small">
-                <Text size="small"> View position: </Text>
-                <LendItem
-                  series={seriesMap.get(selectedSeries?.id!)!}
-                  index={0}
-                  actionType={ActionType.LEND}
-                  condensed
-                />
-              </Box>
-            )}
-        </Box>
+        {stepPosition === 1 &&
+          lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+          lendProcess?.tx.status === TxState.SUCCESSFUL && (
+            <Box pad="large" gap="small">
+              <Text size="small"> View position: </Text>
+              <LendItem series={seriesMap.get(selectedSeries?.id!)!} index={0} actionType={ActionType.LEND} condensed />
+            </Box>
+          )}
 
         <ActionButtonGroup pad>
           {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
