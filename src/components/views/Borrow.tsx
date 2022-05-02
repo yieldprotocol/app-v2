@@ -256,8 +256,8 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          {stepPosition === 0 && ( // INITIAL STEP
-            <>
+          <Box id="topsection">
+            {stepPosition === 0 && ( // INITIAL STEP
               <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }} gap="large">
                 <YieldCardHeader>
                   <Box gap={mobile ? undefined : 'xsmall'}>
@@ -332,134 +332,133 @@ const Borrow = () => {
                   </InputInfoWrap>
                 )}
               </Box>
-            </>
-          )}
+            )}
 
-          {stepPosition === 1 && ( // ADD COLLATERAL
-            <>
-              <Box
-                height="100%"
-                background="gradient-transparent"
-                round={{ corner: 'top', size: 'xsmall' }}
-                pad="medium"
-                gap="small"
-              >
-                <BackButton action={() => setStepPosition(0)} />
-                <Box pad="medium" direction="row" gap="large" justify="center" round="small">
-                  <Box justify="center">
-                    <Gauge
-                      value={parseFloat(collateralizationPercent!)}
-                      size={mobile ? '6em' : '8em'}
-                      mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
-                      setColor={handleGaugeColorChange}
-                    />
-                  </Box>
-
-                  <Box align="center" gap="small">
-                    <Box align="center">
-                      <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                        Collateralization
-                      </Text>
-                      <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
-                        {parseFloat(collateralizationPercent!) > 10000
-                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                          : parseFloat(collateralizationPercent!)}
-                        %
-                      </Text>
+            {stepPosition === 1 && ( // ADD COLLATERAL
+              <>
+                <Box
+                  background="gradient-transparent"
+                  round={{ corner: 'top', size: 'xsmall' }}
+                  pad="medium"
+                  gap="small"
+                >
+                  <BackButton action={() => setStepPosition(0)} />
+                  <Box pad="medium" direction="row" gap="large" justify="center" round="small">
+                    <Box justify="center">
+                      <Gauge
+                        value={parseFloat(collateralizationPercent!)}
+                        size={mobile ? '6em' : '8em'}
+                        mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                        setColor={handleGaugeColorChange}
+                      />
                     </Box>
-                    <Box align="center" direction="row" gap="xsmall">
-                      <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                        {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
-                      </Text>
-                      <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
+
+                    <Box align="center" gap="small">
+                      <Box align="center">
+                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                          Collateralization
+                        </Text>
+                        <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
+                          {parseFloat(collateralizationPercent!) > 10000
+                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                            : parseFloat(collateralizationPercent!)}
+                          %
+                        </Text>
+                      </Box>
+                      <Box align="center" direction="row" gap="xsmall">
+                        <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
+                          {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
+                        </Text>
+                        <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
-              </Box>
-              <Line />
+                <Line />
 
-              <Box gap="medium" height="100%" pad="large">
-                <Box gap="small" flex={false}>
-                  <SectionWrap title="Amount of collateral to add">
-                    <Box direction="row-responsive">
-                      <Box basis={mobile ? undefined : '60%'} fill="horizontal">
-                        <InputWrap
-                          action={() => console.log('maxAction')}
-                          disabled={!selectedSeries}
-                          isError={collatInputError}
-                        >
-                          <TextInput
-                            plain
-                            type="number"
-                            placeholder="Enter amount"
-                            // ref={(el:any) => { el && el.focus(); }}
-                            value={collatInput}
-                            onChange={(event: any) =>
-                              setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
-                            }
-                            disabled={!selectedSeries || selectedSeries.seriesIsMature}
-                          />
-                          <MaxButton
-                            action={() => maxCollateral && setCollatInput(maxCollateral)}
-                            disabled={!selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature}
-                            clearAction={() => setCollatInput('')}
-                            showingMax={!!collatInput && collatInput === maxCollateral}
-                          />
-                        </InputWrap>
+                <Box gap="medium" pad="large">
+                  <Box gap="small" flex={false}>
+                    <SectionWrap title="Amount of collateral to add">
+                      <Box direction="row-responsive">
+                        <Box basis={mobile ? undefined : '60%'} fill="horizontal">
+                          <InputWrap
+                            action={() => console.log('maxAction')}
+                            disabled={!selectedSeries}
+                            isError={collatInputError}
+                          >
+                            <TextInput
+                              plain
+                              type="number"
+                              placeholder="Enter amount"
+                              // ref={(el:any) => { el && el.focus(); }}
+                              value={collatInput}
+                              onChange={(event: any) =>
+                                setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
+                              }
+                              disabled={!selectedSeries || selectedSeries.seriesIsMature}
+                            />
+                            <MaxButton
+                              action={() => maxCollateral && setCollatInput(maxCollateral)}
+                              disabled={
+                                !selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature
+                              }
+                              clearAction={() => setCollatInput('')}
+                              showingMax={!!collatInput && collatInput === maxCollateral}
+                            />
+                          </InputWrap>
+                        </Box>
+                        <Box basis={mobile ? undefined : '40%'}>
+                          <AssetSelector selectCollateral isModal={true} />
+                        </Box>
                       </Box>
-                      <Box basis={mobile ? undefined : '40%'}>
-                        <AssetSelector selectCollateral isModal={true} />
-                      </Box>
+                    </SectionWrap>
+
+                    <Box flex={false}>
+                      {matchingVaults.length > 0 && (
+                        <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                          <VaultDropSelector
+                            vaults={matchingVaults}
+                            handleSelect={(option: any) => setVaultToUse(option)}
+                            itemSelected={vaultToUse}
+                            displayName="Create New Vault"
+                            placeholder="Create New Vault"
+                            defaultOptionValue="Create New Vault"
+                          />
+                        </SectionWrap>
+                      )}
                     </Box>
-                  </SectionWrap>
 
-                  <Box flex={false}>
-                    {matchingVaults.length > 0 && (
-                      <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
-                        <VaultDropSelector
-                          vaults={matchingVaults}
-                          handleSelect={(option: any) => setVaultToUse(option)}
-                          itemSelected={vaultToUse}
-                          displayName="Create New Vault"
-                          placeholder="Create New Vault"
-                          defaultOptionValue="Create New Vault"
-                        />
-                      </SectionWrap>
+                    {borrowInput && minSafeCollateral && (
+                      <Box margin={{ top: 'small' }}>
+                        <InputInfoWrap
+                          action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
+                        >
+                          <Text size="small" color="text-weak">
+                            Use Safe Collateralization{': '}
+                            {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
+                          </Text>
+                        </InputInfoWrap>
+                      </Box>
                     )}
                   </Box>
-
-                  {borrowInput && minSafeCollateral && (
-                    <Box margin={{ top: 'small' }}>
-                      <InputInfoWrap
-                        action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
-                      >
-                        <Text size="small" color="text-weak">
-                          Use Safe Collateralization{': '}
-                          {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
-                        </Text>
-                      </InputInfoWrap>
-                    </Box>
-                  )}
                 </Box>
-              </Box>
-            </>
-          )}
+              </>
+            )}
 
-          {stepPosition === 2 && ( // REVIEW
-            <>
-              <Box
-                height="100%"
-                background="gradient-transparent"
-                round={{ corner: 'top', size: 'xsmall' }}
-                pad="medium"
-                gap="medium"
-              >
-                {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                  <BackButton action={() => handleNavAction(1)} />
-                ) : (
-                  <Box pad="1em" />
-                )}
-                
+            {stepPosition === 2 && ( // REVIEW
+              <>
+                <Box
+                  background="gradient-transparent"
+                  round={{ corner: 'top', size: 'xsmall' }}
+                  pad="medium"
+                  gap="medium"
+                >
+                  {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
+                    <BackButton action={() => handleNavAction(1)} />
+                  ) : (
+                    <Box pad="1em" />
+                  )}
+
                   <ActiveTransaction full txProcess={borrowProcess}>
                     <Box
                       gap="small"
@@ -503,45 +502,47 @@ const Borrow = () => {
                       )}
                     </Box>
                   </ActiveTransaction>
-             
-              </Box>
-              <Line />
-            </>
-          )}
+                </Box>
+                <Line />
+              </>
+            )}
+          </Box>
 
-          {stepPosition === 2 &&
-            borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
-            borrowProcess?.tx.status === TxState.SUCCESSFUL && (
-              <Box pad="large" gap="small">
-                <Text size="small"> View Vault: </Text>
-                {vaultToUse && <VaultItem vault={vaultMap.get(vaultToUse.id)!} condensed index={1} />}
-                {!vaultToUse && newVaultId && (
-                  <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
-                )}
+          <Box id="midsection">
+            {stepPosition === 2 &&
+              borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
+              borrowProcess?.tx.status === TxState.SUCCESSFUL && (
+                <Box pad="large" gap="small">
+                  <Text size="small"> View Vault: </Text>
+                  {vaultToUse && <VaultItem vault={vaultMap.get(vaultToUse.id)!} condensed index={1} />}
+                  {!vaultToUse && newVaultId && (
+                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
+                  )}
+                </Box>
+              )}
+
+            {stepPosition === 2 && !borrowProcess?.processActive && (
+              <Box pad={{ horizontal: 'large' }}>
+                <CheckBox
+                  pad={{ vertical: 'small' }}
+                  label={
+                    <Text size="xsmall">
+                      I understand the risks associated with borrowing. In particular, I understand that as a new
+                      protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
+                      below the minimum collateralization requirement ({' '}
+                      <Text size="xsmall" color="red">
+                        {' '}
+                        {minCollatRatioPct}%
+                      </Text>{' '}
+                      ) I could lose most or all of my posted collateral.
+                    </Text>
+                  }
+                  checked={disclaimerChecked}
+                  onChange={() => setDisclaimerChecked(!disclaimerChecked)}
+                />
               </Box>
             )}
-
-          {stepPosition === 2 && !borrowProcess?.processActive && (
-            <Box pad="large">
-              <CheckBox
-                pad={{ vertical: 'small' }}
-                label={
-                  <Text size="xsmall">
-                    I understand the risks associated with borrowing. In particular, I understand that as a new
-                    protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
-                    below the minimum collateralization requirement ({' '}
-                    <Text size="xsmall" color="red">
-                      {' '}
-                      {minCollatRatioPct}%
-                    </Text>{' '}
-                    ) I could lose most or all of my posted collateral.
-                  </Text>
-                }
-                checked={disclaimerChecked}
-                onChange={() => setDisclaimerChecked(!disclaimerChecked)}
-              />
-            </Box>
-          )}
+          </Box>
 
           <ActionButtonWrap pad>
             {(stepPosition === 0 || stepPosition === 1) && (
