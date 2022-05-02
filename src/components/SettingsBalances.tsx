@@ -72,6 +72,7 @@ const SettingsBalances = () => {
   } = useContext(UserContext) as IUserContext;
 
   const [open, setOpen] = useState<boolean>(false);
+  const hasBalance = [...assetMap.values()].find((a) => +a.balance_ > 0);
   return (
     <Box pad="medium">
       <BoxWrap>
@@ -79,7 +80,7 @@ const SettingsBalances = () => {
           open={open}
           onOpen={() => setOpen(true)}
           onClose={() => setOpen(false)}
-          dropContent={<DropContent assetMap={assetMap} />}
+          dropContent={hasBalance ? <DropContent assetMap={assetMap} /> : <></>}
           dropProps={{ align: { top: 'bottom', right: 'right' }, round: 'small' }}
         >
           <YieldBalances />
