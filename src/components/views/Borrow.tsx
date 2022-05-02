@@ -113,6 +113,7 @@ const Borrow = () => {
     minSafeCollatRatioPct,
     minCollatRatioPct,
     totalCollateral_,
+    liquidationPrice_,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPairInfo);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
@@ -365,6 +366,18 @@ const Borrow = () => {
                           %
                         </Text>
                       </Box>
+
+                      {collatInput && (
+                        <Box align="center" direction="row" gap="xsmall">
+                          <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
+                            {mobile ? 'Liq. Price :' : 'Liquidiation price :'}{' '}
+                          </Text>
+                          <Text size={mobile ? 'xsmall' : 'xsmall'}>
+                            {liquidationPrice_} {selectedBase.symbol}
+                          </Text>
+                        </Box>
+                      )}
+
                       <Box align="center" direction="row" gap="xsmall">
                         <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
                           {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}

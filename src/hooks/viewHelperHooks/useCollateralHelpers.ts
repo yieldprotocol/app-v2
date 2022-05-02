@@ -50,6 +50,11 @@ export const useCollateralHelpers = (
   const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
+  
+  const [totalDebt, setTotalDebt] = useState<BigNumber>();
+  const [totalDebt_, setTotalDebt_] = useState<string | undefined>();
+
+  const [totalCollateral, setTotalCollateral] = useState<BigNumber>();
   const [totalCollateral_, setTotalCollateral_] = useState<string | undefined>();
 
   /* update the prices/limits if anything changes with the asset pair */
@@ -74,14 +79,19 @@ export const useCollateralHelpers = (
       setMinSafeCollatRatioPct((_minSafe() * 100).toString());
 
       const liqPrice =
-        vault &&
-        cleanValue(
+        vault 
+        ? cleanValue(
           calcLiquidationPrice(vault?.ink_, vault.accruedArt_, assetPairInfo.minRatio),
           _selectedBase?.digitFormat
-        );
+        )
+        : cleanValue(
+          calcLiquidationPrice(totalCollateral_, totalDebt_, assetPairInfo.minRatio),
+          _selectedBase?.digitFormat
+        )
+
       setLiquidationPrice_(liqPrice || '0');
     }
-  }, [_selectedBase, assetPairInfo, vault]);
+  }, [_selectedBase, assetPairInfo, vault, totalCollateral_, totalDebt_ ]);
 
   /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {
@@ -99,8 +109,10 @@ export const useCollateralHelpers = (
     const existingCollateralAsWei = decimalNToDecimal18(existingCollateral_, _selectedIlk?.decimals);
     const newCollateralAsWei =
       collInput && Math.abs(parseFloat(collInput)) > 0 ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
-    const totalCollateral = existingCollateralAsWei.add(newCollateralAsWei);
-    setTotalCollateral_(ethers.utils.formatUnits(totalCollateral, 18));
+    const _totalCollateral = existingCollateralAsWei.add(newCollateralAsWei);
+
+    setTotalCollateral(_totalCollateral);
+    setTotalCollateral_(ethers.utils.formatUnits(_totalCollateral, 18));
 
     const existingDebt_ = vault?.accruedArt ? vault.accruedArt : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, _selectedBase?.decimals);
@@ -117,12 +129,15 @@ export const useCollateralHelpers = (
           )
         : ZERO_BN;
     const newDebtAsWei = decimalNToDecimal18(newDebt, _selectedBase?.decimals);
-    const totalDebt = existingDebtAsWei.add(newDebtAsWei);
+    const _totalDebt = existingDebtAsWei.add(newDebtAsWei);
+
+    setTotalDebt(_totalDebt);
+    setTotalDebt_(ethers.utils.formatUnits(_totalDebt, 18));
 
     /* set the collateral ratio when collateral is entered */
-    if (oraclePrice.gt(ethers.constants.Zero) && totalCollateral.gt(ethers.constants.Zero)) {
-      const ratio = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, false);
-      const percent = calculateCollateralizationRatio(totalCollateral, oraclePrice, totalDebt, true);
+    if (oraclePrice.gt(ethers.constants.Zero) && _totalCollateral.gt(ethers.constants.Zero)) {
+      const ratio = calculateCollateralizationRatio(_totalCollateral, oraclePrice, _totalDebt, false);
+      const percent = calculateCollateralizationRatio(_totalCollateral, oraclePrice, _totalDebt, true);
       setCollateralizationRatio(ratio);
       setCollateralizationPercent(parseFloat(percent! || '0').toFixed(2));
     } else {
@@ -132,10 +147,10 @@ export const useCollateralHelpers = (
 
     /* check minimum collateral required base on debt */
     if (oraclePrice.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, totalDebt, minCollatRatio!.toString(), existingCollateralAsWei);
+      const min = calculateMinCollateral(oraclePrice, _totalDebt, minCollatRatio!.toString(), existingCollateralAsWei);
       const minSafeCalc = calculateMinCollateral(
         oraclePrice,
-        totalDebt,
+        _totalDebt,
         (minSafeCollatRatio || 2.5).toString(),
         existingCollateralAsWei
       );

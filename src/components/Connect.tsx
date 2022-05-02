@@ -1,13 +1,11 @@
 import { useContext } from 'react';
-import { Box, Button, ResponsiveContext, Text } from 'grommet';
-import { FiX } from 'react-icons/fi';
+import { Box, ResponsiveContext, Text } from 'grommet';
 import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import GeneralButton from './buttons/GeneralButton';
-import Line from './elements/Line';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
