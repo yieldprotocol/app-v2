@@ -174,7 +174,7 @@ ASSET_INFO.set(LINK, {
   symbol: 'LINK',
   showToken: true,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC20_,
 });
 
@@ -196,8 +196,8 @@ ASSET_INFO.set(UNI, {
   decimals: 18,
   symbol: 'UNI',
   showToken: true,
-  isWrappedToken: false,
-  digitFormat: 6,
+  isWrappedToken: false,=
+  digitFormat: 4,
   tokenType: TokenType.ERC20_Permit,
 });
 
@@ -208,7 +208,7 @@ ASSET_INFO.set(MKR, {
   symbol: 'MKR',
   showToken: false,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC20_MKR,
 });
 
@@ -219,7 +219,7 @@ ASSET_INFO.set(FDAI2203, {
   symbol: 'FDAI2203',
   showToken: false,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563371972493313,
   limitToSeries: ['0x303130350000'],
@@ -232,7 +232,7 @@ ASSET_INFO.set(FUSDC2203, {
   symbol: 'FUSDC2203',
   showToken: false,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844846949203969,
   limitToSeries: ['0x303230350000'],
@@ -245,7 +245,7 @@ ASSET_INFO.set(FDAI2206, {
   symbol: 'FDAI2206',
   showToken: true,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563373963149313,
   limitToSeries: ['0x303130360000'],
@@ -258,7 +258,7 @@ ASSET_INFO.set(FUSDC2206, {
   symbol: 'FUSDC2206',
   showToken: true,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844848939859969,
   limitToSeries: ['0x303230360000'],
@@ -271,7 +271,7 @@ ASSET_INFO.set(FDAI2209, {
   symbol: 'FDAI2209',
   showToken: true,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563375953805313,
   limitToSeries: ['0x303130370000'],
@@ -284,7 +284,7 @@ ASSET_INFO.set(FUSDC2209, {
   symbol: 'FUSDC2209',
   showToken: true,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844850930515969,
   limitToSeries: ['0x303230370000'],
@@ -309,7 +309,7 @@ ASSET_INFO.set(FRAX, {
   symbol: 'FRAX',
   showToken: true,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC20_,
   limitToSeries: [],
 });
