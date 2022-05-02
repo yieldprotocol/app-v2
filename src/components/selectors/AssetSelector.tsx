@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 
+import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
+
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
@@ -10,6 +12,7 @@ import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
+
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -124,6 +127,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
               {optionText(selectCollateral ? selectedIlk! : selectedBase!)}
             </Box>
           }
+          icon= { isModal ? <FiMoreVertical />: <FiChevronDown/> }
           onChange={({ option }: any) => handleSelect(option)}
           disabled={
             (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||

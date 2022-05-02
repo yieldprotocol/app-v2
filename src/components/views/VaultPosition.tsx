@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity, FiChevronDown } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
@@ -413,6 +413,7 @@ const VaultPosition = () => {
                         { text: 'Remove Collateral', index: 3 },
                         { text: 'View Transaction History', index: 4 },
                       ]}
+                      icon= {<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}

@@ -6,6 +6,7 @@ import { useNetworkSelect } from '../../hooks/useNetworkSelect';
 import { IChainContext } from '../../types';
 import ArbitrumLogo from '../logos/Arbitrum';
 import EthMark from '../logos/EthMark';
+import { FiChevronDown } from 'react-icons/fi';
 
 const NetworkSelector = () => {
   const {
@@ -32,6 +33,7 @@ const NetworkSelector = () => {
         plain
         dropProps={{ round: 'small' }}
         disabled={!account}
+        icon= {<FiChevronDown />}
         options={
           currentNetwork === 'Ethereum'
             ? [

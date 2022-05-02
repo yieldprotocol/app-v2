@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
-import { FiPlusCircle } from 'react-icons/fi';
+import { FiChevronDown, FiPlusCircle } from 'react-icons/fi';
 import { ActionType, IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
 import { UserContext } from '../../contexts/UserContext';
@@ -39,6 +39,7 @@ function VaultDropSelector({
         options={defaultOptionValue ? [{ displayName }, ...vaults] : [...vaults]}
         labelKey={(x: IVault) => x.displayName}
         placeholder={placeholder}
+        icon={<FiChevronDown />}
         value={itemSelected}
         onChange={({ option }) => handleSelect(option)}
         valueLabel={
