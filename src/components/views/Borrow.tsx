@@ -541,7 +541,6 @@ const Borrow = () => {
               />
             </Box>
           )}
-          {/* </Box> */}
 
           <ActionButtonWrap pad>
             {(stepPosition === 0 || stepPosition === 1) && (
