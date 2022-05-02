@@ -168,12 +168,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                     onClickOutside={() => setOpen(false)}
                     style={{ minWidth: mobile ? undefined : '500px', borderRadius: '12px' }}
                   >
-
                   <Box background="background" round="12px">
-                    {/* <Box gap="small" pad="medium" round="small" background="background" fill> */}
-                      {/* <Box alignSelf="end" onClick={() => setOpen(false)}>
-                        <FiX size="1.5rem" />
-                      </Box> */}
 
                       <Box
                         direction="row"

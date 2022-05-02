@@ -244,10 +244,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        // <ShadeBox
-        //   height={mobile ? undefined : '250px'}
-        //   pad={{ vertical: 'small' }}
-        // >
         <Grid columns={mobile ? '100%' : '40%'} gap="small">
           {seriesLoading ? (
             <>
@@ -260,7 +256,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                 key={series.id}
                 pad="xsmall"
                 // eslint-disable-next-line no-nested-ternary
-                round={i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }}
+                round={mobile? 'xlarge' : i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' } }
                 onClick={() => handleSelect(series)}
                 background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
                 elevation="xsmall"
@@ -292,7 +288,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             ))
           )}
         </Grid>
-        // </ShadeBox>
       )}
     </>
   );
