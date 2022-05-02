@@ -54,7 +54,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
                 hoverIndicator={theme === 'dark' ? 'hoverBackground' : 'background'}
                 disabled={a.balance.eq(ethers.constants.Zero)}
               >
-                <Box justify="between" direction="row" align="center" pad={{ horizontal: 'medium', vertical: 'small' }}>
+                <Box justify="between" direction="row" align="center" pad={{ horizontal: 'medium', vertical: mobile? 'medium': 'small' }}>
                   <Box direction="row" gap="small" align="center">
                     <Logo image={a.image} />
                     <Box>
