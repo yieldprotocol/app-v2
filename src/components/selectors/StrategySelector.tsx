@@ -27,6 +27,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
+
 const CardSkeleton = () => (
   <StyledBox round="large" elevation="xsmall" align="center">
     <Box pad="small" width="small" direction="row" gap="small" fill>
@@ -166,14 +167,28 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                     onClickOutside={() => setOpen(false)}
                     style={{ minWidth: mobile ? undefined : '500px', borderRadius: '12px' }}
                   >
-                    <Box gap="small" pad="medium" round="small" background="background" fill>
-                      <Box alignSelf="end" onClick={() => setOpen(false)}>
+
+                  <Box background="background" round="12px">
+                    {/* <Box gap="small" pad="medium" round="small" background="background" fill> */}
+                      {/* <Box alignSelf="end" onClick={() => setOpen(false)}>
                         <FiX size="1.5rem" />
+                      </Box> */}
+
+                      <Box
+                        direction="row"
+                        justify="between"
+                        align="center"
+                        pad="medium"
+                        background="gradient-transparent"
+                        round={{ corner: 'top', size: 'small' }}
+                      >
+                        <Text size="xsmall">Other available {selectedBase?.symbol} strategies:</Text>
+                        <Box onClick={() => setOpen(false)}>
+                          <FiX size="1.5rem" />
+                        </Box>
                       </Box>
 
-                      <Box pad="xsmall">
-                        <Text size="xsmall">Other available {selectedBase?.symbol} strategies:</Text>
-                      </Box>
+                      <Box pad="large">
                       {options.map((strategy) => (
                         <StyledBox
                           key={strategy.id}
@@ -206,6 +221,9 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                           </Box>
                         </StyledBox>
                       ))}
+
+                      </Box>
+
                     </Box>
                   </Layer>
                 )}
