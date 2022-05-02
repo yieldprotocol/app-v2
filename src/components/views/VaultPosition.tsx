@@ -406,6 +406,7 @@ const VaultPosition = () => {
                     <Select
                       dropProps={{ round: 'small' }}
                       plain
+                      size='small'
                       options={[
                         { text: 'Repay Debt', index: 0 },
                         { text: 'Roll Vault', index: 1, disabled: !rollPossible },

@@ -32,6 +32,7 @@ function VaultDropSelector({
       <Select
         defaultValue={undefined}
         plain
+        size='small'
         dropProps={{ round: 'small' }}
         dropAlign={{ bottom: 'top' }}
         dropHeight="300px"

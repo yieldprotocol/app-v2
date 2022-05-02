@@ -31,6 +31,7 @@ const NetworkSelector = () => {
     <Box round>
       <Select
         plain
+        size='small'
         dropProps={{ round: 'small' }}
         disabled={!account}
         icon= {<FiChevronDown />}

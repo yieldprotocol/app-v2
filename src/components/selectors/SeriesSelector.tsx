@@ -211,6 +211,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select
             plain
+            size='small'
             dropProps={{ round: 'large' }}
             id="seriesSelect"
             name="seriesSelect"

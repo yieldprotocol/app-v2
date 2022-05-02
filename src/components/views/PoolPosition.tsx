@@ -215,6 +215,7 @@ const PoolPosition = () => {
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
+                      size='small'
                       dropProps={{ round: 'small' }}
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
