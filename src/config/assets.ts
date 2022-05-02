@@ -196,7 +196,7 @@ ASSET_INFO.set(UNI, {
   decimals: 18,
   symbol: 'UNI',
   showToken: true,
-  isWrappedToken: false,=
+  isWrappedToken: false,
   digitFormat: 4,
   tokenType: TokenType.ERC20_Permit,
 });
