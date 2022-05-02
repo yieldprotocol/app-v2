@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useRouter } from 'next/router';
-import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -230,6 +230,7 @@ const LendPosition = () => {
                         { text: 'View Transaction History', index: 2 },
                         // { text: 'Redeem', index: 3 },
                       ]}
+                      icon= {<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}

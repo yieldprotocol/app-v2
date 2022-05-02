@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -221,6 +221,7 @@ const PoolPosition = () => {
                         { text: 'View Transaction History', index: 1 },
                         // { text: 'Roll Liquidity', index: 2 },
                       ]}
+                      icon= {<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
