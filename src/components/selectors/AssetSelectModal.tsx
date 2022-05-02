@@ -27,7 +27,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
 
   return open ? (
     <Layer animation="fadeIn" onEsc={() => setOpen(false)} onClickOutside={() => setOpen(false)}>
-      <Box background="background" round="xsmall">
+      <Box background="background" round="small">
         <Box
           direction="row"
           justify="between"
