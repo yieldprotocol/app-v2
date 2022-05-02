@@ -7,6 +7,7 @@ import Disclaimer from './Disclaimer';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import GeneralButton from './buttons/GeneralButton';
+import Line from './elements/Line';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -42,10 +43,11 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         justify="between"
         align="center"
         direction="row"
-        background="gradient"
+        background="gradient-transparent"
         pad="medium"
         round={{ corner: 'top', size: 'small' }}
       >
+
         {account && CONNECTORS ? (
           <BackButton
             action={() => {
@@ -59,15 +61,14 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
           </Text>
         )}
 
-        <Button icon={<FiX size="1.5rem" color="text" />} onClick={() => setConnectOpen(false)} plain />
+        {/* <Button icon={<FiX size="1.5rem" color="text" />} onClick={() => setConnectOpen(false)} plain /> */}
       </Box>
+      
       {disclaimerChecked === false && (
-        <Box border={{ color: 'brand' }} round="small" pad="medium">
           <Disclaimer
             checked={disclaimerChecked}
             onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
           />
-        </Box>
       )}
       <Box pad="medium" gap={mobile ? 'large' : 'small'}>
         {[...CONNECTORS.keys()].map((name: string) => {
