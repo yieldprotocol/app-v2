@@ -13,6 +13,7 @@ import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AltText from '../texts/AltText';
 import { ZERO_BN } from '../../utils/constants';
+import Line from '../elements/Line';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -187,6 +188,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                           <FiX size="1.5rem" />
                         </Box>
                       </Box>
+
+                      <Line />
 
                       <Box pad="large">
                       {options.map((strategy) => (
