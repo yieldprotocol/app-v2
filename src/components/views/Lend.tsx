@@ -97,6 +97,7 @@ const Lend = () => {
       )}
 
       <CenterPanelWrap series={selectedSeries} >
+
         {stepPosition === 0 && (
           <>
             <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }} gap="large">
@@ -198,7 +199,12 @@ const Lend = () => {
               )}
 
               <ActiveTransaction full txProcess={lendProcess}>
-                <Box gap="small" round="xsmall" animation={{ type: 'zoomIn', size: 'small' }}>
+                <Box 
+                  pad={{ horizontal: 'medium', vertical: 'medium' }}
+                  gap="small" 
+                  animation={{ type: 'zoomIn', size: 'small' }}
+                  flex={false}         
+                >
                   <InfoBite
                     label="Amount to lend"
                     icon={<BiMessageSquareAdd />}
@@ -213,6 +219,8 @@ const Lend = () => {
                   <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
                 </Box>
               </ActiveTransaction>
+
+
             </Box>
             <Line />
             <Box />
@@ -279,6 +287,7 @@ const Lend = () => {
               />
             )}
         </ActionButtonGroup>
+
       </CenterPanelWrap>
 
       {!mobile && (

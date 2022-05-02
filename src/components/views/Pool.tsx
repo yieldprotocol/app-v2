@@ -32,6 +32,7 @@ import { useProcess } from '../../hooks/useProcess';
 import StrategyItem from '../positionItems/StrategyItem';
 
 import YieldNavigation from '../YieldNavigation';
+import Line from '../elements/Line';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -173,13 +174,11 @@ function Pool() {
               </YieldCardHeader>
 
               <ActiveTransaction full txProcess={poolProcess}>
-                <Box gap="large">
-                  <SectionWrap>
                     <Box
                       gap="small"
-                      pad={{ horizontal: 'large', vertical: 'medium' }}
-                      round="xsmall"
+                      pad={{ horizontal: 'medium', vertical: 'medium' }}
                       animation={{ type: 'zoomIn', size: 'small' }}
+                      flex={false}
                     >
                       <InfoBite
                         label="Maximum Amount to Pool"
@@ -193,9 +192,8 @@ function Pool() {
                         value={`${cleanValue(poolPercentPreview, 2)}%`}
                       />
                     </Box>
-                  </SectionWrap>
-                  <SectionWrap>
-                    <Box direction="row" justify="between" fill align="center">
+  
+                    <Box direction="row" justify="between" fill align="center" pad={{ horizontal: 'small'}} >
                       {!mobile && (
                         <Box direction="row" gap="xsmall">
                           <Tip
@@ -254,10 +252,11 @@ function Pool() {
                         justify="between"
                       />
                     </Box>
-                  </SectionWrap>
-                </Box>
+
               </ActiveTransaction>
+
             </Box>
+            <Line />
           </>
         )}
 

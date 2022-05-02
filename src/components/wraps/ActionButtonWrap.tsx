@@ -40,6 +40,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         gap="small"
         fill="horizontal"
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
+        alignSelf='end'
       >
         {account ? (
           children

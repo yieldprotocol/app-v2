@@ -452,19 +452,20 @@ const Borrow = () => {
                 background="gradient-transparent"
                 round={{ corner: 'top', size: 'xsmall' }}
                 pad="medium"
-                gap="small"
+                gap="medium"
               >
                 {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => handleNavAction(1)} />
                 ) : (
                   <Box pad="1em" />
                 )}
-                <Box pad="medium" direction="row" round="small">
+                
                   <ActiveTransaction full txProcess={borrowProcess}>
                     <Box
-                      gap='large'
-                      pad={{ vertical: 'medium' }}
+                      gap="small"
+                      pad={{ horizontal: 'medium', vertical: 'medium' }}
                       animation={{ type: 'zoomIn', size: 'small' }}
+                      flex={false}
                     >
                       <InfoBite
                         label="Amount to be Borrowed"
@@ -502,7 +503,7 @@ const Borrow = () => {
                       )}
                     </Box>
                   </ActiveTransaction>
-                </Box>
+             
               </Box>
               <Line />
             </>
