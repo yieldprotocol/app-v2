@@ -71,9 +71,6 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
           </Box>
         </Box>
 
-        <Line />
-        <Box pad="medium" background="gradient-transparent" round={{ corner: 'bottom', size: 'xsmall' }} />
-
       </Box>
     </Layer>
   ) : null;
