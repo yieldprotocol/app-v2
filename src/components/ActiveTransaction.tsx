@@ -24,7 +24,7 @@ const InfoBlock = ({
   <>
     {full ? (
       <Box direction="column" align="center" justify="center" gap="large" pad={{ vertical: 'large' }}>
-        <Box gap="medium" align="center">
+        <Box gap="medium">
           <Box direction="row" gap="medium">
             {icon}
             <Text size="large"> {title}</Text>
@@ -76,13 +76,15 @@ const ActiveTransaction = ({
 
   return (
     <Box pad={pad ? { vertical: 'medium' } : undefined}>
+
       {!full && (activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
         <Box justify="between" direction="row" pad="xsmall">
           <Text size="xsmall"> Review Transaction </Text>
           {!full && <CancelButton action={cancelAction ? () => cancelAction() : () => null} />}
         </Box>
       )}
-      <Box background="gradient-transparent" round="xsmall">
+      
+      <Box background={ full? undefined :"gradient-transparent" } round="xsmall">
         {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
           <Box gap="small" pad="small">
             {full && <Text size="medium"> Review Transaction </Text>}
