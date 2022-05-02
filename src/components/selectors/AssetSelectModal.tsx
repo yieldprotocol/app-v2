@@ -43,7 +43,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
         <Line />
 
         <Box width="550px">
-          <Box overflow="auto" height={{ max: '500px' }}>
+          <Box overflow="auto" height={{ max: '500px' }} pad='medium'>
             {assets.map((a) => (
               <Button
                 key={a.id}
