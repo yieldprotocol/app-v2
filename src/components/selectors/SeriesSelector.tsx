@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
+import { FiChevronDown } from 'react-icons/fi';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
@@ -17,7 +18,7 @@ import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { FiChevronDown } from 'react-icons/fi';
+
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -160,7 +161,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </Box>
       )}
       {_series && actionType !== 'POOL' && (
-        <AprText inputValue={_inputValue} series={_series} actionType={actionType} />
+        <AprText inputValue={_inputValue} series={_series} actionType={actionType} color='text' />
       )}
     </Box>
   );
