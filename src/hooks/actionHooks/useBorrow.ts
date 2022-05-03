@@ -62,7 +62,8 @@ export const useBorrow = () => {
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series: ISeries = vault ? seriesMap.get(vault.seriesId)! : selectedSeries!;
     const base: IAsset = assetMap.get(series.baseId)!;
-    const ilk: IAsset = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk?.proxyId)!; // note: we use the wrapped version if required
+
+    const ilkToUse: IAsset = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk?.proxyId)!; // note: we use the wrapped version if required
 
     /* is ETH  used as collateral */
     const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.proxyId);
@@ -76,8 +77,8 @@ export const useBorrow = () => {
     /* parse inputs  (clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
-    const cleanCollInput = cleanValue(collInput, ilk.decimals);
-    const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilk.decimals) : ethers.constants.Zero;
+    const cleanCollInput = cleanValue(collInput, ilkToUse.decimals);
+    const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
     /* Calculate expected debt (fytokens) from either network or calculated */
     const _expectedFyToken = getValuesFromNetwork
@@ -94,11 +95,12 @@ export const useBorrow = () => {
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
-    const _allowance = await ilk.getAllowance(account!, ilk.joinAddress);
+    const _allowance = await ilkToUse.getAllowance(account!, ilkToUse.joinAddress);
+
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_collInput) : _allowance;
     console.log('Already approved', alreadyApproved);
 
-    /* handle ETH deposit as Collateral, if required  (only if collateral used is ETH-based ), else send ZERO_BN */
+    /* handle ETH deposit as Collateral, if required (only if collateral used is ETH-based ), else send ZERO_BN */
     const addEthCallData: ICallData[] = addEth(isEthCollateral ? _collInput : ZERO_BN);
     /* handle remove/unwrap WETH > if ETH is what is being borrowed */
     const removeEthCallData: ICallData[] = removeEth(isEthBase ? ONE_BN : ZERO_BN); // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
@@ -109,14 +111,14 @@ export const useBorrow = () => {
     const permitCallData: ICallData[] = await sign(
       [
         {
-          target: ilk,
-          spender: ilk.joinAddress,
+          target: ilkToUse,
+          spender: ilkToUse.joinAddress,
           amount: _collInput,
           ignoreIf:
             alreadyApproved === true || // Ignore if already approved 
-            ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!) || // Ignore if dealing with an eTH based collateral 
+            ETH_BASED_ASSETS.includes(ilkToUse.id) || // Ignore if dealing with an eTH based collateral 
             _collInput.eq(ethers.constants.Zero) || // ignore if zero collateral value
-            wrapAssetCallData.length > 0, // Ignore if dealing with a wrapped collateral
+            wrapAssetCallData.length > 0, // Ignore if dealing with a wrapped collateral!
         },
       ],
       txCode
@@ -147,7 +149,7 @@ export const useBorrow = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeries?.id, selectedIlk?.proxyId, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeries?.id, ilkToUse.id, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault,
       },
 
@@ -155,7 +157,7 @@ export const useBorrow = () => {
       {
         operation: LadleActions.Fn.MODULE,
         fnName: ModuleActions.Fn.ADD_VAULT,
-        args: [selectedIlk.joinAddress, vaultId] as ModuleActions.Args.ADD_VAULT,
+        args: [ilkToUse.joinAddress, vaultId] as ModuleActions.Args.ADD_VAULT,
         targetContract: ConvexLadleModuleContract,
         ignoreIf: !!vault || !isConvexCollateral,
       },
@@ -182,7 +184,7 @@ export const useBorrow = () => {
       else update ALL vaults (by passing an empty array)
     */
     updateVaults([]);
-    updateAssets([base, ilk, selectedIlk!]);
+    updateAssets([base, ilkToUse, selectedIlk!]);
     updateSeries([series]);
   };
 
