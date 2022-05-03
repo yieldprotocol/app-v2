@@ -27,7 +27,7 @@ const YVUSDCMark = () => {
     <Outer>
       <Logo image={<YFIMark />} height={bottomStackSize} width={bottomStackSize} />
       <Inner>
-        <Logo image={<USDCMark /> } height={topStackSize} width={topStackSize} />
+        <Logo image={<USDCMark />} height={topStackSize} width={topStackSize} />
       </Inner>
     </Outer>
   );
