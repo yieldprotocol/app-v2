@@ -211,7 +211,6 @@ const PoolPosition = () => {
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
-                        // { text: 'Roll Liquidity', index: 2 },
                       ]}
                       icon={<FiChevronDown />}
                       labelKey="text"
