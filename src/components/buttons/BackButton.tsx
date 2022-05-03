@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, ResponsiveContext } from 'grommet';
 import React, { useContext } from 'react';
-import { FiArrowLeft, FiRewind } from 'react-icons/fi';
+import { FiRewind } from 'react-icons/fi';
 import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
@@ -22,9 +22,15 @@ function BackButton({ action }: { action: () => void }) {
 
   return (
     <Box align="center" direction="row">
-      
-      <StyledButton color='grey' onClick={() => action()} icon={ <Avatar border size='2em' pad='xsmall'> <FiRewind /> </Avatar>} />
-      
+      <StyledButton
+        color="grey"
+        onClick={() => action()}
+        icon={
+          <Avatar size="2em" pad="xsmall" elevation='xsmall'>
+            <FiRewind />
+          </Avatar>
+        }
+      />
     </Box>
   );
 }
