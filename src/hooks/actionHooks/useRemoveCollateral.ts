@@ -49,8 +49,8 @@ export const useRemoveCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals)
     
     /* handle wrapped tokens:  */
-    const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account!) : [];
-    const removeEthCallData: ICallData[] =  removeEth(isEthCollateral ? ONE_BN : ZERO_BN) // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+    const unwrapCallData: ICallData[] = unwrapOnRemove && ilk.isWrappedToken ? await unwrapAsset(ilk, account) : [];
+    const removeEthCallData: ICallData[] = isEthCollateral ?  removeEth(ONE_BN) : [] // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
 
     /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */
     const pourToAddress = () => {

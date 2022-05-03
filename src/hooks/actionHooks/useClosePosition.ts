@@ -87,10 +87,12 @@ export const useClosePosition = () => {
       txCode
     );
 
+    const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
+
     /* Set the transferTo address based on series maturity */
     const transferToAddress = () => {
       if (seriesIsMature) return fyTokenAddress;
-      return poolAddress
+      return poolAddress;
     };
 
     /* receiver based on whether base is ETH (- or wrapped Base) */
@@ -98,7 +100,7 @@ export const useClosePosition = () => {
       if (isEthBase) return ladleAddress;
       // if ( unwrapping) return unwrapHandlerAddress;
       return account;
-    }
+    };
 
     const calls: ICallData[] = [
       ...permitCallData,
@@ -128,7 +130,7 @@ export const useClosePosition = () => {
         ignoreIf: !seriesIsMature,
       },
 
-      ...removeEth(isEthBase ? ONE_BN : ZERO_BN), // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+      ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
     updateSeries([series]);

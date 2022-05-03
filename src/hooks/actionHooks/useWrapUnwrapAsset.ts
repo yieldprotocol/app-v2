@@ -78,23 +78,25 @@ export const useWrapUnwrapAsset = () => {
 
   const unwrapAsset = async (asset: IAsset, receiver: string): Promise<ICallData[]> => {
 
-    const unwrapHandlerAddress =  asset.unwrapHandlerAddresses ? asset.unwrapHandlerAddresses.get(chainId) : undefined
+    const unwrapHandlerAddress = asset.unwrapHandlerAddresses ? asset.unwrapHandlerAddresses.get(chainId) : undefined
 
     /* if there is an unwrap handler we assume the token needs to be unwrapped  ( unless the 'unwrapTokens' setting is false) */
     if (unwrapTokens && unwrapHandlerAddress) {
+
       diagnostics && console.log('Unwrapping tokens before return');
-      const wraphandlerContract: Contract = new Contract(unwrapHandlerAddress, wrapHandlerAbi, signer);
+      const unwraphandlerContract: Contract = new Contract(unwrapHandlerAddress, wrapHandlerAbi, signer);
 
       return [
         {
           operation: LadleActions.Fn.ROUTE,
           args: [receiver] as RoutedActions.Args.UNWRAP,
           fnName: RoutedActions.Fn.UNWRAP,
-          targetContract: wraphandlerContract,
+          targetContract: unwraphandlerContract,
           ignoreIf: false,
         },
       ];
     }
+
     /* else return empty array */
     diagnostics && console.log('NOT unwrapping tokens before return');
     return [];

@@ -131,7 +131,7 @@ export const useRepayDebt = () => {
     );
 
     /* Remove ETH collateral. (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero) */
-    const removeEthCallData = removeEth(isEthCollateral ? ONE_BN : ZERO_BN);
+    const removeEthCallData = isEthCollateral ? removeEth(ONE_BN) : [];
 
     /* Address to send the funds to either ladle (if eth is used as collateral) or account */
     const reclaimToAddress = () => {
