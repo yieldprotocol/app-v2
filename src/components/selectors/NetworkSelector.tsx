@@ -31,15 +31,15 @@ const NetworkSelector = () => {
     <Box round>
       <Select
         plain
-        size='small'
+        size="small"
         dropProps={{ round: 'large' }}
         disabled={!account}
-        icon= {<FiChevronDown />}
+        icon={<FiChevronDown />}
         options={
           currentNetwork === 'Ethereum'
             ? [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" >
+                <Box direction="row" gap="small">
                   <Box height="20px" width="20px">
                     <ArbitrumLogo />
                   </Box>
@@ -50,7 +50,7 @@ const NetworkSelector = () => {
               ]
             : [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" >
+                <Box direction="row" gap="small">
                   <EthMark />
                   <Text size="small" color={CHAIN_INFO.get(1)?.color}>
                     Ethereum
