@@ -215,14 +215,14 @@ const PoolPosition = () => {
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
-                      size='small'
+                      size="small"
                       dropProps={{ round: 'small' }}
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
                         // { text: 'Roll Liquidity', index: 2 },
                       ]}
-                      icon= {<FiChevronDown />}
+                      icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
