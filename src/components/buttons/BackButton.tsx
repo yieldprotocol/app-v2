@@ -1,5 +1,5 @@
-import { Avatar, Box, Button, ResponsiveContext } from 'grommet';
-import React, { useContext } from 'react';
+import { Avatar, Box, Button } from 'grommet';
+import React from 'react';
 import { FiRewind } from 'react-icons/fi';
 import styled from 'styled-components';
 
@@ -18,8 +18,6 @@ const StyledButton = styled(Button)`
 `;
 
 function BackButton({ action }: { action: () => void }) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
   return (
     <Box align="center" direction="row">
       <StyledButton
