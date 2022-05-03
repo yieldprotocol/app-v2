@@ -341,10 +341,11 @@ const Borrow = () => {
                   background="gradient-transparent"
                   round={{ corner: 'top', size: 'xsmall' }}
                   pad="medium"
-                  gap="small"
+                  gap="medium"
                 >
                   <BackButton action={() => setStepPosition(0)} />
-                  <Box pad="medium" direction="row" gap="large" justify="center" round="small">
+
+                  <Box pad="medium" direction="row" justify="between" round="small">
                     <Box justify="center">
                       <Gauge
                         value={parseFloat(collateralizationPercent!)}
@@ -354,39 +355,42 @@ const Borrow = () => {
                       />
                     </Box>
 
-                    <Box align="center" gap="small">
-                      <Box align="center">
-                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                          Collateralization
-                        </Text>
-                        <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
-                          {parseFloat(collateralizationPercent!) > 10000
-                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                            : parseFloat(collateralizationPercent!)}
-                          %
-                        </Text>
-                      </Box>
+                    <Box align="center" pad={{ vertical: 'small' }}>
+                      <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                        Collateralization
+                      </Text>
+                      <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
+                        {parseFloat(collateralizationPercent!) > 10000
+                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                          : parseFloat(collateralizationPercent!)}
+                        %
+                      </Text>
+                    </Box>
+                  </Box>
 
+                  <Box gap="small" fill="horizontal" align="end" pad={{ horizontal: 'small' }}>
+                    <Box align="center" direction="row" gap="xsmall">
+                      <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
+                        {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
+                      </Text>
+                      <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
+                    </Box>
+
+                    <Box>
                       {collatInput && (
                         <Box align="center" direction="row" gap="xsmall">
                           <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                            {mobile ? 'Liq. Price :' : 'Liquidiation price :'}{' '}
+                            {mobile ? 'Liq. Price :' : 'Liquidiation when'}{' '}
                           </Text>
                           <Text size={mobile ? 'xsmall' : 'xsmall'}>
-                            {liquidationPrice_} {selectedBase.symbol}
+                            1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
                           </Text>
                         </Box>
                       )}
-
-                      <Box align="center" direction="row" gap="xsmall">
-                        <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                          {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
-                        </Text>
-                        <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
-                      </Box>
                     </Box>
                   </Box>
                 </Box>
+
                 <Line />
 
                 <Box gap="medium" pad="large">
