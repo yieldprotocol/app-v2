@@ -124,12 +124,25 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <Text size="small"> Troubleshooting </Text>
         <GeneralButton action={handleResetApp} background="background">
           <Tip
-            content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
+            plain
+            content={
+              <Box
+                background="background"
+                pad="small"
+                width={{ max: '500px' }}
+                border={{ color: 'gradient-transparent' }}
+                elevation="small"
+                margin={{ vertical: 'small' }}
+                round="small"
+              >
+                <Text size="xsmall">Having issues? Try resetting the app.</Text>
+              </Box>
+            }
             dropProps={{
-              align: { right: 'left' },
+              align: { right: 'left', top: 'bottom' },
             }}
           >
-            <Text size="xsmall"> Reset App </Text>
+            <Text size="xsmall">Reset App</Text>
           </Tip>
         </GeneralButton>
       </Box>
