@@ -117,8 +117,8 @@ export const useBorrow = () => {
           ignoreIf:
             alreadyApproved === true || // Ignore if already approved 
             ETH_BASED_ASSETS.includes(ilkToUse.id) || // Ignore if dealing with an eTH based collateral 
-            _collInput.eq(ethers.constants.Zero) || // ignore if zero collateral value
-            wrapAssetCallData.length > 0, // Ignore if dealing with a wrapped collateral!
+            _collInput.eq(ethers.constants.Zero) // || // ignore if zero collateral value
+            // wrapAssetCallData.length > 0, // Ignore if dealing with a wrapped collateral!
         },
       ],
       txCode
