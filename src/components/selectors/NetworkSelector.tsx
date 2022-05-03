@@ -18,7 +18,7 @@ const NetworkSelector = () => {
 
   const [currentNetwork, setCurrentNetwork] = useState<string>();
   useEffect(() => {
-    [1, 4, 42].includes(fallbackChainId!) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
+    [1, 4, 5, 42].includes(fallbackChainId!) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
   }, [fallbackChainId]);
 
   useNetworkSelect(selectedChainId!);
@@ -58,14 +58,14 @@ const NetworkSelector = () => {
             <Box direction="row" gap="small">
               <EthMark />
               <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                Ethereum {[4, 42, 421611].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name}
+                Ethereum {[4, 5, 42, 421611].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name}
               </Text>
             </Box>
           ) : (
             <Box direction="row" gap="small" round>
               <ArbitrumLogo />
               <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
-                {[4, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
+                {[4, 5, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
               </Text>
             </Box>
           )
