@@ -39,8 +39,9 @@ export const useWrapUnwrapAsset = () => {
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
 
       const wrapHandlerContract: Contract = new Contract(wrapHandlerAddress, wrapHandlerAbi, signer);
-      const assetContract = assetRootMap.get(asset.id); // note -> this is NOT the proxyID
-      diagnostics && console.log('Asset Contract to be signed for wrapping: ', assetContract);
+      const { assetContract }  = assetRootMap.get(asset.id); // note -> this is NOT the proxyID 
+
+      diagnostics && console.log('Asset Contract to be signed for wrapping: ', assetContract.id);
 
       /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
       const permitCallData: ICallData[] = await sign(
@@ -56,7 +57,7 @@ export const useWrapUnwrapAsset = () => {
       );
 
       return [
-        ...permitCallData,
+         ...permitCallData,
         {
           operation: LadleActions.Fn.TRANSFER,
           args: [asset.address, wrapHandlerAddress, value] as LadleActions.Args.TRANSFER,
