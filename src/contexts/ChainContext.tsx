@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BigNumber, Contract, ethers } from 'ethers';
-
+import { Avatar } from 'grommet';
 import { format } from 'date-fns';
 
 import { useCachedState } from '../hooks/generalHooks';
@@ -32,6 +32,7 @@ import { AssetAddedEvent, SeriesAddedEvent } from '../contracts/Cauldron';
 import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 // import TriCRVCVXMark from '../components/logos/3CRVMark';
 import FRAXMark from '../components/logos/FRAXMark';
+import WrappedTokenMark from '../components/logos/WrappedTokenMark';
 
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
@@ -41,7 +42,7 @@ const markMap = new Map([
   ['ETH', <EthMark key="eth" />],
   ['USDT', <USDTMark key="eth" />],
   ['LINK', <LINKMark key="link" />],
-  ['wstETH', <StEthMark key="wsteth" />],
+  ['wstETH', <WrappedTokenMark tokenMark = {<StEthMark />} key="wsteth" />],
   ['stETH', <StEthMark key="steth" />],
   ['ENS', <ENSMark key="ens" />],
   ['UNI', <UNIMark key="uni" />],
@@ -546,13 +547,10 @@ const ChainProvider = ({ children }: any) => {
         const newStrategyList: any[] = [];
         try {
           await Promise.all(
-            strategyAddresses
-            .map(async (strategyAddr) => {
-
+            strategyAddresses.map(async (strategyAddr) => {
               /* if the strategy is NOT already in the cache : */
-              if ( cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
-
-                console.log( 'updating constracrt ', strategyAddr)
+              if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
+                console.log('updating constracrt ', strategyAddr);
 
                 const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
                 const [name, symbol, baseId, decimals, version] = await Promise.all([
@@ -582,10 +580,7 @@ const ChainProvider = ({ children }: any) => {
           console.log('Error fetching strategies', e);
         }
 
-        const _filteredCachedStrategies = cachedStrategies
-        .filter((s:any) =>
-          strategyAddresses.includes(s.address)
-        )
+        const _filteredCachedStrategies = cachedStrategies.filter((s: any) => strategyAddresses.includes(s.address));
 
         setCachedStrategies([..._filteredCachedStrategies, ...newStrategyList]);
         console.log('Yield Protocol Strategy data updated.');
@@ -609,10 +604,8 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
-
-          strategyAddresses.includes( st.address ) &&
-          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
-          
+          strategyAddresses.includes(st.address) &&
+            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
 
