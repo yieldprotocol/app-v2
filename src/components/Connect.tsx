@@ -6,6 +6,7 @@ import Disclaimer from './Disclaimer';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import GeneralButton from './buttons/GeneralButton';
+import YieldMark from './logos/YieldMark';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -54,9 +55,12 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
             }}
           />
         ) : (
-          <Text size="small" color="text">
+          <Box fill='horizontal' direction='row' gap='small' align='center' >
+          <Box height='1.5em'> <YieldMark /> </Box>
+          <Text size="medium" weight='lighter' color="text">
             Connect a wallet
           </Text>
+          </Box>
         )}
 
         {/* <Button icon={<FiX size="1.5rem" color="text" />} onClick={() => setConnectOpen(false)} plain /> */}
