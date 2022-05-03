@@ -46,7 +46,6 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         pad="medium"
         round={{ corner: 'top', size: 'small' }}
       >
-
         {account && CONNECTORS ? (
           <BackButton
             action={() => {
@@ -55,22 +54,25 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
             }}
           />
         ) : (
-          <Box fill='horizontal' direction='row' gap='small' align='center' >
-          <Box height='1.5em'> <YieldMark /> </Box>
-          <Text size="medium" weight='lighter' color="text">
-            Connect a wallet
-          </Text>
+          <Box fill="horizontal" direction="row" gap="small" align="center">
+            <Box height="1.5em">
+              {' '}
+              <YieldMark />{' '}
+            </Box>
+            <Text size="medium" weight="lighter" color="text">
+              Connect a wallet
+            </Text>
           </Box>
         )}
 
         {/* <Button icon={<FiX size="1.5rem" color="text" />} onClick={() => setConnectOpen(false)} plain /> */}
       </Box>
-      
+
       {disclaimerChecked === false && (
-          <Disclaimer
-            checked={disclaimerChecked}
-            onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
-          />
+        <Disclaimer
+          checked={disclaimerChecked}
+          onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
+        />
       )}
       <Box pad="medium" gap={mobile ? 'large' : 'small'}>
         {[...CONNECTORS.keys()].map((name: string) => {
