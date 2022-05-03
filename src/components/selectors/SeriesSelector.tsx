@@ -19,7 +19,6 @@ import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
-
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
 -moz-transition: transform 0.3s ease-in-out;
@@ -161,7 +160,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </Box>
       )}
       {_series && actionType !== 'POOL' && (
-        <AprText inputValue={_inputValue} series={_series} actionType={actionType} color='text' />
+        <AprText inputValue={_inputValue} series={_series} actionType={actionType} color="text" />
       )}
     </Box>
   );
