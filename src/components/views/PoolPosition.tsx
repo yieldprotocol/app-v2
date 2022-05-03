@@ -322,7 +322,6 @@ const PoolPosition = () => {
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
                 removeProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-                  // !(removeTx.success || removeTx.failed) && (
                   <TransactButton
                     primary
                     label={
