@@ -197,15 +197,6 @@ const PoolPosition = () => {
                         loading={seriesLoading}
                       />
                     )}
-
-                    {/* {selectedStrategy.currentSeries && accountTradeValue && (
-                      <InfoBite
-                        label="Strategy Token Value"
-                        value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.displaySymbol}`}
-                        icon={<FiTrendingUp />}
-                        loading={seriesLoading}
-                      />
-                    )} */}
                   </Box>
                 </SectionWrap>
               </Box>
