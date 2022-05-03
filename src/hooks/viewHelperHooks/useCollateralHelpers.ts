@@ -50,7 +50,7 @@ export const useCollateralHelpers = (
   const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
   const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
   const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
-  
+
   const [totalDebt, setTotalDebt] = useState<BigNumber>();
   const [totalDebt_, setTotalDebt_] = useState<string | undefined>();
 
@@ -69,7 +69,7 @@ export const useCollateralHelpers = (
 
       /* set min safe coll ratio */
       const _minSafe = () => {
-        if (assetPairInfo.minRatio >= 1.5 ) return assetPairInfo.minRatio + 1;  // eg. 150% -> 250%
+        if (assetPairInfo.minRatio >= 1.5) return assetPairInfo.minRatio + 1; // eg. 150% -> 250%
         if (assetPairInfo.minRatio < 1.5 && assetPairInfo.minRatio >= 1.4) return assetPairInfo.minRatio + 0.65; // eg. 140% -> 200%
         if (assetPairInfo.minRatio < 1.4 && assetPairInfo.minRatio > 1.1) return assetPairInfo.minRatio + 0.1; // eg. 133% -> 143%
         return assetPairInfo.minRatio; // eg. 110% -> 110%
@@ -78,20 +78,19 @@ export const useCollateralHelpers = (
       setMinSafeCollatRatio(_minSafe());
       setMinSafeCollatRatioPct((_minSafe() * 100).toString());
 
-      const liqPrice =
-        vault 
+      const liqPrice = vault
         ? cleanValue(
-          calcLiquidationPrice(vault?.ink_, vault.accruedArt_, assetPairInfo.minRatio),
-          _selectedBase?.digitFormat
-        )
+            calcLiquidationPrice(vault?.ink_, vault.accruedArt_, assetPairInfo.minRatio),
+            _selectedBase?.digitFormat
+          )
         : cleanValue(
-          calcLiquidationPrice(totalCollateral_, totalDebt_, assetPairInfo.minRatio),
-          _selectedBase?.digitFormat
-        )
+            calcLiquidationPrice(totalCollateral_, totalDebt_, assetPairInfo.minRatio),
+            _selectedBase?.digitFormat
+          );
 
       setLiquidationPrice_(liqPrice || '0');
     }
-  }, [_selectedBase, assetPairInfo, vault, totalCollateral_, totalDebt_ ]);
+  }, [_selectedBase, assetPairInfo, vault, totalCollateral_, totalDebt_]);
 
   /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {
@@ -203,7 +202,7 @@ export const useCollateralHelpers = (
     collateralizationRatio &&
     vault &&
     vault.accruedArt?.gt(ethers.constants.Zero) &&
-    assetPairInfo?.minRatio! > 1.2 && 
+    assetPairInfo?.minRatio! > 1.2 &&
     parseFloat(collateralizationRatio) > 0 &&
     parseFloat(collateralizationRatio) < assetPairInfo?.minRatio! + 0.2
       ? setUnhealthyCollatRatio(true)
