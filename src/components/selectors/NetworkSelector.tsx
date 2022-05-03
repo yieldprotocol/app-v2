@@ -51,7 +51,9 @@ const NetworkSelector = () => {
             : [
                 // eslint-disable-next-line react/jsx-key
                 <Box direction="row" gap="small">
-                  <EthMark />
+                  <Box height="20px" width="20px">
+                    <EthMark />
+                  </Box>
                   <Text size="small" color={CHAIN_INFO.get(1)?.color}>
                     Ethereum
                   </Text>
