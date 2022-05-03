@@ -26,7 +26,7 @@ function BackButton({ action }: { action: () => void }) {
         color="grey"
         onClick={() => action()}
         icon={
-          <Avatar size="2em" pad="xsmall" elevation='xsmall'>
+          <Avatar size="2em" pad="xsmall" elevation="xsmall">
             <FiRewind />
           </Avatar>
         }
