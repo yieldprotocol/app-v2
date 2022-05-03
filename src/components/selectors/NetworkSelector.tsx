@@ -18,6 +18,7 @@ const NetworkSelector = () => {
   const [selectedChainId, setSelectedChainId] = useState<number | undefined>();
 
   const [currentNetwork, setCurrentNetwork] = useState<string>();
+
   useEffect(() => {
     [1, 4, 42].includes(fallbackChainId!) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
   }, [fallbackChainId]);
