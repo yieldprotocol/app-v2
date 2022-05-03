@@ -97,7 +97,6 @@ const Lend = () => {
       )}
 
       <CenterPanelWrap series={selectedSeries}>
-
         <Box id="topsection">
           {stepPosition === 0 && (
             <>
@@ -185,12 +184,7 @@ const Lend = () => {
           )}
           {stepPosition === 1 && (
             <>
-              <Box
-                background="gradient-transparent"
-                round={{ corner: 'top', size: 'xsmall' }}
-                pad="medium"
-                gap="large"
-              >
+              <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium" gap="large">
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
                 ) : (
@@ -227,7 +221,7 @@ const Lend = () => {
           )}
         </Box>
 
-        <Box id="midsection" pad='medium'>
+        <Box id="midsection" pad="medium">
           {stepPosition === 1 &&
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
