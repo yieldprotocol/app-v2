@@ -176,7 +176,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                         background="gradient-transparent"
                         round={{ corner: 'top', size: 'small' }}
                       >
-                        <Text size="xsmall">Other available {selectedBase?.symbol} strategies:</Text>
+                        <Text size="small">Select Strategy</Text>
                         <Box onClick={() => setOpen(false)}>
                           <FiX size="1.5rem" />
                         </Box>
