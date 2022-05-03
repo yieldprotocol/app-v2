@@ -223,7 +223,7 @@ const LendPosition = () => {
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
-                      size='small'
+                      size="small"
                       dropProps={{ round: 'small' }}
                       options={[
                         { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
@@ -231,7 +231,7 @@ const LendPosition = () => {
                         { text: 'View Transaction History', index: 2 },
                         // { text: 'Redeem', index: 3 },
                       ]}
-                      icon= {<FiChevronDown />}
+                      icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
