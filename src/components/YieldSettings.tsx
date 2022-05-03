@@ -53,17 +53,13 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
-        <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
-          <FiX size="1.5rem" />
-        </Box>
-
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
             <YieldAvatar address={account} size={7} />
           </Box>
         )}
 
-        <Box align="end">
+        <Box align="end" pad={{ vertical: 'small' }}>
           {!mobile && currentChainInfo.explorer && (
             <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
               <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
