@@ -45,7 +45,9 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
 
         <Box width="550px">
           <Box overflow="auto" height={{ max: '600px' }} pad={{vertical:'small', horizontal:'large'}} gap='small'>
-            {assets.map((a) => (
+            {assets
+            .sort((a,b) => parseInt(b.balance_, 10) - parseInt(a.balance_,10) )
+            .map((a) => (
               <Button
                 key={a.id}
                 onClick={() => {
