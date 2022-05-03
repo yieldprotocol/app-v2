@@ -218,7 +218,7 @@ function Pool() {
                         border={{ color: 'gradient-transparent' }}
                         elevation="small"
                         margin={{ vertical: 'small' }}
-                        round='small'
+                        round="small"
                       >
                         <Text size="small">
                           Providing liquidity requires adding both {selectedBase?.symbol} and fy
