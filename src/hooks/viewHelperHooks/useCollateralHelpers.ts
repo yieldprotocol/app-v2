@@ -1,4 +1,3 @@
-import { enGB } from 'date-fns/locale';
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
