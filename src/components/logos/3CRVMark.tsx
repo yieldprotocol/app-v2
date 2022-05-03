@@ -1,4 +1,4 @@
-import { Avatar, Box } from 'grommet';
+import { Box } from 'grommet';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import CRVMark from './CRVMark';
@@ -38,7 +38,7 @@ const TriCRVCVXMark = () => {
       <Inner>
         <Outer>
           <Logo image={<CRVMark />} height={topStackSize} width={topStackSize} />
-              <TinyNum>3</TinyNum>
+          <TinyNum>3</TinyNum>
         </Outer>
       </Inner>
     </Outer>
