@@ -49,7 +49,7 @@ function PositionAvatar({
   const baseImageSize = condensed ? '20px' : '24px';
   const ilkImageSize = condensed ? '16px' : '20px';
 
-  const ilkBorderSize = condensed ? '18px': '22px';
+  const ilkBorderSize = condensed ? '18px' : '22px';
 
   return (
     <Outer width={condensed ? '36px' : 'auto'}>
@@ -59,7 +59,7 @@ function PositionAvatar({
         </Box>
         <Inner>
           {actionType === ActionType.BORROW && (
-            <Avatar background="lightBackground" size={ilkBorderSize} >
+            <Avatar background="lightBackground" size={ilkBorderSize}>
               <Stack>
                 <Logo image={ilk.image} height={ilkImageSize} width={ilkImageSize} />
               </Stack>
