@@ -229,7 +229,6 @@ const LendPosition = () => {
                         { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
-                        // { text: 'Redeem', index: 3 },
                       ]}
                       icon={<FiChevronDown />}
                       labelKey="text"
