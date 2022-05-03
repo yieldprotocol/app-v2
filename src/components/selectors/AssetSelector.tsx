@@ -13,7 +13,6 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 
-
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
   isModal?: boolean;
@@ -49,7 +48,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     asset ? (
       <Box direction="row" align="center" gap="small">
         <Logo image={asset.image} />
-        <Text color="text" size='small'>{asset?.displaySymbol}</Text>
+        <Text color="text" size="small">
+          {asset?.displaySymbol}
+        </Text>
       </Box>
     ) : (
       <Skeleton width={50} />
@@ -127,13 +128,13 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
               {optionText(selectCollateral ? selectedIlk! : selectedBase!)}
             </Box>
           }
-          icon= { isModal ? <FiMoreVertical />: <FiChevronDown/> }
+          icon={isModal ? <FiMoreVertical /> : <FiChevronDown />}
           onChange={({ option }: any) => handleSelect(option)}
           disabled={
             (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
             (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
           }
-          size='small'
+          size="small"
           // eslint-disable-next-line react/no-children-prop
           children={(x: any) => (
             <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
