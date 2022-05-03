@@ -107,7 +107,6 @@ const Lend = () => {
                     <AltText color="text-weak" size="xsmall">
                       Lend popular ERC20 tokens for{' '}
                       <Text size="small" color="text">
-                        {' '}
                         fixed returns
                       </Text>
                     </AltText>
