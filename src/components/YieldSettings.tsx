@@ -104,13 +104,18 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Box>
           </Collapsible>
         </Box>
+
       </Box>
 
       {!mobile && (
-        <Box pad="medium" background="gradient" flex={false}>
+        <Box  background="gradient-transparent" flex={false}>
+          <Box pad='medium' background="gradient-transparent" >
           <NetworkSetting />
+          </Box>
         </Box>
       )}
+
+
 
       <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />

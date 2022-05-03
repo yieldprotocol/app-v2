@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { Box, Select, Text } from 'grommet';
+import { FiChevronDown } from 'react-icons/fi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { CHAIN_INFO } from '../../config/chainData';
 import { useNetworkSelect } from '../../hooks/useNetworkSelect';
 import { IChainContext } from '../../types';
 import ArbitrumLogo from '../logos/Arbitrum';
 import EthMark from '../logos/EthMark';
-import { FiChevronDown } from 'react-icons/fi';
 
 const NetworkSelector = () => {
   const {
@@ -32,14 +32,14 @@ const NetworkSelector = () => {
       <Select
         plain
         size='small'
-        dropProps={{ round: 'small' }}
+        dropProps={{ round: 'large' }}
         disabled={!account}
         icon= {<FiChevronDown />}
         options={
           currentNetwork === 'Ethereum'
             ? [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" pad="xsmall" round>
+                <Box direction="row" gap="small" >
                   <Box height="20px" width="20px">
                     <ArbitrumLogo />
                   </Box>
@@ -50,7 +50,7 @@ const NetworkSelector = () => {
               ]
             : [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" pad="xsmall" round>
+                <Box direction="row" gap="small" >
                   <EthMark />
                   <Text size="small" color={CHAIN_INFO.get(1)?.color}>
                     Ethereum
