@@ -229,7 +229,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
             <Box>
               <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
                 <AltText size="xsmall" color="text-weak">
-                  Choose a different strategy
+                  Select a different strategy
                 </AltText>
               </StyledBox>
             </Box>
