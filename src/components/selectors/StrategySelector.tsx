@@ -28,7 +28,6 @@ const StyledBox = styled(Box)`
   }
 `;
 
-
 const CardSkeleton = () => (
   <StyledBox round="large" elevation="xsmall" align="center">
     <Box pad="small" width="small" direction="row" gap="small" fill>
@@ -168,8 +167,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                     onClickOutside={() => setOpen(false)}
                     style={{ minWidth: mobile ? undefined : '500px', borderRadius: '12px' }}
                   >
-                  <Box background="background" round="12px">
-
+                    <Box background="background" round="12px">
                       <Box
                         direction="row"
                         justify="between"
@@ -187,41 +185,39 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                       <Line />
 
                       <Box pad="large">
-                      {options.map((strategy) => (
-                        <StyledBox
-                          key={strategy.id}
-                          pad="xsmall"
-                          round="large"
-                          onClick={() => handleSelect(strategy)}
-                          background={strategy.currentSeries?.color}
-                          elevation="xsmall"
-                          margin="xsmall"
-                        >
-                          <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
-                            <Avatar
-                              background="background"
-                              style={{
-                                boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
-                                  .toString()
-                                  .concat('69')}`,
-                              }}
-                            >
-                              {strategy.currentSeries?.seriesMark || <FiSlash />}
-                            </Avatar>
-                            <Box>
-                              <Text size="small" color={strategy.currentSeries?.textColor}>
-                                {formatStrategyName(selectedStrategy?.name!)}
-                              </Text>
-                              <Text size="xsmall" color={strategy.currentSeries?.textColor}>
-                                Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
-                              </Text>
+                        {options.map((strategy) => (
+                          <StyledBox
+                            key={strategy.id}
+                            pad="xsmall"
+                            round="large"
+                            onClick={() => handleSelect(strategy)}
+                            background={strategy.currentSeries?.color}
+                            elevation="xsmall"
+                            margin="xsmall"
+                          >
+                            <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
+                              <Avatar
+                                background="background"
+                                style={{
+                                  boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
+                                    .toString()
+                                    .concat('69')}`,
+                                }}
+                              >
+                                {strategy.currentSeries?.seriesMark || <FiSlash />}
+                              </Avatar>
+                              <Box>
+                                <Text size="small" color={strategy.currentSeries?.textColor}>
+                                  {formatStrategyName(selectedStrategy?.name!)}
+                                </Text>
+                                <Text size="xsmall" color={strategy.currentSeries?.textColor}>
+                                  Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
+                                </Text>
+                              </Box>
                             </Box>
-                          </Box>
-                        </StyledBox>
-                      ))}
-
+                          </StyledBox>
+                        ))}
                       </Box>
-
                     </Box>
                   </Layer>
                 )}
