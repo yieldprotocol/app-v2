@@ -160,7 +160,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const seasonColorMap = [1, 4, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
+      const seasonColorMap = [1, 4, 5, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: contracts.Cauldron;
       let Ladle: contracts.Ladle;
@@ -190,7 +190,7 @@ const ChainProvider = ({ children }: any) => {
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
         // ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
 
-        if ([1, 4, 42].includes(fallbackChainId)) {
+        if ([1, 4, 5, 42].includes(fallbackChainId)) {
           RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
@@ -228,7 +228,7 @@ const ChainProvider = ({ children }: any) => {
       }
 
       if (
-        [1, 4, 42].includes(fallbackChainId) &&
+        [1, 4, 5, 42].includes(fallbackChainId) &&
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
