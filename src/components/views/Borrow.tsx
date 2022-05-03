@@ -386,7 +386,9 @@ const Borrow = () => {
                             1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
                           </Text>
                         </Box>
-                      ) : <Box pad='xsmall' /> }
+                      ) : (
+                        <Box pad="xsmall" />
+                      )}
                     </Box>
                   </Box>
                 </Box>
