@@ -239,11 +239,11 @@ function Pool() {
                           <Text size="xsmall">Borrow & Pool:</Text>
                           <Text size="xsmall" weight="lighter">
                             Provide liquidity by using {selectedBase?.symbol} to borrow the required fy
-                            {selectedBase?.symbol} from the protocol.
+                            {selectedBase?.symbol} from the protocol
                           </Text>
                           <Text size="xsmall" weight="lighter">
-                            ( This method is typically used when providing a large amount of liquidity, or in
-                            liquidity-limited situations )
+                            (this method is typically used when providing a large amount of liquidity, or in
+                            liquidity-limited situations)
                           </Text>
                         </Box>
                       </Box>
