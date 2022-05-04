@@ -195,7 +195,7 @@ const ChainProvider = ({ children }: any) => {
       }
 
       if (
-        [1, 4, 42].includes(fallbackChainId) &&
+        [1, 4, 5, 42].includes(fallbackChainId) &&
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
