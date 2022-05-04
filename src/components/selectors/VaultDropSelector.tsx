@@ -22,13 +22,13 @@ function VaultDropSelector({
   placeholder,
   defaultOptionValue,
 }: IVaultDropSelectorProps) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  
   const {
     userState: { selectedIlk },
   } = useContext(UserContext);
 
   return (
-    <Box elevation="xsmall" background="hoverBackground" round>
+    <Box elevation="xsmall" background="hoverBackground" round='xlarge'>
       <Select
         defaultValue={undefined}
         plain
@@ -45,12 +45,12 @@ function VaultDropSelector({
         onChange={({ option }) => handleSelect(option)}
         valueLabel={
           itemSelected?.id ? (
-            <Box pad={mobile ? 'medium' : 'xsmall'} direction="row" gap="medium" align="center">
+            <Box pad='small' direction="row" gap="medium" align="center" round='xlarge'>
               <PositionAvatar position={itemSelected} condensed actionType={ActionType.BORROW} />
               <Text size="xsmall">{itemSelected?.displayName}</Text>
             </Box>
           ) : (
-            <Box pad={mobile ? 'medium' : 'small'} direction="row" gap="medium" align="center">
+            <Box pad='small' direction="row" gap="medium" align="center">
               <FiPlusCircle color="lightgrey" />
               <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="xsmall">
                 {displayName}
@@ -62,7 +62,7 @@ function VaultDropSelector({
         children={(x: IVault) => (
           <>
             {x.id ? (
-              <Box pad="small" direction="row" gap="small" align="center" background="">
+              <Box pad="small" direction="row" gap="small" align="center">
                 <PositionAvatar position={x} condensed actionType={ActionType.BORROW} />
                 <Box>
                   <Text size="xsmall" >
@@ -77,7 +77,7 @@ function VaultDropSelector({
                 </Box>
               </Box>
             ) : (
-              <Box pad="small" direction="row" gap="small" align="center" background="">
+              <Box pad="medium" direction="row" gap="small" align="center" >
                 <FiPlusCircle color="lightgrey" />
                 <Text color="text-weak" size="xsmall">
                   {x.displayName}
