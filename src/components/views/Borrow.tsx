@@ -340,7 +340,7 @@ const Borrow = () => {
                   background="gradient-transparent"
                   round={{ corner: 'top', size: 'xsmall' }}
                   pad="medium"
-                  gap="medium"
+                  gap="medium" 
                 >
                   <BackButton action={() => setStepPosition(0)} />
 
@@ -470,6 +470,7 @@ const Borrow = () => {
                   round={{ corner: 'top', size: 'xsmall' }}
                   pad="medium"
                   gap="medium"
+                  height={{ min: '350px' }}
                 >
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => handleNavAction(1)} />
