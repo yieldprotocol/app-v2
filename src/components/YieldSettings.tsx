@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
-import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
+import { FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
@@ -14,6 +14,7 @@ import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
 import NetworkSetting from './settings/NetworkSetting';
+import BackButton from './buttons/BackButton';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,6 +54,10 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
+
+        {mobile && (
+          <BackButton  action= { () =>  setSettingsOpen(false) }  /> 
+        )}
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
             <YieldAvatar address={account} size={7} />
@@ -69,7 +74,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Anchor>
           )}
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-            {mobile && <YieldAvatar address={account} size={2} />}
+            {mobile && <YieldAvatar address={account} size={4} />}
             <CopyWrap hash={account}>
               <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(account, 6)}</Text>
             </CopyWrap>
