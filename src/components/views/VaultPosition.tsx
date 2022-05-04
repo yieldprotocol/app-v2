@@ -512,6 +512,7 @@ const VaultPosition = () => {
                         txProcess={repayProcess}
                         cancelAction={() => resetInputs(ActionCodes.REPAY)}
                       >
+                        <Box gap='small'>
                         <InfoBite
                           label="Repay Debt"
                           icon={<FiArrowRight />}
@@ -533,6 +534,7 @@ const VaultPosition = () => {
                             />
                           </Box>
                         )}
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -698,7 +700,7 @@ const VaultPosition = () => {
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
                         cancelAction={() => resetInputs(ActionCodes.REMOVE_COLLATERAL)}
                       >
-                        <Box>
+         
                           <InfoBite
                             label="Remove Collateral"
                             icon={<FiArrowRight />}
@@ -706,7 +708,7 @@ const VaultPosition = () => {
                               vaultIlk?.displaySymbol
                             }`}
                           />
-                        </Box>
+           
                       </ActiveTransaction>
                     )}
                   </>

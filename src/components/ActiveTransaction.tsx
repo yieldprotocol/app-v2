@@ -77,15 +77,16 @@ const ActiveTransaction = ({
   return (
     <Box pad={pad ? { vertical: 'medium' } : undefined}>
       {!full && (activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
-        <Box justify="between" direction="row" pad="xsmall">
+        <Box justify="between" direction="row" pad="xsmall" >
           <Text size="xsmall"> Review Transaction </Text>
           {!full && <CancelButton action={cancelAction ? () => cancelAction() : () => null} />}
         </Box>
       )}
+
       <Box
         background={full ? undefined : 'gradient-transparent'}
         round="xsmall"
-        pad={full ? { horizontal: 'large' } : undefined}
+        pad={full ? { horizontal: 'large' } : 'small'}
       >
         {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
           <>
