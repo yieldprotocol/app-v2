@@ -336,12 +336,7 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <>
-                <Box
-                  background="gradient-transparent"
-                  round={{ corner: 'top', size: 'xsmall' }}
-                  pad="medium"
-                  gap="medium"
-                >
+                <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
                   <BackButton action={() => setStepPosition(0)} />
 
                   <Box pad="medium" direction="row" justify="between" round="small">
@@ -367,7 +362,7 @@ const Borrow = () => {
                     </Box>
                   </Box>
 
-                  <Box gap="small" fill="horizontal" align="end" pad={{ horizontal: 'small' }}>
+                  <Box gap="xsmall" fill="horizontal" align="end" pad={{ horizontal: 'medium' }}>
                     <Box align="center" direction="row" gap="xsmall">
                       <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
                         Minimum
