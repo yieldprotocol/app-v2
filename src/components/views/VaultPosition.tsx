@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity, FiChevronDown } from 'react-icons/fi';
 import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
@@ -44,6 +44,7 @@ import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
+import Logo from '../logos/Logo';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -405,6 +406,7 @@ const VaultPosition = () => {
                     <Select
                       dropProps={{ round: 'small' }}
                       plain
+                      size='small'
                       options={[
                         { text: 'Repay Debt', index: 0 },
                         { text: 'Roll Vault', index: 1, disabled: !rollPossible },
@@ -412,6 +414,7 @@ const VaultPosition = () => {
                         { text: 'Remove Collateral', index: 3 },
                         { text: 'View Transaction History', index: 4 },
                       ]}
+                      icon= {<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
@@ -436,7 +439,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRepayInput(cleanValue(event.target.value, vaultBase?.decimals))
                             }
-                            icon={<>{vaultBase?.image}</>}
+                            icon={<Logo image={vaultBase.image} />}
                           />
                           <MaxButton
                             action={() => setRepayInput(maxRepay.gt(minRepayable) ? maxRepay_ : minRepayable_)}
@@ -599,7 +602,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setAddCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                            icon={<>{vaultIlk?.image}</>}
+                            icon={<Logo image={vaultIlk.image} />}
                           />
                           <MaxButton
                             // disabled={removeCollatInput}
@@ -656,7 +659,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRemoveCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                            icon={<>{vaultIlk?.image}</>}
+                            icon={<Logo image={vaultIlk.image} />}
                           />
                           <MaxButton
                             action={() => setRemoveCollatInput(maxRemovableCollateral)}

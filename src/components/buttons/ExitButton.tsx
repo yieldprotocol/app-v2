@@ -30,8 +30,8 @@ function ExitButton({ action }: { action: () => void }) {
       elevation="small"
       background="background"
     >
-      {hover && <Text size="0.5em"> Close </Text>}
-      <FiLogOut color={hover ? 'text' : 'text-weak'} />
+      {hover && <Text size="xsmall"> Close </Text>}
+      {!hover && <FiLogOut color={hover ? 'text' : 'text-weak'} />}
     </StyledAvatar>
   );
 }

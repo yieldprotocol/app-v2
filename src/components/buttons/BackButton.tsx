@@ -1,17 +1,16 @@
-import { Box, Button, ResponsiveContext } from 'grommet';
-import React, { useContext } from 'react';
-import { FiArrowLeft } from 'react-icons/fi';
+import { Avatar, Box, Button } from 'grommet';
+import React from 'react';
+import { FiRewind } from 'react-icons/fi';
 import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
   -webkit-transition: transform 0.3s ease-in-out;
   -moz-transition: transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
-  color: #3f53d9;
   padding: 0;
   :hover {
-    transform: scale(1.1);
-    color: #1d4ed8;
+    transform: scale(1.2);
+    color: #444444;
   }
   :active {
     transform: scale(1);
@@ -19,11 +18,17 @@ const StyledButton = styled(Button)`
 `;
 
 function BackButton({ action }: { action: () => void }) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
   return (
     <Box align="center" direction="row">
-      <StyledButton onClick={() => action()} icon={<FiArrowLeft size={mobile ? '1.5em' : '1.5em'} />} />
+      <StyledButton
+        color="grey"
+        onClick={() => action()}
+        icon={
+          <Avatar size="2em" pad="xsmall" elevation="xsmall">
+            <FiRewind />
+          </Avatar>
+        }
+      />
     </Box>
   );
 }

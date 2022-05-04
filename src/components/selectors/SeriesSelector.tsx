@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
+import { FiChevronDown } from 'react-icons/fi';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
@@ -70,10 +71,12 @@ const AprText = ({
   inputValue,
   series,
   actionType,
+  color,
 }: {
   inputValue: string | undefined;
   series: ISeries;
   actionType: ActionType;
+  color: string;
 }) => {
   const _inputValue = cleanValue(inputValue, series.decimals);
   const { apr } = useApr(_inputValue, actionType, series);
@@ -99,7 +102,7 @@ const AprText = ({
   return (
     <>
       {!series?.seriesIsMature && !limitHit && (
-        <Text size="1.2em">
+        <Text size="1.2em" color={color}>
           {apr} <Text size="xsmall">% {[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
@@ -112,7 +115,9 @@ const AprText = ({
 
       {series.seriesIsMature && (
         <Box direction="row" gap="xsmall" align="center">
-          <Text size="xsmall">Mature</Text>
+          <Text size="xsmall" color={color}>
+            Mature
+          </Text>
         </Box>
       )}
     </>
@@ -155,7 +160,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </Box>
       )}
       {_series && actionType !== 'POOL' && (
-        <AprText inputValue={_inputValue} series={_series} actionType={actionType} />
+        <AprText inputValue={_inputValue} series={_series} actionType={actionType} color="text" />
       )}
     </Box>
   );
@@ -210,6 +215,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select
             plain
+            size="small"
             dropProps={{ round: 'large' }}
             id="seriesSelect"
             name="seriesSelect"
@@ -217,14 +223,20 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             options={options}
             value={_selectedSeries!}
             labelKey={(x: any) => optionText(x)}
+            icon={<FiChevronDown />}
             valueLabel={
               options.length ? (
                 <Box pad={mobile ? 'medium' : 'small'}>
-                  <Text color="text"> {optionExtended(_selectedSeries!)}</Text>
+                  <Text color="text" size="small">
+                    {' '}
+                    {optionExtended(_selectedSeries!)}
+                  </Text>
                 </Box>
               ) : (
                 <Box pad={mobile ? 'medium' : 'small'}>
-                  <Text color="text-weak">No available series yet.</Text>
+                  <Text color="text-weak" size="small">
+                    No available series yet.
+                  </Text>
                 </Box>
               )
             }
@@ -233,7 +245,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
               <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
-                <Text color="text">{optionExtended(x)}</Text>
+                <Text color="text" size="small">
+                  {optionExtended(x)}
+                </Text>
               </Box>
             )}
           />
@@ -241,10 +255,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        // <ShadeBox
-        //   height={mobile ? undefined : '250px'}
-        //   pad={{ vertical: 'small' }}
-        // >
         <Grid columns={mobile ? '100%' : '40%'} gap="small">
           {seriesLoading ? (
             <>
@@ -256,8 +266,14 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               <StyledBox
                 key={series.id}
                 pad="xsmall"
-                // eslint-disable-next-line no-nested-ternary
-                round={i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }}
+                round={
+                  // eslint-disable-next-line no-nested-ternary
+                  mobile
+                    ? 'xlarge'
+                    : i % 2 === 0
+                    ? { corner: 'left', size: 'large' }
+                    : { corner: 'right', size: 'large' }
+                }
                 onClick={() => handleSelect(series)}
                 background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
                 elevation="xsmall"
@@ -279,8 +295,17 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   </Avatar>
 
                   <Box>
-                    <AprText inputValue={_inputValue} series={series} actionType={actionType} />
-                    <Text size="small" color={series.id === _selectedSeries?.id ? series.textColor : undefined}>
+                    <AprText
+                      inputValue={_inputValue}
+                      series={series}
+                      actionType={actionType}
+                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                    />
+                    <Text
+                      size="small"
+                      weight="lighter"
+                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                    >
                       {series.displayName}
                     </Text>
                   </Box>
@@ -289,7 +314,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             ))
           )}
         </Grid>
-        // </ShadeBox>
       )}
     </>
   );

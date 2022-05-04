@@ -5,7 +5,6 @@ import { ChainContext } from '../../contexts/ChainContext';
 import SidebarSettings from '../Sidebar';
 
 const StyledButton = styled(Button)`
-  /* height: ${(props: any) => (props.mobile ? '2em' : '4.5em')}; */
   border-radius: 100px;
   :hover {
     box-shadow: 0px 0px 0px 1px;
@@ -40,6 +39,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         gap="small"
         fill="horizontal"
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
+        alignSelf="end"
       >
         {account ? (
           children

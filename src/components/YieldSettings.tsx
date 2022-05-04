@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
-import { FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
+import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
@@ -53,17 +53,13 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
-        <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
-          <FiX size="1.5rem" />
-        </Box>
-
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
             <YieldAvatar address={account} size={7} />
           </Box>
         )}
 
-        <Box align="end">
+        <Box align="end" pad={{ vertical: 'small' }}>
           {!mobile && currentChainInfo.explorer && (
             <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
               <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
@@ -111,8 +107,10 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       </Box>
 
       {!mobile && (
-        <Box pad="medium" background="gradient" flex={false}>
-          <NetworkSetting />
+        <Box background="gradient-transparent" flex={false}>
+          <Box pad="medium" background="gradient-transparent">
+            <NetworkSetting />
+          </Box>
         </Box>
       )}
 
@@ -126,12 +124,25 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <Text size="small"> Troubleshooting </Text>
         <GeneralButton action={handleResetApp} background="background">
           <Tip
-            content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
+            plain
+            content={
+              <Box
+                background="background"
+                pad="small"
+                width={{ max: '500px' }}
+                border={{ color: 'gradient-transparent' }}
+                elevation="small"
+                margin={{ vertical: 'small' }}
+                round="small"
+              >
+                <Text size="xsmall">Having issues? Try resetting the app.</Text>
+              </Box>
+            }
             dropProps={{
-              align: { right: 'left' },
+              align: { right: 'left', top: 'bottom' },
             }}
           >
-            <Text size="xsmall"> Reset App </Text>
+            <Text size="xsmall">Reset App</Text>
           </Tip>
         </GeneralButton>
       </Box>
