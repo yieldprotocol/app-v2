@@ -292,7 +292,7 @@ function Pool() {
           {stepPosition === 1 &&
             poolProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
-              <Box pad="small" gap="small" height="auto">
+              <Box pad="large" gap="small">
                 <Text size="small"> View strategy Position: </Text>
                 <StrategyItem strategy={strategyMap.get(selectedStrategy?.id!)!} index={0} condensed />
               </Box>
