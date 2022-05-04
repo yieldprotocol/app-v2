@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ICallData, LadleActions, IAsset, RoutedActions } from '../../types';
-import { ZERO_BN } from '../../utils/constants';
+import { MAX_256, ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 export const useWrapUnwrapAsset = () => {
@@ -32,14 +32,13 @@ export const useWrapUnwrapAsset = () => {
   ): Promise<ICallData[]> => {
     const ladleAddress = contractMap.get('Ladle').address;
     /* SET the destination address DEFAULTs to the assetJoin Address */
-    const toAddress = to || asset.joinAddress
-    const wrapHandlerAddress = asset.wrapHandlerAddresses ? asset.wrapHandlerAddresses.get(chainId) : undefined
+    const toAddress = to || asset.joinAddress;
+    const wrapHandlerAddress = asset.wrapHandlerAddresses ? asset.wrapHandlerAddresses.get(chainId) : undefined;
 
     /* NB! IF a wraphandler exists, we assume that it is Yield uses the wrapped version of the token */
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
-
       const wrapHandlerContract: Contract = new Contract(wrapHandlerAddress, wrapHandlerAbi, signer);
-      const { assetContract }  = assetRootMap.get(asset.id); // note -> this is NOT the proxyID 
+      const { assetContract } = assetRootMap.get(asset.id); // note -> this is NOT the proxyID
 
       diagnostics && console.log('Asset Contract to be signed for wrapping: ', assetContract.id);
 
@@ -47,7 +46,7 @@ export const useWrapUnwrapAsset = () => {
       const permitCallData: ICallData[] = await sign(
         [
           {
-            target: assetContract, // full target contract 
+            target: assetContract, // full target contract
             spender: ladleAddress,
             amount: value,
             ignoreIf: false,
@@ -57,7 +56,7 @@ export const useWrapUnwrapAsset = () => {
       );
 
       return [
-         ...permitCallData,
+        ...permitCallData,
         {
           operation: LadleActions.Fn.TRANSFER,
           args: [asset.address, wrapHandlerAddress, value] as LadleActions.Args.TRANSFER,
@@ -77,16 +76,15 @@ export const useWrapUnwrapAsset = () => {
   };
 
   const unwrapAsset = async (asset: IAsset, receiver: string): Promise<ICallData[]> => {
-
-    const unwrapHandlerAddress = asset.unwrapHandlerAddresses ? asset.unwrapHandlerAddresses.get(chainId) : undefined
+    const unwrapHandlerAddress = asset.unwrapHandlerAddresses ? asset.unwrapHandlerAddresses.get(chainId) : undefined;
 
     /* if there is an unwrap handler we assume the token needs to be unwrapped  ( unless the 'unwrapTokens' setting is false) */
     if (unwrapTokens && unwrapHandlerAddress) {
-
       diagnostics && console.log('Unwrapping tokens before return');
       const unwraphandlerContract: Contract = new Contract(unwrapHandlerAddress, wrapHandlerAbi, signer);
 
       return [
+
         {
           operation: LadleActions.Fn.ROUTE,
           args: [receiver] as RoutedActions.Args.UNWRAP,
