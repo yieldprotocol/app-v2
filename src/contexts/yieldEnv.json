@@ -33,6 +33,20 @@
       "WrapEtherModule": "0x6C688D4257204FEe0Fce47d3feb9AE81e8B86283",
       "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6"
     },
+    "5": {
+      "Cauldron": "0xF39bf75997176915a117Bb274eF6F20784B91568",
+      "Ladle": "0xE34989E754e6fF29A0bcbe0A9b0ea818C93bff05",
+      "CompoundMultiOracle": "0x4ABD3bea3cA6f7ac1bEa8e6045cD270266B0c63B",
+      "ChainlinkMultiOracle": "0x74a8079af64dDaF026df2caBCE96719681b7E4f9",
+      "CompositeMultiOracle": "0x7da220ff3f7e1A5e8105C88C6809acE273165EE1",
+      "Witch": "0x691eb43a55cC535D2ECab112A01DaA8eB5a9E0E7",
+      "YearnVaultMultiOracle": "0xbA8EB420D61C18A211ae4a157C80D157F49A322D",
+      "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
+      "transfer1155Module": "0x532708fdC78C635162F94F65998E5014CAac34fF",
+      "StEthConvertor": "0x9f65A6c2b2F12117573323443C8C2290f4C1e675",
+      "WrapEtherModule": "0xDF3FF55C2Fc253f81DC8fDe2dd631e0f1c1d30fD",
+      "ConvexLadleModule": "0x2d45a0925B3B4ac14641A63C2085574AC4E58fD8"
+    },
     "42": {
       "Cauldron": "0x82Dfaef826C8c190E9b472896a9a99165Ccee35a",
       "Ladle": "0xe7bae0445B9a1DBE834a7379fbE23C6d2Bd61C59",
