@@ -299,7 +299,7 @@ ASSET_INFO.set(CVX3CRV, {
   isWrappedToken: false,
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
-  limitToSeries: [], // limit to stable debt assets
+  limitToSeries: [],
 });
 
 ASSET_INFO.set(FRAX, {
