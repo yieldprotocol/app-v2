@@ -22,17 +22,16 @@ function VaultDropSelector({
   placeholder,
   defaultOptionValue,
 }: IVaultDropSelectorProps) {
-
   const {
     userState: { selectedIlk },
   } = useContext(UserContext);
 
   return (
-    <Box elevation="xsmall" background="hoverBackground" round='xlarge'>
+    <Box elevation="xsmall" background="hoverBackground" round="xlarge">
       <Select
         defaultValue={undefined}
         plain
-        size='small'
+        size="small"
         dropProps={{ round: 'small' }}
         dropAlign={{ bottom: 'top' }}
         dropHeight="300px"
@@ -45,12 +44,12 @@ function VaultDropSelector({
         onChange={({ option }) => handleSelect(option)}
         valueLabel={
           itemSelected?.id ? (
-            <Box pad='xsmall' direction="row" gap="medium" align="center" round='xlarge'>
+            <Box pad="xxsmall" direction="row" gap="medium" align="center" round="xlarge">
               <PositionAvatar position={itemSelected} condensed actionType={ActionType.BORROW} />
               <Text size="xsmall">{itemSelected?.displayName}</Text>
             </Box>
           ) : (
-            <Box pad='small' direction="row" gap="medium" align="center">
+            <Box pad="small" direction="row" gap="medium" align="center">
               <FiPlusCircle color="lightgrey" />
               <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="xsmall">
                 {displayName}
@@ -65,19 +64,20 @@ function VaultDropSelector({
               <Box pad="small" direction="row" gap="small" align="center">
                 <PositionAvatar position={x} condensed actionType={ActionType.BORROW} />
                 <Box>
-                  <Text size="xsmall" >
-                    {x.displayName}
-                  </Text>
+                  <Text size="xsmall">{x.displayName}</Text>
                   <Box direction="row" gap="small">
-                    <Text size="xsmall" weight='lighter'> {x.art_} Debt</Text>
-                    <Text size="xsmall" weight='lighter'>
+                    <Text size="xsmall" weight="lighter">
+                      {' '}
+                      {x.art_} Debt
+                    </Text>
+                    <Text size="xsmall" weight="lighter">
                       {x.ink_} {selectedIlk?.displaySymbol} posted
                     </Text>
                   </Box>
                 </Box>
               </Box>
             ) : (
-              <Box pad='medium' direction="row" gap="small" align="center" >
+              <Box pad="medium" direction="row" gap="small" align="center">
                 <FiPlusCircle color="lightgrey" />
                 <Text color="text-weak" size="xsmall">
                   {x.displayName}
