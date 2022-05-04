@@ -36,7 +36,7 @@ export const CHAIN_ID_42_ASSET_ORACLE_INFO = new Map<string, Map<string, string>
 export const CHAIN_ID_42161_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_421611_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 
-/* chain id 1, 4, 42 (these chain id's all use the same oracle contracts) */
+/* chain id 1, 4, 5, 42 (these chain id's all use the same oracle contracts) */
 // USDC base
 const usdcIlkOracle1 = new Map<string, string>();
 usdcIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
@@ -148,6 +148,7 @@ CHAIN_ID_421611_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle421611);
 
 ORACLE_INFO.set(1, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(4, CHAIN_ID_1_ASSET_ORACLE_INFO);
+ORACLE_INFO.set(5, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(42, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(42161, CHAIN_ID_421611_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(421611, CHAIN_ID_421611_ASSET_ORACLE_INFO);
