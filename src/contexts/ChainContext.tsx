@@ -126,7 +126,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const seasonColorMap = [1, 4, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
+      const seasonColorMap = [1, 4, 5, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: contracts.Cauldron;
       let Ladle: contracts.Ladle;
