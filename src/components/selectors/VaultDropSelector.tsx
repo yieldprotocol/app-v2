@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Box, ResponsiveContext, Select, Text } from 'grommet';
+import { Box, Select, Text } from 'grommet';
 import { FiChevronDown, FiPlusCircle } from 'react-icons/fi';
 import { ActionType, IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
@@ -22,7 +22,7 @@ function VaultDropSelector({
   placeholder,
   defaultOptionValue,
 }: IVaultDropSelectorProps) {
-  
+
   const {
     userState: { selectedIlk },
   } = useContext(UserContext);
@@ -45,7 +45,7 @@ function VaultDropSelector({
         onChange={({ option }) => handleSelect(option)}
         valueLabel={
           itemSelected?.id ? (
-            <Box pad='small' direction="row" gap="medium" align="center" round='xlarge'>
+            <Box pad='xsmall' direction="row" gap="medium" align="center" round='xlarge'>
               <PositionAvatar position={itemSelected} condensed actionType={ActionType.BORROW} />
               <Text size="xsmall">{itemSelected?.displayName}</Text>
             </Box>
@@ -77,7 +77,7 @@ function VaultDropSelector({
                 </Box>
               </Box>
             ) : (
-              <Box pad="medium" direction="row" gap="small" align="center" >
+              <Box pad='medium' direction="row" gap="small" align="center" >
                 <FiPlusCircle color="lightgrey" />
                 <Text color="text-weak" size="xsmall">
                   {x.displayName}
