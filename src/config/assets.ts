@@ -299,7 +299,12 @@ ASSET_INFO.set(CVX3CRV, {
   isWrappedToken: false,
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
-  limitToSeries: [],
+  limitToSeries: [
+    '0x303130360000', // june dai
+    '0x303130370000', // sept dai
+    '0x303230370000', // sept usdc
+    '0x303230360000', // june usdc
+  ],
 });
 
 ASSET_INFO.set(FRAX, {
