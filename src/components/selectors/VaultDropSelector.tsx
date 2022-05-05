@@ -67,7 +67,6 @@ function VaultDropSelector({
                   <Text size="xsmall">{x.displayName}</Text>
                   <Box direction="row" gap="small">
                     <Text size="xsmall" weight="lighter">
-                      {' '}
                       {x.art_} Debt
                     </Text>
                     <Text size="xsmall" weight="lighter">
