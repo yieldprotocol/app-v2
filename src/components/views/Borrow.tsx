@@ -401,7 +401,6 @@ const Borrow = () => {
                               plain
                               type="number"
                               placeholder="Enter amount"
-                              // ref={(el:any) => { el && el.focus(); }}
                               value={collatInput}
                               onChange={(event: any) =>
                                 setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
