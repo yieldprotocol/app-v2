@@ -1,5 +1,6 @@
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
 import { ethers } from 'ethers';
+import { SUPPORTED_RPC_URLS } from '../config/chainData';
 
 /* Init the signing web3 environment */
 function getLibrary(provider: ethers.providers.ExternalProvider) {
@@ -11,7 +12,10 @@ function getLibrary(provider: ethers.providers.ExternalProvider) {
 /* init the fallback web3 connection */
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
 function getFallbackLibrary(provider: any) {
+  const isTest = true;
   try {
+    if (isTest) return new ethers.providers.JsonRpcProvider(SUPPORTED_RPC_URLS[provider.chainId]);
+
     if (provider.chainId === 42161)
       return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_ARBITRUM_KEY);
 
