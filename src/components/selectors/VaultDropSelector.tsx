@@ -44,26 +44,16 @@ function VaultDropSelector({
         value={itemSelected}
         onChange={({ option }) => handleSelect(option)}
         valueLabel={
-          itemSelected?.id ? (
-            <Box
-              pad="xxsmall"
-              direction="row"
-              gap="medium"
-              align="center"
-              round="xlarge"
-              height={mobile ? '2.5rem' : undefined}
-            >
+          <Box pad="small" direction="row" gap="medium" align="center" round="xlarge" height="3rem">
+            {itemSelected?.id ? (
               <PositionAvatar position={itemSelected} condensed actionType={ActionType.BORROW} />
-              <Text size="xsmall">{itemSelected?.displayName}</Text>
-            </Box>
-          ) : (
-            <Box pad="small" direction="row" gap="medium" align="center" height={mobile ? '2.5rem' : undefined}>
+            ) : (
               <FiPlusCircle color="lightgrey" />
-              <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="xsmall">
-                {displayName}
-              </Text>
-            </Box>
-          )
+            )}
+            <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="xsmall">
+              {itemSelected?.displayName || displayName}
+            </Text>
+          </Box>
         }
         // eslint-disable-next-line react/no-children-prop
         children={(x: IVault) => (
