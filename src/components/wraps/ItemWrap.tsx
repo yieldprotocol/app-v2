@@ -18,8 +18,8 @@ const StyledBox = styled(Box)`
 function ItemWrap({
   action,
   index,
-  warn,
-  liquidated,
+  warn=false,
+  liquidated=false,
   children,
 }: {
   children: any;
@@ -43,7 +43,7 @@ function ItemWrap({
         {children}
         {liquidated && (
           <Box pad="xsmall">
-            <Text color="warning">
+            <Text color="error">
               <GiMedalSkull />
             </Text>
           </Box>
