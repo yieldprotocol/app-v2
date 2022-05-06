@@ -54,10 +54,14 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
+        {mobile && <BackButton action={() => setSettingsOpen(false)} />}
 
-        {mobile && (
-          <BackButton  action= { () =>  setSettingsOpen(false) }  /> 
-        )}
+        {/* {!mobile && (
+          <Box fill='horizontal' style={{ position: 'absolute', top:'0px' }} >
+            <BackButton action={() => setSettingsOpen(false)} />
+          </Box>
+        )} */}
+
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
             <YieldAvatar address={account} size={7} />

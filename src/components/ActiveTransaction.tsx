@@ -75,7 +75,7 @@ const ActiveTransaction = ({
   const activeProcess = txProcess;
 
   return (
-    <Box pad={pad ? { vertical: 'medium' } : undefined}>
+    <Box pad={pad ? { vertical: 'medium' } : undefined} align={full ? 'center': undefined } >
       {!full && (activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
         <Box justify="between" direction="row" pad="xsmall" >
           <Text size="xsmall"> Review Transaction </Text>
@@ -91,7 +91,7 @@ const ActiveTransaction = ({
         {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
           <>
             {full && (
-              <Text size="medium" weight="lighter">
+              <Text size="large" weight="lighter">
                 Review Transaction
               </Text>
             )}
