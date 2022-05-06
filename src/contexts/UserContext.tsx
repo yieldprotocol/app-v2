@@ -384,6 +384,12 @@ const UserProvider = ({ children }: any) => {
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
+          /* If art 0, check for liquidation event */
+          const hasBeenLiquidated =
+            art === ZERO_BN
+              ? (await Cauldron.queryFilter(Cauldron.filters.VaultGiven(vault.id, Witch.address), 'earliest')).length > 0
+              : false;
+
           const series = seriesRootMap.get(seriesId);
 
           let accruedArt: BigNumber;
@@ -432,6 +438,7 @@ const UserProvider = ({ children }: any) => {
             ...vault,
             owner, // refreshed in case owner has been updated
             isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+            hasBeenLiquidated,
             isActive: owner === account, // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated
