@@ -585,10 +585,10 @@ const VaultPosition = () => {
                             ) : (
                               <InputInfoWrap>
                                 <Box pad="xsmall">
-                                  <Text size="small">It is not currently possible to roll debt to this series</Text>
+                                  <Text size="small">It is not currently possible to roll to this series</Text>
                                   <Text color="text-weak" size="xsmall">
-                                    ( Most commonly because the debt doesn't meet the minimum debt requirements of the
-                                    series being rolled to ).
+                                    ( Most likely because the debt doesn't meet the minimum debt requirements of the
+                                    future series).
                                   </Text>
                                 </Box>
                               </InputInfoWrap>
