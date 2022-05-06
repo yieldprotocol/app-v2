@@ -57,9 +57,11 @@ import VaultItem from '../positionItems/VaultItem';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
+import useTenderly from '../../hooks/useTenderly';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  useTenderly();
 
   /* STATE FROM CONTEXT */
   const {
