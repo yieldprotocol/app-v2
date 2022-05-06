@@ -18,14 +18,14 @@ const StyledBox = styled(Box)`
 function ItemWrap({
   action,
   index,
-  warn=false,
-  liquidated=false,
+  warn,
+  liquidated,
   children,
 }: {
   children: any;
   index: number;
-  warn:boolean|undefined;
-  liquidated: boolean | undefined;
+  warn?:boolean|undefined;
+  liquidated?: boolean | undefined;
   action: () => void;
 }) {
   return (
