@@ -1,9 +1,14 @@
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
 import { ethers } from 'ethers';
-import { JsonRpcProvider } from 'ethers/node_modules/@ethersproject/providers';
+import { useContext, useEffect, useState } from 'react';
+import { IChainContext, IUserContext } from '../types';
+import { ChainContext } from './ChainContext';
+import { UserContext } from './UserContext';
+
+const getTenderlyProvider = () => new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
 
 /* Init the signing web3 environment */
-function getLibrary(provider: ethers.providers.ExternalProvider) {
+export function getLibrary(provider: ethers.providers.ExternalProvider) {
   const library = new ethers.providers.Web3Provider(provider);
   library.pollingInterval = 6000;
   return library;
@@ -11,11 +16,8 @@ function getLibrary(provider: ethers.providers.ExternalProvider) {
 
 /* init the fallback web3 connection */
 const Web3FallbackProvider = createWeb3ReactRoot('fallback');
-function getFallbackLibrary(provider: any) {
-  const isTest = true;
+export function getFallbackLibrary(provider: any) {
   try {
-    if (isTest) return new JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
-
     if (provider.chainId === 42161)
       return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_ARBITRUM_KEY);
 
@@ -37,10 +39,31 @@ function getFallbackLibrary(provider: any) {
   }
 }
 
-const ProviderContext = ({ children }: { children: any }) => (
-  <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-    <Web3ReactProvider getLibrary={getLibrary}>{children}</Web3ReactProvider>
-  </Web3FallbackProvider>
-);
+const ProviderContext = ({ children }: { children: any }) => {
+  const { chainState } = useContext(ChainContext) as IChainContext;
+  const { chainLoading } = chainState;
+
+  const { userState } = useContext(UserContext) as IUserContext;
+  const { userLoading, seriesMap, strategyMap, assetMap } = userState;
+
+  const [allDataUpdated, setAllDataUpdated] = useState<boolean>(false);
+
+  const _getFallbackLibrary = () => (allDataUpdated ? getTenderlyProvider : getFallbackLibrary);
+  const _getLibrary = () => (allDataUpdated ? getTenderlyProvider : getLibrary);
+
+  useEffect(() => {
+    setAllDataUpdated(!chainLoading && !userLoading && !!seriesMap.size && !!strategyMap.size && !!assetMap.size);
+  }, [assetMap.size, chainLoading, seriesMap.size, strategyMap.size, userLoading]);
+
+  useEffect(() => {
+    console.log('🦄 ~ file: ProviderContext.tsx ~ line 48 ~ ProviderContext ~ allDataUpdate', allDataUpdated);
+  }, [allDataUpdated]);
+
+  return (
+    <Web3FallbackProvider getLibrary={_getFallbackLibrary}>
+      <Web3ReactProvider getLibrary={_getLibrary}>{children}</Web3ReactProvider>
+    </Web3FallbackProvider>
+  );
+};
 
 export default ProviderContext;
