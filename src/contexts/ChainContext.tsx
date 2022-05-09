@@ -45,6 +45,7 @@ const initState: IChainContextState = {
     account: null as string | null,
 
     connectionName: null as string | null,
+    useTenderlyFork: false as boolean,
   },
 
   /* flags */
@@ -285,10 +286,18 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-          Ladle.queryFilter('JoinAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-        ]);
+
+        let assetAddedEvents = [];
+        let joinAddedEvents = [];
+
+        try {
+          [assetAddedEvents, joinAddedEvents] = await Promise.all([
+            Cauldron.queryFilter('AssetAdded' as ethers.EventFilter),
+            Ladle.queryFilter('JoinAdded' as ethers.EventFilter),
+          ]);
+        } catch (e) {
+          console.log('🦄 ~ file: ChainContext.tsx ~ line 295 ~ const_getAssets= ~ e', e);
+        }
 
         /* Create a map from the joinAdded event data or hardcoded join data if available */
         const joinMap = new Map(joinAddedEvents.map((e: JoinAddedEvent) => e.args)); // event values);
@@ -608,6 +617,7 @@ const ChainProvider = ({ children }: any) => {
     connectionState.active,
     connectionState.connectionName,
     connectionState.currentChainInfo,
+    connectionState.useTenderlyFork,
   ]);
 
   /* simply Pass on the connection actions */
