@@ -26,6 +26,7 @@ export const useConnection = () => {
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
+  const [useTenderlyFork, setUseTenderlyFork] = useState<boolean>(false);
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
@@ -36,6 +37,13 @@ export const useConnection = () => {
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const { library: fallbackProvider, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
+
+  const [providerToUse, setProviderToUse] = useState<ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider>(
+    provider
+  );
+  const [fallbackProviderToUse, setFallbackProviderToUse] = useState<
+    ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider
+  >(fallbackProvider);
 
   /* extra hooks */
   const { handleErrorMessage } = useWeb3Errors();
@@ -154,10 +162,22 @@ export const useConnection = () => {
   }, [fallbackChainId, lastChainId, setLastChainId]);
 
   /* Use the connected provider if available, else use fallback */
-  const getFallbackProvider = () => {
-    const isTest = true;
-    if ([42161, 421611].includes(chainId) || isTest) return fallbackProvider; // always use fallback for arbitrum (testnet) to access historical data
-    return provider ?? fallbackProvider;
+  useEffect(() => {
+    const getProviders = () => {
+      if (useTenderlyFork) {
+        const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+        return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
+      }
+      if ([42161, 421611].includes(chainId)) return { provider, fallbackProvider }; // always use fallback for arbitrum (testnet) to access historical data
+      return provider ? { provider, fallbackProvider: provider } : { provider, fallbackProvider };
+    };
+
+    setProviderToUse(getProviders().provider);
+    setFallbackProviderToUse(getProviders().fallbackProvider);
+  }, [chainId, fallbackProvider, provider, useTenderlyFork]);
+
+  const useTenderly = (shouldUse: boolean) => {
+    setUseTenderlyFork(shouldUse);
   };
 
   return {
@@ -170,9 +190,9 @@ export const useConnection = () => {
       /* connections */
       connectionName,
       connector,
-      provider,
+      provider: providerToUse,
       chainId,
-      fallbackProvider: getFallbackProvider(),
+      fallbackProvider: fallbackProviderToUse,
       fallbackChainId,
       lastChainId,
 
@@ -183,12 +203,15 @@ export const useConnection = () => {
       account,
       active,
       activatingConnector,
+
+      useTenderlyFork,
     },
 
     connectionActions: {
       connect,
       disconnect,
       isConnected,
+      useTenderly,
     },
   };
 };
