@@ -1,6 +1,6 @@
-import { Avatar, Box, Button } from 'grommet';
-import React from 'react';
-import { FiRewind } from 'react-icons/fi';
+import { Avatar, Box, Button, Text } from 'grommet';
+import React, { useState } from 'react';
+import { FiChevronLeft } from 'react-icons/fi';
 import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
@@ -9,7 +9,7 @@ const StyledButton = styled(Button)`
   transition: transform 0.3s ease-in-out;
   padding: 0;
   :hover {
-    transform: scale(1.2);
+    transform: scale(1.25);
     color: #444444;
   }
   :active {
@@ -18,14 +18,25 @@ const StyledButton = styled(Button)`
 `;
 
 function BackButton({ action }: { action: () => void }) {
+  const [hover, setHover] = useState<boolean>(false);
   return (
     <Box align="center" direction="row">
       <StyledButton
+      
         color="grey"
         onClick={() => action()}
         icon={
-          <Avatar size="2em" pad="xsmall" elevation="xsmall">
-            <FiRewind />
+          <Avatar 
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          
+          size="2em" 
+          pad="xsmall" 
+          elevation="xsmall"
+          
+          >
+            {hover && <Text size="0.5em" weight='lighter'> Back </Text>}
+            {!hover &&  <FiChevronLeft />}
           </Avatar>
         }
       />
