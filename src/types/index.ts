@@ -28,6 +28,7 @@ export interface IConnectionState {
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
   connectionName: string | null;
+  useTenderlyFork: boolean;
 }
 
 export interface IHistoryList {
@@ -45,6 +46,7 @@ export interface IChainContextActions {
   connect: (connection: string) => void;
   disconnect: () => void;
   isConnected: (connection: string) => void;
+  useTenderly: (shouldUse: boolean) => void;
 }
 
 export interface IPriceContextState {
@@ -118,6 +120,9 @@ export interface ISettingsContextState {
   /* Token wrapping */
   showWrappedTokens: boolean;
   unwrapTokens: boolean;
+
+  useTenderlyFork: boolean;
+
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
