@@ -14,6 +14,7 @@ import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
 import NetworkSetting from './settings/NetworkSetting';
+import TenderlyForkSetting from './settings/TenderlyForkSetting';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -118,6 +119,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <ThemeSetting />
         <ApprovalSetting />
         <SlippageSetting />
+        <TenderlyForkSetting />
       </Box>
 
       <Box pad="medium" gap="small" flex={false}>
