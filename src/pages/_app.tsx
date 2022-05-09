@@ -1,11 +1,8 @@
 import dynamic from 'next/dynamic';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { AppProps } from 'next/app';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
-import { IChainContext, IUserContext } from '../types';
-import { ChainContext } from '../contexts/ChainContext';
-import { UserContext } from '../contexts/UserContext';
 
 const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
 
@@ -34,7 +31,7 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, []);
 
   return (
-    <ProviderContext dataUpdated={allDataUpdated}>
+    <ProviderContext>
       <DynamicChainProvider>
         <DynamicSettingsProvider>
           <DynamicUserProvider>
