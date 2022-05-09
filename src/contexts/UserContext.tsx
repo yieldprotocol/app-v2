@@ -178,10 +178,10 @@ const UserProvider = ({ children }: any) => {
         return {
           id,
           seriesId,
-          baseId: series.baseId,
+          baseId: series?.baseId,
           ilkId,
           displayName: generateVaultName(id),
-          decimals: series.decimals,
+          decimals: series?.decimals,
         };
       });
 
