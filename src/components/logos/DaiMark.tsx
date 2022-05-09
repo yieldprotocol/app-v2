@@ -2,7 +2,7 @@ import * as React from 'react';
 
 function DaiMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg width="1em" height="1em" viewBox="0 0 444.44 444.44" fill="none" {...props}>
+    <svg width="100%" height="100%" viewBox="0 0 444.44 444.44" fill="none" {...props}>
       <g id="Layer_x0020_1">
         <metadata id="CorelCorpID_0Corel-Layer" />
         <path

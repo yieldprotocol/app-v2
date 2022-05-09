@@ -24,7 +24,12 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   };
 
   return (
-    <ItemWrap action={() => handleSelect(vault)} index={index}>
+    <ItemWrap
+      action={() => handleSelect(vault)}
+      index={index}
+      liquidated={vault.hasBeenLiquidated}
+      warn={!vault.isActive && !vault.isWitchOwner}
+    >
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
         <PositionAvatar position={vault} condensed={condensed} actionType={ActionType.BORROW} />
         <Box

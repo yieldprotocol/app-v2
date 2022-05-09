@@ -194,7 +194,6 @@ export interface IAssetInfo {
   showToken: boolean;
   isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (except ETH - which is handled differently)
 
-  color: string;
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
 
   displaySymbol?: string; // override for symbol display
@@ -214,7 +213,6 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   // fixed/static:
   id: string;
 
-  color: string;
   image: React.FC;
   displayName: string;
   displayNameMobile: string;
@@ -293,7 +291,10 @@ export interface IAsset extends IAssetRoot {
 export interface IDummyVault extends IVaultRoot {}
 export interface IVault extends IVaultRoot {
   owner: string;
+
   isWitchOwner: boolean;
+  hasBeenLiquidated: boolean;
+
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;

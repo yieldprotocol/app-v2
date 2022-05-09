@@ -2,7 +2,7 @@ import * as React from 'react';
 
 function MakerMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg width="1em" height="1em" viewBox="0 0 32 32" fill="none" {...props}>
+    <svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" {...props}>
       <g fill="none">
         <circle cx="16" cy="16" fill="#1abc9c" r="16" />
         <path

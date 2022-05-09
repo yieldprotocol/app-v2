@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useRouter } from 'next/router';
-import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -28,6 +28,7 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
+import Logo from '../logos/Logo';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -210,7 +211,7 @@ const LendPosition = () => {
                               selectedBase?.digitFormat!
                             )} ${selectedBase?.displaySymbol!}`
                       }
-                      icon={selectedBase?.image}
+                      icon={<Logo image={selectedBase.image} />}
                       loading={seriesLoading}
                     />
                   </Box>
@@ -222,13 +223,14 @@ const LendPosition = () => {
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
+                      size="small"
                       dropProps={{ round: 'small' }}
                       options={[
                         { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
-                        // { text: 'Redeem', index: 3 },
                       ]}
+                      icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
@@ -258,7 +260,7 @@ const LendPosition = () => {
                               setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries}
-                            icon={<>{selectedBase?.image}</>}
+                            icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
                             action={() => setCloseInput(maxClose_)}
@@ -321,7 +323,7 @@ const LendPosition = () => {
                               setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries || !rollToSeries}
-                            icon={<>{selectedBase?.image}</>}
+                            icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
                             action={() => setRollInput(maxRoll_)}

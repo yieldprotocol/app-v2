@@ -13,7 +13,7 @@ const InfoBite: FC<IInfoBite> = ({ label, value, icon, loading, children }) => (
   <Box direction="row" align="center" pad={{ left: 'small', vertical: 'none' }} gap="medium">
     {icon && <Box>{icon}</Box>}
     <Box>
-      <Text size="xsmall" color="text-weak">
+      <Text size="xsmall" color="text" weight='lighter'>
         {label}
       </Text>
       <Box direction="row" gap="xsmall">
