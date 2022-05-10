@@ -69,7 +69,7 @@ export const useAddCollateral = () => {
     const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
 
     /* handle wrapped tokens:  */
-    const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
+    // const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);
@@ -82,7 +82,7 @@ export const useAddCollateral = () => {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthCollateral || alreadyApproved === true || wrapping.length > 0,
+          ignoreIf: _isEthCollateral || alreadyApproved === true , // || wrapping.length > 0,
         },
       ],
       txCode
@@ -109,7 +109,7 @@ export const useAddCollateral = () => {
       },
 
       /* handle wrapped token deposit, if required */
-      ...wrapping,
+      // ...wrapping,
 
       /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
       ...addEth(ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ? _input : ZERO_BN, undefined, selectedIlk?.idToUse),

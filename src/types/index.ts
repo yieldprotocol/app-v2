@@ -291,7 +291,10 @@ export interface IAsset extends IAssetRoot {
 export interface IDummyVault extends IVaultRoot {}
 export interface IVault extends IVaultRoot {
   owner: string;
+
   isWitchOwner: boolean;
+  hasBeenLiquidated: boolean;
+
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;

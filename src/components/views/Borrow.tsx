@@ -336,12 +336,7 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <>
-                <Box
-                  background="gradient-transparent"
-                  round={{ corner: 'top', size: 'xsmall' }}
-                  pad="medium"
-                  gap="medium"
-                >
+                <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
                   <BackButton action={() => setStepPosition(0)} />
 
                   <Box pad="medium" direction="row" justify="between" round="small">
@@ -367,38 +362,36 @@ const Borrow = () => {
                     </Box>
                   </Box>
 
-                  <Box gap="small" fill="horizontal" align="end" pad={{ horizontal: 'small' }}>
+                  <Box gap="xsmall" fill="horizontal" align="end" pad={{ horizontal: 'medium' }}>
                     <Box align="center" direction="row" gap="xsmall">
-                      <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                        {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
+                      <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
+                        Minimum
                       </Text>
-                      <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
+                      <Text size={mobile ? 'xsmall' : 'small'}>{minCollatRatioPct}%</Text>
                     </Box>
 
-                    <Box>
+                    <Box height={{ min: '1.5rem' }}>
                       {collatInput ? (
                         <Box align="center" direction="row" gap="xsmall">
-                          <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                            {mobile ? 'Liq. Price :' : 'Liquidiation when'}{' '}
+                          <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
+                            Liquidation when
                           </Text>
-                          <Text size={mobile ? 'xsmall' : 'xsmall'}>
+                          <Text size={mobile ? 'xsmall' : 'small'}>
                             1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
                           </Text>
                         </Box>
-                      ) : (
-                        <Box pad="xsmall" />
-                      )}
+                      ) : null}
                     </Box>
                   </Box>
                 </Box>
 
                 <Line />
 
-                <Box gap="medium" pad="large">
+                <Box gap="medium" pad={{ horizontal: 'large', vertical: 'medium' }}>
                   <Box gap="small" flex={false}>
                     <SectionWrap title="Amount of collateral to add">
                       <Box direction="row-responsive">
-                        <Box basis={mobile ? undefined : '60%'} fill="horizontal">
+                        <Box fill="horizontal">
                           <InputWrap
                             action={() => console.log('maxAction')}
                             disabled={!selectedSeries}
@@ -408,7 +401,6 @@ const Borrow = () => {
                               plain
                               type="number"
                               placeholder="Enter amount"
-                              // ref={(el:any) => { el && el.focus(); }}
                               value={collatInput}
                               onChange={(event: any) =>
                                 setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
@@ -425,7 +417,7 @@ const Borrow = () => {
                             />
                           </InputWrap>
                         </Box>
-                        <Box basis={mobile ? undefined : '40%'}>
+                        <Box flex="grow" width={{ min: '10rem' }}>
                           <AssetSelector selectCollateral isModal={true} />
                         </Box>
                       </Box>
@@ -436,7 +428,7 @@ const Borrow = () => {
                         <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                           <VaultDropSelector
                             vaults={matchingVaults}
-                            handleSelect={(option: any) => setVaultToUse(option)}
+                            handleSelect={(option: any) => setVaultToUse(option.id ? option : undefined)}
                             itemSelected={vaultToUse}
                             displayName="Create New Vault"
                             placeholder="Create New Vault"
@@ -470,6 +462,7 @@ const Borrow = () => {
                   round={{ corner: 'top', size: 'xsmall' }}
                   pad="medium"
                   gap="medium"
+                  height={{ min: '350px' }}
                 >
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => handleNavAction(1)} />

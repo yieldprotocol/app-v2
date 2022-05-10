@@ -183,7 +183,13 @@ const Lend = () => {
           )}
           {stepPosition === 1 && (
             <>
-              <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium" gap="large">
+              <Box
+                height={{ min: '350px' }}
+                background="gradient-transparent"
+                round={{ corner: 'top', size: 'xsmall' }}
+                pad="medium"
+                gap="large"
+              >
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
                 ) : (

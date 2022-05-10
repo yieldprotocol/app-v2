@@ -166,6 +166,7 @@ function Pool() {
                 round={{ corner: 'top', size: 'xsmall' }}
                 pad="medium"
                 gap="medium"
+                height={{ min: '350px' }}
               >
                 <YieldCardHeader>
                   {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
