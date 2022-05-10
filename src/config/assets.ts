@@ -41,7 +41,6 @@ ASSET_INFO.set(UNKNOWN, {
   decimals: 18,
   symbol: 'UNKNOWN',
   showToken: false,
-  color: '#FFFFFFFF',
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
 });
@@ -52,7 +51,6 @@ ASSET_INFO.set(DAI, {
   decimals: 18,
   symbol: 'DAI',
   showToken: true,
-  color: '#F5AC37',
   digitFormat: 2,
   tokenType: TokenType.ERC20_DaiPermit,
 });
@@ -63,7 +61,6 @@ ASSET_INFO.set(USDC, {
   decimals: 18,
   symbol: 'USDC',
   showToken: true,
-  color: '#2775CA',
   digitFormat: 2,
   tokenType: TokenType.ERC20_Permit,
 });
@@ -74,7 +71,6 @@ ASSET_INFO.set(WBTC, {
   decimals: 18,
   symbol: 'WBTC',
   showToken: true,
-  color: '#5A5564',
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
 });
@@ -85,7 +81,6 @@ ASSET_INFO.set(ENS, {
   decimals: 18,
   symbol: 'ENS',
   showToken: true,
-  color: '#000000',
   digitFormat: 2,
   tokenType: TokenType.ERC20_Permit,
 });
@@ -97,7 +92,6 @@ ASSET_INFO.set(WETH, {
   symbol: 'WETH',
   displaySymbol: 'ETH',
   showToken: true,
-  color: '#FFFFFF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
 });
@@ -109,7 +103,6 @@ ASSET_INFO.set(wstETH, {
   symbol: 'wstETH',
   displaySymbol: 'wstETH',
   showToken: true,
-  color: '#00A3FF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
   wrapHandlerAddresses: new Map([]),
@@ -127,7 +120,6 @@ ASSET_INFO.set(stETH, {
   decimals: 18,
   symbol: 'stETH',
   showToken: true,
-  color: '#00A3FF',
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
   wrapHandlerAddresses: new Map([
@@ -145,7 +137,6 @@ ASSET_INFO.set(LINK, {
   decimals: 18,
   symbol: 'LINK',
   showToken: true,
-  color: '#2A5ADA',
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
 });
@@ -156,7 +147,6 @@ ASSET_INFO.set(yvUSDC, {
   decimals: 18,
   symbol: 'yvUSDC',
   showToken: true,
-  color: '#3366CC',
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
   limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000'],
@@ -168,7 +158,6 @@ ASSET_INFO.set(UNI, {
   decimals: 18,
   symbol: 'UNI',
   showToken: true,
-  color: '#FF007A',
   digitFormat: 4,
   tokenType: TokenType.ERC20_Permit,
 });
@@ -179,7 +168,6 @@ ASSET_INFO.set(MKR, {
   decimals: 18,
   symbol: 'MKR',
   showToken: false,
-  color: '#FF007A',
   digitFormat: 2,
   tokenType: TokenType.ERC20_MKR,
 });
@@ -190,7 +178,6 @@ ASSET_INFO.set(FDAI2203, {
   decimals: 8,
   symbol: 'FDAI2203',
   showToken: false,
-  color: '#FF007A',
   digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563371972493313,
@@ -203,7 +190,6 @@ ASSET_INFO.set(FUSDC2203, {
   decimals: 8,
   symbol: 'FUSDC2203',
   showToken: false,
-  color: '#FF007A',
   digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844846949203969,
@@ -216,7 +202,6 @@ ASSET_INFO.set(FDAI2206, {
   decimals: 8,
   symbol: 'FDAI2206',
   showToken: true,
-  color: '#FF007A',
   digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563373963149313,
@@ -229,7 +214,6 @@ ASSET_INFO.set(FUSDC2206, {
   decimals: 8,
   symbol: 'FUSDC2206',
   showToken: true,
-  color: '#FF007A',
   digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844848939859969,
@@ -242,7 +226,6 @@ ASSET_INFO.set(FDAI2209, {
   decimals: 8,
   symbol: 'FDAI2209',
   showToken: true,
-  color: '#FF007A',
   digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563375953805313,
@@ -255,24 +238,12 @@ ASSET_INFO.set(FUSDC2209, {
   decimals: 8,
   symbol: 'FUSDC2209',
   showToken: true,
-  color: '#FF007A',
   digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 844850930515969,
   limitToSeries: ['0x303230370000'],
 });
 
-// ASSET_INFO.set(CVX3CRV, {
-//   version: '1',
-//   name: 'cvx3crv',
-//   decimals: 18,
-//   symbol: 'cvx3crv',
-//   showToken: false,
-//   color: '#3A3A3A',
-//   digitFormat: 6,
-//   tokenType: TokenType.ERC20_,
-//   limitToSeries: [], // limit to stable debt assets
-// });
 
 ASSET_INFO.set(FRAX, {
   version: '1',
@@ -280,7 +251,6 @@ ASSET_INFO.set(FRAX, {
   decimals: 18,
   symbol: 'FRAX',
   showToken: true,
-  color: '#ffffff',
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
   limitToSeries: [],

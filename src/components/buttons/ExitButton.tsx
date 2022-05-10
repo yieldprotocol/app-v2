@@ -11,7 +11,7 @@ const StyledAvatar = styled(Avatar)`
   -moz-transition: transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
   :hover {
-    transform: scale(1.3);
+    transform: scale(1.25);
   }
   :active {
     transform: scale(1);
@@ -30,8 +30,8 @@ function ExitButton({ action }: { action: () => void }) {
       elevation="small"
       background="background"
     >
-      {hover && <Text size="0.5em"> Close </Text>}
-      <FiLogOut color={hover ? 'text' : 'text-weak'} />
+      {hover && <Text size="0.5em" weight='lighter'> Close </Text>}
+      {!hover && <FiLogOut color={hover ? 'text' : 'text-weak'} />}
     </StyledAvatar>
   );
 }

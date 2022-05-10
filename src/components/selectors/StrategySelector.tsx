@@ -13,6 +13,7 @@ import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AltText from '../texts/AltText';
 import { ZERO_BN } from '../../utils/constants';
+import Line from '../elements/Line';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -166,46 +167,57 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                     onClickOutside={() => setOpen(false)}
                     style={{ minWidth: mobile ? undefined : '500px', borderRadius: '12px' }}
                   >
-                    <Box gap="small" pad="medium" round="small" background="background" fill>
-                      <Box alignSelf="end" onClick={() => setOpen(false)}>
-                        <FiX size="1.5rem" />
+                    <Box background="background" round="12px">
+                      <Box
+                        direction="row"
+                        justify="between"
+                        align="center"
+                        pad="medium"
+                        background="gradient-transparent"
+                        round={{ corner: 'top', size: 'small' }}
+                      >
+                        <Text size="small">Select Strategy</Text>
+                        <Box onClick={() => setOpen(false)}>
+                          <FiX size="1.5rem" />
+                        </Box>
                       </Box>
 
-                      <Box pad="xsmall">
-                        <Text size="xsmall">Other available {selectedBase?.symbol} strategies:</Text>
-                      </Box>
-                      {options.map((strategy) => (
-                        <StyledBox
-                          key={strategy.id}
-                          pad="xsmall"
-                          round="large"
-                          onClick={() => handleSelect(strategy)}
-                          background={strategy.currentSeries?.color}
-                          elevation="xsmall"
-                          margin="xsmall"
-                        >
-                          <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
-                            <Avatar
-                              background="background"
-                              style={{
-                                boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
-                                  .toString()
-                                  .concat('69')}`,
-                              }}
-                            >
-                              {strategy.currentSeries?.seriesMark || <FiSlash />}
-                            </Avatar>
-                            <Box>
-                              <Text size="small" color={strategy.currentSeries?.textColor}>
-                                {formatStrategyName(selectedStrategy?.name!)}
-                              </Text>
-                              <Text size="xsmall" color={strategy.currentSeries?.textColor}>
-                                Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
-                              </Text>
+                      <Line />
+
+                      <Box pad="large">
+                        {options.map((strategy) => (
+                          <StyledBox
+                            key={strategy.id}
+                            pad="xsmall"
+                            round="large"
+                            onClick={() => handleSelect(strategy)}
+                            background={strategy.currentSeries?.color}
+                            elevation="xsmall"
+                            margin="xsmall"
+                          >
+                            <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
+                              <Avatar
+                                background="background"
+                                style={{
+                                  boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
+                                    .toString()
+                                    .concat('69')}`,
+                                }}
+                              >
+                                {strategy.currentSeries?.seriesMark || <FiSlash />}
+                              </Avatar>
+                              <Box>
+                                <Text size="small" color={strategy.currentSeries?.textColor}>
+                                  {formatStrategyName(selectedStrategy?.name!)}
+                                </Text>
+                                <Text size="xsmall" color={strategy.currentSeries?.textColor}>
+                                  Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
+                                </Text>
+                              </Box>
                             </Box>
-                          </Box>
-                        </StyledBox>
-                      ))}
+                          </StyledBox>
+                        ))}
+                      </Box>
                     </Box>
                   </Layer>
                 )}
@@ -217,7 +229,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
             <Box>
               <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
                 <AltText size="xsmall" color="text-weak">
-                  Choose a different strategy
+                  Select a different strategy
                 </AltText>
               </StyledBox>
             </Box>
