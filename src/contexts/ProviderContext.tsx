@@ -2,12 +2,13 @@ import {
   apiProvider,
   configureChains,
   darkTheme,
+  lightTheme,
   getDefaultWallets,
   RainbowKitProvider,
   Theme,
 } from '@rainbow-me/rainbowkit';
-import { Chain, chain, createClient, WagmiProvider } from 'wagmi';
 import merge from 'lodash.merge';
+import { Chain, chain, createClient, WagmiProvider } from 'wagmi';
 import { SUPPORTED_RPC_URLS } from '../config/chainData';
 
 const ProviderContext = ({ children }) => {
@@ -27,16 +28,15 @@ const ProviderContext = ({ children }) => {
     provider,
   });
 
-  const theme = merge(document.body.dataset.theme === 'dark' ? darkTheme() : undefined, {
+  const theme = merge(document.body.dataset.theme === 'dark' ? darkTheme() : lightTheme(), {
     colors: {
-      accentColor:
-        'linear-gradient(135deg, rgba(247, 149, 51, 0.5), rgba(243, 112, 85, 0.5), rgba(239, 78, 123, 0.5), rgba(161, 102, 171, 0.5), rgba(80, 115, 184, 0.5), rgba(16, 152, 173, 0.5), rgba(7, 179, 155, 0.5), rgba(111, 186, 130, 0.5));',
+      accentColor: 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
     },
 
     fonts: { body: 'raleway' },
     radii: {
       actionButton: '.75rem',
-      connectButton: '.75rem',
+      connectButton: '24px',
       menuButton: '.75rem',
       modal: '.75rem',
       modalMobile: '.75rem',
@@ -45,7 +45,7 @@ const ProviderContext = ({ children }) => {
 
   return (
     <WagmiProvider client={wagmiClient}>
-      <RainbowKitProvider chains={chains} theme={theme} showRecentTransactions>
+      <RainbowKitProvider chains={chains} theme={theme}>
         {children}
       </RainbowKitProvider>
     </WagmiProvider>
