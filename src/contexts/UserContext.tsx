@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
+import { useAccount } from 'wagmi';
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -130,18 +131,15 @@ function userReducer(state: IUserContextState, action: any) {
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const {
-    contractMap,
-    connection: { account },
-    chainLoading,
-    seriesRootMap,
-    assetRootMap,
-    strategyRootMap,
-  } = chainState;
+  const { contractMap, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
+
+  const {
+    data: { address: account },
+  } = useAccount();
 
   const [lastVaultUpdate, setLastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
 
@@ -285,7 +283,7 @@ const UserProvider = ({ children }: any) => {
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress)
+            series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
 
           const rateCheckAmount = ethers.utils.parseUnits(
@@ -386,7 +384,8 @@ const UserProvider = ({ children }: any) => {
           /* If art 0, check for liquidation event */
           const hasBeenLiquidated =
             art === ZERO_BN
-              ? (await Cauldron.queryFilter(Cauldron.filters.VaultGiven(vault.id, Witch.address), 'earliest')).length > 0
+              ? (await Cauldron.queryFilter(Cauldron.filters.VaultGiven(vault.id, Witch.address), 'earliest')).length >
+                0
               : false;
 
           const series = seriesRootMap.get(seriesId);
