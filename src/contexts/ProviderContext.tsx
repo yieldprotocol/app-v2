@@ -17,7 +17,7 @@ const ProviderContext = ({ children }) => {
   );
 
   const { connectors } = getDefaultWallets({
-    appName: 'Yieldspace App',
+    appName: 'Yield App V2',
     chains,
   });
 
