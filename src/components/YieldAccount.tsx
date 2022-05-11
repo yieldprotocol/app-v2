@@ -39,9 +39,8 @@ const YieldAccount = (props: any) => {
     userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
   const { data: ensName } = useEnsName();
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);

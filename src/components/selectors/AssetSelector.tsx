@@ -32,6 +32,9 @@ const StyledBox = styled(Box)`
 function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
+  const { data: _account } = useAccount();
+  const account = _account?.address;
+
   const {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext);
@@ -40,10 +43,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     UserContext
   ) as IUserContext;
   const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
-
-  const {
-    data: { address: account },
-  } = useAccount();
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);

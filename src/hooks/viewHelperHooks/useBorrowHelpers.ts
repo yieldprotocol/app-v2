@@ -17,9 +17,8 @@ export const useBorrowHelpers = (
   assetPairInfo: IAssetPair | undefined,
   futureSeries: ISeries | null = null // Future or rollToSeries
 ) => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   /* STATE FROM CONTEXT */
   const {

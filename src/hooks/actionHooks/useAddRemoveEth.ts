@@ -7,10 +7,8 @@ import { ModuleActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
 
 export const useAddRemoveEth = () => {
-  const {
-    data: { address: account },
-  } = useAccount();
-
+  const { data: _account } = useAccount();
+  const account = _account?.address;
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);

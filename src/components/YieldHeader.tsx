@@ -42,9 +42,8 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const isPositionPath = router.pathname.includes('position');
   const [yieldMarkhover, setYieldMarkHover] = useState<boolean>(false);
 
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   // eslint-disable-next-line react/display-name
   const YieldAvatar = forwardRef(({ onClick, href }: any, ref: any) => (

@@ -46,9 +46,8 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
     settingsState: { darkMode },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text;

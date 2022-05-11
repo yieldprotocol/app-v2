@@ -22,9 +22,8 @@ function VaultPositionSelector(target: any) {
   } = useContext(SettingsContext) as ISettingsContext;
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { vaultMap, selectedSeries, selectedBase } = userState;
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);

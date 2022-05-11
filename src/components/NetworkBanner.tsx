@@ -21,9 +21,8 @@ const StyledBox = styled(Box)`
 `;
 
 const NetworkBanner = () => {
-  const {
-    activeChain: { id: fallbackChainId },
-  } = useNetwork();
+  const { activeChain } = useNetwork();
+  const fallbackChainId = activeChain?.id;
 
   const {
     userState: { assetMap },

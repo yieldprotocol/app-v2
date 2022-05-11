@@ -16,9 +16,8 @@ export const useWrapUnwrapAsset = () => {
     settingsState: { unwrapTokens, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const {
-    activeChain: { id: chainId },
-  } = useNetwork();
+  const { activeChain } = useNetwork();
+  const chainId = activeChain?.id;
 
   const { data: signer } = useSigner();
   const { sign } = useChain();

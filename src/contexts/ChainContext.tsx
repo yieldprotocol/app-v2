@@ -101,9 +101,8 @@ const ChainProvider = ({ children }: any) => {
   const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
 
   const fallbackProvider = useProvider();
-  const {
-    activeChain: { id: fallbackChainId },
-  } = useNetwork();
+  const { activeChain } = useNetwork();
+  const fallbackChainId = activeChain?.id;
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)

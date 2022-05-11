@@ -122,11 +122,8 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
-  const { chainState } = useContext(ChainContext);
-
-  const {
-    activeChain: { id: chainId },
-  } = useNetwork();
+  const { activeChain } = useNetwork();
+  const chainId = activeChain?.id;
 
   const _resetProcess = (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
 

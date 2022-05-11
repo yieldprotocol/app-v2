@@ -56,9 +56,8 @@ const PriceProvider = ({ children }: any) => {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const {
-    activeChain: { id: fallbackChainId },
-  } = useNetwork();
+  const { activeChain } = useNetwork();
+  const fallbackChainId = activeChain?.id;
 
   /* LOCAL STATE */
   const [priceState, updateState] = useReducer(priceReducer, initState);

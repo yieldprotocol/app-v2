@@ -21,13 +21,11 @@ const _getCallValue = (calls: ICallData[]): BigNumber =>
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
   const { data: signer } = useSigner();
-  const {
-    activeChain: { id: chainId },
-  } = useNetwork();
+  const { activeChain } = useNetwork();
+  const chainId = activeChain?.id;
 
   const {
     settingsState: { approveMax, forceTransactions, diagnostics },

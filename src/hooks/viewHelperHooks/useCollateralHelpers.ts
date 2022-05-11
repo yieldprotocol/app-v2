@@ -21,9 +21,8 @@ export const useCollateralHelpers = (
   vault: IVault | undefined,
   assetPairInfo: IAssetPair | undefined
 ) => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   /* STATE FROM CONTEXT */
   const {

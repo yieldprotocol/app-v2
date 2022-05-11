@@ -94,15 +94,15 @@ const SettingsProvider = ({ children }: any) => {
 
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
-    if (activeConnector.name && activeConnector.name !== 'MetMmask') {
+    if (activeConnector?.name && activeConnector?.name !== 'MetMmask') {
       console.log('Using manual ERC20 approval transactions');
       updateState({ type: Settings.APPROVAL_MAX, payload: ApprovalType.TX });
-    } else if (activeConnector.name === 'MetaMask') {
+    } else if (activeConnector?.name === 'MetaMask') {
       /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
     }
-  }, [activeConnector.name]);
+  }, [activeConnector?.name]);
 
   /* Exposed userActions */
   const settingsActions = {

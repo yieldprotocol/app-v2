@@ -12,12 +12,12 @@ export const useApprovalMethod = (): ApprovalType => {
   const [approvalMethodToUse, setApprovalMethodToUse] = useState<ApprovalType>(ApprovalType.SIG);
 
   useEffect(() => {
-    if (activeConnector.name !== 'MetaMask' || approvalMethod === ApprovalType.TX) {
+    if (activeConnector?.name !== 'MetaMask' || approvalMethod === ApprovalType.TX) {
       setApprovalMethodToUse(ApprovalType.TX);
     } else {
       setApprovalMethodToUse(ApprovalType.SIG);
     }
-  }, [approvalMethod, setApprovalMethodToUse, activeConnector.name]);
+  }, [approvalMethod, setApprovalMethodToUse, activeConnector?.name]);
 
   return approvalMethodToUse;
 };

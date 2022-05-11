@@ -17,9 +17,8 @@ const YieldInfo = () => {
   const {
     chainState: { appVersion },
   } = useContext(ChainContext) as IChainContext;
-  const {
-    activeChain: { id: fallbackChainId },
-  } = useNetwork();
+  const { activeChain } = useNetwork();
+  const fallbackChainId = activeChain?.id;
 
   const connectedChain = CHAIN_INFO.get(fallbackChainId!);
   const handleExternal = (destination: string) => {};

@@ -61,12 +61,10 @@ import { ChainContext } from '../../contexts/ChainContext';
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  const {
-    data: { address: account },
-  } = useAccount();
-  const {
-    activeChain: { id: chainId },
-  } = useNetwork();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
+  const { activeChain } = useNetwork();
+  const chainId = activeChain?.id;
 
   /* STATE FROM CONTEXT */
   const {

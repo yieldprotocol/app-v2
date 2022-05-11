@@ -27,9 +27,8 @@ import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 
 export const useBorrow = () => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const {
     chainState: { contractMap },

@@ -89,9 +89,8 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const { contractMap, seriesRootMap, assetRootMap } = chainState;
   const fallbackProvider = useProvider();
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const [lastSeriesUpdate] = ['earliest']; // useCachedState('lastSeriesUpdate', 'earliest');
