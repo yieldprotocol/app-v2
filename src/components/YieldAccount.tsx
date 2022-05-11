@@ -44,18 +44,12 @@ const YieldAccount = (props: any) => {
   const { data: ensName } = useEnsName();
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-  const [connectOpen, setConnectOpen] = useState<boolean>(false);
 
   const ethBalance = assetMap.get(WETH)?.balance_;
 
   return (
     <>
-      <SidebarSettings
-        settingsOpen={settingsOpen}
-        setSettingsOpen={setSettingsOpen}
-        connectOpen={connectOpen}
-        setConnectOpen={setConnectOpen}
-      />
+      <SidebarSettings settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
       {account ? (
         <Box direction="row" gap="xsmall" align="center">

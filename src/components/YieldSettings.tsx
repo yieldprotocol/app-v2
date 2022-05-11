@@ -15,7 +15,7 @@ import GeneralButton from './buttons/GeneralButton';
 import UnwrapSetting from './settings/UnwrapSetting';
 import BackButton from './buttons/BackButton';
 
-const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
+const YieldSettings = ({ setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     txState: { transactions },
@@ -35,11 +35,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
   const [transactionsOpen, setTransactionsOpen] = useState<boolean>(false);
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState<boolean>(false);
-
-  const handleChangeConnectType = () => {
-    setSettingsOpen(false);
-    setConnectOpen(true);
-  };
 
   const handleResetApp = () => {
     clearCachedItems([]);
@@ -98,10 +93,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
           <Collapsible open={connectionSettingsOpen}>
             <Box gap="xsmall">
-              <GeneralButton action={handleChangeConnectType} background="gradient-transparent">
-                <Text size="xsmall">Change Connection</Text>
-              </GeneralButton>
-
               <GeneralButton action={() => console.log('disconnect')} background="gradient-transparent">
                 <Text size="xsmall">Disconnect</Text>
               </GeneralButton>
