@@ -214,7 +214,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   joinAddress: string;
 
   digitFormat: number;
-  baseContract: Contract;
+  assetContract: Contract;
 
   isYieldBase: boolean;
 
