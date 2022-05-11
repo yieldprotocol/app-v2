@@ -3,7 +3,7 @@ import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'gro
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
-import { useNetwork } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import SeriesSelector from '../selectors/SeriesSelector';
 import MainViewWrap from '../wraps/MainViewWrap';
 import AssetSelector from '../selectors/AssetSelector';
@@ -58,8 +58,11 @@ const Borrow = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
+  const {
+    data: { address: account },
+  } = useAccount();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -151,7 +154,7 @@ const Borrow = () => {
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
-    !activeAccount ||
+    !account ||
     !borrowInput ||
     !selectedSeries ||
     !selectedIlk ||
@@ -166,7 +169,7 @@ const Borrow = () => {
     collatInput,
     selectedSeries,
     selectedIlk,
-    activeAccount,
+    account,
     borrowInputError,
     collatInputError,
     undercollateralized,
@@ -189,7 +192,7 @@ const Borrow = () => {
     borrowInput,
     borrowInputError,
     selectedSeries,
-    activeAccount,
+    account,
     stepPosition,
     collatInput,
     undercollateralized,
@@ -562,7 +565,7 @@ const Borrow = () => {
                 primary
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {!activeAccount
+                    {!account
                       ? 'Connect Wallet'
                       : `Borrow${borrowProcess?.processActive ? `ing` : ''} ${
                           nFormatter(Number(borrowInput), selectedBase?.digitFormat!) || ''

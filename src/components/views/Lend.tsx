@@ -3,6 +3,7 @@ import { Box, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
+import { useAccount } from 'wagmi';
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import AssetSelector from '../selectors/AssetSelector';
 import InputWrap from '../wraps/InputWrap';
@@ -46,7 +47,11 @@ const Lend = () => {
 
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeries, selectedBase, seriesMap } = userState;
+  const { selectedSeries, selectedBase, seriesMap } = userState;
+
+  const {
+    data: { address: account },
+  } = useAccount();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -78,9 +83,9 @@ const Lend = () => {
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
-    activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
+    account && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
     lendInput && selectedSeries && !lendError ? setStepDisabled(false) : setStepDisabled(true);
-  }, [lendInput, activeAccount, lendError, selectedSeries]);
+  }, [lendInput, account, lendError, selectedSeries]);
 
   /* Watch process timeouts */
   useEffect(() => {
@@ -261,7 +266,7 @@ const Lend = () => {
                 primary
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {!activeAccount
+                    {!account
                       ? 'Connect Wallet'
                       : `Lend${lendProcess?.processActive ? `ing` : ''} ${
                           nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''

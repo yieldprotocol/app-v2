@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
+import { useAccount } from 'wagmi';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, ISettingsContext, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
@@ -18,13 +19,17 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
+  const {
+    data: { address: account },
+  } = useAccount();
+
   /* STATE FROM CONTEXT */
   const {
     settingsState: { slippageTolerance, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
+    userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },
   } = useContext(UserContext);
 
   const strategy: IStrategy | undefined = selectedStrategy;
@@ -152,14 +157,14 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Set Max Pool > effectively user balance */
   useEffect(() => {
-    if (activeAccount && !removeLiquidityView) {
+    if (account && !removeLiquidityView) {
       /* Checks asset selection and sets the max available value */
       (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
+        const max = await selectedBase?.getBalance(account);
         if (max) setMaxPool(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
       })();
     }
-  }, [input, activeAccount, removeLiquidityView, selectedBase]);
+  }, [input, account, removeLiquidityView, selectedBase]);
 
   /**
    * Remove Liquidity specific section

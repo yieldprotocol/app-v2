@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
+import { useAccount } from 'wagmi';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, ISettingsContext, IUserContext, IUserContextState, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
@@ -20,7 +21,10 @@ function VaultPositionSelector(target: any) {
     settingsState: { dashHideInactiveVaults },
   } = useContext(SettingsContext) as ISettingsContext;
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount: account, vaultMap, selectedSeries, selectedBase } = userState;
+  const { vaultMap, selectedSeries, selectedBase } = userState;
+  const {
+    data: { address: account },
+  } = useAccount();
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);

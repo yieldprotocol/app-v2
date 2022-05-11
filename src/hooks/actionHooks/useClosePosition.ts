@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { useAccount } from 'wagmi';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -24,6 +25,10 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 /* Lend Actions Hook */
 export const useClosePosition = () => {
   const {
+    data: { address: account },
+  } = useAccount();
+
+  const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
@@ -34,7 +39,7 @@ export const useClosePosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
+  const { assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
   const {
     historyActions: { updateTradeHistory },

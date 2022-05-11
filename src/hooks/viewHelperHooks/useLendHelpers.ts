@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, ISeries, IUserContextState } from '../../types';
@@ -13,11 +14,15 @@ export const useLendHelpers = (
   rollToSeries: ISeries | undefined = undefined
 ) => {
   const {
+    data: { address: account },
+  } = useAccount();
+
+  const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext);
-  const { activeAccount, selectedBase } = userState;
+  const { selectedBase } = userState;
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
@@ -58,14 +63,14 @@ export const useLendHelpers = (
 
   /* Check and set Max available lend by user (only if activeAccount).   */
   useEffect(() => {
-    if (activeAccount) {
+    if (account) {
       (async () => {
         // user base available when rolling is the user's from series lend position balance
-        const usersMaxBase = await selectedBase?.getBalance(activeAccount);
+        const usersMaxBase = await selectedBase?.getBalance(account);
         usersMaxBase && setUserBaseBalance(usersMaxBase);
       })();
     }
-  }, [activeAccount, selectedBase, series]);
+  }, [account, selectedBase, series]);
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {

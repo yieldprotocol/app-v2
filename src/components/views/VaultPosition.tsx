@@ -5,6 +5,7 @@ import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'gromm
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity, FiChevronDown } from 'react-icons/fi';
 import { GiMedalSkull } from 'react-icons/gi';
 
+import { useAccount } from 'wagmi';
 import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
@@ -48,20 +49,22 @@ import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
 
-
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
   const router = useRouter();
   const { id: idFromUrl } = router.query;
+  const {
+    data: { address: account },
+  } = useAccount();
 
   /* STATE FROM CONTEXT */
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
 
-  const { activeAccount: account, assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
+  const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const _selectedVault = vaultMap.get(idFromUrl as string);
@@ -273,8 +276,8 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
-    
-    // handle using ilk 
+
+    // handle using ilk
     const _ilkToUse = _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);

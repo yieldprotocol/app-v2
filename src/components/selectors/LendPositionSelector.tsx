@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
+import { useAccount } from 'wagmi';
 import { UserContext } from '../../contexts/UserContext';
 
 import { ActionType, IAsset, ISeries, IUserContext, IUserContextState } from '../../types';
@@ -18,7 +19,10 @@ interface IPositionFilter {
 function PositionSelector({ actionType }: { actionType: ActionType }) {
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, seriesMap, selectedSeries, selectedBase } = userState;
+  const { seriesMap, selectedSeries, selectedBase } = userState;
+  const {
+    data: { address: account },
+  } = useAccount();
 
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
@@ -70,7 +74,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
 
   return (
     <Box justify="end" fill>
-      {activeAccount && allPositions.length !== 0 && (
+      {account && allPositions.length !== 0 && (
         <Box gap="small">
           <Box
             animation="fadeIn"

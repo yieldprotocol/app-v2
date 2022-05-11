@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
@@ -16,13 +17,17 @@ export const useBorrowHelpers = (
   assetPairInfo: IAssetPair | undefined,
   futureSeries: ISeries | null = null // Future or rollToSeries
 ) => {
+  const {
+    data: { address: account },
+  } = useAccount();
+
   /* STATE FROM CONTEXT */
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
   const {
-    userState: { activeAccount, assetMap, seriesMap, selectedSeries },
+    userState: { assetMap, seriesMap, selectedSeries },
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
@@ -170,11 +175,11 @@ export const useBorrowHelpers = (
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
-    if (activeAccount && vault && vaultBase && minDebt) {
+    if (account && vault && vaultBase && minDebt) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
 
       (async () => {
-        const _userBalance = await vaultBase.getBalance(activeAccount);
+        const _userBalance = await vaultBase.getBalance(account);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
 
         /* maxRepayable is either the max tokens they have or max debt */
@@ -203,17 +208,16 @@ export const useBorrowHelpers = (
 
         /* if the series is mature re-set max as all debt ( if balance allows) */
         if (vaultSeries.seriesIsMature) {
-          const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt
+          const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
           setMaxRepay(_accruedArt);
           setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
         } else {
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxRepayable);
         }
-        
       })();
     }
-  }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);
+  }, [account, minDebt, seriesMap, vault, vaultBase]);
 
   return {
     borrowPossible,

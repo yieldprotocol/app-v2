@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import { UserContext } from '../../contexts/UserContext';
 import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
@@ -20,9 +21,13 @@ export const useCollateralHelpers = (
   vault: IVault | undefined,
   assetPairInfo: IAssetPair | undefined
 ) => {
+  const {
+    data: { address: account },
+  } = useAccount();
+
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
+    userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
   } = useContext(UserContext);
 
   const _selectedBase = vault ? assetMap.get(vault.baseId) : selectedBase;
@@ -93,12 +98,12 @@ export const useCollateralHelpers = (
 
   /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {
-    activeAccount &&
+    account &&
       (async () => {
-        const _max = await _selectedIlk?.getBalance(activeAccount);
+        const _max = await _selectedIlk?.getBalance(account);
         _max && setMaxCollateral(ethers.utils.formatUnits(_max, _selectedIlk.decimals)?.toString());
       })();
-  }, [activeAccount, _selectedIlk, setMaxCollateral]);
+  }, [account, _selectedIlk, setMaxCollateral]);
 
   /* handle changes to input values */
   useEffect(() => {

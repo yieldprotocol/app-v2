@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { useAccount } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -22,6 +23,10 @@ import { useChain } from '../useChain';
 /* Lend Actions Hook */
 export const useRollPosition = () => {
   const {
+    data: { address: account },
+  } = useAccount();
+
+  const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
@@ -32,7 +37,7 @@ export const useRollPosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
+  const { assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
   const {

@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
+import { useAccount } from 'wagmi';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -30,6 +31,10 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 
 export const useAddLiquidity = () => {
   const {
+    data: { address: account },
+  } = useAccount();
+
+  const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext) as ISettingsContext;
 
@@ -39,7 +44,7 @@ export const useAddLiquidity = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, seriesMap } = userState;
+  const { assetMap, seriesMap } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
 
   const { sign, transact } = useChain();

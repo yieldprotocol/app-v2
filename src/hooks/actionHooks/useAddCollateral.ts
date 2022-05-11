@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { useAccount } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 
@@ -26,6 +27,10 @@ import { ModuleActions } from '../../types/operations';
 
 export const useAddCollateral = () => {
   const {
+    data: { address: account },
+  } = useAccount();
+
+  const {
     chainState: { contractMap },
   } = useContext(ChainContext) as IChainContext;
 
@@ -33,7 +38,7 @@ export const useAddCollateral = () => {
     UserContext
   ) as IUserContext;
 
-  const { activeAccount: account, selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
+  const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
   const { sign, transact } = useChain();

@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
+import { useAccount } from 'wagmi';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -50,6 +51,10 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const {
+    data: { address: account },
+  } = useAccount();
+
+  const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
@@ -60,7 +65,7 @@ export const useRemoveLiquidity = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, selectedStrategy } = userState;
+  const { assetMap, selectedStrategy } = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();

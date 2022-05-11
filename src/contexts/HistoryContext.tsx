@@ -2,7 +2,7 @@ import React, { useContext, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import { useProvider } from 'wagmi';
+import { useAccount, useProvider } from 'wagmi';
 import {
   ISeries,
   IVault,
@@ -12,13 +12,11 @@ import {
   IAsset,
   IStrategy,
   IChainContext,
-  IUserContext,
   ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
-import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
 import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
@@ -91,9 +89,10 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const { contractMap, seriesRootMap, assetRootMap } = chainState;
   const fallbackProvider = useProvider();
+  const {
+    data: { address: account },
+  } = useAccount();
 
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount: account } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const [lastSeriesUpdate] = ['earliest']; // useCachedState('lastSeriesUpdate', 'earliest');
   const [lastVaultUpdate] = ['earliest']; // useCachedState('lastVaultUpdate', 'earliest');

@@ -3,6 +3,7 @@ import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
 
+import { useAccount } from 'wagmi';
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
 import { abbreviateHash, cleanValue, formatStrategyName, nFormatter } from '../../utils/appUtils';
@@ -39,7 +40,10 @@ const PoolPosition = () => {
     userState,
     userActions: { setSelectedStrategy },
   } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
+  const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
+  const {
+    data: { address: account },
+  } = useAccount();
 
   const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl as string);
 
@@ -122,7 +126,7 @@ const PoolPosition = () => {
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
+  }, [account, forceDisclaimerChecked, removeError, removeInput]);
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl as string) || null;

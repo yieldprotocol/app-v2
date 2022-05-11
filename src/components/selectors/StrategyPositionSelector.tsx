@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
+import { useAccount } from 'wagmi';
 import { UserContext } from '../../contexts/UserContext';
 import { IStrategy, IUserContext, IUserContextState } from '../../types';
 
@@ -13,7 +14,10 @@ function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, strategyMap, selectedBase } = userState;
+  const { strategyMap, selectedBase } = userState;
+  const {
+    data: { address: account },
+  } = useAccount();
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
@@ -42,7 +46,7 @@ function StrategyPositionSelector() {
 
   return (
     <Box justify="end" fill>
-      {activeAccount && allPositions.length !== 0 && (
+      {account && allPositions.length !== 0 && (
         <Box gap="small">
           <Box
             animation="fadeIn"

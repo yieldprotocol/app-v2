@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries, IUserContext, IUserContextState, IVault } from '../types';
 
@@ -11,9 +12,13 @@ export const useInputValidation = (
   limits: (number | string | undefined)[],
   vault?: IVault | undefined
 ) => {
+  const {
+    data: { address: account },
+  } = useAccount();
+
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { assetMap, selectedSeries, selectedBase, activeAccount } = userState;
+  const { assetMap, selectedSeries, selectedBase } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;
 
@@ -23,7 +28,7 @@ export const useInputValidation = (
   // const [inputDisabled, setInputDisabled] = useState<boolean | null>();
 
   useEffect(() => {
-    if (activeAccount && (input || input === '')) {
+    if (account && (input || input === '')) {
       const _inputAsFloat = parseFloat(input);
       const aboveMax: boolean = !!limits[1] && _inputAsFloat > parseFloat(limits[1].toString());
       const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
@@ -99,7 +104,7 @@ export const useInputValidation = (
           break;
       }
     } else setInputError(null);
-  }, [actionCode, activeAccount, input, limits, _selectedBase?.symbol, _selectedSeries]);
+  }, [actionCode, account, input, limits, _selectedBase?.symbol, _selectedSeries]);
 
   return {
     inputError,

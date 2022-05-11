@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
@@ -27,6 +28,10 @@ import { ConvexLadleModule } from '../../contracts';
 
 export const useBorrow = () => {
   const {
+    data: { address: account },
+  } = useAccount();
+
+  const {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
@@ -38,7 +43,7 @@ export const useBorrow = () => {
     UserContext
   ) as IUserContext;
 
-  const { activeAccount: account, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
+  const { selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
 
   const { addEth, removeEth } = useAddRemoveEth();

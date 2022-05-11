@@ -3,6 +3,7 @@ import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Ti
 import { FiInfo, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
+import { useAccount } from 'wagmi';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
 import AssetSelector from '../selectors/AssetSelector';
 import MainViewWrap from '../wraps/MainViewWrap';
@@ -39,7 +40,10 @@ function Pool() {
 
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
+  const { selectedBase, selectedStrategy, strategyMap } = userState;
+  const {
+    data: { address: account },
+  } = useAccount();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -74,9 +78,9 @@ function Pool() {
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
-    !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
+    !account || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
-  }, [poolInput, activeAccount, poolError, selectedStrategy]);
+  }, [poolInput, account, poolError, selectedStrategy]);
 
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);
@@ -313,7 +317,7 @@ function Pool() {
             <TransactButton
               primary
               label={
-                !activeAccount ? (
+                !account ? (
                   'Connect Wallet'
                 ) : (
                   <Text size={mobile ? 'small' : undefined}>
