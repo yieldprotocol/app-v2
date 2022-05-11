@@ -13,16 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ActionCodes,
-  ActionType,
-  ISettingsContext,
-  IUserContext,
-  IUserContextState,
-  IVault,
-  ProcessStage,
-  TxState,
-} from '../../types';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -54,7 +45,6 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
 import VaultItem from '../positionItems/VaultItem';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 
