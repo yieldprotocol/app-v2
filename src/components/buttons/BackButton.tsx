@@ -11,7 +11,6 @@ const StyledButton = styled(Button)`
   :hover {
     transform: scale(1.25);
     color: #444444;
-
   }
   :active {
     transform: scale(1);
@@ -23,20 +22,23 @@ function BackButton({ action }: { action: () => void }) {
   return (
     <Box align="center" direction="row">
       <StyledButton
-      
         color="grey"
         onClick={() => action()}
         icon={
-          <Avatar 
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-          
-          size="2em" 
-          pad="xsmall" 
-          elevation={hover? 'small': undefined}
+          <Avatar
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            size="2em"
+            pad="xsmall"
+            elevation={hover ? 'small' : undefined}
           >
-            {hover && <Text size="0.5em" weight='lighter'> Back </Text>}
-            {!hover &&  <FiChevronLeft />}
+            {hover && (
+              <Text size="0.5em" weight="lighter">
+                {' '}
+                Back{' '}
+              </Text>
+            )}
+            {!hover && <FiChevronLeft />}
           </Avatar>
         }
       />
