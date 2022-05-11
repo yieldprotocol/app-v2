@@ -1,19 +1,17 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Select, Text } from 'grommet';
 import { FiChevronDown } from 'react-icons/fi';
-import { ChainContext } from '../../contexts/ChainContext';
+import { useAccount, useNetwork } from 'wagmi';
 import { CHAIN_INFO } from '../../config/chainData';
 import { useNetworkSelect } from '../../hooks/useNetworkSelect';
-import { IChainContext } from '../../types';
 import ArbitrumLogo from '../logos/Arbitrum';
 import EthMark from '../logos/EthMark';
 
 const NetworkSelector = () => {
+  const { data: account } = useAccount();
   const {
-    chainState: {
-      connection: { account, fallbackChainId },
-    },
-  } = useContext(ChainContext) as IChainContext;
+    activeChain: { id: fallbackChainId },
+  } = useNetwork();
 
   const [selectedChainId, setSelectedChainId] = useState<number | undefined>();
 
