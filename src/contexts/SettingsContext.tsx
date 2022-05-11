@@ -56,7 +56,7 @@ const initState: ISettingsContextState = {
   showWrappedTokens: true,
 
   /* Always Unwrap tokens when removing them */
-  unwrapTokens: true,
+  unwrapTokens: false,
 
   /* Dashboard settings */
   dashHideEmptyVaults: false,
