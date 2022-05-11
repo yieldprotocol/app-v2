@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useContext } from 'react';
 import styled, { CSSProperties } from 'styled-components';
 import { Box, ThemeContext, ResponsiveContext, Text } from 'grommet';
+import { useAccount } from 'wagmi';
 import NavText from './texts/NavText';
 import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
@@ -40,14 +41,14 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
   const [height] = useWindowSize();
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
+
   const {
     settingsState: { darkMode },
   } = useContext(SettingsContext) as ISettingsContext;
+
+  const {
+    data: { address: account },
+  } = useAccount();
 
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text;
