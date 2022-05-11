@@ -4,13 +4,14 @@ import { FiChevronLeft } from 'react-icons/fi';
 import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
-  -webkit-transition: transform 0.3s ease-in-out;
-  -moz-transition: transform 0.3s ease-in-out;
-  transition: transform 0.3s ease-in-out;
+  -webkit-transition: transform 0.5s ease-in-out;
+  -moz-transition: transform 0.5s ease-in-out;
+  transition: transform 0.5s ease-in-out;
   padding: 0;
   :hover {
     transform: scale(1.25);
     color: #444444;
+
   }
   :active {
     transform: scale(1);
@@ -32,8 +33,7 @@ function BackButton({ action }: { action: () => void }) {
           
           size="2em" 
           pad="xsmall" 
-          elevation="xsmall"
-          
+          elevation={hover? 'small': undefined}
           >
             {hover && <Text size="0.5em" weight='lighter'> Back </Text>}
             {!hover &&  <FiChevronLeft />}
