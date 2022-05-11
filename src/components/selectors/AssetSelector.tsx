@@ -5,6 +5,7 @@ import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
+import { useAccount } from 'wagmi';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
@@ -38,7 +39,11 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
+  const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
+
+  const {
+    data: { address: account },
+  } = useAccount();
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
@@ -84,7 +89,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       : filteredOptions;
 
     setOptions(sortedOptions);
-  }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
+  }, [assetMap, selectCollateral, selectedSeries, selectedBase, account, showWrappedTokens]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
