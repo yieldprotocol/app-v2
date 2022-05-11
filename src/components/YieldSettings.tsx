@@ -12,7 +12,6 @@ import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
-import NetworkSetting from './settings/NetworkSetting';
 import UnwrapSetting from './settings/UnwrapSetting';
 import BackButton from './buttons/BackButton';
 
@@ -111,14 +110,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         </Box>
       </Box>
 
-      {!mobile && (
-        <Box background="gradient-transparent" flex={false}>
-          <Box pad="medium" background="gradient-transparent">
-            <NetworkSetting />
-          </Box>
-        </Box>
-      )}
-
       <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />
         <ApprovalSetting />
@@ -127,7 +118,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       </Box>
 
       <Box pad="medium" gap="small" flex={false}>
-        <Text size="small"> Troubleshooting </Text>
+        <Text size="small">Troubleshooting</Text>
         <GeneralButton action={handleResetApp} background="background">
           <Tip
             plain
