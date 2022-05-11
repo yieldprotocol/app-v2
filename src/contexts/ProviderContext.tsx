@@ -1,42 +1,59 @@
-import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
-import { ethers } from 'ethers';
+import {
+  apiProvider,
+  configureChains,
+  darkTheme,
+  getDefaultWallets,
+  RainbowKitProvider,
+  Theme,
+} from '@rainbow-me/rainbowkit';
+import { Chain, chain, createClient, WagmiProvider } from 'wagmi';
+import merge from 'lodash.merge';
+import { useContext } from 'react';
+import { useColorScheme } from '../hooks/useColorScheme';
+import { SUPPORTED_RPC_URLS } from '../config/chainData';
+import { SettingsContext } from './SettingsContext';
+import { ISettingsContext } from '../types';
 
-/* Init the signing web3 environment */
-function getLibrary(provider: ethers.providers.ExternalProvider) {
-  const library = new ethers.providers.Web3Provider(provider);
-  library.pollingInterval = 6000;
-  return library;
-}
+const ProviderContext = ({ children }) => {
+  const { chains, provider } = configureChains(
+    [chain.mainnet, chain.arbitrum],
+    [apiProvider.jsonRpc((_chain: Chain) => ({ rpcUrl: SUPPORTED_RPC_URLS[_chain.id] }))]
+  );
 
-/* init the fallback web3 connection */
-const Web3FallbackProvider = createWeb3ReactRoot('fallback');
-function getFallbackLibrary(provider: any) {
-  try {
-    if (provider.chainId === 42161)
-      return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_ARBITRUM_KEY);
+  const { connectors } = getDefaultWallets({
+    appName: 'Yieldspace App',
+    chains,
+  });
 
-    if (provider.chainId === 421611)
-      return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_ARBITRUM_RINKEBY_KEY);
+  const wagmiClient = createClient({
+    autoConnect: true,
+    connectors,
+    provider,
+  });
 
-    const library = new ethers.providers.InfuraProvider(provider.chainId, process.env.INFURA_KEY);
-    library.pollingInterval = 6000;
-    return library;
-  } catch (e) {
-    if (provider.chainId === 1) {
-      console.log('Could not connect to infura provider on mainnet, trying alchemy');
-      const library = new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_MAINNET_KEY);
-      library.pollingInterval = 6000;
-      return library;
-    }
-    console.log('Could not connect to fallback provider');
-    return undefined;
-  }
-}
+  const theme = merge(document.body.dataset.theme === 'dark' ? darkTheme() : undefined, {
+    colors: {
+      accentColor:
+        'linear-gradient(135deg, rgba(247, 149, 51, 0.5), rgba(243, 112, 85, 0.5), rgba(239, 78, 123, 0.5), rgba(161, 102, 171, 0.5), rgba(80, 115, 184, 0.5), rgba(16, 152, 173, 0.5), rgba(7, 179, 155, 0.5), rgba(111, 186, 130, 0.5));',
+    },
 
-const ProviderContext = ({ children }: { children: any }) => (
-  <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-    <Web3ReactProvider getLibrary={getLibrary}>{children}</Web3ReactProvider>
-  </Web3FallbackProvider>
-);
+    fonts: { body: 'raleway' },
+    radii: {
+      actionButton: '.75rem',
+      connectButton: '.75rem',
+      menuButton: '.75rem',
+      modal: '.75rem',
+      modalMobile: '.75rem',
+    },
+  } as Theme);
+
+  return (
+    <WagmiProvider client={wagmiClient}>
+      <RainbowKitProvider chains={chains} theme={theme} showRecentTransactions>
+        {children}
+      </RainbowKitProvider>
+    </WagmiProvider>
+  );
+};
 
 export default ProviderContext;
