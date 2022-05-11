@@ -420,7 +420,7 @@ const ChainProvider = ({ children }: any) => {
 
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
-          isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) < 0,
+          isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
           getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
@@ -499,6 +499,7 @@ const ChainProvider = ({ children }: any) => {
       };
 
       /* Attach contract instance */
+
       const _chargeStrategy = (strategy: any) => {
         const Strategy = contracts.Strategy__factory.connect(strategy.address, fallbackProvider);
         return {

@@ -281,12 +281,11 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress),
-            series.isMature(),
+            series.fyTokenContract.balanceOf(series.poolAddress)
           ]);
 
           const rateCheckAmount = ethers.utils.parseUnits(
@@ -316,7 +315,7 @@ const UserProvider = ({ children }: any) => {
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: mature,
+            seriesIsMature: series.isMature(),
           };
         })
       );
@@ -397,7 +396,7 @@ const UserProvider = ({ children }: any) => {
           let rate: BigNumber;
           let rate_: string;
 
-          if (await series.isMature()) {
+          if (series.isMature()) {
             rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
             [rate] = await RateOracle.peek(
               bytesToBytes32(vault.baseId, 6),
