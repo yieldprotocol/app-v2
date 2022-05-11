@@ -79,7 +79,7 @@ export const useRollPosition = () => {
       txCode
     );
 
-    /* Reciever of transfer (based on maturity ) the series maturity */
+    /* Reciever of transfer (based on maturity) the series maturity */
     const transferToAddress = () => {
       if (fromSeries.seriesIsMature) return fromSeries.fyTokenAddress;
       return fromSeries.poolAddress;
