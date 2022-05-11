@@ -1,4 +1,4 @@
-import TriCRVCVXMark from '../components/logos/CVX3CRVMark';
+import CVX3CRVMark from '../components/logos/CVX3CRVMark';
 import DaiMark from '../components/logos/DaiMark';
 import ENSMark from '../components/logos/ENSMark';
 import EthMark from '../components/logos/EthMark';
@@ -29,8 +29,8 @@ const markMap = new Map([
   ['yvUSDC', <YVUSDCMark key="yvusdc" />],
   ['MKR', <MakerMark key="mkr" />],
   ['Notional', <NotionalMark key="notional" />],
-  ['Cvx3Crv Mock', <TriCRVCVXMark key="cvx3crv mock" />],
-  ['cvx3Crv', <TriCRVCVXMark key="cvx3crv" />],
+  ['Cvx3Crv Mock', <CVX3CRVMark key="cvx3crv mock" />],
+  ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],
 ]);
 
