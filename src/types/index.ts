@@ -10,7 +10,6 @@ export interface IChainContext {
 
 export interface IChainContextState {
   appVersion: string;
-  connection: IConnectionState;
 
   chainLoading: boolean;
 
