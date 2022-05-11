@@ -249,7 +249,6 @@ ASSET_INFO.set(CVX3CRV, {
   decimals: 18,
   symbol: 'cvx3crv',
   showToken: false,
-  isWrappedToken: false,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
   limitToSeries: [
