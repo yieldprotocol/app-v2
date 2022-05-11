@@ -1,5 +1,6 @@
 import { BigNumber, Contract } from 'ethers';
 import { useContext } from 'react';
+import { useNetwork, useSigner } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ICallData, LadleActions, IAsset, RoutedActions, IChainContext, ISettingsContext } from '../../types';
@@ -8,18 +9,18 @@ import { useChain } from '../useChain';
 
 export const useWrapUnwrapAsset = () => {
   const {
-    chainState: {
-      connection: { account, provider, chainId },
-      contractMap,
-      assetRootMap,
-    },
+    chainState: { contractMap, assetRootMap },
   } = useContext(ChainContext) as IChainContext;
 
   const {
     settingsState: { unwrapTokens, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const signer = account ? provider?.getSigner(account) : provider?.getSigner(0);
+  const {
+    activeChain: { id: chainId },
+  } = useNetwork();
+
+  const { data: signer } = useSigner();
   const { sign } = useChain();
 
   const wrapHandlerAbi = ['function wrap(address to)', 'function unwrap(address to)'];
