@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useReducer } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
+import { useNetwork } from 'wagmi';
 import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -49,15 +50,15 @@ const priceReducer = (state: IPriceContextState, action: any) => {
 const PriceProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const {
-    contractMap,
-    connection: { fallbackChainId },
-    assetRootMap,
-  } = chainState;
+  const { contractMap, assetRootMap } = chainState;
 
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
+
+  const {
+    activeChain: { id: fallbackChainId },
+  } = useNetwork();
 
   /* LOCAL STATE */
   const [priceState, updateState] = useReducer(priceReducer, initState);
