@@ -23,7 +23,11 @@ import { ConvexJoin__factory } from '../../contracts';
 
 export const useRemoveCollateral = () => {
   const {
-    chainState: { contractMap, connection : { chainId }, provider },
+    chainState: {
+      contractMap,
+      connection: { chainId },
+      provider,
+    },
   } = useContext(ChainContext);
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
@@ -34,8 +38,7 @@ export const useRemoveCollateral = () => {
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
 
-  const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true ) => {
-    
+  const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
@@ -49,23 +52,23 @@ export const useRemoveCollateral = () => {
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
     const cleanedInput = cleanValue(input, ilk.decimals);
-    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals)
-    
+    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
+
     /* handle wrapped tokens:  */
     const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account) : [];
-    const removeEthCallData: ICallData[] = isEthCollateral ?  removeEth(ONE_BN) : [] // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+    const removeEthCallData: ICallData[] = isEthCollateral ? removeEth(ONE_BN) : []; // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
 
-     /* is convex-type collateral */
+    /* is convex-type collateral */
     const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
     const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
-    
+
     /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */
     const pourToAddress = () => {
-      console.log('Requires unwrapping? ', unwrapCallData.length); 
+      console.log('Requires unwrapping? ', unwrapCallData.length);
       if (isEthCollateral) return ladleAddress;
       if (unwrapCallData.length) return unwrapHandlerAddress; // if there is somethign to unwrap
-      return account
-    }
+      return account;
+    };
 
     const calls: ICallData[] = [
       /* convex-type collateral; ensure checkpoint before giving collateral back to account */
@@ -79,14 +82,14 @@ export const useRemoveCollateral = () => {
       {
         operation: LadleActions.Fn.POUR,
         args: [
-          vault.id,  
+          vault.id,
           pourToAddress(),
           _input.mul(-1), // NOTE: negated value!
           ZERO_BN, // No debt written off
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
-      ...removeEthCallData, 
+      ...removeEthCallData,
       ...unwrapCallData,
     ];
 
