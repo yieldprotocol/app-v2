@@ -13,7 +13,6 @@ import { yieldTheme } from '../themes';
 const DynamicYieldHeader = dynamic(() => import('./YieldHeader'), { ssr: false });
 const DynamicYieldMobileMenu = dynamic(() => import('./YieldMobileMenu'), { ssr: false });
 const DynamicNetworkBanner = dynamic(() => import('./NetworkBanner'), { ssr: false });
-const DynamicNetworkError = dynamic(() => import('./NetworkError'), { ssr: false });
 const DynamicTransactionWidget = dynamic(() => import('./TransactionWidget'), { ssr: false });
 const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ssr: false });
 
@@ -52,7 +51,6 @@ const Layout: FC = ({ children }) => {
           <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
           <DynamicNetworkBanner />
           <DynamicTransactionWidget />
-          <DynamicNetworkError />
           <DynamicTransactionError />
           <ToastContainer position="top-right" />
           <Box overflow="hidden">
