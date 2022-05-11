@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ICallData, LadleActions, IAsset, RoutedActions } from '../../types';
-import { MAX_256, ZERO_BN } from '../../utils/constants';
+import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 export const useWrapUnwrapAsset = () => {
@@ -84,7 +84,6 @@ export const useWrapUnwrapAsset = () => {
       const unwraphandlerContract: Contract = new Contract(unwrapHandlerAddress, wrapHandlerAbi, signer);
 
       return [
-
         {
           operation: LadleActions.Fn.ROUTE,
           args: [receiver] as RoutedActions.Args.UNWRAP,
