@@ -14,7 +14,16 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../../types';
+import {
+  ActionCodes,
+  ActionType,
+  IChainContext,
+  IUserContext,
+  IUserContextState,
+  IVault,
+  ProcessStage,
+  TxState,
+} from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -47,22 +56,27 @@ import YieldNavigation from '../YieldNavigation';
 import VaultItem from '../positionItems/VaultItem';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
+import { ChainContext } from '../../contexts/ChainContext';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
+  const {
+    data: { address: account },
+  } = useAccount();
   const {
     activeChain: { id: chainId },
   } = useNetwork();
 
   /* STATE FROM CONTEXT */
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext) as IChainContext;
   const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
     UserContext
   ) as IUserContext;
   const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
-  const {
-    data: { address: account },
-  } = useAccount();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
