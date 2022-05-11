@@ -22,7 +22,7 @@ import { useChain } from '../useChain';
 /* Lend Actions Hook */
 export const useRollPosition = () => {
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const {
