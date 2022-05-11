@@ -19,7 +19,7 @@ const UnwrapSetting = () => {
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color='text-xweak'>
+        <Text size="small" color="text-xweak">
           Auto-unwrap tokens
         </Text>
         <Switch
