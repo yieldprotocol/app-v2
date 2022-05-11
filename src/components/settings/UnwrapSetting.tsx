@@ -2,15 +2,8 @@ import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
 import { Settings, SettingsContext } from '../../contexts/SettingsContext';
-import { ChainContext } from '../../contexts/ChainContext';
 
 const UnwrapSetting = () => {
-  const {
-    chainState: {
-      connection: { connectionName },
-    },
-  } = useContext(ChainContext);
-
   const {
     settingsState: { unwrapTokens },
     settingsActions: { updateSetting },
