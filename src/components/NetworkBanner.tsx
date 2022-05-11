@@ -2,8 +2,8 @@ import { useContext, useState } from 'react';
 import { Anchor, Box, Button, Text } from 'grommet';
 import styled from 'styled-components';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
-import { IChainContext, IUserContext } from '../types';
+import { useNetwork } from 'wagmi';
+import { IUserContext } from '../types';
 import { CHAIN_INFO } from '../config/chainData';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
@@ -22,10 +22,8 @@ const StyledBox = styled(Box)`
 
 const NetworkBanner = () => {
   const {
-    chainState: {
-      connection: { fallbackChainId },
-    },
-  } = useContext(ChainContext) as IChainContext;
+    activeChain: { id: fallbackChainId },
+  } = useNetwork();
 
   const {
     userState: { assetMap },
