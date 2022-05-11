@@ -82,16 +82,16 @@ export const useBorrow = () => {
 
     /* Calculate expected debt (fytokens) from either network or calculated */
     const _expectedFyToken = getValuesFromNetwork
-    ? await series.poolContract.buyBasePreview(_input)
-    : buyBase(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _input,
-      series.getTimeTillMaturity(),
-      series.ts,
-      series.g2,
-      series.decimals
-    );
+      ? await series.poolContract.buyBasePreview(_input)
+      : buyBase(
+          series.baseReserves,
+          series.fyTokenReserves,
+          _input,
+          series.getTimeTillMaturity(),
+          series.ts,
+          series.g2,
+          series.decimals
+        );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
@@ -115,10 +115,10 @@ export const useBorrow = () => {
           spender: ilkToUse.joinAddress,
           amount: _collInput,
           ignoreIf:
-            alreadyApproved === true || // Ignore if already approved 
-            ETH_BASED_ASSETS.includes(ilkToUse.id) || // Ignore if dealing with an eTH based collateral 
-            _collInput.eq(ethers.constants.Zero) // || // ignore if zero collateral value
-            // wrapAssetCallData.length > 0, // Ignore if dealing with a wrapped collateral!
+            alreadyApproved === true || // Ignore if already approved
+            ETH_BASED_ASSETS.includes(ilkToUse.id) || // Ignore if dealing with an eTH based collateral
+            _collInput.eq(ethers.constants.Zero), // || // ignore if zero collateral value
+          // wrapAssetCallData.length > 0, // Ignore if dealing with a wrapped collateral!
         },
       ],
       txCode
@@ -126,10 +126,10 @@ export const useBorrow = () => {
 
     /* if ETH is being borrowed, send the borrowed tokens (WETH) to ladle for unwrapping */
     const serveToAddress = () => {
-      if (isEthBase) return ladleAddress
+      if (isEthBase) return ladleAddress;
       // if ( wrapping  ) return wrapHandler
-      return account
-    }
+      return account;
+    };
 
     /**
      *
@@ -164,13 +164,7 @@ export const useBorrow = () => {
 
       {
         operation: LadleActions.Fn.SERVE,
-        args: [
-          vaultId,
-          serveToAddress(),
-          _collInput,
-          _input,
-          _expectedFyTokenWithSlippage,
-        ] as LadleActions.Args.SERVE,
+        args: [vaultId, serveToAddress(), _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
         ignoreIf: false,
       },
       ...removeEthCallData,
