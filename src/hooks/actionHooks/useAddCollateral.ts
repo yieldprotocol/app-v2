@@ -60,7 +60,7 @@ export const useAddCollateral = () => {
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.proxyId!);
 
     /* is convex-type collateral */
-    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
     const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */

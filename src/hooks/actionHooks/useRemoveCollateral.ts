@@ -56,7 +56,7 @@ export const useRemoveCollateral = () => {
     const removeEthCallData: ICallData[] = isEthCollateral ?  removeEth(ONE_BN) : [] // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
 
      /* is convex-type collateral */
-    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
     const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
     
     /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */

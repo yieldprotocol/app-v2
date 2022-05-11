@@ -67,7 +67,7 @@ export const useRepayDebt = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* is convex-type collateral */
-    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(ilk.idToUse);
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(ilk.proxyId);
     const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
 
     /* Parse inputs */
