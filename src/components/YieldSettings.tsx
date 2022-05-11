@@ -22,13 +22,13 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
   } = useContext(TxContext);
 
   const {
-    data: { address },
+    data:  _account ,
   } = useAccount();
+  const account = _account?.address
   const {
-    activeChain: {
-      blockExplorers: { default: blockExplorer },
-    },
+    activeChain
   } = useNetwork();
+  const blockExplorer = activeChain?.blockExplorers.default
   const { activeConnector } = useConnect();
 
   const { data: ensName } = useEnsName();
@@ -56,13 +56,13 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
 
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
-            <YieldAvatar address={address} size={7} />
+            <YieldAvatar address={account} size={7} />
           </Box>
         )}
 
         <Box align="end" pad={{ vertical: 'small' }}>
           {!mobile && blockExplorer && (
-            <Anchor href={`${blockExplorer}/address/${address}`} margin="xsmall" target="_blank">
+            <Anchor href={`${blockExplorer}/address/${account}`} margin="xsmall" target="_blank">
               <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
               <Text margin="xxsmall" size="xsmall">
                 View on Explorer
@@ -70,9 +70,9 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
             </Anchor>
           )}
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-            {mobile && <YieldAvatar address={address} size={4} />}
-            <CopyWrap hash={address}>
-              <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
+            {mobile && <YieldAvatar address={account} size={4} />}
+            <CopyWrap hash={account}>
+              <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(account, 6)}</Text>
             </CopyWrap>
           </Box>
         </Box>
@@ -93,7 +93,11 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
 
           <Collapsible open={connectionSettingsOpen}>
             <Box gap="xsmall">
-              <GeneralButton action={() => console.log('disconnect')} background="gradient-transparent">
+              <GeneralButton action={() => console.log('changing connection')} background="gradient-transparent">
+                <Text size="xsmall">Change Connection</Text>
+              </GeneralButton>
+
+              <GeneralButton action={() => } background="gradient-transparent">
                 <Text size="xsmall">Disconnect</Text>
               </GeneralButton>
             </Box>
