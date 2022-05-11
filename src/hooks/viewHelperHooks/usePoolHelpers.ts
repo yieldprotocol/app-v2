@@ -315,6 +315,5 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     removeFyTokenReceived,
     removeBaseReceived_,
     removeFyTokenReceived_,
-
   };
 };
