@@ -26,7 +26,7 @@ const TinyNum = styled(Box)`
   color: black;
 `;
 
-const TriCRVCVXMark = () => {
+const CVX3CRVMark = () => {
   const { pathname } = useRouter();
   const isDash = pathname.includes('dashboard');
   const bottomStackSize = isDash ? '16px' : '24px';
@@ -45,4 +45,4 @@ const TriCRVCVXMark = () => {
   );
 };
 
-export default TriCRVCVXMark;
+export default CVX3CRVMark;

@@ -1,4 +1,4 @@
-import TriCRVCVXMark from '../components/logos/3CRVMark';
+import TriCRVCVXMark from '../components/logos/CVX3CRVMark';
 import DaiMark from '../components/logos/DaiMark';
 import ENSMark from '../components/logos/ENSMark';
 import EthMark from '../components/logos/EthMark';
