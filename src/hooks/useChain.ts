@@ -1,6 +1,7 @@
 import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
+import { useAccount, useNetwork, useSigner } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
@@ -21,14 +22,19 @@ const _getCallValue = (calls: ICallData[]): BigNumber =>
 /* Generic hook for chain transactions */
 export const useChain = () => {
   const {
+    data: { address: account },
+  } = useAccount();
+  const { data: signer } = useSigner();
+  const {
+    activeChain: { id: chainId },
+  } = useNetwork();
+
+  const {
     settingsState: { approveMax, forceTransactions, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    chainState: {
-      connection: { account, provider, chainId },
-      contractMap,
-    },
+    chainState: { contractMap },
   } = useContext(ChainContext);
 
   const {
@@ -45,8 +51,6 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
-    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
-
     /* Set the router contract instance, ladle by default */
     const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
 
@@ -117,8 +121,6 @@ export const useChain = () => {
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
-    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
-
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
       const _ladleAddr = contractMap.get('Ladle').address;
@@ -148,7 +150,7 @@ export const useChain = () => {
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
               signDaiPermit(
-                provider,
+                signer, // using signer here, which has necessary data for eth_signed_type_v4
                 /* build domain */
                 {
                   name: reqSig.target.name,
@@ -196,7 +198,7 @@ export const useChain = () => {
         const { v, r, s, value, deadline } = await handleSign(
           () =>
             signERC2612Permit(
-              provider,
+              signer, // using signer here, which has necessary data for eth_signed_type_v4
               /* build domain */
               reqSig.domain || {
                 // uses custom domain if provided, else use created Domain
