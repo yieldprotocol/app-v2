@@ -9,7 +9,7 @@ import { deepMerge } from 'grommet/utils';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { yieldTheme } from '../themes';
 
-// get dynaimc imports for applicable components (to account for non-ssr)
+// get dynamic imports for applicable components (to account for non-ssr)
 const DynamicYieldHeader = dynamic(() => import('./YieldHeader'), { ssr: false });
 const DynamicYieldMobileMenu = dynamic(() => import('./YieldMobileMenu'), { ssr: false });
 const DynamicNetworkBanner = dynamic(() => import('./NetworkBanner'), { ssr: false });
