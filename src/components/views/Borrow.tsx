@@ -516,8 +516,6 @@ const Borrow = () => {
                     </Box>
                   </ActiveTransaction>
                 </Box>
-
-                <Box></Box>
                 <Line />
               </>
             )}
