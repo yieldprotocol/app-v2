@@ -2,6 +2,7 @@ import React, { useContext, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
+import { useProvider } from 'wagmi';
 import {
   ISeries,
   IVault,
@@ -88,12 +89,8 @@ function historyReducer(state: any, action: any) {
 const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const {
-    contractMap,
-    connection: { fallbackProvider },
-    seriesRootMap,
-    assetRootMap,
-  } = chainState;
+  const { contractMap, seriesRootMap, assetRootMap } = chainState;
+  const fallbackProvider = useProvider();
 
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount: account } = userState;
