@@ -228,8 +228,8 @@ export const useAddLiquidity = () => {
       /**
        *
        * STRATEGY TOKEN MINTING
-       * (for all AddLiquididy recipes that use strategy >
-       *  if strategy address is provided, and is found in the strategyMap, use that address
+       * for all AddLiquidity recipes that use strategy >
+       * if strategy address is provided, and is found in the strategyMap, use that address
        *
        * */
       {
