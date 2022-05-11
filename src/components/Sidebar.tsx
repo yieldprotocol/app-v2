@@ -1,16 +1,14 @@
 import { useContext } from 'react';
 import { Layer, ResponsiveContext } from 'grommet';
-import { ChainContext } from '../contexts/ChainContext';
+import { useAccount } from 'wagmi';
 import YieldSettings from './YieldSettings';
 import Connect from './Connect';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
+    data: { address: account },
+  } = useAccount();
 
   return (
     <>
