@@ -39,7 +39,6 @@ import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 
 enum UserState {
   USER_LOADING = 'userLoading',
-  ACTIVE_ACCOUNT = 'activeAccount',
   ASSET_MAP = 'assetMap',
   SERIES_MAP = 'seriesMap',
   VAULT_MAP = 'vaultMap',
@@ -59,8 +58,6 @@ const UserContext = React.createContext<any>({});
 
 const initState: IUserContextState = {
   userLoading: false,
-  /* activeAccount */
-  activeAccount: null,
 
   /* Item maps */
   assetMap: new Map<string, IAsset>(),
@@ -90,10 +87,6 @@ function userReducer(state: IUserContextState, action: any) {
   switch (action.type) {
     case UserState.USER_LOADING:
       return { ...state, userLoading: onlyIfChanged(action) };
-
-    case UserState.ACTIVE_ACCOUNT:
-      return { ...state, activeAccount: onlyIfChanged(action) };
-
     case UserState.ASSET_MAP:
       return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
     case UserState.SERIES_MAP:
@@ -102,7 +95,6 @@ function userReducer(state: IUserContextState, action: any) {
       return { ...state, vaultMap: new Map([...state.vaultMap, ...action.payload]) };
     case UserState.STRATEGY_MAP:
       return { ...state, strategyMap: new Map([...state.strategyMap, ...action.payload]) };
-
     case UserState.VAULTS_LOADING:
       return { ...state, vaultsLoading: onlyIfChanged(action) };
     case UserState.SERIES_LOADING:
@@ -111,7 +103,6 @@ function userReducer(state: IUserContextState, action: any) {
       return { ...state, assetsLoading: onlyIfChanged(action) };
     case UserState.STRATEGIES_LOADING:
       return { ...state, strategiesLoading: onlyIfChanged(action) };
-
     case UserState.SELECTED_VAULT:
       return { ...state, selectedVault: action.payload };
     case UserState.SELECTED_SERIES:
@@ -628,8 +619,6 @@ const UserProvider = ({ children }: any) => {
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
-    /* keep checking the active account when it changes/ chainloading */
-    updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
   /* Exposed userActions */
