@@ -66,7 +66,7 @@ export const useRemoveCollateral = () => {
     const pourToAddress = () => {
       console.log('Requires unwrapping? ', unwrapCallData.length);
       if (isEthCollateral) return ladleAddress;
-      if (unwrapCallData.length) return unwrapHandlerAddress; // if there is somethign to unwrap
+      if (unwrapCallData.length) return unwrapHandlerAddress; // if there is something to unwrap
       return account;
     };
 
