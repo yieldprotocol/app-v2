@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useReducer } from 'react';
-import { ApprovalType, IChainContext, ISettingsContextState } from '../types';
-import { ChainContext } from './ChainContext';
+import React, { useEffect, useReducer } from 'react';
+import { useConnect } from 'wagmi';
+import { ApprovalType, ISettingsContextState } from '../types';
 
 export enum Settings {
   APPROVAL_METHOD = 'approvalMethod',
@@ -83,10 +83,7 @@ const SettingsProvider = ({ children }: any) => {
   /* LOCAL STATE */
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
-  /* STATE FROM CONTEXT */
-  const {
-    chainState: { connection },
-  } = useContext(ChainContext) as IChainContext;
+  const { activeConnector } = useConnect();
 
   /* watch & handle linked approval and effect appropriate settings */
   useEffect(() => {
@@ -97,15 +94,15 @@ const SettingsProvider = ({ children }: any) => {
 
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
-    if (connection.connectionName && connection.connectionName !== 'metamask') {
+    if (activeConnector.name && activeConnector.name !== 'MetMmask') {
       console.log('Using manual ERC20 approval transactions');
       updateState({ type: Settings.APPROVAL_MAX, payload: ApprovalType.TX });
-    } else if (connection.connectionName === 'metamask') {
+    } else if (activeConnector.name === 'MetaMask') {
       /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
     }
-  }, [connection.connectionName]);
+  }, [activeConnector.name]);
 
   /* Exposed userActions */
   const settingsActions = {
