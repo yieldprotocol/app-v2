@@ -19,10 +19,11 @@ const UnwrapSetting = () => {
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
+        <Text size="small" color='text-xweak'>
           Auto-unwrap tokens
         </Text>
         <Switch
+          disabled
           width={55}
           checked={unwrapTokens}
           offColor="#BFDBFE"
