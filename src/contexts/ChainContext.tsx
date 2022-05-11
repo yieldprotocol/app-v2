@@ -414,7 +414,7 @@ const ChainProvider = ({ children }: any) => {
 
           // built-in helper functions:
           getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
-          isMature: async () => series.maturity < (await fallbackProvider.getBlock('latest')).timestamp,
+          isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
           getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
@@ -493,6 +493,7 @@ const ChainProvider = ({ children }: any) => {
       };
 
       /* Attach contract instance */
+
       const _chargeStrategy = (strategy: any) => {
         const Strategy = contracts.Strategy__factory.connect(strategy.address, fallbackProvider);
         return {
@@ -507,8 +508,10 @@ const ChainProvider = ({ children }: any) => {
         try {
           await Promise.all(
             strategyAddresses.map(async (strategyAddr) => {
-              /* if the strategy is already in the cache : */
+              /* if the strategy is NOT already in the cache : */
               if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
+                console.log('updating constracrt ', strategyAddr);
+
                 const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
                 const [name, symbol, baseId, decimals, version] = await Promise.all([
                   Strategy.name(),
@@ -537,7 +540,9 @@ const ChainProvider = ({ children }: any) => {
           console.log('Error fetching strategies', e);
         }
 
-        setCachedStrategies([...cachedStrategies, ...newStrategyList]);
+        const _filteredCachedStrategies = cachedStrategies.filter((s: any) => strategyAddresses.includes(s.address));
+
+        setCachedStrategies([..._filteredCachedStrategies, ...newStrategyList]);
         console.log('Yield Protocol Strategy data updated.');
       };
 
@@ -559,7 +564,8 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
-          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
+          strategyAddresses.includes(st.address) &&
+            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
 
