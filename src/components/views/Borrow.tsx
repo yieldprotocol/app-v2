@@ -3,6 +3,7 @@ import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'gro
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
+import { useNetwork } from 'wagmi';
 import SeriesSelector from '../selectors/SeriesSelector';
 import MainViewWrap from '../wraps/MainViewWrap';
 import AssetSelector from '../selectors/AssetSelector';
@@ -40,7 +41,6 @@ import InputInfoWrap from '../wraps/InputInfoWrap';
 import ColorText from '../texts/ColorText';
 import { useProcess } from '../../hooks/useProcess';
 
-import { ChainContext } from '../../contexts/ChainContext';
 import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
@@ -50,14 +50,11 @@ import Line from '../elements/Line';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const {
+    activeChain: { id: chainId },
+  } = useNetwork();
 
   /* STATE FROM CONTEXT */
-  const {
-    chainState: {
-      contractMap,
-      connection: { chainId },
-    },
-  } = useContext(ChainContext);
   const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
     UserContext
   ) as IUserContext;
