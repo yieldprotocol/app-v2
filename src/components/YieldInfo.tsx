@@ -7,7 +7,6 @@ import { FaDiscord as Discord } from 'react-icons/fa';
 import { useNetwork } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
-import NetworkSelector from './selectors/NetworkSelector';
 import { IChainContext } from '../types';
 import { CHAIN_INFO } from '../config/chainData';
 
@@ -88,14 +87,6 @@ const YieldInfo = () => {
           </Anchor>
         </BoxWrap>
       </Box>
-
-      {connectedChain && (
-        <Box align="end" gap="xsmall">
-          <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
-            <NetworkSelector />
-          </Box>
-        </Box>
-      )}
     </Box>
   );
 };
