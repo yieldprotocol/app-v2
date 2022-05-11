@@ -5,15 +5,14 @@ import styled from 'styled-components';
 import { FiMenu } from 'react-icons/fi';
 import { Box, Header, Grid, ResponsiveContext, Avatar } from 'grommet';
 
+import { useAccount } from 'wagmi';
 import YieldNavigation from './YieldNavigation';
 import YieldAccount from './YieldAccount';
 import YieldMark from './logos/YieldMark';
 
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
-import { ChainContext } from '../contexts/ChainContext';
 import DashMobileButton from './buttons/DashMobileButton';
-import { IChainContext } from '../types';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -44,10 +43,8 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const [yieldMarkhover, setYieldMarkHover] = useState<boolean>(false);
 
   const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext) as IChainContext;
+    data: { address: account },
+  } = useAccount();
 
   // eslint-disable-next-line react/display-name
   const YieldAvatar = forwardRef(({ onClick, href }: any, ref: any) => (
