@@ -13,7 +13,6 @@ import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import SettingsBalances from './SettingsBalances';
-import { useEns } from '../hooks/useEns';
 
 const StyledText = styled(Text)`
   svg,

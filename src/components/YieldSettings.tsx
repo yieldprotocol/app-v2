@@ -1,13 +1,12 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
 import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
-import { useAccount, useConnect, useNetwork } from 'wagmi';
+import { useAccount, useConnect, useEnsName, useNetwork } from 'wagmi';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
 import CopyWrap from './wraps/CopyWrap';
 import TransactionItem from './TransactionItem';
-import { useEns } from '../hooks/useEns';
 import BoxWrap from './wraps/BoxWrap';
 import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
@@ -33,7 +32,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   } = useNetwork();
   const { activeConnector } = useConnect();
 
-  const { ensName } = useEns();
+  const { data: ensName } = useEnsName();
 
   const [transactionsOpen, setTransactionsOpen] = useState<boolean>(false);
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState<boolean>(false);
