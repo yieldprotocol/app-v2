@@ -8,11 +8,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { Chain, chain, createClient, WagmiProvider } from 'wagmi';
 import merge from 'lodash.merge';
-import { useContext } from 'react';
-import { useColorScheme } from '../hooks/useColorScheme';
 import { SUPPORTED_RPC_URLS } from '../config/chainData';
-import { SettingsContext } from './SettingsContext';
-import { ISettingsContext } from '../types';
 
 const ProviderContext = ({ children }) => {
   const { chains, provider } = configureChains(
