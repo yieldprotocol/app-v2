@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
+import { useAccount } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import SidebarSettings from '../Sidebar';
 import { useColorScheme } from '../../hooks/useColorScheme';
@@ -49,10 +50,8 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const theme = useColorScheme();
 
   const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
+    data: { address: account },
+  } = useAccount();
 
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
