@@ -1,16 +1,12 @@
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
+import { useConnect } from 'wagmi';
 import { ApprovalType } from '../../types';
 import { Settings, SettingsContext } from '../../contexts/SettingsContext';
-import { ChainContext } from '../../contexts/ChainContext';
 
 const AdvancedSetting = () => {
-  const {
-    chainState: {
-      connection: { connectionName },
-    },
-  } = useContext(ChainContext);
+  const { activeConnector } = useConnect();
 
   const {
     settingsState: { approvalMethod, approveMax },
@@ -20,7 +16,7 @@ const AdvancedSetting = () => {
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
+        <Text size="small" color={activeConnector?.name === 'MetaMask' ? undefined : 'text-xweak'}>
           Use Approval by Transactions
         </Text>
         <Switch
@@ -37,7 +33,7 @@ const AdvancedSetting = () => {
           }
           handleDiameter={20}
           borderRadius={20}
-          disabled={connectionName !== 'metamask'}
+          disabled={activeConnector?.name !== 'MetaMask'}
         />
       </Box>
 
