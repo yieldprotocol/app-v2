@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
 import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
@@ -26,6 +26,11 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const {
     data: { address },
   } = useAccount();
+  const {
+    activeChain: {
+      blockExplorers: { default: blockExplorer },
+    },
+  } = useNetwork();
 
   const { ensName } = useEns();
 
@@ -62,8 +67,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         )}
 
         <Box align="end" pad={{ vertical: 'small' }}>
-          {!mobile && currentChainInfo.explorer && (
-            <Anchor href={`${currentChainInfo.explorer}/address/${address}`} margin="xsmall" target="_blank">
+          {!mobile && blockExplorer && (
+            <Anchor href={`${blockExplorer}/address/${address}`} margin="xsmall" target="_blank">
               <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
               <Text margin="xxsmall" size="xsmall">
                 View on Explorer
