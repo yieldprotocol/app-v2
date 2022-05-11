@@ -126,7 +126,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const seasonColorMap = [1, 4, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
+      const seasonColorMap = [1, 4, 5, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: contracts.Cauldron;
       let Ladle: contracts.Ladle;
@@ -139,12 +139,15 @@ const ChainProvider = ({ children }: any) => {
 
       // modules
       let WrapEtherModule: contracts.WrapEtherModule;
-      // let ConvexLadleModule: contracts.ConvexLadleModule;
+      
 
       // Notional
       let NotionalMultiOracle: contracts.NotionalMultiOracle;
 
-      // arbitrum
+      // Convex 
+      let ConvexLadleModule: contracts.ConvexLadleModule;
+
+      // arbitrum specific
       let ChainlinkUSDOracle: contracts.ChainlinkUSDOracle;
       let AccumulatorOracle: contracts.AccumulatorOracle;
 
@@ -155,10 +158,12 @@ const ChainProvider = ({ children }: any) => {
 
         // module access
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
-        // ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
+        
+        if ([1, 4, 5, 42].includes(fallbackChainId)) {
 
-        if ([1, 4, 42].includes(fallbackChainId)) {
+          ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
           RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
+          
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
             fallbackProvider
@@ -191,11 +196,11 @@ const ChainProvider = ({ children }: any) => {
           RateOracle = AccumulatorOracle;
         }
       } catch (e) {
-        console.log(e, 'Could not connect to contracts');
+        console.log('Could not connect to contracts: ', e,);
       }
 
       if (
-        [1, 4, 42].includes(fallbackChainId) &&
+        [1, 4, 5, 42].includes(fallbackChainId) &&
         (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
       )
         return;
@@ -223,7 +228,7 @@ const ChainProvider = ({ children }: any) => {
 
       // modules
       newContractMap.set('WrapEtherModule', WrapEtherModule);
-      // newContractMap.set('ConvexLadleModule', ConvexLadleModule);
+      newContractMap.set('ConvexLadleModule', ConvexLadleModule);
 
       updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
 

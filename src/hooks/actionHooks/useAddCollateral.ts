@@ -16,10 +16,12 @@ import {
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import { ConvexLadleModule } from '../../contracts';
+import { ModuleActions } from '../../types/operations';
 
 export const useAddCollateral = () => {
   const {
@@ -62,6 +64,10 @@ export const useAddCollateral = () => {
     const _isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.id!);
     const _pourTo = _isEthCollateral ? ladleAddress : account;
 
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+    const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
+
     /* handle wrapped tokens:  */
     // const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
 
@@ -92,6 +98,16 @@ export const useAddCollateral = () => {
         args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
+
+      /* If convex-type collateral, add vault using convex ladle module */
+      {
+        operation: LadleActions.Fn.MODULE,
+        fnName: ModuleActions.Fn.ADD_VAULT,
+        args: [selectedIlk.joinAddress, vaultId] as ModuleActions.Args.ADD_VAULT,
+        targetContract: ConvexLadleModuleContract,
+        ignoreIf: !!vault || !isConvexCollateral,
+      },
+
       /* handle wrapped token deposit, if required */
       // ...wrapping,
 
@@ -100,6 +116,7 @@ export const useAddCollateral = () => {
 
       /* handle permits if required */
       ...permits,
+
       {
         operation: LadleActions.Fn.POUR,
         args: [

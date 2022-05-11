@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -12,18 +12,20 @@ import {
   IUserContextActions,
   IUserContextState,
   ISettingsContext,
+  RoutedActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ConvexJoin__factory } from '../../contracts';
 
 // TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
   const {
-    chainState: { contractMap },
+    chainState: { contractMap, provider },
   } = useContext(ChainContext);
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
@@ -55,6 +57,10 @@ export const useRemoveCollateral = () => {
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.id);
     // const isEthBase = ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!);
 
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+    const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
+
     let _pourTo = isEthCollateral ? ladleAddress : account;
 
     /* handle wrapped tokens:  */
@@ -65,6 +71,14 @@ export const useRemoveCollateral = () => {
     }
 
     const calls: ICallData[] = [
+      /* convex-type collateral; ensure checkpoint before giving collateral back to account */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [vault.owner] as RoutedActions.Args.CHECKPOINT,
+        fnName: RoutedActions.Fn.CHECKPOINT,
+        targetContract: convexJoinContract, // use the convex join contract to checkpoint
+        ignoreIf: !isConvexCollateral,
+      },
       {
         operation: LadleActions.Fn.POUR,
         args: [

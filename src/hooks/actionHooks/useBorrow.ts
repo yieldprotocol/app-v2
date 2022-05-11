@@ -147,7 +147,7 @@ export const useBorrow = () => {
           _input,
           _expectedFyTokenWithSlippage,
         ] as LadleActions.Args.SERVE,
-        ignoreIf: false, // never ignore
+        ignoreIf: false,
       },
 
       /* handle remove/unwrap WETH > if ETH is what is being borrowed */
