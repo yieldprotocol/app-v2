@@ -2,7 +2,7 @@ import { BigNumber, Contract } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { ICallData, LadleActions, IAsset, RoutedActions } from '../../types';
+import { ICallData, LadleActions, IAsset, RoutedActions, IChainContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
@@ -13,7 +13,7 @@ export const useWrapUnwrapAsset = () => {
       contractMap,
       assetRootMap,
     },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
   const {
     settingsState: { unwrapTokens, diagnostics },
