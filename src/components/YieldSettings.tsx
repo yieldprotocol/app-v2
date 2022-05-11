@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
 import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useConnect, useNetwork } from 'wagmi';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
@@ -31,6 +31,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       blockExplorers: { default: blockExplorer },
     },
   } = useNetwork();
+  const { activeConnector } = useConnect();
 
   const { ensName } = useEns();
 
@@ -92,9 +93,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             margin={{ top: 'medium' }}
           >
             <BoxWrap direction="row" gap="small">
-              {connectionName && (
-                <Text size="xsmall">Connected with {CONNECTOR_INFO.get(connectionName).displayName}</Text>
-              )}
+              {activeConnector.name && <Text size="xsmall">Connected with {activeConnector.name}</Text>}
               {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
             </BoxWrap>
           </Box>
@@ -105,7 +104,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
                 <Text size="xsmall">Change Connection</Text>
               </GeneralButton>
 
-              <GeneralButton action={() => disconnect()} background="gradient-transparent">
+              <GeneralButton action={() => console.log('disconnect')} background="gradient-transparent">
                 <Text size="xsmall">Disconnect</Text>
               </GeneralButton>
             </Box>
