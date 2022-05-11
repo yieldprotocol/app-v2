@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, CheckBox, Keyboard, ResponsiveContext, Stack, Text, TextInput } from 'grommet';
+import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
@@ -73,10 +73,6 @@ const Borrow = () => {
   ) as IUserContext;
   const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
-
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
