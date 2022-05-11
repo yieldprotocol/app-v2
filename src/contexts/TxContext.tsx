@@ -1,6 +1,7 @@
 import React, { useReducer, useEffect, useContext } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
+import { useNetwork } from 'wagmi';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
 import { analyticsLogEvent } from '../utils/appUtils';
 import { ChainContext } from './ChainContext';
@@ -122,9 +123,10 @@ const TxProvider = ({ children }: any) => {
   };
 
   const { chainState } = useContext(ChainContext);
+
   const {
-    connection: { chainId },
-  } = chainState;
+    activeChain: { id: chainId },
+  } = useNetwork();
 
   const _resetProcess = (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
 
