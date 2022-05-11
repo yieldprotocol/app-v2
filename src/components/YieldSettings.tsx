@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
 import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
+import { useAccount } from 'wagmi';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
@@ -20,14 +20,12 @@ import BackButton from './buttons/BackButton';
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
-    chainState: {
-      connection: { account, CONNECTOR_INFO, currentChainInfo, connectionName },
-    },
-    chainActions: { disconnect },
-  } = useContext(ChainContext);
-  const {
     txState: { transactions },
   } = useContext(TxContext);
+
+  const {
+    data: { address },
+  } = useAccount();
 
   const { ensName } = useEns();
 
@@ -59,13 +57,13 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
-            <YieldAvatar address={account} size={7} />
+            <YieldAvatar address={address} size={7} />
           </Box>
         )}
 
         <Box align="end" pad={{ vertical: 'small' }}>
           {!mobile && currentChainInfo.explorer && (
-            <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
+            <Anchor href={`${currentChainInfo.explorer}/address/${address}`} margin="xsmall" target="_blank">
               <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
               <Text margin="xxsmall" size="xsmall">
                 View on Explorer
@@ -73,9 +71,9 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Anchor>
           )}
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-            {mobile && <YieldAvatar address={account} size={4} />}
-            <CopyWrap hash={account}>
-              <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(account, 6)}</Text>
+            {mobile && <YieldAvatar address={address} size={4} />}
+            <CopyWrap hash={address}>
+              <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
             </CopyWrap>
           </Box>
         </Box>
