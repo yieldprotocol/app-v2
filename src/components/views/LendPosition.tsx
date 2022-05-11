@@ -211,7 +211,11 @@ const LendPosition = () => {
                               selectedBase?.digitFormat!
                             )} ${selectedBase?.displaySymbol!}`
                       }
-                      icon={<Logo image={selectedBase.image} />}
+                      icon={
+                        <Box height="1em" width="1em">
+                          <Logo image={selectedBase.image} />
+                        </Box>
+                      }
                       loading={seriesLoading}
                     />
                   </Box>
