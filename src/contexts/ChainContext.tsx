@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { format } from 'date-fns';
 
+import { useNetwork, useProvider } from 'wagmi';
 import { useCachedState } from '../hooks/generalHooks';
-import { useConnection } from '../hooks/useConnection';
 
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
@@ -34,19 +34,6 @@ const ChainContext = React.createContext<any>({});
 
 const initState: IChainContextState = {
   appVersion: '0.0.0' as string,
-
-  connection: {
-    provider: null as ethers.providers.Web3Provider | null,
-    chainId: null as number | null,
-
-    fallbackProvider: null as ethers.providers.Web3Provider | null,
-    fallbackChainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
-
-    signer: null as ethers.providers.JsonRpcSigner | null,
-    account: null as string | null,
-
-    connectionName: null as string | null,
-  },
 
   /* flags */
   chainLoading: true,
@@ -113,9 +100,10 @@ const ChainProvider = ({ children }: any) => {
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
   const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
 
-  /* Connection hook */
-  const { connectionState, connectionActions } = useConnection();
-  const { chainId, fallbackProvider, fallbackChainId } = connectionState;
+  const fallbackProvider = useProvider();
+  const {
+    activeChain: { id: fallbackChainId },
+  } = useNetwork();
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -123,11 +111,10 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     if (fallbackProvider && fallbackChainId) {
       console.log('Fallback ChainId: ', fallbackChainId);
-      console.log('Primary ChainId: ', chainId);
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const seasonColorMap = [1, 4, 5, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
+      const seasonColorMap = [1, 4, 5, 42].includes(fallbackChainId as number) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: contracts.Cauldron;
       let Ladle: contracts.Ladle;
@@ -345,9 +332,9 @@ const ChainProvider = ({ children }: any) => {
             }
 
             /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
+            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(fallbackChainId);
             /* check if a wrapping handler is provided, if so, wrapping is required */
-            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
+            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(fallbackChainId);
 
             const newAsset = {
               ...assetInfo,
@@ -611,29 +598,7 @@ const ChainProvider = ({ children }: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ignore to only happen once on init
 
-  /**
-   * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
-   */
-  useEffect(() => {
-    updateState({
-      type: ChainState.CONNECTION,
-      payload: connectionState,
-    });
-  }, [
-    connectionState.fallbackChainId,
-    connectionState.chainId,
-    connectionState.account,
-    connectionState.errorMessage,
-    connectionState.fallbackErrorMessage,
-    connectionState.active,
-    connectionState.connectionName,
-    connectionState.currentChainInfo,
-  ]);
-
-  /* simply Pass on the connection actions */
-  const chainActions = connectionActions;
-
-  return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;
+  return <ChainContext.Provider value={{ chainState }}>{children}</ChainContext.Provider>;
 };
 
 export { ChainContext };
