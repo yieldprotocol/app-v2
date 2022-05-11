@@ -297,7 +297,7 @@ ASSET_INFO.set(CVX3CRV, {
   symbol: 'cvx3crv',
   showToken: false,
   isWrappedToken: false,
-  digitFormat: 6,
+  digitFormat: 2,
   tokenType: TokenType.ERC20_,
   limitToSeries: [
     '0x303130360000', // june dai
