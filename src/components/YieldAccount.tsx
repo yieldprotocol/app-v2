@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useEnsName } from 'wagmi';
 import Skeleton from './wraps/SkeletonWrap';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
@@ -34,17 +35,16 @@ const StyledBox = styled(Box)`
 
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
 
   const {
     userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
-  const { ensName } = useEns();
+  const {
+    data: { address: account },
+  } = useAccount();
+  const { data: ensName } = useEnsName();
+
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
 
