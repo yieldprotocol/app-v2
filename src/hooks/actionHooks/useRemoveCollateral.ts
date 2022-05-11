@@ -10,17 +10,20 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
+  ISettingsContext,
+  RoutedActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ConvexJoin__factory } from '../../contracts';
 
 export const useRemoveCollateral = () => {
   const {
-    chainState: { contractMap, connection : { chainId } },
+    chainState: { contractMap, connection : { chainId }, provider },
   } = useContext(ChainContext);
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
@@ -52,17 +55,27 @@ export const useRemoveCollateral = () => {
     const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account) : [];
     const removeEthCallData: ICallData[] = isEthCollateral ?  removeEth(ONE_BN) : [] // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
 
+     /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.idToUse!);
+    const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
+    
     /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */
     const pourToAddress = () => {
-
       console.log('Requires unwrapping? ', unwrapCallData.length); 
       if (isEthCollateral) return ladleAddress;
-      
       if (unwrapCallData.length) return unwrapHandlerAddress; // if there is somethign to unwrap
       return account
     }
 
     const calls: ICallData[] = [
+      /* convex-type collateral; ensure checkpoint before giving collateral back to account */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [vault.owner] as RoutedActions.Args.CHECKPOINT,
+        fnName: RoutedActions.Fn.CHECKPOINT,
+        targetContract: convexJoinContract, // use the convex join contract to checkpoint
+        ignoreIf: !isConvexCollateral,
+      },
       {
         operation: LadleActions.Fn.POUR,
         args: [
