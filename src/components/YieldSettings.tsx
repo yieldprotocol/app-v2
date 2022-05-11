@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
-import { FiChevronUp, FiChevronDown, FiExternalLink} from 'react-icons/fi';
+import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
