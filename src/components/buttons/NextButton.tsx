@@ -35,22 +35,6 @@ const StyledButton = styled(Button)`
 
 `;
 
-// ${(props: any) => ( 
-//   props.theme.dark  
-//   ? 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82) border-box' 
-//   : 'linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82) border-box'
-//   )};
-// border: 2px solid transparent;
-// border-radius: 100px;
-// :hover {
-//     transform: scale(1.02);
-//     border: 2px solid #ffffff00;
-// } 
-//   :disabled {
-//     box-shadow: none;
-//     opacity: ${(props: any) => (props.errorLabel ? '0.8 !important' : '0.2 !important')};
-//   }
-
 const NextButton = (props: any) => {
 
   const theme = useColorScheme();
@@ -74,7 +58,6 @@ const NextButton = (props: any) => {
         ) : (
           <Box>
           <Text color="text" > {props.label} </Text>
-          {/* <FiFastForward />  */}
           </Box>
         )
       }
