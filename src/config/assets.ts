@@ -110,7 +110,6 @@ ASSET_INFO.set(wstETH, {
     [1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1'],
     [4, '0x64BA0F1D2E5479BF132936328e8c533c95646fE8'],
     [5, '0x9f65A6c2b2F12117573323443C8C2290f4C1e675']
-
   ]),
 });
 
@@ -119,7 +118,7 @@ ASSET_INFO.set(stETH, {
   name: 'Staked Eth',
   decimals: 18,
   symbol: 'stETH',
-  showToken: true,
+  showToken: false,
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
   wrapHandlerAddresses: new Map([
