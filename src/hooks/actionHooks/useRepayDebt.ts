@@ -11,16 +11,19 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
+  RoutedActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
+import { ConvexJoin__factory } from '../../contracts';
+
 
 export const useRepayDebt = () => {
   const {
@@ -38,6 +41,7 @@ export const useRepayDebt = () => {
     chainState: {
       contractMap,
       connection: { chainId },
+      provider
     },
   } = useContext(ChainContext);
 
@@ -61,6 +65,10 @@ export const useRepayDebt = () => {
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(ilk.idToUse);
+    const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
 
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
@@ -159,6 +167,15 @@ export const useRepayDebt = () => {
       },
 
       /* BEFORE MATURITY - !series.seriesIsMature */
+      /* convex-type collateral; ensure checkpoint before giving collateral back to account */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [vault.owner] as RoutedActions.Args.CHECKPOINT,
+        fnName: RoutedActions.Fn.CHECKPOINT,
+        targetContract: convexJoinContract, // use the convex join contract to checkpoint
+        ignoreIf: !isConvexCollateral || _collateralToRemove.eq(ethers.constants.Zero),
+      },
+
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,

@@ -171,7 +171,7 @@ export const useBorrow = () => {
           _input,
           _expectedFyTokenWithSlippage,
         ] as LadleActions.Args.SERVE,
-        ignoreIf: false, // never ignore
+        ignoreIf: false,
       },
       ...removeEthCallData,
     ];

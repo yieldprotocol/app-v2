@@ -26,9 +26,9 @@ export const FDAI2209 = '0x313600000000';
 export const FUSDC2209 = '0x313700000000';
 
 /* Convex Curve LP token assets */
-export const CVX3CRV = '';
+export const CVX3CRV = '0x313900000000';
 
-export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK'];
+export const CONVEX_BASED_ASSETS = ['CVX3CRV', CVX3CRV, 'CVX3CRV MOCK', 'Curve.fi DAI/USDC/USDT Convex Deposit Mock'];
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
@@ -243,6 +243,22 @@ ASSET_INFO.set(FUSDC2209, {
   limitToSeries: ['0x303230370000'],
 });
 
+ASSET_INFO.set(CVX3CRV, {
+  version: '1',
+  name: 'cvx3crv',
+  decimals: 18,
+  symbol: 'cvx3crv',
+  showToken: false,
+  isWrappedToken: false,
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [
+    '0x303130360000', // june dai
+    '0x303130370000', // sept dai
+    '0x303230370000', // sept usdc
+    '0x303230360000', // june usdc
+  ],
+});
 
 ASSET_INFO.set(FRAX, {
   version: '1',

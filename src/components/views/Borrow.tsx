@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
+import { Box, CheckBox, Keyboard, ResponsiveContext, Stack, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
@@ -336,9 +336,11 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <>
-                <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
+                {/* <Box style={{ position: 'absolute', left:'-20px' }} pad="small">
                   <BackButton action={() => setStepPosition(0)} />
-
+                </Box> */}
+                <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
+                <BackButton action={() => setStepPosition(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">
                     <Box justify="center">
                       <Gauge
@@ -514,6 +516,8 @@ const Borrow = () => {
                     </Box>
                   </ActiveTransaction>
                 </Box>
+
+                <Box></Box>
                 <Line />
               </>
             )}
