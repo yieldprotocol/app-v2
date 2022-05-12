@@ -20,9 +20,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { seriesMap, selectedSeries, selectedBase } = userState;
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);

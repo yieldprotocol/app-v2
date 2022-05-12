@@ -13,9 +13,8 @@ export const useLendHelpers = (
   input: string | undefined,
   rollToSeries: ISeries | undefined = undefined
 ) => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const {
     settingsState: { diagnostics },

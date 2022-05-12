@@ -23,9 +23,8 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 
 /* Lend Actions Hook */
 export const useLend = () => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const {
     settingsState: { slippageTolerance },

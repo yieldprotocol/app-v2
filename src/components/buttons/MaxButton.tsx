@@ -25,9 +25,8 @@ const StyledBox = styled(Box)`
 `;
 
 function MaxButton({ action, clearAction, showingMax, disabled, customText }: IMaxButtonProps) {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   return (
     <>
