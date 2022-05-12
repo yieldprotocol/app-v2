@@ -98,6 +98,7 @@ const ActiveTransaction = ({
         round="xsmall"
         pad={full ? { horizontal: 'large' } : 'small'}
         height={full ? undefined : { min: '100px' }}
+        fill
       >
         {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
           <>
