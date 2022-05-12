@@ -19,9 +19,8 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   /* STATE FROM CONTEXT */
   const {

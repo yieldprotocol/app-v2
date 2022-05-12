@@ -15,9 +15,8 @@ function StrategyPositionSelector() {
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { strategyMap, selectedBase } = userState;
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);

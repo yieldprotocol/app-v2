@@ -30,9 +30,8 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 
 export const useAddLiquidity = () => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const {
     settingsState: { slippageTolerance },

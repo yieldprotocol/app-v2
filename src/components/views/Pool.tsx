@@ -41,9 +41,8 @@ function Pool() {
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { selectedBase, selectedStrategy, strategyMap } = userState;
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
