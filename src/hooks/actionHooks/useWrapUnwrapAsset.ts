@@ -33,7 +33,7 @@ export const useWrapUnwrapAsset = () => {
     const ladleAddress = contractMap.get('Ladle').address;
     /* SET the destination address DEFAULTs to the assetJoin Address */
     const toAddress = to || asset.joinAddress;
-    const wrapHandlerAddress = asset.wrapHandlerAddresses.has(chainId)
+    const wrapHandlerAddress = asset.wrapHandlerAddresses?.has(chainId)
       ? asset.wrapHandlerAddresses.get(chainId)
       : undefined;
 
@@ -48,7 +48,7 @@ export const useWrapUnwrapAsset = () => {
       const permitCallData: ICallData[] = await sign(
         [
           {
-            target: assetContract, // full target contract
+            target: asset, // full target contract
             spender: ladleAddress,
             amount: value,
             ignoreIf: false,
