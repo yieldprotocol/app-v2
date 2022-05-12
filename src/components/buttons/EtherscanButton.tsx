@@ -1,8 +1,8 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { Box, Text } from 'grommet';
 import { FiExternalLink } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ChainContext } from '../../contexts/ChainContext';
+import { useNetwork } from 'wagmi';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -14,20 +14,17 @@ const StyledBox = styled(Box)`
 `;
 
 function EtherscanButton({ txHash }: { txHash: string }) {
-  const [hover, setHover] = useState<boolean>();
+  const { activeChain } = useNetwork();
+  const blockExplorer = activeChain?.blockExplorers.default.url;
 
-  const {
-    chainState: {
-      connection: { currentChainInfo },
-    },
-  } = useContext(ChainContext);
+  const [hover, setHover] = useState<boolean>();
 
   return (
     <StyledBox
       direction="row"
       onClick={(e: any) => {
         e.stopPropagation();
-        window.open(`${currentChainInfo.explorer}/tx/${txHash}`, '_blank');
+        window.open(`${blockExplorer}/tx/${txHash}`, '_blank');
       }}
       gap="xsmall"
       align="center"

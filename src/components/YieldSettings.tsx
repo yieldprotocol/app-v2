@@ -25,7 +25,7 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
   const account = _account?.address;
   const { disconnect } = useDisconnect();
   const { activeChain } = useNetwork();
-  const blockExplorer = activeChain?.blockExplorers.default;
+  const blockExplorer = activeChain?.blockExplorers.default.url;
   const { activeConnector } = useConnect();
 
   const { data: ensName } = useEnsName();
