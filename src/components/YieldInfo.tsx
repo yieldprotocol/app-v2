@@ -4,11 +4,9 @@ import { Anchor, Box, Text } from 'grommet';
 import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
-import { useNetwork } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import { IChainContext } from '../types';
-import { CHAIN_INFO } from '../config/chainData';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -17,10 +15,7 @@ const YieldInfo = () => {
   const {
     chainState: { appVersion },
   } = useContext(ChainContext) as IChainContext;
-  const { activeChain } = useNetwork();
-  const fallbackChainId = activeChain?.id;
 
-  const connectedChain = CHAIN_INFO.get(fallbackChainId!);
   const handleExternal = (destination: string) => {};
 
   return (
