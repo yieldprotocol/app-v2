@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box, Button } from 'grommet';
 import { FiPlusCircle } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
+import { useConnect } from 'wagmi';
 
 interface ITokenData {
   address: string | undefined;
@@ -11,28 +11,17 @@ interface ITokenData {
 }
 
 const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => {
-  const {
-    chainState: {
-      connection: { provider },
-    },
-  } = useContext(ChainContext);
-  const [metamask, setMetamask] = useState<any>(null);
+  const { activeConnector } = useConnect();
+
   const [, setSuccess] = useState<boolean>(false);
   const [, setFailed] = useState<boolean>(false);
 
   const handleAddToken = () => {
-    metamask
-      .request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC20',
-          options: {
-            address,
-            symbol,
-            decimals,
-            image,
-          },
-        },
+    activeConnector
+      .watchAsset({
+        address,
+        symbol,
+        image,
       })
       .then((good: any) => {
         if (good) setSuccess(true);
@@ -40,15 +29,7 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
       .catch((error: any) => setFailed(true));
   };
 
-  useEffect(() => {
-    if (provider) {
-      if (provider.connection.url === 'metamask') {
-        setMetamask(provider.provider);
-      }
-    }
-  }, [provider]);
-
-  return metamask ? (
+  return activeConnector.name === 'MetaMask' ? (
     <Box align="center">
       <Button plain color="brand" hoverIndicator={{}} onClick={() => handleAddToken()} icon={<FiPlusCircle />} />
     </Box>
