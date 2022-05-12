@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -26,9 +26,11 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 
 export const useRepayDebt = () => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
+  const { activeChain } = useNetwork();
+  const chainId = activeChain?.id;
+  const provider = useProvider();
 
   const {
     settingsState: { slippageTolerance },
@@ -42,11 +44,7 @@ export const useRepayDebt = () => {
   const { updateVaults, updateAssets } = userActions;
 
   const {
-    chainState: {
-      contractMap,
-      connection: { chainId },
-      provider,
-    },
+    chainState: { contractMap },
   } = useContext(ChainContext);
 
   const { addEth, removeEth } = useAddRemoveEth();
