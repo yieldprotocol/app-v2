@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import { useNetwork, useProvider } from 'wagmi';
+import { useBlockNumber, useNetwork, useProvider } from 'wagmi';
 import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
@@ -104,6 +104,7 @@ const ChainProvider = ({ children }: any) => {
   const { activeChain } = useNetwork();
   const chainId = activeChain?.id || +lastChainId;
   const provider = useProvider();
+  const { data: blockNum } = useBlockNumber();
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -261,7 +262,6 @@ const ChainProvider = ({ children }: any) => {
 
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
-        const blockNum = await provider.getBlockNumber();
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
           Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
           Ladle.queryFilter('JoinAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
@@ -466,7 +466,7 @@ const ChainProvider = ({ children }: any) => {
         } catch (e) {
           console.log('Error fetching series data: ', e);
         }
-        setLastSeriesUpdate(await provider?.getBlockNumber());
+        setLastSeriesUpdate(blockNum);
         setCachedSeries([...cachedSeries, ...newSeriesList]);
 
         console.log('Yield Protocol Series data updated.');
