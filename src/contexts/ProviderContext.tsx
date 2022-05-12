@@ -6,6 +6,8 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
   Theme,
+  connectorsForWallets,
+  wallet,
 } from '@rainbow-me/rainbowkit';
 import merge from 'lodash.merge';
 import { Chain, chain, createClient, WagmiProvider } from 'wagmi';
@@ -13,14 +15,26 @@ import { SUPPORTED_RPC_URLS } from '../config/chainData';
 
 const ProviderContext = ({ children }) => {
   const { chains, provider } = configureChains(
-    [chain.mainnet, chain.arbitrum],
+    [chain.mainnet, chain.arbitrum, chain.goerli],
     [apiProvider.jsonRpc((_chain: Chain) => ({ rpcUrl: SUPPORTED_RPC_URLS[_chain.id] }))]
   );
 
-  const { connectors } = getDefaultWallets({
-    appName: 'Yield App V2',
-    chains,
-  });
+  const connectors = connectorsForWallets([
+    {
+      groupName: 'Popular',
+      wallets: [
+        wallet.argent({ chains }),
+        wallet.coinbase({ appName: 'Yield App V2', chains }),
+        wallet.metaMask({ chains }),
+        wallet.rainbow({ chains }),
+        wallet.walletConnect({ chains }),
+      ],
+    },
+    {
+      groupName: 'More',
+      wallets: [wallet.ledger({ chains }), wallet.trust({ chains })],
+    },
+  ]);
 
   const wagmiClient = createClient({
     autoConnect: true,
