@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, CheckBox, Keyboard, ResponsiveContext, Stack, Text, TextInput } from 'grommet';
+import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
@@ -13,16 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ActionCodes,
-  ActionType,
-  ISettingsContext,
-  IUserContext,
-  IUserContextState,
-  IVault,
-  ProcessStage,
-  TxState,
-} from '../../types';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -54,7 +45,6 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
 import VaultItem from '../positionItems/VaultItem';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 
@@ -73,10 +63,6 @@ const Borrow = () => {
   ) as IUserContext;
   const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
-
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -340,7 +326,7 @@ const Borrow = () => {
                   <BackButton action={() => setStepPosition(0)} />
                 </Box> */}
                 <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
-                <BackButton action={() => setStepPosition(0)} />
+                  <BackButton action={() => setStepPosition(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">
                     <Box justify="center">
                       <Gauge
@@ -542,12 +528,11 @@ const Borrow = () => {
                     <Text size="xsmall" weight="lighter">
                       I understand the risks associated with borrowing. In particular, I understand that as a new
                       protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
-                      below the minimum collateralization requirement ({' '}
+                      below the minimum collateralization requirement (
                       <Text size="xsmall" color="red">
-                        {' '}
                         {minCollatRatioPct}%
-                      </Text>{' '}
-                      ) I could lose most or all of my posted collateral.
+                      </Text>
+                      ), I could lose most or all of my posted collateral.
                     </Text>
                   }
                   checked={disclaimerChecked}

@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
-import { FiChevronUp, FiChevronDown, FiExternalLink} from 'react-icons/fi';
+import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
@@ -56,12 +56,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
         {mobile && <BackButton action={() => setSettingsOpen(false)} />}
-
-        {/* {!mobile && (
-          <Box fill='horizontal' style={{ position: 'absolute', top:'0px' }} >
-            <BackButton action={() => setSettingsOpen(false)} />
-          </Box>
-        )} */}
 
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">

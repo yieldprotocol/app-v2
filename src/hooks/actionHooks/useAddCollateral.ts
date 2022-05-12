@@ -126,7 +126,6 @@ export const useAddCollateral = () => {
       /* handle permits if required */
       ...permitCallData,
 
-
       {
         operation: LadleActions.Fn.POUR,
         args: [vaultId, pourToAddress(), _input, ethers.constants.Zero] as LadleActions.Args.POUR,

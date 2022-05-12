@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN} from '../config/assets';
+import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
 
@@ -139,12 +139,11 @@ const ChainProvider = ({ children }: any) => {
 
       // modules
       let WrapEtherModule: contracts.WrapEtherModule;
-      
 
       // Notional
       let NotionalMultiOracle: contracts.NotionalMultiOracle;
 
-      // Convex 
+      // Convex
       let ConvexLadleModule: contracts.ConvexLadleModule;
 
       // arbitrum specific
@@ -158,12 +157,11 @@ const ChainProvider = ({ children }: any) => {
 
         // module access
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
-        
+
         if ([1, 4, 5, 42].includes(fallbackChainId)) {
-          
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
           RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
-          
+
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
             fallbackProvider
@@ -196,7 +194,7 @@ const ChainProvider = ({ children }: any) => {
           RateOracle = AccumulatorOracle;
         }
       } catch (e) {
-        console.log('Could not connect to contracts: ', e,);
+        console.log('Could not connect to contracts: ', e);
       }
 
       if (

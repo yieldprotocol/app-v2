@@ -142,7 +142,8 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Amount', _amount?.toString());
 
         /* Request the signature if using DaiType permit style */
-        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chainId !== 42161) { // dai in arbitrum uses regular permits
+        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chainId !== 42161) {
+          // dai in arbitrum uses regular permits
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
@@ -221,7 +222,9 @@ export const useChain = () => {
             ),
           txCode,
 
-          reqSig.target.tokenType === TokenType.ERC20_DaiPermit || reqSig.target.tokenType === TokenType.ERC20_Permit
+          reqSig.target.tokenType === TokenType.ERC20_DaiPermit ||
+            reqSig.target.tokenType === TokenType.ERC20_Permit ||
+            !reqSig.target.tokenType // handle fyTokens (don't have an explicit tokenType in the asset config)
             ? approvalMethod
             : ApprovalType.TX
         );

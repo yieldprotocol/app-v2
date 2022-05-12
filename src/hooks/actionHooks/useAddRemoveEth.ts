@@ -16,7 +16,7 @@ export const useAddRemoveEth = () => {
   ) as IUserContext;
 
   const { activeAccount: account } = userState;
-  const WrapEtherModuleContract =  contractMap.get('WrapEtherModule');
+  const WrapEtherModuleContract = contractMap.get('WrapEtherModule');
 
   const addEth = (
     value: BigNumber,
@@ -34,7 +34,7 @@ export const useAddRemoveEth = () => {
             ignoreIf: value.lte(ZERO_BN), // ignores if value is 0 or negative
             overrides: { value },
           },
-        ] 
+        ]
       : /* else use simple JOIN_ETHER  with optional */
         [
           {

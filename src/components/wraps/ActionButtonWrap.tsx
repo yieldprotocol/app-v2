@@ -5,37 +5,33 @@ import { ChainContext } from '../../contexts/ChainContext';
 import SidebarSettings from '../Sidebar';
 import { useColorScheme } from '../../hooks/useColorScheme';
 
-// const StyledButton = styled(Button)`
-//   border-radius: 100px;
-//   :hover {
-//     box-shadow: 0px 0px 0px 1px;
-//   }
-//   :disabled {
-//     box-shadow: none;
-//     opacity: ${(props: any) => (props.errorLabel ? '0.8 !important' : '0.2 !important')};
-//   }
-// `;
-
-
-const StyledButton : any= styled(Button)`
-
+const StyledButton: any = styled(Button)`
   -webkit-transition: transform 0.2s ease-in-out;
   -moz-transition: transform 0.2s ease-in-out;
   transition: transform 0.2s ease-in-out;
 
   border: 2px solid transparent;
   border-radius: 100px;
-  
-  background: 
-  ${(props: any) => ( props.errorLabel 
+
+  background: ${(props: any) =>
+    props.errorLabel
       ? `linear-gradient(${props.background},${props.background}) padding-box, #F87171 border-box`
-      : `linear-gradient(${props.background}, ${props.background}) padding-box, -webkit-linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82) border-box`
-      )};
-  
+      : `linear-gradient(${props.background}, ${props.background}) padding-box, -webkit-linear-gradient(135deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82) border-box`};
+
   :hover:enabled {
     transform: scale(1.02);
     box-shadow: none;
-    background: -webkit-linear-gradient(135deg, #f7953380, #f3705580, #ef4e7b80, #a166ab80, #5073b880, #1098ad80, #07b39b80, #6fba8280);
+    background: -webkit-linear-gradient(
+      135deg,
+      #f7953380,
+      #f3705580,
+      #ef4e7b80,
+      #a166ab80,
+      #5073b880,
+      #1098ad80,
+      #07b39b80,
+      #6fba8280
+    );
   }
 
   :active:enabled {
@@ -46,7 +42,6 @@ const StyledButton : any= styled(Button)`
     transform: scale(0.9);
     opacity: ${(props: any) => (props.errorLabel ? '0.8 !important' : '0.2 !important')};
   }
-
 `;
 
 function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
@@ -80,9 +75,13 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
           children
         ) : (
           <StyledButton
-            background= { theme === 'dark' ? '#181818' : '#FEFEFE' }
+            background={theme === 'dark' ? '#181818' : '#FEFEFE'}
             secondary
-            label={<Text size={mobile ? 'small' : undefined} color='text'>Connect Wallet</Text>}
+            label={
+              <Text size={mobile ? 'small' : undefined} color="text">
+                Connect Wallet
+              </Text>
+            }
             onClick={() => setConnectOpen(true)}
           />
         )}

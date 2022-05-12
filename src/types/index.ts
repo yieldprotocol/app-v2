@@ -214,13 +214,13 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   joinAddress: string;
 
   digitFormat: number;
-  baseContract: Contract;
+  assetContract: Contract;
 
   isYieldBase: boolean;
 
   isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;
-  proxyId: string; // id to use for wrapped tokens?
+  proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;

@@ -16,7 +16,6 @@ import {
   IUserContextState,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ZERO_BN } from '../../utils/constants';
 import { calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -85,9 +84,9 @@ export const useLend = () => {
     );
 
     const addEthCallData = () => {
-      if (isEthBase) return addEth( _input, series.poolAddress)
-      return [] 
-    }
+      if (isEthBase) return addEth(_input, series.poolAddress);
+      return [];
+    };
 
     const calls: ICallData[] = [
       ...permitCallData,

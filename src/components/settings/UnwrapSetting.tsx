@@ -2,15 +2,8 @@ import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
 import { Settings, SettingsContext } from '../../contexts/SettingsContext';
-import { ChainContext } from '../../contexts/ChainContext';
 
 const UnwrapSetting = () => {
-  const {
-    chainState: {
-      connection: { connectionName },
-    },
-  } = useContext(ChainContext);
-
   const {
     settingsState: { unwrapTokens },
     settingsActions: { updateSetting },
@@ -19,7 +12,7 @@ const UnwrapSetting = () => {
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color='text-xweak'>
+        <Text size="small" color="text-xweak">
           Auto-unwrap tokens
         </Text>
         <Switch

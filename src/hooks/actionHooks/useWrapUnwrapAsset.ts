@@ -2,8 +2,8 @@ import { BigNumber, Contract } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { ICallData, LadleActions, IAsset, RoutedActions } from '../../types';
-import { MAX_256, ZERO_BN } from '../../utils/constants';
+import { ICallData, LadleActions, IAsset, RoutedActions, IChainContext, ISettingsContext } from '../../types';
+import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
 export const useWrapUnwrapAsset = () => {
@@ -13,11 +13,11 @@ export const useWrapUnwrapAsset = () => {
       contractMap,
       assetRootMap,
     },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
   const {
     settingsState: { unwrapTokens, diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const signer = account ? provider?.getSigner(account) : provider?.getSigner(0);
   const { sign } = useChain();
@@ -33,7 +33,9 @@ export const useWrapUnwrapAsset = () => {
     const ladleAddress = contractMap.get('Ladle').address;
     /* SET the destination address DEFAULTs to the assetJoin Address */
     const toAddress = to || asset.joinAddress;
-    const wrapHandlerAddress = asset.wrapHandlerAddresses ? asset.wrapHandlerAddresses.get(chainId) : undefined;
+    const wrapHandlerAddress = asset.wrapHandlerAddresses.has(chainId)
+      ? asset.wrapHandlerAddresses.get(chainId)
+      : undefined;
 
     /* NB! IF a wraphandler exists, we assume that it is Yield uses the wrapped version of the token */
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
@@ -76,7 +78,9 @@ export const useWrapUnwrapAsset = () => {
   };
 
   const unwrapAsset = async (asset: IAsset, receiver: string): Promise<ICallData[]> => {
-    const unwrapHandlerAddress = asset.unwrapHandlerAddresses ? asset.unwrapHandlerAddresses.get(chainId) : undefined;
+    const unwrapHandlerAddress = asset.unwrapHandlerAddresses.has(chainId)
+      ? asset.unwrapHandlerAddresses.get(chainId)
+      : undefined;
 
     /* if there is an unwrap handler we assume the token needs to be unwrapped  ( unless the 'unwrapTokens' setting is false) */
     if (unwrapTokens && unwrapHandlerAddress) {
@@ -84,7 +88,6 @@ export const useWrapUnwrapAsset = () => {
       const unwraphandlerContract: Contract = new Contract(unwrapHandlerAddress, wrapHandlerAbi, signer);
 
       return [
-
         {
           operation: LadleActions.Fn.ROUTE,
           args: [receiver] as RoutedActions.Args.UNWRAP,
