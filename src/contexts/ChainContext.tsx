@@ -18,6 +18,7 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
+import { RPC_URLS } from '../config/chainData';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -103,7 +104,7 @@ const ChainProvider = ({ children }: any) => {
 
   const { activeChain } = useNetwork();
   const chainId = activeChain?.id || +lastChainId;
-  const provider = useProvider();
+  const provider = useProvider({ chainId }) || new ethers.providers.StaticJsonRpcProvider(RPC_URLS[chainId]);
   const { data: blockNum } = useBlockNumber();
 
   /**
