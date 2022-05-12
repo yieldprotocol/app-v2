@@ -110,6 +110,7 @@ const ChainProvider = ({ children }: any) => {
    */
   useEffect(() => {
     if (provider && chainId) {
+      setLastChainId(chainId);
       console.log('ChainId: ', chainId);
 
       /* Get the instances of the Base contracts */
