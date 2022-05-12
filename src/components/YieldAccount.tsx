@@ -51,47 +51,21 @@ const YieldAccount = (props: any) => {
     <>
       <SidebarSettings settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      {account ? (
-        <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <SettingsBalances />}
-          <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
-            {mobile ? (
-              <Box>
-                <FiSettings />
-              </Box>
-            ) : (
-              <Box direction="row" align="center" gap="small">
-                <Box>
-                  <Text color="text" size="small">
-                    {ensName || abbreviateHash(account, 5)}
-                  </Text>
-
-                  <Box direction="row" align="center" gap="small">
-                    <Box direction="row" gap="xsmall" align="center">
-                      <StyledText size="small" color="text">
-                        {assetsLoading && <Skeleton circle height={20} width={20} />}
-                        {ethBalance && (
-                          <Box height="20px" width="20px">
-                            <EthMark />
-                          </Box>
-                        )}
-                      </StyledText>
-                      <StyledText size="small" color="text">
-                        {assetsLoading ? <Skeleton width={40} /> : ethBalance}
-                      </StyledText>
-                    </Box>
-                  </Box>
-                </Box>
-                <Box>
-                  <YieldAvatar address={account} size={2} />
-                </Box>
-              </Box>
-            )}
-          </StyledBox>
+      <Box direction="row" gap="xsmall" align="center">
+        {!mobile && <SettingsBalances />}
+        <Box onClick={() => setSettingsOpen(true)}>
+          {mobile ? (
+            <Box>
+              <FiSettings />
+            </Box>
+          ) : (
+            <Box direction="row" align="center">
+              <ConnectButton chainStatus="none" />
+              <YieldAvatar address={account} size={2} />
+            </Box>
+          )}
         </Box>
-      ) : (
-        <ConnectButton />
-      )}
+      </Box>
     </>
   );
 };
