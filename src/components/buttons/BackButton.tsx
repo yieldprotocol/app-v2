@@ -35,8 +35,8 @@ function BackButton({ action }: { action: () => void }) {
           pad="xsmall" 
           elevation={hover? 'small': undefined}
           >
-            {hover && <Text size="0.5em" weight='lighter'> Back </Text>}
-            {!hover &&  <FiChevronLeft />}
+            {hover && <Text color='text' size="0.5em" weight='lighter'> Back </Text>}
+            {!hover &&   <Text color='text'><FiChevronLeft /> </Text>}
           </Avatar>
         }
       />
