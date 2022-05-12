@@ -159,7 +159,12 @@ const ChainProvider = ({ children }: any) => {
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
         if ([1, 4, 5, 42].includes(fallbackChainId)) {
+
+          // Modules
+          WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
+
+          // Oracles
           RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
 
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
@@ -186,29 +191,25 @@ const ChainProvider = ({ children }: any) => {
 
         // arbitrum
         if ([42161, 421611].includes(fallbackChainId)) {
+
+          // Modules 
+          WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
+
+          // Oracles
+          AccumulatorOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorOracle, fallbackProvider);
+          RateOracle = AccumulatorOracle;
           ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
             addrs.ChainlinkUSDOracle,
             fallbackProvider
           );
-          AccumulatorOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorOracle, fallbackProvider);
-          RateOracle = AccumulatorOracle;
+
         }
       } catch (e) {
         console.log('Could not connect to contracts: ', e);
       }
 
-      if (
-        [1, 4, 5, 42].includes(fallbackChainId) &&
-        (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
-      )
-        return;
-
-      // arbitrum
-      if (
-        [42161, 421611].includes(fallbackChainId) &&
-        (!Cauldron || !Ladle || !ChainlinkUSDOracle || !AccumulatorOracle || !Witch)
-      )
-        return;
+      // if there was an issue loading at htis point simply return
+      if ( !Cauldron || !Ladle || !RateOracle || !Witch) return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap as Map<string, Contract>;
@@ -216,12 +217,14 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('Witch', Witch);
       newContractMap.set('RateOracle', RateOracle);
+
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
       newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
       newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
-      newContractMap.set('AccumulatorOracle', AccumulatorOracle);
       newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
+
+      newContractMap.set('AccumulatorOracle', AccumulatorOracle);
 
       // modules
       newContractMap.set('WrapEtherModule', WrapEtherModule);
