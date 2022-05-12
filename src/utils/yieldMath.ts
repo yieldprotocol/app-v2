@@ -23,9 +23,9 @@ const TWO = TWO_DEC;
 const MAX = MAX_DEC;
 
 /* Protocol Specific Constants */
-const k = new Decimal(1 / secondsInTenYears.toNumber()).mul(2 ** 64); // inv of seconds in 10 years
-const g1_default = new Decimal(950 / 1000).mul(2 ** 64);
-const g2_default = new Decimal(1000 / 950).mul(2 ** 64);
+export const k = new Decimal(1 / secondsInTenYears.toNumber()).mul(2 ** 64); // inv of seconds in 10 years
+export const g1_default = new Decimal(950 / 1000).mul(2 ** 64);
+export const g2_default = new Decimal(1000 / 950).mul(2 ** 64);
 const precisionFee = new Decimal(1000000000000);
 
 /** *************************
@@ -1208,4 +1208,47 @@ export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt
   const debtLessAccrued = debt_.mul(invRatio_);
 
   return [toBn(accruedDebt), toBn(debtLessAccrued)];
+};
+
+/**
+ * Calculates the amount of base needed to adjust a pool to a desired interest rate
+ *
+ * @param {number} desiredInterestRate desired interest rate for the pool, in decimal format
+ * @param {BigNumber} baseReserves base reserves of the pool
+ * @param {BigNumber} fyTokenReserves virtual fyToken of the pool
+ * @param {BigNumber} fyTokenRealReserves real fyToken of the pool
+ * @param {BigNumber} totalSupply total pool supply
+ * @param {number} timeTillMaturity fyToken of the pool
+ * @param {BigNumber} ts time stretch
+ * @param {BigNumber} g1 fee
+ * @param {BigNumber} g2 fee
+ * @param {number} decimals pool decimals
+ *
+ * @returns {[BigNumber, BigNumber, BigNumber, BigNumber]}
+ */
+
+export const getBaseNeededForInterestRateChange = (
+  desiredInterestRate: number, // in decimal format (i.e.: .1 is 10%)
+  baseReserves: BigNumber,
+  fyTokenReserves: BigNumber,
+  timeTillMaturity: string,
+  ts: BigNumber,
+  g1: BigNumber
+) => {
+  const _baseReserves = new Decimal(baseReserves.toString());
+  const _fyTokenReserves = new Decimal(fyTokenReserves.toString());
+  const _desiredRate = new Decimal(desiredInterestRate.toString());
+  const _g1 = new Decimal(g1.toString());
+
+  const [a, invA] = _computeA(timeTillMaturity, ts, g1);
+
+  const top = _baseReserves.pow(a).add(_fyTokenReserves).pow(a);
+  const bottom = ONE.add(ONE.add(_desiredRate).pow(a.div(_g1)));
+  const baseReservesNew = top.div(bottom).pow(invA);
+  const baseDiff = baseReservesNew.sub(_baseReserves);
+
+  const fyTokenReservesNew = baseReservesNew.mul(ONE.add(_desiredRate).pow(ONE.div(_g1)));
+  const fyTokenDiff = fyTokenReservesNew.sub(_fyTokenReserves);
+
+  return [toBn(baseDiff), toBn(fyTokenDiff), toBn(baseReservesNew), toBn(fyTokenReservesNew)];
 };
