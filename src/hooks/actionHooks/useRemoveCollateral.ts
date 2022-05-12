@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
@@ -22,16 +22,14 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 
 export const useRemoveCollateral = () => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
+  const { activeChain } = useNetwork();
+  const chainId = activeChain?.id;
+  const provider = useProvider();
 
   const {
-    chainState: {
-      contractMap,
-      connection: { chainId },
-      provider,
-    },
+    chainState: { contractMap },
   } = useContext(ChainContext);
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
