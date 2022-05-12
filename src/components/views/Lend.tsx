@@ -49,9 +49,8 @@ const Lend = () => {
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { selectedSeries, selectedBase, seriesMap } = userState;
 
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
