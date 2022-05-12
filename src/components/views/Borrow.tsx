@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, CheckBox, Keyboard, ResponsiveContext, Stack, Text, TextInput } from 'grommet';
+import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
 
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
@@ -13,16 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ActionCodes,
-  ActionType,
-  ISettingsContext,
-  IUserContext,
-  IUserContextState,
-  IVault,
-  ProcessStage,
-  TxState,
-} from '../../types';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -54,7 +45,6 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
 import VaultItem from '../positionItems/VaultItem';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 
@@ -73,10 +63,6 @@ const Borrow = () => {
   ) as IUserContext;
   const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
-
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -199,7 +185,7 @@ const Borrow = () => {
     selectedSeries?.seriesIsMature ||
     (stepPosition === 1 && undercollateralized) ||
     (stepPosition === 1 && collatInputError) ||
-    selectedSeries.baseId !== selectedBase?.id
+    selectedSeries.baseId !== selectedBase?.proxyId
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
@@ -211,7 +197,7 @@ const Borrow = () => {
     collatInput,
     undercollateralized,
     collatInputError,
-    selectedBase?.id,
+    selectedBase?.proxyId,
   ]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
@@ -220,8 +206,8 @@ const Borrow = () => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.idToUse &&
-          v.baseId === selectedBase.idToUse &&
+          v.ilkId === selectedIlk.proxyId &&
+          v.baseId === selectedBase.proxyId &&
           v.seriesId === selectedSeries.id &&
           v.isActive
       );
@@ -340,7 +326,7 @@ const Borrow = () => {
                   <BackButton action={() => setStepPosition(0)} />
                 </Box> */}
                 <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
-                <BackButton action={() => setStepPosition(0)} />
+                  <BackButton action={() => setStepPosition(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">
                     <Box justify="center">
                       <Gauge
@@ -516,8 +502,6 @@ const Borrow = () => {
                     </Box>
                   </ActiveTransaction>
                 </Box>
-
-                <Box></Box>
                 <Line />
               </>
             )}
@@ -544,12 +528,11 @@ const Borrow = () => {
                     <Text size="xsmall" weight="lighter">
                       I understand the risks associated with borrowing. In particular, I understand that as a new
                       protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
-                      below the minimum collateralization requirement ({' '}
+                      below the minimum collateralization requirement (
                       <Text size="xsmall" color="red">
-                        {' '}
                         {minCollatRatioPct}%
-                      </Text>{' '}
-                      ) I could lose most or all of my posted collateral.
+                      </Text>
+                      ), I could lose most or all of my posted collateral.
                     </Text>
                   }
                   checked={disclaimerChecked}
@@ -565,7 +548,7 @@ const Borrow = () => {
                 // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {borrowInput && (!selectedSeries || selectedBase?.id !== selectedSeries.baseId)
+                    {borrowInput && (!selectedSeries || selectedBase?.proxyId !== selectedSeries.baseId)
                       ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
                       : 'Next Step'}
                   </Text>

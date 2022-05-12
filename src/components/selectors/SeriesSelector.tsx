@@ -169,9 +169,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   useEffect(() => {
     const opts = Array.from(seriesMap.values());
 
-    /* filter out options based on base Id and if mature */
+    /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts.filter(
-      (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
+      (_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature
       // !ignoredSeries?.includes(_series.baseId)
     );
 

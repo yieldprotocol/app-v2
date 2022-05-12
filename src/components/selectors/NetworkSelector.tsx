@@ -77,7 +77,7 @@ const NetworkSelector = () => {
                 <ArbitrumLogo />
               </Box>
               <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
-                {[4, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
+                {[4, 5, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
               </Text>
             </Box>
           )

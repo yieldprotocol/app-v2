@@ -32,6 +32,7 @@ export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
 // map asset (quote) and other asset (base) to a specific oracle based on where there is relevant price info for the pair
 export const CHAIN_ID_1_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_4_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
+export const CHAIN_ID_5_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_42_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_42161_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_421611_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
