@@ -94,7 +94,7 @@ const SettingsProvider = ({ children }: any) => {
 
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
-    if (activeConnector?.name && activeConnector?.name !== 'MetMmask') {
+    if (activeConnector?.name && activeConnector?.name !== 'MetaMask') {
       console.log('Using manual ERC20 approval transactions');
       updateState({ type: Settings.APPROVAL_MAX, payload: ApprovalType.TX });
     } else if (activeConnector?.name === 'MetaMask') {
