@@ -29,7 +29,7 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
       .catch((error: any) => setFailed(true));
   };
 
-  return activeConnector.name === 'MetaMask' ? (
+  return activeConnector?.name === 'MetaMask' ? (
     <Box align="center">
       <Button plain color="brand" hoverIndicator={{}} onClick={() => handleAddToken()} icon={<FiPlusCircle />} />
     </Box>
