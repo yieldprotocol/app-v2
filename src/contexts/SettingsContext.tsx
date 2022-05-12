@@ -94,7 +94,7 @@ const SettingsProvider = ({ children }: any) => {
 
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
-    if (activeConnector?.name && activeConnector?.name !== 'MetaMask') {
+    if (activeConnector && activeConnector?.name !== 'MetaMask') {
       console.log('Using manual ERC20 approval transactions');
       updateState({ type: Settings.APPROVAL_MAX, payload: ApprovalType.TX });
     } else if (activeConnector?.name === 'MetaMask') {
@@ -102,7 +102,7 @@ const SettingsProvider = ({ children }: any) => {
       console.log('Using ERC20Permit signing (EIP-2612) ');
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
     }
-  }, [activeConnector?.name]);
+  }, [activeConnector]);
 
   /* Exposed userActions */
   const settingsActions = {
