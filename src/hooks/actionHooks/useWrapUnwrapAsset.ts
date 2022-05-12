@@ -78,7 +78,7 @@ export const useWrapUnwrapAsset = () => {
   };
 
   const unwrapAsset = async (asset: IAsset, receiver: string): Promise<ICallData[]> => {
-    const unwrapHandlerAddress = asset.unwrapHandlerAddresses.has(chainId)
+    const unwrapHandlerAddress = asset.unwrapHandlerAddresses?.has(chainId)
       ? asset.unwrapHandlerAddresses.get(chainId)
       : undefined;
 
