@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
 import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
-import { useAccount, useConnect, useEnsName, useNetwork } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useEnsName, useNetwork } from 'wagmi';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
@@ -21,14 +21,11 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
     txState: { transactions },
   } = useContext(TxContext);
 
-  const {
-    data:  _account ,
-  } = useAccount();
-  const account = _account?.address
-  const {
-    activeChain
-  } = useNetwork();
-  const blockExplorer = activeChain?.blockExplorers.default
+  const { data: _account } = useAccount();
+  const account = _account?.address;
+  const { disconnect } = useDisconnect();
+  const { activeChain } = useNetwork();
+  const blockExplorer = activeChain?.blockExplorers.default;
   const { activeConnector } = useConnect();
 
   const { data: ensName } = useEnsName();
@@ -86,7 +83,7 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
             margin={{ top: 'medium' }}
           >
             <BoxWrap direction="row" gap="small">
-              {activeConnector.name && <Text size="xsmall">Connected with {activeConnector.name}</Text>}
+              {activeConnector?.name && <Text size="xsmall">Connected with {activeConnector?.name}</Text>}
               {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
             </BoxWrap>
           </Box>
@@ -97,7 +94,7 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
                 <Text size="xsmall">Change Connection</Text>
               </GeneralButton>
 
-              <GeneralButton action={() => } background="gradient-transparent">
+              <GeneralButton action={() => disconnect()} background="gradient-transparent">
                 <Text size="xsmall">Disconnect</Text>
               </GeneralButton>
             </Box>
