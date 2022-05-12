@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
 import { useConnect } from 'wagmi';
-import { ApprovalType } from '../../types';
+import { ApprovalType, ISettingsContext } from '../../types';
 import { Settings, SettingsContext } from '../../contexts/SettingsContext';
 
 const AdvancedSetting = () => {
@@ -11,7 +11,7 @@ const AdvancedSetting = () => {
   const {
     settingsState: { approvalMethod, approveMax },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>

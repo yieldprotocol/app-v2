@@ -2,12 +2,13 @@ import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
 import { Settings, SettingsContext } from '../../contexts/SettingsContext';
+import { ISettingsContext } from '../../types';
 
 const UnwrapSetting = () => {
   const {
     settingsState: { unwrapTokens },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
