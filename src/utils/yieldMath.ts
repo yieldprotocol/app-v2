@@ -1233,19 +1233,14 @@ export const getBaseNeededForInterestRateChange = (
   g2: BigNumber,
   desiredInterestRate: number // in decimal format (i.e.: .1 is 10%)
 ) => {
-  // calculate time stretch associated years (i.e.: u = 25 years)
-  const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
-  const _secondsInOneYear = new Decimal(secondsInOneYear.toString());
-  const invTs = ONE.div(_ts);
-  const u = invTs.div(_secondsInOneYear);
-
   // format series data
   const _baseReserves = new Decimal(baseReserves.toString());
   const _fyTokenReserves = new Decimal(fyTokenReserves.toString());
 
+  const u = getTimeStretchYears(ts);
+
   // calculate current rate
   const _currRate = calculateRate(_fyTokenReserves, _baseReserves, u);
-  console.log('🦄 ~ file: yieldMath.ts ~ line 1248 ~ _currRate', _currRate.toString());
 
   // format desired rate
   const _desiredRate = new Decimal(desiredInterestRate.toString());
@@ -1264,7 +1259,6 @@ export const getBaseNeededForInterestRateChange = (
   const fyTokenDiff = fyTokenReservesNew.sub(_fyTokenReserves);
 
   const newRate = calculateRate(fyTokenReservesNew, baseReservesNew, u);
-  console.log('🦄 ~ file: yieldMath.ts ~ line 1268 ~ newRate', newRate.toString());
 
   // result is the input into the frax amo funcs, which is the base diff
   // sellBase (decrease rates {base goes in}) or buyBase (increase rates {base comes out})
@@ -1275,3 +1269,14 @@ export const getBaseNeededForInterestRateChange = (
 
 const calculateRate = (fyTokenReserves: Decimal, baseReserves: Decimal, timeStretchYears: Decimal) =>
   fyTokenReserves.div(baseReserves).pow(ONE.div(timeStretchYears)).sub(ONE);
+
+/**
+ * @param ts time stretch associated with series
+ * @returns num years
+ */
+const getTimeStretchYears = (ts: BigNumber) => {
+  const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
+  const _secondsInOneYear = new Decimal(secondsInOneYear.toString());
+  const invTs = ONE.div(_ts);
+  return invTs.div(_secondsInOneYear);
+};
