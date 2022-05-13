@@ -8,7 +8,7 @@ import { bytesToBytes32, decimal18ToDecimalN } from '../utils/yieldMath';
 
 import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ORACLE_INFO } from '../config/oracles';
+import { ORACLES } from '../config/oracles';
 
 enum PriceState {
   UPDATE_PAIR = 'updatePair',
@@ -67,7 +67,7 @@ const PriceProvider = ({ children }: any) => {
       diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading);
       const pairId = `${baseId}${ilkId}`;
       const Cauldron = contractMap.get('Cauldron');
-      const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
+      const oracleName = ORACLES.get(fallbackChainId || 1)
         ?.get(baseId)
         ?.get(ilkId);
       const PriceOracle = contractMap.get(oracleName!);
