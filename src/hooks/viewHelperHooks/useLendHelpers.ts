@@ -1,10 +1,20 @@
+import Decimal from 'decimal.js';
 import { BigNumber, ethers } from 'ethers';
+import { parseUnits } from 'ethers/lib/utils';
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, ISeries, IUserContextState } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import { maxBaseIn, sellBase, sellFYToken } from '../../utils/yieldMath';
+import {
+  g1_default,
+  getBaseNeededForInterestRateChange,
+  maxBaseIn,
+  ONE_DEC,
+  sellBase,
+  sellFYToken,
+  toBn,
+} from '../../utils/yieldMath';
 import { useApr } from '../useApr';
 
 export const useLendHelpers = (
@@ -40,6 +50,52 @@ export const useLendHelpers = (
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
 
+  useEffect(() => {
+    if (series) {
+      const desiredRate = 0.1;
+      console.log('🦄 ~ file: useLendHelpers.ts ~ line 56 ~ useEffect ~ desiredRate', desiredRate);
+
+      const [baseDiff, fyTokenDiff, baseReservesNew, fyTokenReservesNew, result] = getBaseNeededForInterestRateChange(
+        series.baseReserves,
+        series.fyTokenReserves,
+        series.getTimeTillMaturity(),
+        series.ts,
+        series.g1,
+        series.g2,
+        desiredRate
+      );
+
+      console.log(
+        '🦄 ~ file: useLendHelpers.ts ~ line 62 ~ useEffect ~ baseDiff',
+        ethers.utils.formatUnits(baseDiff, series.decimals)
+      );
+      console.log(
+        '🦄 ~ file: useLendHelpers.ts ~ line 62 ~ useEffect ~ fyTokenDiff',
+        ethers.utils.formatUnits(fyTokenDiff, series.decimals)
+      );
+      console.log(
+        '🦄 ~ file: useLendHelpers.ts ~ line 46 ~ useEffect ~ baseReservesNew',
+        ethers.utils.formatUnits(baseReservesNew, series.decimals)
+      );
+      console.log(
+        '🦄 ~ file: useLendHelpers.ts ~ line 57 ~ useEffect ~ series.baseReserves',
+        ethers.utils.formatUnits(series.baseReserves, series.decimals)
+      );
+      console.log(
+        '🦄 ~ file: useLendHelpers.ts ~ line 46 ~ useEffect ~ fyTokenReservesNew',
+        ethers.utils.formatUnits(fyTokenReservesNew, series.decimals)
+      );
+      console.log(
+        '🦄 ~ file: useLendHelpers.ts ~ line 57 ~ useEffect ~ series.fyTokenReserves',
+        ethers.utils.formatUnits(series.fyTokenReserves, series.decimals)
+      );
+      console.log(
+        '🦄 ~ file: useLendHelpers.ts ~ line 55 ~ useEffect ~ result',
+        ethers.utils.formatUnits(result, series.decimals)
+      );
+    }
+  }, [series]);
+
   // /* check and set the protocol Base max limits */
   // useEffect(() => {
   //   if (series) {
@@ -57,6 +113,7 @@ export const useLendHelpers = (
   // }, [series, diagnostics]);
 
   /* Check and set Max available lend by user (only if activeAccount).   */
+
   useEffect(() => {
     if (activeAccount) {
       (async () => {

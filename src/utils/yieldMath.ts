@@ -1213,42 +1213,65 @@ export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt
 /**
  * Calculates the amount of base needed to adjust a pool to a desired interest rate
  *
- * @param {number} desiredInterestRate desired interest rate for the pool, in decimal format
  * @param {BigNumber} baseReserves base reserves of the pool
  * @param {BigNumber} fyTokenReserves virtual fyToken of the pool
- * @param {BigNumber} fyTokenRealReserves real fyToken of the pool
- * @param {BigNumber} totalSupply total pool supply
  * @param {number} timeTillMaturity fyToken of the pool
  * @param {BigNumber} ts time stretch
  * @param {BigNumber} g1 fee
  * @param {BigNumber} g2 fee
- * @param {number} decimals pool decimals
+ * @param {number} desiredInterestRate desired interest rate for the pool, in decimal format (i.e.: .1 for 10%)
  *
  * @returns {[BigNumber, BigNumber, BigNumber, BigNumber]}
  */
 
 export const getBaseNeededForInterestRateChange = (
-  desiredInterestRate: number, // in decimal format (i.e.: .1 is 10%)
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: string,
   ts: BigNumber,
-  g1: BigNumber
+  g1: BigNumber,
+  g2: BigNumber,
+  desiredInterestRate: number // in decimal format (i.e.: .1 is 10%)
 ) => {
+  // calculate time stretch associated years (i.e.: u = 25 years)
+  const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
+  const _secondsInOneYear = new Decimal(secondsInOneYear.toString());
+  const invTs = ONE.div(_ts);
+  const u = invTs.div(_secondsInOneYear);
+
+  // format series data
   const _baseReserves = new Decimal(baseReserves.toString());
   const _fyTokenReserves = new Decimal(fyTokenReserves.toString());
+
+  // calculate current rate
+  const _currRate = calculateRate(_fyTokenReserves, _baseReserves, u);
+  console.log('🦄 ~ file: yieldMath.ts ~ line 1248 ~ _currRate', _currRate.toString());
+
+  // format desired rate
   const _desiredRate = new Decimal(desiredInterestRate.toString());
-  const _g1 = new Decimal(g1.toString());
 
-  const [a, invA] = _computeA(timeTillMaturity, ts, g1);
+  // assess which g to use: decrease rates means sellBase, so g1; otherwise, buyBase, so g2
+  const g = _desiredRate.gt(_currRate) ? g1 : g2;
+  const [a, invA] = _computeA(timeTillMaturity, ts, g);
 
-  const top = _baseReserves.pow(a).add(_fyTokenReserves).pow(a);
-  const bottom = ONE.add(ONE.add(_desiredRate).pow(a.div(_g1)));
+  const top = _baseReserves.pow(a).add(_fyTokenReserves.pow(a));
+  const bottom = ONE.add(ONE.add(_desiredRate).pow(u.mul(a)));
+
   const baseReservesNew = top.div(bottom).pow(invA);
   const baseDiff = baseReservesNew.sub(_baseReserves);
 
-  const fyTokenReservesNew = baseReservesNew.mul(ONE.add(_desiredRate).pow(ONE.div(_g1)));
+  const fyTokenReservesNew = baseReservesNew.mul(ONE.add(_desiredRate).pow(u));
   const fyTokenDiff = fyTokenReservesNew.sub(_fyTokenReserves);
 
-  return [toBn(baseDiff), toBn(fyTokenDiff), toBn(baseReservesNew), toBn(fyTokenReservesNew)];
+  const newRate = calculateRate(fyTokenReservesNew, baseReservesNew, u);
+  console.log('🦄 ~ file: yieldMath.ts ~ line 1268 ~ newRate', newRate.toString());
+
+  // result is the input into the frax amo funcs, which is the base diff
+  // sellBase (decrease rates {base goes in}) or buyBase (increase rates {base comes out})
+  const result = toBn(baseDiff);
+
+  return [toBn(baseDiff), toBn(fyTokenDiff), toBn(baseReservesNew), toBn(fyTokenReservesNew), result];
 };
+
+const calculateRate = (fyTokenReserves: Decimal, baseReserves: Decimal, timeStretchYears: Decimal) =>
+  fyTokenReserves.div(baseReserves).pow(ONE.div(timeStretchYears)).sub(ONE);
