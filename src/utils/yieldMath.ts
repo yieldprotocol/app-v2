@@ -1258,23 +1258,21 @@ export const getBaseNeededForInterestRateChange = (
   const fyTokenReservesNew = baseReservesNew.mul(ONE.add(_desiredRate).pow(u));
   const fyTokenDiff = fyTokenReservesNew.sub(_fyTokenReserves);
 
-  const newRate = calculateRate(fyTokenReservesNew, baseReservesNew, u);
-
   // result is the input into the frax amo funcs, which is the base diff
   // sellBase (decrease rates {base goes in}) or buyBase (increase rates {base comes out})
-  const result = toBn(baseDiff);
+  const result = toBn(baseDiff.abs());
 
   return [toBn(baseDiff), toBn(fyTokenDiff), toBn(baseReservesNew), toBn(fyTokenReservesNew), result];
 };
 
-const calculateRate = (fyTokenReserves: Decimal, baseReserves: Decimal, timeStretchYears: Decimal) =>
+export const calculateRate = (fyTokenReserves: Decimal, baseReserves: Decimal, timeStretchYears: Decimal) =>
   fyTokenReserves.div(baseReserves).pow(ONE.div(timeStretchYears)).sub(ONE);
 
 /**
- * @param ts time stretch associated with series
+ * @param ts time stretch associated with series (i.e.: 10 years)
  * @returns num years
  */
-const getTimeStretchYears = (ts: BigNumber) => {
+export const getTimeStretchYears = (ts: BigNumber) => {
   const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
   const _secondsInOneYear = new Decimal(secondsInOneYear.toString());
   const invTs = ONE.div(_ts);
