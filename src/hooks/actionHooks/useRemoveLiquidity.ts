@@ -274,7 +274,7 @@ export const useRemoveLiquidity = () => {
       {
         operation: LadleActions.Fn.RETRIEVE,
         args: [series.fyTokenAddress, account] as LadleActions.Args.RETRIEVE,
-        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt! || !useMatchingVault || !isEthBase,
+        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !isEthBase,
       },
 
       /* OPTION 4. Remove Liquidity and sell  - BEFORE MATURITY +  NO VAULT */
