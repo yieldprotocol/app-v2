@@ -52,11 +52,7 @@ const RainbowConnectButton = ({ setSettingsOpen, chainOnly }: IProps) => {
         >
           {(() => {
             if (!mounted || !account || !chain) {
-              return (
-                <button onClick={openConnectModal} type="button">
-                  Connect Wallet
-                </button>
-              );
+              return <ConnectButton />;
             }
 
             if (chain.unsupported) {
@@ -93,9 +89,7 @@ const RainbowConnectButton = ({ setSettingsOpen, chainOnly }: IProps) => {
                         </Box>
                       </Box>
                     </Box>
-                    <Box>
-                      <YieldAvatar address={account.address} size={2} />
-                    </Box>
+                    {account && <YieldAvatar address={account.address} size={2} />}
                   </Box>
                 )}
               </StyledBox>
