@@ -3,20 +3,19 @@ import {
   configureChains,
   darkTheme,
   lightTheme,
-  getDefaultWallets,
   RainbowKitProvider,
   Theme,
   connectorsForWallets,
   wallet,
 } from '@rainbow-me/rainbowkit';
 import merge from 'lodash.merge';
-import { Chain, chain, createClient, WagmiProvider } from 'wagmi';
+import { chain, createClient, WagmiProvider } from 'wagmi';
 import { SUPPORTED_RPC_URLS } from '../config/chainData';
 
 const ProviderContext = ({ children }) => {
   const { chains, provider } = configureChains(
     [chain.mainnet, chain.arbitrum, chain.goerli],
-    [apiProvider.jsonRpc((_chain: Chain) => ({ rpcUrl: SUPPORTED_RPC_URLS[_chain.id] }))]
+    [apiProvider.jsonRpc((c) => ({ rpcUrl: SUPPORTED_RPC_URLS[c.id] }))]
   );
 
   const connectors = connectorsForWallets([
