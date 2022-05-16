@@ -270,7 +270,7 @@ export const useRemoveLiquidity = () => {
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
 
-      /* PATCH!!! if removing ETH-BASE, retrieve ftETH as to not leave it in the ladle  */
+      /* PATCH!!! if removing ETH-BASE, retrieve fyETH as to not leave it in the ladle  */
       {
         operation: LadleActions.Fn.RETRIEVE,
         args: [series.fyTokenAddress, account] as LadleActions.Args.RETRIEVE,
