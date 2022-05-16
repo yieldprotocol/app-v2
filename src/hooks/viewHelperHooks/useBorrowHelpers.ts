@@ -58,14 +58,14 @@ export const useBorrowHelpers = (
   /* Update the borrow limits if asset pair changes */
   useEffect(() => {
     if (assetPairInfo) {
-      const _decimals = assetPairInfo.baseDecimals;
+      const _decimals = assetPairInfo.limitDecimals;
       const _maxLessTotal = assetPairInfo.maxDebtLimit.sub(assetPairInfo.pairTotalDebt);
       const min = assetPairInfo.minDebtLimit;
 
       setMaxDebt(_maxLessTotal);
       setMaxDebt_(ethers.utils.formatUnits(_maxLessTotal, _decimals)?.toString());
       setMinDebt(min);
-      setMinDebt_(ethers.utils.formatUnits(min, _decimals)?.toString());
+      setMinDebt_(ethers.utils.formatUnits(min, assetPairInfo.baseDecimals)?.toString());
     }
   }, [assetPairInfo]);
 
@@ -203,14 +203,13 @@ export const useBorrowHelpers = (
 
         /* if the series is mature re-set max as all debt ( if balance allows) */
         if (vaultSeries.seriesIsMature) {
-          const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt
+          const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
           setMaxRepay(_accruedArt);
           setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
         } else {
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxRepayable);
         }
-        
       })();
     }
   }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);
