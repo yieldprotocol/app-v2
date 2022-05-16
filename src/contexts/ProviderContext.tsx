@@ -18,10 +18,12 @@ function getFallbackLibrary(provider: any) {
     if (provider.chainId === 421611)
       return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_ARBITRUM_RINKEBY_KEY);
 
-    // else connect to fallback 
-    // const library = new ethers.providers.InfuraProvider(provider.chainId, process.env.INFURA_KEY);
-    const library = new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_KEY);
+    if (provider.chainId === 1)
+      return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_MAINNET_KEY);
+
+    const library = new ethers.providers.InfuraProvider(provider.chainId, process.env.INFURA_KEY);
     library.pollingInterval = 6000;
+
     return library;
   } catch (e) {
     if (provider.chainId === 1) {
