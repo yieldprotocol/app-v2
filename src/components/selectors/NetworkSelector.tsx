@@ -1,91 +1,51 @@
-import { useContext, useEffect, useState } from 'react';
-import { Box, Select, Text } from 'grommet';
-import { FiChevronDown } from 'react-icons/fi';
-import { ChainContext } from '../../contexts/ChainContext';
-import { CHAIN_INFO } from '../../config/chainData';
-import { useNetworkSelect } from '../../hooks/useNetworkSelect';
-import { IChainContext } from '../../types';
-import ArbitrumLogo from '../logos/Arbitrum';
-import EthMark from '../logos/EthMark';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Box } from 'grommet';
+import Image from 'next/image';
 
-const NetworkSelector = () => {
-  const {
-    chainState: {
-      connection: { account, fallbackChainId },
-    },
-  } = useContext(ChainContext) as IChainContext;
+const NetworkSelector = () => (
+  <ConnectButton.Custom>
+    {({ account, chain, openChainModal, openConnectModal, mounted }) => (
+      <div
+        {...(!mounted && {
+          'aria-hidden': true,
+          style: {
+            opacity: 0,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          },
+        })}
+      >
+        {(() => {
+          if (!mounted || !account || !chain) {
+            return null;
+          }
 
-  const [selectedChainId, setSelectedChainId] = useState<number | undefined>();
+          if (chain.unsupported) {
+            return (
+              <button onClick={openChainModal} type="button">
+                Wrong network
+              </button>
+            );
+          }
 
-  const [currentNetwork, setCurrentNetwork] = useState<string>();
-
-  useEffect(() => {
-    [1, 4, 5, 42].includes(fallbackChainId!) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
-  }, [fallbackChainId]);
-
-  useNetworkSelect(selectedChainId!);
-
-  const handleNetworkChange = (chainName: string) =>
-    setSelectedChainId([...CHAIN_INFO.entries()].find(([, chainInfo]) => chainInfo.name === chainName)![0]);
-
-  return (
-    <Box round>
-      <Select
-        plain
-        size="small"
-        dropProps={{ round: 'large' }}
-        disabled={!account}
-        icon={<FiChevronDown />}
-        options={
-          currentNetwork === 'Ethereum'
-            ? [
-                // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small">
-                  <Box height="20px" width="20px">
-                    <ArbitrumLogo />
-                  </Box>
-                  <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
-                    Arbitrum
-                  </Text>
-                </Box>,
-              ]
-            : [
-                // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small">
-                  <Box height="20px" width="20px">
-                    <EthMark />
-                  </Box>
-                  <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                    Ethereum
-                  </Text>
-                </Box>,
-              ]
-        }
-        value={
-          currentNetwork === 'Ethereum' ? (
-            <Box direction="row" gap="small">
-              <Box height="20px" width="20px">
-                <EthMark />
-              </Box>
-              <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                Ethereum {[4, 5, 42, 421611].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name}
-              </Text>
+          return (
+            <Box
+              onClick={openChainModal}
+              round
+              direction="row"
+              gap="xsmall"
+              align="center"
+              elevation="xsmall"
+              pad="xsmall"
+            >
+              {chain.iconUrl && <Image alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} height={20} width={20} />}
+              {chain.name}
             </Box>
-          ) : (
-            <Box direction="row" gap="small" round>
-              <Box height="20px" width="20px">
-                <ArbitrumLogo />
-              </Box>
-              <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
-                {[4, 5, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
-              </Text>
-            </Box>
-          )
-        }
-        onChange={() => handleNetworkChange(currentNetwork === 'Ethereum' ? 'Arbitrum' : 'Ethereum')}
-      />
-    </Box>
-  );
-};
+          );
+        })()}
+      </div>
+    )}
+  </ConnectButton.Custom>
+);
 
 export default NetworkSelector;

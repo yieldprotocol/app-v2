@@ -7,6 +7,7 @@ import { FaDiscord as Discord } from 'react-icons/fa';
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import { IChainContext } from '../types';
+import NetworkSelector from './selectors/NetworkSelector';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -80,6 +81,9 @@ const YieldInfo = () => {
             <Privacy size={IconSize} />
           </Anchor>
         </BoxWrap>
+      </Box>
+      <Box align="end">
+        <NetworkSelector />
       </Box>
     </Box>
   );
