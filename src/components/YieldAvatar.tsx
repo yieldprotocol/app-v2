@@ -18,7 +18,7 @@ function YieldAvatar(props: any) {
   const colorScheme = useColorScheme();
   const { data: ensName } = useEnsName();
   const ensAvatarImageUrl = ensName ? `https://metadata.ens.domains/mainnet/avatar/${ensName}` : undefined;
-  const _avatar = multiavatar(props.address.concat(21));
+  const _avatar = multiavatar(props.address?.concat(21));
   const _size = props.size.toString().concat('em');
 
   return (
