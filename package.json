@@ -16,6 +16,7 @@
     "eth-permit": "^0.2.1",
     "ethers": "^5.5.4",
     "grommet": "^2.18.0",
+    "jest-environment-jsdom": "^28.1.0",
     "next": "^12.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -36,7 +37,8 @@
     "start": "next start",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --out-dir './src/contracts/'",
-    "license-checker": "license-checker --csv --out licenses.csv"
+    "license-checker": "license-checker --csv --out licenses.csv",
+    "test": "jest --watch"
   },
   "eslintConfig": {
     "extends": [
@@ -59,7 +61,7 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^13.2.1",
     "@typechain/ethers-v5": "^7.1.2",
@@ -87,6 +89,7 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "ethereum-waffle": "^3.2.0\n",
     "hardhat": "^2.7.0",
+    "jest": "^28.1.0",
     "prettier": "^2.4.1",
     "react-test-renderer": "^17.0.2",
     "source-map-explorer": "^2.5.2",

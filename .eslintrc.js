@@ -3,7 +3,7 @@ module.exports = {
   // root: true,
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
-  extends: ['airbnb-typescript', 'react-app', 'prettier', 'next'],
+  extends: ['airbnb-typescript', 'react-app', 'prettier', 'next', 'plugin:testing-library/react'],
   parserOptions: {
     project: './tsconfig.json',
     tsconfigRootDir: __dirname,
