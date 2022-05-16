@@ -14,6 +14,7 @@ import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
 import UnwrapSetting from './settings/UnwrapSetting';
 import BackButton from './buttons/BackButton';
+import ChangeConnectionButton from './ChangeConnectionButton';
 
 const YieldSettings = ({ setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -90,10 +91,7 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
 
           <Collapsible open={connectionSettingsOpen}>
             <Box gap="xsmall">
-              <GeneralButton action={() => console.log('changing connection')} background="gradient-transparent">
-                <Text size="xsmall">Change Connection</Text>
-              </GeneralButton>
-
+              <ChangeConnectionButton />
               <GeneralButton action={() => disconnect()} background="gradient-transparent">
                 <Text size="xsmall">Disconnect</Text>
               </GeneralButton>
