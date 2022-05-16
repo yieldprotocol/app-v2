@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
+import { useAccount } from 'wagmi';
 import Skeleton from '../wraps/SkeletonWrap';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ActionType, ISettingsContext, IUserContextState } from '../../types';
+import { ActionType, IChainContext, ISettingsContext, IUserContextState } from '../../types';
 import YieldInfo from '../YieldInfo';
 import DashboardBalanceSummary from '../DashboardBalanceSummary';
 import MainViewWrap from '../wraps/MainViewWrap';
@@ -28,6 +29,9 @@ const StyledBox = styled(Box)`
 const Dashboard = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
+  const { data: _account } = useAccount();
+  const account = _account?.address;
+
   /* STATE FROM CONTEXT */
   const {
     settingsState: { dashHideVaults, dashHideLendPositions, dashHidePoolPositions },
@@ -39,11 +43,8 @@ const Dashboard = () => {
   }: { userState: IUserContextState } = useContext(UserContext);
 
   const {
-    chainState: {
-      connection: { account },
-      chainLoading,
-    },
-  } = useContext(ChainContext);
+    chainState: { chainLoading },
+  } = useContext(ChainContext) as IChainContext;
 
   const {
     vaultPositions,
@@ -98,7 +99,10 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
-                <Box onClick={() => updateSetting(Settings.DASH_HIDE_LEND_POSITIONS, !dashHideLendPositions)} pad="xsmall">
+                <Box
+                  onClick={() => updateSetting(Settings.DASH_HIDE_LEND_POSITIONS, !dashHideLendPositions)}
+                  pad="xsmall"
+                >
                   {dashHideLendPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show positions
@@ -126,7 +130,10 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Liquidity </Text>
-                <Box onClick={() => updateSetting(Settings.DASH_HIDE_POOL_POSITIONS, !dashHidePoolPositions)} pad="xsmall">
+                <Box
+                  onClick={() => updateSetting(Settings.DASH_HIDE_POOL_POSITIONS, !dashHidePoolPositions)}
+                  pad="xsmall"
+                >
                   {dashHidePoolPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show positions
