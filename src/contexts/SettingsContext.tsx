@@ -50,7 +50,7 @@ const initState: ISettingsContextState = {
   powerUser: false,
 
   /* Always force transctions to the chain -> even if they will likely fail */
-  forceTransactions: false,
+  forceTransactions: true,
 
   /* Show wrapped tokens */
   showWrappedTokens: true,
@@ -96,7 +96,7 @@ const SettingsProvider = ({ children }: any) => {
   useEffect(() => {
     if (activeConnector && activeConnector?.name !== 'MetaMask') {
       console.log('Using manual ERC20 approval transactions');
-      updateState({ type: Settings.APPROVAL_MAX, payload: ApprovalType.TX });
+      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
     } else if (activeConnector?.name === 'MetaMask') {
       /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
