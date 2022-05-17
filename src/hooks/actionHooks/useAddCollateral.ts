@@ -26,9 +26,8 @@ import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 
 export const useAddCollateral = () => {
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const {
     chainState: { contractMap },
