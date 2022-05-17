@@ -92,7 +92,7 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
 
           <Collapsible open={connectionSettingsOpen}>
             <Box gap="xsmall">
-              <ChangeConnectionButton />
+              {/* <ChangeConnectionButton setSettingsOpen={setSettingsOpen} /> */}
               <GeneralButton action={() => disconnect()} background="gradient-transparent">
                 <Text size="xsmall">Disconnect</Text>
               </GeneralButton>
