@@ -34,7 +34,7 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
           </StyledTableCell>
           <StyledTableCell align="center" plain>
             <Text color="text" size="xsmall">
-              Add To Metamask
+              Add To MetaMask
             </Text>
           </StyledTableCell>
         </TableRow>
