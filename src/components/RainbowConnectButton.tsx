@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAccount, useBalance } from 'wagmi';
-import { abbreviateHash } from '../utils/appUtils';
+import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import EthMark from './logos/EthMark';
 import Skeleton from './wraps/SkeletonWrap';
 import YieldAvatar from './YieldAvatar';
@@ -88,7 +88,7 @@ const RainbowConnectButton = ({ setSettingsOpen, chainOnly }: IProps) => {
                             </Box>
                           </StyledText>
                           <StyledText size="small" color="text">
-                            {isLoading ? <Skeleton width={40} /> : ethBalance?.formatted}
+                            {isLoading ? <Skeleton width={40} /> : cleanValue(ethBalance?.formatted, 2)}
                           </StyledText>
                         </Box>
                       </Box>
