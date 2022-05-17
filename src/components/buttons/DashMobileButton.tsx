@@ -1,15 +1,11 @@
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { ChainContext } from '../../contexts/ChainContext';
+import { useAccount } from 'wagmi';
 
 function DashMobileButton({ transparent }: { transparent?: boolean }) {
   const router = useRouter();
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   return account ? (
     <Box
