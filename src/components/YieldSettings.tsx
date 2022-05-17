@@ -15,6 +15,7 @@ import GeneralButton from './buttons/GeneralButton';
 import UnwrapSetting from './settings/UnwrapSetting';
 import BackButton from './buttons/BackButton';
 import ChangeConnectionButton from './ChangeConnectionButton';
+import NetworkSetting from './settings/NetworkSetting';
 
 const YieldSettings = ({ setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -99,6 +100,12 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
           </Collapsible>
         </Box>
       </Box>
+
+      {!mobile && (
+        <Box pad="medium" background="gradient-transparent" flex={false}>
+          <NetworkSetting />
+        </Box>
+      )}
 
       <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />

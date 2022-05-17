@@ -4,6 +4,7 @@ import { Anchor, Box, Text } from 'grommet';
 import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
+import { useNetwork } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import { IChainContext } from '../types';
@@ -13,6 +14,8 @@ const IconSize = '1.15rem';
 const IconGap = 'small';
 
 const YieldInfo = () => {
+  const { activeChain } = useNetwork();
+
   const {
     chainState: { appVersion },
   } = useContext(ChainContext) as IChainContext;
@@ -82,9 +85,13 @@ const YieldInfo = () => {
           </Anchor>
         </BoxWrap>
       </Box>
-      <Box align="end">
-        <NetworkSelector />
-      </Box>
+      {activeChain && (
+        <Box align="end" gap="xsmall">
+          <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
+            <NetworkSelector />
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };
