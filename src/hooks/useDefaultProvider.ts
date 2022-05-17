@@ -21,7 +21,7 @@ const useDefaultProvider = () => {
    * Clear provider-dependent items in localStorage
    */
   useEffect(() => {
-    if (lastChainId && chainId !== lastChainId) {
+    if (chainId && lastChainId && chainId !== lastChainId) {
       clearCachedItems([
         'lastChainId',
         'assets',
