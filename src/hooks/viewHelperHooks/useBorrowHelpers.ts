@@ -62,14 +62,14 @@ export const useBorrowHelpers = (
   /* Update the borrow limits if asset pair changes */
   useEffect(() => {
     if (assetPairInfo) {
-      const _decimals = assetPairInfo.baseDecimals;
+      const _decimals = assetPairInfo.limitDecimals;
       const _maxLessTotal = assetPairInfo.maxDebtLimit.sub(assetPairInfo.pairTotalDebt);
       const min = assetPairInfo.minDebtLimit;
 
       setMaxDebt(_maxLessTotal);
       setMaxDebt_(ethers.utils.formatUnits(_maxLessTotal, _decimals)?.toString());
       setMinDebt(min);
-      setMinDebt_(ethers.utils.formatUnits(min, _decimals)?.toString());
+      setMinDebt_(ethers.utils.formatUnits(min, assetPairInfo.baseDecimals)?.toString());
     }
   }, [assetPairInfo]);
 
