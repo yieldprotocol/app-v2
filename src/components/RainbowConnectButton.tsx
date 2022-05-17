@@ -51,7 +51,11 @@ const RainbowConnectButton = ({ setSettingsOpen, chainOnly }: IProps) => {
           })}
         >
           {(() => {
-            if (!mounted || !account || !chain) {
+            if (!mounted) {
+              return null;
+            }
+
+            if (!account || !chain) {
               return <ConnectButton />;
             }
 
