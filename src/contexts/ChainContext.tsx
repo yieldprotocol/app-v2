@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { format } from 'date-fns';
 
-import { useBlockNumber, useNetwork, useProvider } from 'wagmi';
+import { useBlockNumber, useNetwork } from 'wagmi';
 import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
@@ -18,7 +18,6 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
-import { RPC_URLS } from '../config/chainData';
 import useDefaultProvider from '../hooks/useDefaultProvider';
 
 enum ChainState {
@@ -105,7 +104,7 @@ const ChainProvider = ({ children }: any) => {
 
   const { activeChain } = useNetwork();
   const provider = useDefaultProvider();
-  const chainId = activeChain?.id || +lastChainId;
+  const chainId = activeChain?.id ?? +lastChainId;
   const { data: blockNum } = useBlockNumber();
 
   /**
