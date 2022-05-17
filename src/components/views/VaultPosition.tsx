@@ -55,9 +55,8 @@ const VaultPosition = () => {
 
   const router = useRouter();
   const { id: idFromUrl } = router.query;
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   /* STATE FROM CONTEXT */
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(

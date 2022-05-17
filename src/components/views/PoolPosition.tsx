@@ -41,9 +41,8 @@ const PoolPosition = () => {
     userActions: { setSelectedStrategy },
   } = useContext(UserContext) as IUserContext;
   const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
-  const {
-    data: { address: account },
-  } = useAccount();
+  const { data: _account } = useAccount();
+  const account = _account?.address;
 
   const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl as string);
 
