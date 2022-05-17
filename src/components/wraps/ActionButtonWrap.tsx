@@ -81,6 +81,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
               </Text>
             }
             onClick={() => setConnectOpen(true)}
+            disabled
           />
         )}
       </Box>
