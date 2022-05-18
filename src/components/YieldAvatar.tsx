@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box, Image } from 'grommet';
 
-import { useEnsName } from 'wagmi';
+import { useEnsName, useNetwork } from 'wagmi';
 import { useColorScheme } from '../hooks/useColorScheme';
 
 const StyledBox = styled(Box)`
@@ -16,7 +16,8 @@ const StyledBox = styled(Box)`
 
 function YieldAvatar(props: any) {
   const colorScheme = useColorScheme();
-  const { data: ensName } = useEnsName();
+  const { activeChain } = useNetwork();
+  const { data: ensName } = useEnsName({ enabled: activeChain?.id === 1 });
   const ensAvatarImageUrl = ensName ? `https://metadata.ens.domains/mainnet/avatar/${ensName}` : undefined;
   const _avatar = multiavatar(props.address?.concat(21));
   const _size = props.size.toString().concat('em');

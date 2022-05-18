@@ -30,7 +30,7 @@ const YieldSettings = ({ setSettingsOpen }: any) => {
   const blockExplorer = activeChain?.blockExplorers.default.url;
   const { activeConnector } = useConnect();
 
-  const { data: ensName } = useEnsName();
+  const { data: ensName } = useEnsName({ enabled: activeChain?.id === 1 });
 
   const [transactionsOpen, setTransactionsOpen] = useState<boolean>(false);
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState<boolean>(false);
