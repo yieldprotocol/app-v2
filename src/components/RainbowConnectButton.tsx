@@ -29,10 +29,9 @@ const StyledBox = styled(Box)`
 
 interface IProps {
   setSettingsOpen: (isOpen: boolean) => void;
-  chainOnly?: boolean;
 }
 
-const RainbowConnectButton = ({ setSettingsOpen, chainOnly }: IProps) => {
+const RainbowConnectButton = ({ setSettingsOpen }: IProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const { data: _account } = useAccount();
   const { data: ethBalance, isLoading } = useBalance({ addressOrName: _account?.address });
