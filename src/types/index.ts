@@ -208,7 +208,6 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   // fixed/static:
   id: string;
 
-  image: React.FC;
   displayName: string;
   displayNameMobile: string;
   joinAddress: string;
@@ -221,11 +220,6 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;
   proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
-
-  // baked in token fns
-  getBalance: (account: string) => Promise<BigNumber>;
-  getAllowance: (account: string, spender: string) => Promise<BigNumber>;
-  setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
 
 export interface IAssetPair {
@@ -280,8 +274,15 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
+  image: React.FC;
+
   balance: BigNumber;
   balance_: string;
+
+  // baked in token fns
+  getBalance: (account: string) => Promise<BigNumber>;
+  getAllowance: (account: string, spender: string) => Promise<BigNumber>;
+  setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
 
 export interface IDummyVault extends IVaultRoot {}
