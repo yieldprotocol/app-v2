@@ -3,7 +3,7 @@ import { ASSET_INFO, UNKNOWN } from '../../../config/assets';
 import { ERC20Permit__factory, ERC20__factory } from '../../../contracts';
 import { AssetAddedEvent } from '../../../contracts/Cauldron';
 import { JoinAddedEvent } from '../../../contracts/ConvexLadleModule';
-import { IAssetRoot, TokenType } from '../../../types';
+import { IAssetInfo, IAssetRoot, TokenType } from '../../../types';
 
 export const getAssets = async (
   provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider,
@@ -28,7 +28,7 @@ export const getAssets = async (
     const { assetId: id, asset: address } = x;
 
     /* Get the basic hardcoded token info */
-    const assetInfo = ASSET_INFO.has(id) ? ASSET_INFO.get(id) : ASSET_INFO.get(UNKNOWN);
+    const assetInfo: IAssetInfo = ASSET_INFO.has(id) ? ASSET_INFO.get(id) : ASSET_INFO.get(UNKNOWN);
     let { name, symbol, decimals, version } = assetInfo;
 
     /* On first load Checks/Corrects the ERC20 name/symbol/decimals  (if possible ) */
@@ -62,9 +62,9 @@ export const getAssets = async (
     }
 
     /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-    const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
+    const isWrappedToken = !!assetInfo.unwrapHandlerAddresses?.has(chainId);
     /* check if a wrapping handler is provided, if so, wrapping is required */
-    const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
+    const wrappingRequired = !!assetInfo.wrapHandlerAddresses?.has(chainId);
 
     const newAsset = {
       ...assetInfo,
