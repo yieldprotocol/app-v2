@@ -9,6 +9,7 @@ export const getAssets = async (
   provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider,
   contractMap: Map<string, Contract>
 ) => {
+  const { chainId } = await provider.getNetwork();
   const Cauldron = contractMap.get('Cauldron');
   const Ladle = contractMap.get('Ladle');
 
@@ -60,7 +61,10 @@ export const getAssets = async (
       }
     }
 
-    const idToUse = assetInfo?.wrappedTokenId || id; // here we are using the unwrapped id
+    /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
+    const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
+    /* check if a wrapping handler is provided, if so, wrapping is required */
+    const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
 
     const newAsset = {
       ...assetInfo,
@@ -71,21 +75,19 @@ export const getAssets = async (
       decimals,
       version,
 
-      /* redirect the id/join if required due to using wrapped tokens */
-      joinAddress: joinMap.get(idToUse),
-      idToUse,
+      /* Redirect the id/join if required due to using wrapped tokens */
+      joinAddress: assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
+
+      isWrappedToken,
+      wrappingRequired,
+      proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
 
       /* default setting of assetInfo fields if required */
       displaySymbol: assetInfo.displaySymbol || symbol,
       showToken: assetInfo.showToken || false,
+      digitFormat: assetInfo.digitFormat || 6,
     };
 
-    return { ...(await assetMap), [id]: chargeAsset(newAsset) as IAssetRoot };
+    return { ...(await assetMap), [id]: newAsset as IAssetRoot };
   }, {});
 };
-
-/* add on extra/calculated ASSET info and contract instances  (no async) */
-const chargeAsset = (asset: any) => ({
-  ...asset,
-  digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
-});
