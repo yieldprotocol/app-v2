@@ -2,7 +2,9 @@ import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 
-import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity } from 'react-icons/fi';
+import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity, FiChevronDown } from 'react-icons/fi';
+import { GiMedalSkull } from 'react-icons/gi';
+
 import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
@@ -45,6 +47,7 @@ import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
+
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -270,7 +273,9 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
-    const _ilkToUse = _ilk?.isWrappedToken && _ilk.unwrappedTokenId ? assetMap.get(_ilk.unwrappedTokenId) : _ilk; // use the unwrapped token if applicable
+    
+    // handle using ilk 
+    const _ilkToUse = _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);
     _selectedVault && setSelectedBase(_base);
@@ -331,12 +336,15 @@ const VaultPosition = () => {
                 {_selectedVault?.isActive && (
                   <Box>
                     <Box gap="small">
-                      <InfoBite
-                        label="Maturity date"
-                        value={`${vaultSeries?.displayName}`}
-                        icon={<FiClock color={vaultSeries?.color} />}
-                        loading={vaultsLoading}
-                      />
+                      {_selectedVault?.isActive && !unhealthyCollatRatio && (
+                        <InfoBite
+                          label="Maturity date"
+                          value={`${vaultSeries?.displayName}`}
+                          icon={<FiClock color={vaultSeries?.color} />}
+                          loading={vaultsLoading}
+                        />
+                      )}
+
                       <InfoBite
                         label="Vault debt + interest"
                         value={`${cleanValue(_selectedVault?.accruedArt_, vaultBase?.digitFormat!)} ${
@@ -373,7 +381,26 @@ const VaultPosition = () => {
                         <InfoBite
                           label="Vault is in danger of liquidation"
                           value={`Minimum collateralization needed is ${minCollatRatioPct}%`}
-                          icon={<FiAlertTriangle size="1.5em" color="red" />}
+                          icon={
+                            <Text color="warning">
+                              {' '}
+                              <FiAlertTriangle size="1.5em" />{' '}
+                            </Text>
+                          }
+                          loading={false}
+                        />
+                      )}
+
+                      {_selectedVault?.hasBeenLiquidated && (
+                        <InfoBite
+                          label="This vault has been Liquidated."
+                          value="The collateralization ratio dropped below minimum required."
+                          icon={
+                            <Text color="error">
+                              {' '}
+                              <GiMedalSkull size="1.5em" />{' '}
+                            </Text>
+                          }
                           loading={false}
                         />
                       )}
@@ -406,6 +433,7 @@ const VaultPosition = () => {
                     <Select
                       dropProps={{ round: 'small' }}
                       plain
+                      size="small"
                       options={[
                         { text: 'Repay Debt', index: 0 },
                         { text: 'Roll Vault', index: 1, disabled: !rollPossible },
@@ -413,6 +441,7 @@ const VaultPosition = () => {
                         { text: 'Remove Collateral', index: 3 },
                         { text: 'View Transaction History', index: 4 },
                       ]}
+                      icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
@@ -510,27 +539,29 @@ const VaultPosition = () => {
                         txProcess={repayProcess}
                         cancelAction={() => resetInputs(ActionCodes.REPAY)}
                       >
-                        <InfoBite
-                          label="Repay Debt"
-                          icon={<FiArrowRight />}
-                          value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.displaySymbol}`}
-                        />
+                        <Box gap="small">
+                          <InfoBite
+                            label="Repay Debt"
+                            icon={<FiArrowRight />}
+                            value={`${cleanValue(repayInput, vaultBase?.digitFormat!)} ${vaultBase?.displaySymbol}`}
+                          />
 
-                        {debtAfterRepay?.eq(ZERO_BN) && (
-                          <Box fill="horizontal" align="end">
-                            <CheckBox
-                              reverse
-                              size={0.5}
-                              label={
-                                <Text size="xsmall" color="text-weak">
-                                  Remove collateral in the same transaction
-                                </Text>
-                              }
-                              checked={reclaimCollateral}
-                              onChange={() => setReclaimCollateral(!reclaimCollateral)}
-                            />
-                          </Box>
-                        )}
+                          {debtAfterRepay?.eq(ZERO_BN) && (
+                            <Box fill="horizontal" align="end">
+                              <CheckBox
+                                reverse
+                                size={0.5}
+                                label={
+                                  <Text size="xsmall" color="text-weak">
+                                    Remove collateral in the same transaction
+                                  </Text>
+                                }
+                                checked={reclaimCollateral}
+                                onChange={() => setReclaimCollateral(!reclaimCollateral)}
+                              />
+                            </Box>
+                          )}
+                        </Box>
                       </ActiveTransaction>
                     )}
                   </>
@@ -556,10 +587,10 @@ const VaultPosition = () => {
                             ) : (
                               <InputInfoWrap>
                                 <Box pad="xsmall">
-                                  <Text size="small">It is not currently possible to roll debt to this series</Text>
+                                  <Text size="small">It is not currently possible to roll to this series</Text>
                                   <Text color="text-weak" size="xsmall">
-                                    ( Most commonly because the debt doesn't meet the minimum debt requirements of the
-                                    series being rolled to ).
+                                    ( Most likely because the debt doesn't meet the minimum debt requirements of the
+                                    future series).
                                   </Text>
                                 </Box>
                               </InputInfoWrap>
@@ -696,15 +727,11 @@ const VaultPosition = () => {
                         txProcess={addCollatInput ? addCollateralProcess : removeCollateralProcess}
                         cancelAction={() => resetInputs(ActionCodes.REMOVE_COLLATERAL)}
                       >
-                        <Box>
-                          <InfoBite
-                            label="Remove Collateral"
-                            icon={<FiArrowRight />}
-                            value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${
-                              vaultIlk?.displaySymbol
-                            }`}
-                          />
-                        </Box>
+                        <InfoBite
+                          label="Remove Collateral"
+                          icon={<FiArrowRight />}
+                          value={`${cleanValue(removeCollatInput, vaultIlk?.digitFormat!)} ${vaultIlk?.displaySymbol}`}
+                        />
                       </ActiveTransaction>
                     )}
                   </>

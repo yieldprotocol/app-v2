@@ -10,7 +10,7 @@ import { ZERO_BN } from '../utils/constants';
 import Logo from './logos/Logo';
 
 const StyledTableCell = styled(TableCell)`
-  padding: 0.3rem 0.5rem;
+  padding: 0.5rem 0.5rem;
   span {
     svg {
       vertical-align: middle;
@@ -46,7 +46,7 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
           .map((asset) => (
             <TableRow key={asset.id}>
               <StyledTableCell plain>
-                <Logo image={asset.image} height="20px" width="20px" />
+                <Logo image={asset.image} />
               </StyledTableCell>
               <StyledTableCell plain align="left">
                 <Text size="small" color="text">

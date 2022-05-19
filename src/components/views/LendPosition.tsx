@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useRouter } from 'next/router';
-import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -211,7 +211,11 @@ const LendPosition = () => {
                               selectedBase?.digitFormat!
                             )} ${selectedBase?.displaySymbol!}`
                       }
-                      icon={<Logo image={selectedBase.image} />}
+                      icon={
+                        <Box height="1em" width="1em">
+                          <Logo image={selectedBase.image} />
+                        </Box>
+                      }
                       loading={seriesLoading}
                     />
                   </Box>
@@ -223,13 +227,14 @@ const LendPosition = () => {
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
+                      size="small"
                       dropProps={{ round: 'small' }}
                       options={[
                         { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
-                        // { text: 'Redeem', index: 3 },
                       ]}
+                      icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}

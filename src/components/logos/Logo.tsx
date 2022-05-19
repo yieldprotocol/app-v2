@@ -7,7 +7,7 @@ interface ILogoProps {
 }
 
 const Logo = ({ image, height, width }: ILogoProps) => (
-  <Box height={height} width={width} align="center">
+  <Box height={height} width={width} align="center" flex="grow">
     {image}
   </Box>
 );

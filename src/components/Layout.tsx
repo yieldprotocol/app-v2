@@ -1,8 +1,8 @@
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
 import Head from 'next/head';
-import { base, Grommet, ResponsiveContext, Box } from 'grommet';
-import { FC, useContext, useState } from 'react';
+import { base, Grommet, Box } from 'grommet';
+import { FC, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
 import { deepMerge } from 'grommet/utils';

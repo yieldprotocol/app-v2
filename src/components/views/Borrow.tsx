@@ -18,7 +18,6 @@ import {
   ActionType,
   IAssetRoot,
   ISeriesRoot,
-  ISettingsContext,
   IUserContext,
   IUserContextState,
   IVault,
@@ -56,8 +55,8 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
 import VaultItem from '../positionItems/VaultItem';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAssetPair } from '../../hooks/useAssetPair';
+import Line from '../elements/Line';
 
 interface IBorrowProps {
   assetMapProps: Map<string, IAssetRoot>;
@@ -90,10 +89,6 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
   const assetMap = _assetMap ?? assetMapProps;
   const seriesMap = _seriesMap ?? seriesMapProps;
 
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
-
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -103,7 +98,6 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
-  // const [maxCollat, setMaxCollat] = useState<string | undefined>();
 
   const [borrowDisabled, setBorrowDisabled] = useState<boolean>(true);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
@@ -129,6 +123,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
     minSafeCollatRatioPct,
     minCollatRatioPct,
     totalCollateral_,
+    liquidationPrice_,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPairInfo);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
@@ -215,7 +210,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
     selectedSeries?.seriesIsMature ||
     (stepPosition === 1 && undercollateralized) ||
     (stepPosition === 1 && collatInputError) ||
-    selectedSeries.baseId !== selectedBase?.id
+    selectedSeries.baseId !== selectedBase?.proxyId
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
@@ -227,7 +222,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
     collatInput,
     undercollateralized,
     collatInputError,
-    selectedBase?.id,
+    selectedBase?.proxyId,
   ]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
@@ -236,8 +231,8 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.idToUse &&
-          v.baseId === selectedBase.idToUse &&
+          v.ilkId === selectedIlk.proxyId &&
+          v.baseId === selectedBase.proxyId &&
           v.seriesId === selectedSeries.id &&
           v.isActive
       );
@@ -272,9 +267,9 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
-          <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
+          <Box id="topsection">
             {stepPosition === 0 && ( // INITIAL STEP
-              <Box gap="large">
+              <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }} gap="large">
                 <YieldCardHeader>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
@@ -351,20 +346,13 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
             )}
 
             {stepPosition === 1 && ( // ADD COLLATERAL
-              <Box gap="medium">
-                <YieldCardHeader>
-                  <BackButton action={() => handleNavAction(0)} />
-                </YieldCardHeader>
-
-                <Box gap="medium" height="100%">
-                  <Box
-                    pad="medium"
-                    direction="row"
-                    gap="large"
-                    justify="center"
-                    round="small"
-                    background="gradient-transparent"
-                  >
+              <>
+                {/* <Box style={{ position: 'absolute', left:'-20px' }} pad="small">
+                  <BackButton action={() => setStepPosition(0)} />
+                </Box> */}
+                <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
+                  <BackButton action={() => setStepPosition(0)} />
+                  <Box pad="medium" direction="row" justify="between" round="small">
                     <Box justify="center">
                       <Gauge
                         value={parseFloat(collateralizationPercent!)}
@@ -374,31 +362,49 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                       />
                     </Box>
 
-                    <Box align="center" gap="small">
-                      <Box align="center">
-                        <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
-                          Collateralization
-                        </Text>
-                        <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
-                          {parseFloat(collateralizationPercent!) > 10000
-                            ? nFormatter(parseFloat(collateralizationPercent!), 2)
-                            : parseFloat(collateralizationPercent!)}
-                          %
-                        </Text>
-                      </Box>
-                      <Box align="center" direction="row" gap="xsmall">
-                        <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                          {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
-                        </Text>
-                        <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
-                      </Box>
+                    <Box align="center" pad={{ vertical: 'small' }}>
+                      <Text size={mobile ? 'xsmall' : 'medium'} color="text-weak">
+                        Collateralization
+                      </Text>
+                      <Text size={mobile ? 'large' : 'xlarge'} color={currentGaugeColor}>
+                        {parseFloat(collateralizationPercent!) > 10000
+                          ? nFormatter(parseFloat(collateralizationPercent!), 2)
+                          : parseFloat(collateralizationPercent!)}
+                        %
+                      </Text>
                     </Box>
                   </Box>
 
-                  <Box gap="small">
+                  <Box gap="xsmall" fill="horizontal" align="end" pad={{ horizontal: 'medium' }}>
+                    <Box align="center" direction="row" gap="xsmall">
+                      <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
+                        Minimum
+                      </Text>
+                      <Text size={mobile ? 'xsmall' : 'small'}>{minCollatRatioPct}%</Text>
+                    </Box>
+
+                    <Box height={{ min: '1.5rem' }}>
+                      {collatInput ? (
+                        <Box align="center" direction="row" gap="xsmall">
+                          <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
+                            Liquidation when
+                          </Text>
+                          <Text size={mobile ? 'xsmall' : 'small'}>
+                            1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
+                          </Text>
+                        </Box>
+                      ) : null}
+                    </Box>
+                  </Box>
+                </Box>
+
+                <Line />
+
+                <Box gap="medium" pad={{ horizontal: 'large', vertical: 'medium' }}>
+                  <Box gap="small" flex={false}>
                     <SectionWrap title="Amount of collateral to add">
                       <Box direction="row-responsive">
-                        <Box basis={mobile ? undefined : '60%'} fill="horizontal">
+                        <Box fill="horizontal">
                           <InputWrap
                             action={() => console.log('maxAction')}
                             disabled={!selectedSeries}
@@ -408,7 +414,6 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                               plain
                               type="number"
                               placeholder="Enter amount"
-                              // ref={(el:any) => { el && el.focus(); }}
                               value={collatInput}
                               onChange={(event: any) =>
                                 setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
@@ -425,7 +430,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                             />
                           </InputWrap>
                         </Box>
-                        <Box basis={mobile ? undefined : '40%'}>
+                        <Box flex="grow" width={{ min: '10rem' }}>
                           <AssetSelector selectCollateral isModal={true} />
                         </Box>
                       </Box>
@@ -436,7 +441,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                         <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                           <VaultDropSelector
                             vaults={matchingVaults}
-                            handleSelect={(option: any) => setVaultToUse(option)}
+                            handleSelect={(option: any) => setVaultToUse(option.id ? option : undefined)}
                             itemSelected={vaultToUse}
                             displayName="Create New Vault"
                             placeholder="Create New Vault"
@@ -460,65 +465,74 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                     )}
                   </Box>
                 </Box>
-              </Box>
+              </>
             )}
 
             {stepPosition === 2 && ( // REVIEW
-              <Box gap="medium">
-                <YieldCardHeader>
+              <>
+                <Box
+                  background="gradient-transparent"
+                  round={{ corner: 'top', size: 'xsmall' }}
+                  pad="medium"
+                  gap="medium"
+                  height={{ min: '350px' }}
+                >
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => handleNavAction(1)} />
                   ) : (
                     <Box pad="1em" />
                   )}
-                </YieldCardHeader>
 
-                <ActiveTransaction full txProcess={borrowProcess}>
-                  <Box
-                    gap="small"
-                    pad={{ horizontal: 'large', vertical: 'medium' }}
-                    round="xsmall"
-                    animation={{ type: 'zoomIn', size: 'small' }}
-                  >
-                    <InfoBite
-                      label="Amount to be Borrowed"
-                      icon={<FiPocket />}
-                      value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
-                    />
-                    <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                    <InfoBite
-                      label="Vault Debt Payable @ Maturity"
-                      icon={<FiTrendingUp />}
-                      value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${
-                        selectedBase?.displaySymbol
-                      }`}
-                    />
-                    <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
-                    <InfoBite
-                      label="Total Supporting Collateral"
-                      icon={
-                        <Gauge
-                          value={parseFloat(collateralizationPercent!)}
-                          size="1em"
-                          mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
-                        />
-                      }
-                      value={`${cleanValue(totalCollateral_, selectedIlk?.digitFormat!)} ${
-                        selectedIlk?.displaySymbol
-                      } (${collateralizationPercent}%)`}
-                    />
-                    {vaultToUse?.id && (
+                  <ActiveTransaction full txProcess={borrowProcess}>
+                    <Box
+                      gap="small"
+                      pad={{ horizontal: 'medium', vertical: 'medium' }}
+                      animation={{ type: 'zoomIn', size: 'small' }}
+                      flex={false}
+                    >
                       <InfoBite
-                        label="Adding to Existing Vault"
-                        icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW} />}
-                        value={`${vaultToUse.displayName}`}
+                        label="Amount to be Borrowed"
+                        icon={<FiPocket />}
+                        value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                       />
-                    )}
-                  </Box>
-                </ActiveTransaction>
-              </Box>
+                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                      <InfoBite
+                        label="Vault Debt Payable @ Maturity"
+                        icon={<FiTrendingUp />}
+                        value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${
+                          selectedBase?.displaySymbol
+                        }`}
+                      />
+                      <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                      <InfoBite
+                        label="Total Supporting Collateral"
+                        icon={
+                          <Gauge
+                            value={parseFloat(collateralizationPercent!)}
+                            size="1em"
+                            mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                          />
+                        }
+                        value={`${cleanValue(totalCollateral_, selectedIlk?.digitFormat!)} ${
+                          selectedIlk?.displaySymbol
+                        } (${collateralizationPercent}%)`}
+                      />
+                      {vaultToUse?.id && (
+                        <InfoBite
+                          label="Adding to Existing Vault"
+                          icon={<PositionAvatar position={vaultToUse} condensed actionType={ActionType.BORROW} />}
+                          value={`${vaultToUse.displayName}`}
+                        />
+                      )}
+                    </Box>
+                  </ActiveTransaction>
+                </Box>
+                <Line />
+              </>
             )}
+          </Box>
 
+          <Box id="midsection">
             {stepPosition === 2 &&
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
@@ -532,23 +546,24 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
               )}
 
             {stepPosition === 2 && !borrowProcess?.processActive && (
-              <CheckBox
-                pad={{ vertical: 'small' }}
-                label={
-                  <Text size="xsmall">
-                    I understand the risks associated with borrowing. In particular, I understand that as a new
-                    protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
-                    below the minimum collateralization requirement ({' '}
-                    <Text size="xsmall" color="red">
-                      {' '}
-                      {minCollatRatioPct}%
-                    </Text>{' '}
-                    ) I could lose most or all of my posted collateral.
-                  </Text>
-                }
-                checked={disclaimerChecked}
-                onChange={() => setDisclaimerChecked(!disclaimerChecked)}
-              />
+              <Box pad={{ horizontal: 'large' }}>
+                <CheckBox
+                  pad={{ vertical: 'small' }}
+                  label={
+                    <Text size="xsmall" weight="lighter">
+                      I understand the risks associated with borrowing. In particular, I understand that as a new
+                      protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
+                      below the minimum collateralization requirement (
+                      <Text size="xsmall" color="red">
+                        {minCollatRatioPct}%
+                      </Text>
+                      ), I could lose most or all of my posted collateral.
+                    </Text>
+                  }
+                  checked={disclaimerChecked}
+                  onChange={() => setDisclaimerChecked(!disclaimerChecked)}
+                />
+              </Box>
             )}
           </Box>
 
@@ -558,7 +573,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                 // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {borrowInput && (!selectedSeries || selectedBase?.id !== selectedSeries.baseId)
+                    {borrowInput && (!selectedSeries || selectedBase?.proxyId !== selectedSeries.baseId)
                       ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
                       : 'Next Step'}
                   </Text>

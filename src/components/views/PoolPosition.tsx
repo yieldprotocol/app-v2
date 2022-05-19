@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -197,15 +197,6 @@ const PoolPosition = () => {
                         loading={seriesLoading}
                       />
                     )}
-
-                    {/* {selectedStrategy.currentSeries && accountTradeValue && (
-                      <InfoBite
-                        label="Strategy Token Value"
-                        value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.displaySymbol}`}
-                        icon={<FiTrendingUp />}
-                        loading={seriesLoading}
-                      />
-                    )} */}
                   </Box>
                 </SectionWrap>
               </Box>
@@ -215,12 +206,13 @@ const PoolPosition = () => {
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
+                      size="small"
                       dropProps={{ round: 'small' }}
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
-                        // { text: 'Roll Liquidity', index: 2 },
                       ]}
+                      icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
@@ -302,7 +294,7 @@ const PoolPosition = () => {
                       <Box>
                         <Text size="xsmall">
                           Force Removal:
-                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
+                          {`(You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
                             selectedBase?.displaySymbol
                           } `}
                           {`and then rest will be in redeemable fy${selectedBase?.displaySymbol})`}
@@ -330,7 +322,6 @@ const PoolPosition = () => {
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
                 removeProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-                  // !(removeTx.success || removeTx.failed) && (
                   <TransactButton
                     primary
                     label={

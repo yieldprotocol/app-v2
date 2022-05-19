@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Box, ResponsiveContext, Select, Text, ThemeContext } from 'grommet';
+import { Box, ResponsiveContext, Select, Text } from 'grommet';
+
+import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -46,7 +48,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     asset ? (
       <Box direction="row" align="center" gap="small">
         <Logo image={asset.image} />
-        {asset?.displaySymbol}
+        <Text color="text" size="small">
+          {asset?.displaySymbol}
+        </Text>
       </Box>
     ) : (
       <Skeleton width={50} />
@@ -71,9 +75,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
     const filteredOptions = selectCollateral
       ? opts
-          .filter((a) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
+          .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
-      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
+      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
     const sortedOptions = selectCollateral
       ? filteredOptions.sort((a, b) => (a.balance.lt(b.balance) ? 1 : -1))
@@ -92,11 +96,18 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
-    if (selectedIlk?.id === selectedBase?.id) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
+    if (selectedIlk?.proxyId === selectedBase?.proxyId) {
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.proxyId !== selectedIlk?.proxyId);
       setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
+
+  /* set ilk to be USDC if ETH base */
+  useEffect(() => {
+    if (selectedBase?.proxyId === WETH) {
+      setSelectedIlk(assetMap.get(USDC));
+    }
+  }, [assetMap, selectedBase, setSelectedIlk]);
 
   return (
     <StyledBox
@@ -121,18 +132,20 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           labelKey={(x: IAsset | undefined) => optionText(x)}
           valueLabel={
             <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
-              <Text color="text"> {optionText(selectCollateral ? selectedIlk! : selectedBase!)}</Text>
+              {optionText(selectCollateral ? selectedIlk! : selectedBase!)}
             </Box>
           }
+          icon={isModal ? <FiMoreVertical /> : <FiChevronDown />}
           onChange={({ option }: any) => handleSelect(option)}
           disabled={
             (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
             (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
           }
+          size="small"
           // eslint-disable-next-line react/no-children-prop
           children={(x: any) => (
             <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
-              <Text color="text"> {optionText(x)} </Text>
+              {optionText(x)}
             </Box>
           )}
         />

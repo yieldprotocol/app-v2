@@ -48,11 +48,11 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
       const _apr = calculateAPR(baseAmount, preview, _selectedSeries?.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
     }
-  }, [_selectedSeries, _input, actionType]);
+  }, [_selectedSeries, _input, actionType, _fallbackInput]);
 
   /* Get the min APR from all the series */
   const aprArray = Array.from(seriesMap.values())
-    .filter((x: ISeries) => x.baseId === selectedBase?.idToUse)
+    .filter((x: ISeries) => x.baseId === selectedBase?.proxyId)
     .map((x: ISeries) => parseFloat(x.apr));
   const minApr = aprArray.length && Math.min(...aprArray);
   const maxApr = aprArray.length && Math.min(...aprArray);

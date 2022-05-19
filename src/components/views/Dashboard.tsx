@@ -11,7 +11,7 @@ import PanelWrap from '../wraps/PanelWrap';
 
 import DashboardPositionList from '../DashboardPositionList';
 import CurrencyToggle from '../CurrencyToggle';
-import { SettingsContext } from '../../contexts/SettingsContext';
+import { Settings, SettingsContext } from '../../contexts/SettingsContext';
 import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
@@ -70,7 +70,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Vaults</Text>
-                <Box onClick={() => updateSetting('dashHideVaults', !dashHideVaults)} pad="xsmall">
+                <Box onClick={() => updateSetting(Settings.DASH_HIDE_VAULTS, !dashHideVaults)} pad="xsmall">
                   {dashHideVaults ? (
                     <Text size="xsmall" color="text-weak">
                       show vaults
@@ -98,7 +98,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
-                <Box onClick={() => updateSetting('dashHideLendPositions', !dashHideLendPositions)} pad="xsmall">
+                <Box onClick={() => updateSetting(Settings.DASH_HIDE_LEND_POSITIONS, !dashHideLendPositions)} pad="xsmall">
                   {dashHideLendPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show positions
@@ -126,7 +126,7 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Liquidity </Text>
-                <Box onClick={() => updateSetting('dashHidePoolPositions', !dashHidePoolPositions)} pad="xsmall">
+                <Box onClick={() => updateSetting(Settings.DASH_HIDE_POOL_POSITIONS, !dashHidePoolPositions)} pad="xsmall">
                   {dashHidePoolPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show positions

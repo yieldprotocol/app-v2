@@ -2,7 +2,7 @@ import * as React from 'react';
 
 function YFIMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 1000" fill="none" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="80%" height="80%" viewBox="0 0 1000 1000" fill="none" {...props}>
       <g data-name="Layer 1">
         <path
           fill={props.color || '#3366CC'}

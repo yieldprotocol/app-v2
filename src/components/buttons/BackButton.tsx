@@ -1,17 +1,16 @@
-import { Box, Button, ResponsiveContext } from 'grommet';
-import React, { useContext } from 'react';
-import { FiArrowLeft } from 'react-icons/fi';
+import { Avatar, Box, Button, Text } from 'grommet';
+import React, { useState } from 'react';
+import { FiChevronLeft } from 'react-icons/fi';
 import styled from 'styled-components';
 
 const StyledButton = styled(Button)`
-  -webkit-transition: transform 0.3s ease-in-out;
-  -moz-transition: transform 0.3s ease-in-out;
-  transition: transform 0.3s ease-in-out;
-  color: #3f53d9;
+  -webkit-transition: transform 0.5s ease-in-out;
+  -moz-transition: transform 0.5s ease-in-out;
+  transition: transform 0.5s ease-in-out;
   padding: 0;
   :hover {
-    transform: scale(1.1);
-    color: #1d4ed8;
+    transform: scale(1.25);
+    color: #444444;
   }
   :active {
     transform: scale(1);
@@ -19,11 +18,25 @@ const StyledButton = styled(Button)`
 `;
 
 function BackButton({ action }: { action: () => void }) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-
+  const [hover, setHover] = useState<boolean>(false);
   return (
     <Box align="center" direction="row">
-      <StyledButton onClick={() => action()} icon={<FiArrowLeft size={mobile ? '1.5em' : '1.5em'} />} />
+      <StyledButton
+        color="grey"
+        onClick={() => action()}
+        icon={
+          <Avatar
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            size="2em"
+            pad="xsmall"
+            elevation={hover ? 'small' : undefined}
+          >
+            {hover && <Text color='text' size="0.5em" weight='lighter'> Back </Text>}
+            {!hover &&   <Text color='text'><FiChevronLeft /> </Text>}
+          </Avatar>
+        }
+      />
     </Box>
   );
 }

@@ -17,7 +17,7 @@ import {
   FUSDC2209,
   FDAI2209,
   FRAX,
-  // CVX3CRV,
+  CVX3CRV,
 } from './assets';
 
 const COMPOSITE_MULTI_ORACLE = 'CompositeMultiOracle';
@@ -32,11 +32,12 @@ export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
 // map asset (quote) and other asset (base) to a specific oracle based on where there is relevant price info for the pair
 export const CHAIN_ID_1_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_4_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
+export const CHAIN_ID_5_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_42_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_42161_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 export const CHAIN_ID_421611_ASSET_ORACLE_INFO = new Map<string, Map<string, string>>();
 
-/* chain id 1, 4, 42 (these chain id's all use the same oracle contracts) */
+/* chain id 1, 4, 5, 42 (these chain id's all use the same oracle contracts) */
 // USDC base
 const usdcIlkOracle1 = new Map<string, string>();
 usdcIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
@@ -56,7 +57,7 @@ usdcIlkOracle1.set(FUSDC2203, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2206, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2209, NOTIONAL_MULTI_ORACLE);
 /* convex */
-// usdcIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
+usdcIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle1);
 
@@ -79,7 +80,7 @@ daiIlkOracle1.set(FDAI2203, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2206, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2209, NOTIONAL_MULTI_ORACLE);
 /* convex */
-// daiIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
+daiIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle1);
 
@@ -97,6 +98,7 @@ wethIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 wethIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
+
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(WETH, wethIlkOracle1);
 
 // FRAX base
@@ -148,6 +150,7 @@ CHAIN_ID_421611_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle421611);
 
 ORACLE_INFO.set(1, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(4, CHAIN_ID_1_ASSET_ORACLE_INFO);
+ORACLE_INFO.set(5, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(42, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(42161, CHAIN_ID_421611_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(421611, CHAIN_ID_421611_ASSET_ORACLE_INFO);

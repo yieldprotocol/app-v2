@@ -178,10 +178,10 @@ const UserProvider = ({ children }: any) => {
         return {
           id,
           seriesId,
-          baseId: series.baseId,
+          baseId: series?.baseId,
           ilkId,
           displayName: generateVaultName(id),
-          decimals: series.decimals,
+          decimals: series?.decimals,
         };
       });
 
@@ -224,7 +224,7 @@ const UserProvider = ({ children }: any) => {
 
       _publicData = await Promise.all(
         assetList.map(async (asset): Promise<IAssetRoot> => {
-          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.idToUse);
+          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.proxyId);
           return {
             ...asset,
             isYieldBase,
@@ -281,12 +281,11 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress),
-            series.isMature(),
+            series.fyTokenContract.balanceOf(series.poolAddress)
           ]);
 
           const rateCheckAmount = ethers.utils.parseUnits(
@@ -316,7 +315,7 @@ const UserProvider = ({ children }: any) => {
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: mature,
+            seriesIsMature: series.isMature(),
           };
         })
       );
@@ -384,6 +383,12 @@ const UserProvider = ({ children }: any) => {
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
+          /* If art 0, check for liquidation event */
+          const hasBeenLiquidated =
+            art === ZERO_BN
+              ? (await Cauldron.queryFilter(Cauldron.filters.VaultGiven(vault.id, Witch.address), 'earliest')).length > 0
+              : false;
+
           const series = seriesRootMap.get(seriesId);
 
           let accruedArt: BigNumber;
@@ -391,7 +396,7 @@ const UserProvider = ({ children }: any) => {
           let rate: BigNumber;
           let rate_: string;
 
-          if (await series.isMature()) {
+          if (series.isMature()) {
             rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
             [rate] = await RateOracle.peek(
               bytesToBytes32(vault.baseId, 6),
@@ -432,6 +437,7 @@ const UserProvider = ({ children }: any) => {
             ...vault,
             owner, // refreshed in case owner has been updated
             isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+            hasBeenLiquidated,
             isActive: owner === account, // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated

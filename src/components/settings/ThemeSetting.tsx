@@ -3,7 +3,7 @@ import Switch from 'react-switch';
 
 import { Box, Text } from 'grommet';
 import { FiMoon, FiSun } from 'react-icons/fi';
-import { SettingsContext } from '../../contexts/SettingsContext';
+import { Settings, SettingsContext } from '../../contexts/SettingsContext';
 
 const ThemeSettings = () => {
   const {
@@ -12,7 +12,6 @@ const ThemeSettings = () => {
   } = useContext(SettingsContext);
 
   return (
-    // <Box gap="small" pad={{ vertical: 'small' }} border={{ side: 'bottom', color: 'text-xweak' }}>
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
         <Text size="small">Use System Color Theme</Text>
@@ -31,7 +30,7 @@ const ThemeSettings = () => {
           }
           offColor="#BFDBFE"
           onColor="#60A5FA"
-          onChange={(val: boolean) => updateSetting('autoTheme', val)}
+          onChange={(val: boolean) => updateSetting(Settings.AUTO_THEME, val)}
           handleDiameter={20}
           borderRadius={20}
         />
@@ -64,7 +63,7 @@ const ThemeSettings = () => {
           }
           offColor="#BFDBFE"
           onColor="#60A5FA"
-          onChange={(val: boolean) => updateSetting('darkMode', val)}
+          onChange={(val: boolean) => updateSetting(Settings.DARK_MODE, val)}
           handleDiameter={20}
           borderRadius={20}
           disabled={autoTheme}

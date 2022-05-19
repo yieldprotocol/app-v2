@@ -42,7 +42,7 @@ export namespace LadleActions {
     export type REPAY = [vaultId: string, to: string, ink: BigNumberish, min: BigNumberish];
     export type REPAY_VAULT = [vaultId: string, to: string, ink: BigNumberish, max: BigNumberish];
     export type REPAY_LADLE = [vaultId: string];
-    export type RETRIEVE = [assetId: string, isAsset: boolean, to: string];
+    export type RETRIEVE = [assetAddress: string, to: string];
 
     export type REPAY_FROM_LADLE = [vaultId: string, to: string];
     export type CLOSE_FROM_LADLE = [vaultId: string, to: string];
@@ -93,6 +93,8 @@ export namespace RoutedActions {
 
     WRAP = 'wrap',
     UNWRAP = 'unwrap',
+
+    CHECKPOINT = 'checkpoint', // convex
   }
 
   export namespace Args {
@@ -110,12 +112,13 @@ export namespace RoutedActions {
       maxRatio: BigNumberish
     ];
     export type BURN_FOR_BASE = [receiver: string, minRatio: BigNumberish, maxRatio: BigNumberish];
-
     export type MINT_STRATEGY_TOKENS = [receiver: string];
     export type BURN_STRATEGY_TOKENS = [receiver: string];
 
     export type WRAP = [receiver: string];
     export type UNWRAP = [receiver: string];
+
+    export type CHECKPOINT = [vaultOwner: string];
   }
 }
 

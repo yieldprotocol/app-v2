@@ -33,9 +33,9 @@ function VaultPositionSelector(target: any) {
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
         .filter((vault: IVault) => !dashHideInactiveVaults || vault.isActive)
-        .filter((vault: IVault) => (base ? vault.baseId === base.idToUse : true))
+        .filter((vault: IVault) => (base ? vault.baseId === base.proxyId : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
-        .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.idToUse : true))
+        .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.proxyId : true))
         .filter((vault: IVault) => vault.baseId !== vault.ilkId)
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
