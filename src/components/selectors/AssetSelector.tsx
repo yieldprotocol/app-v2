@@ -14,6 +14,7 @@ import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 
 interface IAssetSelectorProps {
+  assetMap: Map<string, IAsset>;
   selectCollateral?: boolean;
   isModal?: boolean;
 }
@@ -28,7 +29,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
+function AssetSelector({ assetMap, selectCollateral, isModal }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
@@ -38,7 +39,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
+  const { activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);

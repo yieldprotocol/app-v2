@@ -300,7 +300,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                       </InputWrap>
                     </Box>
                     <Box basis={mobile ? undefined : '40%'}>
-                      <AssetSelector />
+                      <AssetSelector assetMap={assetMap} />
                     </Box>
                   </Box>
                   {mobile ? (
