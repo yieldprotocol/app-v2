@@ -62,9 +62,9 @@ export const getAssets = async (
     }
 
     /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-    const isWrappedToken = !!assetInfo.unwrapHandlerAddresses?.has(chainId);
+    const isWrappedToken = !!(assetInfo.unwrapHandlerAddresses && chainId in assetInfo.unwrapHandlerAddresses);
     /* check if a wrapping handler is provided, if so, wrapping is required */
-    const wrappingRequired = !!assetInfo.wrapHandlerAddresses?.has(chainId);
+    const wrappingRequired = !!(assetInfo.wrapHandlerAddresses && chainId in assetInfo.wrapHandlerAddresses);
 
     const newAsset = {
       ...assetInfo,
