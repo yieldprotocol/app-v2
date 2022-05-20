@@ -264,7 +264,7 @@ export interface ISeries extends ISeriesRoot {
   seriesIsMature: boolean;
 
   // baked in token fns
-  getTimeTillMaturity?: () => number;
+  getTimeTillMaturity?: () => string;
   isMature?: () => boolean;
   getBaseAddress?: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 

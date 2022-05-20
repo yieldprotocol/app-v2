@@ -331,7 +331,7 @@ const UserProvider = ({ children }: any) => {
 
             // built-in helper functions:
             isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
-            getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
+            getTimeTillMaturity: () => (series.maturity - Math.round(new Date().getTime() / 1000)).toString(),
             getBaseAddress: () => baseAddress,
           };
         })
