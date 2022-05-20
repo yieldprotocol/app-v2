@@ -91,7 +91,7 @@ const HistoryProvider = ({ children }: any) => {
   const {
     contractMap,
     connection: { fallbackProvider },
-    seriesRootMap,
+    seriesMap,
     assetMap,
   } = chainState;
 
@@ -406,7 +406,7 @@ const HistoryProvider = ({ children }: any) => {
           // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
           const { seriesId: toSeries, art } = e.args;
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-          const toSeries_ = seriesRootMap.get(toSeries) as ISeries;
+          const toSeries_ = seriesMap.get(toSeries) as ISeries;
           return {
             /* histItem base */
             blockNumber,
@@ -427,7 +427,7 @@ const HistoryProvider = ({ children }: any) => {
           } as IBaseHistItem;
         })
       ),
-    [fallbackProvider, seriesRootMap]
+    [fallbackProvider, seriesMap]
   );
 
   const updateVaultHistory = useCallback(
@@ -439,7 +439,7 @@ const HistoryProvider = ({ children }: any) => {
         vaultList.map(async (vault) => {
           const { id: vaultId, seriesId } = vault;
           const vaultId32 = bytesToBytes32(vaultId, 12);
-          const series = seriesRootMap.get(seriesId) as ISeries;
+          const series = seriesMap.get(seriesId) as ISeries;
 
           const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
           const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
@@ -471,7 +471,7 @@ const HistoryProvider = ({ children }: any) => {
           vaultList.map((v) => v.id)
         );
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, diagnostics, lastVaultUpdate, seriesRootMap]
+    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, diagnostics, lastVaultUpdate, seriesMap]
   );
 
   /* Exposed userActions */
