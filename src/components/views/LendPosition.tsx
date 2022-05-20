@@ -307,6 +307,7 @@ const LendPosition = () => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }} gap="small">
                         <SeriesSelector
+                          seriesMapProps={seriesMap}
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
                           cardLayout={false}
