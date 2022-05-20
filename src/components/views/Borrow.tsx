@@ -431,7 +431,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                           </InputWrap>
                         </Box>
                         <Box flex="grow" width={{ min: '10rem' }}>
-                          <AssetSelector selectCollateral isModal={true} />
+                          <AssetSelector selectCollateral isModal={true} assetMap={assetMap} />
                         </Box>
                       </Box>
                     </SectionWrap>
