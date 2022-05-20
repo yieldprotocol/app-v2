@@ -4,14 +4,13 @@ import dynamic from 'next/dynamic';
 import { SUPPORTED_RPC_URLS } from '../../config/chainData';
 import { getAssets } from '../../lib/chain/assets';
 import { getContracts } from '../../lib/chain/contracts';
-import { getSeries } from '../../lib/chain/series';
 import { mapify } from '../../utils/appUtils';
 import { CONTRACTS_TO_FETCH_SSR } from '../../utils/constants';
 
 const DynamicPool = dynamic(() => import('../../components/views/Pool'), { ssr: false });
 
-const Pool = ({ assetMap, seriesMap }: InferGetStaticPropsType<typeof getStaticProps>) => (
-  <DynamicPool assetMapProps={mapify(assetMap)} seriesMapProps={mapify(seriesMap)} />
+const Pool = ({ assetMap }: InferGetStaticPropsType<typeof getStaticProps>) => (
+  <DynamicPool assetMapProps={mapify(assetMap)} />
 );
 
 export const getStaticProps = async () => {
@@ -19,9 +18,8 @@ export const getStaticProps = async () => {
   const provider = new ethers.providers.JsonRpcProvider(SUPPORTED_RPC_URLS[chainId], chainId);
   const contractMap = getContracts(provider, chainId, CONTRACTS_TO_FETCH_SSR);
   const assetMap = await getAssets(provider, contractMap);
-  const seriesMap = await getSeries(provider, contractMap);
 
-  return { props: { assetMap, seriesMap } };
+  return { props: { assetMap } };
 };
 
 export default Pool;

@@ -15,7 +15,6 @@ import {
   ActionCodes,
   AddLiquidityType,
   IAsset,
-  ISeriesRoot,
   IUserContext,
   IUserContextState,
   ProcessStage,
@@ -45,24 +44,15 @@ import Line from '../elements/Line';
 
 interface IPoolProps {
   assetMapProps: Map<string, IAsset>;
-  seriesMapProps: Map<string, ISeriesRoot>;
 }
 
-function Pool({ assetMapProps, seriesMapProps }: IPoolProps) {
+function Pool({ assetMapProps }: IPoolProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const {
-    activeAccount,
-    selectedBase,
-    selectedStrategy,
-    strategyMap,
-    assetMap: _assetMap,
-    seriesMap: _seriesMap,
-  } = userState;
+  const { activeAccount, selectedBase, selectedStrategy, strategyMap, assetMap: _assetMap } = userState;
   const assetMap = _assetMap ?? assetMapProps;
-  const seriesMap = _seriesMap ?? seriesMapProps;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
