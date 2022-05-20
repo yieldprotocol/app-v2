@@ -163,7 +163,7 @@ function Pool({ assetMapProps, seriesMapProps }: IPoolProps) {
                   </Box>
 
                   <Box basis={mobile ? '50%' : '40%'}>
-                    <AssetSelector />
+                    <AssetSelector assetMap={assetMap} />
                   </Box>
                 </Box>
 
