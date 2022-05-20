@@ -1,13 +1,16 @@
-import { Contract, ethers } from 'ethers';
-import { ASSET_INFO, UNKNOWN } from '../../../config/assets';
-import { ERC20Permit__factory, ERC20__factory } from '../../../contracts';
-import { AssetAddedEvent } from '../../../contracts/Cauldron';
+import { BigNumber, Contract, ethers } from 'ethers';
+import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN } from '../../../config/assets';
+import markMap from '../../../config/marks';
+import { ERC1155__factory, ERC20Permit__factory, ERC20__factory } from '../../../contracts';
+import { AssetAddedEvent, SeriesAddedEvent } from '../../../contracts/Cauldron';
 import { JoinAddedEvent } from '../../../contracts/ConvexLadleModule';
-import { IAssetInfo, IAssetRoot, TokenType } from '../../../types';
+import { IAssetInfo, IAsset, TokenType } from '../../../types';
 
 export const getAssets = async (
   provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider,
-  contractMap: Map<string, Contract>
+  contractMap: Map<string, Contract>,
+  assets?: IAsset[],
+  account?: string
 ) => {
   const { chainId } = await provider.getNetwork();
   const Cauldron = contractMap.get('Cauldron');
@@ -66,6 +69,12 @@ export const getAssets = async (
     /* check if a wrapping handler is provided, if so, wrapping is required */
     const wrappingRequired = !!(assetInfo.wrapHandlerAddresses && chainId in assetInfo.wrapHandlerAddresses);
 
+    const proxyId = assetInfo.proxyId || id; // set proxyId  (or as baseId if undefined)
+
+    const seriesAddedEvents = await Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter);
+
+    const isYieldBase = !!seriesAddedEvents.find((e: SeriesAddedEvent) => e.args.baseId === proxyId);
+
     const newAsset = {
       ...assetInfo,
       id,
@@ -78,16 +87,70 @@ export const getAssets = async (
       /* Redirect the id/join if required due to using wrapped tokens */
       joinAddress: assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
 
+      wrapHandlerAddresses: ASSET_INFO.get(id)?.wrapHandlerAddresses ? ASSET_INFO.get(id)?.wrapHandlerAddresses : null,
+      unwrapHandlerAddresses: ASSET_INFO.get(id)?.unwrapHandlerAddresses
+        ? ASSET_INFO.get(id)?.unwrapHandlerAddresses
+        : null,
       isWrappedToken,
       wrappingRequired,
-      proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
+      proxyId,
 
       /* default setting of assetInfo fields if required */
       displaySymbol: assetInfo.displaySymbol || symbol,
       showToken: assetInfo.showToken || false,
       digitFormat: assetInfo.digitFormat || 6,
+
+      isYieldBase,
     };
 
-    return { ...(await assetMap), [id]: newAsset as IAssetRoot };
+    return { ...(await assetMap), [id]: newAsset as IAsset };
   }, {});
+};
+
+/* add on extra/calculated ASSET info and contract instances (no async) */
+export const chargeAsset = (provider: ethers.providers.JsonRpcProvider, asset: IAsset) => {
+  /* attach either contract, (or contract of the wrappedToken ) */
+  let assetContract: Contract;
+  let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
+  let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
+  let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
+
+  switch (asset.tokenType) {
+    case TokenType.ERC20_:
+      assetContract = ERC20__factory.connect(asset.address, provider);
+      getBalance = async (acc) =>
+        ETH_BASED_ASSETS.includes(asset.proxyId) ? provider?.getBalance(acc) : assetContract.balanceOf(acc);
+      getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
+      break;
+
+    case TokenType.ERC1155_:
+      assetContract = ERC1155__factory.connect(asset.address, provider);
+      getBalance = async (acc) => assetContract.balanceOf(acc, asset.tokenIdentifier);
+      getAllowance = async (acc: string, spender: string) => assetContract.isApprovedForAll(acc, spender);
+      setAllowance = async (spender: string) => {
+        console.log(spender);
+        console.log(asset.address);
+        assetContract.setApprovalForAll(spender, true);
+      };
+      break;
+
+    default:
+      // Default is ERC20Permit;
+      assetContract = ERC20Permit__factory.connect(asset.address, provider);
+      getBalance = async (acc) =>
+        ETH_BASED_ASSETS.includes(asset.id) ? provider.getBalance(acc) : assetContract.balanceOf(acc);
+      getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
+      break;
+  }
+
+  return {
+    ...asset,
+    image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
+
+    assetContract,
+
+    getBalance,
+    getAllowance,
+    setAllowance,
+  };
 };

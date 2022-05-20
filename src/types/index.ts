@@ -15,7 +15,7 @@ export interface IChainContextState {
   chainLoading: boolean;
 
   contractMap: Map<string, Contract>;
-  assetRootMap: Map<string, IAssetRoot>;
+  assetMap: Map<string, IAsset>;
   seriesRootMap: Map<string, ISeriesRoot>;
   strategyRootMap: Map<string, IStrategyRoot>;
 }
@@ -132,7 +132,7 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
-  tokenType?: TokenType;
+  tokenType: TokenType;
 }
 
 export interface ISeriesRoot extends ISignable {
@@ -190,22 +190,31 @@ export interface IAssetInfo {
   proxyId?: string;
 }
 
-export interface IAssetRoot extends IAssetInfo, ISignable {
+export interface IAsset extends IAssetInfo, ISignable {
   // fixed/static:
   id: string;
 
-  displayName: string;
-  displayNameMobile: string;
+  displaySymbol: string;
   joinAddress: string;
 
   digitFormat: number;
-  assetContract: Contract;
 
   isYieldBase: boolean;
 
   isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;
   proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
+
+  image?: React.FC;
+  assetContract?: Contract;
+
+  balance?: BigNumber;
+  balance_?: string;
+
+  // baked in token fns
+  getBalance?: (account: string) => Promise<BigNumber>;
+  getAllowance?: (account: string, spender: string) => Promise<BigNumber>;
+  setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
 
 export interface IAssetPair {
@@ -269,18 +278,6 @@ export interface ISeries extends ISeriesRoot {
   getBaseAddress?: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 
   seriesMark?: React.ElementType;
-}
-
-export interface IAsset extends IAssetRoot {
-  image: React.FC;
-
-  balance: BigNumber;
-  balance_: string;
-
-  // baked in token fns
-  getBalance: (account: string) => Promise<BigNumber>;
-  getAllowance: (account: string, spender: string) => Promise<BigNumber>;
-  setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
 
 export interface IDummyVault extends IVaultRoot {}

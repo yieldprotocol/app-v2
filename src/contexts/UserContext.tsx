@@ -36,6 +36,7 @@ import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { FYToken__factory, Pool__factory } from '../contracts';
+import { chargeAsset } from '../lib/chain/assets';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -224,14 +225,11 @@ const UserProvider = ({ children }: any) => {
       let _accountData: IAsset[] = [];
 
       _publicData = await Promise.all(
-        assetList.map(async (asset): Promise<IAssetRoot> => {
-          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.proxyId);
-          return {
-            ...asset,
-            isYieldBase,
-            displaySymbol: asset?.displaySymbol,
-          };
-        })
+        assetList.map(
+          async (asset): Promise<IAssetRoot> => ({
+            ...chargeAsset(fallbackProvider, asset),
+          })
+        )
       );
 
       /* add in the dynamic asset data of the assets in the list */
@@ -268,7 +266,7 @@ const UserProvider = ({ children }: any) => {
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
-    [account, seriesRootMap]
+    [account]
   );
 
   /* Updates the series with relevant *user* data */
