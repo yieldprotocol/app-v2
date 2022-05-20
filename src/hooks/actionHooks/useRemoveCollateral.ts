@@ -10,7 +10,6 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
-  ISettingsContext,
   RoutedActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -46,7 +45,7 @@ export const useRemoveCollateral = () => {
     const ilk = assetMap.get(vault.ilkId)!;
     const ladleAddress = contractMap.get('Ladle').address;
     /* get unwrap handler if required */
-    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chainId);
+    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses[chainId];
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
 
