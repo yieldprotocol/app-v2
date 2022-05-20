@@ -135,8 +135,6 @@ export interface ISignable {
   tokenType: TokenType;
 }
 
-export interface ISeriesRoot extends ISignable {}
-
 export enum TokenType {
   ERC20_,
   ERC20_Permit,

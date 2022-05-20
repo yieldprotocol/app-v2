@@ -18,6 +18,7 @@ import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import YieldMark from '../logos/YieldMark';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -152,7 +153,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   const optionExtended = (_series: ISeries | undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small" align="center">
-      <Box align="center">{_series?.seriesMark}</Box>
+      <Box align="center">
+        <YieldMark colors={[_series.startColor, _series.endColor]} />
+      </Box>
       {optionText(_series)}
       {_series?.seriesIsMature && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
@@ -291,7 +294,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                           : undefined,
                     }}
                   >
-                    {series.seriesMark}
+                    <YieldMark colors={[series.startColor, series.endColor]} />
                   </Avatar>
 
                   <Box>

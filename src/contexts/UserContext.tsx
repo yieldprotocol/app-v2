@@ -25,6 +25,7 @@ import { useCachedState } from '../hooks/generalHooks';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { chargeAsset } from '../lib/chain/assets';
 import { chargeSeries } from '../lib/chain/series';
+import YieldMark from '../components/logos/YieldMark';
 
 enum UserState {
   USER_LOADING = 'userLoading',

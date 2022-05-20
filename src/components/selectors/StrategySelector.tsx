@@ -14,6 +14,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import AltText from '../texts/AltText';
 import { ZERO_BN } from '../../utils/constants';
 import Line from '../elements/Line';
+import YieldMark from '../logos/YieldMark';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -126,7 +127,11 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                     boxShadow: `inset 1px 1px 2px ${selectedStrategy?.currentSeries?.endColor.toString().concat('69')}`,
                   }}
                 >
-                  {selectedStrategy?.currentSeries?.seriesMark || <FiSlash />}
+                  {(
+                    <YieldMark
+                      colors={[selectedStrategy.currentSeries.startColor, selectedStrategy.currentSeries.endColor]}
+                    />
+                  ) || <FiSlash />}
                 </Avatar>
                 <Box>
                   {(!selectedStrategy || !inputValue) && (
@@ -204,7 +209,11 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                                     .concat('69')}`,
                                 }}
                               >
-                                {strategy.currentSeries?.seriesMark || <FiSlash />}
+                                {(
+                                  <YieldMark
+                                    colors={[strategy.currentSeries.startColor, strategy.currentSeries.endColor]}
+                                  />
+                                ) || <FiSlash />}
                               </Avatar>
                               <Box>
                                 <Text size="small" color={strategy.currentSeries?.textColor}>
