@@ -3,9 +3,8 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 
 import {
-  ISeriesRoot,
-  IVaultRoot,
   ISeries,
+  IVaultRoot,
   IAsset,
   IVault,
   IUserContextState,
@@ -18,24 +17,14 @@ import {
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
-import {
-  calculateAPR,
-  divDecimal,
-  bytesToBytes32,
-  floorDecimal,
-  mulDecimal,
-  secondsToFrom,
-  sellFYToken,
-  calcAccruedDebt,
-} from '../utils/yieldMath';
+import { divDecimal, bytesToBytes32, mulDecimal, calcAccruedDebt } from '../utils/yieldMath';
 
 import { ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
-import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
-import { FYToken__factory, Pool__factory } from '../contracts';
 import { chargeAsset } from '../lib/chain/assets';
+import { chargeSeries } from '../lib/chain/series';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -135,7 +124,7 @@ const UserProvider = ({ children }: any) => {
     contractMap,
     connection: { account, fallbackProvider },
     chainLoading,
-    seriesRootMap,
+    seriesMap,
     assetMap,
     strategyRootMap,
   } = chainState;
@@ -175,7 +164,7 @@ const UserProvider = ({ children }: any) => {
 
       const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
         const { vaultId: id, ilkId, seriesId } = x.args;
-        const series = seriesRootMap.get(seriesId);
+        const series = seriesMap.get(seriesId);
         return {
           id,
           seriesId,
@@ -190,7 +179,7 @@ const UserProvider = ({ children }: any) => {
         vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
           const { vaultId: id } = x.args;
           const { ilkId, seriesId } = await Cauldron.vaults(id);
-          const series = seriesRootMap.get(seriesId);
+          const series = seriesMap.get(seriesId);
           return {
             id,
             seriesId,
@@ -213,7 +202,7 @@ const UserProvider = ({ children }: any) => {
 
       return newVaultMap;
     },
-    [account, contractMap, seriesRootMap]
+    [account, contractMap, seriesMap]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -270,68 +259,18 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
-    async (seriesList: ISeriesRoot[]): Promise<Map<string, ISeries>> => {
+    async (seriesList: ISeries[]): Promise<Map<string, ISeries>> => {
       updateState({ type: UserState.SERIES_LOADING, payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];
 
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
-        seriesList.map(async (series): Promise<ISeries> => {
-          const poolContract = Pool__factory.connect(series.poolAddress, fallbackProvider);
-          const fyTokenContract = FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
-
-          /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, ts, g1, g2, baseAddress, fyTokenRealReserves] =
-            await Promise.all([
-              poolContract.getBaseBalance(),
-              poolContract.getFYTokenBalance(),
-              poolContract.totalSupply(),
-              poolContract.ts(),
-              poolContract.g1(),
-              poolContract.g2(),
-              poolContract.base(),
-              fyTokenContract.balanceOf(series.poolAddress),
-            ]);
-
-          const rateCheckAmount = ethers.utils.parseUnits(
-            ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
-            series.decimals
-          );
-
-          /* Calculates the base/fyToken unit selling price */
-          const _sellRate = sellFYToken(
-            baseReserves,
-            fyTokenReserves,
-            rateCheckAmount,
-            secondsToFrom(series.maturity.toString()),
-            ts,
-            g2,
-            series.decimals
-          );
-
-          const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
-
-          return {
-            ...series,
-            apr: `${Number(apr).toFixed(2)}`,
-            baseReserves,
-            baseReserves_: ethers.utils.formatUnits(baseReserves, series.decimals),
-            fyTokenContract,
-            fyTokenReserves,
-            fyTokenRealReserves,
-            totalSupply,
-            totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
-            ts,
-            g1,
-            g2,
-
-            // built-in helper functions:
-            isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
-            getTimeTillMaturity: () => (series.maturity - Math.round(new Date().getTime() / 1000)).toString(),
-            getBaseAddress: () => baseAddress,
-          };
-        })
+        seriesList.map(
+          async (series): Promise<ISeries> => ({
+            ...chargeSeries(fallbackProvider, series),
+          })
+        )
       );
 
       if (account) {
@@ -404,7 +343,7 @@ const UserProvider = ({ children }: any) => {
                 0
               : false;
 
-          const series = seriesRootMap.get(seriesId);
+          const series = seriesMap.get(seriesId);
 
           let accruedArt: BigNumber;
           let rateAtMaturity: BigNumber;
@@ -500,7 +439,7 @@ const UserProvider = ({ children }: any) => {
       userState.vaultMap,
       vaultFromUrl,
       setLastVaultUpdate,
-      seriesRootMap,
+      seriesMap,
       assetMap,
       diagnostics,
       account,
@@ -523,8 +462,8 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
-          const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
-          const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
+          const currentSeries = seriesMap.get(currentSeriesId) as ISeries;
+          const nextSeries = seriesMap.get(nextSeriesId) as ISeries;
 
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
@@ -621,16 +560,16 @@ const UserProvider = ({ children }: any) => {
 
       return combinedMap;
     },
-    [account, userState.seriesMap] // userState.strategyMap excluded on purpose
+    [account, seriesMap] // userState.strategyMap excluded on purpose
   );
 
   /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
   useEffect(() => {
     if (!chainLoading) {
-      seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
+      seriesMap.size && updateSeries(Array.from(seriesMap.values()));
       assetMap.size && updateAssets(Array.from(assetMap.values()));
     }
-  }, [account, chainLoading, assetMap, seriesRootMap, updateSeries, updateAssets]);
+  }, [account, chainLoading, assetMap, seriesMap, updateSeries, updateAssets]);
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {

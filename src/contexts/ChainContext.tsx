@@ -4,7 +4,7 @@ import { Contract, ethers } from 'ethers';
 import { useCachedState } from '../hooks/generalHooks';
 import { useConnection } from '../hooks/useConnection';
 
-import { IAsset, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
+import { IAsset, IChainContextState, ISeries, IStrategyRoot } from '../types';
 
 import { clearCachedItems, mapify } from '../utils/appUtils';
 
@@ -48,7 +48,7 @@ const initState: IChainContextState = {
   /* Connected Contract Maps */
   contractMap: new Map<string, Contract>(),
   assetMap: new Map<string, IAsset>(),
-  seriesRootMap: new Map<string, ISeriesRoot>(),
+  seriesMap: new Map<string, ISeries>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
@@ -123,7 +123,7 @@ const ChainProvider = ({ children }: any) => {
         ]);
 
         updateState({ type: ChainState.ASSETS, payload: mapify(assets) });
-        updateState({ type: ChainState.SERIES, payload: series });
+        updateState({ type: ChainState.SERIES, payload: mapify(series) });
         updateState({ type: ChainState.STRATEGIES, payload: strategies });
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
       })();

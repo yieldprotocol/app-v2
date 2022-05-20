@@ -16,7 +16,7 @@ export interface IChainContextState {
 
   contractMap: Map<string, Contract>;
   assetMap: Map<string, IAsset>;
-  seriesRootMap: Map<string, ISeriesRoot>;
+  seriesMap: Map<string, ISeries>;
   strategyRootMap: Map<string, IStrategyRoot>;
 }
 
@@ -135,30 +135,7 @@ export interface ISignable {
   tokenType: TokenType;
 }
 
-export interface ISeriesRoot extends ISignable {
-  id: string;
-  baseId: string;
-  maturity: number;
-  fyTokenAddress: string;
-  decimals: number;
-  poolAddress: string;
-  poolVersion: string; // for signing
-  poolName: string;
-  poolSymbol: string; // for signing
-  seriesIsMature: boolean;
-
-  fullDate?: string;
-  displayName?: string;
-  displayNameMobile?: string;
-
-  startColor?: string;
-  endColor?: string;
-  color?: string;
-  textColor?: string;
-  oppositeColor?: string;
-  oppStartColor?: string;
-  oppEndColor?: string;
-}
+export interface ISeriesRoot extends ISignable {}
 
 export enum TokenType {
   ERC20_,
@@ -250,18 +227,42 @@ export interface IVaultRoot {
   decimals: number;
 }
 
-export interface ISeries extends ISeriesRoot {
-  apr: string;
-  baseReserves: BigNumber;
-  baseReserves_: string;
+export interface ISeries {
+  id: string;
+  baseId: string;
+  maturity: number;
+  fyTokenAddress: string;
+  decimals: number;
+  poolAddress: string;
+  poolVersion: string; // for signing
+  poolName: string;
+  poolSymbol: string; // for signing
+  seriesIsMature: boolean;
+
+  fullDate: string;
+  displayName: string;
+  displayNameMobile: string;
+
+  startColor: string;
+  endColor: string;
+  color: string;
+  textColor: string;
+  oppositeColor: string;
+  oppStartColor: string;
+  oppEndColor: string;
+
+  // charged
+  apr?: string;
+  baseReserves?: BigNumber;
+  baseReserves_?: string;
   fyTokenContract?: FYToken;
-  fyTokenReserves: BigNumber;
-  fyTokenRealReserves: BigNumber;
-  totalSupply: BigNumber;
-  totalSupply_: string;
-  ts: BigNumber;
-  g1: BigNumber;
-  g2: BigNumber;
+  fyTokenReserves?: BigNumber;
+  fyTokenRealReserves?: BigNumber;
+  totalSupply?: BigNumber;
+  totalSupply_?: string;
+  ts?: BigNumber;
+  g1?: BigNumber;
+  g2?: BigNumber;
 
   poolTokens?: BigNumber | undefined;
   poolTokens_?: string | undefined;
@@ -270,7 +271,6 @@ export interface ISeries extends ISeriesRoot {
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
-  seriesIsMature: boolean;
 
   // baked in token fns
   getTimeTillMaturity?: () => string;
