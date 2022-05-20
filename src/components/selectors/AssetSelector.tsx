@@ -42,7 +42,7 @@ function AssetSelector({ assetMap, selectCollateral, isModal }: IAssetSelectorPr
   const { activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
-  const [options, setOptions] = useState<IAsset[]>([]);
+  const [options, setOptions] = useState<(IAsset | IAssetRoot)[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
 
   const optionText = (asset: IAsset | undefined) =>
@@ -70,7 +70,6 @@ function AssetSelector({ assetMap, selectCollateral, isModal }: IAssetSelectorPr
 
   /* update options on any changes */
   useEffect(() => {
-    console.log('🦄 ~ file: AssetSelector.tsx ~ line 74 ~ useEffect ~ assetMap', assetMap);
     const opts = Array.from(assetMap.values())
       .filter((a) => a.showToken) // filter based on whether wrapped tokens are shown or not
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
