@@ -132,46 +132,31 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
-  tokenType: TokenType;
+  tokenType?: TokenType;
 }
 
 export interface ISeriesRoot extends ISignable {
   id: string;
-  displayName: string;
-  displayNameMobile: string;
+  baseId: string;
   maturity: number;
-
-  fullDate?: Date;
-  fyTokenContract?: FYToken;
   fyTokenAddress: string;
-  poolContract?: Pool;
+  decimals: number;
   poolAddress: string;
-  poolName: string;
   poolVersion: string; // for signing
+  poolName: string;
   poolSymbol: string; // for signing
 
-  decimals: number;
-  ts?: BigNumber;
-  g1?: BigNumber;
-  g2?: BigNumber;
+  fullDate?: string;
+  displayName?: string;
+  displayNameMobile?: string;
 
-  baseId: string;
-
-  color: string;
-  textColor: string;
-  startColor: string;
-  endColor: string;
-
-  oppositeColor: string;
-  oppStartColor: string;
-  oppEndColor: string;
-
-  seriesMark?: React.ElementType;
-
-  // baked in token fns
-  getTimeTillMaturity?: () => string;
-  isMature?: () => boolean;
-  getBaseAddress?: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
+  startColor?: string;
+  endColor?: string;
+  color?: string;
+  textColor?: string;
+  oppositeColor?: string;
+  oppStartColor?: string;
+  oppEndColor?: string;
 }
 
 export enum TokenType {
@@ -259,18 +244,30 @@ export interface ISeries extends ISeriesRoot {
   apr: string;
   baseReserves: BigNumber;
   baseReserves_: string;
+  fyTokenContract?: FYToken;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
   totalSupply_: string;
+  ts: BigNumber;
+  g1: BigNumber;
+  g2: BigNumber;
 
   poolTokens?: BigNumber | undefined;
   poolTokens_?: string | undefined;
+  poolContract?: Pool;
   fyTokenBalance?: BigNumber | undefined;
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
   seriesIsMature: boolean;
+
+  // baked in token fns
+  getTimeTillMaturity?: () => string;
+  isMature?: () => boolean;
+  getBaseAddress?: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
+
+  seriesMark?: React.ElementType;
 }
 
 export interface IAsset extends IAssetRoot {

@@ -20,6 +20,7 @@ import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 import { getContracts } from '../lib/chain/contracts';
 import { getAssets } from '../lib/chain/assets';
+import { getSeries } from '../lib/chain/series';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -139,122 +140,6 @@ const ChainProvider = ({ children }: any) => {
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = yieldEnv.strategies[fallbackChainId] as string[];
 
-      /* add on extra/calculated ASYNC series info and contract instances */
-      const _chargeSeries = (series: {
-        maturity: number;
-        baseId: string;
-        poolAddress: string;
-        fyTokenAddress: string;
-      }) => {
-        /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
-        const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
-
-        const season = getSeason(series.maturity);
-        const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
-        const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
-        const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
-        return {
-          ...series,
-
-          poolContract,
-          fyTokenContract,
-
-          fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
-          displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
-          displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
-
-          season,
-          startColor,
-          endColor,
-          color: `linear-gradient(${startColor}, ${endColor})`,
-          textColor,
-
-          oppStartColor,
-          oppEndColor,
-          oppTextColor,
-          seriesMark: <YieldMark colors={[startColor, endColor]} />,
-
-          // built-in helper functions:
-          getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
-          isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
-          getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
-        };
-      };
-
-      const _getSeries = async () => {
-        /* get poolAdded events and series events at the same time */
-        const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, lastSeriesUpdate),
-          Ladle.queryFilter('PoolAdded' as ethers.EventFilter, lastSeriesUpdate),
-        ]);
-
-        /* Create a map from the poolAdded event data or hardcoded pool data if available */
-        const poolMap = new Map(poolAddedEvents.map((e: PoolAddedEvent) => e.args)); // event values);
-
-        /* Create a array from the seriesAdded event data or hardcoded series data if available */
-        const seriesAdded = seriesAddedEvents.map((e: SeriesAddedEvent) => e.args);
-
-        const newSeriesList: any[] = [];
-
-        /* Add in any extra static series */
-        try {
-          await Promise.all(
-            seriesAdded.map(async (x): Promise<void> => {
-              const { seriesId: id, baseId, fyToken } = x;
-              const { maturity } = await Cauldron.series(id);
-
-              if (poolMap.has(id)) {
-                // only add series if it has a pool
-                const poolAddress = poolMap.get(id);
-                const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-                const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
-                  await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    poolContract.ts(),
-                    poolContract.g1(),
-                    poolContract.g2(),
-                    // poolContract.decimals(),
-                  ]);
-                const newSeries = {
-                  id,
-                  baseId,
-                  maturity,
-                  name,
-                  symbol,
-                  version,
-                  address: fyToken,
-                  fyTokenAddress: fyToken,
-                  decimals,
-                  poolAddress,
-                  poolVersion,
-                  poolName,
-                  poolSymbol,
-                  ts,
-                  g1,
-                  g2,
-                };
-                updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-                newSeriesList.push(newSeries);
-              }
-            })
-          );
-        } catch (e) {
-          console.log('Error fetching series data: ', e);
-        }
-        setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
-        setCachedSeries([...cachedSeries, ...newSeriesList]);
-
-        console.log('Yield Protocol Series data updated.');
-      };
-
       /* Attach contract instance */
 
       const _chargeStrategy = (strategy: any) => {
@@ -315,14 +200,14 @@ const ChainProvider = ({ children }: any) => {
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
-          await Promise.all([getAssets(fallbackProvider, contractMap), _getSeries(), _getStrategies()]);
+          await Promise.all([
+            getAssets(fallbackProvider, contractMap),
+            getSeries(fallbackProvider, contractMap),
+            _getStrategies(),
+          ]);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
       } else {
-        // get assets, series and strategies from cache and 'charge' them, and add to state:
-        cachedSeries.forEach((s: ISeriesRoot) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
-        });
         cachedStrategies.forEach((st: IStrategyRoot) => {
           strategyAddresses.includes(st.address) &&
             updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
@@ -331,7 +216,12 @@ const ChainProvider = ({ children }: any) => {
 
         console.log('Checking for new Assets and Series, and Strategies ...');
         // then async check for any updates (they should automatically populate the map):
-        (async () => Promise.all([getAssets(fallbackProvider, contractMap), _getSeries(), _getStrategies()]))();
+        (async () =>
+          Promise.all([
+            getAssets(fallbackProvider, contractMap),
+            getSeries(fallbackProvider, contractMap),
+            _getStrategies(),
+          ]))();
       }
     }
   }, [fallbackChainId, fallbackProvider]);
