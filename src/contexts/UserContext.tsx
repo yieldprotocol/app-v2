@@ -35,6 +35,7 @@ import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
+import { FYToken__factory, Pool__factory } from '../contracts';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -132,7 +133,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account },
+    connection: { account, fallbackProvider },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -280,13 +281,21 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
+          const poolContract = Pool__factory.connect(series.poolAddress, fallbackProvider);
+          const fyTokenContract = FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
+
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-            series.poolContract.getBaseBalance(),
-            series.poolContract.getFYTokenBalance(),
-            series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress)
-          ]);
+          const [baseReserves, fyTokenReserves, totalSupply, ts, g1, g2, baseAddress, fyTokenRealReserves] =
+            await Promise.all([
+              poolContract.getBaseBalance(),
+              poolContract.getFYTokenBalance(),
+              poolContract.totalSupply(),
+              poolContract.ts(),
+              poolContract.g1(),
+              poolContract.g2(),
+              poolContract.base(),
+              fyTokenContract.balanceOf(series.poolAddress),
+            ]);
 
           const rateCheckAmount = ethers.utils.parseUnits(
             ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
@@ -299,8 +308,8 @@ const UserProvider = ({ children }: any) => {
             fyTokenReserves,
             rateCheckAmount,
             secondsToFrom(series.maturity.toString()),
-            series.ts,
-            series.g2,
+            ts,
+            g2,
             series.decimals
           );
 
@@ -308,14 +317,22 @@ const UserProvider = ({ children }: any) => {
 
           return {
             ...series,
+            apr: `${Number(apr).toFixed(2)}`,
             baseReserves,
             baseReserves_: ethers.utils.formatUnits(baseReserves, series.decimals),
+            fyTokenContract,
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
-            apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: series.isMature(),
+            ts,
+            g1,
+            g2,
+            seriesIsMature: series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
+
+            // built-in helper functions:
+            getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
+            getBaseAddress: () => baseAddress,
           };
         })
       );
@@ -359,7 +376,7 @@ const UserProvider = ({ children }: any) => {
 
       return newSeriesMap;
     },
-    [account]
+    [account, fallbackProvider]
   );
 
   /* Updates the vaults with *user* data */
@@ -386,7 +403,8 @@ const UserProvider = ({ children }: any) => {
           /* If art 0, check for liquidation event */
           const hasBeenLiquidated =
             art === ZERO_BN
-              ? (await Cauldron.queryFilter(Cauldron.filters.VaultGiven(vault.id, Witch.address), 'earliest')).length > 0
+              ? (await Cauldron.queryFilter(Cauldron.filters.VaultGiven(vault.id, Witch.address), 'earliest')).length >
+                0
               : false;
 
           const series = seriesRootMap.get(seriesId);
