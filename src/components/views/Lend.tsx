@@ -12,7 +12,16 @@ import { cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, ProcessStage, TxState } from '../../types';
+import {
+  ActionCodes,
+  ActionType,
+  IAssetRoot,
+  ISeriesRoot,
+  IUserContext,
+  IUserContextState,
+  ProcessStage,
+  TxState,
+} from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
@@ -41,12 +50,19 @@ import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelector
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
 
-const Lend = () => {
+interface ILendProps {
+  assetMapProps: Map<string, IAssetRoot>;
+  seriesMapProps: Map<string, ISeriesRoot>;
+}
+
+const Lend = ({ assetMapProps, seriesMapProps }: ILendProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeries, selectedBase, seriesMap } = userState;
+  const { activeAccount, selectedSeries, selectedBase, seriesMap: _seriesMap, assetMap: _assetMap } = userState;
+  const assetMap = _assetMap ?? assetMapProps;
+  const seriesMap = _seriesMap ?? seriesMapProps;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -142,7 +158,7 @@ const Lend = () => {
                         </InputWrap>
                       </Box>
                       <Box basis={mobile ? '50%' : '40%'}>
-                        <AssetSelector />
+                        <AssetSelector assetMap={assetMap} />
                       </Box>
                     </Box>
                   </SectionWrap>

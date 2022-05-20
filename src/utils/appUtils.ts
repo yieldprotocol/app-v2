@@ -258,3 +258,5 @@ export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: 
     }
   }
 };
+
+export const mapify = (obj: Object) => Object.keys(obj).reduce((map, curr) => map.set(curr, obj[curr]), new Map());

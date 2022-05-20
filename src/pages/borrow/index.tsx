@@ -5,10 +5,9 @@ import { SUPPORTED_RPC_URLS } from '../../config/chainData';
 import { getAssets } from '../../lib/chain/assets';
 import { getContracts } from '../../lib/chain/contracts';
 import { getSeries } from '../../lib/chain/series';
+import { mapify } from '../../utils/appUtils';
 
 const DynamicBorrow = dynamic(() => import('../../components/views/Borrow'), { ssr: false });
-
-const mapify = (obj: Object) => Object.keys(obj).reduce((map, curr) => map.set(curr, obj[curr]), new Map());
 
 const Borrow = ({ assetMap, seriesMap }: InferGetStaticPropsType<typeof getStaticProps>) => (
   <DynamicBorrow assetMapProps={mapify(assetMap)} seriesMapProps={mapify(seriesMap)} />

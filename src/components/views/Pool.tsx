@@ -11,7 +11,16 @@ import InfoBite from '../InfoBite';
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import SectionWrap from '../wraps/SectionWrap';
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, AddLiquidityType, IUserContext, IUserContextState, ProcessStage, TxState } from '../../types';
+import {
+  ActionCodes,
+  AddLiquidityType,
+  IAssetRoot,
+  ISeriesRoot,
+  IUserContext,
+  IUserContextState,
+  ProcessStage,
+  TxState,
+} from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
@@ -34,12 +43,26 @@ import StrategyItem from '../positionItems/StrategyItem';
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
 
-function Pool() {
+interface IPoolProps {
+  assetMapProps: Map<string, IAssetRoot>;
+  seriesMapProps: Map<string, ISeriesRoot>;
+}
+
+function Pool({ assetMapProps, seriesMapProps }: IPoolProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
+  const {
+    activeAccount,
+    selectedBase,
+    selectedStrategy,
+    strategyMap,
+    assetMap: _assetMap,
+    seriesMap: _seriesMap,
+  } = userState;
+  const assetMap = _assetMap ?? assetMapProps;
+  const seriesMap = _seriesMap ?? seriesMapProps;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
