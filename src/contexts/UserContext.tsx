@@ -268,7 +268,7 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(
           async (series): Promise<ISeries> => ({
-            ...chargeSeries(fallbackProvider, series),
+            ...(await chargeSeries(fallbackProvider, series)),
           })
         )
       );

@@ -74,7 +74,7 @@ function chainReducer(state: IChainContextState, action: any) {
     case ChainState.SERIES:
       return {
         ...state,
-        seriesRootMap: onlyIfChanged(action),
+        seriesMap: onlyIfChanged(action),
       };
 
     case ChainState.ASSETS:
