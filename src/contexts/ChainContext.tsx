@@ -18,9 +18,9 @@ enum ChainState {
   APP_VERSION = 'appVersion',
   CONNECTION = 'connection',
   CONTRACT_MAP = 'contractMap',
-  ADD_SERIES = 'addSeries',
-  ADD_ASSET = 'addAsset',
-  ADD_STRATEGY = 'addStrategy',
+  SERIES = 'series',
+  ASSETS = 'assets',
+  STRATEGIES = 'strategies',
 }
 
 /* Build the context */
@@ -71,22 +71,22 @@ function chainReducer(state: IChainContextState, action: any) {
     case ChainState.CONTRACT_MAP:
       return { ...state, contractMap: onlyIfChanged(action) };
 
-    case ChainState.ADD_SERIES:
+    case ChainState.SERIES:
       return {
         ...state,
-        seriesRootMap: state.seriesRootMap.set(action.payload.id, action.payload),
+        seriesRootMap: onlyIfChanged(action),
       };
 
-    case ChainState.ADD_ASSET:
+    case ChainState.ASSETS:
       return {
         ...state,
-        assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
+        assetRootMap: onlyIfChanged(action),
       };
 
-    case ChainState.ADD_STRATEGY:
+    case ChainState.STRATEGIES:
       return {
         ...state,
-        strategyRootMap: state.strategyRootMap.set(action.payload.address, action.payload),
+        strategyRootMap: onlyIfChanged(action),
       };
 
     default:
@@ -115,14 +115,19 @@ const ChainProvider = ({ children }: any) => {
       const contractMap = getContracts(fallbackProvider, fallbackChainId);
       updateState({ type: ChainState.CONTRACT_MAP, payload: contractMap });
 
-      (async () =>
-        Promise.all([
+      (async () => {
+        const [assets, series, strategies] = await Promise.all([
           getAssets(fallbackProvider, contractMap),
           getSeries(fallbackProvider, contractMap),
           getStrategies(fallbackProvider),
-        ]))();
+        ]);
+
+        updateState({ type: ChainState.ASSETS, payload: assets });
+        updateState({ type: ChainState.SERIES, payload: series });
+        updateState({ type: ChainState.STRATEGIES, payload: strategies });
+      })();
     }
-  }, [fallbackChainId, fallbackProvider]);
+  }, [chainId, fallbackChainId, fallbackProvider]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
