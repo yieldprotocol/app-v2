@@ -145,6 +145,7 @@ export interface ISeriesRoot extends ISignable {
   poolVersion: string; // for signing
   poolName: string;
   poolSymbol: string; // for signing
+  seriesIsMature: boolean;
 
   fullDate?: string;
   displayName?: string;

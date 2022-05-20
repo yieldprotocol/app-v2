@@ -57,6 +57,7 @@ export const getSeries = async (provider: ethers.providers.JsonRpcProvider, cont
         poolVersion,
         poolName,
         poolSymbol,
+        seriesIsMature: maturity - Math.round(new Date().getTime() / 1000) <= 0,
       };
 
       return { ...(await seriesMap), [id]: chargeSeries(chainId, newSeries) as ISeriesRoot };
