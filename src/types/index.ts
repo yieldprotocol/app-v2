@@ -225,7 +225,7 @@ export interface IVaultRoot {
   decimals: number;
 }
 
-export interface ISeries {
+export interface ISeries extends ISignable {
   id: string;
   baseId: string;
   maturity: number;
