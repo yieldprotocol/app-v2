@@ -80,7 +80,7 @@ function chainReducer(state: IChainContextState, action: any) {
     case ChainState.ASSETS:
       return {
         ...state,
-        assetRootMap: onlyIfChanged(action),
+        assetMap: onlyIfChanged(action),
       };
 
     case ChainState.STRATEGIES:

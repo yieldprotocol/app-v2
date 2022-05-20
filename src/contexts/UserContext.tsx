@@ -627,6 +627,7 @@ const UserProvider = ({ children }: any) => {
   /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
   useEffect(() => {
     if (!chainLoading) {
+      console.log('🦄 ~ file: UserContext.tsx ~ line 632 ~ useEffect ~ assetMap', assetMap);
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
       assetMap.size && updateAssets(Array.from(assetMap.values()));
     }
