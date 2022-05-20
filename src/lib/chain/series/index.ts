@@ -78,7 +78,7 @@ export const getSeries = async (
   }, {});
 };
 
-const getColors = (chainId: number, series: ISeries) => {
+const getColors = (chainId: number, series: any) => {
   const seasonColorMap = [1, 4, 5, 42].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
 
   const season = getSeason(series.maturity);
