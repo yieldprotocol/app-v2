@@ -18,6 +18,8 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
+import { getContracts } from '../lib/chain/contracts';
+import { getAssets } from '../lib/chain/assets';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -126,264 +128,16 @@ const ChainProvider = ({ children }: any) => {
       console.log('Primary ChainId: ', chainId);
 
       /* Get the instances of the Base contracts */
-      const addrs = (yieldEnv.addresses as any)[fallbackChainId];
       const seasonColorMap = [1, 4, 5, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
 
-      let Cauldron: contracts.Cauldron;
-      let Ladle: contracts.Ladle;
-      let RateOracle: contracts.CompoundMultiOracle | contracts.AccumulatorOracle;
-      let ChainlinkMultiOracle: contracts.ChainlinkMultiOracle;
-      let CompositeMultiOracle: contracts.CompositeMultiOracle;
-      let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
-      let Witch: contracts.Witch;
+      const contractMap = getContracts(fallbackProvider, fallbackChainId);
+      updateState({ type: ChainState.CONTRACT_MAP, payload: contractMap });
 
-      // modules
-      let WrapEtherModule: contracts.WrapEtherModule;
-
-      // Notional
-      let NotionalMultiOracle: contracts.NotionalMultiOracle;
-
-      // Convex
-      let ConvexLadleModule: contracts.ConvexLadleModule;
-
-      // arbitrum specific
-      let ChainlinkUSDOracle: contracts.ChainlinkUSDOracle;
-      let AccumulatorOracle: contracts.AccumulatorOracle;
-
-      try {
-        Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
-        Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
-        Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
-
-        // module access
-        WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
-
-        if ([1, 4, 5, 42].includes(fallbackChainId)) {
-          ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
-          RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
-
-          ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
-            addrs.ChainlinkMultiOracle,
-            fallbackProvider
-          );
-          CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
-            addrs.CompositeMultiOracle,
-            fallbackProvider
-          );
-          YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(
-            addrs.YearnVaultMultiOracle,
-            fallbackProvider
-          );
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
-            addrs.NotionalMultiOracle,
-            fallbackProvider
-          );
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
-            addrs.NotionalMultiOracle,
-            fallbackProvider
-          );
-        }
-
-        // arbitrum
-        if ([42161, 421611].includes(fallbackChainId)) {
-          ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
-            addrs.ChainlinkUSDOracle,
-            fallbackProvider
-          );
-          AccumulatorOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorOracle, fallbackProvider);
-          RateOracle = AccumulatorOracle;
-        }
-      } catch (e) {
-        console.log('Could not connect to contracts: ', e);
-      }
-
-      if (
-        [1, 4, 5, 42].includes(fallbackChainId) &&
-        (!Cauldron || !Ladle || !ChainlinkMultiOracle || !CompositeMultiOracle || !Witch)
-      )
-        return;
-
-      // arbitrum
-      if (
-        [42161, 421611].includes(fallbackChainId) &&
-        (!Cauldron || !Ladle || !ChainlinkUSDOracle || !AccumulatorOracle || !Witch)
-      )
-        return;
-
-      /* Update the baseContracts state : ( hardcoded based on networkId ) */
-      const newContractMap = chainState.contractMap as Map<string, Contract>;
-      newContractMap.set('Cauldron', Cauldron);
-      newContractMap.set('Ladle', Ladle);
-      newContractMap.set('Witch', Witch);
-      newContractMap.set('RateOracle', RateOracle);
-      newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
-      newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-      newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
-      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
-      newContractMap.set('AccumulatorOracle', AccumulatorOracle);
-      newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
-
-      // modules
-      newContractMap.set('WrapEtherModule', WrapEtherModule);
-      newContractMap.set('ConvexLadleModule', ConvexLadleModule);
-
-      updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
+      const Cauldron = contractMap.get('Cauldron');
+      const Ladle = contractMap.get('Ladle');
 
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = yieldEnv.strategies[fallbackChainId] as string[];
-
-      /* add on extra/calculated ASSET info and contract instances  (no async) */
-      const _chargeAsset = (asset: any) => {
-        /* attach either contract, (or contract of the wrappedToken ) */
-
-        let assetContract: Contract;
-        let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
-        let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
-        let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
-
-        switch (asset.tokenType) {
-          case TokenType.ERC20_:
-            assetContract = contracts.ERC20__factory.connect(asset.address, fallbackProvider);
-            getBalance = async (acc) =>
-              ETH_BASED_ASSETS.includes(asset.proxyId)
-                ? fallbackProvider?.getBalance(acc)
-                : assetContract.balanceOf(acc);
-            getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
-            break;
-
-          case TokenType.ERC1155_:
-            assetContract = contracts.ERC1155__factory.connect(asset.address, fallbackProvider);
-            getBalance = async (acc) => assetContract.balanceOf(acc, asset.tokenIdentifier);
-            getAllowance = async (acc: string, spender: string) => assetContract.isApprovedForAll(acc, spender);
-            setAllowance = async (spender: string) => {
-              console.log(spender);
-              console.log(asset.address);
-              assetContract.setApprovalForAll(spender, true);
-            };
-            break;
-
-          default:
-            // Default is ERC20Permit;
-            assetContract = contracts.ERC20Permit__factory.connect(asset.address, fallbackProvider);
-            getBalance = async (acc) =>
-              ETH_BASED_ASSETS.includes(asset.id) ? fallbackProvider?.getBalance(acc) : assetContract.balanceOf(acc);
-            getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
-            break;
-        }
-
-        return {
-          ...asset,
-          digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
-          image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
-
-          assetContract,
-
-          /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
-          wrapHandlerAddresses: ASSET_INFO.get(asset.id)?.wrapHandlerAddresses,
-          unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses,
-
-          getBalance,
-          getAllowance,
-          setAllowance,
-        };
-      };
-
-      const _getAssets = async () => {
-        /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
-        const blockNum = await fallbackProvider.getBlockNumber();
-        const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-          Ladle.queryFilter('JoinAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-        ]);
-
-        /* Create a map from the joinAdded event data or hardcoded join data if available */
-        const joinMap = new Map(joinAddedEvents.map((e: JoinAddedEvent) => e.args)); // event values);
-
-        /* Create a array from the assetAdded event data or hardcoded asset data if available */
-        const assetsAdded = assetAddedEvents.map((e: AssetAddedEvent) => e.args);
-
-        const newAssetList: any[] = [];
-
-        await Promise.all(
-          assetsAdded.map(async (x) => {
-            const { assetId: id, asset: address } = x;
-
-            /* Get the basic hardcoded token info, if tooken is known, else get 'UNKNOWN' token */
-            const assetInfo = ASSET_INFO.has(id)
-              ? (ASSET_INFO.get(id) as IAssetInfo)
-              : (ASSET_INFO.get(UNKNOWN) as IAssetInfo);
-            let { name, symbol, decimals, version } = assetInfo;
-
-            /* On first load checks & corrects the ERC20 name/symbol/decimals (if possible ) */
-            if (
-              assetInfo.tokenType === TokenType.ERC20_ ||
-              assetInfo.tokenType === TokenType.ERC20_Permit ||
-              assetInfo.tokenType === TokenType.ERC20_DaiPermit
-            ) {
-              const contract = contracts.ERC20__factory.connect(address, fallbackProvider);
-              try {
-                [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
-              } catch (e) {
-                console.log(
-                  address,
-                  ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
-                );
-              }
-            }
-
-            /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
-            if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
-              const contract = contracts.ERC20Permit__factory.connect(address, fallbackProvider);
-              try {
-                version = await contract.version();
-              } catch (e) {
-                console.log(
-                  address,
-                  ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
-                );
-              }
-            }
-
-            /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
-            /* check if a wrapping handler is provided, if so, wrapping is required */
-            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
-
-            const newAsset = {
-              ...assetInfo,
-              id,
-              address,
-              name,
-              symbol,
-              decimals,
-              version,
-
-              /* Redirect the id/join if required due to using wrapped tokens */
-              joinAddress: assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
-
-              isWrappedToken,
-              wrappingRequired,
-              proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
-
-              /* Default setting of assetInfo fields if required */
-              displaySymbol: assetInfo.displaySymbol || symbol,
-              showToken: assetInfo.showToken || false,
-            };
-
-            // Update state and cache
-            updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
-            newAssetList.push(newAsset);
-          })
-        );
-
-        // set the 'last checked' block
-        setLastAssetUpdate(blockNum);
-
-        // log the new assets in the cache
-        setCachedAssets([...cachedAssets, ...newAssetList]);
-
-        console.log('Yield Protocol Asset data updated.');
-      };
 
       /* add on extra/calculated ASYNC series info and contract instances */
       const _chargeSeries = (series: {
@@ -561,14 +315,11 @@ const ChainProvider = ({ children }: any) => {
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
-          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
+          await Promise.all([getAssets(fallbackProvider, contractMap), _getSeries(), _getStrategies()]);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
       } else {
         // get assets, series and strategies from cache and 'charge' them, and add to state:
-        cachedAssets.forEach((a: IAssetRoot) => {
-          updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
-        });
         cachedSeries.forEach((s: ISeriesRoot) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
@@ -580,7 +331,7 @@ const ChainProvider = ({ children }: any) => {
 
         console.log('Checking for new Assets and Series, and Strategies ...');
         // then async check for any updates (they should automatically populate the map):
-        (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+        (async () => Promise.all([getAssets(fallbackProvider, contractMap), _getSeries(), _getStrategies()]))();
       }
     }
   }, [fallbackChainId, fallbackProvider]);
