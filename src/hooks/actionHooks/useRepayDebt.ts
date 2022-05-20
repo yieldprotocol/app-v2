@@ -24,7 +24,6 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 
-
 export const useRepayDebt = () => {
   const {
     settingsState: { slippageTolerance },
@@ -41,7 +40,7 @@ export const useRepayDebt = () => {
     chainState: {
       contractMap,
       connection: { chainId },
-      provider
+      provider,
     },
   } = useContext(ChainContext);
 
@@ -144,8 +143,8 @@ export const useRepayDebt = () => {
     /* Address to send the funds to either ladle (if eth is used as collateral) or account */
     const reclaimToAddress = () => {
       if (isEthCollateral) return ladleAddress;
-      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chainId))
-        return ilk.unwrapHandlerAddresses?.get(chainId); // if there is somethign to unwrap
+      if (unwrapAssetCallData.length && chainId in ilk.unwrapHandlerAddresses)
+        return ilk.unwrapHandlerAddresses[chainId]; // if there is somethign to unwrap
       return account;
     };
 

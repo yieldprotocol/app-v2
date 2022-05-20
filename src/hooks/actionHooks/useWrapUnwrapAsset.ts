@@ -33,9 +33,7 @@ export const useWrapUnwrapAsset = () => {
     const ladleAddress = contractMap.get('Ladle').address;
     /* SET the destination address DEFAULTs to the assetJoin Address */
     const toAddress = to || asset.joinAddress;
-    const wrapHandlerAddress = asset.wrapHandlerAddresses?.has(chainId)
-      ? asset.wrapHandlerAddresses.get(chainId)
-      : undefined;
+    const wrapHandlerAddress = chainId in asset.wrapHandlerAddresses ? asset.wrapHandlerAddresses[chainId] : undefined;
 
     /* NB! IF a wraphandler exists, we assume that it is Yield uses the wrapped version of the token */
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
@@ -78,9 +76,8 @@ export const useWrapUnwrapAsset = () => {
   };
 
   const unwrapAsset = async (asset: IAsset, receiver: string): Promise<ICallData[]> => {
-    const unwrapHandlerAddress = asset.unwrapHandlerAddresses?.has(chainId)
-      ? asset.unwrapHandlerAddresses.get(chainId)
-      : undefined;
+    const unwrapHandlerAddress =
+      chainId in asset.unwrapHandlerAddresses ? asset.unwrapHandlerAddresses[chainId] : undefined;
 
     /* if there is an unwrap handler we assume the token needs to be unwrapped  ( unless the 'unwrapTokens' setting is false) */
     if (unwrapTokens && unwrapHandlerAddress) {

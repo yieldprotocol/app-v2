@@ -5,7 +5,7 @@ import { arbitrumColorMap, ethereumColorMap } from '../../../config/colors';
 import { FYToken__factory, Pool__factory } from '../../../contracts';
 import { SeriesAddedEvent } from '../../../contracts/Cauldron';
 import { PoolAddedEvent } from '../../../contracts/ConvexLadleModule';
-import { ISeries, ISeriesRoot } from '../../../types';
+import { ISeries } from '../../../types';
 import { getSeason, nameFromMaturity, SeasonType } from '../../../utils/appUtils';
 import { calculateAPR, floorDecimal, secondsToFrom, sellFYToken } from '../../../utils/yieldMath';
 
