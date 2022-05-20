@@ -125,6 +125,7 @@ const ChainProvider = ({ children }: any) => {
         updateState({ type: ChainState.ASSETS, payload: assets });
         updateState({ type: ChainState.SERIES, payload: series });
         updateState({ type: ChainState.STRATEGIES, payload: strategies });
+        updateState({ type: ChainState.CHAIN_LOADING, payload: false });
       })();
     }
   }, [chainId, fallbackChainId, fallbackProvider]);
