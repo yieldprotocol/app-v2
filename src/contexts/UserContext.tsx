@@ -266,7 +266,7 @@ const UserProvider = ({ children }: any) => {
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
-    [account]
+    [account, fallbackProvider]
   );
 
   /* Updates the series with relevant *user* data */

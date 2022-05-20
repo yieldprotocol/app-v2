@@ -8,9 +8,7 @@ import { IAssetInfo, IAsset, TokenType } from '../../../types';
 
 export const getAssets = async (
   provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider,
-  contractMap: Map<string, Contract>,
-  assets?: IAsset[],
-  account?: string
+  contractMap: Map<string, Contract>
 ) => {
   const { chainId } = await provider.getNetwork();
   const Cauldron = contractMap.get('Cauldron');
