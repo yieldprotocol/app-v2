@@ -205,7 +205,7 @@ export interface IAsset extends IAssetInfo, ISignable {
   wrappingRequired: boolean;
   proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
 
-  image?: React.FC;
+  image?: React.ReactElement;
   assetContract?: Contract;
 
   balance?: BigNumber;

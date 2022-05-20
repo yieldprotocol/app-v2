@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 
 import {
-  IAssetRoot,
   ISeriesRoot,
   IVaultRoot,
   ISeries,
@@ -137,7 +136,7 @@ const UserProvider = ({ children }: any) => {
     connection: { account, fallbackProvider },
     chainLoading,
     seriesRootMap,
-    assetRootMap,
+    assetMap,
     strategyRootMap,
   } = chainState;
 
@@ -219,14 +218,14 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
-    async (assetList: IAssetRoot[]) => {
+    async (assetList: IAsset[]) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
-      let _publicData: IAssetRoot[] = [];
+      let _publicData: IAsset[] = [];
       let _accountData: IAsset[] = [];
 
       _publicData = await Promise.all(
         assetList.map(
-          async (asset): Promise<IAssetRoot> => ({
+          async (asset): Promise<IAsset> => ({
             ...chargeAsset(fallbackProvider, asset),
           })
         )
@@ -255,7 +254,7 @@ const UserProvider = ({ children }: any) => {
 
       /* reduce the asset list into a new map */
       const newAssetMap = new Map(
-        _combinedData.reduce((acc: Map<string, IAssetRoot>, item) => {
+        _combinedData.reduce((acc: Map<string, IAsset>, item) => {
           const _map = acc;
           _map.set(item.id, item);
           return _map;
@@ -438,8 +437,8 @@ const UserProvider = ({ children }: any) => {
           diagnostics && console.log('ART', art.toString());
           diagnostics && console.log('ACCRUED_ ART', accruedArt.toString());
 
-          const baseRoot = assetRootMap.get(vault.baseId);
-          const ilkRoot = assetRootMap.get(ilkId);
+          const baseRoot = assetMap.get(vault.baseId);
+          const ilkRoot = assetMap.get(ilkId);
 
           const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat);
           const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat);
@@ -502,7 +501,7 @@ const UserProvider = ({ children }: any) => {
       vaultFromUrl,
       setLastVaultUpdate,
       seriesRootMap,
-      assetRootMap,
+      assetMap,
       diagnostics,
       account,
     ]
@@ -629,9 +628,9 @@ const UserProvider = ({ children }: any) => {
   useEffect(() => {
     if (!chainLoading) {
       seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
-      assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
+      assetMap.size && updateAssets(Array.from(assetMap.values()));
     }
-  }, [account, chainLoading, assetRootMap, seriesRootMap, updateSeries, updateAssets]);
+  }, [account, chainLoading, assetMap, seriesRootMap, updateSeries, updateAssets]);
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {
