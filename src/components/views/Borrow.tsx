@@ -16,7 +16,7 @@ import { UserContext } from '../../contexts/UserContext';
 import {
   ActionCodes,
   ActionType,
-  IAssetRoot,
+  IAsset,
   ISeriesRoot,
   IUserContext,
   IUserContextState,
@@ -59,7 +59,7 @@ import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 
 interface IBorrowProps {
-  assetMapProps: Map<string, IAssetRoot>;
+  assetMapProps: Map<string, IAsset>;
   seriesMapProps: Map<string, ISeriesRoot>;
 }
 

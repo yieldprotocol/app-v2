@@ -11,7 +11,7 @@ export const useWrapUnwrapAsset = () => {
     chainState: {
       connection: { account, provider, chainId },
       contractMap,
-      assetRootMap,
+      assetMap,
     },
   } = useContext(ChainContext) as IChainContext;
 
@@ -40,7 +40,7 @@ export const useWrapUnwrapAsset = () => {
     /* NB! IF a wraphandler exists, we assume that it is Yield uses the wrapped version of the token */
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
       const wrapHandlerContract: Contract = new Contract(wrapHandlerAddress, wrapHandlerAbi, signer);
-      const { assetContract } = assetRootMap.get(asset.id); // note -> this is NOT the proxyID
+      const { assetContract } = assetMap.get(asset.id); // note -> this is NOT the proxyID
 
       diagnostics && console.log('Asset Contract to be signed for wrapping: ', assetContract.id);
 

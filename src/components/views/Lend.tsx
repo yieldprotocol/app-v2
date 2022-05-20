@@ -15,7 +15,7 @@ import { UserContext } from '../../contexts/UserContext';
 import {
   ActionCodes,
   ActionType,
-  IAssetRoot,
+  IAsset,
   ISeriesRoot,
   IUserContext,
   IUserContextState,
@@ -51,7 +51,7 @@ import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
 
 interface ILendProps {
-  assetMapProps: Map<string, IAssetRoot>;
+  assetMapProps: Map<string, IAsset>;
   seriesMapProps: Map<string, ISeriesRoot>;
 }
 

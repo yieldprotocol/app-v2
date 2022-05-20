@@ -6,7 +6,7 @@ import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
-import { IAsset, IAssetRoot, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -14,7 +14,7 @@ import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 
 interface IAssetSelectorProps {
-  assetMap: Map<string, IAsset | IAssetRoot>;
+  assetMap: Map<string, IAsset>;
   selectCollateral?: boolean;
   isModal?: boolean;
 }
@@ -42,7 +42,7 @@ function AssetSelector({ assetMap, selectCollateral, isModal }: IAssetSelectorPr
   const { activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
-  const [options, setOptions] = useState<(IAsset | IAssetRoot)[]>([]);
+  const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
 
   const optionText = (asset: IAsset | undefined) =>
