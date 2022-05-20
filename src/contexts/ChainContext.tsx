@@ -4,7 +4,7 @@ import { Contract, ethers } from 'ethers';
 import { useCachedState } from '../hooks/generalHooks';
 import { useConnection } from '../hooks/useConnection';
 
-import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
+import { IAsset, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
 
 import { clearCachedItems } from '../utils/appUtils';
 
@@ -47,7 +47,7 @@ const initState: IChainContextState = {
 
   /* Connected Contract Maps */
   contractMap: new Map<string, Contract>(),
-  assetRootMap: new Map<string, IAssetRoot>(),
+  assetMap: new Map<string, IAsset>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
 };
