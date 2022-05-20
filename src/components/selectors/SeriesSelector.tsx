@@ -59,6 +59,7 @@ export const CardSkeleton = (props: { rightSide?: boolean }) => (
 CardSkeleton.defaultProps = { rightSide: false };
 
 interface ISeriesSelectorProps {
+  seriesMapProps: Map<string, ISeries>;
   actionType: ActionType;
   selectSeriesLocally?: (
     series: ISeries
@@ -125,7 +126,14 @@ const AprText = ({
   );
 };
 
-function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout, setOpen }: ISeriesSelectorProps) {
+function SeriesSelector({
+  seriesMapProps,
+  selectSeriesLocally,
+  inputValue,
+  actionType,
+  cardLayout,
+  setOpen,
+}: ISeriesSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
@@ -135,7 +143,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
+  const { selectedSeries, selectedBase, seriesLoading, selectedVault } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -170,7 +178,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(seriesMap.values());
+    const opts = Array.from(seriesMapProps.values());
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts.filter(
@@ -187,7 +195,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
   }, [
-    seriesMap,
+    seriesMapProps,
     selectedBase,
     selectSeriesLocally,
     _selectedSeries,

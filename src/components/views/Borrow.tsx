@@ -17,7 +17,7 @@ import {
   ActionCodes,
   ActionType,
   IAsset,
-  ISeriesRoot,
+  ISeries,
   IUserContext,
   IUserContextState,
   IVault,
@@ -60,7 +60,7 @@ import Line from '../elements/Line';
 
 interface IBorrowProps {
   assetMapProps: Map<string, IAsset>;
-  seriesMapProps: Map<string, ISeriesRoot>;
+  seriesMapProps: Map<string, ISeries>;
 }
 
 const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
@@ -305,6 +305,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                   </Box>
                   {mobile ? (
                     <SeriesOrStrategySelectorModal
+                      seriesMapProps={seriesMap}
                       inputValue={borrowInput}
                       actionType={ActionType.BORROW}
                       open={modalOpen}
@@ -318,7 +319,11 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                           : ''
                       }
                     >
-                      <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
+                      <SeriesSelector
+                        seriesMapProps={seriesMap}
+                        inputValue={borrowInput}
+                        actionType={ActionType.BORROW}
+                      />
                     </SectionWrap>
                   )}
                 </Box>

@@ -16,7 +16,7 @@ import {
   ActionCodes,
   ActionType,
   IAsset,
-  ISeriesRoot,
+  ISeries,
   IUserContext,
   IUserContextState,
   ProcessStage,
@@ -52,7 +52,7 @@ import Line from '../elements/Line';
 
 interface ILendProps {
   assetMapProps: Map<string, IAsset>;
-  seriesMapProps: Map<string, ISeriesRoot>;
+  seriesMapProps: Map<string, ISeries>;
 }
 
 const Lend = ({ assetMapProps, seriesMapProps }: ILendProps) => {
@@ -165,6 +165,7 @@ const Lend = ({ assetMapProps, seriesMapProps }: ILendProps) => {
 
                   {mobile ? (
                     <SeriesOrStrategySelectorModal
+                      seriesMapProps={seriesMap}
                       inputValue={lendInput!}
                       actionType={ActionType.LEND}
                       open={modalOpen}
@@ -178,7 +179,7 @@ const Lend = ({ assetMapProps, seriesMapProps }: ILendProps) => {
                           : ''
                       }
                     >
-                      <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                      <SeriesSelector seriesMapProps={seriesMap} inputValue={lendInput} actionType={ActionType.LEND} />
                     </SectionWrap>
                   )}
                 </Box>
