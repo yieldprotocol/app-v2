@@ -136,18 +136,7 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
-      clearCachedItems([
-        'lastAppVersion',
-        'lastChainId',
-        'assets',
-        'series',
-        'lastAssetUpdate',
-        'lastSeriesUpdate',
-        'lastVaultUpdate',
-        'strategies',
-        'lastStrategiesUpdate',
-        'connectionName',
-      ]);
+      clearCachedItems(['lastAppVersion', 'lastChainId', 'lastVaultUpdate', 'connectionName']);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
