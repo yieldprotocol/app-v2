@@ -414,7 +414,7 @@ const UserProvider = ({ children }: any) => {
           let rate: BigNumber;
           let rate_: string;
 
-          if (series.isMature()) {
+          if (series.seriesIsMature) {
             rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
             [rate] = await RateOracle.peek(
               bytesToBytes32(vault.baseId, 6),
