@@ -6,7 +6,7 @@ import { useConnection } from '../hooks/useConnection';
 
 import { IAsset, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
 
-import { clearCachedItems } from '../utils/appUtils';
+import { clearCachedItems, mapify } from '../utils/appUtils';
 
 import { getContracts } from '../lib/chain/contracts';
 import { getAssets } from '../lib/chain/assets';
@@ -122,7 +122,7 @@ const ChainProvider = ({ children }: any) => {
           getStrategies(fallbackProvider),
         ]);
 
-        updateState({ type: ChainState.ASSETS, payload: assets });
+        updateState({ type: ChainState.ASSETS, payload: mapify(assets) });
         updateState({ type: ChainState.SERIES, payload: series });
         updateState({ type: ChainState.STRATEGIES, payload: strategies });
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });

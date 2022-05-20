@@ -52,7 +52,7 @@ const PriceProvider = ({ children }: any) => {
   const {
     contractMap,
     connection: { fallbackChainId },
-    assetRootMap,
+    assetMap,
   } = chainState;
 
   const {
@@ -71,8 +71,8 @@ const PriceProvider = ({ children }: any) => {
         ?.get(baseId)
         ?.get(ilkId);
       const PriceOracle = contractMap.get(oracleName!);
-      const base = assetRootMap.get(baseId);
-      const ilk = assetRootMap.get(ilkId);
+      const base = assetMap.get(baseId);
+      const ilk = assetMap.get(ilkId);
 
       diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
 
@@ -131,7 +131,7 @@ const PriceProvider = ({ children }: any) => {
       }
       return null;
     },
-    [assetRootMap, contractMap, diagnostics, fallbackChainId, priceState.pairLoading]
+    [assetMap, contractMap, diagnostics, fallbackChainId, priceState.pairLoading]
   );
 
   const priceActions = { updateAssetPair };

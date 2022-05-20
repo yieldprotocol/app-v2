@@ -92,7 +92,7 @@ const HistoryProvider = ({ children }: any) => {
     contractMap,
     connection: { fallbackProvider },
     seriesRootMap,
-    assetRootMap,
+    assetMap,
   } = chainState;
 
   const { userState } = useContext(UserContext) as IUserContext;
@@ -232,7 +232,7 @@ const HistoryProvider = ({ children }: any) => {
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
           const { poolContract, id: seriesId, baseId, decimals } = series;
-          const base = assetRootMap.get(baseId) as IAsset;
+          const base = assetMap.get(baseId) as IAsset;
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
           const eventList = await poolContract.queryFilter(_filter, lastSeriesUpdate);
@@ -283,7 +283,7 @@ const HistoryProvider = ({ children }: any) => {
           seriesList.map((s) => s.id)
         );
     },
-    [account, assetRootMap, contractMap, diagnostics, fallbackProvider, lastSeriesUpdate]
+    [account, assetMap, contractMap, diagnostics, fallbackProvider, lastSeriesUpdate]
   );
 
   /*  Updates VAULT history */
@@ -296,7 +296,7 @@ const HistoryProvider = ({ children }: any) => {
   // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
   const _parsePourLogs = useCallback(
     (eventList: ethers.Event[], contract: Cauldron, series: ISeries) => {
-      const base_ = assetRootMap.get(series?.baseId!);
+      const base_ = assetMap.get(series?.baseId!);
 
       return Promise.all(
         eventList.map(async (e: VaultPouredEvent) => {
@@ -314,7 +314,7 @@ const HistoryProvider = ({ children }: any) => {
             : { bases: ZERO_BN, fyTokens: ZERO_BN };
 
           const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
-          const ilk = assetRootMap.get(ilkId);
+          const ilk = assetMap.get(ilkId);
 
           const actionCode = _inferTransactionType(art, ink);
           const tradeApr = calculateAPR(baseTraded.abs(), art.abs(), series?.maturity, date);
@@ -369,7 +369,7 @@ const HistoryProvider = ({ children }: any) => {
         })
       );
     },
-    [assetRootMap, fallbackProvider]
+    [assetMap, fallbackProvider]
   );
 
   const _parseGivenLogs = useCallback(
