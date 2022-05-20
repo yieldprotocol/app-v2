@@ -19,7 +19,7 @@ export const getStaticProps = async () => {
   const provider = new ethers.providers.JsonRpcProvider(SUPPORTED_RPC_URLS[chainId], chainId);
   const contractMap = getContracts(provider, chainId, CONTRACTS_TO_FETCH_SSR);
   const assetMap = await getAssets(provider, contractMap);
-  const seriesMap = await getSeries(provider, chainId, contractMap);
+  const seriesMap = await getSeries(provider, contractMap);
 
   return { props: { assetMap, seriesMap } };
 };
