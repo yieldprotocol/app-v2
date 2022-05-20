@@ -48,7 +48,6 @@ import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
 
-
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
@@ -273,8 +272,8 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
-    
-    // handle using ilk 
+
+    // handle using ilk
     const _ilkToUse = _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);
@@ -572,6 +571,7 @@ const VaultPosition = () => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }}>
                         <SeriesSelector
+                          seriesMapProps={seriesMap}
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.BORROW}
                           cardLayout={false}
