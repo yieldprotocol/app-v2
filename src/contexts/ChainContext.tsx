@@ -1,26 +1,17 @@
 import React, { useEffect } from 'react';
-import { BigNumber, Contract, ethers } from 'ethers';
-import { format } from 'date-fns';
+import { Contract, ethers } from 'ethers';
 
 import { useCachedState } from '../hooks/generalHooks';
 import { useConnection } from '../hooks/useConnection';
 
-import yieldEnv from './yieldEnv.json';
-import * as contracts from '../contracts';
-import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN } from '../config/assets';
+import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot } from '../types';
 
-import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
+import { clearCachedItems } from '../utils/appUtils';
 
-import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
-import { AssetAddedEvent, SeriesAddedEvent } from '../contracts/Cauldron';
-import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
-
-import markMap from '../config/marks';
-import YieldMark from '../components/logos/YieldMark';
 import { getContracts } from '../lib/chain/contracts';
 import { getAssets } from '../lib/chain/assets';
 import { getSeries } from '../lib/chain/series';
+import { getStrategies } from '../lib/chain/strategies';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -109,13 +100,6 @@ const ChainProvider = ({ children }: any) => {
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
-  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 'earliest');
-  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 'earliest');
-
-  const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
-  const [cachedSeries, setCachedSeries] = useCachedState('series', []);
-  const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
-
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
   const { chainId, fallbackProvider, fallbackChainId } = connectionState;
@@ -128,101 +112,15 @@ const ChainProvider = ({ children }: any) => {
       console.log('Fallback ChainId: ', fallbackChainId);
       console.log('Primary ChainId: ', chainId);
 
-      /* Get the instances of the Base contracts */
-      const seasonColorMap = [1, 4, 5, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
-
       const contractMap = getContracts(fallbackProvider, fallbackChainId);
       updateState({ type: ChainState.CONTRACT_MAP, payload: contractMap });
 
-      const Cauldron = contractMap.get('Cauldron');
-      const Ladle = contractMap.get('Ladle');
-
-      /* Get the hardcoded strategy addresses */
-      const strategyAddresses = yieldEnv.strategies[fallbackChainId] as string[];
-
-      /* Attach contract instance */
-
-      const _chargeStrategy = (strategy: any) => {
-        const Strategy = contracts.Strategy__factory.connect(strategy.address, fallbackProvider);
-        return {
-          ...strategy,
-          strategyContract: Strategy,
-        };
-      };
-
-      /* Iterate through the strategies list and update accordingly */
-      const _getStrategies = async () => {
-        const newStrategyList: any[] = [];
-        try {
-          await Promise.all(
-            strategyAddresses.map(async (strategyAddr) => {
-              /* if the strategy is NOT already in the cache : */
-              if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
-                console.log('updating constracrt ', strategyAddr);
-
-                const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
-                const [name, symbol, baseId, decimals, version] = await Promise.all([
-                  Strategy.name(),
-                  Strategy.symbol(),
-                  Strategy.baseId(),
-                  Strategy.decimals(),
-                  Strategy.version(),
-                ]);
-
-                const newStrategy = {
-                  id: strategyAddr,
-                  address: strategyAddr,
-                  symbol,
-                  name,
-                  version,
-                  baseId,
-                  decimals,
-                };
-                // update state and cache
-                updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
-                newStrategyList.push(newStrategy);
-              }
-            })
-          );
-        } catch (e) {
-          console.log('Error fetching strategies', e);
-        }
-
-        const _filteredCachedStrategies = cachedStrategies.filter((s: any) => strategyAddresses.includes(s.address));
-
-        setCachedStrategies([..._filteredCachedStrategies, ...newStrategyList]);
-        console.log('Yield Protocol Strategy data updated.');
-      };
-
-      /**
-       * LOAD the Series and Assets *
-       * */
-      if (cachedAssets.length === 0 || cachedSeries.length === 0) {
-        console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
-        (async () => {
-          await Promise.all([
-            getAssets(fallbackProvider, contractMap),
-            getSeries(fallbackProvider, contractMap),
-            _getStrategies(),
-          ]);
-          updateState({ type: ChainState.CHAIN_LOADING, payload: false });
-        })();
-      } else {
-        cachedStrategies.forEach((st: IStrategyRoot) => {
-          strategyAddresses.includes(st.address) &&
-            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
-        });
-        updateState({ type: ChainState.CHAIN_LOADING, payload: false });
-
-        console.log('Checking for new Assets and Series, and Strategies ...');
-        // then async check for any updates (they should automatically populate the map):
-        (async () =>
-          Promise.all([
-            getAssets(fallbackProvider, contractMap),
-            getSeries(fallbackProvider, contractMap),
-            _getStrategies(),
-          ]))();
-      }
+      (async () =>
+        Promise.all([
+          getAssets(fallbackProvider, contractMap),
+          getSeries(fallbackProvider, contractMap),
+          getStrategies(fallbackProvider),
+        ]))();
     }
   }, [fallbackChainId, fallbackProvider]);
 
