@@ -1,17 +1,19 @@
 import { Box, Layer } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import SeriesSelector from './SeriesSelector';
-import { ActionType, ISeries } from '../../types';
+import { ActionType, ISeries, IStrategy } from '../../types';
 import StrategySelector from './StrategySelector';
 
 const SeriesOrStrategySelectorModal = ({
   seriesMapProps,
+  strategyMapProps,
   inputValue,
   actionType,
   open,
   setOpen,
 }: {
   seriesMapProps: Map<string, ISeries>;
+  strategyMapProps: Map<string, IStrategy>;
   inputValue: string;
   actionType: ActionType;
   open: boolean;
@@ -37,7 +39,12 @@ const SeriesOrStrategySelectorModal = ({
           </Box>
           <Box justify="center" fill>
             {actionType === ActionType.POOL ? (
-              <StrategySelector inputValue={inputValue} setOpen={setOpen} />
+              <StrategySelector
+                strategyMap={strategyMapProps}
+                seriesMap={seriesMapProps}
+                inputValue={inputValue}
+                setOpen={setOpen}
+              />
             ) : (
               <SeriesSelector
                 seriesMapProps={seriesMapProps}

@@ -17,6 +17,7 @@ import {
   ActionType,
   IAsset,
   ISeries,
+  IStrategy,
   IUserContext,
   IUserContextState,
   ProcessStage,
@@ -53,16 +54,25 @@ import Line from '../elements/Line';
 interface ILendProps {
   assetMapProps: Map<string, IAsset>;
   seriesMapProps: Map<string, ISeries>;
+  strategyMapProps: Map<string, IStrategy>;
 }
 
-const Lend = ({ assetMapProps, seriesMapProps }: ILendProps) => {
+const Lend = ({ assetMapProps, seriesMapProps, strategyMapProps }: ILendProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeries, selectedBase, seriesMap: _seriesMap, assetMap: _assetMap } = userState;
+  const {
+    activeAccount,
+    selectedSeries,
+    selectedBase,
+    seriesMap: _seriesMap,
+    assetMap: _assetMap,
+    strategyMap: _strategyMap,
+  } = userState;
   const assetMap = _assetMap ?? assetMapProps;
   const seriesMap = _seriesMap ?? seriesMapProps;
+  const strategyMap = _strategyMap ?? strategyMapProps;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -166,6 +176,7 @@ const Lend = ({ assetMapProps, seriesMapProps }: ILendProps) => {
                   {mobile ? (
                     <SeriesOrStrategySelectorModal
                       seriesMapProps={seriesMap}
+                      strategyMapProps={strategyMap}
                       inputValue={lendInput!}
                       actionType={ActionType.LEND}
                       open={modalOpen}

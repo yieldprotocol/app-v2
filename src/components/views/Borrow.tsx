@@ -18,6 +18,7 @@ import {
   ActionType,
   IAsset,
   ISeries,
+  IStrategy,
   IUserContext,
   IUserContextState,
   IVault,
@@ -61,9 +62,10 @@ import Line from '../elements/Line';
 interface IBorrowProps {
   assetMapProps: Map<string, IAsset>;
   seriesMapProps: Map<string, ISeries>;
+  strategyMapProps: Map<string, IStrategy>;
 }
 
-const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
+const Borrow = ({ assetMapProps, seriesMapProps, strategyMapProps }: IBorrowProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -73,14 +75,13 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
       connection: { chainId },
     },
   } = useContext(ChainContext);
-  const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
   const {
     activeAccount,
     assetMap: _assetMap,
     vaultMap,
     seriesMap: _seriesMap,
+    strategyMap: _strategyMap,
     selectedSeries,
     selectedIlk,
     selectedBase,
@@ -88,6 +89,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
   const { setSelectedIlk } = userActions;
   const assetMap = _assetMap ?? assetMapProps;
   const seriesMap = _seriesMap ?? seriesMapProps;
+  const strategyMap = _strategyMap ?? strategyMapProps;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -306,6 +308,7 @@ const Borrow = ({ assetMapProps, seriesMapProps }: IBorrowProps) => {
                   {mobile ? (
                     <SeriesOrStrategySelectorModal
                       seriesMapProps={seriesMap}
+                      strategyMapProps={strategyMap}
                       inputValue={borrowInput}
                       actionType={ActionType.BORROW}
                       open={modalOpen}
