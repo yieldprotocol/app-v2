@@ -143,7 +143,7 @@ function SeriesSelector({
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { selectedSeries, selectedBase, seriesLoading, selectedVault } = userState;
+  const { selectedSeries, selectedBase, selectedVault } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -221,7 +221,6 @@ function SeriesSelector({
 
   return (
     <>
-      {seriesLoading && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select
@@ -267,63 +266,52 @@ function SeriesSelector({
 
       {cardLayout && (
         <Grid columns={mobile ? '100%' : '40%'} gap="small">
-          {seriesLoading ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton rightSide />
-            </>
-          ) : (
-            options.map((series: ISeries, i: number) => (
-              <StyledBox
-                key={series.id}
-                pad="xsmall"
-                round={
-                  // eslint-disable-next-line no-nested-ternary
-                  mobile
-                    ? 'xlarge'
-                    : i % 2 === 0
-                    ? { corner: 'left', size: 'large' }
-                    : { corner: 'right', size: 'large' }
-                }
-                onClick={() => handleSelect(series)}
-                background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
-                elevation="xsmall"
-                align="center"
-              >
-                <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar
-                    background={
-                      series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
-                    }
-                    style={{
-                      boxShadow:
-                        series.id === _selectedSeries?.id
-                          ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
-                          : undefined,
-                    }}
-                  >
-                    <YieldMark colors={[series.startColor, series.endColor]} />
-                  </Avatar>
+          {options.map((series: ISeries, i: number) => (
+            <StyledBox
+              key={series.id}
+              pad="xsmall"
+              round={
+                // eslint-disable-next-line no-nested-ternary
+                mobile ? 'xlarge' : i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }
+              }
+              onClick={() => handleSelect(series)}
+              background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
+              elevation="xsmall"
+              align="center"
+            >
+              <Box pad="small" width="small" direction="row" align="center" gap="small">
+                <Avatar
+                  background={
+                    series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
+                  }
+                  style={{
+                    boxShadow:
+                      series.id === _selectedSeries?.id
+                        ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
+                        : undefined,
+                  }}
+                >
+                  <YieldMark colors={[series.startColor, series.endColor]} />
+                </Avatar>
 
-                  <Box>
-                    <AprText
-                      inputValue={_inputValue}
-                      series={series}
-                      actionType={actionType}
-                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
-                    />
-                    <Text
-                      size="small"
-                      weight="lighter"
-                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
-                    >
-                      {series.displayName}
-                    </Text>
-                  </Box>
+                <Box>
+                  <AprText
+                    inputValue={_inputValue}
+                    series={series}
+                    actionType={actionType}
+                    color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                  />
+                  <Text
+                    size="small"
+                    weight="lighter"
+                    color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                  >
+                    {series.displayName}
+                  </Text>
                 </Box>
-              </StyledBox>
-            ))
-          )}
+              </Box>
+            </StyledBox>
+          ))}
         </Grid>
       )}
     </>
