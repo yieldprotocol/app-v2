@@ -16,7 +16,6 @@ import { UserContext } from '../../contexts/UserContext';
 import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
-import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import YieldMark from '../logos/YieldMark';
 
@@ -40,23 +39,6 @@ const InsetBox = styled(Box)`
       ? 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30'
       : 'inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd'};
 `;
-
-export const CardSkeleton = (props: { rightSide?: boolean }) => (
-  <StyledBox
-    pad="xsmall"
-    elevation="xsmall"
-    align="center"
-    round={{ corner: props.rightSide ? 'right' : 'left', size: 'large' }}
-  >
-    <Box pad="small" width="small" direction="row" align="center" gap="small">
-      <Skeleton circle width={45} height={45} />
-      <Box>
-        <Skeleton count={2} width={100} />
-      </Box>
-    </Box>
-  </StyledBox>
-);
-CardSkeleton.defaultProps = { rightSide: false };
 
 interface ISeriesSelectorProps {
   seriesMapProps: Map<string, ISeries>;
