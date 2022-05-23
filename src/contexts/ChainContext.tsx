@@ -124,7 +124,7 @@ const ChainProvider = ({ children }: any) => {
 
         updateState({ type: ChainState.ASSETS, payload: mapify(assets) });
         updateState({ type: ChainState.SERIES, payload: mapify(series) });
-        updateState({ type: ChainState.STRATEGIES, payload: strategies });
+        updateState({ type: ChainState.STRATEGIES, payload: mapify(strategies) });
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
       })();
     }

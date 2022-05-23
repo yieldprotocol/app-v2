@@ -16,7 +16,7 @@ import {
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, generateVaultName } from '../utils/appUtils';
+import { cleanValue, generateVaultName, mapify } from '../utils/appUtils';
 import { divDecimal, bytesToBytes32, mulDecimal, calcAccruedDebt } from '../utils/yieldMath';
 
 import { ZERO_BN } from '../utils/constants';
@@ -26,6 +26,7 @@ import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { chargeAsset } from '../lib/chain/assets';
 import { chargeSeries } from '../lib/chain/series';
 import YieldMark from '../components/logos/YieldMark';
+import { chargeStrategy } from '../lib/chain/strategies';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -455,63 +456,9 @@ const UserProvider = ({ children }: any) => {
       let _accountData: IStrategy[] = [];
 
       _publicData = await Promise.all(
-        strategyList.map(async (_strategy): Promise<IStrategy> => {
-          /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-            _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.seriesId(),
-            _strategy.strategyContract.pool(),
-            _strategy.strategyContract.nextSeriesId(),
-          ]);
-          const currentSeries = seriesMap.get(currentSeriesId) as ISeries;
-          const nextSeries = seriesMap.get(nextSeriesId) as ISeries;
-
-          if (currentSeries) {
-            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-              currentSeries.poolContract.totalSupply(),
-              currentSeries.poolContract.balanceOf(_strategy.address),
-            ]);
-
-            const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
-              ? [ZERO_BN, ZERO_BN]
-              : [ZERO_BN, ZERO_BN];
-
-            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
-
-            return {
-              ..._strategy,
-              strategyTotalSupply,
-              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
-              poolTotalSupply,
-              poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
-              strategyPoolBalance,
-              strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
-              strategyPoolPercent,
-              currentSeriesId,
-              currentPoolAddr,
-              nextSeriesId,
-              currentSeries,
-              nextSeries,
-              initInvariant: initInvariant || BigNumber.from('0'),
-              currentInvariant: currentInvariant || BigNumber.from('0'),
-              returnRate,
-              returnRate_: returnRate.toString(),
-              active: true,
-            };
-          }
-
-          /* else return an 'EMPTY' strategy */
-          return {
-            ..._strategy,
-            currentSeriesId,
-            currentPoolAddr,
-            nextSeriesId,
-            currentSeries: undefined,
-            nextSeries: undefined,
-            active: false,
-          };
-        })
+        strategyList.map(
+          async (_strategy): Promise<IStrategy> => chargeStrategy(fallbackProvider, _strategy, seriesMap)
+        )
       );
 
       /* add in account specific data */
@@ -519,21 +466,21 @@ const UserProvider = ({ children }: any) => {
         _accountData = await Promise.all(
           _publicData
             // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
-            .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+            .map(async (_strategy): Promise<IStrategy> => {
               const [accountBalance, accountPoolBalance] = await Promise.all([
-                _strategy.strategyContract.balanceOf(account),
+                _strategy.strategyContract?.balanceOf(account),
                 _strategy.currentSeries?.poolContract.balanceOf(account),
               ]);
 
               const accountStrategyPercent = mulDecimal(
-                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+                divDecimal(accountBalance || '0', _strategy.strategyTotalSupply || '0'),
                 '100'
               );
 
               return {
                 ..._strategy,
                 accountBalance,
-                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+                accountBalance_: ethers.utils.formatUnits(accountBalance || '0', _strategy.decimals),
                 accountPoolBalance,
                 accountStrategyPercent,
               };
@@ -561,7 +508,7 @@ const UserProvider = ({ children }: any) => {
 
       return combinedMap;
     },
-    [account, seriesMap] // userState.strategyMap excluded on purpose
+    [account, fallbackProvider, seriesMap]
   );
 
   /* When the chainContext is finished loading get the dynamic series, asset and strategies data */

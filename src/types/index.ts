@@ -17,7 +17,7 @@ export interface IChainContextState {
   contractMap: Map<string, Contract>;
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
-  strategyRootMap: Map<string, IStrategyRoot>;
+  strategyMap: Map<string, IStrategy>;
 }
 
 export interface IConnectionState {
@@ -209,11 +209,43 @@ export interface IAssetPair {
   lastUpdate?: number;
 }
 
-export interface IStrategyRoot extends ISignable {
+export interface IStrategy extends ISignable {
   id: string;
   baseId: string;
   decimals: number;
-  strategyContract: Strategy;
+  strategyContract?: Strategy;
+
+  // charged
+  currentSeriesId?: string;
+  currentPoolAddr?: string;
+  nextSeriesId?: string;
+
+  currentSeries?: ISeries | undefined;
+  nextSeries?: ISeries | undefined;
+  active?: boolean;
+
+  initInvariant?: BigNumber;
+  currentInvariant?: BigNumber;
+  returnRate?: BigNumber;
+  returnRate_?: string;
+
+  strategyTotalSupply?: BigNumber;
+  strategyTotalSupply_?: string;
+
+  poolTotalSupply?: BigNumber;
+  poolTotalSupply_?: string;
+
+  strategyPoolBalance?: BigNumber;
+  strategyPoolBalance_?: string;
+  strategyPoolPercent?: string;
+
+  accountBalance?: BigNumber;
+  accountBalance_?: string;
+  accountStrategyPercent?: string | undefined;
+
+  accountPoolBalance?: BigNumber;
+  accountPoolBalance_?: string;
+  accountPoolPercent?: string | undefined;
 }
 
 export interface IVaultRoot {
@@ -299,39 +331,6 @@ export interface IVault extends IVaultRoot {
 
   accruedArt_: string;
   // liquidationPrice_: string;
-}
-
-export interface IStrategy extends IStrategyRoot {
-  currentSeriesId: string;
-  currentPoolAddr: string;
-  nextSeriesId: string;
-
-  currentSeries: ISeries | undefined;
-  nextSeries: ISeries | undefined;
-  active: boolean;
-
-  initInvariant?: BigNumber;
-  currentInvariant?: BigNumber;
-  returnRate?: BigNumber;
-  returnRate_?: string;
-
-  strategyTotalSupply?: BigNumber;
-  strategyTotalSupply_?: string;
-
-  poolTotalSupply?: BigNumber;
-  poolTotalSupply_?: string;
-
-  strategyPoolBalance?: BigNumber;
-  strategyPoolBalance_?: string;
-  strategyPoolPercent?: string;
-
-  accountBalance?: BigNumber;
-  accountBalance_?: string;
-  accountStrategyPercent?: string | undefined;
-
-  accountPoolBalance?: BigNumber;
-  accountPoolBalance_?: string;
-  accountPoolPercent?: string | undefined;
 }
 
 export interface ICallData {
