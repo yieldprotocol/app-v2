@@ -266,7 +266,7 @@ function SeriesSelector({
 
       {cardLayout && (
         <Grid columns={mobile ? '100%' : '40%'} gap="small">
-          {!seriesMapProps ? (
+          {!seriesMapProps.size ? (
             <>
               <CardSkeleton />
               <CardSkeleton rightSide />
