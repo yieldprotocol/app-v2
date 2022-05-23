@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import { Strategy__factory } from '../../../contracts';
+import { Pool__factory, Strategy__factory } from '../../../contracts';
 import yieldEnv from '../../../contexts/yieldEnv.json';
 import { ISeries, IStrategy } from '../../../types';
 import { ZERO_BN } from '../../../utils/constants';
@@ -57,14 +57,15 @@ export const chargeStrategy = async (
   seriesMap: Map<string, ISeries>
 ): Promise<IStrategy> => {
   const Strategy = Strategy__factory.connect(strategy.address, provider);
+  const poolContract = Pool__factory.connect(strategy.currentPoolAddr, provider);
   const strategyTotalSupply = await Strategy.totalSupply();
   const currentSeries = seriesMap.get(strategy.currentSeriesId);
   const nextSeries = seriesMap.get(strategy.nextSeriesId);
 
-  if (currentSeries.poolContract) {
+  if (poolContract) {
     const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-      currentSeries.poolContract.totalSupply(),
-      currentSeries.poolContract.balanceOf(strategy.address),
+      poolContract.totalSupply(),
+      poolContract.balanceOf(strategy.address),
     ]);
 
     const [currentInvariant, initInvariant] = currentSeries.seriesIsMature ? [ZERO_BN, ZERO_BN] : [ZERO_BN, ZERO_BN];
@@ -81,14 +82,15 @@ export const chargeStrategy = async (
       strategyPoolBalance,
       strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, strategy.decimals),
       strategyPoolPercent,
-      currentSeries,
-      nextSeries,
+      currentSeries: { ...strategy.currentSeries, ...currentSeries },
+      nextSeries: { ...strategy.nextSeries, ...nextSeries },
       initInvariant: initInvariant || BigNumber.from('0'),
       currentInvariant: currentInvariant || BigNumber.from('0'),
       returnRate,
       returnRate_: returnRate.toString(),
       active: true,
       strategyContract: Strategy,
+      poolContract,
     };
   }
 

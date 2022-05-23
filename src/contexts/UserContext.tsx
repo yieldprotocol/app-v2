@@ -266,11 +266,7 @@ const UserProvider = ({ children }: any) => {
 
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
-        seriesList.map(
-          async (series): Promise<ISeries> => ({
-            ...(await chargeSeries(fallbackProvider, series)),
-          })
-        )
+        seriesList.map(async (series): Promise<ISeries> => chargeSeries(fallbackProvider, series))
       );
 
       if (account) {
@@ -467,7 +463,7 @@ const UserProvider = ({ children }: any) => {
             .map(async (_strategy): Promise<IStrategy> => {
               const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract?.balanceOf(account),
-                _strategy.currentSeries?.poolContract.balanceOf(account),
+                _strategy.poolContract.balanceOf(account),
               ]);
 
               const accountStrategyPercent = mulDecimal(

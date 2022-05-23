@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect, useContext } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
-import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
+import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess, IChainContext } from '../types';
 import { analyticsLogEvent } from '../utils/appUtils';
 import { ChainContext } from './ChainContext';
 
@@ -121,7 +121,7 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
-  const { chainState } = useContext(ChainContext);
+  const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     connection: { chainId },
   } = chainState;

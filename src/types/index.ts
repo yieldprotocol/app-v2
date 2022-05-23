@@ -214,6 +214,7 @@ export interface IStrategy extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract?: Strategy;
+  poolContract?: Pool;
 
   // charged
   currentSeriesId: string;

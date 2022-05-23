@@ -139,8 +139,8 @@ function StrategySelector({
                   {(
                     <YieldMark
                       colors={[
-                        selectedStrategy?.currentSeries?.startColor!,
-                        selectedStrategy?.currentSeries?.endColor!,
+                        selectedStrategy?.currentSeries?.startColor! || '',
+                        selectedStrategy?.currentSeries?.endColor! || '',
                       ]}
                     />
                   ) || <FiSlash />}
@@ -223,7 +223,10 @@ function StrategySelector({
                               >
                                 {(
                                   <YieldMark
-                                    colors={[strategy.currentSeries?.startColor, strategy.currentSeries?.endColor]}
+                                    colors={[
+                                      strategy.currentSeries?.startColor || '',
+                                      strategy.currentSeries?.endColor || '',
+                                    ]}
                                   />
                                 ) || <FiSlash />}
                               </Avatar>

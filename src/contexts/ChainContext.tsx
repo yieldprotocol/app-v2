@@ -116,11 +116,12 @@ const ChainProvider = ({ children }: any) => {
       updateState({ type: ChainState.CONTRACT_MAP, payload: contractMap });
 
       (async () => {
-        const [assets, series, strategies] = await Promise.all([
+        const [assets, series] = await Promise.all([
           getAssets(fallbackProvider, contractMap),
           getSeries(fallbackProvider, contractMap),
-          getStrategies(fallbackProvider),
         ]);
+
+        const strategies = await getStrategies(fallbackProvider, series);
 
         updateState({ type: ChainState.ASSETS, payload: mapify(assets) });
         updateState({ type: ChainState.SERIES, payload: mapify(series) });
