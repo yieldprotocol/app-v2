@@ -5,7 +5,6 @@ import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
-import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
@@ -45,17 +44,14 @@ function AssetSelector({ assetMap, selectCollateral, isModal }: IAssetSelectorPr
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
 
-  const optionText = (asset: IAsset | undefined) =>
-    asset ? (
-      <Box direction="row" align="center" gap="small">
-        <Logo image={asset.image} />
-        <Text color="text" size="small">
-          {asset?.displaySymbol}
-        </Text>
-      </Box>
-    ) : (
-      <Skeleton width={50} />
-    );
+  const optionText = (asset: IAsset) => (
+    <Box direction="row" align="center" gap="small">
+      <Logo image={asset.image} />
+      <Text color="text" size="small">
+        {asset?.displaySymbol}
+      </Text>
+    </Box>
+  );
 
   const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
