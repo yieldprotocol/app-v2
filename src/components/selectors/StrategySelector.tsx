@@ -118,9 +118,9 @@ function StrategySelector({
     <>
       {cardLayout && (
         <Box gap="small">
-          {!strategiesLoading && <Skeleton width={180} />}
+          {!strategyMap && <Skeleton width={180} />}
 
-          {strategiesLoading ? (
+          {!strategyMap ? (
             <CardSkeleton />
           ) : (
             <Box
