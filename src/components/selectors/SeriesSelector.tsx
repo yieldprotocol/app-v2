@@ -18,6 +18,7 @@ import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import YieldMark from '../logos/YieldMark';
+import Skeleton from '../wraps/SkeletonWrap';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -39,6 +40,23 @@ const InsetBox = styled(Box)`
       ? 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30'
       : 'inset 1px 1px 1px #ddd, inset -0.25px -0.25px 0.25px #ddd'};
 `;
+
+export const CardSkeleton = (props: { rightSide?: boolean }) => (
+  <StyledBox
+    pad="xsmall"
+    elevation="xsmall"
+    align="center"
+    round={{ corner: props.rightSide ? 'right' : 'left', size: 'large' }}
+  >
+    <Box pad="small" width="small" direction="row" align="center" gap="small">
+      <Skeleton circle width={45} height={45} />
+      <Box>
+        <Skeleton count={2} width={100} />
+      </Box>
+    </Box>
+  </StyledBox>
+);
+CardSkeleton.defaultProps = { rightSide: false };
 
 interface ISeriesSelectorProps {
   seriesMapProps: Map<string, ISeries>;
@@ -248,52 +266,63 @@ function SeriesSelector({
 
       {cardLayout && (
         <Grid columns={mobile ? '100%' : '40%'} gap="small">
-          {options.map((series: ISeries, i: number) => (
-            <StyledBox
-              key={series.id}
-              pad="xsmall"
-              round={
-                // eslint-disable-next-line no-nested-ternary
-                mobile ? 'xlarge' : i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }
-              }
-              onClick={() => handleSelect(series)}
-              background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
-              elevation="xsmall"
-              align="center"
-            >
-              <Box pad="small" width="small" direction="row" align="center" gap="small">
-                <Avatar
-                  background={
-                    series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
-                  }
-                  style={{
-                    boxShadow:
-                      series.id === _selectedSeries?.id
-                        ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
-                        : undefined,
-                  }}
-                >
-                  <YieldMark colors={[series.startColor, series.endColor]} />
-                </Avatar>
-
-                <Box>
-                  <AprText
-                    inputValue={_inputValue}
-                    series={series}
-                    actionType={actionType}
-                    color={series.id === _selectedSeries?.id ? series.textColor : undefined}
-                  />
-                  <Text
-                    size="small"
-                    weight="lighter"
-                    color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+          {!seriesMapProps ? (
+            <>
+              <CardSkeleton />
+              <CardSkeleton rightSide />
+            </>
+          ) : (
+            options.map((series: ISeries, i: number) => (
+              <StyledBox
+                key={series.id}
+                pad="xsmall"
+                round={
+                  // eslint-disable-next-line no-nested-ternary
+                  mobile
+                    ? 'xlarge'
+                    : i % 2 === 0
+                    ? { corner: 'left', size: 'large' }
+                    : { corner: 'right', size: 'large' }
+                }
+                onClick={() => handleSelect(series)}
+                background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
+                elevation="xsmall"
+                align="center"
+              >
+                <Box pad="small" width="small" direction="row" align="center" gap="small">
+                  <Avatar
+                    background={
+                      series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
+                    }
+                    style={{
+                      boxShadow:
+                        series.id === _selectedSeries?.id
+                          ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
+                          : undefined,
+                    }}
                   >
-                    {series.displayName}
-                  </Text>
+                    <YieldMark colors={[series.startColor, series.endColor]} />
+                  </Avatar>
+
+                  <Box>
+                    <AprText
+                      inputValue={_inputValue}
+                      series={series}
+                      actionType={actionType}
+                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                    />
+                    <Text
+                      size="small"
+                      weight="lighter"
+                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                    >
+                      {series.displayName}
+                    </Text>
+                  </Box>
                 </Box>
-              </Box>
-            </StyledBox>
-          ))}
+              </StyledBox>
+            ))
+          )}
         </Grid>
       )}
     </>

@@ -12,6 +12,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import markMap from '../../config/marks';
+import Skeleton from '../wraps/SkeletonWrap';
 
 interface IAssetSelectorProps {
   assetMap: Map<string, IAsset>;
@@ -45,14 +46,17 @@ function AssetSelector({ assetMap, selectCollateral, isModal }: IAssetSelectorPr
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
 
-  const optionText = (asset: IAsset | undefined) => (
-    <Box direction="row" align="center" gap="small">
-      <Logo image={markMap.get(asset?.symbol)} />
-      <Text color="text" size="small">
-        {asset?.displaySymbol}
-      </Text>
-    </Box>
-  );
+  const optionText = (asset: IAsset | undefined) =>
+    asset ? (
+      <Box direction="row" align="center" gap="small">
+        <Logo image={markMap.get(asset?.symbol)} />
+        <Text color="text" size="small">
+          {asset?.displaySymbol}
+        </Text>
+      </Box>
+    ) : (
+      <Skeleton width={50} />
+    );
 
   const handleSelect = (asset: IAsset) => {
     if (selectCollateral) {
