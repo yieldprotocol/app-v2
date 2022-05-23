@@ -68,7 +68,7 @@ function StrategySelector({
     UserContext
   ) as IUserContext;
 
-  const { selectedStrategy, selectedBase, strategiesLoading } = userState;
+  const { selectedStrategy, selectedBase } = userState;
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
