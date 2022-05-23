@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { FiSlash, FiX } from 'react-icons/fi';
 
 import styled from 'styled-components';
-import { IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ISeries, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { getPoolPercent } from '../../utils/yieldMath';
 import { cleanValue, formatStrategyName } from '../../utils/appUtils';
@@ -42,13 +42,22 @@ const CardSkeleton = () => (
 );
 
 interface IStrategySelectorProps {
+  strategyMap: Map<string, IStrategy>;
+  seriesMap: Map<string, ISeries>;
   inputValue?: string | undefined /* accepts an input value for possible dynamic Return calculations */;
   cardLayout?: boolean;
   setOpen?: any /* used with modal */;
   open?: boolean;
 }
 
-function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: IStrategySelectorProps) {
+function StrategySelector({
+  strategyMap,
+  seriesMap,
+  inputValue,
+  cardLayout,
+  setOpen,
+  open = false,
+}: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
@@ -59,7 +68,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     UserContext
   ) as IUserContext;
 
-  const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
+  const { selectedStrategy, selectedBase, strategiesLoading } = userState;
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
@@ -129,7 +138,10 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 >
                   {(
                     <YieldMark
-                      colors={[selectedStrategy.currentSeries.startColor, selectedStrategy.currentSeries.endColor]}
+                      colors={[
+                        selectedStrategy?.currentSeries?.startColor!,
+                        selectedStrategy?.currentSeries?.endColor!,
+                      ]}
                     />
                   ) || <FiSlash />}
                 </Avatar>
@@ -211,7 +223,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                               >
                                 {(
                                   <YieldMark
-                                    colors={[strategy.currentSeries.startColor, strategy.currentSeries.endColor]}
+                                    colors={[strategy.currentSeries?.startColor, strategy.currentSeries?.endColor]}
                                   />
                                 ) || <FiSlash />}
                               </Avatar>

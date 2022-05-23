@@ -15,6 +15,8 @@ import {
   ActionCodes,
   AddLiquidityType,
   IAsset,
+  ISeries,
+  IStrategy,
   IUserContext,
   IUserContextState,
   ProcessStage,
@@ -44,15 +46,26 @@ import Line from '../elements/Line';
 
 interface IPoolProps {
   assetMapProps: Map<string, IAsset>;
+  strategyMapProps: Map<string, IStrategy>;
+  seriesMapProps: Map<string, ISeries>;
 }
 
-function Pool({ assetMapProps }: IPoolProps) {
+function Pool({ assetMapProps, strategyMapProps, seriesMapProps }: IPoolProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedBase, selectedStrategy, strategyMap, assetMap: _assetMap } = userState;
+  const {
+    activeAccount,
+    selectedBase,
+    selectedStrategy,
+    strategyMap: _strategyMap,
+    assetMap: _assetMap,
+    seriesMap: _seriesMap,
+  } = userState;
   const assetMap = _assetMap ?? assetMapProps;
+  const strategyMap = _strategyMap ?? strategyMapProps;
+  const seriesMap = _seriesMap ?? seriesMapProps;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -165,7 +178,13 @@ function Pool({ assetMapProps }: IPoolProps) {
                   }
                 >
                   <Box flex={false}>
-                    <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
+                    <StrategySelector
+                      strategyMap={strategyMap}
+                      seriesMap={seriesMap}
+                      inputValue={poolInput}
+                      setOpen={toggleModal}
+                      open={modalOpen}
+                    />
                   </Box>
                 </SectionWrap>
               </Box>

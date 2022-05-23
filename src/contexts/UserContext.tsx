@@ -9,14 +9,13 @@ import {
   IVault,
   IUserContextState,
   IUserContext,
-  IStrategyRoot,
   IStrategy,
   IChainContext,
   ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { cleanValue, generateVaultName, mapify } from '../utils/appUtils';
+import { cleanValue, generateVaultName } from '../utils/appUtils';
 import { divDecimal, bytesToBytes32, mulDecimal, calcAccruedDebt } from '../utils/yieldMath';
 
 import { ZERO_BN } from '../utils/constants';
@@ -25,7 +24,6 @@ import { useCachedState } from '../hooks/generalHooks';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { chargeAsset } from '../lib/chain/assets';
 import { chargeSeries } from '../lib/chain/series';
-import YieldMark from '../components/logos/YieldMark';
 import { chargeStrategy } from '../lib/chain/strategies';
 
 enum UserState {
@@ -128,7 +126,7 @@ const UserProvider = ({ children }: any) => {
     chainLoading,
     seriesMap,
     assetMap,
-    strategyRootMap,
+    strategyMap,
   } = chainState;
 
   const {
@@ -450,7 +448,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
-    async (strategyList: IStrategyRoot[]) => {
+    async (strategyList: IStrategy[]) => {
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
@@ -521,8 +519,8 @@ const UserProvider = ({ children }: any) => {
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {
-    !userState.seriesLoading && strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
-  }, [strategyRootMap, updateStrategies, userState.seriesLoading]);
+    !userState.seriesLoading && strategyMap.size && updateStrategies(Array.from(strategyMap.values()));
+  }, [strategyMap, updateStrategies, userState.seriesLoading]);
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {

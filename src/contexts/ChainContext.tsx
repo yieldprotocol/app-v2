@@ -4,7 +4,7 @@ import { Contract, ethers } from 'ethers';
 import { useCachedState } from '../hooks/generalHooks';
 import { useConnection } from '../hooks/useConnection';
 
-import { IAsset, IChainContextState, ISeries, IStrategyRoot } from '../types';
+import { IAsset, IChainContextState, ISeries, IStrategy } from '../types';
 
 import { clearCachedItems, mapify } from '../utils/appUtils';
 
@@ -49,7 +49,7 @@ const initState: IChainContextState = {
   contractMap: new Map<string, Contract>(),
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
-  strategyRootMap: new Map<string, IStrategyRoot>(),
+  strategyMap: new Map<string, IStrategy>(),
 };
 
 function chainReducer(state: IChainContextState, action: any) {
@@ -86,7 +86,7 @@ function chainReducer(state: IChainContextState, action: any) {
     case ChainState.STRATEGIES:
       return {
         ...state,
-        strategyRootMap: onlyIfChanged(action),
+        strategyMap: onlyIfChanged(action),
       };
 
     default:

@@ -5,7 +5,10 @@ import { ISeries, IStrategy } from '../../../types';
 import { ZERO_BN } from '../../../utils/constants';
 import { divDecimal, mulDecimal } from '../../../utils/yieldMath';
 
-export const getStrategies = async (provider: ethers.providers.JsonRpcProvider) => {
+export const getStrategies = async (
+  provider: ethers.providers.JsonRpcProvider,
+  seriesMap?: { [id: string]: ISeries }
+): Promise<{ [addr: string]: IStrategy }> => {
   const { chainId } = await provider.getNetwork();
 
   /* Get the hardcoded strategy addresses */
@@ -13,13 +16,21 @@ export const getStrategies = async (provider: ethers.providers.JsonRpcProvider) 
 
   return strategyAddresses.reduce(async (strategyMap, addr) => {
     const Strategy = Strategy__factory.connect(addr, provider);
-    const [name, symbol, baseId, decimals, version] = await Promise.all([
-      Strategy.name(),
-      Strategy.symbol(),
-      Strategy.baseId(),
-      Strategy.decimals(),
-      Strategy.version(),
-    ]);
+    const [name, symbol, baseId, decimals, version, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all(
+      [
+        Strategy.name(),
+        Strategy.symbol(),
+        Strategy.baseId(),
+        Strategy.decimals(),
+        Strategy.version(),
+        Strategy.seriesId(),
+        Strategy.pool(),
+        Strategy.nextSeriesId(),
+      ]
+    );
+
+    const currentSeries = seriesMap && currentSeriesId !== '0x000000000000' ? seriesMap[currentSeriesId] : null;
+    const nextSeries = seriesMap && nextSeriesId !== '0x000000000000' ? seriesMap[nextSeriesId] : null;
 
     const newStrategy = {
       id: addr,
@@ -29,6 +40,11 @@ export const getStrategies = async (provider: ethers.providers.JsonRpcProvider) 
       version,
       baseId,
       decimals,
+      currentSeriesId,
+      currentPoolAddr,
+      nextSeriesId,
+      currentSeries,
+      nextSeries,
     };
 
     return { ...(await strategyMap), [addr]: newStrategy as IStrategy };
@@ -39,16 +55,11 @@ export const chargeStrategy = async (
   provider: ethers.providers.JsonRpcProvider,
   strategy: IStrategy,
   seriesMap: Map<string, ISeries>
-) => {
-  const strategyContract = Strategy__factory.connect(strategy.address, provider);
-  const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-    strategyContract.totalSupply(),
-    strategyContract.seriesId(),
-    strategyContract.pool(),
-    strategyContract.nextSeriesId(),
-  ]);
-  const currentSeries = seriesMap.get(currentSeriesId);
-  const nextSeries = seriesMap.get(nextSeriesId);
+): Promise<IStrategy> => {
+  const Strategy = Strategy__factory.connect(strategy.address, provider);
+  const strategyTotalSupply = await Strategy.totalSupply();
+  const currentSeries = seriesMap.get(strategy.currentSeriesId);
+  const nextSeries = seriesMap.get(strategy.nextSeriesId);
 
   if (currentSeries.poolContract) {
     const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
@@ -70,9 +81,6 @@ export const chargeStrategy = async (
       strategyPoolBalance,
       strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, strategy.decimals),
       strategyPoolPercent,
-      currentSeriesId,
-      currentPoolAddr,
-      nextSeriesId,
       currentSeries,
       nextSeries,
       initInvariant: initInvariant || BigNumber.from('0'),
@@ -80,16 +88,13 @@ export const chargeStrategy = async (
       returnRate,
       returnRate_: returnRate.toString(),
       active: true,
-      strategyContract,
+      strategyContract: Strategy,
     };
   }
 
   /* else return an 'EMPTY' strategy */
   return {
     ...strategy,
-    currentSeriesId,
-    currentPoolAddr,
-    nextSeriesId,
     currentSeries: undefined,
     nextSeries: undefined,
     active: false,

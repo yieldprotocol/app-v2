@@ -216,12 +216,12 @@ export interface IStrategy extends ISignable {
   strategyContract?: Strategy;
 
   // charged
-  currentSeriesId?: string;
-  currentPoolAddr?: string;
-  nextSeriesId?: string;
+  currentSeriesId: string;
+  currentPoolAddr: string;
+  nextSeriesId: string;
 
-  currentSeries?: ISeries | undefined;
-  nextSeries?: ISeries | undefined;
+  currentSeries?: ISeries | undefined | null;
+  nextSeries?: ISeries | undefined | null;
   active?: boolean;
 
   initInvariant?: BigNumber;
