@@ -122,6 +122,15 @@ export const yieldTheme = {
       theme.dark ? `color: ${theme.global.colors.text.dark}` : `color: ${theme.global.colors.text.light}`,
   },
 
+  tip: { 
+    size:'xsmall',
+    content: {
+      background: "background", 
+      pad: { vertical: "xsmall", horizontal: "xsmall" }, 
+      round: "xsmall",
+    }
+  },
+
   button: {
     border: {
       radius: '6px',
