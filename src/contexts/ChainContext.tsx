@@ -644,7 +644,7 @@ const ChainProvider = ({ children }: any) => {
       strategies: strategyList,
     });
 
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(res));
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(res);
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href",     dataStr);
     downloadAnchorNode.setAttribute("download", 'contracts' + ".json");
