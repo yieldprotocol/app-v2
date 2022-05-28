@@ -285,7 +285,7 @@ const UserProvider = ({ children }: any) => {
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress)
+            series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
 
           const rateCheckAmount = ethers.utils.parseUnits(
@@ -386,7 +386,12 @@ const UserProvider = ({ children }: any) => {
           /* If art 0, check for liquidation event */
           const hasBeenLiquidated =
             art === ZERO_BN
-              ? (await Cauldron.queryFilter(Cauldron.filters.VaultGiven(vault.id, Witch.address), 'earliest')).length > 0
+              ? (
+                  await Cauldron.queryFilter(
+                    Cauldron.filters.VaultGiven(bytesToBytes32(vault.id, 12), Witch.address),
+                    'earliest'
+                  )
+                ).length > 0
               : false;
 
           const series = seriesRootMap.get(seriesId);
