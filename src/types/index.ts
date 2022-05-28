@@ -45,6 +45,8 @@ export interface IChainContextActions {
   connect: (connection: string) => void;
   disconnect: () => void;
   isConnected: (connection: string) => void;
+
+  exportContractAddresses: ()=> void;
 }
 
 export interface IPriceContextState {
