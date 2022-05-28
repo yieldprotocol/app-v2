@@ -52,10 +52,10 @@ const initState: IChainContextState = {
   chainLoading: true,
 
   /* Connected Contract Maps */
-  contractMap: new Map<string, Contract>(),
-  assetRootMap: new Map<string, IAssetRoot>(),
-  seriesRootMap: new Map<string, ISeriesRoot>(),
-  strategyRootMap: new Map<string, IStrategyRoot>(),
+  contractMap: new Map<string, Contract>([]),
+  assetRootMap: new Map<string, IAssetRoot>([]),
+  seriesRootMap: new Map<string, ISeriesRoot>([]),
+  strategyRootMap: new Map<string, IStrategyRoot>([]),
 };
 
 function chainReducer(state: IChainContextState, action: any) {
@@ -630,8 +630,34 @@ const ChainProvider = ({ children }: any) => {
     connectionState.currentChainInfo,
   ]);
 
+  const exportContractAddresses = () => {
+    const contractList = [...(chainState.contractMap as any)].map(([v, k]) => [v, k?.address]);
+    const seriesList = [...(chainState.seriesRootMap as any)].map(([v, k]) => [v, k?.address]);
+    const assetList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.address]);
+    const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k.name, k?.address]);
+
+    const res = JSON.stringify(
+      {
+      contracts: contractList,
+      series: seriesList,
+      assets: assetList,
+      strategies: strategyList,
+    });
+
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(res);
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", 'contracts' + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+
+    console.log(res)
+
+  };
+
   /* simply Pass on the connection actions */
-  const chainActions = connectionActions;
+  const chainActions = { ...connectionActions, exportContractAddresses };
 
   return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;
 };

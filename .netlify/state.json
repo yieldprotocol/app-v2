@@ -1,0 +1,17 @@
+{
+	"promptVSCodeSettings": true,
+	"geolocation": {
+		"data": {
+			"city": "Amadora",
+			"country": {
+				"code": "PT",
+				"name": "Portugal"
+			},
+			"subdivision": {
+				"code": "11",
+				"name": "Lisbon"
+			}
+		},
+		"timestamp": 1653579351835
+	}
+}
