@@ -23,15 +23,23 @@ const InfoBlock = ({
 }) => (
   <>
     {full ? (
-      <Box direction="column" align="center" justify="center" gap="large" pad={{ vertical: 'large' }}>
-        <Box gap="medium" align="center">
-          <Box direction="row" gap="medium">
+      <Box direction="column" align="center" justify="center" pad={{ vertical: 'large' }}>
+        <Box gap="small">
+          <Box direction="row" gap="medium" alignSelf="start">
             {icon}
             <Text size="large"> {title}</Text>
           </Box>
-          <Box direction="row" gap="medium">
-            <Text size="small">{subTitle}</Text>
-            {button}
+          <Box direction="row" gap="medium" fill="horizontal" alignContent="end">
+            <Box fill align="end">
+              <Text size="small" weight="lighter">
+                {subTitle}
+              </Text>
+            </Box>
+            {button && (
+              <Box flex={false} alignSelf="end">
+                {button}
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>
@@ -42,11 +50,13 @@ const InfoBlock = ({
           <Box gap="xsmall">
             <Text size="medium">{title}</Text>
             <Box direction="row" gap="xsmall">
-              <Text size="small" color="text-weak">
-                {subTitle}
-              </Text>
+              <Box fill align="end">
+                <Text size="small" weight="lighter">
+                  {subTitle}
+                </Text>
+              </Box>
             </Box>
-            <Box alignSelf="center">{button}</Box>
+            <Box alignSelf="end">{button}</Box>
           </Box>
         </Box>
       </Box>
@@ -75,19 +85,30 @@ const ActiveTransaction = ({
   const activeProcess = txProcess;
 
   return (
-    <Box pad={pad ? { vertical: 'medium' } : undefined}>
+    <Box pad={pad ? { vertical: 'medium' } : undefined} align={full ? 'center' : undefined}>
       {!full && (activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
         <Box justify="between" direction="row" pad="xsmall">
-          <Text size="xsmall"> Review Transaction </Text>
+          <Text size="xsmall">Review Transaction</Text>
           {!full && <CancelButton action={cancelAction ? () => cancelAction() : () => null} />}
         </Box>
       )}
-      <Box background="gradient-transparent" round="xsmall">
+
+      <Box
+        background={full ? undefined : 'gradient-transparent'}
+        round="xsmall"
+        pad={full ? { horizontal: 'large' } : 'small'}
+        height={full ? undefined : { min: '100px' }}
+        fill
+      >
         {(activeProcess?.stage === ProcessStage.PROCESS_INACTIVE || !activeProcess) && (
-          <Box gap="small" pad="small">
-            {full && <Text size="medium"> Review Transaction </Text>}
+          <>
+            {full && (
+              <Text size="large" weight="lighter">
+                Review Transaction
+              </Text>
+            )}
             {children}
-          </Box>
+          </>
         )}
 
         {activeProcess?.stage === ProcessStage.SIGNING_REQUESTED && (

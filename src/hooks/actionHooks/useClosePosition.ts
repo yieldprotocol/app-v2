@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -15,13 +16,15 @@ import {
   IUserContextActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
+import { ONE_BN } from '../../utils/constants';
 import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
+import { useAddRemoveEth } from './useAddRemoveEth';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
   const {
-    settingsState: { slippageTolerance, approveMax },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const {
@@ -38,6 +41,8 @@ export const useClosePosition = () => {
   } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
+
+  const { removeEth } = useAddRemoveEth();
 
   const closePosition = async (input: string | undefined, series: ISeries) => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
@@ -64,10 +69,13 @@ export const useClosePosition = () => {
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
-    /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress)).gt(_fyTokenValueOfInput);
+    /* if ethBase */
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
-    const permits: ICallData[] = await sign(
+    /* if approveMAx, check if signature is required */
+    const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress)).gte(_fyTokenValueOfInput);
+
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: series,
@@ -79,22 +87,37 @@ export const useClosePosition = () => {
       txCode
     );
 
+    const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
+
+    /* Set the transferTo address based on series maturity */
+    const transferToAddress = () => {
+      if (seriesIsMature) return fyTokenAddress;
+      return poolAddress;
+    };
+
+    /* receiver based on whether base is ETH (- or wrapped Base) */
+    const receiverAddress = () => {
+      if (isEthBase) return ladleAddress;
+      // if ( unwrapping) return unwrapHandlerAddress;
+      return account;
+    };
+
     const calls: ICallData[] = [
-      ...permits,
+      ...permitCallData,
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [
           fyTokenAddress,
-          seriesIsMature ? fyTokenAddress : poolAddress, // select dest based on maturity
+          transferToAddress(), // select destination based on maturity
           _fyTokenValueOfInput,
         ] as LadleActions.Args.TRANSFER,
-        ignoreIf: false, // never ignore even after maturity because we go through the ladle.
+        ignoreIf: false, // never ignore, even after maturity because we go through the ladle.
       },
 
       /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
+        args: [receiverAddress(), _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
         ignoreIf: seriesIsMature,
@@ -103,9 +126,11 @@ export const useClosePosition = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
+        args: [series.id, receiverAddress(), _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
+
+      ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
     updateSeries([series]);

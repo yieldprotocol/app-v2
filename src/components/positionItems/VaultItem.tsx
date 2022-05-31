@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useRouter } from 'next/router';
+import { useContext } from 'react';
 
 import { Box, Text } from 'grommet';
 import { ActionType, IUserContext, IVault } from '../../types';
@@ -10,7 +10,7 @@ import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
-  const history = useHistory();
+  const router = useRouter();
 
   const {
     userState: { seriesMap, vaultsLoading, selectedVault },
@@ -20,11 +20,16 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
 
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault);
-    history.push(`/vaultposition/${_vault.id}`);
+    router.push(`/vaultposition/${_vault.id}`);
   };
 
   return (
-    <ItemWrap action={() => handleSelect(vault)} index={index}>
+    <ItemWrap
+      action={() => handleSelect(vault)}
+      index={index}
+      liquidated={vault.hasBeenLiquidated}
+      warn={!vault.isActive && !vault.isWitchOwner}
+    >
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
         <PositionAvatar position={vault} condensed={condensed} actionType={ActionType.BORROW} />
         <Box

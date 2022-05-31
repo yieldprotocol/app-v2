@@ -6,7 +6,7 @@ import {
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector';
 
 import { NetworkConnector } from '@web3-react/network-connector';
-import { ethers } from 'ethers'; 
+import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
 import { CHAIN_INFO, SUPPORTED_RPC_URLS } from '../config/chainData';
@@ -23,7 +23,6 @@ const UNKNOWN_ERROR = 'An unknown error occurred. Check the console for more det
 export const useConnection = () => {
   const [tried, setTried] = useState<boolean>(false);
 
-  
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
@@ -45,43 +44,46 @@ export const useConnection = () => {
   const isConnected = (connection: string) => CONNECTORS.get(connection) === connector;
   const disconnect = () => connector && deactivate();
 
-  const connect = useCallback((connection: string ) => {
-    setErrorMessage(undefined);
-    // console.log( connection )
-    activate(
-      CONNECTORS.get(connection),
-      (e: Error) => {
-        setErrorMessage(handleErrorMessage(e));
-        setTried(true); // tried, failed, move on.
-      },
-      false
-    ).then( (x) => {
+  const connect = useCallback(
+    async (connection: string) => {
+      setErrorMessage(undefined);
+
+      await activate(
+        CONNECTORS.get(connection),
+        (e: Error) => {
+          setErrorMessage(handleErrorMessage(e));
+          setTried(true); // tried, failed, move on.
+          localStorage.removeItem('connectionName');
+          return null;
+        },
+        false
+      );
       setConnectionName(connection);
-    })
-  }, [activate, handleErrorMessage, setConnectionName]);
+    },
+    [activate, handleErrorMessage, setConnectionName]
+  );
 
   /**
    * FIRST STEP > Try to connect automatically to an injected provider on first load
    * */
   useEffect(() => {
-    if (!tried && !active ) {
+    if (!tried && !active) {
       setErrorMessage(undefined);
-      if (INIT_INJECTED !== 'walletconnect') {
+      if (INIT_INJECTED === 'metamask') {
         CONNECTORS.get(INIT_INJECTED)
           .isAuthorized()
           .then((isAuthorized: boolean) => {
             if (isAuthorized) {
-                connect(INIT_INJECTED)
+              connect(INIT_INJECTED);
             } else setTried(true); // not authorsied, move on
-          }); 
+          });
       } else {
-        connect('walletconnect');
+        // connect('walletconnect');
         setTried(true); // tried, failed, move on.
-      };
+      }
     }
     /* if active, set tried to true */
     !tried && active && setTried(true);
-
   }, [activate, active, connect, handleErrorMessage, tried]);
 
   /*
@@ -98,7 +100,7 @@ export const useConnection = () => {
       fallbackActivate(
         new NetworkConnector({
           urls: SUPPORTED_RPC_URLS,
-          defaultChainId: lastChainId,
+          defaultChainId: lastChainId || process.env.REACT_APP_DEFAULT_CHAINID,
         }),
         (e: Error) => {
           setFallbackErrorMessage(handleErrorMessage(e));
@@ -151,6 +153,13 @@ export const useConnection = () => {
     }
   }, [fallbackChainId, lastChainId, setLastChainId]);
 
+  /* Use the connected provider if available, else use fallback */
+  const getFallbackProvider = () => {
+    if ([42161, 421611].includes(chainId)) return fallbackProvider; // always use fallback for arbitrum (testnet) to access historical data
+    // return provider ?? fallbackProvider;
+    return fallbackProvider
+  };
+
   return {
     connectionState: {
       /* constants */
@@ -162,8 +171,8 @@ export const useConnection = () => {
       connectionName,
       connector,
       provider,
-      fallbackProvider,
       chainId,
+      fallbackProvider: getFallbackProvider(),
       fallbackChainId,
       lastChainId,
 
@@ -213,48 +222,50 @@ const useInactiveListener = (suppress: boolean = false) => {
 
   // eslint-disable-next-line consistent-return
   useEffect((): any => {
-    const { ethereum } = window as any;
-    if (ethereum && ethereum.on && !active && !error && !suppress) {
+    if (typeof window !== 'undefined') {
+      const { ethereum } = window as any;
 
-      const handleConnect = () => {
-        if (lastChainId !== _chainId && active) {
-          console.log('Handling CONNECT');
-        }
-      };
+      if (ethereum && ethereum.on && !active && !error && !suppress) {
+        const handleConnect = () => {
+          if (lastChainId !== _chainId && active) {
+            console.log('Handling CONNECT');
+          }
+        };
 
-      const handleAccountsChanged = (accounts: string[]) => {
-        console.log('Handling ACCOUNT CHANGED', accounts);
-        // if (accounts.length > 0) {
-        // }
-      };
+        const handleAccountsChanged = (accounts: string[]) => {
+          console.log('Handling ACCOUNT CHANGED', accounts);
+          // if (accounts.length > 0) {
+          // }
+        };
 
-      const handleChainChanged = (chainId: string) => {
-        console.log('CHAIN CHANGED in the background with payload: ', chainId);
-        // window.localStorage.clear();
-        clearCachedItems([
-          'assets',
-          'series',
-          'lastAssetUpdate',
-          'lastSeriesUpdate',
-          'strategies',
-          'lastStrategiesUpdate',
-        ]);
-        setLastChainId(parseInt(chainId, 16));
-        // eslint-disable-next-line no-restricted-globals
-        location.reload();
-      };
+        const handleChainChanged = (chainId: string) => {
+          console.log('CHAIN CHANGED in the background with payload: ', chainId);
+          // window.localStorage.clear();
+          clearCachedItems([
+            'assets',
+            'series',
+            'lastAssetUpdate',
+            'lastSeriesUpdate',
+            'strategies',
+            'lastStrategiesUpdate',
+          ]);
+          setLastChainId(parseInt(chainId, 16));
+          // eslint-disable-next-line no-restricted-globals
+          location.reload();
+        };
 
-      ethereum.on('connect', handleConnect);
-      ethereum.on('chainChanged', handleChainChanged);
-      ethereum.on('accountsChanged', handleAccountsChanged);
+        ethereum.on('connect', handleConnect);
+        ethereum.on('chainChanged', handleChainChanged);
+        ethereum.on('accountsChanged', handleAccountsChanged);
 
-      return () => {
-        if (ethereum.removeListener) {
-          ethereum.removeListener('connect', handleConnect);
-          ethereum.removeListener('chainChanged', handleChainChanged);
-          ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        }
-      };
+        return () => {
+          if (ethereum.removeListener) {
+            ethereum.removeListener('connect', handleConnect);
+            ethereum.removeListener('chainChanged', handleChainChanged);
+            ethereum.removeListener('accountsChanged', handleAccountsChanged);
+          }
+        };
+      }
     }
   }, [active, error, suppress, activate, _chainId, lastChainId]);
 };

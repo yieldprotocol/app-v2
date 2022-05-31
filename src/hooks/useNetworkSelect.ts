@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { CHAIN_INFO } from '../config/chainData';
 import { ChainContext } from '../contexts/ChainContext';
+import { IChainContext } from '../types';
 
 interface IAddEthereumChainParameter {
   chainId: string; // A 0x-prefixed hexadecimal string
@@ -16,13 +17,12 @@ interface IAddEthereumChainParameter {
   iconUrls?: string[]; // Currently ignored.
 }
 
-/* Simple Hook for caching & retrieved data */
 export const useNetworkSelect = (chainId: number) => {
   const {
     chainState: {
       connection: { fallbackChainId, provider, connectionName },
     },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
   const [isMetamask, setIsMetamask] = useState<any>(null);
 
@@ -31,11 +31,12 @@ export const useNetworkSelect = (chainId: number) => {
   }, [connectionName]);
 
   useEffect(() => {
-    if (chainId !== fallbackChainId && isMetamask && chainId) {
+    const providerRequest = provider?.provider?.request;
+    if (chainId !== fallbackChainId && isMetamask && chainId && providerRequest) {
       (async () => {
         const hexChainId = ethers.utils.hexValue(chainId);
         try {
-          await provider.provider.request({
+          await providerRequest({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: hexChainId }],
           });
@@ -44,8 +45,7 @@ export const useNetworkSelect = (chainId: number) => {
           if (switchError.code === 4902) {
             try {
               const { rpcUrl, name: chainName, nativeCurrency, explorer }: any = CHAIN_INFO.get(chainId);
-
-              await provider.provider.request({
+              await providerRequest({
                 method: 'wallet_addEthereumChain',
                 params: [
                   {

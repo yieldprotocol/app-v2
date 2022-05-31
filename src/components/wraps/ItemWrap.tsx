@@ -1,5 +1,6 @@
-import React from 'react';
-import { Box } from 'grommet';
+import { Box, Stack, Text } from 'grommet';
+import { FiAlertTriangle } from 'react-icons/fi';
+import { GiMedalSkull } from 'react-icons/gi';
 import styled from 'styled-components';
 
 const StyledBox = styled(Box)`
@@ -14,7 +15,19 @@ const StyledBox = styled(Box)`
   }
 `;
 
-function ItemWrap({ action, index, children }: { children: any; index: number; action: () => void }) {
+function ItemWrap({
+  action,
+  index,
+  warn,
+  liquidated,
+  children,
+}: {
+  children: any;
+  index: number;
+  warn?:boolean|undefined;
+  liquidated?: boolean | undefined;
+  action: () => void;
+}) {
   return (
     <StyledBox
       animation={{ type: 'fadeIn', delay: index * 100, duration: 1500 }}
@@ -24,9 +37,25 @@ function ItemWrap({ action, index, children }: { children: any; index: number; a
       elevation="xsmall"
       flex={false}
       fill="horizontal"
-      background='lightBackground'
+      background="lightBackground"
     >
-      {children}
+      <Stack anchor="top-right">
+        {children}
+        {liquidated && (
+          <Box pad="xsmall">
+            <Text color="error">
+              <GiMedalSkull />
+            </Text>
+          </Box>
+        )}
+        {warn && (
+          <Box pad="xsmall">
+            <Text color="warning">
+              <FiAlertTriangle />
+            </Text>
+          </Box>
+        )}
+      </Stack>
     </StyledBox>
   );
 }

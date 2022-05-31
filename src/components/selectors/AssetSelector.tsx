@@ -1,16 +1,21 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
+
+import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { WETH, USDC, IGNORE_BASE_ASSETS, DAI, yvUSDC } from '../../config/assets';
+import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import AssetSelectModal from './AssetSelectModal';
+import Logo from '../logos/Logo';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
+  isModal?: boolean;
 }
 
 const StyledBox = styled(Box)`
@@ -23,7 +28,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
+function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
@@ -36,14 +41,16 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
   const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
-
   const [options, setOptions] = useState<IAsset[]>([]);
+  const [modalOpen, toggleModal] = useState<boolean>(false);
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
-      <Box direction="row" align="center" gap="xsmall">
-        <Box flex={false}>{asset.image}</Box>
-        {asset?.displaySymbol}
+      <Box direction="row" align="center" gap="small">
+        <Logo image={asset.image} />
+        <Text color="text" size="small">
+          {asset?.displaySymbol}
+        </Text>
       </Box>
     ) : (
       <Skeleton width={50} />
@@ -56,23 +63,27 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
-      setSelectedSeries(null)
+      setSelectedSeries(null);
     }
   };
 
   /* update options on any changes */
   useEffect(() => {
-    const opts: IAsset[] = Array.from(assetMap.values())
-      .filter((a: IAsset) => a.showToken) // filter based on whether wrapped tokens are shown or not
-      .filter((a: IAsset) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
+    const opts = Array.from(assetMap.values())
+      .filter((a) => a.showToken) // filter based on whether wrapped tokens are shown or not
+      .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
     const filteredOptions = selectCollateral
       ? opts
-          .filter((a: IAsset) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
-          .filter((a: IAsset) => (selectedBase?.id === USDC ? a : a.id !== yvUSDC)) // TODO fix this temporary logic.
-      : opts.filter((a: IAsset) => a.isYieldBase).filter((a: IAsset) => !IGNORE_BASE_ASSETS.includes(a.id));
+          .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
+          .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
+      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
-    setOptions(filteredOptions);
+    const sortedOptions = selectCollateral
+      ? filteredOptions.sort((a, b) => (a.balance.lt(b.balance) ? 1 : -1))
+      : filteredOptions;
+
+    setOptions(sortedOptions);
   }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
@@ -81,50 +92,64 @@ function AssetSelector({ selectCollateral }: IAssetSelectorProps) {
       !selectedBase && setSelectedBase(assetMap.get(USDC)!);
       !selectedIlk && setSelectedIlk(assetMap.get(WETH)!);
     }
-  }, [assetMap, selectedBase, selectedIlk]);
+  }, [assetMap, selectedBase, selectedIlk, setSelectedBase, setSelectedIlk]);
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
-    if (selectedIlk?.id === selectedBase?.id) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
+    if (selectedIlk?.proxyId === selectedBase?.proxyId) {
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.proxyId !== selectedIlk?.proxyId);
       setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
 
+  /* set ilk to be USDC if ETH base */
+  useEffect(() => {
+    if (selectedBase?.proxyId === WETH) {
+      setSelectedIlk(assetMap.get(USDC));
+    }
+  }, [assetMap, selectedBase, setSelectedIlk]);
+
   return (
     <StyledBox
       fill="horizontal"
-      round="xsmall"
-      // border={(selectCollateral && !selectedSeries) ? { color: 'text-xweak' } : true}
+      round={mobile ? 'large' : { corner: 'right', size: 'large' }}
       elevation="xsmall"
       background="hoverBackground"
+      onClick={() => isModal && toggleModal(!modalOpen)}
     >
-      <Select
-        plain
-        dropProps={{ round: 'xsmall' }}
-        id="assetSelectc"
-        name="assetSelect"
-        placeholder="Select Asset"
-        options={options}
-        value={selectCollateral ? selectedIlk! : selectedBase!}
-        labelKey={(x: IAsset | undefined) => optionText(x)}
-        valueLabel={
-          <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
-            <Text color="text"> {optionText(selectCollateral ? selectedIlk! : selectedBase!)} </Text>
-          </Box>
-        }
-        onChange={({ option }: any) => handleSelect(option)}
-        disabled={
-          (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
-          (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
-        }
-        // eslint-disable-next-line react/no-children-prop
-        children={(x: any) => (
-          <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
-            <Text color="text"> {optionText(x)} </Text>
-          </Box>
-        )}
-      />
+      {isModal && modalOpen && (
+        <AssetSelectModal assets={options} handleSelect={handleSelect} open={modalOpen} setOpen={toggleModal} />
+      )}
+      {!modalOpen && (
+        <Select
+          plain
+          dropProps={{ round: 'small' }}
+          id="assetSelect"
+          name="assetSelect"
+          placeholder="Select Asset"
+          options={options}
+          value={selectCollateral ? selectedIlk! : selectedBase!}
+          labelKey={(x: IAsset | undefined) => optionText(x)}
+          valueLabel={
+            <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
+              {optionText(selectCollateral ? selectedIlk! : selectedBase!)}
+            </Box>
+          }
+          icon={isModal ? <FiMoreVertical /> : <FiChevronDown />}
+          onChange={({ option }: any) => handleSelect(option)}
+          disabled={
+            (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
+            (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
+          }
+          size="small"
+          // eslint-disable-next-line react/no-children-prop
+          children={(x: any) => (
+            <Box pad={mobile ? 'medium' : 'small'} gap="xsmall" direction="row">
+              {optionText(x)}
+            </Box>
+          )}
+        />
+      )}
     </StyledBox>
   );
 }

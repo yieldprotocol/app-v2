@@ -64,6 +64,15 @@ export function bytesToBytes32(x: string, n: number): string {
 }
 
 /**
+ * Calculate the baseId from the series nae
+ * @param seriesId seriesID.
+ * @returns string bytes32
+ */
+export function baseIdFromSeriesId(seriesId: string): string {
+  return seriesId.slice(0, 6).concat('00000000');
+}
+
+/**
  * @param { BigNumber | string } multiplicant
  * @param { BigNumber | string } multiplier
  * @param { string } precisionDifference  // Difference between multiplicant and mulitplier precision (eg. wei vs ray '1e-27' )
@@ -725,6 +734,8 @@ export function fyTokenForMint(
   );
   let minFYToken = ZERO_DEC;
 
+  if (maxFYToken.lt(2)) return [ZERO_BN, ZERO_BN]; // won't be able to parse using toBn
+
   let i = 0;
   while (true) {
     /* NB return ZERO when not converging > not mintable */
@@ -880,7 +891,7 @@ export const splitLiquidity = (
  * Calculate Slippage
  * @param { BigNumber } value
  * @param { BigNumber } slippage optional: defaults to 0.005 (0.5%)
- * @param { boolean } minimise optional: whether the resutl should be a minimum or maximum (default max)
+ * @param { boolean } minimise optional: whether the result should be a minimum or maximum (default max)
  * @returns { string } human readable string
  */
 export const calculateSlippage = (
@@ -1174,6 +1185,29 @@ export const calcPoolRatios = (
   const max = toBn(ratio.add(ratioSlippage));
 
   return [min, max];
+};
+
+/**
+ * Calculate accrued debt value after maturity
+ *
+ * @param {BigNumber} rate
+ * @param {BigNumber} rateAtMaturity
+ * @param {BigNumberr} debt
+ *
+ * @returns {[BigNumber, BigNumber]} accruedDebt, debt less accrued value
+ */
+export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt: BigNumber): BigNumber[] => {
+  const rate_ = new Decimal(rate.toString());
+  const rateAtMaturity_ = new Decimal(rateAtMaturity.toString());
+  const debt_ = new Decimal(debt.toString());
+
+  const accRatio_ = rate_.div(rateAtMaturity_);
+  const invRatio_ = rateAtMaturity_.div(rate_); // to reverse calc the debt LESS the accrued value
+
+  const accruedDebt = !accRatio_.isNaN() ? debt_.mul(accRatio_) : debt_;
+  const debtLessAccrued = debt_.mul(invRatio_);
+
+  return [toBn(accruedDebt), toBn(debtLessAccrued)];
 };
 
 /** Share-based Swap Functions */

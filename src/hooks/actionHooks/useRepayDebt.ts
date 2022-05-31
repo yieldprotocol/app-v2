@@ -11,48 +11,70 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
+  RoutedActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calcAccruedDebt, calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
-import { useRemoveCollateral } from './useRemoveCollateral';
+import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { useAddRemoveEth } from './useAddRemoveEth';
+import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
+import { ConvexJoin__factory } from '../../contracts';
+
 
 export const useRepayDebt = () => {
   const {
-    settingsState: { slippageTolerance, unwrapTokens },
+    settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
+
   const { activeAccount: account, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets } = userActions;
 
   const {
-    chainState: { contractMap },
+    chainState: {
+      contractMap,
+      connection: { chainId },
+      provider
+    },
   } = useContext(ChainContext);
 
-  const { removeEth } = useRemoveCollateral();
+  const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
+  /**
+   * REPAY FN
+   * @param vault
+   * @param input
+   * @param reclaimCollateral
+   */
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
-    const ladleAddress = contractMap.get('Ladle').address;
-
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
+
+    const ladleAddress = contractMap.get('Ladle').address;
     const series: ISeries = seriesMap.get(vault.seriesId)!;
     const base: IAsset = assetMap.get(vault.baseId)!;
     const ilk: IAsset = assetMap.get(vault.ilkId)!;
+
+    const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
+    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(ilk.proxyId);
+    const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
 
     /* Parse inputs */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const _MaxBaseIn = maxBaseIn(
+    const _maxBaseIn = maxBaseIn(
       series.baseReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
@@ -60,6 +82,9 @@ export const useRepayDebt = () => {
       series.g1,
       series.decimals
     );
+
+    /* Check the max amount of the trade that the pool can handle */
+    const tradeIsNotPossible = _input.gt(_maxBaseIn);
 
     const _inputAsFyToken = series.seriesIsMature
       ? _input
@@ -72,94 +97,114 @@ export const useRepayDebt = () => {
           series.g1,
           series.decimals
         );
-
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
       slippageTolerance.toString(),
       true // minimize
     );
 
-    const inputGreaterThanDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
-    const inputGreaterThanMaxBaseIn = _input.gt(_MaxBaseIn);
+    /* Check if input is more than the debt */
+    const inputGreaterThanEqualDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
 
-    const _inputforClose = vault.art.lt(_input)
-      ? vault.art
-      : calcAccruedDebt(vault.rate, vault.rateAtMaturity, _input)[1]; // this is the input value less the accrued amount. 
+    /* If requested, and all debt will be repaid, automatically remove collateral */
+    const _collateralToRemove =
+      reclaimCollateral && inputGreaterThanEqualDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
 
-    /* if requested, and all debt will be repaid, automatically remove collateral */
-    const _collateralToRemove = reclaimCollateral && inputGreaterThanDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
-    const isEthBased = ETH_BASED_ASSETS.includes(vault.ilkId);
+    /* Cap the amount to transfer: check that if input is greater than debt, used after maturity only repay the max debt (or accrued debt) */
+    const _inputCappedAtArt = vault.art.gt(ZERO_BN) && vault.art.lte(_input) ? vault.art : _input;
 
-    let reclaimToAddress = reclaimCollateral && isEthBased ? ladleAddress : account;
+    /* Set the amount to transfer ( + 0.1% after maturity ) */
+    const amountToTransfer = series.seriesIsMature ? _input.mul(10001).div(10000) : _input; // After maturity + 0.1% for increases during tx time
 
-    /* handle wrapped tokens:  */
-    let unwrap: ICallData[] = [];
-    if (ilk.wrapHandlerAddress && unwrapTokens && reclaimCollateral) {
-      reclaimToAddress = ilk.wrapHandlerAddress;
-      unwrap = await unwrapAsset(ilk, account!);
-    }
+    /* In low liq situations/or mature,  send repay funds to join not pool */
+    const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
-    const alreadyApproved = (
-      await base.getAllowance(account!, series.seriesIsMature ? base.joinAddress : ladleAddress)
-    ).gt(_input);
+    /* Check if already apporved */
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer);
 
-    const permits: ICallData[] = await sign(
+    // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
+    const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];
+
+    const permitCallData: ICallData[] = await sign(
       [
         {
           // before maturity
           target: base,
           spender: 'LADLE',
-          amount: _input,
-          ignoreIf: series.seriesIsMature || alreadyApproved === true,
-        },
-        {
-          // after maturity
-          target: base,
-          spender: base.joinAddress,
-          amount: _input,
-          ignoreIf: !series.seriesIsMature || alreadyApproved === true,
+          amount: amountToTransfer.mul(110).div(100), // generous approval permits on repayment we can refine at a later stage
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode
     );
 
-    const calls: ICallData[] = [
-      ...permits,
+    /* Remove ETH collateral. (exit_ether sweeps all the eth out of the ladle, so exact amount is not importnat -> just greater than zero) */
+    const removeEthCallData = isEthCollateral ? removeEth(ONE_BN) : [];
 
-      /* BEFORE MATURITY */
+    /* Address to send the funds to either ladle (if eth is used as collateral) or account */
+    const reclaimToAddress = () => {
+      if (isEthCollateral) return ladleAddress;
+      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chainId))
+        return ilk.unwrapHandlerAddresses?.get(chainId); // if there is somethign to unwrap
+      return account;
+    };
+
+    const calls: ICallData[] = [
+      ...permitCallData,
+
+      /* Reqd. when we have a wrappedBase */
+      // ...wrapAssetCallData
+
+      /* If ethBase, Send ETH to either base join or pool  */
+      ...addEth(isEthBase && !series.seriesIsMature ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
+      ...addEth(isEthBase && series.seriesIsMature ? amountToTransfer : ZERO_BN), // no destination defined after maturity , input +1% will will go to weth join
+
+      /* Else, Send Token to either join or pool via a ladle.transfer() */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: series.seriesIsMature || inputGreaterThanMaxBaseIn,
+        args: [base.address, transferToAddress, amountToTransfer] as LadleActions.Args.TRANSFER,
+        ignoreIf: isEthBase,
+      },
+
+      /* BEFORE MATURITY - !series.seriesIsMature */
+      /* convex-type collateral; ensure checkpoint before giving collateral back to account */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [vault.owner] as RoutedActions.Args.CHECKPOINT,
+        fnName: RoutedActions.Fn.CHECKPOINT,
+        targetContract: convexJoinContract, // use the convex join contract to checkpoint
+        ignoreIf: !isConvexCollateral || _collateralToRemove.eq(ethers.constants.Zero),
       },
 
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
-        ignoreIf:
-          series.seriesIsMature ||
-          inputGreaterThanDebt || // use if input is NOT more than debt
-          inputGreaterThanMaxBaseIn,
+        ignoreIf: series.seriesIsMature || inputGreaterThanEqualDebt || tradeIsNotPossible,
       },
-
       {
         operation: LadleActions.Fn.REPAY_VAULT,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
+        args: [vault.id, reclaimToAddress(), _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
           series.seriesIsMature ||
-          !inputGreaterThanDebt || // use if input IS more than debt OR
-          inputGreaterThanMaxBaseIn,
+          !inputGreaterThanEqualDebt || // ie ignore if use if input IS NOT more than debt
+          tradeIsNotPossible,
       },
 
-      /* AFTER MATURITY */
+      /* EdgeCase in lowLiq situations : Input GreaterThanMaxbaseIn ( user incurs a penalty because repaid at 1:1 ) */
       {
         operation: LadleActions.Fn.CLOSE,
-        args: [vault.id, reclaimToAddress, _collateralToRemove, _inputforClose.mul(-1)] as LadleActions.Args.CLOSE,
-        ignoreIf: !series.seriesIsMature,
+        args: [vault.id, reclaimToAddress(), _collateralToRemove, _inputCappedAtArt.mul(-1)] as LadleActions.Args.CLOSE,
+        ignoreIf: series.seriesIsMature || !tradeIsNotPossible, // (ie. ignore if trade IS possible )
       },
 
-      ...removeEth(_collateralToRemove), // after the complete tranasction, this will remove all the ETH collateral (if requested).
-      ...unwrap,
+      /* AFTER MATURITY  - series.seriesIsMature */
+      {
+        operation: LadleActions.Fn.CLOSE,
+        args: [vault.id, reclaimToAddress(), _collateralToRemove, _inputCappedAtArt.mul(-1)] as LadleActions.Args.CLOSE,
+        ignoreIf: !series.seriesIsMature,
+      },
+      ...removeEthCallData,
+      ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
     updateVaults([vault]);

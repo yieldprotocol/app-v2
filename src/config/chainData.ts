@@ -1,6 +1,7 @@
 export const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.REACT_APP_RPC_URL_1 as string,
   4: process.env.REACT_APP_RPC_URL_4 as string,
+  5: process.env.REACT_APP_RPC_URL_5 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,
   10: process.env.REACT_APP_RPC_URL_10 as string,
   69: process.env.REACT_APP_RPC_URL_69 as string,
@@ -11,11 +12,9 @@ export const RPC_URLS: { [chainId: number]: string } = {
 export const SUPPORTED_RPC_URLS: { [chainId: number]: string } = {
   1: RPC_URLS[1],
   4: RPC_URLS[4],
-  42: RPC_URLS[42],
-  // 10: RPC_URLS[10],
-  // 69: RPC_URLS[69],
-  // 42161: RPC_URLS[42161],
-  // 421611: RPC_URLS[421611],
+  5: RPC_URLS[5],
+  42161: RPC_URLS[42161],
+  421611: RPC_URLS[421611],
 };
 
 export const SUPPORTED_CHAIN_IDS: number[] = Object.keys(SUPPORTED_RPC_URLS).map((chainId: string) => +chainId);
@@ -29,6 +28,7 @@ interface INativeCurrency {
 interface IChainInfo {
   name: string;
   color: string;
+  colorSecondary?: string;
   bridge?: string;
   explorer?: string;
   rpcUrl?: string;
@@ -69,8 +69,9 @@ CHAIN_INFO.set(69, {
 CHAIN_INFO.set(42161, {
   name: 'Arbitrum',
   color: '#1F2937',
+  colorSecondary: '#28A0F0',
   bridge: 'https://bridge.arbitrum.io',
-  explorer: 'https://explorer.arbitrum.io',
+  explorer: 'https://arbiscan.io/',
   rpcUrl: 'https://arb1.arbitrum.io/rpc',
   nativeCurrency: {
     name: 'ETH',
@@ -81,8 +82,9 @@ CHAIN_INFO.set(42161, {
 CHAIN_INFO.set(421611, {
   name: 'Arbitrum Testnet',
   color: '#1F2937',
+  colorSecondary: '#28A0F0',
   bridge: 'https://bridge.arbitrum.io',
-  explorer: 'https://rinkeby-explorer.arbitrum.io/#',
+  explorer: 'https://testnet.arbiscan.io',
   rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
   nativeCurrency: {
     name: 'ETH',

@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useRouter } from 'next/router';
+import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import { ActionType, IAsset, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
@@ -20,7 +20,7 @@ function LendItem({
   actionType: ActionType;
   condensed?: boolean;
 }) {
-  const history = useHistory();
+  const router = useRouter();
 
   const {
     userState: { assetMap, seriesLoading, selectedSeries, selectedBase },
@@ -28,12 +28,12 @@ function LendItem({
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
   const seriesBase: IAsset = assetMap.get(series.baseId)!;
-  const isSelectedBaseAndSeries = series.baseId === seriesBase.id && series.id === selectedSeries?.id;
+  const isSelectedBaseAndSeries = series.baseId === seriesBase.proxyId && series.id === selectedSeries?.id;
 
   const handleSelect = (_series: ISeries) => {
     userActions.setSelectedBase(selectedBase);
     userActions.setSelectedSeries(_series);
-    history.push(`/${actionType.toLowerCase()}position/${_series.id}`);
+    router.push(`/${actionType.toLowerCase()}position/${_series.id}`);
   };
 
   return (

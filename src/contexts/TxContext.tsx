@@ -1,10 +1,18 @@
-import React, { useReducer, useEffect, useState, useContext } from 'react';
+import React, { useReducer, useEffect, useContext } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
 import { analyticsLogEvent } from '../utils/appUtils';
-import { UserContext } from './UserContext';
 import { ChainContext } from './ChainContext';
+
+enum TxStateItem {
+  TRANSACTIONS = 'transactions',
+  PROCESSES = 'processes',
+  RESET_PROCESS = 'resetProcess',
+  PROCESS_ACTIVE = 'processActive',
+  TX_WILL_FAIL = 'txWillFail',
+  TX_WILL_FAIL_INFO = 'txWillFailInfo',
+}
 
 const TxContext = React.createContext<any>({});
 
@@ -17,6 +25,8 @@ const initState = {
   /* process active flags for convenience */
   anyProcessActive: false as boolean,
   txWillFail: false as boolean,
+
+  txWillFailInfo: { error: undefined, transaction: undefined },
 };
 
 interface IYieldSignature {
@@ -39,7 +49,7 @@ function txReducer(_state: any, action: any) {
 
   /* Reducer switch */
   switch (action.type) {
-    case 'transactions':
+    case TxStateItem.TRANSACTIONS:
       return {
         ..._state,
         transactions: new Map(_state.transactions.set(action.payload.tx.hash, action.payload)),
@@ -53,7 +63,7 @@ function txReducer(_state: any, action: any) {
         ) as Map<string, IYieldProcess>,
       };
 
-    case 'processes':
+    case TxStateItem.PROCESSES:
       return {
         ..._state,
         processes: new Map(
@@ -66,7 +76,7 @@ function txReducer(_state: any, action: any) {
         ) as Map<string, IYieldProcess>,
       };
 
-    case 'resetProcess':
+    case TxStateItem.RESET_PROCESS:
       return {
         ..._state,
         processes: new Map(
@@ -78,16 +88,22 @@ function txReducer(_state: any, action: any) {
         ),
       };
 
-    case 'processActive':
+    case TxStateItem.PROCESS_ACTIVE:
       return {
         ..._state,
         processActive: _onlyIfChanged(action),
       };
 
-    case 'txWillFail':
+    case TxStateItem.TX_WILL_FAIL:
       return {
         ..._state,
         txWillFail: _onlyIfChanged(action),
+      };
+
+    case TxStateItem.TX_WILL_FAIL_INFO:
+      return {
+        ..._state,
+        txWillFailInfo: _onlyIfChanged(action),
       };
 
     default:
@@ -106,12 +122,11 @@ const TxProvider = ({ children }: any) => {
   };
 
   const { chainState } = useContext(ChainContext);
-  const { connection : { chainId } } = chainState;
+  const {
+    connection: { chainId },
+  } = chainState;
 
-  const { userState } = useContext(UserContext);
-  const { activeAccount: account } = userState;
-
-  const _resetProcess = (txCode: string) => updateState({ type: 'resetProcess', payload: txCode });
+  const _resetProcess = (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
 
   const _startProcessTimer = async (txCode: string) => {
     await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -143,21 +158,25 @@ const TxProvider = ({ children }: any) => {
     _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
     // toast.error(msg);
     const _tx = { tx, txCode, receipt: undefined, status: TxState.FAILED };
-    updateState({ type: 'transactions', payload: _tx });
+    updateState({ type: TxStateItem.TRANSACTIONS, payload: _tx });
     console.log('txHash: ', tx?.hash);
 
     analyticsLogEvent('TX_FAILED', { txCode }, chainId);
   };
 
-  const handleTxWillFail = (txCode?: string | undefined) => {
+  const handleTxWillFail = (error: any, txCode?: string | undefined, transaction?: any) => {
     /* simply toggles the txWillFail txState */
     if (txState.txWillFail === false) {
-      updateState({ type: 'txWillFail', payload: true });
+      updateState({ type: TxStateItem.TX_WILL_FAIL, payload: true });
       /* extra actions */
-      toast.error('Transaction Aborted. It appears the transaction would have more than likely failed.');
-      txCode && updateState({ type: 'resetProcess', payload: txCode });
+      toast.error(`Transaction Aborted`);
+
+      console.log(transaction);
+      updateState({ type: TxStateItem.TX_WILL_FAIL_INFO, payload: { error, transaction } });
+
+      txCode && updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
     } else {
-      updateState({ type: 'txWillFail', payload: false });
+      updateState({ type: TxStateItem.TX_WILL_FAIL, payload: false });
       analyticsLogEvent('TX_WILL_FAIL', { txCode }, chainId);
     }
   };
@@ -178,7 +197,10 @@ const TxProvider = ({ children }: any) => {
       /* try the transaction with connected wallet and catch any 'pre-chain'/'pre-tx' errors */
       try {
         tx = await txFn();
-        updateState({ type: 'transactions', payload: { tx, txCode, receipt: null, status: TxState.PENDING } });
+        updateState({
+          type: TxStateItem.TRANSACTIONS,
+          payload: { tx, txCode, receipt: null, status: TxState.PENDING },
+        });
         _setProcessStage(
           txCode,
           _isfallback ? ProcessStage.SIGNING_TRANSACTION_PENDING : ProcessStage.TRANSACTION_PENDING
@@ -194,7 +216,7 @@ const TxProvider = ({ children }: any) => {
       const txSuccess: boolean = res.status === 1 || false;
       const _tx = { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED };
       updateState({
-        type: 'transactions',
+        type: TxStateItem.TRANSACTIONS,
         payload: _tx,
       });
 
@@ -267,7 +289,7 @@ const TxProvider = ({ children }: any) => {
       const hasActiveProcess = _processes.some(
         (x: any) => x.stage === 1 || x.stage === 2 || x.stage === 3 || x.stage === 4 || x.stage === 5
       );
-      updateState({ type: 'processActive', payload: hasActiveProcess });
+      updateState({ type: TxStateItem.PROCESS_ACTIVE, payload: hasActiveProcess });
 
       /* 2. Set timer on process complete */
       _processes.forEach((p: IYieldProcess) => {
@@ -281,12 +303,13 @@ const TxProvider = ({ children }: any) => {
     handleTx,
     handleSign,
     handleTxWillFail,
-    resetProcess: (txCode: string) => updateState({ type: 'resetProcess', payload: txCode }),
+    resetProcess: (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode }),
     updateTxStage: (txCode: string, stage: ProcessStage) =>
-      updateState({ type: 'processes', payload: { ...txState.processes.get(txCode), stage } }),
+      updateState({ type: TxStateItem.PROCESSES, payload: { ...txState.processes.get(txCode), stage } }),
   };
 
   return <TxContext.Provider value={{ txState, txActions }}>{children}</TxContext.Provider>;
 };
 
 export { TxContext, TxProvider };
+export default TxProvider;

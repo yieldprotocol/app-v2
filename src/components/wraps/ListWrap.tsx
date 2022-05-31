@@ -8,10 +8,11 @@ interface IListWrap extends BoxProps {
 function ListWrap({ children, ...props }: IListWrap) {
   return (
     <Box
-      pad={{ horizontal: 'medium', bottom: 'large', top: 'small' }}
+      pad={{ horizontal: 'medium', bottom: 'xlarge', top: 'xsmall' }}
       gap="small"
-      height={{ max: '300px' }}
+      height={{ max: '350px' }}
       width="300px"
+      margin={{ bottom: '3em' }}
       {...props}
     >
       {children}

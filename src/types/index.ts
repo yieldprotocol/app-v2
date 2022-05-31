@@ -1,6 +1,5 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
-import React from 'react';
-import { ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
+import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -22,13 +21,13 @@ export interface IChainContextState {
 }
 
 export interface IConnectionState {
-  provider: ethers.providers.JsonRpcProvider | null;
+  provider: ethers.providers.Web3Provider | null;
   chainId: number | null;
-  fallbackProvider: ethers.providers.Web3Provider | null;
+  fallbackProvider: ethers.providers.JsonRpcProvider | null;
   fallbackChainId: number | null;
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
-  connectorName: string | null;
+  connectionName: string | null;
 }
 
 export interface IHistoryList {
@@ -46,12 +45,29 @@ export interface IChainContextActions {
   connect: (connection: string) => void;
   disconnect: () => void;
   isConnected: (connection: string) => void;
+
+  exportContractAddresses: ()=> void;
+}
+
+export interface IPriceContextState {
+  pairMap: Map<string, IAssetPair>;
+  pairLoading: string[];
+}
+
+export interface IPriceContextActions {
+  updateAssetPair: (baseId: string, ilkId: string) => Promise<void>;
+}
+
+export interface IPriceContext {
+  priceState: IPriceContextState;
+  priceActions: IPriceContextActions;
 }
 
 export interface IUserContext {
   userState: IUserContextState;
   userActions: IUserContextActions;
 }
+
 export interface IUserContextState {
   userLoading: boolean;
   activeAccount: string | null;
@@ -61,13 +77,10 @@ export interface IUserContextState {
   vaultMap: Map<string, IVault>;
   strategyMap: Map<string, IStrategy>;
 
-  assetPairMap: Map<string, IAssetPair>;
-
   vaultsLoading: boolean;
   seriesLoading: boolean;
   assetsLoading: boolean;
   strategiesLoading: boolean;
-  assetPairLoading: boolean;
 
   selectedSeries: ISeries | null;
   selectedIlk: IAsset | null;
@@ -81,8 +94,6 @@ export interface IUserContextActions {
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
   updateStrategies: (strategyList: IStrategy[]) => void;
-
-  updateAssetPair: (baseId: string, ilkId: string) => Promise<IAssetPair>;
 
   setSelectedSeries: (series: ISeries | null) => void;
   setSelectedIlk: (ilk: IAsset | null) => void;
@@ -123,6 +134,7 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
+  tokenType: TokenType;
 }
 
 export interface ISeriesRoot extends ISignable {
@@ -164,59 +176,75 @@ export interface ISeriesRoot extends ISignable {
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
+export enum TokenType {
+  ERC20_,
+  ERC20_Permit,
+  ERC20_DaiPermit,
+  ERC20_MKR,
+  ERC1155_,
+  ERC720_,
+}
+
 export interface IAssetInfo {
-  showToken: boolean;
-  isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (expect ETH - which is handled differently)
+  tokenType: TokenType;
+  tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
-  color: string;
-  digitFormat: number; // this is the 'resonable' number of digits to show. accuracy equavalent to +- 1 us cent.
+  name: string;
+  version: string;
+  symbol: string;
+  decimals: number;
 
+  showToken: boolean; // Display/hide the token on the UI
+
+  digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
   displaySymbol?: string; // override for symbol display
-  wrapHandlerAddress?: string;
 
-  wrappedTokenId?: string;
-  unwrappedTokenId?: string;
+  limitToSeries?: string[];
 
-  wrappedTokenAddress?: string;
-  unwrappedTokenAddress?: string;
-
+  wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
+  unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
+  proxyId?: string;
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
   // fixed/static:
   id: string;
-  decimals: number;
-  color: string;
+
   image: React.FC;
   displayName: string;
   displayNameMobile: string;
   joinAddress: string;
 
   digitFormat: number;
-  baseContract: ERC20Permit;
+  assetContract: Contract;
 
   isYieldBase: boolean;
-  idToUse: string;
+
+  isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
+  wrappingRequired: boolean;
+  proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
+  setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
 
 export interface IAssetPair {
   baseId: string;
   ilkId: string;
-  
+  oracle: string;
+
   baseDecimals: number;
   limitDecimals: number;
-  minRatio: number;
 
+  minRatio: number;
   minDebtLimit: BigNumber;
   maxDebtLimit: BigNumber;
   pairPrice: BigNumber;
   pairTotalDebt: BigNumber;
 
-  oracle?: string;
+  lastUpdate?: number;
 }
 
 export interface IStrategyRoot extends ISignable {
@@ -250,7 +278,6 @@ export interface ISeries extends ISeriesRoot {
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
-
   seriesIsMature: boolean;
 }
 
@@ -260,9 +287,12 @@ export interface IAsset extends IAssetRoot {
 }
 
 export interface IDummyVault extends IVaultRoot {}
-export interface IVault extends IVaultRoot, IAssetPair {
+export interface IVault extends IVaultRoot {
   owner: string;
+
   isWitchOwner: boolean;
+  hasBeenLiquidated: boolean;
+
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
@@ -270,13 +300,13 @@ export interface IVault extends IVaultRoot, IAssetPair {
 
   ink_: string;
   art_: string;
-  
+
   rateAtMaturity: BigNumber;
   rate: BigNumber;
+  rate_: string;
 
   accruedArt_: string;
-
-  liquidationPrice_: string;
+  // liquidationPrice_: string;
 }
 
 export interface IStrategy extends IStrategyRoot {
@@ -360,12 +390,7 @@ export interface IDomain {
 export enum ApprovalType {
   TX = 'TX',
   SIG = 'SIG',
-}
-
-export enum SignType {
-  ERC2612 = 'ERC2612_TYPE',
-  DAI = 'DAI_TYPE',
-  FYTOKEN = 'FYTOKEN_TYPE',
+  DAI_SIG = 'DAI_SIG',
 }
 
 export enum TxState {
@@ -461,7 +486,7 @@ export enum ActionCodes {
 
 export interface IBaseHistItem {
   blockNumber: number;
-  date: Date;
+  date: number;
   transactionHash: string;
   series: ISeries;
   actionCode: ActionCodes;

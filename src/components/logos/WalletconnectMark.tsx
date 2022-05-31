@@ -1,15 +1,7 @@
 import * as React from 'react';
 
 const WalletconnectMark = (props: React.SVGProps<SVGSVGElement>) => (
-  // <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 101 101" {...props}>
-  <svg
-    width="1.25em"
-    height="1.25em"
-    viewBox="0 0 300 185"
-    version="1.1"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
+  <svg width="100%" height="100%" viewBox="0 0 300 185" version="1.1" xmlns="http://www.w3.org/2000/svg" {...props}>
     <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
       <g id="walletconnect-logo-alt" fill="#3B99FC" fillRule="nonzero">
         <path

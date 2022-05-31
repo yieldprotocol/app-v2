@@ -1,11 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, ISeries, ISettingsContext, IUserContext, IUserContextState, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
-import DashButton from '../buttons/DashButton';
 import { SettingsContext } from '../../contexts/SettingsContext';
 
 interface IVaultFilter {
@@ -17,14 +16,11 @@ interface IVaultFilter {
 function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
 
-  const { settingsState: { dashHideInactiveVaults } } = useContext(SettingsContext) as ISettingsContext;
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const {
-    activeAccount: account,
-    vaultMap,
-    selectedSeries,
-    selectedBase,
-  } = userState;
+    settingsState: { dashHideInactiveVaults },
+  } = useContext(SettingsContext) as ISettingsContext;
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount: account, vaultMap, selectedSeries, selectedBase } = userState;
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
@@ -37,9 +33,9 @@ function VaultPositionSelector(target: any) {
     ({ base, series, ilk }: IVaultFilter) => {
       const _filteredVaults: IVault[] = Array.from(vaultMap.values())
         .filter((vault: IVault) => !dashHideInactiveVaults || vault.isActive)
-        .filter((vault: IVault) => (base ? vault.baseId === base.idToUse : true))
+        .filter((vault: IVault) => (base ? vault.baseId === base.proxyId : true))
         .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
-        .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.idToUse: true))
+        .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.proxyId : true))
         .filter((vault: IVault) => vault.baseId !== vault.ilkId)
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
@@ -77,7 +73,7 @@ function VaultPositionSelector(target: any) {
       {account && (
         <Box justify="end" fill>
           {account && allVaults.length > 0 && (
-            <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+            <Box gap="small">
               <Box
                 animation="fadeIn"
                 justify="between"
@@ -86,10 +82,7 @@ function VaultPositionSelector(target: any) {
                 pad={{ horizontal: 'medium', vertical: 'xsmall' }}
               >
                 <Text size="small" color="text-weak" textAlign="center">
-                  {showAllVaults ? 'All vaults' : 'Filtered vaults '}
-                </Text>
-                <Text color="text-weak" textAlign="center">
-                  <DashButton />
+                  {showAllVaults ? 'My Vaults' : 'Filtered vaults '}
                 </Text>
               </Box>
 

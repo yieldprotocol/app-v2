@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box, Image } from 'grommet';
@@ -27,7 +26,11 @@ function YieldAvatar(props: any) {
         <Box width="100%" height="100%" pad={ensAvatarUrl ? undefined : '2px'}>
           {
             // eslint-disable-next-line react/no-danger
-            ensAvatarUrl ? <Image src={ensAvatarUrl} /> : <span dangerouslySetInnerHTML={{ __html: _avatar }} />
+            ensAvatarUrl ? (
+              <Image src={ensAvatarUrl} alt="ens-avatar" />
+            ) : (
+              <span dangerouslySetInnerHTML={{ __html: _avatar }} />
+            )
           }
         </Box>
       </Avatar>

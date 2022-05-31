@@ -40,7 +40,7 @@ const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 300;
 function CenterPanelWrap({ children, series }: IPanelWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  const [flipped, setFlipped] = useState(false);
+  const [flipped] = useState(false);
   const domTarget = useRef(null);
   const [{ x, y, rotateX, rotateY, rotateZ, zoom, scale, transform, opacity }, api] = useSpring(() => ({
     rotateX: 0,
@@ -114,7 +114,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                 round="xsmall"
                 background="lightBackground"
               >
-                <Box fill round="xsmall" background="background">
+                <Box fill round="xsmall" background="lightBackground" justify="between">
                   {children}
                 </Box>
               </Box>

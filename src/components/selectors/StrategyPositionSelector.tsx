@@ -1,14 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
+import { IStrategy, IUserContext, IUserContextState } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
-import DashButton from '../buttons/DashButton';
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
@@ -44,7 +43,7 @@ function StrategyPositionSelector() {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+        <Box gap="small">
           <Box
             animation="fadeIn"
             justify="between"
@@ -53,10 +52,7 @@ function StrategyPositionSelector() {
             pad={{ horizontal: 'medium', vertical: 'xsmall' }}
           >
             <Text size="small" color="text-weak" textAlign="center">
-              {showAllPositions ? `All Strategy Positions` : `Filtered Strategy Positions`}
-            </Text>
-            <Text color="text-weak" textAlign="center">
-              <DashButton />
+              {showAllPositions ? `Strategy Positions` : `Filtered Strategy Positions`}
             </Text>
           </Box>
 

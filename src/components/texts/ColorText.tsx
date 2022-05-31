@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Text } from 'grommet';
 import styled, { ThemeContext } from 'styled-components';
 

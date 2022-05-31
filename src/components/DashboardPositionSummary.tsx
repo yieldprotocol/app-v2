@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Text } from 'grommet';
 import DashboardSettings from './DashboardSettings';
 import { ActionType } from '../types';
@@ -11,6 +10,7 @@ interface IDashSummary {
   strategyBalance: string | null;
   actionType: string;
   children: any;
+  showList: boolean;
 }
 
 const Summary = ({ label, value }: { label: string; value: string | null }) => (
@@ -27,6 +27,7 @@ const DashboardPositionSummary = ({
   strategyBalance,
   actionType,
   children,
+  showList,
 }: IDashSummary) => (
   <Box>
     <Box direction="row" justify="between" background="gradient-transparent" round="xsmall" pad="small">
@@ -38,7 +39,7 @@ const DashboardPositionSummary = ({
       </Box>
       {actionType === ActionType.BORROW && <DashboardSettings actionType={actionType} />}
     </Box>
-    <Box pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</Box>
+    {showList && <Box pad={{ vertical: 'xsmall', horizontal: 'none' }}>{children}</Box>}
   </Box>
 );
 

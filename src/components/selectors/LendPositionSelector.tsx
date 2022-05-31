@@ -1,15 +1,14 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
 
-import { ActionType, IAsset, ISeries, IStrategy, IUserContext, IUserContextState } from '../../types';
+import { ActionType, IAsset, ISeries, IUserContext, IUserContextState } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
-import DashButton from '../buttons/DashButton';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -17,12 +16,10 @@ interface IPositionFilter {
 }
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
-
   /* STATE FROM CONTEXT */
-  const { userState } : { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, seriesMap, selectedSeries, selectedBase } =
-    userState;
-    
+  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { activeAccount, seriesMap, selectedSeries, selectedBase } = userState;
+
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
 
@@ -37,8 +34,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
         /* filter by positive balances on either pool tokens or fyTokens */
         .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (base ? _series.baseId === base.idToUse : true))
-        .filter((_series: ISeries) => (series ? _series.id === series.id : true))
+        .filter((_series: ISeries) => (base ? _series.baseId === base.proxyId : true))
+        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
@@ -74,7 +71,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   return (
     <Box justify="end" fill>
       {activeAccount && allPositions.length !== 0 && (
-        <Box justify="between" alignSelf="end" gap="small" pad="small" round="xsmall">
+        <Box gap="small">
           <Box
             animation="fadeIn"
             justify="between"
@@ -83,10 +80,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
             pad={{ horizontal: 'medium', vertical: 'xsmall' }}
           >
             <Text size="small" color="text-weak" textAlign="center">
-              {showAllPositions ? `All Lending Positions` : `Filtered Lending Positions`}
-            </Text>
-            <Text color="text-weak" textAlign="center">
-              <DashButton />
+              {showAllPositions ? `Lending Positions` : `Filtered Lending Positions`}
             </Text>
           </Box>
 

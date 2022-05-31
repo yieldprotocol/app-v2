@@ -6,14 +6,14 @@ import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import { buyBase, calculateMinCollateral, maxBaseIn, maxFyTokenIn, sellBase } from '../../utils/yieldMath';
-import { useAssetPair } from '../useAssetPair';
+import { buyBase, calculateMinCollateral, decimalNToDecimal18, maxBaseIn, maxFyTokenIn } from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
   input: string | undefined,
   collateralInput: string | undefined,
   vault: IVault | undefined,
+  assetPairInfo: IAssetPair | undefined,
   futureSeries: ISeries | null = null // Future or rollToSeries
 ) => {
   /* STATE FROM CONTEXT */
@@ -22,12 +22,11 @@ export const useBorrowHelpers = (
   } = useContext(SettingsContext);
 
   const {
-    userState: { activeAccount, selectedBase, selectedIlk, assetMap, seriesMap, selectedSeries },
+    userState: { activeAccount, assetMap, seriesMap, selectedSeries },
   } = useContext(UserContext);
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
-
-  const assetPairInfo: IAssetPair | undefined = useAssetPair(selectedBase, selectedIlk);
+  const vaultIlk: IAsset | undefined = assetMap.get(vault?.ilkId!);
 
   /* LOCAL STATE */
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
@@ -59,14 +58,14 @@ export const useBorrowHelpers = (
   /* Update the borrow limits if asset pair changes */
   useEffect(() => {
     if (assetPairInfo) {
-      const _decimals = assetPairInfo.baseDecimals;
+      const _decimals = assetPairInfo.limitDecimals;
       const _maxLessTotal = assetPairInfo.maxDebtLimit.sub(assetPairInfo.pairTotalDebt);
       const min = assetPairInfo.minDebtLimit;
 
       setMaxDebt(_maxLessTotal);
       setMaxDebt_(ethers.utils.formatUnits(_maxLessTotal, _decimals)?.toString());
       setMinDebt(min);
-      setMinDebt_(ethers.utils.formatUnits(min, _decimals)?.toString());
+      setMinDebt_(ethers.utils.formatUnits(min, assetPairInfo.baseDecimals)?.toString());
     }
   }, [assetPairInfo]);
 
@@ -96,7 +95,7 @@ export const useBorrowHelpers = (
       const cleanedInput = cleanValue(input, futureSeries.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
 
-      const estimate = sellBase(
+      const estimate = buyBase(
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
         input_,
@@ -135,14 +134,14 @@ export const useBorrowHelpers = (
         futureSeries.decimals
       );
 
-      const minCollat = calculateMinCollateral(
+      const _minCollat = calculateMinCollateral(
         assetPairInfo!.pairPrice,
         newDebt,
         assetPairInfo!.minRatio.toString(),
         undefined,
         true
       );
-      diagnostics && console.log('min Collat of roll to series', minCollat.toString());
+      diagnostics && console.log('min Collat of roll to series', _minCollat.toString());
 
       /* SET MAX ROLL */
       if (vault.accruedArt.lt(_maxFyTokenIn)) {
@@ -153,14 +152,21 @@ export const useBorrowHelpers = (
         setMaxRoll_(ethers.utils.formatUnits(_maxFyTokenIn, futureSeries.decimals).toString());
       }
 
+      // conditions for allowing rolling
+      const conditionsMet =
+        vault.accruedArt.lt(_maxFyTokenIn) &&
+        decimalNToDecimal18(vault.ink, vaultIlk?.decimals || 18).gt(_minCollat) &&
+        vault.accruedArt.gt(minDebt!);
+
       /* SET ROLLABLE */
       const rollable = vault.accruedArt.eq(ZERO_BN) // always rollable if zero debt
         ? true
-        : vault.accruedArt.lt(_maxFyTokenIn) && vault.ink.gt(minCollat) && vault.accruedArt.gt(minDebt!);
+        : conditionsMet;
+
       diagnostics && console.log('Roll possible: ', rollable);
       setRollPossible(rollable);
     }
-  }, [futureSeries, vault, diagnostics, assetPairInfo, minDebt]);
+  }, [futureSeries, vault, diagnostics, assetPairInfo, minDebt, vaultIlk?.decimals]);
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
@@ -190,24 +196,19 @@ export const useBorrowHelpers = (
 
         /* if maxBasein is less than debt, and set protocol Limited flag */
         if (_maxBaseIn.lt(vault.accruedArt) && !vaultSeries.seriesIsMature) {
-          setProtocolLimited(true);
+          setProtocolLimited(false);
         } else {
           setProtocolLimited(false);
         }
 
-        /* set the maxRepay as the biggest of the two, human readbale and BN */
-        if (_maxRepayable && _maxBaseIn && _maxRepayable.gt(_maxBaseIn)) {
-          setMaxRepay_(ethers.utils.formatUnits(_maxBaseIn, vaultBase?.decimals)?.toString());
-          setMaxRepay(_maxBaseIn);
+        /* if the series is mature re-set max as all debt ( if balance allows) */
+        if (vaultSeries.seriesIsMature) {
+          const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
+          setMaxRepay(_accruedArt);
+          setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
         } else {
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
           setMaxRepay(_maxRepayable);
-        }
-        /* or, if the series is mature re-set max as all debt */
-        if (vaultSeries.seriesIsMature) {
-          const _art = vault.accruedArt;
-          setMaxRepay(_art);
-          setMaxRepay_(ethers.utils.formatUnits(_art, vaultBase?.decimals)?.toString());
         }
       })();
     }
