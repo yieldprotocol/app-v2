@@ -1210,46 +1210,46 @@ export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt
   return [toBn(accruedDebt), toBn(debtLessAccrued)];
 };
 
-/** Share-based Swap Functions */
+/** Tokenized Vault (TV) Swap Functions */
 
 /**
- * Calculate the amount of fyToken a user would get for given amount of interest-bearing (variable yield) base asset).
+ * Calculates the amount of fyToken a user would get for given amount of shares.
  * fyTokenOutForSharesIn
  * https://www.desmos.com/calculator/bdplcpol2y
- * @param { BigNumber | string } baseReserves // z
- * @param { BigNumber | string } fyTokenReserves // y
- * @param { BigNumber | string } base // number of shares
- * @param { BigNumber | string } c// c: conversion factor between variable yielding asset to non-variable yielding asset in respective decimal format
- * @param { BigNumber | string } mu // c at initialization (μ)
- * @param { BigNumber | string } timeTillMaturity // time till maturity in seconds
- * @param { BigNumber | string } ts // time stretch
- * @param { BigNumber | string } g1
- * @param { number } decimals
- * @returns { BigNumber }
+ * @param { BigNumber | string } sharesReserves yield bearing vault shares reserve amount
+ * @param { BigNumber | string } fyTokenReserves fyToken reserves amount
+ * @param { BigNumber | string } sharesIn shares amount to be traded
+ * @param { BigNumber | string } c price of shares in terms of their base
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization
+ * @param { BigNumber | string } timeTillMaturity time till maturity in seconds
+ * @param { BigNumber | string } ts time stretch
+ * @param { BigNumber | string } g1 fee coefficient
+ * @param { number } decimals pool decimals
+ * @returns { BigNumber } fyTokenOut: the amount of fyToken a user would get for given amount of shares
  *
- * y = fyToken
- * z = vyToken
- * x = Δz
+ * y = fyToken reserves
+ * z = base reserves
+ * x = Δz (sharesIn)
  *
- *          (                        sum                           )
- *            (    Za        )   ( Ya  )   (       Zxa         )   (   invA   )
- * dy = y - ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz + μx)^(1-t) )^(1 / (1 - t))
+ *      y - (                         sum                           )^(   invA   )
+ *      y - ((    Za         ) + (  Ya  ) - (       Zxa           ) )^(   invA   )
+ * Δy = y - ( c/μ * (μz)^(1-t) +  y^(1-t) -  c/μ * (μz + μx)^(1-t) )^(1 / (1 - t))
  */
 export function sellBaseShares(
-  baseReserves: BigNumber | string, // z
+  sharesReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
-  base: BigNumber | string,
-  c: BigNumber | string, // c: the price of vyToken to Token in decimals
-  mu: BigNumber | string, // c0 (μ): the price of vyToken to Token in decimals at initialization
+  sharesIn: BigNumber | string,
+  c: BigNumber | string,
+  mu: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
   g1: BigNumber | string,
-  decimals: number // optional : default === 18
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
-  const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
+  const base18 = decimalNToDecimal18(BigNumber.from(sharesIn), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
@@ -1272,43 +1272,43 @@ export function sellBaseShares(
 }
 
 /**
- * Calculate the amount of variable-yield base a user would get for certain amount of fyToken.
+ * Calculates the amount of shares a user would get for certain amount of fyToken.
  * sharesOutForFYTokenIn
  * https://www.desmos.com/calculator/mjzqajjsq6
- * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReserves
- * @param { BigNumber | string } fyToken
- * @param { BigNumber | string } c
- * @param { BigNumber | string } mu
- * @param { BigNumber | string } timeTillMaturity
- * @param { BigNumber | string } ts
- * @param { BigNumber | string } g2
- * @param { number } decimals
- * @returns { BigNumber }
+ * @param { BigNumber | string } sharesReserves sharesReserves shares reserves amount
+ * @param { BigNumber | string } fyTokenReserves fyTokenReserves fyToken reserves amount
+ * @param { BigNumber | string } fyTokenIn fyToken amount to be traded
+ * @param { BigNumber | string } c price of shares in terms of their base
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization
+ * @param { BigNumber | string } timeTillMaturity time till maturity in seconds
+ * @param { BigNumber | string } ts time stretch
+ * @param { BigNumber | string } g2 fee coefficient
+ * @param { number } decimals pool decimals
+ * @returns { BigNumber } sharesOut: amount of shares a user would get for given amount of fyToken
  *
  * y = fyToken
  * z = vyToken
  * x = Δy
  *
- *                (                      sum                                       )
- *                  (       Za           )   ( Ya  )    (    Yxa     )               (   invA   )
- * dz = z - 1/μ  * ( ( (c / μ) * (μz)^(1-t) + y^(1-t) -  (y + x)^(1-t) ) / (c / μ) )^(1 / (1 - t))
+ *      z - 1/μ * (                      sum                                      )^(   invA    )
+ *      z - 1/μ * ( (       Za           ) + ( Ya  ) - (    Yxa     ) ) / (c / μ) )^(   invA    )
+ * Δz = z - 1/μ * ( ( (c / μ) * (μz)^(1-t) + y^(1-t) - (y + x)^(1-t) ) / (c / μ) )^(1 / (1 - t))
  */
 export function sellFYTokenShares(
-  baseReserves: BigNumber | string, // z
-  fyTokenReserves: BigNumber | string, // y
-  fyToken: BigNumber | string,
-  c: BigNumber | string, // c: the price of vyDAI to DAI
-  mu: BigNumber | string, // c: the price of vyDAI to DAI at initialization
+  sharesReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
+  fyTokenIn: BigNumber | string,
+  c: BigNumber | string,
+  mu: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
   g2: BigNumber | string,
-  decimals: number // optional : default === 18
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
-  const fyToken18 = decimalNToDecimal18(BigNumber.from(fyToken), decimals);
+  const fyToken18 = decimalNToDecimal18(BigNumber.from(fyTokenIn), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
@@ -1331,43 +1331,43 @@ export function sellFYTokenShares(
 }
 
 /**
- * Calculate the amount of fyToken a user could sell for given amount of variable yield Base.
+ * Calculates the amount of fyToken a user could sell for given amount of shares.
  * fyTokenInForSharesOut
  * https://www.desmos.com/calculator/8dgux6slgq
- * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReserves
- * @param { BigNumber | string } base
- * @param { BigNumber | string } c
- * @param { BigNumber | string } mu
- * @param { BigNumber | string } timeTillMaturity
- * @param { BigNumber | string } ts
- * @param { BigNumber | string } g2
- * @param { number } decimals
- * @returns { BigNumber }
+ * @param { BigNumber | string } sharesReserves shares reserves amount
+ * @param { BigNumber | string } fyTokenReserves fyToken reserves amount
+ * @param { BigNumber | string } sharesOut shares amount to be traded
+ * @param { BigNumber | string } c price of shares in terms of their base
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization
+ * @param { BigNumber | string } timeTillMaturity time till maturity in seconds
+ * @param { BigNumber | string } ts time stretch
+ * @param { BigNumber | string } g2 fee coefficient
+ * @param { number } decimals pool decimals
+ * @returns { BigNumber } fyTokenIn: the amount of fyToken a user could sell for given amount of shares
  *
- * y = fyToken
- * z = vyToken
- * x = Δz
+ * y = fyToken reserves
+ * z = shares reserves
+ * x = Δz (sharesOut)
  *
  *      (                  sum                                )
- *        (    Za        )   ( Ya  )   (      Zxa           )   (   invA   )
- * dy = ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz - μx)^(1-t) )^(1 / (1 - t)) - y
+ *      (  (    Za        )   ( Ya  )   (      Zxa           )   (   invA   )
+ * Δy = ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz - μx)^(1-t) )^(1 / (1 - t)) - y
  */
 export function buyBaseShares(
-  baseReserves: BigNumber | string, // z
-  fyTokenReserves: BigNumber | string, // y
-  base: BigNumber | string,
+  sharesReserves: BigNumber | string,
+  fyTokenReserves: BigNumber | string,
+  sharesOut: BigNumber | string,
   c: BigNumber | string,
   mu: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
   g2: BigNumber | string,
-  decimals: number // optional : default === 18
+  decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
-  const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
+  const base18 = decimalNToDecimal18(BigNumber.from(sharesOut), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
@@ -1390,31 +1390,32 @@ export function buyBaseShares(
 }
 
 /**
- * Calculate the amount of variable yield base a user would have to pay for certain amount of fyToken.
+ * Calculates the amount of fyToken a user could buy for given amount of shares.
  * sharesInForFYTokenOut
  * https://www.desmos.com/calculator/oyj2qzevzs
- * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReserves
- * @param { BigNumber | string } fyToken
- * @param { BigNumber | string } c
- * @param { BigNumber | string } mu
- * @param { BigNumber | string } timeTillMaturity
- * @param { BigNumber | string } ts
- * @param { BigNumber | string } g1
- * @returns { BigNumber }
+ * @param { BigNumber | string } sharesReserves yield bearing vault shares reserve amount
+ * @param { BigNumber | string } fyTokenReserves fyToken reserves amount
+ * @param { BigNumber | string } fyTokenOut fyToken amount to be traded
+ * @param { BigNumber | string } c price of shares in terms of their base
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization
+ * @param { BigNumber | string } timeTillMaturity time till maturity in seconds
+ * @param { BigNumber | string } ts time stretch
+ * @param { BigNumber | string } g1 fee coefficient
+ * @param { number } decimals pool decimals
+ * @returns { BigNumber } sharesIn: result the amount of shares a user would have to pay for given amount of fyToken
  *
  * y = fyToken
  * z = vyToken
  * x = Δy
  *
- *            (                 sum                                   )
- *              (     Za       )  ( Ya   )   (    Yxa     )             (   invA   )
- * dz = 1/μ * ( ( c/μ * μz^(1-t) + y^(1-t) - (y - x)^(1-t) ) / (c/μ) )^(1 / (1 - t)) - z
+ *      ( 1/μ * (                         sum                           ) )^(   invA    ) - z
+ *      ( 1/μ * ( (     Za       ) + ( Ya   ) - (    Yxa    ) ) / (c/μ) ) )^(   invA    ) - z
+ * Δz = ( 1/μ * ( ( c/μ * μz^(1-t) + y^(1-t)  - (y - x)^(1-t) ) / (c/μ) ) )^(1 / (1 - t)) - z
  */
 export function buyFYTokenShares(
-  baseReserves: BigNumber | string, // z
+  sharesReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
-  fyToken: BigNumber | string,
+  fyTokenOut: BigNumber | string,
   c: BigNumber | string,
   mu: BigNumber | string,
   timeTillMaturity: BigNumber | string,
@@ -1423,9 +1424,9 @@ export function buyFYTokenShares(
   decimals: number // optional : default === 18
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(baseReserves), decimals);
+  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
-  const fyToken18 = decimalNToDecimal18(BigNumber.from(fyToken), decimals);
+  const fyToken18 = decimalNToDecimal18(BigNumber.from(fyTokenOut), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
