@@ -26,7 +26,7 @@ const TransactionError = () => {
                 <Anchor
                   href="https://docs.yieldprotocol.com/#/troubleshooting"
                   target="_blank"
-                  label="Find More info here."
+                  label="Learn more."
                   size="small"
                 />
               </Text>
