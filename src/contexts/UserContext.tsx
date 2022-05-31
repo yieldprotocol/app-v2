@@ -387,9 +387,10 @@ const UserProvider = ({ children }: any) => {
           const hasBeenLiquidated =
             art === ZERO_BN
               ? (
-                  await Cauldron.queryFilter(
-                    Cauldron.filters.VaultGiven(bytesToBytes32(vault.id, 12), Witch.address),
-                    'earliest'
+                  await Witch.queryFilter(
+                    Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
+                    'earliest',
+                    'latest'
                   )
                 ).length > 0
               : false;
