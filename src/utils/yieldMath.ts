@@ -1125,7 +1125,7 @@ export const strategyTokenValue = (
     poolTotalSupply
   );
 
-  const sellValue = sellFYToken(
+  const sellValue = sellFYTokenOld(
     newPool.baseReserves,
     newPool.fyTokenVirtualReserves,
     _fyTokenReceived,
