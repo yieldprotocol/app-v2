@@ -174,6 +174,9 @@ const _computeB = (
   return [b, invB]; /* returns b and inverse of b */
 };
 
+const _computeG1 = (g1Fee: BigNumber | string) => new Decimal(BigNumber.from(g1Fee).toString()).div(10000);
+const _computeG2 = (g1Fee: BigNumber | string) => ONE.div(new Decimal(BigNumber.from(g1Fee).toString())).div(10000);
+
 /** ************************
  YieldSpace functions
  *************************** */
@@ -269,13 +272,14 @@ export function mintWithBase(
   fyToken: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
-  g1: BigNumber | string,
+  g1Fee: BigNumber | string,
   decimals: number
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
   const supply = fyTokenReservesVirtual.sub(fyTokenReservesReal);
   const y = new Decimal(fyToken.toString());
+  const g1 = _computeG1(g1Fee);
   // buyFyToken:
   const z1 = new Decimal(
     buyFYToken(baseReserves, fyTokenReservesVirtual, fyToken, timeTillMaturity, ts, g1, decimals).toString()
