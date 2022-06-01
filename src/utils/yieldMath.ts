@@ -1231,9 +1231,9 @@ export const calcAccruedDebt = (rate: BigNumber, rateAtMaturity: BigNumber, debt
  * z = base reserves
  * x = Δz (sharesIn)
  *
- *      y - (                         sum                           )^(   invA   )
- *      y - ((    Za         ) + (  Ya  ) - (       Zxa           ) )^(   invA   )
- * Δy = y - ( c/μ * (μz)^(1-t) +  y^(1-t) -  c/μ * (μz + μx)^(1-t) )^(1 / (1 - t))
+ *      y - (                         sum                          )^(   invA   )
+ *      y - ( (    Za        ) + (  Ya  ) - (       Zxa          ) )^(   invA   )
+ * Δy = y - ( c/μ * (μz)^(1-t) +  y^(1-t) -  c/μ * (μz + μx)^(1-t) )^(1 / (1 - t)
  */
 export function sellBaseShares(
   sharesReserves: BigNumber | string, // z
@@ -1291,8 +1291,8 @@ export function sellBaseShares(
  * x = Δy
  *
  *      z - 1/μ * (                      sum                                      )^(   invA    )
- *      z - 1/μ * ( (       Za           ) + ( Ya  ) - (    Yxa     ) ) / (c / μ) )^(   invA    )
- * Δz = z - 1/μ * ( ( (c / μ) * (μz)^(1-t) + y^(1-t) - (y + x)^(1-t) ) / (c / μ) )^(1 / (1 - t))
+ *      z - 1/μ * ( (       Za           ) + ( Ya  ) - (    Yxa    )  ) / (c / μ) )^(   invA    )
+ * Δz = z - 1/μ * ( ( (c / μ) * (μz)^(1-t) + y^(1-t) - (y + x)^(1-t)  ) / (c / μ) )^(1 / (1 - t))
  */
 export function sellFYTokenShares(
   sharesReserves: BigNumber | string,
@@ -1349,8 +1349,8 @@ export function sellFYTokenShares(
  * z = shares reserves
  * x = Δz (sharesOut)
  *
- *      (                  sum                                )
- *      (  (    Za        )   ( Ya  )   (      Zxa           )   (   invA   )
+ *      (                  sum                               )^(   invA   )  - y
+ *      ( (    Za        ) + ( Ya  ) - (      Zxa            )^(   invA   )  - y
  * Δy = ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz - μx)^(1-t) )^(1 / (1 - t)) - y
  */
 export function buyBaseShares(
@@ -1584,9 +1584,9 @@ export function maxBaseOutShares(
  * Y = fyTokenReserves (virtual)
  * Z = baseReserves
  *
- *      (      sum          ) (invA)
- *      (    Za       )  (Ya)
- * y = ((c/μ) * (μZ)^a + Y^a)^(1/a) - Y
+ *     (       sum           )^(invA) - y
+ *     ( (    Za      ) + Ya )^(invA) - y
+ * y = ( (c/μ) * (μZ)^a + Y^a)^(1/a)  - y
  *
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
@@ -1644,9 +1644,9 @@ export function maxFyTokenInShares(
  * Z = baseReserves
  * cmu = cμ^a
  *
- *           (      sum         )   (  denominator     ) (invA)
- *           (    Za   )  ( Ya  )
- * y = Y - (((cμ^a * Z^a + μY^a)) / (cμ^a * (1/c)^a + μ))^(1/a)
+ *         ( (       sum               ) / (  denominator     ) )^invA
+ *         ( ( (    Za     ) + ( Ya  ) ) / (  denominator     ) )^invA
+ * y = Y - ( (  cμ^a * Z^a   +  μY^a)  ) / (cμ^a * (1/c)^a + μ) )^(1/a)
  *
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
