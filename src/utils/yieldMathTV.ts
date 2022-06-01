@@ -345,7 +345,7 @@ export function burnForBase(
  *      y - ( (    Za        ) + (  Ya  ) - (       Zxa          ) )^(   invA   )
  * Δy = y - ( c/μ * (μz)^(1-t) +  y^(1-t) -  c/μ * (μz + μx)^(1-t) )^(1 / (1 - t)
  */
-export function sellBaseShares(
+export function sellBase(
   sharesReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   sharesIn: BigNumber | string,
@@ -404,7 +404,7 @@ export function sellBaseShares(
  *      z - 1/μ * ( (       Za           ) + ( Ya  ) - (    Yxa    )  ) / (c / μ) )^(   invA    )
  * Δz = z - 1/μ * ( ( (c / μ) * (μz)^(1-t) + y^(1-t) - (y + x)^(1-t)  ) / (c / μ) )^(1 / (1 - t))
  */
-export function sellFYTokenShares(
+export function sellFYToken(
   sharesReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyTokenIn: BigNumber | string,
@@ -463,7 +463,7 @@ export function sellFYTokenShares(
  *      ( (    Za        ) + ( Ya  ) - (      Zxa            )^(   invA   )  - y
  * Δy = ( c/μ * (μz)^(1-t) + y^(1-t) - c/μ * (μz - μx)^(1-t) )^(1 / (1 - t)) - y
  */
-export function buyBaseShares(
+export function buyBase(
   sharesReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   sharesOut: BigNumber | string,
@@ -522,7 +522,7 @@ export function buyBaseShares(
  *      ( 1/μ * ( (     Za       ) + ( Ya   ) - (    Yxa    ) ) / (c/μ) ) )^(   invA    ) - z
  * Δz = ( 1/μ * ( ( c/μ * μz^(1-t) + y^(1-t)  - (y - x)^(1-t) ) / (c/μ) ) )^(1 / (1 - t)) - z
  */
-export function buyFYTokenShares(
+export function buyFYToken(
   sharesReserves: BigNumber | string, // z
   fyTokenReserves: BigNumber | string, // y
   fyTokenOut: BigNumber | string,
@@ -573,7 +573,7 @@ export function buyFYTokenShares(
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
-export function maxBaseInShares(
+export function maxBaseIn(
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
   c: BigNumber | string,
@@ -584,16 +584,7 @@ export function maxBaseInShares(
   decimals: number
 ): BigNumber {
   /* calculate the max possible fyToken out */
-  const fyTokenAmountOut = maxFyTokenOutShares(
-    baseReserves,
-    fyTokenReserves,
-    c,
-    mu,
-    timeTillMaturity,
-    ts,
-    g1,
-    decimals
-  );
+  const fyTokenAmountOut = maxFyTokenOut(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g1, decimals);
 
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
@@ -643,7 +634,7 @@ export function maxBaseInShares(
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
-export function maxBaseOutShares(
+export function maxBaseOut(
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
   c: BigNumber | string,
@@ -707,7 +698,7 @@ export function maxBaseOutShares(
  *
  * @returns { BigNumber }
  */
-export function maxFyTokenInShares(
+export function maxFyTokenIn(
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
   c: BigNumber | string,
@@ -767,7 +758,7 @@ export function maxFyTokenInShares(
  *
  * @returns { BigNumber }
  */
-export function maxFyTokenOutShares(
+export function maxFyTokenOut(
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
   c: BigNumber | string,
