@@ -335,7 +335,7 @@ export function burnForBase(
  *
  * @returns { BigNumber }
  */
-export function sellBaseOld(
+export function sellBase(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
@@ -378,7 +378,7 @@ export function sellBaseOld(
  *
  * @returns { BigNumber }
  */
-export function sellFYTokenOld(
+export function sellFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
@@ -422,7 +422,7 @@ export function sellFYTokenOld(
  *
  * @returns { BigNumber }
  */
-export function buyBaseOld(
+export function buyBase(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   base: BigNumber | string,
@@ -466,7 +466,7 @@ export function buyBaseOld(
  *
  * @returns { BigNumber }
  */
-export function buyFYTokenOld(
+export function buyFYToken(
   baseReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   fyToken: BigNumber | string,
@@ -568,7 +568,7 @@ export function maxBaseInOld(
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
-export function maxBaseOutOld(
+export function maxBaseOut(
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: BigNumber | string,
@@ -621,7 +621,7 @@ export function maxBaseOutOld(
  *
  * @returns { BigNumber }
  */
-export function maxFyTokenInOld(
+export function maxFyTokenIn(
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: BigNumber | string,
@@ -663,7 +663,7 @@ export function maxFyTokenInOld(
  *
  * @returns { BigNumber }
  */
-export function maxFyTokenOutOld(
+export function maxFyTokenOut(
   baseReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: BigNumber | string,
@@ -730,7 +730,7 @@ export function fyTokenForMint(
   const maxSurplus = minSurplus.add(base_.mul(precision));
 
   let maxFYToken = new Decimal(
-    maxFyTokenOutOld(baseReserves, fyTokenVirtualReserves, timeTillMaturity, ts, g1, decimals).toString()
+    maxFyTokenOut(baseReserves, fyTokenVirtualReserves, timeTillMaturity, ts, g1, decimals).toString()
   );
   let minFYToken = ZERO_DEC;
 
@@ -818,7 +818,7 @@ export function fyTokenForMintOld(
     // if (i++ > 100)  throw 'Not converging'
 
     zIn = new Decimal(
-      buyFYTokenOld(
+      buyFYToken(
         baseReserves18,
         fyTokenVirtualReserves18,
         BigNumber.from(yOut.floor().toFixed()),
@@ -1125,7 +1125,7 @@ export const strategyTokenValue = (
     poolTotalSupply
   );
 
-  const sellValue = sellFYTokenOld(
+  const sellValue = sellFYToken(
     newPool.baseReserves,
     newPool.fyTokenVirtualReserves,
     _fyTokenReceived,
