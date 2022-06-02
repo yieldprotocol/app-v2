@@ -143,7 +143,6 @@ const _computeA = (
   g: BigNumber | string
 ): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
-  // console.log( new Decimal(BigNumber.from(g).toString()).div(2 ** 64).toString() )
 
   const _g = new Decimal(BigNumber.from(g).toString()).div(2 ** 64);
   const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
@@ -174,10 +173,21 @@ const _computeB = (
   return [b, invB]; /* returns b and inverse of b */
 };
 
-const _computeG1 = (g1Fee: BigNumber | string) =>
-  toBn(new Decimal(BigNumber.from(g1Fee).toString()).div(2 ** 64).div(10000));
-const _computeG2 = (g1Fee: BigNumber | string) =>
-  toBn(ONE.div(new Decimal(BigNumber.from(g1Fee).toString()).div(2 ** 64).div(10000)));
+const _computeG1 = (g1Fee: BigNumber | string) => {
+  const g1_ = new Decimal(BigNumber.from(g1Fee).toString());
+  const scaleFactor = 2 ** 64; // 64 bit
+  return g1_.div(scaleFactor).lt(1) // handle original g1 implementation (looked like .75 as decimal in 64 bit)
+    ? toBn(g1_.div(scaleFactor))
+    : toBn(g1_.div(10000).div(scaleFactor)); // handle new g1 implementation (bps away from 10000)
+};
+
+const _computeG2 = (g1Fee: BigNumber | string) => {
+  const g1_ = new Decimal(BigNumber.from(g1Fee).toString());
+  const scaleFactor = 2 ** 64; // 64 bit
+  return g1_.div(scaleFactor).lt(1) // handle original g1 implementation (looked like .75 as decimal in 64 bit)
+    ? ONE.div(g1_.div(scaleFactor))
+    : ONE.div(g1_.div(10000)).div(scaleFactor); // handle new g1 implementation (bps away from 10000)
+};
 
 /** ************************
  YieldSpace functions
