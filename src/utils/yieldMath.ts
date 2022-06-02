@@ -174,9 +174,10 @@ const _computeB = (
   return [b, invB]; /* returns b and inverse of b */
 };
 
-const _computeG1 = (g1Fee: BigNumber | string) => toBn(new Decimal(BigNumber.from(g1Fee).toString()).div(10000));
+const _computeG1 = (g1Fee: BigNumber | string) =>
+  toBn(new Decimal(BigNumber.from(g1Fee).toString()).div(2 ** 64).div(10000));
 const _computeG2 = (g1Fee: BigNumber | string) =>
-  toBn(ONE.div(new Decimal(BigNumber.from(g1Fee).toString()).div(10000)));
+  toBn(ONE.div(new Decimal(BigNumber.from(g1Fee).toString()).div(2 ** 64).div(10000)));
 
 /** ************************
  YieldSpace functions
