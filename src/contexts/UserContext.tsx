@@ -285,7 +285,7 @@ const UserProvider = ({ children }: any) => {
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress)
+            series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
 
           const rateCheckAmount = ethers.utils.parseUnits(
@@ -386,8 +386,14 @@ const UserProvider = ({ children }: any) => {
           /* If art 0, check for liquidation event */
           const hasBeenLiquidated =
             art === ZERO_BN
-            ?  (await Witch.queryFilter(Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null), 'earliest','latest')).length > 0
-            : false;
+              ? (
+                  await Witch.queryFilter(
+                    Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
+                    'earliest',
+                    'latest'
+                  )
+                ).length > 0
+              : false;
 
           const series = seriesRootMap.get(seriesId);
 
