@@ -747,9 +747,9 @@ export function maxFyTokenIn(
  * Z = baseReserves
  * cmu = cμ^a
  *
- *         ( (       sum               ) / (  denominator     ) )^invA
- *         ( ( (    Za     ) + ( Ya  ) ) / (  denominator     ) )^invA
- * y = Y - ( (  cμ^a * Z^a   +  μY^a)  ) / (cμ^a * (1/c)^a + μ) )^(1/a)
+ *         ( (       sum                 ) / (  denominator  ) )^invA
+ *         ( ( (    Za      ) + (  Ya  ) ) / (  denominator  ) )^invA
+ * y = Y - ( ( ( cμ^a * Z^a ) + ( μY^a ) ) / (    c/μ + 1    ) )^(1/a)
  *
  * @param { BigNumber | string } baseReserves
  * @param { BigNumber | string } fyTokenReserves
@@ -792,7 +792,7 @@ export function maxFyTokenOut(
   const Za = cmu.mul(baseReserves_.pow(a));
   const Ya = mu_.mul(fyTokenReserves_.pow(a));
   const sum = Za.add(Ya);
-  const denominator = cmu.mul(ONE.div(c_).pow(a)).add(mu_);
+  const denominator = c_.div(mu_).add(ONE);
 
   const res = fyTokenReserves_.sub(sum.div(denominator).pow(invA));
 
