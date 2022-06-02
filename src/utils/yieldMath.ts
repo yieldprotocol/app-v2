@@ -137,20 +137,15 @@ export const secondsToFrom = (
 /**
  * specific Yieldspace helper functions
  * */
-const _computeA = (
-  timeToMaturity: BigNumber | string,
-  ts: BigNumber | string,
-  g: BigNumber | string
-): [Decimal, Decimal] => {
+const _computeA = (timeToMaturity: BigNumber | string, ts: BigNumber | string, g: Decimal): [Decimal, Decimal] => {
   const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
 
-  const _g = new Decimal(BigNumber.from(g).toString()).div(2 ** 64);
   const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
 
   // t = ts * timeTillMaturity
   const t = _ts.mul(timeTillMaturity_);
   // a = (1 - gt)
-  const a = ONE.sub(_g.mul(t));
+  const a = ONE.sub(g.mul(t));
   const invA = ONE.div(a);
   return [a, invA]; /* returns a and inverse of a */
 };
@@ -177,8 +172,8 @@ const _computeG1 = (g1Fee: BigNumber | string) => {
   const g1_ = new Decimal(BigNumber.from(g1Fee).toString());
   const scaleFactor = 2 ** 64; // 64 bit
   return g1_.div(scaleFactor).lt(1) // handle original g1 implementation (looked like .75 as decimal in 64 bit)
-    ? toBn(g1_.div(scaleFactor))
-    : toBn(g1_.div(10000).div(scaleFactor)); // handle new g1 implementation (bps away from 10000)
+    ? g1_.div(scaleFactor)
+    : g1_.div(10000).div(scaleFactor); // handle new g1 implementation (bps away from 10000)
 };
 
 const _computeG2 = (g1Fee: BigNumber | string) => {
