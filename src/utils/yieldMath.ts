@@ -150,24 +150,6 @@ const _computeA = (timeToMaturity: BigNumber | string, ts: BigNumber | string, g
   return [a, invA]; /* returns a and inverse of a */
 };
 
-const _computeB = (
-  timeToMaturity: BigNumber | string,
-  ts: BigNumber | string,
-  g: BigNumber | string
-): [Decimal, Decimal] => {
-  const timeTillMaturity_ = new Decimal(timeToMaturity.toString());
-
-  const _g = new Decimal(BigNumber.from(g).toString()).div(2 ** 64);
-  const _ts = new Decimal(BigNumber.from(ts).toString()).div(2 ** 64);
-
-  // t = ts * timeTillMaturity
-  const t = _ts.mul(timeTillMaturity_);
-  // b = (1 - t/g)
-  const b = ONE.sub(t.div(_g));
-  const invB = ONE.div(b);
-  return [b, invB]; /* returns b and inverse of b */
-};
-
 const _computeG1 = (g1Fee: BigNumber | string) => {
   const g1_ = new Decimal(BigNumber.from(g1Fee).toString());
   const scaleFactor = 2 ** 64; // 64 bit
