@@ -585,7 +585,7 @@ export function maxBaseIn(
   decimals: number
 ): BigNumber {
   /* calculate the max possible fyToken out */
-  const fyTokenAmountOut = maxFyTokenOut(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g1, decimals);
+  const fyTokenAmountOut = maxFyTokenOut(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g1Fee, decimals);
 
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
