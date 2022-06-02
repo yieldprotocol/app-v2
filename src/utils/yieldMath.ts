@@ -808,7 +808,7 @@ export function maxFyTokenOut(
  * The amount bought leaves a bit of unused underlying, to allow for the pool reserves to change between
  * the calculation and the mint. The pool returns any unused underlying.
  *
- * @param baseReserves
+ * @param sharesReserves
  * @param fyTokenRealReserves
  * @param fyTokenVirtualReserves
  * @param base
@@ -1163,11 +1163,11 @@ export const calcLiquidationPrice = (
 };
 
 /**
- *  @param {BigNumber}  baseChange
- * @param {BigNumber}  fyTokenChange
- * @param {BigNumber}  poolBaseReserves
- * @param {BigNumber}  poolFyTokenRealReserves
- * @param {BigNumber}  poolTotalSupply
+ *  @param {BigNumber} baseChange
+ * @param {BigNumber} fyTokenChange
+ * @param {BigNumber} poolBaseReserves
+ * @param {BigNumber} poolFyTokenRealReserves
+ * @param {BigNumber} poolTotalSupply
  *
  * @returns {BigNumber[]} [newBaseReserves, newFyTokenRealReserves, newTotalSupply, newFyTokenVirtualReserves]
  */
@@ -1196,12 +1196,17 @@ export const newPoolState = (
 };
 
 /**
- *  @param {BigNumber}  strategyTokenAmount
- * @param {BigNumber}  strategyTotalSupply
- * @param {BigNumber}  poolStrategyBalance
- * @param {BigNumber}  poolBaseReserves
- * @param {BigNumber}  poolFyTokenReserves
- * @param {BigNumber}  poolTotalSupply
+ *  @param {BigNumber | string} strategyTokenAmount
+ * @param {BigNumber} strategyTotalSupply
+ * @param {BigNumber} strategyPoolBalance
+ * @param {BigNumber} poolBaseReserves
+ * @param {BigNumber} poolFyTokenRealReserves
+ * @param {BigNumber} poolTotalSupply
+ * @param {BigNumber | string} poolTimeToMaturity
+ * @param {BigNumber | string} c
+ * @param {BigNumber | string} mu
+ * @param {BigNumber | string} ts
+ * @param {BigNumber | string} g1Fee
  * @param {number}  poolTimeToMaturity
  *
  * @param { BigNumber | string } ts
