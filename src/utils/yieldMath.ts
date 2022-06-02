@@ -423,8 +423,8 @@ export function sellFYToken(
   const baseReserves_ = new Decimal(baseReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyToken_ = new Decimal(fyToken18.toString());
-  const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
-  const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const c_ = new Decimal(c18.toString()).div(new Decimal(10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const mu_ = new Decimal(mu18.toString()).div(new Decimal(10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const g2 = _computeG2(g1Fee);
   const [a, invA] = _computeA(timeTillMaturity, ts, g2);
@@ -647,7 +647,7 @@ export function maxBaseOut(
   decimals: number
 ): BigNumber {
   /* calculate the max possible fyToken (fyToken amount) */
-  const fyTokenAmountIn = maxFyTokenIn(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g2, decimals);
+  const fyTokenAmountIn = maxFyTokenIn(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g1Fee, decimals);
 
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
