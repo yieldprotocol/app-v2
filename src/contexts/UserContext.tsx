@@ -386,8 +386,8 @@ const UserProvider = ({ children }: any) => {
           /* If art 0, check for liquidation event */
           const hasBeenLiquidated =
             art === ZERO_BN
-              ? (await Cauldron.queryFilter(Cauldron.filters.VaultGiven(vault.id, Witch.address), 'earliest')).length > 0
-              : false;
+            ?  (await Witch.queryFilter(Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null), 'earliest','latest')).length > 0
+            : false;
 
           const series = seriesRootMap.get(seriesId);
 
