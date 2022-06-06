@@ -53,7 +53,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
                     handleSelect(a);
                     setOpen(false);
                   }}
-                  disabled={a.balance.eq(ethers.constants.Zero)}
+                  disabled={a.balance && a.balance.eq(ethers.constants.Zero)}
                 >
                   <BoxWrap
                     justify="between"

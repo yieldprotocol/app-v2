@@ -80,7 +80,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
     const sortedOptions = selectCollateral
-      ? filteredOptions.sort((a, b) => (a.balance.lt(b.balance) ? 1 : -1))
+      ? filteredOptions.sort((a, b) => (a.balance && a.balance.lt(b.balance) ? 1 : -1))
       : filteredOptions;
 
     setOptions(sortedOptions);
