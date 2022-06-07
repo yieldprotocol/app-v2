@@ -26,7 +26,7 @@ const calcPrice = (base: BigNumber, fyToken: BigNumber, c: BigNumber | string) =
 
 describe('Shares YieldMath', () => {
   const g1 = toBn(g1_default);
-  const g1FeeNewExample = BigNumber.from('0xccccccccccccccd');
+  const g1FeeNewExample = BigNumber.from('0x251c0000000000000000'); // 9500 in 64 bit (new g1 structure looks like ratio out of 10000: 9500 / 10000 = .95)
   const g1Fee = g1;
   let ts = toBn(k);
 
@@ -144,12 +144,6 @@ describe('Shares YieldMath', () => {
         );
         expect(baseIn).to.be.closeTo(base, comparePrecision);
       });
-
-      // it('should have max fyToken out of x', () => {
-      //   const maxShares = maxBaseIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1Fee, decimals);
-      //   console.log('🦄 ~ file: yieldMath.test.ts ~ line 182 ~ it ~ maxBase', formatUnits(maxShares));
-      //   console.log('🦄 ~ file: yieldMath.test.ts ~ line 184 ~ it ~ timeTillMaturity', timeTillMaturity);
-      // });
     });
 
     describe('sellFYTokenShares (sharesOutForFYTokenIn)', () => {
@@ -423,12 +417,6 @@ describe('Shares YieldMath', () => {
         );
         expect(baseIn).to.be.closeTo(base, comparePrecision);
       });
-
-      // it('should have max fyToken out of x', () => {
-      //   const maxShares = maxBaseIn(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1Fee, decimals);
-      //   console.log('🦄 ~ file: yieldMath.test.ts ~ line 182 ~ it ~ maxBase', formatUnits(maxShares));
-      //   console.log('🦄 ~ file: yieldMath.test.ts ~ line 184 ~ it ~ timeTillMaturity', timeTillMaturity);
-      // });
     });
 
     describe('sellFYTokenShares (sharesOutForFYTokenIn)', () => {
