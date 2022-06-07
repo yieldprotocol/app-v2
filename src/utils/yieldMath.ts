@@ -155,7 +155,7 @@ const _computeG1 = (g1Fee: BigNumber | string) => {
   const scaleFactor = 2 ** 64; // 64 bit
   return g1_.div(scaleFactor).lt(1) // handle original g1 implementation (looked like .75 as decimal in 64 bit)
     ? g1_.div(scaleFactor)
-    : g1_.div(10000).div(scaleFactor); // handle new g1 implementation (bps away from 10000)
+    : g1_.div(scaleFactor).div(10000); // handle new g1 implementation (ratio using 10000 denominator)
 };
 
 const _computeG2 = (g1Fee: BigNumber | string) => {
@@ -163,7 +163,7 @@ const _computeG2 = (g1Fee: BigNumber | string) => {
   const scaleFactor = 2 ** 64; // 64 bit
   return g1_.div(scaleFactor).lt(1) // handle original g1 implementation (looked like .75 as decimal in 64 bit)
     ? ONE.div(g1_.div(scaleFactor))
-    : ONE.div(g1_.div(10000)).div(scaleFactor); // handle new g1 implementation (bps away from 10000)
+    : ONE.div(g1_.div(10000)).div(scaleFactor); // handle new g1 implementation (ratio using 10000 denominator)
 };
 
 /** ************************
@@ -785,6 +785,7 @@ export function maxFyTokenOut(
   const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const g1 = _computeG1(g1Fee);
+  console.log('🦄 ~ file: yieldMath.ts ~ line 788 ~ g1', g1);
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
   const cmu = c_.mul(mu_.pow(a));
