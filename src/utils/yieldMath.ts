@@ -744,14 +744,14 @@ export function maxFyTokenIn(
  *
  * y = maxFyTokenOut
  * Y = fyTokenReserves (virtual)
- * Z = baseReserves
+ * Z = sharesReserves
  * cmu = cμ^a
  *
  *         ( (       sum                 ) / (  denominator  ) )^invA
  *         ( ( (    Za      ) + (  Ya  ) ) / (  denominator  ) )^invA
  * y = Y - ( ( ( cμ^a * Z^a ) + ( μY^a ) ) / (    c/μ + 1    ) )^(1/a)
  *
- * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } sharesReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } c
  * @param { BigNumber | string } mu
@@ -763,7 +763,7 @@ export function maxFyTokenIn(
  * @returns { BigNumber }
  */
 export function maxFyTokenOut(
-  baseReserves: BigNumber,
+  sharesReserves: BigNumber,
   fyTokenReserves: BigNumber,
   c: BigNumber | string,
   mu: BigNumber | string,
@@ -773,13 +773,13 @@ export function maxFyTokenOut(
   decimals: number
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
+  const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
   const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
   /* convert to decimal for the math */
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
   const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
@@ -789,7 +789,7 @@ export function maxFyTokenOut(
 
   const cmu = c_.mul(mu_.pow(a));
 
-  const Za = cmu.mul(baseReserves_.pow(a));
+  const Za = cmu.mul(sharesReserves_.pow(a));
   const Ya = mu_.mul(fyTokenReserves_.pow(a));
   const sum = Za.add(Ya);
   const denominator = c_.div(mu_).add(ONE);
