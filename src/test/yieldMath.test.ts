@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import { Decimal } from 'decimal.js';
 import { solidity } from 'ethereum-waffle';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, ethers, utils } from 'ethers';
 import {
   buyBase,
   buyFYToken,
@@ -26,6 +26,7 @@ const calcPrice = (base: BigNumber, fyToken: BigNumber, c: BigNumber | string) =
 
 describe('Shares YieldMath', () => {
   const g1 = toBn(g1_default);
+  const g1FeeNewExample = BigNumber.from('0xccccccccccccccd');
   const g1Fee = g1;
   let ts = toBn(k);
 
@@ -322,7 +323,7 @@ describe('Shares YieldMath', () => {
       // https://www.desmos.com/calculator/sjdvxpa3vy
       it('should output a specific number with a specific input', () => {
         c = parseUnits('1.1', decimals);
-        mu = parseUnits('1.05', decimals);
+        mu = parseUnits('1', decimals);
         ts = toBn(
           new Decimal(
             1 /
@@ -334,8 +335,25 @@ describe('Shares YieldMath', () => {
         baseReserves = parseUnits('1100000', decimals);
         fyTokenReserves = parseUnits('1500000', decimals);
         timeTillMaturity = (77760000).toString();
+
         const result = maxFyTokenOut(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g1Fee, decimals);
-        expect(result).to.be.closeTo(parseUnits('145104.437', decimals), comparePrecision); // 145,104.437864
+        // use new g1Fee format (bps away from 10000)
+        const resultWithNewFeeFormat = maxFyTokenOut(
+          baseReserves,
+          fyTokenReserves,
+          c,
+          mu,
+          timeTillMaturity,
+          ts,
+          g1FeeNewExample,
+          decimals
+        );
+        console.log(
+          '🦄 ~ file: yieldMath.test.ts ~ line 351 ~ it ~ resultWithNewFeeFormat',
+          ethers.utils.formatEther(resultWithNewFeeFormat)
+        );
+        expect(result).to.be.closeTo(parseUnits('209668.563', decimals), comparePrecision); // 209,668.563642
+        expect(resultWithNewFeeFormat).to.be.closeTo(parseUnits('209668.563', decimals), comparePrecision); // 209,668.563642
       });
     });
 

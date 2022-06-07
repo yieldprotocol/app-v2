@@ -16,6 +16,8 @@
     "eth-permit": "^0.2.1",
     "ethers": "^5.5.4",
     "grommet": "^2.18.0",
+    "jest": "^28.1.1",
+    "jest-environment-jsdom": "^28.1.0",
     "next": "^12.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -36,7 +38,8 @@
     "start": "next start",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --out-dir './src/contracts/'",
-    "license-checker": "license-checker --csv --out licenses.csv"
+    "license-checker": "license-checker --csv --out licenses.csv",
+    "test": "jest --watch"
   },
   "eslintConfig": {
     "extends": [
