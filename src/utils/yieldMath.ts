@@ -785,7 +785,6 @@ export function maxFyTokenOut(
   const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const g1 = _computeG1(g1Fee);
-  console.log('🦄 ~ file: yieldMath.ts ~ line 788 ~ g1', g1);
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
   const cmu = c_.mul(mu_.pow(a));
