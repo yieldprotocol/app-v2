@@ -220,6 +220,11 @@ export const useCollateralHelpers = (
     maxCollateral,
     maxRemovableCollateral,
     unhealthyCollatRatio,
+
+    totalDebt,
+    totalDebt_,
+
+    totalCollateral,
     totalCollateral_,
 
     liquidationPrice_,

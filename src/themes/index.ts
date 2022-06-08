@@ -5,11 +5,19 @@ export const yieldTheme = {
   global: {
     focus: 'none',
     elevation: {
+      // dark: {
+      //   xsmall: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+      //   small: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+      //   medium: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+      //   large: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+      //   xlarge: '0px 10px 24px rgba(255, 255, 255, 0.20)',
+      // },
+
       dark: {
-        xsmall: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
-        small: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
-        medium: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
-        large: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        xsmall: '1px 1px 1px #202A30,  0.25px 0.25px 0.25px #202A30',
+        small: '1px 1px 1px #202A30, 0.25px 0.25px 0.25px #202A30',
+        medium: '1px 1px 1px #202A30, 0.25px 0.25px 0.25px #202A30',
+        large: '1px 1px 1px #202A30, 0.25px 0.25px 0.25px #202A30',
         xlarge: '0px 10px 24px rgba(255, 255, 255, 0.20)',
       },
     },
@@ -67,7 +75,7 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
       hoverBackground: {
-        dark: '#262626',
+        dark: '#181818',
         light: '#FFFFFF',
       },
       selected: {
@@ -112,6 +120,15 @@ export const yieldTheme = {
   textInput: {
     extend: ({ theme }: any) =>
       theme.dark ? `color: ${theme.global.colors.text.dark}` : `color: ${theme.global.colors.text.light}`,
+  },
+
+  tip: { 
+    size:'xsmall',
+    content: {
+      background: "background", 
+      pad: { vertical: "xsmall", horizontal: "xsmall" }, 
+      round: "xsmall",
+    }
   },
 
   button: {

@@ -75,12 +75,12 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
     const filteredOptions = selectCollateral
       ? opts
-          .filter((a) => a.id !== selectedBase?.id) // show all available collateral assets if the user is not connected except selectedBase
+          .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
-      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.id));
+      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
     const sortedOptions = selectCollateral
-      ? filteredOptions.sort((a, b) => (a.balance.lt(b.balance) ? 1 : -1))
+      ? filteredOptions.sort((a, b) => (a.balance && a.balance.lt(b.balance) ? 1 : -1))
       : filteredOptions;
 
     setOptions(sortedOptions);
@@ -96,11 +96,18 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
-    if (selectedIlk?.id === selectedBase?.id) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.id !== selectedIlk?.id);
+    if (selectedIlk?.proxyId === selectedBase?.proxyId) {
+      const firstNotBaseIlk = options.find((asset: IAsset) => asset.proxyId !== selectedIlk?.proxyId);
       setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
+
+  /* set ilk to be USDC if ETH base */
+  useEffect(() => {
+    if (selectedBase?.proxyId === WETH) {
+      setSelectedIlk(assetMap.get(USDC));
+    }
+  }, [assetMap, selectedBase, setSelectedIlk]);
 
   return (
     <StyledBox

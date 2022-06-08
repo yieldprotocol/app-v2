@@ -1,5 +1,5 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
-import { ERC1155, ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
+import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -47,6 +47,8 @@ export interface IChainContextActions {
   disconnect: () => void;
   isConnected: (connection: string) => void;
   useTenderly: (shouldUse: boolean) => void;
+
+  exportContractAddresses: () => void;
 }
 
 export interface IPriceContextState {
@@ -137,6 +139,7 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
+  tokenType: TokenType;
 }
 
 export interface ISeriesRoot extends ISignable {
@@ -189,29 +192,23 @@ export enum TokenType {
 
 export interface IAssetInfo {
   tokenType: TokenType;
-  tokenIdentifier?: number; // used for identifying tokens in a multitoken contract
+  tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
   name: string;
   version: string;
   symbol: string;
   decimals: number;
 
-  showToken: boolean;
-  isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (except ETH - which is handled differently)
+  showToken: boolean; // Display/hide the token on the UI
 
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
-
   displaySymbol?: string; // override for symbol display
 
-  wrapHandlerAddress?: string;
-
-  wrappedTokenId?: string;
-  wrappedTokenAddress?: string;
-
-  unwrappedTokenId?: string;
-  unwrappedTokenAddress?: string;
-
   limitToSeries?: string[];
+
+  wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
+  unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
+  proxyId?: string;
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
@@ -224,10 +221,13 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   joinAddress: string;
 
   digitFormat: number;
-  baseContract: Contract;
+  assetContract: Contract;
 
   isYieldBase: boolean;
-  idToUse: string;
+
+  isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
+  wrappingRequired: boolean;
+  proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
@@ -238,14 +238,12 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 export interface IAssetPair {
   baseId: string;
   ilkId: string;
-
   oracle: string;
 
   baseDecimals: number;
   limitDecimals: number;
 
   minRatio: number;
-
   minDebtLimit: BigNumber;
   maxDebtLimit: BigNumber;
   pairPrice: BigNumber;
@@ -296,7 +294,10 @@ export interface IAsset extends IAssetRoot {
 export interface IDummyVault extends IVaultRoot {}
 export interface IVault extends IVaultRoot {
   owner: string;
+
   isWitchOwner: boolean;
+  hasBeenLiquidated: boolean;
+
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
@@ -394,12 +395,7 @@ export interface IDomain {
 export enum ApprovalType {
   TX = 'TX',
   SIG = 'SIG',
-}
-
-export enum SignType {
-  ERC2612 = 'ERC2612_TYPE',
-  DAI = 'DAI_TYPE',
-  FYTOKEN = 'FYTOKEN_TYPE',
+  DAI_SIG = 'DAI_SIG',
 }
 
 export enum TxState {

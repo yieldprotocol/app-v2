@@ -13,11 +13,8 @@ export const SUPPORTED_RPC_URLS: { [chainId: number]: string } = {
   1: RPC_URLS[1],
   4: RPC_URLS[4],
   5: RPC_URLS[5],
-  42: RPC_URLS[42],
-  // 10: RPC_URLS[10],
-  // 69: RPC_URLS[69],
   42161: RPC_URLS[42161],
-  421611: RPC_URLS[421611],
+  // 421611: RPC_URLS[421611],
 };
 
 export const SUPPORTED_CHAIN_IDS: number[] = Object.keys(SUPPORTED_RPC_URLS).map((chainId: string) => +chainId);

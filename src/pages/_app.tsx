@@ -34,17 +34,17 @@ const App = ({ Component, pageProps }: AppProps) => {
     <ProviderContext>
       <DynamicChainProvider>
         <DynamicSettingsProvider>
-          <DynamicUserProvider>
-            <DynamicTxProvider>
-              <DynamicPriceProvider>
+          <DynamicPriceProvider>
+            <DynamicUserProvider>
+              <DynamicTxProvider>
                 <DynamicHistoryProvider>
                   <DynamicLayout>
                     <Component {...pageProps} />
                   </DynamicLayout>
                 </DynamicHistoryProvider>
-              </DynamicPriceProvider>
-            </DynamicTxProvider>
-          </DynamicUserProvider>
+              </DynamicTxProvider>
+            </DynamicUserProvider>
+          </DynamicPriceProvider>
         </DynamicSettingsProvider>
       </DynamicChainProvider>
     </ProviderContext>

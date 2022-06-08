@@ -3,7 +3,7 @@ import { Box, ResponsiveContext, Text } from 'grommet';
 import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
-import { SettingsContext } from '../contexts/SettingsContext';
+import { Settings, SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import GeneralButton from './buttons/GeneralButton';
 import YieldMark from './logos/YieldMark';
@@ -69,10 +69,12 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
       </Box>
 
       {disclaimerChecked === false && (
-        <Disclaimer
-          checked={disclaimerChecked}
-          onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
-        />
+        <Box border={{ color: 'brand' }} round="small" pad="medium">
+          <Disclaimer
+            checked={disclaimerChecked}
+            onChange={(event: any) => updateSetting(Settings.DISCLAIMER_CHECKED, event.target.checked)}
+          />
+        </Box>
       )}
       <Box pad="medium" gap={mobile ? 'large' : 'small'}>
         {[...CONNECTORS.keys()].map((name: string) => {

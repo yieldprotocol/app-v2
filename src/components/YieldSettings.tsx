@@ -15,6 +15,8 @@ import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
 import NetworkSetting from './settings/NetworkSetting';
 import TenderlyForkSetting from './settings/TenderlyForkSetting';
+import UnwrapSetting from './settings/UnwrapSetting';
+import BackButton from './buttons/BackButton';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -54,6 +56,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
+        {mobile && <BackButton action={() => setSettingsOpen(false)} />}
+
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
             <YieldAvatar address={account} size={7} />
@@ -70,7 +74,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Anchor>
           )}
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-            {mobile && <YieldAvatar address={account} size={2} />}
+            {mobile && <YieldAvatar address={account} size={4} />}
             <CopyWrap hash={account}>
               <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(account, 6)}</Text>
             </CopyWrap>
@@ -118,6 +122,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />
         <ApprovalSetting />
+        <UnwrapSetting />
         <SlippageSetting />
         <TenderlyForkSetting />
       </Box>

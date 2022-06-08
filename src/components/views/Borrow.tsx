@@ -13,16 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ActionCodes,
-  ActionType,
-  ISettingsContext,
-  IUserContext,
-  IUserContextState,
-  IVault,
-  ProcessStage,
-  TxState,
-} from '../../types';
+import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -54,7 +45,6 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
 import VaultItem from '../positionItems/VaultItem';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 import useTenderly from '../../hooks/useTenderly';
@@ -75,10 +65,6 @@ const Borrow = () => {
   ) as IUserContext;
   const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
-
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -201,7 +187,7 @@ const Borrow = () => {
     selectedSeries?.seriesIsMature ||
     (stepPosition === 1 && undercollateralized) ||
     (stepPosition === 1 && collatInputError) ||
-    selectedSeries.baseId !== selectedBase?.id
+    selectedSeries.baseId !== selectedBase?.proxyId
       ? setStepDisabled(true)
       : setStepDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
@@ -213,7 +199,7 @@ const Borrow = () => {
     collatInput,
     undercollateralized,
     collatInputError,
-    selectedBase?.id,
+    selectedBase?.proxyId,
   ]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
@@ -222,8 +208,8 @@ const Borrow = () => {
       const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
-          v.ilkId === selectedIlk.idToUse &&
-          v.baseId === selectedBase.idToUse &&
+          v.ilkId === selectedIlk.proxyId &&
+          v.baseId === selectedBase.proxyId &&
           v.seriesId === selectedSeries.id &&
           v.isActive
       );
@@ -338,14 +324,11 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <>
-                <Box
-                  background="gradient-transparent"
-                  round={{ corner: 'top', size: 'xsmall' }}
-                  pad="medium"
-                  gap="medium"
-                >
+                {/* <Box style={{ position: 'absolute', left:'-20px' }} pad="small">
                   <BackButton action={() => setStepPosition(0)} />
-
+                </Box> */}
+                <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
+                  <BackButton action={() => setStepPosition(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">
                     <Box justify="center">
                       <Gauge
@@ -369,38 +352,36 @@ const Borrow = () => {
                     </Box>
                   </Box>
 
-                  <Box gap="small" fill="horizontal" align="end" pad={{ horizontal: 'small' }}>
+                  <Box gap="xsmall" fill="horizontal" align="end" pad={{ horizontal: 'medium' }}>
                     <Box align="center" direction="row" gap="xsmall">
-                      <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                        {mobile ? 'Min reqd. :' : 'Minimum reqd. :'}{' '}
+                      <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
+                        Minimum
                       </Text>
-                      <Text size={mobile ? 'xsmall' : 'xsmall'}>{minCollatRatioPct}%</Text>
+                      <Text size={mobile ? 'xsmall' : 'small'}>{minCollatRatioPct}%</Text>
                     </Box>
 
-                    <Box>
+                    <Box height={{ min: '1.5rem' }}>
                       {collatInput ? (
                         <Box align="center" direction="row" gap="xsmall">
-                          <Text size={mobile ? 'xsmall' : 'xsmall'} color="text-weak">
-                            {mobile ? 'Liq. Price :' : 'Liquidiation when'}{' '}
+                          <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
+                            Liquidation when
                           </Text>
-                          <Text size={mobile ? 'xsmall' : 'xsmall'}>
+                          <Text size={mobile ? 'xsmall' : 'small'}>
                             1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
                           </Text>
                         </Box>
-                      ) : (
-                        <Box pad="xsmall" />
-                      )}
+                      ) : null}
                     </Box>
                   </Box>
                 </Box>
 
                 <Line />
 
-                <Box gap="medium" pad="large">
+                <Box gap="medium" pad={{ horizontal: 'large', vertical: 'medium' }}>
                   <Box gap="small" flex={false}>
                     <SectionWrap title="Amount of collateral to add">
                       <Box direction="row-responsive">
-                        <Box basis={mobile ? undefined : '60%'} fill="horizontal">
+                        <Box fill="horizontal">
                           <InputWrap
                             action={() => console.log('maxAction')}
                             disabled={!selectedSeries}
@@ -410,7 +391,6 @@ const Borrow = () => {
                               plain
                               type="number"
                               placeholder="Enter amount"
-                              // ref={(el:any) => { el && el.focus(); }}
                               value={collatInput}
                               onChange={(event: any) =>
                                 setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
@@ -427,7 +407,7 @@ const Borrow = () => {
                             />
                           </InputWrap>
                         </Box>
-                        <Box basis={mobile ? undefined : '40%'}>
+                        <Box flex="grow" width={{ min: '10rem' }}>
                           <AssetSelector selectCollateral isModal={true} />
                         </Box>
                       </Box>
@@ -438,7 +418,7 @@ const Borrow = () => {
                         <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
                           <VaultDropSelector
                             vaults={matchingVaults}
-                            handleSelect={(option: any) => setVaultToUse(option)}
+                            handleSelect={(option: any) => setVaultToUse(option.id ? option : undefined)}
                             itemSelected={vaultToUse}
                             displayName="Create New Vault"
                             placeholder="Create New Vault"
@@ -472,6 +452,7 @@ const Borrow = () => {
                   round={{ corner: 'top', size: 'xsmall' }}
                   pad="medium"
                   gap="medium"
+                  height={{ min: '350px' }}
                 >
                   {borrowProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                     <BackButton action={() => handleNavAction(1)} />
@@ -549,12 +530,11 @@ const Borrow = () => {
                     <Text size="xsmall" weight="lighter">
                       I understand the risks associated with borrowing. In particular, I understand that as a new
                       protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
-                      below the minimum collateralization requirement ({' '}
+                      below the minimum collateralization requirement (
                       <Text size="xsmall" color="red">
-                        {' '}
                         {minCollatRatioPct}%
-                      </Text>{' '}
-                      ) I could lose most or all of my posted collateral.
+                      </Text>
+                      ), I could lose most or all of my posted collateral.
                     </Text>
                   }
                   checked={disclaimerChecked}
@@ -570,7 +550,7 @@ const Borrow = () => {
                 // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {borrowInput && (!selectedSeries || selectedBase?.id !== selectedSeries.baseId)
+                    {borrowInput && (!selectedSeries || selectedBase?.proxyId !== selectedSeries.baseId)
                       ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
                       : 'Next Step'}
                   </Text>

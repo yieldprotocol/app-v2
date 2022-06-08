@@ -67,7 +67,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
 
   const NavLink = ({ link }: { link: any }) => (
     <Link href={link.to} passHref>
-      <StyledLink style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}>
+      <StyledLink onClick={()=>callbackFn() } style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}>
         <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
       </StyledLink>
     </Link>
