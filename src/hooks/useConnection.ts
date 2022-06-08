@@ -26,7 +26,7 @@ export const useConnection = () => {
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
-  const [useTenderlyFork, setUseTenderlyFork] = useState<boolean>(false);
+  const [useTenderlyFork, setUseTenderlyFork] = useCachedState('useTenderlyFork', false);
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
@@ -165,7 +165,9 @@ export const useConnection = () => {
   useEffect(() => {
     const getProviders = () => {
       if (useTenderlyFork) {
+        console.log('🦄 ~ file: useConnection.ts ~ line 168 ~ getProviders ~ useTenderlyFork', useTenderlyFork);
         const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+
         return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
       }
       return { provider, fallbackProvider };
