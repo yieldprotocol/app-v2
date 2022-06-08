@@ -168,8 +168,7 @@ export const useConnection = () => {
         const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
         return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
       }
-      if ([42161, 421611].includes(chainId)) return { provider, fallbackProvider }; // always use fallback for arbitrum (testnet) to access historical data
-      return provider ? { provider, fallbackProvider: provider } : { provider, fallbackProvider };
+      return { provider, fallbackProvider };
     };
 
     setProviderToUse(getProviders().provider);
