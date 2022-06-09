@@ -464,17 +464,19 @@ const ChainProvider = ({ children }: any) => {
                 const poolAddress = poolMap.get(id);
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1] = await Promise.all([
-                  fyTokenContract.name(),
-                  fyTokenContract.symbol(),
-                  fyTokenContract.version(),
-                  fyTokenContract.decimals(),
-                  poolContract.name(),
-                  poolContract.version(),
-                  poolContract.symbol(),
-                  poolContract.ts(),
-                  poolContract.g1(),
-                ]);
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
+                  await Promise.all([
+                    fyTokenContract.name(),
+                    fyTokenContract.symbol(),
+                    fyTokenContract.version(),
+                    fyTokenContract.decimals(),
+                    poolContract.name(),
+                    poolContract.version(),
+                    poolContract.symbol(),
+                    poolContract.ts(),
+                    poolContract.g1(),
+                    poolContract.g2(),
+                  ]);
                 const newSeries = {
                   id,
                   baseId,
@@ -491,6 +493,7 @@ const ChainProvider = ({ children }: any) => {
                   poolSymbol,
                   ts,
                   g1,
+                  g2,
                 };
                 updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
