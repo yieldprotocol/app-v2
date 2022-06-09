@@ -1261,12 +1261,12 @@ export const strategyTokenValue = (
     newPool.baseReserves,
     newPool.fyTokenVirtualReserves,
     _fyTokenReceived,
-    c,
-    mu,
     poolTimeToMaturity.toString(),
     ts,
     g1Fee,
-    decimals
+    decimals,
+    c,
+    mu
   );
 
   const totalValue = sellValue.add(_baseTokenReceived);
