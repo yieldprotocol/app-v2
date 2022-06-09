@@ -165,7 +165,6 @@ export const useConnection = () => {
   useEffect(() => {
     const getProviders = () => {
       if (useTenderlyFork) {
-        console.log('🦄 ~ file: useConnection.ts ~ line 168 ~ getProviders ~ useTenderlyFork', useTenderlyFork);
         const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
 
         return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
