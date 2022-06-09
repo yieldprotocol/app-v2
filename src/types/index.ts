@@ -160,6 +160,7 @@ export interface ISeriesRoot extends ISignable {
   decimals: number;
   ts: BigNumber;
   g1: BigNumber;
+  g2: BigNumber;
 
   baseId: string;
 

@@ -89,7 +89,7 @@ export const useBorrow = () => {
           _input,
           series.getTimeTillMaturity(),
           series.ts,
-          series.g1,
+          series.g2,
           series.decimals
         );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);

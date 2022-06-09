@@ -101,7 +101,7 @@ export const useBorrowHelpers = (
         input_,
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
-        futureSeries.g1,
+        futureSeries.g2,
         futureSeries.decimals
       );
       const estimatePlusVaultUsed = vault?.accruedArt?.gt(ethers.constants.Zero)
@@ -120,7 +120,7 @@ export const useBorrowHelpers = (
         futureSeries.fyTokenReserves,
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
-        futureSeries.g1,
+        futureSeries.g2,
         futureSeries.decimals
       );
 
@@ -130,7 +130,7 @@ export const useBorrowHelpers = (
         vault.accruedArt,
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
-        futureSeries.g1,
+        futureSeries.g2,
         futureSeries.decimals
       );
 

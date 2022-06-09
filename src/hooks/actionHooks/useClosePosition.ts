@@ -62,7 +62,7 @@ export const useClosePosition = () => {
           _input,
           series.getTimeTillMaturity(),
           series.ts,
-          series.g1,
+          series.g2,
           series.decimals
         );
 

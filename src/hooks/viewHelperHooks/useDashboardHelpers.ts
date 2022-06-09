@@ -74,7 +74,7 @@ export const useDashboardHelpers = () => {
           _series.fyTokenBalance || ethers.constants.Zero,
           _series.getTimeTillMaturity(),
           _series.ts!,
-          _series.g1!,
+          _series.g2!,
           _series.decimals!
         );
         const currentValue_ =

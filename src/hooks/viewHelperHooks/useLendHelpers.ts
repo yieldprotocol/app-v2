@@ -107,7 +107,7 @@ export const useLendHelpers = (
         series.fyTokenBalance || ethers.constants.Zero,
         series.getTimeTillMaturity(),
         series.ts,
-        series.g1,
+        series.g2,
         series.decimals
       );
 
@@ -176,7 +176,7 @@ export const useLendHelpers = (
             series.fyTokenBalance || ethers.constants.Zero,
             series.getTimeTillMaturity(),
             series.ts,
-            series.g1,
+            series.g2,
             series.decimals
           );
 
