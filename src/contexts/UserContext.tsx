@@ -300,7 +300,7 @@ const UserProvider = ({ children }: any) => {
             rateCheckAmount,
             secondsToFrom(series.maturity.toString()),
             series.ts,
-            series.g1,
+            series.g2,
             series.decimals
           );
 
