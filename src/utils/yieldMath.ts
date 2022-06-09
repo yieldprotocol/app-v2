@@ -164,7 +164,7 @@ const _computeA = (
  * @param { BigNumber | string } sharesReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } totalSupply
- * @param { BigNumber | string } base
+ * @param { BigNumber | string } shares
  * @returns {[BigNumber, BigNumber]}
  *
  * https://www.desmos.com/calculator/mllhtohxfx
@@ -173,15 +173,15 @@ export function mint(
   sharesReserves: BigNumber | string,
   fyTokenReserves: BigNumber | string,
   totalSupply: BigNumber | string,
-  base: BigNumber | string,
+  shares: BigNumber | string,
   fromBase: boolean = false
 ): [BigNumber, BigNumber] {
   const sharesReserves_ = new Decimal(sharesReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
   const supply_ = new Decimal(totalSupply.toString());
-  const base_ = new Decimal(base.toString());
+  const shares_ = new Decimal(shares.toString());
 
-  const m = fromBase ? supply_.mul(base_).div(sharesReserves_) : supply_.mul(base_).div(fyTokenReserves_);
+  const m = fromBase ? supply_.mul(shares_).div(sharesReserves_) : supply_.mul(shares_).div(fyTokenReserves_);
   const y = fromBase ? fyTokenReserves_.mul(m).div(supply_) : sharesReserves_.mul(m).div(supply_);
 
   return [toBn(m), toBn(y)];
