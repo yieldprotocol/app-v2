@@ -37,7 +37,7 @@ describe('Shares YieldMath', () => {
   let c: BigNumber; // c: the price of vyToken to Token
   let mu: BigNumber; // mu: the price of vyToken to Token (c) at initialization
   let timeTillMaturity: BigNumber | string;
-  const decimals = 18;
+  let decimals = 18;
 
   const base = parseUnits('100000', decimals); // 100,000
   const fyToken = parseUnits('100000', decimals); // 100,000
@@ -587,21 +587,23 @@ describe('Shares YieldMath', () => {
 
   describe('example pool: USDC2209', () => {
     it('should equal the non-variable yield function with non-variable base', () => {
+      decimals = 6;
       c = parseUnits('1', decimals); // non-variable initially
       mu = parseUnits('1', decimals); // non-variable initially
 
       // example usdc 2209 maturity
-      baseReserves = parseUnits('3288388.63445', decimals);
-      fyTokenReserves = parseUnits('6911107.56472', decimals);
+      baseReserves = BigNumber.from('0x02fda33c8751');
+      fyTokenReserves = BigNumber.from('0x06491e1c84af');
       timeTillMaturity = '9772165';
       g1Fee = BigNumber.from('0xc000000000000000');
       ts = BigNumber.from('0x0489617595');
+      const fyTokenIn = parseUnits('100000', decimals);
       const maturity = 1664550000;
 
       const sellFYTokenResult = sellFYToken(
         baseReserves,
         fyTokenReserves,
-        fyToken,
+        fyTokenIn,
         timeTillMaturity,
         ts,
         g1Fee,
@@ -610,11 +612,27 @@ describe('Shares YieldMath', () => {
         mu
       );
 
+      const sellFYTokenResultDefault = sellFYToken(
+        baseReserves,
+        fyTokenReserves,
+        fyTokenIn,
+        timeTillMaturity,
+        ts,
+        g1Fee,
+        decimals
+      );
+
       // desmos output
       expect(sellFYTokenResult).to.be.closeTo(parseUnits('98952.496', decimals), comparePrecision); // 98,952.496
+      expect(sellFYTokenResultDefault).to.be.closeTo(parseUnits('98952.496', decimals), comparePrecision); // 98,952.496
+
+      console.log(
+        "🦄 ~ file: yieldMath.test.ts ~ line 615 ~ withnon-variablebase', ~ sellFYTokenResult",
+        formatUnits(sellFYTokenResultDefault, decimals)
+      );
 
       // calc apr and compare to current non-tv ui borrow rate
-      const apr = calculateAPR(floorDecimal(sellFYTokenResult), fyToken, maturity);
+      const apr = calculateAPR(floorDecimal(sellFYTokenResult), fyTokenIn, maturity);
       expect(Number(apr)).to.be.closeTo(Number('3.45'), 3);
     });
   });
