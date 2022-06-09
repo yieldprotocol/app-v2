@@ -626,11 +626,6 @@ describe('Shares YieldMath', () => {
       expect(sellFYTokenResult).to.be.closeTo(parseUnits('98952.496', decimals), comparePrecision); // 98,952.496
       expect(sellFYTokenResultDefault).to.be.closeTo(parseUnits('98952.496', decimals), comparePrecision); // 98,952.496
 
-      console.log(
-        "🦄 ~ file: yieldMath.test.ts ~ line 615 ~ withnon-variablebase', ~ sellFYTokenResult",
-        formatUnits(sellFYTokenResultDefault, decimals)
-      );
-
       // calc apr and compare to current non-tv ui borrow rate
       const apr = calculateAPR(floorDecimal(sellFYTokenResult), fyTokenIn, maturity);
       expect(Number(apr)).to.be.closeTo(Number('3.45'), 3);
