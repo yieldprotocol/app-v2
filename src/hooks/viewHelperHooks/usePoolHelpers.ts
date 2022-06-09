@@ -215,7 +215,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             _extraFyTokensToSell,
             secondsToFrom(strategySeries?.maturity.toString()),
             strategySeries?.ts,
-            strategySeries?.g2,
+            strategySeries?.g1,
             strategySeries?.decimals
           );
 
@@ -274,7 +274,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries?.totalSupply!,
           strategySeries.getTimeTillMaturity(),
           strategySeries.ts,
-          strategySeries.g2,
+          strategySeries.g1,
           strategySeries.decimals
         );
 

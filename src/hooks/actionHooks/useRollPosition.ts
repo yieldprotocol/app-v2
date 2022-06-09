@@ -58,7 +58,7 @@ export const useRollPosition = () => {
           _input,
           fromSeries.getTimeTillMaturity(),
           fromSeries.ts,
-          fromSeries.g2,
+          fromSeries.g1,
           fromSeries.decimals
         );
 

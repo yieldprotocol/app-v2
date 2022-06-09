@@ -122,7 +122,7 @@ export const useCollateralHelpers = (
             ethers.utils.parseUnits(debtInput, _selectedBase.decimals),
             _selectedSeries.getTimeTillMaturity(),
             _selectedSeries.ts,
-            _selectedSeries.g2,
+            _selectedSeries.g1,
             _selectedSeries.decimals
           )
         : ZERO_BN;

@@ -1,14 +1,13 @@
 import chai, { expect } from 'chai';
 import { Decimal } from 'decimal.js';
 import { solidity } from 'ethereum-waffle';
-import { BigNumber, ethers, utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import {
   buyBase,
   buyFYToken,
   sellBase,
   sellFYToken,
   g1_default,
-  g2_default,
   k,
   toBn,
   maxBaseIn,
@@ -19,7 +18,7 @@ import {
 } from '../utils/yieldMath';
 
 chai.use(solidity);
-const { parseUnits, formatUnits } = utils;
+const { parseUnits } = utils;
 
 const calcPrice = (base: BigNumber, fyToken: BigNumber, c: BigNumber | string) =>
   base.mul(BigNumber.from(c)).div(fyToken);

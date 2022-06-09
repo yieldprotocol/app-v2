@@ -160,7 +160,6 @@ const ChainProvider = ({ children }: any) => {
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
         if ([1, 4, 5, 42].includes(fallbackChainId)) {
-
           // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
@@ -192,8 +191,7 @@ const ChainProvider = ({ children }: any) => {
 
         // arbitrum
         if ([42161, 421611].includes(fallbackChainId)) {
-
-          // Modules 
+          // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
           // Oracles
@@ -203,14 +201,13 @@ const ChainProvider = ({ children }: any) => {
             addrs.ChainlinkUSDOracle,
             fallbackProvider
           );
-
         }
       } catch (e) {
         console.log('Could not connect to contracts: ', e);
       }
 
       // if there was an issue loading at htis point simply return
-      if ( !Cauldron || !Ladle || !RateOracle || !Witch) return;
+      if (!Cauldron || !Ladle || !RateOracle || !Witch) return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap as Map<string, Contract>;
@@ -467,20 +464,17 @@ const ChainProvider = ({ children }: any) => {
                 const poolAddress = poolMap.get(id);
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
-                  await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    poolContract.ts(),
-                    poolContract.g1(),
-                    poolContract.g2(),
-                    // poolContract.decimals(),
-                  ]);
+                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1] = await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  fyTokenContract.decimals(),
+                  poolContract.name(),
+                  poolContract.version(),
+                  poolContract.symbol(),
+                  poolContract.ts(),
+                  poolContract.g1(),
+                ]);
                 const newSeries = {
                   id,
                   baseId,
@@ -497,7 +491,6 @@ const ChainProvider = ({ children }: any) => {
                   poolSymbol,
                   ts,
                   g1,
-                  g2,
                 };
                 updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
@@ -649,24 +642,22 @@ const ChainProvider = ({ children }: any) => {
     const assetList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.address]);
     const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k.name, k?.address]);
 
-    const res = JSON.stringify(
-      {
+    const res = JSON.stringify({
       contracts: contractList,
       series: seriesList,
       assets: assetList,
       strategies: strategyList,
     });
 
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(res);
-    var downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href",     dataStr);
-    downloadAnchorNode.setAttribute("download", 'contracts' + ".json");
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(res)}`;
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute('href', dataStr);
+    downloadAnchorNode.setAttribute('download', 'contracts' + '.json');
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 
-    console.log(res)
-
+    console.log(res);
   };
 
   /* simply Pass on the connection actions */

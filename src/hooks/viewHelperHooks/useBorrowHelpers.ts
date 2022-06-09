@@ -120,7 +120,7 @@ export const useBorrowHelpers = (
         futureSeries.fyTokenReserves,
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
-        futureSeries.g2,
+        futureSeries.g1,
         futureSeries.decimals
       );
 
@@ -130,7 +130,7 @@ export const useBorrowHelpers = (
         vault.accruedArt,
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
-        futureSeries.g2,
+        futureSeries.g1,
         futureSeries.decimals
       );
 

@@ -112,7 +112,7 @@ export const useRemoveLiquidity = () => {
       _fyTokenReceived,
       series.getTimeTillMaturity(),
       series.ts,
-      series.g2,
+      series.g1,
       series.decimals
     );
 
@@ -134,7 +134,7 @@ export const useRemoveLiquidity = () => {
       _fyTokenReceived.sub(matchingVaultDebt),
       series.getTimeTillMaturity(),
       series.ts,
-      series.g2,
+      series.g1,
       series.decimals
     );
     /* if valid extraTrade > 0 and user selected to tradeFyToken */
