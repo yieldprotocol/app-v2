@@ -42,7 +42,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           baseAmount,
           _selectedSeries.getTimeTillMaturity(),
           _selectedSeries.ts,
-          _selectedSeries.g1,
+          _selectedSeries.g2,
           _selectedSeries.decimals
         );
       const _apr = calculateAPR(baseAmount, preview, _selectedSeries?.maturity);
