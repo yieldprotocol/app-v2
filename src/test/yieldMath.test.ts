@@ -2,6 +2,7 @@ import chai, { expect } from 'chai';
 import { Decimal } from 'decimal.js';
 import { solidity } from 'ethereum-waffle';
 import { BigNumber, utils } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 import {
   buyBase,
   buyFYToken,
@@ -15,6 +16,8 @@ import {
   maxFyTokenIn,
   maxBaseOut,
   SECONDS_PER_YEAR,
+  calculateAPR,
+  floorDecimal,
 } from '../utils/yieldMath';
 
 chai.use(solidity);
@@ -26,7 +29,7 @@ const calcPrice = (base: BigNumber, fyToken: BigNumber, c: BigNumber | string) =
 describe('Shares YieldMath', () => {
   const g1 = toBn(g1_default);
   const g1FeeNewExample = BigNumber.from('0x251c0000000000000000'); // 9500 in 64 bit (new g1 structure looks like ratio out of 10000: 9500 / 10000 = .95)
-  const g1Fee = g1;
+  let g1Fee = g1;
   let ts = toBn(k);
 
   let baseReserves: BigNumber;
@@ -68,19 +71,6 @@ describe('Shares YieldMath', () => {
       );
       // expect(sellBaseResult).to.equal(sellBaseResult);
 
-      const sellFYTokenResult = sellFYToken(
-        baseReserves,
-        fyTokenReserves,
-        fyToken,
-        timeTillMaturity,
-        ts,
-        g1Fee,
-        decimals,
-        c,
-        mu
-      );
-      // expect(sellFYTokenResult).to.equal(sellFYTokenResult);
-
       // buyBase
       const buyBaseResult = buyBase(baseReserves, fyTokenReserves, base, timeTillMaturity, ts, g1Fee, decimals, c, mu);
       // expect(buyBaseResult).to.equal(buyBaseResult);
@@ -98,6 +88,18 @@ describe('Shares YieldMath', () => {
         mu
       );
       // expect(buyFYTokenResult).to.equal(buyFYTokenResult);
+
+      const sellFYTokenResult = sellFYToken(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        timeTillMaturity,
+        ts,
+        g1Fee,
+        decimals,
+        c,
+        mu
+      );
     });
   });
 
@@ -580,6 +582,40 @@ describe('Shares YieldMath', () => {
         );
         expect(fyTokensOut).to.be.closeTo(fyToken, comparePrecision);
       });
+    });
+  });
+
+  describe('example pool: USDC2209', () => {
+    it('should equal the non-variable yield function with non-variable base', () => {
+      c = parseUnits('1', decimals); // non-variable initially
+      mu = parseUnits('1', decimals); // non-variable initially
+
+      // example usdc 2209 maturity
+      baseReserves = parseUnits('3288388.63445', decimals);
+      fyTokenReserves = parseUnits('6911107.56472', decimals);
+      timeTillMaturity = '9772165';
+      g1Fee = BigNumber.from('0xc000000000000000');
+      ts = BigNumber.from('0x0489617595');
+      const maturity = 1664550000;
+
+      const sellFYTokenResult = sellFYToken(
+        baseReserves,
+        fyTokenReserves,
+        fyToken,
+        timeTillMaturity,
+        ts,
+        g1Fee,
+        decimals,
+        c,
+        mu
+      );
+
+      // desmos output
+      expect(sellFYTokenResult).to.be.closeTo(parseUnits('98952.496', decimals), comparePrecision); // 98,952.496
+
+      // calc apr and compare to current non-tv ui borrow rate
+      const apr = calculateAPR(floorDecimal(sellFYTokenResult), fyToken, maturity);
+      expect(Number(apr)).to.be.closeTo(Number('3.45'), 3);
     });
   });
 });
