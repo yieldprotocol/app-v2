@@ -265,8 +265,8 @@ export function mintWithBase(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(sharesReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
@@ -308,8 +308,8 @@ export function burnForBase(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   const supply = fyTokenReservesVirtual.sub(fyTokenReservesReal);
   // Burn FyToken
@@ -353,8 +353,8 @@ export function sellBase(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -414,8 +414,8 @@ export function sellFYToken(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -475,8 +475,8 @@ export function buyBase(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -536,8 +536,8 @@ export function buyFYToken(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -587,8 +587,8 @@ export function maxBaseIn(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* calculate the max possible fyToken out */
   const fyTokenAmountOut = maxFyTokenOut(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1Fee, decimals, c, mu);
@@ -649,8 +649,8 @@ export function maxBaseOut(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* calculate the max possible fyToken (fyToken amount) */
   const fyTokenAmountIn = maxFyTokenIn(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g1Fee, decimals);
@@ -714,8 +714,8 @@ export function maxFyTokenIn(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
@@ -775,8 +775,8 @@ export function maxFyTokenOut(
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
@@ -841,8 +841,8 @@ export function fyTokenForMint(
   decimals: number,
   slippage: number = 0.01, // 1% default
   precision: number = 0.0001, // 0.01% default
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): [BigNumber, BigNumber] {
   const base_ = new Decimal(base.toString());
   const minSurplus = base_.mul(slippage);
@@ -913,8 +913,8 @@ export function fyTokenForMintOld(
   g1Fee: BigNumber | string,
   decimals: number,
   slippage: number = 0.01, // 1% default
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals */
   const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -1233,8 +1233,8 @@ export const strategyTokenValue = (
   ts: BigNumber | string,
   g1Fee: BigNumber | string,
   decimals: number,
-  c: BigNumber | number = 10 ** decimals,
-  mu: BigNumber | number = 10 ** decimals
+  c: BigNumber | string = (10 ** decimals).toString(),
+  mu: BigNumber | string = (10 ** decimals).toString()
 ): [BigNumber, BigNumber] => {
   // 0. Calc amount of lpTokens from strat token burn
   // 1. calc amount base/fyToken recieved from burn
