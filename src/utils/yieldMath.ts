@@ -347,13 +347,13 @@ export function sellBase(
   mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
+  const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const base18 = decimalNToDecimal18(BigNumber.from(sharesIn), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const base_ = new Decimal(base18.toString());
   const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
@@ -361,9 +361,9 @@ export function sellBase(
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
-  const Za = c_.div(mu_).mul(mu_.mul(baseReserves_).pow(a));
+  const Za = c_.div(mu_).mul(mu_.mul(sharesReserves_).pow(a));
   const Ya = fyTokenReserves_.pow(a);
-  const Zxa = c_.div(mu_).mul(mu_.mul(baseReserves_).add(mu_.mul(base_)).pow(a));
+  const Zxa = c_.div(mu_).mul(mu_.mul(sharesReserves_).add(mu_.mul(base_)).pow(a));
   const sum = Za.add(Ya).sub(Zxa);
   const y = fyTokenReserves_.sub(sum.pow(invA));
 
@@ -407,13 +407,13 @@ export function sellFYToken(
   mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
+  const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const fyToken18 = decimalNToDecimal18(BigNumber.from(fyTokenIn), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyToken_ = new Decimal(fyToken18.toString());
   const c_ = new Decimal(c18.toString()).div(new Decimal(10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
@@ -421,11 +421,11 @@ export function sellFYToken(
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g2);
 
-  const Za = c_.div(mu_).mul(mu_.mul(baseReserves_).pow(a));
+  const Za = c_.div(mu_).mul(mu_.mul(sharesReserves_).pow(a));
   const Ya = fyTokenReserves_.pow(a);
   const Yxa = fyTokenReserves_.add(fyToken_).pow(a);
   const sum = Za.add(Ya).sub(Yxa).div(c_.div(mu_));
-  const y = baseReserves_.sub(ONE.div(mu_).mul(sum.pow(invA)));
+  const y = sharesReserves_.sub(ONE.div(mu_).mul(sum.pow(invA)));
 
   const yFee = y.sub(precisionFee);
   return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
@@ -467,15 +467,15 @@ export function buyBase(
   mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
+  const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
-  const base18 = decimalNToDecimal18(BigNumber.from(sharesOut), decimals);
+  const shares18 = decimalNToDecimal18(BigNumber.from(sharesOut), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const baseReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const base_ = new Decimal(base18.toString());
+  const shares_ = new Decimal(shares18.toString());
   const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
   const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
@@ -483,7 +483,7 @@ export function buyBase(
 
   const Za = c_.div(mu_).mul(mu_.mul(baseReserves_).pow(a));
   const Ya = fyTokenReserves_.pow(a);
-  const Zxa = c_.div(mu_).mul(mu_.mul(baseReserves_).sub(mu_.mul(base_)).pow(a));
+  const Zxa = c_.div(mu_).mul(mu_.mul(baseReserves_).sub(mu_.mul(shares_)).pow(a));
   const sum = Za.add(Ya).sub(Zxa);
   const y = sum.pow(invA).sub(fyTokenReserves_);
 
@@ -527,13 +527,13 @@ export function buyFYToken(
   mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
+  const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const fyToken18 = decimalNToDecimal18(BigNumber.from(fyTokenOut), decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyToken_ = new Decimal(fyToken18.toString());
   const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
@@ -541,11 +541,11 @@ export function buyFYToken(
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
-  const Za = c_.div(mu_).mul(mu_.mul(baseReserves_).pow(a));
+  const Za = c_.div(mu_).mul(mu_.mul(sharesReserves_).pow(a));
   const Ya = fyTokenReserves_.pow(a);
   const Yxa = fyTokenReserves_.sub(fyToken_).pow(a);
   const sum = Za.add(Ya.sub(Yxa)).div(c_.div(mu_));
-  const y = ONE.div(mu_).mul(sum.pow(invA)).sub(baseReserves_);
+  const y = ONE.div(mu_).mul(sum.pow(invA)).sub(sharesReserves_);
 
   const yFee = y.add(precisionFee);
   return yFee.isNaN() ? ethers.constants.Zero : decimal18ToDecimalN(toBn(yFee), decimals);
@@ -554,7 +554,7 @@ export function buyFYToken(
 /**
  * Calculate the max amount of base that can be sold to into the pool without making the interest rate negative.
  *
- * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } sharesReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } timeTillMaturity
  * @param { BigNumber | string } ts
@@ -567,7 +567,7 @@ export function buyFYToken(
  *
  */
 export function maxBaseIn(
-  baseReserves: BigNumber,
+  sharesReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
@@ -577,14 +577,14 @@ export function maxBaseIn(
   mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* calculate the max possible fyToken out */
-  const fyTokenAmountOut = maxFyTokenOut(baseReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
+  const fyTokenAmountOut = maxFyTokenOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
 
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
+  const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
   const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
   const fyTokenAmountOut18 = decimalNToDecimal18(fyTokenAmountOut, decimals);
 
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyTokenAmountOut_ = new Decimal(fyTokenAmountOut18.toString());
 
@@ -592,7 +592,7 @@ export function maxBaseIn(
   if (fyTokenAmountOut_.eq(ZERO)) return ZERO_BN;
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
-  const za = baseReserves_.pow(a);
+  const za = sharesReserves_.pow(a);
   const ya = fyTokenReserves_.pow(a);
   // yx =
   const yx = fyTokenReserves_.sub(fyTokenAmountOut_);
@@ -602,8 +602,8 @@ export function maxBaseIn(
   // sum = za + ya - yxa
   const sum = za.add(ya).sub(yxa);
 
-  // result = (sum ** (1/a)) - baseReserves
-  const res = sum.pow(invA).sub(baseReserves_);
+  // result = (sum ** (1/a)) - sharesReserves
+  const res = sum.pow(invA).sub(sharesReserves_);
 
   /* Handle precision variations */
   const safeRes = res.gt(MAX.sub(precisionFee)) ? MAX : res.add(precisionFee);
@@ -615,7 +615,7 @@ export function maxBaseIn(
 /**
  * Calculate the max amount of base that can be bought from the pool.
  *
- * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } sharesReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } timeTillMaturity
  * @param { BigNumber | string } ts
@@ -628,7 +628,7 @@ export function maxBaseIn(
  *
  */
 export function maxBaseOut(
-  baseReserves: BigNumber,
+  sharesReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
@@ -638,19 +638,19 @@ export function maxBaseOut(
   mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* calculate the max possible fyToken (fyToken amount) */
-  const fyTokenAmountIn = maxFyTokenIn(baseReserves, fyTokenReserves, c, mu, timeTillMaturity, ts, g1Fee, decimals);
+  const fyTokenAmountIn = maxFyTokenIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g2, decimals, c, mu);
 
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
+  const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
   const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
   const fyTokenAmountIn18 = decimalNToDecimal18(fyTokenAmountIn, decimals);
 
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyTokenAmountIn_ = new Decimal(fyTokenAmountIn18.toString());
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g2);
-  const za = baseReserves_.pow(a);
+  const za = sharesReserves_.pow(a);
   const ya = fyTokenReserves_.pow(a);
 
   // yx = fyDayReserves + fyTokenAmount
@@ -660,7 +660,7 @@ export function maxBaseOut(
   // sum = za + ya - yxa
   const sum = za.add(ya).sub(yxa);
   // result = baseReserves - (sum ** (1/a))
-  const res = baseReserves_.sub(sum.pow(invA));
+  const res = sharesReserves_.sub(sum.pow(invA));
 
   /* Handle precision variations */
   const safeRes = res.gt(precisionFee) ? res.sub(precisionFee) : ZERO;
@@ -680,7 +680,7 @@ export function maxBaseOut(
  *     ( (    Za      ) + Ya )^(invA) - y
  * y = ( (c/μ) * (μZ)^a + Y^a)^(1/a)  - y
  *
- * @param { BigNumber | string } baseReserves
+ * @param { BigNumber | string } sharesReserves
  * @param { BigNumber | string } fyTokenReserves
  * @param { BigNumber | string } timeTillMaturity
  * @param { BigNumber | string } ts
@@ -692,7 +692,7 @@ export function maxBaseOut(
  * @returns { BigNumber }
  */
 export function maxFyTokenIn(
-  baseReserves: BigNumber,
+  sharesReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
@@ -702,19 +702,19 @@ export function maxFyTokenIn(
   mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals, if required */
-  const baseReserves18 = decimalNToDecimal18(baseReserves, decimals);
+  const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
   const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
   const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g2);
 
-  const Za = c_.div(mu_).mul(mu_.mul(baseReserves_).pow(a));
+  const Za = c_.div(mu_).mul(mu_.mul(sharesReserves_).pow(a));
   const Ya = fyTokenReserves_.pow(a);
   const sum = Za.add(Ya);
 
@@ -816,7 +816,7 @@ export function fyTokenForMint(
   sharesReserves: BigNumber,
   fyTokenRealReserves: BigNumber,
   fyTokenVirtualReserves: BigNumber,
-  base: BigNumber | string,
+  shares: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
   g1: BigNumber | string,
@@ -826,9 +826,9 @@ export function fyTokenForMint(
   c: BigNumber | string = (10 ** decimals).toString(),
   mu: BigNumber | string = (10 ** decimals).toString()
 ): [BigNumber, BigNumber] {
-  const base_ = new Decimal(base.toString());
-  const minSurplus = base_.mul(slippage);
-  const maxSurplus = minSurplus.add(base_.mul(precision));
+  const shares_ = new Decimal(shares.toString());
+  const minSurplus = shares_.mul(slippage);
+  const maxSurplus = minSurplus.add(shares_.mul(precision));
 
   let maxFYToken = new Decimal(
     maxFyTokenOut(sharesReserves, fyTokenVirtualReserves, timeTillMaturity, ts, g1, decimals, c, mu).toString()
@@ -862,7 +862,7 @@ export function fyTokenForMint(
       mu
     )[1];
 
-    const surplus = base_.sub(new Decimal(baseIn.toString()));
+    const surplus = shares_.sub(new Decimal(baseIn.toString()));
     // console.log( 'min:',  minSurplus.toFixed() ,  'max:',   maxSurplus.toFixed() , 'surplus: ', surplus.toFixed() )
 
     // Just right
@@ -872,7 +872,7 @@ export function fyTokenForMint(
     }
 
     // Bought too much, lower the max and the buy
-    if (baseIn.gt(base) || surplus.lt(minSurplus)) {
+    if (baseIn.gt(shares) || surplus.lt(minSurplus)) {
       // console.log('Bought too much');
       maxFYToken = fyTokenToBuy;
     }
@@ -889,7 +889,7 @@ export function fyTokenForMintOld(
   sharesReserves: BigNumber | string,
   fyTokenRealReserves: BigNumber | string,
   fyTokenVirtualReserves: BigNumber | string,
-  base: BigNumber | string,
+  shares: BigNumber | string,
   timeTillMaturity: BigNumber | string,
   ts: BigNumber | string,
   g1: BigNumber | string,
@@ -899,19 +899,19 @@ export function fyTokenForMintOld(
   mu: BigNumber | string = (10 ** decimals).toString()
 ): BigNumber {
   /* convert to 18 decimals */
-  const baseReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
+  const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenRealReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenRealReserves), decimals);
   const fyTokenVirtualReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenVirtualReserves), decimals);
-  const base18 = decimalNToDecimal18(BigNumber.from(base), decimals);
+  const base18 = decimalNToDecimal18(BigNumber.from(shares), decimals);
 
-  const baseReserves_ = new Decimal(baseReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyDaiRealReserves_ = new Decimal(fyTokenRealReserves18.toString());
-  const base_ = new Decimal(base18.toString());
+  const shares_ = new Decimal(base18.toString());
   const timeTillMaturity_ = new Decimal(timeTillMaturity.toString());
   const slippage_ = new Decimal(slippage); // .mul(new Decimal(10)); /* multiply the user slippage by 10 */
 
   let min = ZERO;
-  let max = base_.mul(TWO);
+  let max = shares_.mul(TWO);
   let yOut = min.add(max).div(TWO).floor();
   let zIn: Decimal;
 
@@ -924,7 +924,7 @@ export function fyTokenForMintOld(
 
     zIn = new Decimal(
       buyFYToken(
-        baseReserves18,
+        sharesReserves18,
         fyTokenVirtualReserves18,
         BigNumber.from(yOut.floor().toFixed()),
         timeTillMaturity_.toString(),
@@ -936,8 +936,8 @@ export function fyTokenForMintOld(
       ).toString()
     );
 
-    const Z_1 = baseReserves_.add(zIn); // New base balance
-    const z_1 = base_.sub(zIn); // My remaining base
+    const Z_1 = sharesReserves_.add(zIn); // New base balance
+    const z_1 = shares_.sub(zIn); // My remaining base
     const Y_1 = fyDaiRealReserves_.sub(yOut); // New fyToken balance
     const y_1 = yOut; // My fyToken
     const pz = z_1.div(z_1.add(y_1)); // base proportion in my assets
@@ -972,12 +972,12 @@ export function fyTokenForMintOld(
 }
 
 /**
- * Split a certain amount of X liquidity into its two components (eg. base and fyToken)
- * @param { BigNumber } xReserves // eg. base reserves
+ * Split a certain amount of X liquidity into its two components (eg. shares and fyToken)
+ * @param { BigNumber } xReserves // eg. shares reserves
  * @param { BigNumber } yReserves // eg. fyToken reservers
  * @param {BigNumber} xAmount // amount to split in wei
  * @param {BigNumber} asBn
- * @returns  [ BigNumber, BigNumber ] returns an array of [base, fyToken]
+ * @returns  [ BigNumber, BigNumber ] returns an array of [shares, fyToken]
  */
 export const splitLiquidity = (
   xReserves: BigNumber | string,
@@ -1152,32 +1152,32 @@ export const calcLiquidationPrice = (
 };
 
 /**
- *  @param {BigNumber} baseChange
+ *  @param {BigNumber} sharesChange
  * @param {BigNumber} fyTokenChange
  * @param {BigNumber} poolBaseReserves
  * @param {BigNumber} poolFyTokenRealReserves
  * @param {BigNumber} poolTotalSupply
  *
- * @returns {BigNumber[]} [newBaseReserves, newFyTokenRealReserves, newTotalSupply, newFyTokenVirtualReserves]
+ * @returns {BigNumber[]} [newSharesReserves, newFyTokenRealReserves, newTotalSupply, newFyTokenVirtualReserves]
  */
 export const newPoolState = (
-  baseChange: BigNumber,
+  sharesChange: BigNumber,
   fyTokenChange: BigNumber,
-  poolBaseReserves: BigNumber,
+  poolSharesReserves: BigNumber,
   poolFyTokenRealReserves: BigNumber,
   poolTotalSupply: BigNumber
 ): {
-  baseReserves: BigNumber;
+  sharesReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
   fyTokenVirtualReserves: BigNumber;
 } => {
-  const newBaseReserves = poolBaseReserves.add(baseChange);
+  const newSharesReserves = poolSharesReserves.add(sharesChange);
   const newFyTokenRealReserves = poolFyTokenRealReserves.add(fyTokenChange);
   const newTotalSupply = poolTotalSupply.add(fyTokenChange);
   const newFyTokenVirtualReserves = newTotalSupply.add(newFyTokenRealReserves); // virtualReserves  = totalsupply + realBalance
   return {
-    baseReserves: newBaseReserves,
+    sharesReserves: newSharesReserves,
     fyTokenRealReserves: newFyTokenRealReserves,
     totalSupply: newTotalSupply,
     fyTokenVirtualReserves: newFyTokenVirtualReserves,
@@ -1188,19 +1188,15 @@ export const newPoolState = (
  *  @param {BigNumber | string} strategyTokenAmount
  * @param {BigNumber} strategyTotalSupply
  * @param {BigNumber} strategyPoolBalance
- * @param {BigNumber} poolBaseReserves
+ * @param {BigNumber} poolSharesReserves
  * @param {BigNumber} poolFyTokenRealReserves
  * @param {BigNumber} poolTotalSupply
  * @param {BigNumber | string} poolTimeToMaturity
+ * @param {BigNumber | string} ts
+ * @param {BigNumber | string} g2
+ * @param { number } decimals
  * @param {BigNumber | string} c
  * @param {BigNumber | string} mu
- * @param {BigNumber | string} ts
- * @param {BigNumber | string} g1Fee
- * @param {number}  poolTimeToMaturity
- *
- * @param { BigNumber | string } ts
- * @param { BigNumber | string } g2
- * @param { number } decimals
  *
  * @returns {BigNumber} [soldValue, totalValue]
  */
@@ -1213,7 +1209,7 @@ export const strategyTokenValue = (
   poolTotalSupply: BigNumber,
   poolTimeToMaturity: string | BigNumber,
   ts: BigNumber | string,
-  g1Fee: BigNumber | string,
+  g2: BigNumber | string,
   decimals: number,
   c: BigNumber | string = (10 ** decimals).toString(),
   mu: BigNumber | string = (10 ** decimals).toString()
@@ -1224,7 +1220,7 @@ export const strategyTokenValue = (
   // 3. try trade with new reserves
   // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
   const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
-  const [_baseTokenReceived, _fyTokenReceived] = burn(
+  const [_sharesReceived, _fyTokenReceived] = burn(
     poolBaseReserves,
     poolFyTokenRealReserves,
     poolTotalSupply,
@@ -1232,7 +1228,7 @@ export const strategyTokenValue = (
   );
 
   const newPool = newPoolState(
-    _baseTokenReceived.mul(-1),
+    _sharesReceived.mul(-1),
     _fyTokenReceived.mul(-1),
     poolBaseReserves,
     poolFyTokenRealReserves,
@@ -1240,18 +1236,18 @@ export const strategyTokenValue = (
   );
 
   const sellValue = sellFYToken(
-    newPool.baseReserves,
+    newPool.sharesReserves,
     newPool.fyTokenVirtualReserves,
     _fyTokenReceived,
     poolTimeToMaturity.toString(),
     ts,
-    g1Fee,
+    g2,
     decimals,
     c,
     mu
   );
 
-  const totalValue = sellValue.add(_baseTokenReceived);
+  const totalValue = sellValue.add(_sharesReceived);
 
   return [sellValue, totalValue];
 };
@@ -1277,24 +1273,24 @@ export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber)
 /**
  * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value
  *
- * @param {BigNumber} baseReserves
+ * @param {BigNumber} sharesReserves
  * @param {BigNumber} fyTokenReserves
  * @param {number} slippage
  *
  * @returns {[BigNumber, BigNumber] }
  */
 export const calcPoolRatios = (
-  baseReserves: BigNumber,
+  sharesReserves: BigNumber,
   fyTokenReserves: BigNumber,
   slippage: number = 0.1
 ): [BigNumber, BigNumber] => {
-  const baseReserves_ = new Decimal(baseReserves.toString());
+  const sharesReserves_ = new Decimal(sharesReserves.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves.toString());
 
   const slippage_ = new Decimal(slippage.toString());
   const wad = new Decimal(WAD_BN.toString());
 
-  const ratio = baseReserves_.div(fyTokenReserves_).mul(wad);
+  const ratio = sharesReserves_.div(fyTokenReserves_).mul(wad);
   const ratioSlippage = ratio.mul(slippage_);
 
   const min = toBn(ratio.sub(ratioSlippage));
