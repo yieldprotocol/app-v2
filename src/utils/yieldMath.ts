@@ -566,7 +566,7 @@ export function buyFYToken(
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
-export function maxBaseIn(
+export function maxSharesIn(
   sharesReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: BigNumber | string,
@@ -627,7 +627,7 @@ export function maxBaseIn(
  * @returns { BigNumber } max amount of base that can be bought from the pool
  *
  */
-export function maxBaseOut(
+export function maxSharesOut(
   sharesReserves: BigNumber,
   fyTokenReserves: BigNumber,
   timeTillMaturity: BigNumber | string,

@@ -82,8 +82,8 @@ const AprText = ({
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
-  const baseIn = maxBaseIn(
-    series.baseReserves,
+  const sharesIn = maxBaseIn(
+    series.sharesReserves,
     series.fyTokenReserves,
     series.getTimeTillMaturity(),
     series.ts,
@@ -95,9 +95,9 @@ const AprText = ({
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
       actionType === ActionType.LEND
-        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)) // lending max
-        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
-  }, [_inputValue, actionType, baseIn, series.baseReserves, series?.decimals, series?.seriesIsMature, setLimitHit]);
+        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(sharesIn)) // lending max
+        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.sharesReserves)); // borrow max
+  }, [_inputValue, actionType, sharesIn, series.sharesReserves, series?.decimals, series?.seriesIsMature, setLimitHit]);
 
   return (
     <>
