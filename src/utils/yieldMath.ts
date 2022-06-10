@@ -269,8 +269,8 @@ export function mintWithBase(
   ts: BigNumber | string,
   g1: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(sharesReserves.toString());
   const YR = new Decimal(fyTokenReservesReal.toString());
@@ -357,8 +357,8 @@ export function sellBase(
   ts: BigNumber | string,
   g1: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -415,8 +415,8 @@ export function sellFYToken(
   ts: BigNumber | string,
   g2: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -473,8 +473,8 @@ export function buyBase(
   ts: BigNumber | string,
   g2: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -531,8 +531,8 @@ export function buyFYToken(
   ts: BigNumber | string,
   g1: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -579,8 +579,8 @@ export function maxBaseIn(
   ts: BigNumber | string,
   g1: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* calculate the max possible fyToken out */
   const fyTokenAmountOut = maxFyTokenOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
@@ -640,8 +640,8 @@ export function maxBaseOut(
   ts: BigNumber | string,
   g2: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* calculate the max possible fyToken (fyToken amount) */
   const fyTokenAmountIn = maxFyTokenIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g2, decimals, c, mu);
@@ -704,8 +704,8 @@ export function maxFyTokenIn(
   ts: BigNumber | string,
   g2: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
@@ -762,8 +762,8 @@ export function maxFyTokenOut(
   ts: BigNumber | string,
   g1: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
@@ -825,8 +825,8 @@ export function fyTokenForMint(
   decimals: number,
   slippage: number = 0.01, // 1% default
   precision: number = 0.0001, // 0.01% default
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): [BigNumber, BigNumber] {
   const shares_ = new Decimal(shares.toString());
   const minSurplus = shares_.mul(slippage);
@@ -897,8 +897,8 @@ export function fyTokenForMintOld(
   g1: BigNumber | string,
   decimals: number,
   slippage: number = 0.01, // 1% default
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
   /* convert to 18 decimals */
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
@@ -1213,8 +1213,8 @@ export const strategyTokenValue = (
   ts: BigNumber | string,
   g2: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = (10 ** decimals).toString(),
-  mu: BigNumber | string = (10 ** decimals).toString()
+  c: BigNumber | string = '0x10000000000000000',
+  mu: BigNumber | string = '0x10000000000000000'
 ): [BigNumber, BigNumber] => {
   // 0. Calc amount of lpTokens from strat token burn
   // 1. calc amount base/fyToken recieved from burn
