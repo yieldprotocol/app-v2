@@ -473,7 +473,7 @@ export function buyBase(
   const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
   const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
-  const baseReserves_ = new Decimal(sharesReserves18.toString());
+  const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const shares_ = new Decimal(shares18.toString());
   const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
@@ -481,9 +481,9 @@ export function buyBase(
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g2);
 
-  const Za = c_.div(mu_).mul(mu_.mul(baseReserves_).pow(a));
+  const Za = c_.div(mu_).mul(mu_.mul(sharesReserves_).pow(a));
   const Ya = fyTokenReserves_.pow(a);
-  const Zxa = c_.div(mu_).mul(mu_.mul(baseReserves_).sub(mu_.mul(shares_)).pow(a));
+  const Zxa = c_.div(mu_).mul(mu_.mul(sharesReserves_).sub(mu_.mul(shares_)).pow(a));
   const sum = Za.add(Ya).sub(Zxa);
   const y = sum.pow(invA).sub(fyTokenReserves_);
 
@@ -653,13 +653,13 @@ export function maxBaseOut(
   const za = sharesReserves_.pow(a);
   const ya = fyTokenReserves_.pow(a);
 
-  // yx = fyDayReserves + fyTokenAmount
+  // yx = fyTokenReserves + fyTokenAmount
   const yx = fyTokenReserves_.add(fyTokenAmountIn_);
   // yxa = yx ** a
   const yxa = yx.pow(a);
   // sum = za + ya - yxa
   const sum = za.add(ya).sub(yxa);
-  // result = baseReserves - (sum ** (1/a))
+  // result = sharesReserves - (sum ** (1/a))
   const res = sharesReserves_.sub(sum.pow(invA));
 
   /* Handle precision variations */
@@ -674,7 +674,7 @@ export function maxBaseOut(
  *
  * y = maxFyTokenOut
  * Y = fyTokenReserves (virtual)
- * Z = baseReserves
+ * Z = sharesReserves
  *
  *     (       sum           )^(invA) - y
  *     ( (    Za      ) + Ya )^(invA) - y
@@ -1154,7 +1154,7 @@ export const calcLiquidationPrice = (
 /**
  *  @param {BigNumber} sharesChange
  * @param {BigNumber} fyTokenChange
- * @param {BigNumber} poolBaseReserves
+ * @param {BigNumber} poolSharesReserves
  * @param {BigNumber} poolFyTokenRealReserves
  * @param {BigNumber} poolTotalSupply
  *
@@ -1204,7 +1204,7 @@ export const strategyTokenValue = (
   strategyTokenAmount: BigNumber | string,
   strategyTotalSupply: BigNumber,
   strategyPoolBalance: BigNumber,
-  poolBaseReserves: BigNumber,
+  poolSharesReserves: BigNumber,
   poolFyTokenRealReserves: BigNumber,
   poolTotalSupply: BigNumber,
   poolTimeToMaturity: string | BigNumber,
@@ -1216,12 +1216,12 @@ export const strategyTokenValue = (
 ): [BigNumber, BigNumber] => {
   // 0. Calc amount of lpTokens from strat token burn
   // 1. calc amount base/fyToken recieved from burn
-  // 2. calculate new reserves (baseReserves and fyTokenReserevs)
+  // 2. calculate new reserves (sharesReserves and fyTokenReserevs)
   // 3. try trade with new reserves
   // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
   const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
   const [_sharesReceived, _fyTokenReceived] = burn(
-    poolBaseReserves,
+    poolSharesReserves,
     poolFyTokenRealReserves,
     poolTotalSupply,
     lpReceived
@@ -1230,7 +1230,7 @@ export const strategyTokenValue = (
   const newPool = newPoolState(
     _sharesReceived.mul(-1),
     _fyTokenReceived.mul(-1),
-    poolBaseReserves,
+    poolSharesReserves,
     poolFyTokenRealReserves,
     poolTotalSupply
   );
