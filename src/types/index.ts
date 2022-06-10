@@ -270,8 +270,8 @@ export interface IVaultRoot {
 
 export interface ISeries extends ISeriesRoot {
   apr: string;
-  baseReserves: BigNumber;
-  baseReserves_: string;
+  sharesReserves: BigNumber;
+  sharesReserves_: string;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
