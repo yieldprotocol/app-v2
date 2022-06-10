@@ -156,6 +156,20 @@ const _computeA = (
   return [a, invA]; /* returns a and inverse of a */
 };
 
+/**
+ * Converts c from 64 bit to a decimal like 1.1
+ * @param c
+ * @returns
+ */
+export const _getC = (c: BigNumber | string) => new Decimal(c.toString()).div(2 ** 64);
+
+/**
+ * Converts mu from 64 bit to a decimal like 1.0
+ * @param mu
+ * @returns
+ */
+const _getMu = (mu: BigNumber | string) => new Decimal(mu.toString()).div(2 ** 64);
+
 /** ************************
  YieldSpace functions
  *************************** */
@@ -322,8 +336,8 @@ export function burnForBase(
  * @param { BigNumber | string } ts time stretch
  * @param { BigNumber | string } g1 fee coefficient
  * @param { number } decimals pool decimals
- * @param { BigNumber | string } c price of shares in terms of their base
- * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization
+ * @param { BigNumber | string } c price of shares in terms of their base in 64 bit
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization in 64 bit
  *
  * @returns { BigNumber } fyTokenOut: the amount of fyToken a user would get for given amount of shares
  *
@@ -350,14 +364,12 @@ export function sellBase(
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const base18 = decimalNToDecimal18(BigNumber.from(sharesIn), decimals);
-  const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
-  const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
   const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const base_ = new Decimal(base18.toString());
-  const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
-  const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const c_ = _getC(c);
+  const mu_ = _getMu(mu);
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
@@ -382,8 +394,8 @@ export function sellBase(
  * @param { BigNumber | string } ts time stretch
  * @param { BigNumber | string } g2 fee coefficient
  * @param { number } decimals pool decimals
- * @param { BigNumber | string } c price of shares in terms of their base
- * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization
+ * @param { BigNumber | string } c price of shares in terms of their base in 64 bit
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization in 64 bit
  *
  * @returns { BigNumber } sharesOut: amount of shares a user would get for given amount of fyToken
  *
@@ -410,14 +422,12 @@ export function sellFYToken(
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const fyToken18 = decimalNToDecimal18(BigNumber.from(fyTokenIn), decimals);
-  const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
-  const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
   const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyToken_ = new Decimal(fyToken18.toString());
-  const c_ = new Decimal(c18.toString()).div(new Decimal(10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
-  const mu_ = new Decimal(mu18.toString()).div(new Decimal(10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const c_ = _getC(c);
+  const mu_ = _getMu(mu);
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g2);
 
@@ -442,8 +452,8 @@ export function sellFYToken(
  * @param { BigNumber | string } ts time stretch
  * @param { BigNumber | string } g2 fee coefficient
  * @param { number } decimals pool decimals
- * @param { BigNumber | string } c price of shares in terms of their base
- * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization
+ * @param { BigNumber | string } c price of shares in terms of their base in 64 bit
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization in 64 bit
  *
  * @returns { BigNumber } fyTokenIn: the amount of fyToken a user could sell for given amount of shares
  *
@@ -470,14 +480,12 @@ export function buyBase(
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const shares18 = decimalNToDecimal18(BigNumber.from(sharesOut), decimals);
-  const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
-  const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
   const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const shares_ = new Decimal(shares18.toString());
-  const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
-  const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const c_ = _getC(c);
+  const mu_ = _getMu(mu);
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g2);
 
@@ -502,8 +510,8 @@ export function buyBase(
  * @param { BigNumber | string } ts time stretch
  * @param { BigNumber | string } g1 fee coefficient
  * @param { number } decimals pool decimals
- * @param { BigNumber | string } c price of shares in terms of their base
- * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization
+ * @param { BigNumber | string } c price of shares in terms of their base in 64 bit
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization in 64 bit
  *
  * @returns { BigNumber } sharesIn: result the amount of shares a user would have to pay for given amount of fyToken
  *
@@ -530,14 +538,12 @@ export function buyFYToken(
   const sharesReserves18 = decimalNToDecimal18(BigNumber.from(sharesReserves), decimals);
   const fyTokenReserves18 = decimalNToDecimal18(BigNumber.from(fyTokenReserves), decimals);
   const fyToken18 = decimalNToDecimal18(BigNumber.from(fyTokenOut), decimals);
-  const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
-  const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
   const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
   const fyToken_ = new Decimal(fyToken18.toString());
-  const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
-  const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const c_ = _getC(c);
+  const mu_ = _getMu(mu);
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
@@ -704,13 +710,11 @@ export function maxFyTokenIn(
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
   const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
-  const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
-  const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
   const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
-  const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const c_ = _getC(c);
+  const mu_ = _getMu(mu);
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g2);
 
@@ -764,14 +768,12 @@ export function maxFyTokenOut(
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
   const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
-  const c18 = decimalNToDecimal18(BigNumber.from(c), decimals);
-  const mu18 = decimalNToDecimal18(BigNumber.from(mu), decimals);
 
   /* convert to decimal for the math */
   const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const c_ = new Decimal(c18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
-  const mu_ = new Decimal(mu18.toString()).div(new Decimal(1 * 10 ** 18)); // convert to ratio using 18 decimals (ie: 1.1)
+  const c_ = _getC(c);
+  const mu_ = _getMu(mu);
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
 
@@ -799,7 +801,7 @@ export function maxFyTokenOut(
  * @param sharesReserves
  * @param fyTokenRealReserves
  * @param fyTokenVirtualReserves
- * @param base
+ * @param shares
  * @param timeTillMaturity
  * @param ts
  * @param g1
