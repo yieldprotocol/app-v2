@@ -53,7 +53,7 @@ export const useRollPosition = () => {
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
       : buyBase(
-          fromSeries.baseReserves,
+          fromSeries.sharesReserves,
           fromSeries.fyTokenReserves,
           _input,
           fromSeries.getTimeTillMaturity(),

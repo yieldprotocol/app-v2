@@ -57,7 +57,7 @@ export const useClosePosition = () => {
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
       : buyBase(
-          series.baseReserves,
+          series.sharesReserves,
           series.fyTokenReserves,
           _input,
           series.getTimeTillMaturity(),

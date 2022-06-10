@@ -86,28 +86,28 @@ export const useRemoveLiquidity = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const [cachedBaseReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
+    const [cachedSharesReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
     const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
 
-    const [_baseTokenReceived, _fyTokenReceived] = burn(
-      series.baseReserves,
+    const [_sharesReceived, _fyTokenReceived] = burn(
+      series.sharesReserves,
       series.fyTokenRealReserves,
       series.totalSupply,
       lpReceived
     );
 
     const _newPool = newPoolState(
-      _baseTokenReceived.mul(-1),
+      _sharesReceived.mul(-1),
       _fyTokenReceived.mul(-1),
-      series.baseReserves,
+      series.sharesReserves,
       series.fyTokenRealReserves,
       series.totalSupply
     );
 
     const fyTokenTrade = sellFYToken(
-      _newPool.baseReserves,
+      _newPool.sharesReserves,
       _newPool.fyTokenVirtualReserves,
       _fyTokenReceived,
       series.getTimeTillMaturity(),
@@ -125,11 +125,11 @@ export const useRemoveLiquidity = () => {
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
     // const useMatchingVault: boolean = !!matchingVault && ( _fyTokenReceived.lte(matchingVaultDebt) || !tradeFyToken) ;
 
-    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
+    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
     const extrafyTokenTrade: BigNumber = sellFYToken(
-      series.baseReserves,
+      series.sharesReserves,
       series.fyTokenReserves,
       _fyTokenReceived.sub(matchingVaultDebt),
       series.getTimeTillMaturity(),

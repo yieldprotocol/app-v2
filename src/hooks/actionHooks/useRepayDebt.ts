@@ -24,7 +24,6 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 
-
 export const useRepayDebt = () => {
   const {
     settingsState: { slippageTolerance },
@@ -41,7 +40,7 @@ export const useRepayDebt = () => {
     chainState: {
       contractMap,
       connection: { chainId },
-      provider
+      provider,
     },
   } = useContext(ChainContext);
 
@@ -74,8 +73,8 @@ export const useRepayDebt = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const _maxBaseIn = maxBaseIn(
-      series.baseReserves,
+    const _maxSharesIn = maxBaseIn(
+      series.sharesReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
       series.ts,
@@ -84,12 +83,12 @@ export const useRepayDebt = () => {
     );
 
     /* Check the max amount of the trade that the pool can handle */
-    const tradeIsNotPossible = _input.gt(_maxBaseIn);
+    const tradeIsNotPossible = _input.gt(_maxSharesIn);
 
     const _inputAsFyToken = series.seriesIsMature
       ? _input
       : sellBase(
-          series.baseReserves,
+          series.sharesReserves,
           series.fyTokenReserves,
           _input,
           secondsToFrom(series.maturity.toString()),
