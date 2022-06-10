@@ -301,11 +301,11 @@ const Borrow = () => {
                 </Box>
 
                 {!borrowInputError && borrowInput && !borrowPossible && selectedSeries && (
-                  <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                  <InputInfoWrap action={() => setBorrowInput(selectedSeries?.sharesReserves_!)}>
                     <Text size="xsmall" color="text-weak">
                       Max borrow is{' '}
                       <Text size="small" color="text-weak">
-                        {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
+                        {cleanValue(selectedSeries?.sharesReserves_!, 2)} {selectedBase?.displaySymbol}
                       </Text>{' '}
                       (limited by protocol liquidity)
                     </Text>

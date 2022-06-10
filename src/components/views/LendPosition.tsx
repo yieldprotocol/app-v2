@@ -278,7 +278,7 @@ const LendPosition = () => {
                           <InputInfoWrap action={() => setCloseInput(maxClose_)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
-                              {selectedSeries.baseReserves.eq(maxClose) && ' (limited by protocol)'}
+                              {selectedSeries.sharesReserves.eq(maxClose) && ' (limited by protocol)'}
                             </Text>
                           </InputInfoWrap>
                         )}

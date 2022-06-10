@@ -67,11 +67,11 @@ export const useAddLiquidity = () => {
     const _input = ethers.utils.parseUnits(cleanInput, _base?.decimals);
     const _inputLessSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
-    const [cachedBaseReserves, cachedFyTokenReserves] = await _series?.poolContract.getCache()!;
+    const [cachedSharesReserves, cachedFyTokenReserves] = await _series?.poolContract.getCache()!;
     const cachedRealReserves = cachedFyTokenReserves.sub(_series?.totalSupply!.sub(ONE_BN));
 
     const [_fyTokenToBeMinted] = fyTokenForMint(
-      cachedBaseReserves,
+      cachedSharesReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
       _inputLessSlippage,
@@ -82,16 +82,16 @@ export const useAddLiquidity = () => {
       slippageTolerance
     );
 
-    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
+    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
 
-    const [_baseToPool, _baseToFyToken] = splitLiquidity(
-      cachedBaseReserves,
+    const [_sharesToPool, _sharesToFyToken] = splitLiquidity(
+      cachedSharesReserves,
       cachedRealReserves,
       _inputLessSlippage,
       true
     ) as [BigNumber, BigNumber];
 
-    const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance.toString()));
+    const _sharesToPoolWithSlippage = BigNumber.from(calculateSlippage(_sharesToPool, slippageTolerance.toString()));
 
     /* if approveMAx, check if signature is still required */
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
@@ -106,19 +106,19 @@ export const useAddLiquidity = () => {
       'inputLessSlippage: ',
       _inputLessSlippage.toString(),
       'base: ',
-      cachedBaseReserves.toString(),
+      cachedSharesReserves.toString(),
       'real: ',
       cachedRealReserves.toString(),
       'virtual: ',
       cachedFyTokenReserves.toString(),
       '>> baseSplit: ',
-      _baseToPool.toString(),
+      _sharesToPool.toString(),
 
       '>> fyTokenSplit: ',
-      _baseToFyToken.toString(),
+      _sharesToFyToken.toString(),
 
       '>> baseSplitWithSlippage: ',
-      _baseToPoolWithSlippage.toString(),
+      _sharesToPoolWithSlippage.toString(),
 
       '>> minRatio',
       minRatio.toString(),
@@ -149,7 +149,10 @@ export const useAddLiquidity = () => {
       if (isEthBase && method === AddLiquidityType.BUY) return addEth(_input, _series.poolAddress);
       /* BORROW send WETH to both basejoin and poolAddress */
       if (isEthBase && method === AddLiquidityType.BORROW)
-        return [...addEth(_baseToFyToken, _base.joinAddress), ...addEth(_baseToPoolWithSlippage, _series.poolAddress)];
+        return [
+          ...addEth(_sharesToFyToken, _base.joinAddress),
+          ...addEth(_sharesToPoolWithSlippage, _series.poolAddress),
+        ];
       return []; // sends back an empty array [] if not eth base
     };
 
@@ -198,12 +201,12 @@ export const useAddLiquidity = () => {
       /* Note: two transfers */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
+        args: [_base.address, _base.joinAddress, _sharesToFyToken] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _series.poolAddress, _baseToPoolWithSlippage] as LadleActions.Args.TRANSFER,
+        args: [_base.address, _series.poolAddress, _sharesToPoolWithSlippage] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
 
@@ -212,8 +215,8 @@ export const useAddLiquidity = () => {
         args: [
           matchingVaultId || BLANK_VAULT,
           _series.poolAddress,
-          _baseToFyToken,
-          _baseToFyToken,
+          _sharesToFyToken,
+          _sharesToFyToken,
         ] as LadleActions.Args.POUR,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },

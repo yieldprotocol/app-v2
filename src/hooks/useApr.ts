@@ -24,10 +24,10 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
     let preview: ethers.BigNumber | Error = ethers.constants.Zero;
     if (_selectedSeries) {
       const baseAmount = ethers.utils.parseUnits(_input || _fallbackInput, _selectedSeries.decimals);
-      const { baseReserves, fyTokenReserves } = _selectedSeries;
+      const { sharesReserves, fyTokenReserves } = _selectedSeries;
       if (actionType === 'LEND')
         preview = sellBase(
-          baseReserves,
+          sharesReserves,
           fyTokenReserves,
           baseAmount,
           _selectedSeries.getTimeTillMaturity(),
@@ -37,7 +37,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
         );
       if (actionType === 'BORROW')
         preview = buyBase(
-          baseReserves,
+          sharesReserves,
           fyTokenReserves,
           baseAmount,
           _selectedSeries.getTimeTillMaturity(),
