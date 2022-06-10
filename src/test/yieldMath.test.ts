@@ -610,7 +610,7 @@ describe('Shares YieldMath', () => {
         fyTokenIn,
         timeTillMaturity,
         ts,
-        g1,
+        g2,
         decimals
       );
 
