@@ -43,16 +43,16 @@ export const useLendHelpers = (
   // /* check and set the protocol Base max limits */
   // useEffect(() => {
   //   if (series) {
-  //     const _maxBaseIn = maxBaseIn(
-  //       series.baseReserves,
+  //     const _maxSharesIn = maxBaseIn(
+  //       series.sharesReserves,
   //       series.fyTokenReserves,
   //       series.getTimeTillMaturity(),
   //       series.ts,
   //       series.g1,
   //       series.decimals
   //     );
-  //     diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
-  //     _maxBaseIn && setProtocolBaseIn(_maxBaseIn);
+  //     diagnostics && console.log('MAX BASE IN : ', _maxSharesIn.toString());
+  //     _maxSharesIn && setProtocolBaseIn(_maxSharesIn);
   //   }
   // }, [series, diagnostics]);
 
@@ -76,23 +76,23 @@ export const useLendHelpers = (
 
     if (series) {
       /* checks the protocol limits  (max Base allowed in ) */
-      const _maxBaseIn = maxBaseIn(
-        series.baseReserves,
+      const _maxSharesIn = maxBaseIn(
+        series.sharesReserves,
         series.fyTokenReserves,
         series.getTimeTillMaturity(),
         series.ts,
         series.g1,
         series.decimals
       );
-      diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
+      diagnostics && console.log('MAX BASE IN : ', _maxSharesIn.toString());
 
-      if (userBaseBalance.lt(_maxBaseIn)) {
+      if (userBaseBalance.lt(_maxSharesIn)) {
         setMaxLend(userBaseBalance);
         setMaxLend_(ethers.utils.formatUnits(userBaseBalance, series.decimals).toString());
         setProtocolLimited(false);
       } else {
-        setMaxLend(_maxBaseIn);
-        setMaxLend_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
+        setMaxLend(_maxSharesIn);
+        setMaxLend_(ethers.utils.formatUnits(_maxSharesIn, series.decimals).toString());
         setProtocolLimited(true);
       }
     }
@@ -102,7 +102,7 @@ export const useLendHelpers = (
   useEffect(() => {
     if (series && !series.seriesIsMature) {
       const value = sellFYToken(
-        series.baseReserves,
+        series.sharesReserves,
         series.fyTokenReserves,
         series.fyTokenBalance || ethers.constants.Zero,
         series.getTimeTillMaturity(),
@@ -116,10 +116,10 @@ export const useLendHelpers = (
         : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
 
       /* set max Closing */
-      const baseReservesWithMargin = series.baseReserves.mul(9999).div(10000); // TODO figure out why we can't use the base reserves exactly (margin added to facilitate transaction)
-      if (value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.baseReserves)) {
-        setMaxClose(baseReservesWithMargin);
-        setMaxClose_(ethers.utils.formatUnits(baseReservesWithMargin, series.decimals).toString());
+      const sharesReservesWithMargin = series.sharesReserves.mul(9999).div(10000); // TODO figure out why we can't use the base reserves exactly (margin added to facilitate transaction)
+      if (value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.sharesReserves)) {
+        setMaxClose(sharesReservesWithMargin);
+        setMaxClose_(ethers.utils.formatUnits(sharesReservesWithMargin, series.decimals).toString());
       } else if (value.lte(ethers.constants.Zero)) {
         setMaxClose(ethers.constants.Zero);
         setMaxClose_('0');
@@ -141,9 +141,9 @@ export const useLendHelpers = (
   useEffect(() => {
     if (series && !series.seriesIsMature && input) {
       const baseAmount = ethers.utils.parseUnits(input, series.decimals);
-      const { baseReserves, fyTokenReserves } = series;
+      const { sharesReserves, fyTokenReserves } = series;
       const val = sellBase(
-        baseReserves,
+        sharesReserves,
         fyTokenReserves,
         baseAmount,
         series.getTimeTillMaturity(),
@@ -159,8 +159,8 @@ export const useLendHelpers = (
   /* Maximum Roll possible from series to rollToSeries */
   useEffect(() => {
     if (series && rollToSeries) {
-      const _maxBaseIn = maxBaseIn(
-        rollToSeries.baseReserves,
+      const _maxSharesIn = maxBaseIn(
+        rollToSeries.sharesReserves,
         rollToSeries.fyTokenReserves,
         rollToSeries.getTimeTillMaturity(),
         rollToSeries.ts,
@@ -171,7 +171,7 @@ export const useLendHelpers = (
       const _fyTokenValue = series.seriesIsMature
         ? series.fyTokenBalance || ZERO_BN
         : sellFYToken(
-            series.baseReserves,
+            series.sharesReserves,
             series.fyTokenReserves,
             series.fyTokenBalance || ethers.constants.Zero,
             series.getTimeTillMaturity(),
@@ -180,17 +180,17 @@ export const useLendHelpers = (
             series.decimals
           );
 
-      if (_maxBaseIn.lte(_fyTokenValue)) {
-        setMaxRoll(_maxBaseIn);
-        setMaxRoll_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
+      if (_maxSharesIn.lte(_fyTokenValue)) {
+        setMaxRoll(_maxSharesIn);
+        setMaxRoll_(ethers.utils.formatUnits(_maxSharesIn, series.decimals).toString());
       } else {
         setMaxRoll(_fyTokenValue);
         setMaxRoll_(ethers.utils.formatUnits(_fyTokenValue, series.decimals).toString());
       }
 
-      diagnostics && console.log('MAXBASE_IN', _maxBaseIn.toString());
+      diagnostics && console.log('MAXSHARES_IN', _maxSharesIn.toString());
       diagnostics && console.log('FYTOKEN_VALUE', _fyTokenValue.toString());
-      diagnostics && console.log('MAXBASE_IN  <= FYTOKEN_VALUE', _maxBaseIn.lte(_fyTokenValue));
+      diagnostics && console.log('MAXSHARES_IN <= FYTOKEN_VALUE', _maxSharesIn.lte(_fyTokenValue));
     }
   }, [diagnostics, rollToSeries, series]);
 

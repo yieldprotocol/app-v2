@@ -117,7 +117,7 @@ export const useCollateralHelpers = (
     const newDebt =
       debtInput && Math.abs(parseFloat(debtInput)) > 0 && _selectedSeries
         ? buyBase(
-            _selectedSeries.baseReserves,
+            _selectedSeries.sharesReserves,
             _selectedSeries.fyTokenReserves,
             ethers.utils.parseUnits(debtInput, _selectedBase.decimals),
             _selectedSeries.getTimeTillMaturity(),

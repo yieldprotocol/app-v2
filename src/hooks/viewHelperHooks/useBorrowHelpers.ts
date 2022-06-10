@@ -74,9 +74,9 @@ export const useBorrowHelpers = (
     if (input && selectedSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, selectedSeries.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries.decimals);
-      input_.lte(selectedSeries.baseReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
+      input_.lte(selectedSeries.sharesReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
-  }, [input, selectedSeries, selectedSeries?.baseReserves]);
+  }, [input, selectedSeries, selectedSeries?.sharesReserves]);
 
   /* check the new debt level after potential repaying */
   useEffect(() => {
@@ -96,7 +96,7 @@ export const useBorrowHelpers = (
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
 
       const estimate = buyBase(
-        futureSeries.baseReserves,
+        futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
         input_,
         futureSeries.getTimeTillMaturity(),
@@ -116,7 +116,7 @@ export const useBorrowHelpers = (
   useEffect(() => {
     if (futureSeries && vault && vault.accruedArt) {
       const _maxFyTokenIn = maxFyTokenIn(
-        futureSeries.baseReserves,
+        futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
@@ -125,7 +125,7 @@ export const useBorrowHelpers = (
       );
 
       const newDebt = buyBase(
-        futureSeries.baseReserves,
+        futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
         vault.accruedArt,
         futureSeries.getTimeTillMaturity(),
@@ -186,7 +186,7 @@ export const useBorrowHelpers = (
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
         const _maxBaseIn = maxBaseIn(
-          vaultSeries?.baseReserves,
+          vaultSeries?.sharesReserves,
           vaultSeries?.fyTokenReserves,
           vaultSeries?.getTimeTillMaturity(),
           vaultSeries?.ts,

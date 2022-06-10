@@ -69,7 +69,7 @@ export const useDashboardHelpers = () => {
     const _lendPositions: ILendPosition[] = Array.from(seriesMap.values())
       .map((_series) => {
         const currentValue = sellFYToken(
-          _series.baseReserves,
+          _series.sharesReserves,
           _series.fyTokenReserves,
           _series.fyTokenBalance || ethers.constants.Zero,
           _series.getTimeTillMaturity(),
@@ -99,7 +99,7 @@ export const useDashboardHelpers = () => {
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,
           _strategy?.strategyPoolBalance || ethers.constants.Zero,
-          currentStrategySeries?.baseReserves!,
+          currentStrategySeries?.sharesReserves!,
           currentStrategySeries?.fyTokenRealReserves!,
           currentStrategySeries?.totalSupply!,
           currentStrategySeries?.getTimeTillMaturity()!,
