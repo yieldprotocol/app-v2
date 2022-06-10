@@ -49,7 +49,7 @@ describe('Shares YieldMath', () => {
   const base = parseUnits('100000', decimals); // 100,000
   const fyToken = parseUnits('100000', decimals); // 100,000
 
-  const comparePrecision = parseUnits('.001', decimals); // how close the equality check should be within
+  let comparePrecision = parseUnits('.001', decimals); // how close the equality check should be within
 
   beforeEach(() => {
     sharesReserves = parseUnits('1000000', decimals); // 1,000,000 base reserves to decimals
@@ -576,8 +576,9 @@ describe('Shares YieldMath', () => {
   });
 
   describe('example pool from fork: USDC2209 rolled', () => {
-    it('should equal the non-variable yield function with non-variable base', () => {
+    it('should equal specific outputs', () => {
       decimals = 6;
+      comparePrecision = parseUnits('.001', decimals); // how close the equality check should be within
       c = BigNumber.from('0x010400a7c5ac471b47');
       mu = BigNumber.from('0x010400a7c5ac471b47');
 
@@ -587,7 +588,7 @@ describe('Shares YieldMath', () => {
       timeTillMaturity = '9772165';
       g1 = BigNumber.from('0xc000000000000000');
       g2 = BigNumber.from('0x015555555555555555');
-      ts = BigNumber.from('0x0489617595');
+      ts = BigNumber.from('0x0571a826b3');
       const fyTokenIn = parseUnits('100000', decimals);
       const maturity = 1672412400;
 
@@ -597,7 +598,7 @@ describe('Shares YieldMath', () => {
         fyTokenIn,
         timeTillMaturity,
         ts,
-        g1,
+        g2,
         decimals,
         c,
         mu
@@ -614,12 +615,12 @@ describe('Shares YieldMath', () => {
       );
 
       // desmos output
-      expect(sellFYTokenResult).to.be.closeTo(parseUnits('96656.593', decimals), comparePrecision); // 96,656.593
-      expect(sellFYTokenResultDefault).to.be.closeTo(parseUnits('98129.685', decimals), comparePrecision); // 98,129.685
+      expect(sellFYTokenResult).to.be.closeTo(parseUnits('98438.611', decimals), comparePrecision); // 98,438.611
+      expect(sellFYTokenResultDefault).to.be.closeTo(parseUnits('99951.713', decimals), comparePrecision); // 99,951.713
 
       // calc apr and compare to current non-tv ui borrow rate
-      const apr = calculateAPR(floorDecimal(sellFYTokenResult), fyTokenIn, maturity);
-      expect(Number(apr)).to.be.closeTo(Number('3.45'), 3);
+      // const apr = calculateAPR(floorDecimal(sellFYTokenResult), fyTokenIn, maturity);
+      // expect(Number(apr)).to.be.closeTo(Number('3.45'), 0.1);
     });
   });
 });
