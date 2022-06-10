@@ -81,6 +81,7 @@ export const useBorrow = () => {
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
     /* Calculate expected debt (fytokens) from either network or calculated */
+    const [c, mu] = await Promise.all([series.poolContract.getC(), series.poolContract.mu()]);
     const _expectedFyToken = getValuesFromNetwork
       ? await series.poolContract.buyBasePreview(_input)
       : buyBase(
@@ -90,7 +91,9 @@ export const useBorrow = () => {
           series.getTimeTillMaturity(),
           series.ts,
           series.g2,
-          series.decimals
+          series.decimals,
+          c,
+          mu
         );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 

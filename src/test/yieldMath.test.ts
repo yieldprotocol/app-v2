@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import { Decimal } from 'decimal.js';
 import { solidity } from 'ethereum-waffle';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, ethers, utils } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import {
   buyBase,
@@ -19,13 +19,19 @@ import {
   calculateAPR,
   floorDecimal,
   g2_default,
+  _getC,
 } from '../utils/yieldMath';
 
 chai.use(solidity);
 const { parseUnits } = utils;
 
-const calcPrice = (base: BigNumber, fyToken: BigNumber, c: BigNumber | string) =>
-  base.mul(BigNumber.from(c)).div(fyToken);
+const calcPrice = (shares: BigNumber, fyToken: BigNumber, c: BigNumber | string, decimals: number) =>
+  toBn(
+    new Decimal(shares.toString())
+      .mul(_getC(c))
+      .div(new Decimal(fyToken.toString()))
+      .mul(10 ** decimals)
+  );
 
 describe('Shares YieldMath', () => {
   let g1 = toBn(g1_default);
@@ -35,6 +41,7 @@ describe('Shares YieldMath', () => {
   let sharesReserves: BigNumber;
   let fyTokenReserves: BigNumber;
   let c: BigNumber; // c: the price of vyToken to Token
+  let cGreater: BigNumber; // greater c than c above
   let mu: BigNumber; // mu: the price of vyToken to Token (c) at initialization
   let timeTillMaturity: BigNumber | string;
   let decimals = 18;
@@ -47,16 +54,17 @@ describe('Shares YieldMath', () => {
   beforeEach(() => {
     sharesReserves = parseUnits('1000000', decimals); // 1,000,000 base reserves to decimals
     fyTokenReserves = parseUnits('1000000', decimals); // 1,000,000 fyToken reserves to decimals
-    c = parseUnits('1.1', decimals);
-    mu = parseUnits('1.05', decimals);
+    c = BigNumber.from('0x1199999999999999a'); // 1.1 in 64 bit
+    cGreater = BigNumber.from('0x13333333333333333'); // 1.2 in 64 bit
+    mu = BigNumber.from('0x10ccccccccccccccd'); // 1.05 in 64 bit
     timeTillMaturity = (10000000).toString(); // 10000000 seconds
     ts = toBn(k);
   });
 
   describe('when c is 1 and mu is 1', () => {
     it('should equal the non-variable yield function with non-variable base', () => {
-      c = parseUnits('1', decimals); // non-variable initially
-      mu = parseUnits('1', decimals); // non-variable initially
+      c = BigNumber.from('0x10000000000000000'); // 1.0 in 64 bit: non-variable initially
+      mu = BigNumber.from('0x10000000000000000'); // 1.0 in 64 bit: non-variable initially
 
       const sellBaseResult = sellBase(sharesReserves, fyTokenReserves, base, timeTillMaturity, ts, g1, decimals, c, mu);
       // expect(sellBaseResult).to.equal(sellBaseResult);
@@ -109,13 +117,12 @@ describe('Shares YieldMath', () => {
         // when c stays the same
         const result = sellBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g1, decimals, c, mu);
         expect(result).to.be.closeTo(parseUnits('110000', decimals), comparePrecision); // 110,000 fyToken out
-        expect(calcPrice(base, result, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(base, result, c, decimals)).to.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1 formatted to decimals with precision of 3 decimal places
 
         // when c grew
-        c = parseUnits('1.2', decimals);
-        const result2 = sellBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g1, decimals, c, mu);
+        const result2 = sellBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g1, decimals, cGreater, mu);
         expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken out
-        expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(base, result2, cGreater, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
       });
 
       it('should mirror buyFYTokenShares (fyTokenInForSharesOut)', () => {
@@ -151,13 +158,25 @@ describe('Shares YieldMath', () => {
       it('should have a price of one at maturity', () => {
         const result = sellFYToken(sharesReserves, fyTokenReserves, fyToken, (0).toString(), ts, g2, decimals, c, mu);
         expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken out
-        expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(result, fyToken, c, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
         // when c grew
-        c = parseUnits('1.2', decimals);
-        const result2 = sellFYToken(sharesReserves, fyTokenReserves, fyToken, (0).toString(), ts, g2, decimals, c, mu);
+        const result2 = sellFYToken(
+          sharesReserves,
+          fyTokenReserves,
+          fyToken,
+          (0).toString(),
+          ts,
+          g2,
+          decimals,
+          cGreater,
+          mu
+        );
         expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken out
-        expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(result2, fyToken, cGreater, decimals)).to.be.closeTo(
+          parseUnits('1', decimals),
+          comparePrecision
+        ); // price of 1
       });
 
       it('should mirror buyBaseShares (fyTokenInForSharesOut)', () => {
@@ -203,13 +222,12 @@ describe('Shares YieldMath', () => {
       it('should have a price of one at maturity', () => {
         const result = buyBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g2, decimals, c, mu);
         expect(result).to.be.closeTo(parseUnits('110000', decimals), comparePrecision); // 110,000 fyToken in
-        expect(calcPrice(base, result, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(base, result, c, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
         // when c grew
-        c = parseUnits('1.2', decimals);
-        const result2 = buyBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g2, decimals, c, mu);
+        const result2 = buyBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g2, decimals, cGreater, mu);
         expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken in
-        expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(base, result2, cGreater, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
       });
 
       it('should mirror sellFYTokenShares (sharesOutForFYTokenIn)', () => {
@@ -245,13 +263,25 @@ describe('Shares YieldMath', () => {
       it('should have a price of one at maturity', () => {
         const result = buyFYToken(sharesReserves, fyTokenReserves, fyToken, (0).toString(), ts, g1, decimals, c, mu);
         expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken in
-        expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(result, fyToken, c, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
         // when c grew
-        c = parseUnits('1.2', decimals);
-        const result2 = buyFYToken(sharesReserves, fyTokenReserves, fyToken, (0).toString(), ts, g1, decimals, c, mu);
+        const result2 = buyFYToken(
+          sharesReserves,
+          fyTokenReserves,
+          fyToken,
+          (0).toString(),
+          ts,
+          g1,
+          decimals,
+          cGreater,
+          mu
+        );
         expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken in
-        expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(result2, fyToken, cGreater, decimals)).to.be.closeTo(
+          parseUnits('1', decimals),
+          comparePrecision
+        ); // price of 1
       });
 
       it('should mirror sellBaseShares (fyTokenOutForSharesIn)', () => {
@@ -287,8 +317,8 @@ describe('Shares YieldMath', () => {
     describe('maxFyTokenOut', () => {
       // https://www.desmos.com/calculator/sjdvxpa3vy
       it('should output a specific number with a specific input', () => {
-        c = parseUnits('1.1', decimals);
-        mu = parseUnits('1', decimals);
+        c = BigNumber.from('0x1199999999999999a');
+        mu = BigNumber.from('0x10000000000000000');
         ts = toBn(
           new Decimal(
             1 /
@@ -309,8 +339,8 @@ describe('Shares YieldMath', () => {
     describe('maxFyTokenIn', () => {
       // https://www.desmos.com/calculator/jcdfr1qv3z
       it('should output a specific number with a specific input', () => {
-        c = parseUnits('1.1', decimals);
-        mu = parseUnits('1.05', decimals);
+        c = BigNumber.from('0x1199999999999999a');
+        mu = BigNumber.from('0x10ccccccccccccccd');
         ts = toBn(
           new Decimal(
             1 /
@@ -329,8 +359,9 @@ describe('Shares YieldMath', () => {
   });
 
   describe('when c is 110 and mu is 105', () => {
-    c = parseUnits('110', decimals);
-    mu = parseUnits('105', decimals);
+    c = BigNumber.from('0x6e0000000000000000'); // 110 in 64 bit
+    mu = BigNumber.from('0x690000000000000000'); // 105 in 64 bit
+
     describe('sellBaseShares (fyTokenOutForSharesIn)', () => {
       it('should be more fyToken out for shares in', () => {
         const result = sellBase(sharesReserves, fyTokenReserves, base, timeTillMaturity, ts, g1, decimals, c, mu);
@@ -346,13 +377,12 @@ describe('Shares YieldMath', () => {
         // when c stays the same
         const result = sellBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g1, decimals, c, mu);
         expect(result).to.be.closeTo(parseUnits('110000', decimals), comparePrecision); // 110,000 fyToken out
-        expect(calcPrice(base, result, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(base, result, c, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
         // when c grew
-        c = parseUnits('1.2', decimals);
-        const result2 = sellBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g1, decimals, c, mu);
+        const result2 = sellBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g1, decimals, cGreater, mu);
         expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken out
-        expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(base, result2, cGreater, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
       });
 
       it('should mirror buyFYTokenShares (fyTokenInForSharesOut)', () => {
@@ -388,13 +418,25 @@ describe('Shares YieldMath', () => {
       it('should have a price of one at maturity', () => {
         const result = sellFYToken(sharesReserves, fyTokenReserves, fyToken, (0).toString(), ts, g2, decimals, c, mu);
         expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken out
-        expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(result, fyToken, c, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
         // when c grew
-        c = parseUnits('1.2', decimals);
-        const result2 = sellFYToken(sharesReserves, fyTokenReserves, fyToken, (0).toString(), ts, g2, decimals, c, mu);
+        const result2 = sellFYToken(
+          sharesReserves,
+          fyTokenReserves,
+          fyToken,
+          (0).toString(),
+          ts,
+          g2,
+          decimals,
+          cGreater,
+          mu
+        );
         expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken out
-        expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(result2, fyToken, cGreater, decimals)).to.be.closeTo(
+          parseUnits('1', decimals),
+          comparePrecision
+        ); // price of 1
       });
 
       it('should mirror buyBaseShares (fyTokenInForSharesOut)', () => {
@@ -440,13 +482,12 @@ describe('Shares YieldMath', () => {
       it('should have a price of one at maturity', () => {
         const result = buyBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g2, decimals, c, mu);
         expect(result).to.be.closeTo(parseUnits('110000', decimals), comparePrecision); // 110,000 fyToken in
-        expect(calcPrice(base, result, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(base, result, c, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
         // when c grew
-        c = parseUnits('1.2', decimals);
-        const result2 = buyBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g2, decimals, c, mu);
+        const result2 = buyBase(sharesReserves, fyTokenReserves, base, (0).toString(), ts, g2, decimals, cGreater, mu);
         expect(result2).to.be.closeTo(parseUnits('120000', decimals), comparePrecision); // 120,000 fyToken in
-        expect(calcPrice(base, result2, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(base, result2, cGreater, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
       });
 
       it('should mirror sellFYTokenShares (sharesOutForFYTokenIn)', () => {
@@ -482,13 +523,25 @@ describe('Shares YieldMath', () => {
       it('should have a price of one at maturity', () => {
         const result = buyFYToken(sharesReserves, fyTokenReserves, fyToken, (0).toString(), ts, g1, decimals, c, mu);
         expect(result).to.be.closeTo(parseUnits('90909.091', decimals), comparePrecision); // 90,909.091 vyToken in
-        expect(calcPrice(result, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(result, fyToken, c, decimals)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
 
         // when c grew
-        c = parseUnits('1.2', decimals);
-        const result2 = buyFYToken(sharesReserves, fyTokenReserves, fyToken, (0).toString(), ts, g1, decimals, c, mu);
+        const result2 = buyFYToken(
+          sharesReserves,
+          fyTokenReserves,
+          fyToken,
+          (0).toString(),
+          ts,
+          g1,
+          decimals,
+          cGreater,
+          mu
+        );
         expect(result2).to.be.closeTo(parseUnits('83333.333', decimals), comparePrecision); // 83,333.333 vyToken in
-        expect(calcPrice(result2, fyToken, c)).to.be.closeTo(parseUnits('1', decimals), comparePrecision); // price of 1
+        expect(calcPrice(result2, fyToken, cGreater, decimals)).to.be.closeTo(
+          parseUnits('1', decimals),
+          comparePrecision
+        ); // price of 1
       });
 
       it('should mirror sellBaseShares (fyTokenOutForSharesIn)', () => {
@@ -522,21 +575,21 @@ describe('Shares YieldMath', () => {
     });
   });
 
-  describe('example pool: USDC2209', () => {
+  describe('example pool from fork: USDC2209 rolled', () => {
     it('should equal the non-variable yield function with non-variable base', () => {
       decimals = 6;
-      c = parseUnits('1', decimals); // non-variable initially
-      mu = parseUnits('1', decimals); // non-variable initially
+      c = BigNumber.from('0x010400a7c5ac471b47');
+      mu = BigNumber.from('0x010400a7c5ac471b47');
 
       // example usdc 2209 maturity
-      sharesReserves = BigNumber.from('0x02fda33c8751');
-      fyTokenReserves = BigNumber.from('0x06491e1c84af');
+      sharesReserves = BigNumber.from('0x031c0f243bb4');
+      fyTokenReserves = BigNumber.from('0x031c0f243bb4');
       timeTillMaturity = '9772165';
       g1 = BigNumber.from('0xc000000000000000');
       g2 = BigNumber.from('0x015555555555555555');
       ts = BigNumber.from('0x0489617595');
       const fyTokenIn = parseUnits('100000', decimals);
-      const maturity = 1664550000;
+      const maturity = 1672412400;
 
       const sellFYTokenResult = sellFYToken(
         sharesReserves,
@@ -561,8 +614,8 @@ describe('Shares YieldMath', () => {
       );
 
       // desmos output
-      expect(sellFYTokenResult).to.be.closeTo(parseUnits('98952.496', decimals), comparePrecision); // 98,952.496
-      expect(sellFYTokenResultDefault).to.be.closeTo(parseUnits('98952.496', decimals), comparePrecision); // 98,952.496
+      expect(sellFYTokenResult).to.be.closeTo(parseUnits('96656.593', decimals), comparePrecision); // 96,656.593
+      expect(sellFYTokenResultDefault).to.be.closeTo(parseUnits('98129.685', decimals), comparePrecision); // 98,129.685
 
       // calc apr and compare to current non-tv ui borrow rate
       const apr = calculateAPR(floorDecimal(sellFYTokenResult), fyTokenIn, maturity);
