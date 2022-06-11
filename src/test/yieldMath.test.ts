@@ -626,6 +626,25 @@ describe('Shares YieldMath', () => {
       // expect(Number(apr)).to.be.closeTo(Number('3.45'), 0.1);
     });
 
+    it('should match buyBase desmos', () => {
+      const sharesIn = parseUnits('100000', decimals);
+
+      const buyBaseResult = buyBase(
+        sharesReserves,
+        fyTokenReserves,
+        sharesIn,
+        timeTillMaturity,
+        ts,
+        g2,
+        decimals,
+        c,
+        mu
+      );
+
+      // desmos output
+      expect(buyBaseResult).to.be.closeTo(parseUnits('101586.928', decimals), comparePrecision); // 101,586.928
+    });
+
     it('should match maxBaseIn desmos', () => {
       const maxSharesIn = maxBaseIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
 
