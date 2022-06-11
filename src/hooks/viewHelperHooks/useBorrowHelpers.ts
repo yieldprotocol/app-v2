@@ -102,7 +102,9 @@ export const useBorrowHelpers = (
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
         futureSeries.g2,
-        futureSeries.decimals
+        futureSeries.decimals,
+        futureSeries.c,
+        futureSeries.mu
       );
       const estimatePlusVaultUsed = vault?.accruedArt?.gt(ethers.constants.Zero)
         ? estimate.add(vault.accruedArt)
@@ -121,7 +123,9 @@ export const useBorrowHelpers = (
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
         futureSeries.g2,
-        futureSeries.decimals
+        futureSeries.decimals,
+        futureSeries.c,
+        futureSeries.mu
       );
 
       const newDebt = buyBase(
@@ -131,7 +135,9 @@ export const useBorrowHelpers = (
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
         futureSeries.g2,
-        futureSeries.decimals
+        futureSeries.decimals,
+        futureSeries.c,
+        futureSeries.mu
       );
 
       const _minCollat = calculateMinCollateral(
@@ -191,7 +197,9 @@ export const useBorrowHelpers = (
           vaultSeries?.getTimeTillMaturity(),
           vaultSeries?.ts,
           vaultSeries?.g1,
-          vaultSeries?.decimals
+          vaultSeries?.decimals,
+          vaultSeries?.c,
+          vaultSeries?.mu
         );
 
         /* if maxBasein is less than debt, and set protocol Limited flag */
