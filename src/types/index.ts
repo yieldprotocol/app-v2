@@ -286,8 +286,8 @@ export interface ISeries extends ISeriesRoot {
   seriesIsMature: boolean;
 
   // Yieldspace TV
-  c: BigNumber;
-  mu: BigNumber;
+  c: BigNumber | undefined;
+  mu: BigNumber | undefined;
 }
 
 export interface IAsset extends IAssetRoot {
