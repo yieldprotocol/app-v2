@@ -824,9 +824,9 @@ export function fyTokenForMint(
   g1: BigNumber | string,
   decimals: number,
   slippage: number = 0.01, // 1% default
-  precision: number = 0.0001, // 0.01% default
   c: BigNumber | string = '0x10000000000000000',
-  mu: BigNumber | string = '0x10000000000000000'
+  mu: BigNumber | string = '0x10000000000000000',
+  precision: number = 0.0001 // 0.01% default
 ): [BigNumber, BigNumber] {
   const shares_ = new Decimal(shares.toString());
   const minSurplus = shares_.mul(slippage);
