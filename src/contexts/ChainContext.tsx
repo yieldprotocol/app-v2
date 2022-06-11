@@ -116,7 +116,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
-  const { chainId, fallbackProvider, fallbackChainId } = connectionState;
+  const { chainId, fallbackProvider, fallbackChainId, useTenderlyFork } = connectionState;
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -440,8 +440,8 @@ const ChainProvider = ({ children }: any) => {
       const _getSeries = async () => {
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, lastSeriesUpdate),
-          Ladle.queryFilter('PoolAdded' as ethers.EventFilter, lastSeriesUpdate),
+          Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, useTenderlyFork ? null : lastSeriesUpdate),
+          Ladle.queryFilter('PoolAdded' as ethers.EventFilter, useTenderlyFork ? null : lastSeriesUpdate),
         ]);
 
         /* Create a map from the poolAdded event data or hardcoded pool data if available */
@@ -464,6 +464,7 @@ const ChainProvider = ({ children }: any) => {
                 const poolAddress = poolMap.get(id);
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
+
                 const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
                   await Promise.all([
                     fyTokenContract.name(),
@@ -477,6 +478,7 @@ const ChainProvider = ({ children }: any) => {
                     poolContract.g1(),
                     poolContract.g2(),
                   ]);
+
                 const newSeries = {
                   id,
                   baseId,
@@ -530,6 +532,7 @@ const ChainProvider = ({ children }: any) => {
                 console.log('updating constracrt ', strategyAddr);
 
                 const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
+
                 const [name, symbol, baseId, decimals, version] = await Promise.all([
                   Strategy.name(),
                   Strategy.symbol(),

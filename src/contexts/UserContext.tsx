@@ -132,7 +132,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account },
+    connection: { account, useTenderlyFork },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -167,52 +167,65 @@ const UserProvider = ({ children }: any) => {
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
       const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
 
-      const [vaultsBuilt, vaultsReceived] = await Promise.all([
-        Cauldron.queryFilter(vaultsBuiltFilter, fromBlock, 'latest'),
-        Cauldron.queryFilter(vaultsReceivedfilter, fromBlock, 'latest'),
-      ]);
+      try {
+        const [vaultsBuilt, vaultsReceived] = await Promise.all([
+          Cauldron.queryFilter(
+            vaultsBuiltFilter,
+            useTenderlyFork ? null : fromBlock,
+            useTenderlyFork ? null : 'latest'
+          ),
+          Cauldron.queryFilter(
+            vaultsReceivedfilter,
+            useTenderlyFork ? null : fromBlock,
+            useTenderlyFork ? null : 'latest'
+          ),
+        ]);
 
-      const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
-        const { vaultId: id, ilkId, seriesId } = x.args;
-        const series = seriesRootMap.get(seriesId);
-        return {
-          id,
-          seriesId,
-          baseId: series?.baseId,
-          ilkId,
-          displayName: generateVaultName(id),
-          decimals: series?.decimals,
-        };
-      });
-
-      const recievedEventsList = await Promise.all(
-        vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
-          const { vaultId: id } = x.args;
-          const { ilkId, seriesId } = await Cauldron.vaults(id);
+        const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
+          const { vaultId: id, ilkId, seriesId } = x.args;
           const series = seriesRootMap.get(seriesId);
           return {
             id,
             seriesId,
-            baseId: series.baseId,
+            baseId: series?.baseId,
             ilkId,
             displayName: generateVaultName(id),
-            decimals: series.decimals,
+            decimals: series?.decimals,
           };
-        })
-      );
+        });
 
-      /* all vaults */
-      const vaultList = [...buildEventList, ...recievedEventsList];
+        const recievedEventsList = await Promise.all(
+          vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
+            const { vaultId: id } = x.args;
+            const { ilkId, seriesId } = await Cauldron.vaults(id);
+            const series = seriesRootMap.get(seriesId);
+            return {
+              id,
+              seriesId,
+              baseId: series.baseId,
+              ilkId,
+              displayName: generateVaultName(id),
+              decimals: series.decimals,
+            };
+          })
+        );
 
-      const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
-        const _map = acc;
-        _map.set(item.id, item);
-        return _map;
-      }, new Map()) as Map<string, IVaultRoot>;
+        /* all vaults */
+        const vaultList = [...buildEventList, ...recievedEventsList];
 
-      return newVaultMap;
+        const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
+          const _map = acc;
+          _map.set(item.id, item);
+          return _map;
+        }, new Map()) as Map<string, IVaultRoot>;
+
+        return newVaultMap;
+      } catch (error) {
+        console.log('🦄 ~ file: UserContext.tsx ~ line 180 ~ error', error);
+        return new Map();
+      }
     },
-    [account, contractMap, seriesRootMap]
+    [account, contractMap, seriesRootMap, useTenderlyFork]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -288,6 +301,22 @@ const UserProvider = ({ children }: any) => {
             series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
 
+          // TODO: omit this logic (since all pools will have sharesReserves)
+          let sharesReserves: BigNumber;
+          let c: BigNumber | undefined;
+          let mu: BigNumber | undefined;
+          try {
+            [sharesReserves, c, mu] = await Promise.all([
+              series.poolContract.getSharesBalance(),
+              series.poolContract.getC(),
+              series.poolContract.mu(),
+            ]);
+          } catch (error) {
+            console.log('🦄 ~ file: UserContext.tsx ~ line 309 ~ seriesList.map ~ error', error);
+          }
+
+          sharesReserves = sharesReserves ?? baseReserves;
+
           const rateCheckAmount = ethers.utils.parseUnits(
             ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
             series.decimals
@@ -295,27 +324,31 @@ const UserProvider = ({ children }: any) => {
 
           /* Calculates the base/fyToken unit selling price */
           const _sellRate = sellFYToken(
-            baseReserves,
+            sharesReserves,
             fyTokenReserves,
             rateCheckAmount,
             secondsToFrom(series.maturity.toString()),
             series.ts,
             series.g2,
-            series.decimals
+            series.decimals,
+            c,
+            mu
           );
 
           const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
 
           return {
             ...series,
-            baseReserves,
-            baseReserves_: ethers.utils.formatUnits(baseReserves, series.decimals),
+            sharesReserves,
+            sharesReserves_: ethers.utils.formatUnits(sharesReserves, series.decimals),
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
             seriesIsMature: series.isMature(),
+            c,
+            mu,
           };
         })
       );
@@ -328,6 +361,7 @@ const UserProvider = ({ children }: any) => {
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
             ]);
+
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
               ...series,

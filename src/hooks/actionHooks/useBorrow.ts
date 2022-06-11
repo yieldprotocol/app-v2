@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -82,12 +82,15 @@ export const useBorrow = () => {
 
     /* Calculate expected debt (fytokens) from either network or calculated */
     const [c, mu] = await Promise.all([series.poolContract.getC(), series.poolContract.mu()]);
+    // TODO convert input from base to shares
+    const inputToShares = BigNumber.from(_input).div(c);
+
     const _expectedFyToken = getValuesFromNetwork
       ? await series.poolContract.buyBasePreview(_input)
       : buyBase(
           series.sharesReserves,
           series.fyTokenReserves,
-          _input,
+          inputToShares,
           series.getTimeTillMaturity(),
           series.ts,
           series.g2,

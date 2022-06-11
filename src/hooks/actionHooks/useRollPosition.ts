@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -50,16 +50,22 @@ export const useRollPosition = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
+    const [c, mu] = await Promise.all([fromSeries.poolContract.getC(), fromSeries.poolContract.mu()]);
+    // TODO convert input from base to shares
+    const inputToShares = BigNumber.from(_input).div(c);
+
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
       : buyBase(
           fromSeries.sharesReserves,
           fromSeries.fyTokenReserves,
-          _input,
+          inputToShares,
           fromSeries.getTimeTillMaturity(),
           fromSeries.ts,
           fromSeries.g2,
-          fromSeries.decimals
+          fromSeries.decimals,
+          c,
+          mu
         );
 
     console.log(_fyTokenValueOfInput.toString());

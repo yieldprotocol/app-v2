@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
@@ -33,7 +33,9 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           _selectedSeries.getTimeTillMaturity(),
           _selectedSeries.ts,
           _selectedSeries.g1,
-          _selectedSeries.decimals
+          _selectedSeries.decimals,
+          _selectedSeries.c,
+          _selectedSeries.mu
         );
       if (actionType === 'BORROW')
         preview = buyBase(
@@ -43,7 +45,9 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           _selectedSeries.getTimeTillMaturity(),
           _selectedSeries.ts,
           _selectedSeries.g2,
-          _selectedSeries.decimals
+          _selectedSeries.decimals,
+          _selectedSeries.c,
+          _selectedSeries.mu
         );
       const _apr = calculateAPR(baseAmount, preview, _selectedSeries?.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);

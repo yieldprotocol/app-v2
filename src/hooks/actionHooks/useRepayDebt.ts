@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import {
@@ -73,28 +73,36 @@ export const useRepayDebt = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
+    const [c, mu] = await Promise.all([series.poolContract.getC(), series.poolContract.mu()]);
+
     const _maxSharesIn = maxBaseIn(
       series.sharesReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
       series.ts,
       series.g1,
-      series.decimals
+      series.decimals,
+      c,
+      mu
     );
 
     /* Check the max amount of the trade that the pool can handle */
     const tradeIsNotPossible = _input.gt(_maxSharesIn);
+
+    const inputToShares = BigNumber.from(_input).div(c);
 
     const _inputAsFyToken = series.seriesIsMature
       ? _input
       : sellBase(
           series.sharesReserves,
           series.fyTokenReserves,
-          _input,
+          inputToShares,
           secondsToFrom(series.maturity.toString()),
           series.ts,
           series.g1,
-          series.decimals
+          series.decimals,
+          c,
+          mu
         );
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,

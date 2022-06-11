@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -54,15 +54,22 @@ export const useLend = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
+    const [c, mu] = await Promise.all([series.poolContract.getC(), series.poolContract.mu()]);
+    // TODO convert input from base to shares
+    const inputToShares = BigNumber.from(_input).div(c);
+
     const _inputAsFyToken = sellBase(
-      series.baseReserves,
+      series.sharesReserves,
       series.fyTokenReserves,
-      _input,
+      inputToShares,
       series.getTimeTillMaturity(),
       series.ts,
       series.g1,
-      series.decimals
+      series.decimals,
+      c,
+      mu
     );
+
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */

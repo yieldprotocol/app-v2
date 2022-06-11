@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -53,17 +53,23 @@ export const useClosePosition = () => {
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
     const ladleAddress = contractMap.get('Ladle').address;
 
+    const [c, mu] = await Promise.all([series.poolContract.getC(), series.poolContract.mu()]);
+    // TODO convert input from base to shares
+    const inputToShares = BigNumber.from(_input).div(c);
+
     /* buy fyToken value ( after maturity  fytoken === base value ) */
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
       : buyBase(
           series.sharesReserves,
           series.fyTokenReserves,
-          _input,
+          inputToShares,
           series.getTimeTillMaturity(),
           series.ts,
           series.g2,
-          series.decimals
+          series.decimals,
+          c,
+          mu
         );
 
     /* calculate slippage on the base token expected to recieve ie. input */

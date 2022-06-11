@@ -58,6 +58,9 @@ const initState: ISettingsContextState = {
   /* Always Unwrap tokens when removing them */
   unwrapTokens: false,
 
+  /* If using tenderly fork environment */
+  useTenderlyFork: false,
+
   /* Dashboard settings */
   dashHideEmptyVaults: false,
   dashHideInactiveVaults: false,
@@ -122,6 +125,13 @@ const SettingsProvider = ({ children }: any) => {
       });
     }
   }, []);
+
+  /* Use approval by tx if using tenderly fork */
+  useEffect(() => {
+    if (settingsState.useTenderlyFork) {
+      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
+    }
+  }, [settingsState.useTenderlyFork]);
 
   return <SettingsContext.Provider value={{ settingsState, settingsActions }}>{children}</SettingsContext.Provider>;
 };
