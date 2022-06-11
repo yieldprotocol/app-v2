@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { IAssetPair, IVault } from '../../types';
+import { IAssetPair, IUserContext, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
@@ -23,7 +23,7 @@ export const useCollateralHelpers = (
   /* STATE FROM CONTEXT */
   const {
     userState: { activeAccount, selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
   const _selectedBase = vault ? assetMap.get(vault.baseId) : selectedBase;
   const _selectedIlk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
@@ -123,7 +123,9 @@ export const useCollateralHelpers = (
             _selectedSeries.getTimeTillMaturity(),
             _selectedSeries.ts,
             _selectedSeries.g2,
-            _selectedSeries.decimals
+            _selectedSeries.decimals,
+            _selectedSeries.c,
+            _selectedSeries.mu
           )
         : ZERO_BN;
     const newDebtAsWei = decimalNToDecimal18(newDebt, _selectedBase?.decimals);
