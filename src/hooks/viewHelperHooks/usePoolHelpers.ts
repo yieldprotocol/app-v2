@@ -121,7 +121,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.getTimeTillMaturity(),
         strategySeries.ts,
         strategySeries.g1,
-        strategySeries.decimals
+        strategySeries.decimals,
+        strategySeries.c,
+        strategySeries.mu
       );
 
       [_fyTokenToBuy] = fyTokenForMint(
@@ -133,7 +135,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.ts,
         strategySeries.g1,
         strategySeries.decimals,
-        slippageTolerance
+        slippageTolerance,
+        strategySeries.c,
+        strategySeries.mu
       );
 
       /* Check if buy and pool option is allowed */
@@ -216,7 +220,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             secondsToFrom(strategySeries?.maturity.toString()),
             strategySeries?.ts,
             strategySeries?.g2,
-            strategySeries?.decimals
+            strategySeries?.decimals,
+            strategySeries?.c,
+            strategySeries?.mu
           );
 
           if (_extraFyTokenValue.gt(ZERO_BN)) {
@@ -275,7 +281,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries.getTimeTillMaturity(),
           strategySeries.ts,
           strategySeries.g1,
-          strategySeries.decimals
+          strategySeries.decimals,
+          strategySeries.c,
+          strategySeries.mu
         );
 
         if (tokenSellValue.gt(ethers.constants.Zero)) {
