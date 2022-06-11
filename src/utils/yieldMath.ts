@@ -780,7 +780,7 @@ export function maxFyTokenOut(
   const cmu = c_.mul(mu_.pow(a));
 
   const Za = cmu.mul(sharesReserves_.pow(a));
-  const Ya = mu_.mul(fyTokenReserves_.pow(a));
+  const Ya = fyTokenReserves_.pow(a);
   const sum = Za.add(Ya);
   const denominator = c_.div(mu_).add(ONE);
 
