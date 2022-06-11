@@ -284,6 +284,10 @@ export interface ISeries extends ISeriesRoot {
 
   poolPercent?: string | undefined;
   seriesIsMature: boolean;
+
+  // Yieldspace TV
+  c: BigNumber;
+  mu: BigNumber;
 }
 
 export interface IAsset extends IAssetRoot {
