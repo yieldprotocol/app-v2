@@ -12,7 +12,6 @@ import {
   k,
   toBn,
   maxBaseIn,
-  maxFyTokenOut,
   maxFyTokenIn,
   maxBaseOut,
   SECONDS_PER_YEAR,
@@ -20,6 +19,7 @@ import {
   floorDecimal,
   g2_default,
   _getC,
+  maxFyTokenOut,
 } from '../utils/yieldMath';
 
 chai.use(solidity);
@@ -576,7 +576,7 @@ describe('Shares YieldMath', () => {
   });
 
   describe('example pool from fork: USDC2209 rolled', () => {
-    it('should equal specific outputs', () => {
+    beforeEach(() => {
       decimals = 6;
       comparePrecision = parseUnits('.001', decimals); // how close the equality check should be within
       c = BigNumber.from('0x010400a7c5ac471b47');
@@ -589,6 +589,9 @@ describe('Shares YieldMath', () => {
       g1 = BigNumber.from('0xc000000000000000');
       g2 = BigNumber.from('0x015555555555555555');
       ts = BigNumber.from('0x0571a826b3');
+    });
+
+    it('should match sellFyToken desmos', () => {
       const fyTokenIn = parseUnits('100000', decimals);
       const maturity = 1672412400;
 
@@ -621,6 +624,67 @@ describe('Shares YieldMath', () => {
       // calc apr and compare to current non-tv ui borrow rate
       // const apr = calculateAPR(floorDecimal(sellFYTokenResult), fyTokenIn, maturity);
       // expect(Number(apr)).to.be.closeTo(Number('3.45'), 0.1);
+    });
+
+    it('should match maxBaseIn desmos', () => {
+      const maxSharesIn = maxBaseIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
+
+      // maxFyToken result plugged into buyFyToken should give a result that matches desmos
+      const _maxFyTokenOut = maxFyTokenOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
+      const sharesInResultFromMax = buyFYToken(
+        sharesReserves,
+        fyTokenReserves,
+        _maxFyTokenOut,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals,
+        c,
+        mu
+      );
+
+      // expect(maxSharesIn).to.be.closeTo(parseUnits(sharesInResultFromMax, decimals), comparePrecision);
+      expect(sharesInResultFromMax).to.be.closeTo(parseUnits('-53293.994', decimals), comparePrecision); // -53,293.994
+    });
+
+    it('should match maxFyTokenIn desmos', () => {
+      const _maxFyTokenIn = maxFyTokenIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g2, decimals, c, mu);
+
+      // desmos output
+      expect(_maxFyTokenIn).to.be.closeTo(parseUnits('3553185.917', decimals), comparePrecision); // 3,553,185.917
+    });
+
+    it('should match maxFyTokenOut desmos', () => {
+      const _maxFyTokenOut = maxFyTokenOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
+
+      // desmos output
+      expect(_maxFyTokenOut).to.be.closeTo(parseUnits('-54127.343', decimals), comparePrecision); // -54,127.343
+    });
+
+    it('should match maxBaseOut desmos', () => {
+      const _maxBaseOut = maxBaseOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g2, decimals, c, mu);
+
+      // plugging in maxBaseOut result
+      const _maxFyTokenIn = maxFyTokenIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g2, decimals, c, mu);
+      const sellFYTokenResult = sellFYToken(
+        sharesReserves,
+        fyTokenReserves,
+        _maxFyTokenIn,
+        timeTillMaturity,
+        ts,
+        g2,
+        decimals,
+        c,
+        mu
+      );
+      console.log(
+        '🦄 ~ file: yieldMath.test.ts ~ line 680 ~ it ~ sellFYTokenResult',
+        formatUnits(sellFYTokenResult, decimals)
+      );
+
+      // desmos output
+      // expect(_maxBaseOut).to.be.closeTo(sellFYTokenResult, decimals), comparePrecision);
+      expect(sellFYTokenResult).to.be.closeTo(parseUnits('3419048', decimals), comparePrecision); // 3,419,048
     });
   });
 });
