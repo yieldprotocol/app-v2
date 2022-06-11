@@ -627,12 +627,12 @@ describe('Shares YieldMath', () => {
     });
 
     it('should match buyBase desmos', () => {
-      const sharesIn = parseUnits('100000', decimals);
+      const sharesOut = parseUnits('100000', decimals);
 
       const buyBaseResult = buyBase(
         sharesReserves,
         fyTokenReserves,
-        sharesIn,
+        sharesOut,
         timeTillMaturity,
         ts,
         g2,
@@ -643,6 +643,44 @@ describe('Shares YieldMath', () => {
 
       // desmos output
       expect(buyBaseResult).to.be.closeTo(parseUnits('101586.928', decimals), comparePrecision); // 101,586.928
+    });
+
+    it('should match sellBase desmos', () => {
+      const sharesIn = parseUnits('100000', decimals);
+
+      const sellBaseResult = sellBase(
+        sharesReserves,
+        fyTokenReserves,
+        sharesIn,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals,
+        c,
+        mu
+      );
+
+      // desmos output
+      expect(sellBaseResult).to.be.closeTo(parseUnits('101521.058', decimals), comparePrecision); // 101,521.058
+    });
+
+    it('should match buyFyToken desmos', () => {
+      const fyTokenOut = parseUnits('100000', decimals);
+
+      const buyFyTokenResult = buyFYToken(
+        sharesReserves,
+        fyTokenReserves,
+        fyTokenOut,
+        timeTillMaturity,
+        ts,
+        g1,
+        decimals,
+        c,
+        mu
+      );
+
+      // desmos output
+      expect(buyFyTokenResult).to.be.closeTo(parseUnits('98501.328', decimals), comparePrecision); // 98,501.328
     });
 
     it('should match maxBaseIn desmos', () => {
