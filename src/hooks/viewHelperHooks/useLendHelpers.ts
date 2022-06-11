@@ -75,6 +75,7 @@ export const useLendHelpers = (
     }
 
     if (series) {
+      console.log('🦄 ~ file: useLendHelpers.ts ~ line 82 ~ useEffect ~ series', series);
       /* checks the protocol limits  (max Base allowed in ) */
       const _maxSharesIn = maxBaseIn(
         series.sharesReserves,
@@ -82,8 +83,11 @@ export const useLendHelpers = (
         series.getTimeTillMaturity(),
         series.ts,
         series.g1,
-        series.decimals
+        series.decimals,
+        series.c,
+        series.mu
       );
+      console.log('🦄 ~ file: useLendHelpers.ts ~ line 93 ~ useEffect ~ _maxSharesIn', _maxSharesIn);
       diagnostics && console.log('MAX BASE IN : ', _maxSharesIn.toString());
 
       if (userBaseBalance.lt(_maxSharesIn)) {
@@ -108,7 +112,9 @@ export const useLendHelpers = (
         series.getTimeTillMaturity(),
         series.ts,
         series.g2,
-        series.decimals
+        series.decimals,
+        series.c,
+        series.mu
       );
 
       value.lte(ethers.constants.Zero)
@@ -149,7 +155,9 @@ export const useLendHelpers = (
         series.getTimeTillMaturity(),
         series.ts,
         series.g1,
-        series.decimals
+        series.decimals,
+        series.c,
+        series.mu
       );
       setValueAtMaturity(val);
       setValueAtMaturity_(ethers.utils.formatUnits(val, series.decimals).toString());
@@ -165,7 +173,9 @@ export const useLendHelpers = (
         rollToSeries.getTimeTillMaturity(),
         rollToSeries.ts,
         rollToSeries.g1,
-        rollToSeries.decimals
+        rollToSeries.decimals,
+        rollToSeries.c,
+        rollToSeries.mu
       );
 
       const _fyTokenValue = series.seriesIsMature
@@ -177,7 +187,9 @@ export const useLendHelpers = (
             series.getTimeTillMaturity(),
             series.ts,
             series.g2,
-            series.decimals
+            series.decimals,
+            series.c,
+            series.mu
           );
 
       if (_maxSharesIn.lte(_fyTokenValue)) {
