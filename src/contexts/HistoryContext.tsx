@@ -188,7 +188,7 @@ const HistoryProvider = ({ children }: any) => {
           const liqLogs = await Promise.all(
             eventList.map(async (e: LiquidityEvent) => {
               const { blockNumber, transactionHash } = e;
-              const { maturity, bases, fyTokens, poolTokens } = e.args;
+              const { maturity, base: bases, fyTokens, poolTokens } = e.args;
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
 
@@ -242,7 +242,7 @@ const HistoryProvider = ({ children }: any) => {
               .filter((e: TradeEvent) => e.args.from !== contractMap.get('Ladle').address) // TODO make this for any ladle (Past/future)
               .map(async (e: TradeEvent) => {
                 const { blockNumber, transactionHash } = e;
-                const { maturity, bases, fyTokens } = e.args;
+                const { maturity, base: bases, fyTokens } = e.args;
                 const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
                 const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
                 const tradeApr = calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
