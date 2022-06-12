@@ -50,22 +50,18 @@ export const useRollPosition = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const [c, mu] = await Promise.all([fromSeries.poolContract.getC(), fromSeries.poolContract.mu()]);
-    // TODO convert input from base to shares
-    const inputToShares = BigNumber.from(_input).div(c);
-
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
       : buyBase(
           fromSeries.sharesReserves,
           fromSeries.fyTokenReserves,
-          inputToShares,
+          fromSeries.getShares(_input),
           fromSeries.getTimeTillMaturity(),
           fromSeries.ts,
           fromSeries.g2,
           fromSeries.decimals,
-          c,
-          mu
+          fromSeries.c,
+          fromSeries.mu
         );
 
     console.log(_fyTokenValueOfInput.toString());
