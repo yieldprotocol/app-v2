@@ -288,6 +288,7 @@ export interface ISeries extends ISeriesRoot {
   // Yieldspace TV
   c: BigNumber | undefined;
   mu: BigNumber | undefined;
+  getShares: (baseAmount: BigNumber | string) => BigNumber;
 }
 
 export interface IAsset extends IAssetRoot {
