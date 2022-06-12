@@ -53,7 +53,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           _selectedSeries.mu
         );
 
-      const _apr = calculateAPR(baseAmount, preview, _selectedSeries?.maturity);
+      const _apr = calculateAPR(baseAmount, preview, _selectedSeries.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
     }
   }, [_selectedSeries, _input, actionType, _fallbackInput]);
