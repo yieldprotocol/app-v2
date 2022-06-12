@@ -86,11 +86,7 @@ export const useRemoveLiquidity = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const [[, cachedSharesReserves, cachedFyTokenReserves], c, mu] = await Promise.all([
-      series.poolContract.getCache(),
-      series.poolContract.getC(),
-      series.poolContract.mu(),
-    ]);
+    const [[, cachedSharesReserves, cachedFyTokenReserves]] = await Promise.all([series.poolContract.getCache()]);
     const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
@@ -118,8 +114,8 @@ export const useRemoveLiquidity = () => {
       series.ts,
       series.g2,
       series.decimals,
-      c,
-      mu
+      series.c,
+      series.mu
     );
 
     diagnostics && console.log('fyTokenTrade value: ', fyTokenTrade.toString());
@@ -142,8 +138,8 @@ export const useRemoveLiquidity = () => {
       series.ts,
       series.g2,
       series.decimals,
-      c,
-      mu
+      series.c,
+      series.mu
     );
     /* if valid extraTrade > 0 and user selected to tradeFyToken */
     const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
