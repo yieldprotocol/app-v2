@@ -52,14 +52,6 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           _selectedSeries.c,
           _selectedSeries.mu
         );
-      console.log(
-        '🦄 ~ file: useApr.ts ~ line 45 ~ useEffect ~ preview',
-        ethers.utils.formatUnits(preview, _selectedSeries.decimals)
-      );
-      console.log(
-        '🦄 ~ file: useApr.ts ~ line 48 ~ useEffect ~ _selectedSeries.getShares(baseAmount)',
-        _selectedSeries.getShares(baseAmount)
-      );
 
       const _apr = calculateAPR(baseAmount, preview, _selectedSeries?.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
