@@ -40,23 +40,6 @@ export const useLendHelpers = (
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
 
-  // /* check and set the protocol Base max limits */
-  // useEffect(() => {
-  //   if (series) {
-  //     const _maxSharesIn = maxBaseIn(
-  //       series.sharesReserves,
-  //       series.fyTokenReserves,
-  //       series.getTimeTillMaturity(),
-  //       series.ts,
-  //       series.g1,
-  //       series.decimals
-  //     );
-  //     diagnostics && console.log('MAX BASE IN : ', _maxSharesIn.toString());
-  //     _maxSharesIn && setProtocolBaseIn(_maxSharesIn);
-  //   }
-  // }, [series, diagnostics]);
-
-  /* Check and set Max available lend by user (only if activeAccount).   */
   useEffect(() => {
     if (activeAccount) {
       (async () => {
@@ -75,7 +58,6 @@ export const useLendHelpers = (
     }
 
     if (series) {
-      console.log('🦄 ~ file: useLendHelpers.ts ~ line 82 ~ useEffect ~ series', series);
       /* checks the protocol limits  (max Base allowed in ) */
       const _maxSharesIn = maxBaseIn(
         series.sharesReserves,
@@ -87,7 +69,6 @@ export const useLendHelpers = (
         series.c,
         series.mu
       );
-      console.log('🦄 ~ file: useLendHelpers.ts ~ line 93 ~ useEffect ~ _maxSharesIn', _maxSharesIn);
       diagnostics && console.log('MAX BASE IN : ', _maxSharesIn.toString());
 
       if (userBaseBalance.lt(_maxSharesIn)) {
