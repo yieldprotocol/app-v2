@@ -132,7 +132,7 @@ export const useLendHelpers = (
       const val = sellBase(
         sharesReserves,
         fyTokenReserves,
-        baseAmount,
+        series.getShares(baseAmount), // convert base amount input to shares amount
         series.getTimeTillMaturity(),
         series.ts,
         series.g1,
