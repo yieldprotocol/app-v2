@@ -80,23 +80,18 @@ export const useBorrow = () => {
     const cleanCollInput = cleanValue(collInput, ilkToUse.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
-    /* Calculate expected debt (fytokens) from either network or calculated */
-    const [c, mu] = await Promise.all([series.poolContract.getC(), series.poolContract.mu()]);
-    // TODO convert input from base to shares
-    const inputToShares = BigNumber.from(_input).div(c);
-
     const _expectedFyToken = getValuesFromNetwork
       ? await series.poolContract.buyBasePreview(_input)
       : buyBase(
           series.sharesReserves,
           series.fyTokenReserves,
-          inputToShares,
+          series.getShares(_input), // convert input in base to shares
           series.getTimeTillMaturity(),
           series.ts,
           series.g2,
           series.decimals,
-          c,
-          mu
+          series.c,
+          series.mu
         );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
