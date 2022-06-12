@@ -65,7 +65,8 @@ export const useAddLiquidity = () => {
     const cleanInput = cleanValue(input, _base?.decimals!);
 
     const _input = ethers.utils.parseUnits(cleanInput, _base?.decimals);
-    const _inputLessSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
+    const inputToShares = _series.getShares(BigNumber.from(_input));
+    const _inputLessSlippage = calculateSlippage(inputToShares, slippageTolerance.toString(), true);
 
     const [[, cachedSharesReserves, cachedFyTokenReserves], c, mu] = await Promise.all([
       _series.poolContract.getCache(),
@@ -74,14 +75,11 @@ export const useAddLiquidity = () => {
     ]);
     const cachedRealReserves = cachedFyTokenReserves.sub(_series?.totalSupply!.sub(ONE_BN));
 
-    // TODO convert input from base to shares
-    const inputToShares = BigNumber.from(_inputLessSlippage).div(c);
-
     const [_fyTokenToBeMinted] = fyTokenForMint(
       cachedSharesReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
-      inputToShares,
+      _inputLessSlippage,
       _series.getTimeTillMaturity(),
       _series.ts,
       _series.g1,
