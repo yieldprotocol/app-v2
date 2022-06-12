@@ -1,4 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 import { useContext, useEffect, useState } from 'react';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
@@ -25,11 +26,12 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
     if (_selectedSeries) {
       const baseAmount = ethers.utils.parseUnits(_input || _fallbackInput, _selectedSeries.decimals);
       const { sharesReserves, fyTokenReserves } = _selectedSeries;
+
       if (actionType === 'LEND')
         preview = sellBase(
           sharesReserves,
           fyTokenReserves,
-          baseAmount,
+          _selectedSeries.getShares(baseAmount), // convert input from base to shares
           _selectedSeries.getTimeTillMaturity(),
           _selectedSeries.ts,
           _selectedSeries.g1,
@@ -37,11 +39,12 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           _selectedSeries.c,
           _selectedSeries.mu
         );
+
       if (actionType === 'BORROW')
         preview = buyBase(
           sharesReserves,
           fyTokenReserves,
-          baseAmount,
+          _selectedSeries.getShares(baseAmount), // convert input from base to shares
           _selectedSeries.getTimeTillMaturity(),
           _selectedSeries.ts,
           _selectedSeries.g2,
@@ -49,6 +52,15 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           _selectedSeries.c,
           _selectedSeries.mu
         );
+      console.log(
+        '🦄 ~ file: useApr.ts ~ line 45 ~ useEffect ~ preview',
+        ethers.utils.formatUnits(preview, _selectedSeries.decimals)
+      );
+      console.log(
+        '🦄 ~ file: useApr.ts ~ line 48 ~ useEffect ~ _selectedSeries.getShares(baseAmount)',
+        _selectedSeries.getShares(baseAmount)
+      );
+
       const _apr = calculateAPR(baseAmount, preview, _selectedSeries?.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
     }
