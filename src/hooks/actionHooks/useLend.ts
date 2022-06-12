@@ -54,20 +54,16 @@ export const useLend = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const [c, mu] = await Promise.all([series.poolContract.getC(), series.poolContract.mu()]);
-    // TODO convert input from base to shares
-    const inputToShares = BigNumber.from(_input).div(c);
-
     const _inputAsFyToken = sellBase(
       series.sharesReserves,
       series.fyTokenReserves,
-      inputToShares,
+      series.getShares(_input), // convert base input to shares
       series.getTimeTillMaturity(),
       series.ts,
       series.g1,
       series.decimals,
-      c,
-      mu
+      series.c,
+      series.mu
     );
 
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
