@@ -68,11 +68,7 @@ export const useAddLiquidity = () => {
     const inputToShares = _series.getShares(BigNumber.from(_input));
     const _inputLessSlippage = calculateSlippage(inputToShares, slippageTolerance.toString(), true);
 
-    const [[, cachedSharesReserves, cachedFyTokenReserves], c, mu] = await Promise.all([
-      _series.poolContract.getCache(),
-      _series.poolContract.getC(),
-      _series.poolContract.mu(),
-    ]);
+    const [[, cachedSharesReserves, cachedFyTokenReserves]] = await Promise.all([_series.poolContract.getCache()]);
     const cachedRealReserves = cachedFyTokenReserves.sub(_series?.totalSupply!.sub(ONE_BN));
 
     const [_fyTokenToBeMinted] = fyTokenForMint(
@@ -85,8 +81,8 @@ export const useAddLiquidity = () => {
       _series.g1,
       _series.decimals,
       slippageTolerance,
-      c,
-      mu
+      _series.c,
+      _series.mu
     );
 
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
