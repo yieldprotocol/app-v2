@@ -86,7 +86,7 @@ export const useRemoveLiquidity = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const [[, cachedSharesReserves, cachedFyTokenReserves]] = await Promise.all([series.poolContract.getCache()]);
+    const [cachedSharesReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
     const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
