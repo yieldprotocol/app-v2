@@ -65,10 +65,10 @@ export const useAddLiquidity = () => {
     const cleanInput = cleanValue(input, _base?.decimals!);
 
     const _input = ethers.utils.parseUnits(cleanInput, _base?.decimals);
-    const inputToShares = _series.getShares(BigNumber.from(_input));
+    const inputToShares = _series.getShares(_input);
     const _inputLessSlippage = calculateSlippage(inputToShares, slippageTolerance.toString(), true);
 
-    const [[, cachedSharesReserves, cachedFyTokenReserves]] = await Promise.all([_series.poolContract.getCache()]);
+    const [cachedSharesReserves, cachedFyTokenReserves] = await _series.poolContract.getCache();
     const cachedRealReserves = cachedFyTokenReserves.sub(_series?.totalSupply!.sub(ONE_BN));
 
     const [_fyTokenToBeMinted] = fyTokenForMint(
