@@ -98,7 +98,7 @@ export const useBorrowHelpers = (
       const estimate = buyBase(
         futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
-        input_,
+        futureSeries.getShares(input_),
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
         futureSeries.g2,
