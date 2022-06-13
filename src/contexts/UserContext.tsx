@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
+import Decimal from 'decimal.js';
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -28,6 +29,7 @@ import {
   secondsToFrom,
   sellFYToken,
   calcAccruedDebt,
+  toBn,
 } from '../utils/yieldMath';
 
 import { ZERO_BN } from '../utils/constants';
@@ -165,7 +167,7 @@ const UserProvider = ({ children }: any) => {
       if (!Cauldron) return new Map();
 
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-      const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
+      const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
 
       try {
         const [vaultsBuilt, vaultsReceived] = await Promise.all([
@@ -175,7 +177,7 @@ const UserProvider = ({ children }: any) => {
             useTenderlyFork ? null : 'latest'
           ),
           Cauldron.queryFilter(
-            vaultsReceivedfilter,
+            vaultsReceivedFilter,
             useTenderlyFork ? null : fromBlock,
             useTenderlyFork ? null : 'latest'
           ),
@@ -301,21 +303,31 @@ const UserProvider = ({ children }: any) => {
             series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
 
-          // TODO: omit this logic (since all pools will have sharesReserves)
-          let sharesReserves: BigNumber;
+          let sharesReserves: BigNumber | undefined;
           let c: BigNumber | undefined;
           let mu: BigNumber | undefined;
+          let currentSharePrice: BigNumber | undefined;
+
           try {
-            [sharesReserves, c, mu] = await Promise.all([
+            [sharesReserves, c, mu, currentSharePrice] = await Promise.all([
               series.poolContract.getSharesBalance(),
               series.poolContract.getC(),
               series.poolContract.mu(),
+              series.poolContract.getCurrentSharePrice(),
             ]);
           } catch (error) {
-            console.log('🦄 ~ file: UserContext.tsx ~ line 309 ~ seriesList.map ~ error', error);
+            sharesReserves = baseReserves;
+            currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
+            console.log('using old pool contract that does not include c, mu, and shares');
           }
 
-          sharesReserves = sharesReserves ?? baseReserves;
+          // convert base amounts to shares amounts (baseAmount is wad)
+          const getShares = (baseAmount: BigNumber) =>
+            toBn(
+              new Decimal(baseAmount.toString())
+                .mul(10 ** series.decimals)
+                .div(new Decimal(currentSharePrice.toString()))
+            );
 
           const rateCheckAmount = ethers.utils.parseUnits(
             ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
@@ -349,6 +361,7 @@ const UserProvider = ({ children }: any) => {
             seriesIsMature: series.isMature(),
             c,
             mu,
+            getShares,
           };
         })
       );
@@ -361,7 +374,6 @@ const UserProvider = ({ children }: any) => {
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
             ]);
-
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
               ...series,
@@ -428,7 +440,6 @@ const UserProvider = ({ children }: any) => {
                   )
                 ).length > 0
               : false;
-
           const series = seriesRootMap.get(seriesId);
 
           let accruedArt: BigNumber;
@@ -542,20 +553,40 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-            _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.seriesId(),
-            _strategy.strategyContract.pool(),
-            _strategy.strategyContract.nextSeriesId(),
-          ]);
+          let strategyTotalSupply;
+          let currentSeriesId;
+          let currentPoolAddr;
+          let nextSeriesId;
+
+          try {
+            [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+              _strategy.strategyContract.totalSupply(),
+              _strategy.strategyContract.seriesId(),
+              _strategy.strategyContract.pool(),
+              _strategy.strategyContract.nextSeriesId(),
+            ]);
+          } catch (error) {
+            if (_strategy.address === '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39') {
+              currentSeriesId = '0x303230380000';
+              currentPoolAddr = '0x68e9e0d89f96f40a98d3f42dc22430abbf662a1a';
+              strategyTotalSupply = BigNumber.from('0x031af3d56937');
+            }
+          }
+
           const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
           const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
 
           if (currentSeries) {
-            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-              currentSeries.poolContract.totalSupply(),
-              currentSeries.poolContract.balanceOf(_strategy.address),
-            ]);
+            let poolTotalSupply = BigNumber.from('0x0282f26b6f65');
+            let strategyPoolBalance = BigNumber.from('0x031af3d56937');
+            try {
+              [poolTotalSupply, strategyPoolBalance] = await Promise.all([
+                currentSeries.poolContract.totalSupply(),
+                currentSeries.poolContract.balanceOf(_strategy.address),
+              ]);
+            } catch (error) {
+              console.log('🦄 ~ file: UserContext.tsx ~ line 580 ~ strategyList.map ~ error', error);
+            }
 
             const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
               ? [ZERO_BN, ZERO_BN]
