@@ -119,7 +119,7 @@ export const useCollateralHelpers = (
         ? buyBase(
             _selectedSeries.sharesReserves,
             _selectedSeries.fyTokenReserves,
-            ethers.utils.parseUnits(debtInput, _selectedBase.decimals),
+            _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase.decimals)),
             _selectedSeries.getTimeTillMaturity(),
             _selectedSeries.ts,
             _selectedSeries.g2,
