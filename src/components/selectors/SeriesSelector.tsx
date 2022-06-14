@@ -97,9 +97,20 @@ const AprText = ({
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
       actionType === ActionType.LEND
-        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(sharesIn)) // lending max
-        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.sharesReserves)); // borrow max
-  }, [_inputValue, actionType, sharesIn, series.sharesReserves, series?.decimals, series?.seriesIsMature, setLimitHit]);
+        ? setLimitHit(series.getShares(ethers.utils.parseUnits(_inputValue, series.decimals)).gt(sharesIn)) // lending max
+        : setLimitHit(
+            series.getShares(ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(series.sharesReserves)
+          ); // borrow max
+  }, [
+    _inputValue,
+    actionType,
+    sharesIn,
+    series.sharesReserves,
+    series.decimals,
+    series?.seriesIsMature,
+    setLimitHit,
+    series,
+  ]);
 
   return (
     <>
