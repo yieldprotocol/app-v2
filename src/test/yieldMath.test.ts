@@ -685,23 +685,10 @@ describe('Shares YieldMath', () => {
 
     it('should match maxBaseIn desmos', () => {
       const maxSharesIn = maxBaseIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
+      console.log('🦄 ~ file: yieldMath.test.ts ~ line 688 ~ it ~ maxSharesIn', formatUnits(maxSharesIn, decimals));
 
-      // maxFyToken result plugged into buyFyToken should give a result that matches desmos
-      const _maxFyTokenOut = maxFyTokenOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
-      const sharesInResultFromMax = buyFYToken(
-        sharesReserves,
-        fyTokenReserves,
-        _maxFyTokenOut,
-        timeTillMaturity,
-        ts,
-        g1,
-        decimals,
-        c,
-        mu
-      );
-
-      // expect(maxSharesIn).to.be.closeTo(parseUnits(sharesInResultFromMax, decimals), comparePrecision);
-      expect(sharesInResultFromMax).to.be.closeTo(parseUnits('-53293.994', decimals), comparePrecision); // -53,293.994
+      // desmos output
+      expect(maxSharesIn).to.be.closeTo(parseUnits('-52633.304', decimals), comparePrecision); // −52,633.304
     });
 
     it('should match maxFyTokenIn desmos', () => {
@@ -733,10 +720,6 @@ describe('Shares YieldMath', () => {
         decimals,
         c,
         mu
-      );
-      console.log(
-        '🦄 ~ file: yieldMath.test.ts ~ line 680 ~ it ~ sellFYTokenResult',
-        formatUnits(sellFYTokenResult, decimals)
       );
 
       // desmos output

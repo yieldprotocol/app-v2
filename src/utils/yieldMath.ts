@@ -560,16 +560,24 @@ export function buyFYToken(
 /**
  * Calculate the max amount of base that can be sold to into the pool without making the interest rate negative.
  *
- * @param { BigNumber | string } sharesReserves
- * @param { BigNumber | string } fyTokenReserves
- * @param { BigNumber | string } timeTillMaturity
- * @param { BigNumber | string } ts
- * @param { BigNumber | string } g1
- * @param { number } decimals
- * @param { BigNumber | string } c
- * @param { BigNumber | string } mu
+ * @param { BigNumber | string } sharesReserves yield bearing vault shares reserve amount
+ * @param { BigNumber | string } fyTokenReserves fyToken reserves amount
+ * @param { BigNumber | string } timeTillMaturity time till maturity in seconds
+ * @param { BigNumber | string } ts time stretch
+ * @param { BigNumber | string } g1 fee coefficient
+ * @param { number } decimals pool decimals
+ * @param { BigNumber | string } c price of shares in terms of their base in 64 bit
+ * @param { BigNumber | string } mu (μ) Normalization factor -- starts as c at initialization in 64 bit
  *
  * @returns { BigNumber } max amount of base that can be bought from the pool
+ *
+ * y = fyToken
+ * z = vyToken
+ * x = Δy
+ *
+ *      1/μ * ( (               sum                 )^(   invA    ) - z
+ *      1/μ * ( ( (  cua   ) * Za  + Ya ) / c/μ + 1 )^(   invA    ) - z
+ * Δz = 1/μ * ( ( ( cμ^(a-1) * z^a + y^a) / c/μ + 1 )^(1 / (1 - t)) - z
  *
  */
 export function maxBaseIn(
@@ -582,34 +590,23 @@ export function maxBaseIn(
   c: BigNumber | string = '0x10000000000000000',
   mu: BigNumber | string = '0x10000000000000000'
 ): BigNumber {
-  /* calculate the max possible fyToken out */
-  const fyTokenAmountOut = maxFyTokenOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
-
   /* convert to 18 decimals, if required */
   const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
   const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
-  const fyTokenAmountOut18 = decimalNToDecimal18(fyTokenAmountOut, decimals);
 
   const sharesReserves_ = new Decimal(sharesReserves18.toString());
   const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const fyTokenAmountOut_ = new Decimal(fyTokenAmountOut18.toString());
-
-  /*  abort if maxFyTokenOut() is zero */
-  if (fyTokenAmountOut_.eq(ZERO)) return ZERO_BN;
 
   const [a, invA] = _computeA(timeTillMaturity, ts, g1);
-  const za = sharesReserves_.pow(a);
-  const ya = fyTokenReserves_.pow(a);
-  // yx =
-  const yx = fyTokenReserves_.sub(fyTokenAmountOut_);
-  // yxa = yx ** a
-  const yxa = yx.pow(a);
+  const c_ = _getC(c);
+  const mu_ = _getMu(mu);
 
-  // sum = za + ya - yxa
-  const sum = za.add(ya).sub(yxa);
+  const cua = c_.mul(mu_.pow(a.sub(ONE)));
+  const Za = sharesReserves_.pow(a);
+  const Ya = fyTokenReserves_.pow(a);
+  const sum = cua.add(Za.add(Ya)).div(c_.div(mu_).add(ONE));
 
-  // result = (sum ** (1/a)) - sharesReserves
-  const res = sum.pow(invA).sub(sharesReserves_);
+  const res = ONE.div(mu_).mul(sum.pow(invA)).sub(sharesReserves_);
 
   /* Handle precision variations */
   const safeRes = res.gt(MAX.sub(precisionFee)) ? MAX : res.add(precisionFee);
