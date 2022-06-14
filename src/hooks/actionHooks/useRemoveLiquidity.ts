@@ -75,7 +75,8 @@ export const useRemoveLiquidity = () => {
     input: string,
     series: ISeries,
     matchingVault: IVault | undefined,
-    tradeFyToken: boolean = true
+    tradeFyToken: boolean = true,
+    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
@@ -85,8 +86,7 @@ export const useRemoveLiquidity = () => {
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
     const ladleAddress = contractMap.get('Ladle').address;
-
-    const [cachedSharesReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
+    const [, cachedSharesReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
     const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
@@ -106,17 +106,19 @@ export const useRemoveLiquidity = () => {
       series.totalSupply
     );
 
-    const fyTokenTrade = sellFYToken(
-      _newPool.sharesReserves,
-      _newPool.fyTokenVirtualReserves,
-      _fyTokenReceived,
-      series.getTimeTillMaturity(),
-      series.ts,
-      series.g2,
-      series.decimals,
-      series.c,
-      series.mu
-    );
+    const fyTokenTrade = getValuesFromNetwork
+      ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived)
+      : sellFYToken(
+          _newPool.sharesReserves,
+          _newPool.fyTokenVirtualReserves,
+          _fyTokenReceived,
+          series.getTimeTillMaturity(),
+          series.ts,
+          series.g2,
+          series.decimals,
+          series.c,
+          series.mu
+        );
 
     diagnostics && console.log('fyTokenTrade value: ', fyTokenTrade.toString());
     const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
