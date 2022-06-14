@@ -88,7 +88,9 @@ const AprText = ({
     series.getTimeTillMaturity(),
     series.ts,
     series.g1,
-    series.decimals
+    series.decimals,
+    series.c,
+    series.mu
   );
   // diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
 
