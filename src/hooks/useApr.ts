@@ -1,5 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
-import { formatUnits } from 'ethers/lib/utils';
+import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
@@ -53,6 +52,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           _selectedSeries.mu
         );
 
+      // figure out what to do with negative apr on borrow for tv series
       const _apr = calculateAPR(baseAmount, preview, _selectedSeries.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
     }
