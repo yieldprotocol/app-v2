@@ -1275,7 +1275,7 @@ export const getPoolPercent = (input: BigNumber, strategyTotalSupply: BigNumber)
  * Calcualtes the MIN and MAX reserve ratios of a pool for a given slippage value
  *
  * @param {BigNumber} sharesReserves
- * @param {BigNumber} fyTokenReserves
+ * @param {BigNumber} fyTokenReserves // real reserves
  * @param {number} slippage
  *
  * @returns {[BigNumber, BigNumber] }
