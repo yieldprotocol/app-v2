@@ -66,15 +66,17 @@ export const useAddLiquidity = () => {
 
     const _input = ethers.utils.parseUnits(cleanInput, _base?.decimals);
     const inputToShares = _series.getShares(_input);
-    const _inputLessSlippage = calculateSlippage(inputToShares, slippageTolerance.toString(), true);
-    const [, cachedSharesReserves, cachedFyTokenReserves] = await _series.poolContract.getCache();
-    const cachedRealReserves = cachedFyTokenReserves.sub(_series.totalSupply.sub(ONE_BN));
+    const _inputToSharesLessSlippage = calculateSlippage(inputToShares, slippageTolerance.toString(), true);
+
+    const [cachedSharesReserves, cachedFyTokenReserves] = await _series.poolContract.getCache();
+    const totalSupply = await _series.poolContract.totalSupply();
+    const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
     const [_fyTokenToBeMinted] = fyTokenForMint(
       cachedSharesReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
-      _inputLessSlippage,
+      _inputToSharesLessSlippage,
       _series.getTimeTillMaturity(),
       _series.ts,
       _series.g1,
@@ -106,8 +108,8 @@ export const useAddLiquidity = () => {
       'input: ',
       _input.toString(),
       'inputLessSlippage: ',
-      _inputLessSlippage.toString(),
-      'base: ',
+      _inputToSharesLessSlippage.toString(),
+      'shares reserves: ',
       cachedSharesReserves.toString(),
       'real: ',
       cachedRealReserves.toString(),
@@ -119,7 +121,7 @@ export const useAddLiquidity = () => {
       '>> fyTokenSplit: ',
       _sharesToFyToken.toString(),
 
-      '>> baseSplitWithSlippage: ',
+      '>> sharesSplitWithSlippage: ',
       _sharesToPoolWithSlippage.toString(),
 
       '>> minRatio',
