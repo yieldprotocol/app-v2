@@ -44,7 +44,11 @@ export const useClosePosition = () => {
 
   const { removeEth } = useAddRemoveEth();
 
-  const closePosition = async (input: string | undefined, series: ISeries) => {
+  const closePosition = async (
+    input: string | undefined,
+    series: ISeries,
+    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
+  ) => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const base = assetMap.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
@@ -53,20 +57,27 @@ export const useClosePosition = () => {
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
     const ladleAddress = contractMap.get('Ladle').address;
 
-    /* buy fyToken value ( after maturity  fytoken === base value ) */
-    const _fyTokenValueOfInput = seriesIsMature
-      ? _input
-      : buyBase(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          series.getShares(_input),
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g2,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    /* assess how much fyToken is needed to buy base amount (input) */
+    const getFyTokenValueInBase = async () => {
+      /* after maturity, fytoken === base (input) value */
+      if (seriesIsMature) {
+        return _input;
+      }
+      return getValuesFromNetwork
+        ? series.poolContract.buyBasePreview(_input)
+        : buyBase(
+            series.sharesReserves,
+            series.fyTokenReserves,
+            series.getShares(_input),
+            series.getTimeTillMaturity(),
+            series.ts,
+            series.g2,
+            series.decimals,
+            series.c,
+            series.mu
+          );
+    };
+    const _fyTokenValueOfInput = await getFyTokenValueInBase();
 
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
