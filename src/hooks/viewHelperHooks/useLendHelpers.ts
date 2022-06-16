@@ -4,7 +4,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, ISeries, IUserContextState } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import { maxBaseIn, sellBase, sellFYToken } from '../../utils/yieldMath';
+import { maxBaseIn, maxBaseOut, maxFyTokenIn, maxFyTokenOut, sellBase, sellFYToken } from '../../utils/yieldMath';
 import { useApr } from '../useApr';
 
 export const useLendHelpers = (
@@ -58,7 +58,7 @@ export const useLendHelpers = (
     }
 
     if (series) {
-      /* checks the protocol limits  (max Base allowed in ) */
+      /* checks the protocol limits  (max shares allowed in ) */
       const _maxSharesIn = maxBaseIn(
         series.sharesReserves,
         series.fyTokenReserves,
@@ -69,27 +69,28 @@ export const useLendHelpers = (
         series.c,
         series.mu
       );
-      diagnostics && console.log('MAX BASE IN : ', _maxSharesIn.toString());
+      diagnostics && console.log('MAX SHARES IN : ', _maxSharesIn.toString());
 
-      // make sure max shares in is greater than 0
-      const maxSharesIn_ = _maxSharesIn.lte(ethers.constants.Zero) ? ethers.constants.Zero : _maxSharesIn;
+      // make sure max shares in is greater than 0 and convert to base
+      const _maxBaseIn = _maxSharesIn.lte(ethers.constants.Zero) ? ethers.constants.Zero : series.getBase(_maxSharesIn);
+      diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
 
-      if (userBaseBalance.lt(maxSharesIn_)) {
+      if (userBaseBalance.lt(_maxBaseIn)) {
         setMaxLend(userBaseBalance);
         setMaxLend_(ethers.utils.formatUnits(userBaseBalance, series.decimals).toString());
         setProtocolLimited(false);
       } else {
-        setMaxLend(maxSharesIn_);
-        setMaxLend_(ethers.utils.formatUnits(maxSharesIn_, series.decimals).toString());
+        setMaxLend(_maxBaseIn);
+        setMaxLend_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
         setProtocolLimited(true);
       }
     }
   }, [userBaseBalance, series, selectedBase, diagnostics]);
 
-  /* Sets max close and current market Value of fyTokens held in base tokens */
+  /* Sets max close and current market value of fyTokens held in base tokens */
   useEffect(() => {
     if (series && !series.seriesIsMature) {
-      const value = sellFYToken(
+      const sharesValue = sellFYToken(
         series.sharesReserves,
         series.fyTokenReserves,
         series.fyTokenBalance || ethers.constants.Zero,
@@ -101,21 +102,36 @@ export const useLendHelpers = (
         series.mu
       );
 
-      value.lte(ethers.constants.Zero)
+      // calculate base value of current fyToken balance
+      const baseValue = series.getBase(sharesValue);
+
+      const _maxFyTokenIn = maxFyTokenIn(
+        series.sharesReserves,
+        series.fyTokenReserves,
+        series.getTimeTillMaturity(),
+        series.ts,
+        series.g2,
+        series.decimals,
+        series.c,
+        series.mu
+      );
+
+      const _maxBaseOut = maxBaseOut(series.sharesReserves);
+
+      sharesValue.lte(ethers.constants.Zero)
         ? setFyTokenMarketValue('Low liquidity')
-        : setFyTokenMarketValue(ethers.utils.formatUnits(value, series.decimals));
+        : setFyTokenMarketValue(ethers.utils.formatUnits(baseValue, series.decimals));
 
       /* set max Closing */
-      const sharesReservesWithMargin = series.sharesReserves.mul(9999).div(10000); // TODO figure out why we can't use the base reserves exactly (margin added to facilitate transaction)
-      if (value.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(series.sharesReserves)) {
-        setMaxClose(sharesReservesWithMargin);
-        setMaxClose_(ethers.utils.formatUnits(sharesReservesWithMargin, series.decimals).toString());
-      } else if (value.lte(ethers.constants.Zero)) {
+      if (baseValue.lte(ethers.constants.Zero) && series.fyTokenBalance.gt(_maxFyTokenIn)) {
+        setMaxClose(_maxBaseOut);
+        setMaxClose_(ethers.utils.formatUnits(_maxBaseOut, series.decimals));
+      } else if (baseValue.lte(ethers.constants.Zero)) {
         setMaxClose(ethers.constants.Zero);
         setMaxClose_('0');
       } else {
-        setMaxClose(value);
-        setMaxClose_(ethers.utils.formatUnits(value, series.decimals).toString());
+        setMaxClose(baseValue);
+        setMaxClose_(ethers.utils.formatUnits(baseValue, series.decimals));
       }
     }
 
