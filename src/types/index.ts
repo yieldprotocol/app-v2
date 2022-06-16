@@ -289,6 +289,7 @@ export interface ISeries extends ISeriesRoot {
   c: BigNumber | undefined;
   mu: BigNumber | undefined;
   getShares: (baseAmount: BigNumber) => BigNumber;
+  getBase: (sharesAmount: BigNumber) => BigNumber;
 }
 
 export interface IAsset extends IAssetRoot {

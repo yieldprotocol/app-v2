@@ -329,6 +329,14 @@ const UserProvider = ({ children }: any) => {
                 .div(new Decimal(currentSharePrice.toString()))
             );
 
+          // convert shares amounts to base amounts
+          const getBase = (sharesAmount: BigNumber) =>
+            toBn(
+              new Decimal(sharesAmount.toString())
+                .mul(new Decimal(currentSharePrice.toString()))
+                .div(10 ** series.decimals)
+            );
+
           const rateCheckAmount = ethers.utils.parseUnits(
             ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
             series.decimals
@@ -362,6 +370,7 @@ const UserProvider = ({ children }: any) => {
             c,
             mu,
             getShares,
+            getBase,
           };
         })
       );
