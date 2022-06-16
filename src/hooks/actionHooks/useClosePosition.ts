@@ -58,26 +58,20 @@ export const useClosePosition = () => {
     const ladleAddress = contractMap.get('Ladle').address;
 
     /* assess how much fyToken is needed to buy base amount (input) */
-    const getFyTokenValueOfBase = async () => {
-      /* after maturity, fytoken === base (input) value */
-      if (seriesIsMature) {
-        return _input;
-      }
-      return getValuesFromNetwork
-        ? series.poolContract.buyBasePreview(_input)
-        : buyBase(
-            series.sharesReserves,
-            series.fyTokenReserves,
-            series.getShares(_input),
-            series.getTimeTillMaturity(),
-            series.ts,
-            series.g2,
-            series.decimals,
-            series.c,
-            series.mu
-          );
-    };
-    const _fyTokenValueOfInput = await getFyTokenValueOfBase();
+    /* after maturity, fytoken === base (input) value */
+    const _fyTokenValueOfInput = seriesIsMature
+      ? _input
+      : buyBase(
+          series.sharesReserves,
+          series.fyTokenReserves,
+          series.getShares(_input),
+          series.getTimeTillMaturity(),
+          series.ts,
+          series.g2,
+          series.decimals,
+          series.c,
+          series.mu
+        );
 
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
