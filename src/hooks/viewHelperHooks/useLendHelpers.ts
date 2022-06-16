@@ -208,7 +208,7 @@ export const useLendHelpers = (
 
       diagnostics && console.log('MAXSHARES_IN', _maxSharesIn.toString());
       diagnostics && console.log('FYTOKEN_TO_BASE_VALUE', baseValue.toString());
-      diagnostics && console.log('MAXSHARES_IN <= FYTOKEN_VALUE', _maxSharesIn.lte(baseValue));
+      diagnostics && console.log('MAXSHARES_IN <= SHARES_VALUE', _maxSharesIn.lte(_sharesValue));
     }
   }, [diagnostics, rollToSeries, series]);
 
