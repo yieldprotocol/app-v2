@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 
 import Decimal from 'decimal.js';
+import { parseUnits } from 'ethers/lib/utils';
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -296,12 +297,24 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
+          // let baseReserves;
+          // let fyTokenReserves;
+          // let totalSupply;
+          // let fyTokenRealReserves;
+          // try {
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
+          // } catch (error) {
+          //   baseReserves = ethers.constants.Zero;
+          //   fyTokenReserves = parseUnits('2000000', series.decimals);
+          //   totalSupply = parseUnits('2000000', series.decimals);
+          //   fyTokenRealReserves = parseUnits('2000000', series.decimals);
+          //   console.log('🦄 ~ file: UserContext.tsx ~ line 312 ~ seriesList.map ~ error', error);
+          // }
 
           let sharesReserves: BigNumber | undefined;
           let c: BigNumber | undefined;
@@ -370,10 +383,18 @@ const UserProvider = ({ children }: any) => {
         _accountData = await Promise.all(
           _publicData.map(async (series): Promise<ISeries> => {
             /* Get all the data simultanenously in a promise.all */
+            // let poolTokens;
+            // let fyTokenBalance;
+            // try {
             const [poolTokens, fyTokenBalance] = await Promise.all([
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
             ]);
+            // } catch (error) {
+            //   poolTokens = ethers.constants.Zero;
+            //   fyTokenBalance = ethers.constants.Zero;
+            //   console.log('🦄 ~ file: UserContext.tsx ~ line 389 ~ _publicData.map ~ error', error);
+            // }
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
               ...series,
@@ -411,123 +432,129 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[]) => {
-      updateState({ type: UserState.VAULTS_LOADING, payload: true });
-      let _vaultList: IVaultRoot[] = vaultList;
-      const Cauldron = contractMap.get('Cauldron');
-      const Witch = contractMap.get('Witch');
-      const RateOracle = contractMap.get('RateOracle');
+      try {
+        updateState({ type: UserState.VAULTS_LOADING, payload: true });
+        let _vaultList: IVaultRoot[] = vaultList;
+        const Cauldron = contractMap.get('Cauldron');
+        const Witch = contractMap.get('Witch');
+        const RateOracle = contractMap.get('RateOracle');
 
-      /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(lastVaultUpdate)).values()); // fromblock specifically x blocks ago for arb testnet
+        /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
+        if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(lastVaultUpdate)).values()); // fromblock specifically x blocks ago for arb testnet
 
-      /* Add in the dynamic vault data by mapping the vaults list */
-      const vaultListMod = await Promise.all(
-        _vaultList.map(async (vault): Promise<IVault> => {
-          /* Get dynamic vault data */
-          const [
-            { ink, art },
-            { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
+        /* Add in the dynamic vault data by mapping the vaults list */
+        const vaultListMod = await Promise.all(
+          _vaultList.map(async (vault): Promise<IVault> => {
+            /* Get dynamic vault data */
+            const [
+              { ink, art },
+              { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
+            ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
-          /* If art 0, check for liquidation event */
-          const hasBeenLiquidated =
-            art === ZERO_BN
-              ? (
-                  await Witch.queryFilter(
-                    Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                    'earliest',
-                    'latest'
-                  )
-                ).length > 0
-              : false;
-          const series = seriesRootMap.get(seriesId);
+            /* If art 0, check for liquidation event */
+            const hasBeenLiquidated =
+              art === ZERO_BN
+                ? (
+                    await Witch.queryFilter(
+                      Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
+                      'earliest',
+                      'latest'
+                    )
+                  ).length > 0
+                : false;
+            const series = seriesRootMap.get(seriesId);
 
-          let accruedArt: BigNumber;
-          let rateAtMaturity: BigNumber;
-          let rate: BigNumber;
-          let rate_: string;
+            let accruedArt: BigNumber;
+            let rateAtMaturity: BigNumber;
+            let rate: BigNumber;
+            let rate_: string;
 
-          if (series.isMature()) {
-            rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-            [rate] = await RateOracle.peek(
-              bytesToBytes32(vault.baseId, 6),
-              '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
-              '0'
+            if (series.isMature()) {
+              rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
+              [rate] = await RateOracle.peek(
+                bytesToBytes32(vault.baseId, 6),
+                '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
+                '0'
+              );
+
+              rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
+              diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
+
+              [accruedArt] = rateAtMaturity.gt(ZERO_BN)
+                ? calcAccruedDebt(rate, rateAtMaturity, art)
+                : calcAccruedDebt(rate, rate, art);
+            } else {
+              rate = BigNumber.from('1');
+              rate_ = '1';
+              rateAtMaturity = BigNumber.from('1');
+              accruedArt = art;
+            }
+
+            diagnostics && console.log('RATE', rate.toString());
+            diagnostics && console.log('RATEATMATURITY', rateAtMaturity.toString());
+            diagnostics && console.log('ART', art.toString());
+            diagnostics && console.log('ACCRUED_ ART', accruedArt.toString());
+
+            const baseRoot = assetRootMap.get(vault.baseId);
+            const ilkRoot = assetRootMap.get(ilkId);
+
+            const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat);
+            const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat);
+
+            const accruedArt_ = cleanValue(
+              ethers.utils.formatUnits(accruedArt, baseRoot.decimals),
+              baseRoot.digitFormat
             );
 
-            rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
-            diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
+            diagnostics && console.log(vault.displayName, ' art: ', art.toString());
+            diagnostics && console.log(vault.displayName, ' accArt: ', accruedArt.toString());
 
-            [accruedArt] = rateAtMaturity.gt(ZERO_BN)
-              ? calcAccruedDebt(rate, rateAtMaturity, art)
-              : calcAccruedDebt(rate, rate, art);
-          } else {
-            rate = BigNumber.from('1');
-            rate_ = '1';
-            rateAtMaturity = BigNumber.from('1');
-            accruedArt = art;
-          }
+            return {
+              ...vault,
+              owner, // refreshed in case owner has been updated
+              isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+              hasBeenLiquidated,
+              isActive: owner === account, // refreshed in case owner has been updated
+              seriesId, // refreshed in case seriesId has been updated
+              ilkId, // refreshed in case ilkId has been updated
+              ink,
+              art,
+              accruedArt,
+              rateAtMaturity,
+              rate,
+              rate_,
 
-          diagnostics && console.log('RATE', rate.toString());
-          diagnostics && console.log('RATEATMATURITY', rateAtMaturity.toString());
-          diagnostics && console.log('ART', art.toString());
-          diagnostics && console.log('ACCRUED_ ART', accruedArt.toString());
+              ink_, // for display purposes only
+              art_, // for display purposes only
+              accruedArt_, // display purposes
+            };
+          })
+        );
 
-          const baseRoot = assetRootMap.get(vault.baseId);
-          const ilkRoot = assetRootMap.get(ilkId);
+        /* Get the previous version (Map) of the vaultMap and update it */
+        const newVaultMap = new Map(
+          vaultListMod.reduce((acc: Map<string, IVault>, item) => {
+            const _map = acc;
+            _map.set(item.id, item);
+            return _map;
+          }, new Map())
+        ) as Map<string, IVault>;
 
-          const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat);
-          const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat);
+        /* if there are no vaults provided - assume a forced refresh of all vaults : */
+        const combinedVaultMap =
+          vaultList.length > 0
+            ? (new Map([...userState.vaultMap, ...newVaultMap]) as Map<string, IVault>)
+            : newVaultMap;
 
-          const accruedArt_ = cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot.decimals), baseRoot.digitFormat);
+        /* update state */
+        updateState({ type: UserState.VAULT_MAP, payload: combinedVaultMap });
+        vaultFromUrl && updateState({ type: UserState.SELECTED_VAULT, payload: vaultFromUrl });
+        updateState({ type: UserState.VAULTS_LOADING, payload: false });
 
-          diagnostics && console.log(vault.displayName, ' art: ', art.toString());
-          diagnostics && console.log(vault.displayName, ' accArt: ', accruedArt.toString());
-
-          return {
-            ...vault,
-            owner, // refreshed in case owner has been updated
-            isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
-            hasBeenLiquidated,
-            isActive: owner === account, // refreshed in case owner has been updated
-            seriesId, // refreshed in case seriesId has been updated
-            ilkId, // refreshed in case ilkId has been updated
-            ink,
-            art,
-            accruedArt,
-            rateAtMaturity,
-            rate,
-            rate_,
-
-            ink_, // for display purposes only
-            art_, // for display purposes only
-            accruedArt_, // display purposes
-          };
-        })
-      );
-
-      /* Get the previous version (Map) of the vaultMap and update it */
-      const newVaultMap = new Map(
-        vaultListMod.reduce((acc: Map<string, IVault>, item) => {
-          const _map = acc;
-          _map.set(item.id, item);
-          return _map;
-        }, new Map())
-      ) as Map<string, IVault>;
-
-      /* if there are no vaults provided - assume a forced refresh of all vaults : */
-      const combinedVaultMap =
-        vaultList.length > 0 ? (new Map([...userState.vaultMap, ...newVaultMap]) as Map<string, IVault>) : newVaultMap;
-
-      /* update state */
-      updateState({ type: UserState.VAULT_MAP, payload: combinedVaultMap });
-      vaultFromUrl && updateState({ type: UserState.SELECTED_VAULT, payload: vaultFromUrl });
-      updateState({ type: UserState.VAULTS_LOADING, payload: false });
-
-      /* Update the local cache storage */
-      setLastVaultUpdate('earliest');
-
-      console.log('VAULTS: ', combinedVaultMap);
+        /* Update the local cache storage */
+        setLastVaultUpdate('earliest');
+        console.log('VAULTS: ', combinedVaultMap);
+      } catch (error) {}
     },
     [
       contractMap,
@@ -553,40 +580,44 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          let strategyTotalSupply;
-          let currentSeriesId;
-          let currentPoolAddr;
-          let nextSeriesId;
+          // let strategyTotalSupply;
+          // let currentSeriesId;
+          // let currentPoolAddr;
+          // let nextSeriesId;
 
-          try {
-            [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-              _strategy.strategyContract.totalSupply(),
-              _strategy.strategyContract.seriesId(),
-              _strategy.strategyContract.pool(),
-              _strategy.strategyContract.nextSeriesId(),
-            ]);
-          } catch (error) {
-            if (_strategy.address === '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39') {
-              currentSeriesId = '0x303230380000';
-              currentPoolAddr = '0x68e9e0d89f96f40a98d3f42dc22430abbf662a1a';
-              strategyTotalSupply = BigNumber.from('0x031af3d56937');
-            }
-          }
+          // try {
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+            _strategy.strategyContract.totalSupply(),
+            _strategy.strategyContract.seriesId(),
+            _strategy.strategyContract.pool(),
+            _strategy.strategyContract.nextSeriesId(),
+          ]);
+          // } catch (error) {
+          // if (_strategy.address === '0x831dF23f7278575BA0b136296a285600cD75d076') {
+          //   currentSeriesId = '0x303030380000';
+          //   currentPoolAddr = '0x18C3a92b769507328e927F955561DfBbD9fCd2fF';
+          // }
+          // if (_strategy.address === '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39') {
+          //   currentSeriesId = '0x303230380000';
+          //   currentPoolAddr = '0x18C3a92b769507328e927F955561DfBbD9fCd2fF';
+          //   strategyTotalSupply = BigNumber.from('0x031af3d56937');
+          // }
+          // }
 
           const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
           const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
 
           if (currentSeries) {
-            let poolTotalSupply = BigNumber.from('0x0282f26b6f65');
-            let strategyPoolBalance = BigNumber.from('0x031af3d56937');
-            try {
-              [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-                currentSeries.poolContract.totalSupply(),
-                currentSeries.poolContract.balanceOf(_strategy.address),
-              ]);
-            } catch (error) {
-              console.log('🦄 ~ file: UserContext.tsx ~ line 580 ~ strategyList.map ~ error', error);
-            }
+            // let poolTotalSupply = BigNumber.from('0x0282f26b6f65');
+            // let strategyPoolBalance = BigNumber.from('0x031af3d56937');
+            // try {
+            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
+              currentSeries.poolContract.totalSupply(),
+              currentSeries.poolContract.balanceOf(_strategy.address),
+            ]);
+            // } catch (error) {
+            //   console.log('🦄 ~ file: UserContext.tsx ~ line 580 ~ strategyList.map ~ error', error);
+            // }
 
             const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
               ? [ZERO_BN, ZERO_BN]
@@ -636,10 +667,18 @@ const UserProvider = ({ children }: any) => {
           _publicData
             // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
             .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+              // let accountBalance;
+              // let accountPoolBalance;
+              // try {
               const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract.balanceOf(account),
                 _strategy.currentSeries?.poolContract.balanceOf(account),
               ]);
+              // } catch (error) {
+              //   accountBalance = ethers.constants.Zero;
+              //   accountPoolBalance = ethers.constants.Zero;
+              //   console.log('🦄 ~ file: UserContext.tsx ~ line 662 ~ .map ~ error', error);
+              // }
 
               const accountStrategyPercent = mulDecimal(
                 divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
