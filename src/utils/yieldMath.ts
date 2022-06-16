@@ -619,6 +619,7 @@ export function maxBaseIn(
 
 /**
  * Calculate the max amount of shares that can be bought from the pool.
+ * Since the amount of shares that can be purchased is not bounded, maxSharesOut is equivalent to the toal amount of shares in the pool.
  *
  * @param { BigNumber | string } sharesReserves
  * @param { BigNumber | string } fyTokenReserves
@@ -632,46 +633,8 @@ export function maxBaseIn(
  * @returns { BigNumber } max amount of shares that can be bought from the pool
  *
  */
-export function maxBaseOut(
-  sharesReserves: BigNumber,
-  fyTokenReserves: BigNumber,
-  timeTillMaturity: BigNumber | string,
-  ts: BigNumber | string,
-  g2: BigNumber | string,
-  decimals: number,
-  c: BigNumber | string = c_default,
-  mu: BigNumber | string = mu_default
-): BigNumber {
-  /* calculate the max possible fyToken (fyToken amount) */
-  const fyTokenAmountIn = maxFyTokenIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g2, decimals, c, mu);
-
-  /* convert to 18 decimals, if required */
-  const sharesReserves18 = decimalNToDecimal18(sharesReserves, decimals);
-  const fyTokenReserves18 = decimalNToDecimal18(fyTokenReserves, decimals);
-  const fyTokenAmountIn18 = decimalNToDecimal18(fyTokenAmountIn, decimals);
-
-  const sharesReserves_ = new Decimal(sharesReserves18.toString());
-  const fyTokenReserves_ = new Decimal(fyTokenReserves18.toString());
-  const fyTokenAmountIn_ = new Decimal(fyTokenAmountIn18.toString());
-
-  const [a, invA] = _computeA(timeTillMaturity, ts, g2);
-  const za = sharesReserves_.pow(a);
-  const ya = fyTokenReserves_.pow(a);
-
-  // yx = fyTokenReserves + fyTokenAmount
-  const yx = fyTokenReserves_.add(fyTokenAmountIn_);
-  // yxa = yx ** a
-  const yxa = yx.pow(a);
-  // sum = za + ya - yxa
-  const sum = za.add(ya).sub(yxa);
-  // result = sharesReserves - (sum ** (1/a))
-  const res = sharesReserves_.sub(sum.pow(invA));
-
-  /* Handle precision variations */
-  const safeRes = res.gt(precisionFee) ? res.sub(precisionFee) : ZERO;
-
-  /* Convert to back to token native decimals, if required */
-  return decimal18ToDecimalN(toBn(safeRes), decimals);
+export function maxBaseOut(sharesReserves: BigNumber): BigNumber {
+  return sharesReserves;
 }
 
 /**
