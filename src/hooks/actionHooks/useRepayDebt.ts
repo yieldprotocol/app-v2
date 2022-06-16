@@ -85,7 +85,7 @@ export const useRepayDebt = () => {
     );
 
     /* Check the max amount of the trade that the pool can handle */
-    const tradeIsNotPossible = _input.gt(_maxSharesIn);
+    const tradeIsNotPossible = series.getShares(_input).gt(_maxSharesIn);
 
     const _inputAsFyToken = series.seriesIsMature
       ? _input
