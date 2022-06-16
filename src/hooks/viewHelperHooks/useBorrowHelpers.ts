@@ -178,7 +178,6 @@ export const useBorrowHelpers = (
   useEffect(() => {
     if (activeAccount && vault && vaultBase && minDebt) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
-
       (async () => {
         const _userBalance = await vaultBase.getBalance(activeAccount);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
