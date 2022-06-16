@@ -4,7 +4,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionType, ISeries, IUserContextState } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import { maxBaseIn, maxBaseOut, maxFyTokenIn, maxFyTokenOut, sellBase, sellFYToken } from '../../utils/yieldMath';
+import { maxBaseIn, maxBaseOut, maxFyTokenIn, sellBase, sellFYToken } from '../../utils/yieldMath';
 import { useApr } from '../useApr';
 
 export const useLendHelpers = (
