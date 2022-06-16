@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -58,7 +58,7 @@ export const useClosePosition = () => {
     const ladleAddress = contractMap.get('Ladle').address;
 
     /* assess how much fyToken is needed to buy base amount (input) */
-    const getFyTokenValueInBase = async () => {
+    const getFyTokenValueOfBase = async () => {
       /* after maturity, fytoken === base (input) value */
       if (seriesIsMature) {
         return _input;
@@ -77,7 +77,7 @@ export const useClosePosition = () => {
             series.mu
           );
     };
-    const _fyTokenValueOfInput = await getFyTokenValueInBase();
+    const _fyTokenValueOfInput = await getFyTokenValueOfBase();
 
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
