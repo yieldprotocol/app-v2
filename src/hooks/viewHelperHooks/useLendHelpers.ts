@@ -178,7 +178,10 @@ export const useLendHelpers = (
         rollToSeries.mu
       );
 
-      const _fyTokenValue = series.seriesIsMature
+      // convert to base
+      const _maxBaseIn = rollToSeries.getBase(_maxSharesIn);
+
+      const _sharesValue = series.seriesIsMature
         ? series.fyTokenBalance || ZERO_BN
         : sellFYToken(
             series.sharesReserves,
@@ -192,17 +195,20 @@ export const useLendHelpers = (
             series.mu
           );
 
-      if (_maxSharesIn.lte(_fyTokenValue)) {
-        setMaxRoll(_maxSharesIn);
-        setMaxRoll_(ethers.utils.formatUnits(_maxSharesIn, series.decimals).toString());
+      // calculate base value of current fyToken balance
+      const baseValue = series.getBase(_sharesValue);
+
+      if (_maxSharesIn.lte(_sharesValue)) {
+        setMaxRoll(_maxBaseIn);
+        setMaxRoll_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
       } else {
-        setMaxRoll(_fyTokenValue);
-        setMaxRoll_(ethers.utils.formatUnits(_fyTokenValue, series.decimals).toString());
+        setMaxRoll(baseValue);
+        setMaxRoll_(ethers.utils.formatUnits(baseValue, series.decimals).toString());
       }
 
       diagnostics && console.log('MAXSHARES_IN', _maxSharesIn.toString());
-      diagnostics && console.log('FYTOKEN_VALUE', _fyTokenValue.toString());
-      diagnostics && console.log('MAXSHARES_IN <= FYTOKEN_VALUE', _maxSharesIn.lte(_fyTokenValue));
+      diagnostics && console.log('FYTOKEN_TO_BASE_VALUE', baseValue.toString());
+      diagnostics && console.log('MAXSHARES_IN <= FYTOKEN_VALUE', _maxSharesIn.lte(baseValue));
     }
   }, [diagnostics, rollToSeries, series]);
 
