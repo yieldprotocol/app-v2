@@ -71,13 +71,16 @@ export const useLendHelpers = (
       );
       diagnostics && console.log('MAX BASE IN : ', _maxSharesIn.toString());
 
-      if (userBaseBalance.lt(_maxSharesIn)) {
+      // make sure max shares in is greater than 0
+      const maxSharesIn_ = _maxSharesIn.lte(ethers.constants.Zero) ? ethers.constants.Zero : _maxSharesIn;
+
+      if (userBaseBalance.lt(maxSharesIn_)) {
         setMaxLend(userBaseBalance);
         setMaxLend_(ethers.utils.formatUnits(userBaseBalance, series.decimals).toString());
         setProtocolLimited(false);
       } else {
-        setMaxLend(_maxSharesIn);
-        setMaxLend_(ethers.utils.formatUnits(_maxSharesIn, series.decimals).toString());
+        setMaxLend(maxSharesIn_);
+        setMaxLend_(ethers.utils.formatUnits(maxSharesIn_, series.decimals).toString());
         setProtocolLimited(true);
       }
     }
