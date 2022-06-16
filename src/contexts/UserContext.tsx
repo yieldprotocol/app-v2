@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 
 import Decimal from 'decimal.js';
-import { parseUnits } from 'ethers/lib/utils';
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -297,24 +296,12 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          // let baseReserves;
-          // let fyTokenReserves;
-          // let totalSupply;
-          // let fyTokenRealReserves;
-          // try {
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
-          // } catch (error) {
-          //   baseReserves = ethers.constants.Zero;
-          //   fyTokenReserves = parseUnits('2000000', series.decimals);
-          //   totalSupply = parseUnits('2000000', series.decimals);
-          //   fyTokenRealReserves = parseUnits('2000000', series.decimals);
-          //   console.log('🦄 ~ file: UserContext.tsx ~ line 312 ~ seriesList.map ~ error', error);
-          // }
 
           let sharesReserves: BigNumber | undefined;
           let c: BigNumber | undefined;
@@ -383,18 +370,11 @@ const UserProvider = ({ children }: any) => {
         _accountData = await Promise.all(
           _publicData.map(async (series): Promise<ISeries> => {
             /* Get all the data simultanenously in a promise.all */
-            // let poolTokens;
-            // let fyTokenBalance;
-            // try {
             const [poolTokens, fyTokenBalance] = await Promise.all([
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
             ]);
-            // } catch (error) {
-            //   poolTokens = ethers.constants.Zero;
-            //   fyTokenBalance = ethers.constants.Zero;
-            //   console.log('🦄 ~ file: UserContext.tsx ~ line 389 ~ _publicData.map ~ error', error);
-            // }
+
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
               ...series,
@@ -580,44 +560,21 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          // let strategyTotalSupply;
-          // let currentSeriesId;
-          // let currentPoolAddr;
-          // let nextSeriesId;
-
-          // try {
           const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
             _strategy.strategyContract.totalSupply(),
             _strategy.strategyContract.seriesId(),
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
-          // } catch (error) {
-          // if (_strategy.address === '0x831dF23f7278575BA0b136296a285600cD75d076') {
-          //   currentSeriesId = '0x303030380000';
-          //   currentPoolAddr = '0x18C3a92b769507328e927F955561DfBbD9fCd2fF';
-          // }
-          // if (_strategy.address === '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39') {
-          //   currentSeriesId = '0x303230380000';
-          //   currentPoolAddr = '0x18C3a92b769507328e927F955561DfBbD9fCd2fF';
-          //   strategyTotalSupply = BigNumber.from('0x031af3d56937');
-          // }
-          // }
 
           const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
           const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
 
           if (currentSeries) {
-            // let poolTotalSupply = BigNumber.from('0x0282f26b6f65');
-            // let strategyPoolBalance = BigNumber.from('0x031af3d56937');
-            // try {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(_strategy.address),
             ]);
-            // } catch (error) {
-            //   console.log('🦄 ~ file: UserContext.tsx ~ line 580 ~ strategyList.map ~ error', error);
-            // }
 
             const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
               ? [ZERO_BN, ZERO_BN]
@@ -667,18 +624,10 @@ const UserProvider = ({ children }: any) => {
           _publicData
             // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
             .map(async (_strategy: IStrategy): Promise<IStrategy> => {
-              // let accountBalance;
-              // let accountPoolBalance;
-              // try {
               const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract.balanceOf(account),
                 _strategy.currentSeries?.poolContract.balanceOf(account),
               ]);
-              // } catch (error) {
-              //   accountBalance = ethers.constants.Zero;
-              //   accountPoolBalance = ethers.constants.Zero;
-              //   console.log('🦄 ~ file: UserContext.tsx ~ line 662 ~ .map ~ error', error);
-              // }
 
               const accountStrategyPercent = mulDecimal(
                 divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
