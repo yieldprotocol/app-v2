@@ -130,7 +130,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.sharesReserves,
         strategySeries.fyTokenRealReserves,
         strategySeries.fyTokenReserves,
-        calculateSlippage(_input, slippageTolerance.toString(), true),
+        calculateSlippage(strategySeries.getShares(_input), slippageTolerance.toString(), true),
         strategySeries.getTimeTillMaturity(),
         strategySeries.ts,
         strategySeries.g1,
