@@ -55,7 +55,7 @@ function PositionAvatar({
     <Outer width={condensed ? '36px' : 'auto'}>
       <Avatar background={series?.seriesIsMature ? 'lightGrey' : series?.color} size={condensed ? '36px' : undefined}>
         <Box round="large" background="white" pad="xxsmall">
-          <Logo image={base.image} height={baseImageSize} width={baseImageSize} />
+          <Logo image={base?.image} height={baseImageSize} width={baseImageSize} />
         </Box>
         <Inner>
           {actionType === ActionType.BORROW && (
