@@ -958,19 +958,19 @@ const _abi = [
     name: "getCache",
     outputs: [
       {
+        internalType: "uint104",
+        name: "",
+        type: "uint104",
+      },
+      {
+        internalType: "uint104",
+        name: "",
+        type: "uint104",
+      },
+      {
         internalType: "uint16",
         name: "",
         type: "uint16",
-      },
-      {
-        internalType: "uint104",
-        name: "",
-        type: "uint104",
-      },
-      {
-        internalType: "uint104",
-        name: "",
-        type: "uint104",
       },
       {
         internalType: "uint32",

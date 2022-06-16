@@ -688,7 +688,7 @@ export class Pool extends BaseContract {
 
     getCache(
       overrides?: CallOverrides
-    ): Promise<[number, BigNumber, BigNumber, number]>;
+    ): Promise<[BigNumber, BigNumber, number, number]>;
 
     getCurrentSharePrice(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -970,7 +970,7 @@ export class Pool extends BaseContract {
 
   getCache(
     overrides?: CallOverrides
-  ): Promise<[number, BigNumber, BigNumber, number]>;
+  ): Promise<[BigNumber, BigNumber, number, number]>;
 
   getCurrentSharePrice(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1260,7 +1260,7 @@ export class Pool extends BaseContract {
 
     getCache(
       overrides?: CallOverrides
-    ): Promise<[number, BigNumber, BigNumber, number]>;
+    ): Promise<[BigNumber, BigNumber, number, number]>;
 
     getCurrentSharePrice(overrides?: CallOverrides): Promise<BigNumber>;
 
