@@ -90,22 +90,17 @@ export const useRemoveLiquidity = () => {
       series.poolContract.getCache(),
       series.poolContract.totalSupply(),
     ]);
-    const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply);
+    const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
 
-    const [_sharesReceived, _fyTokenReceived] = burn(
-      series.sharesReserves,
-      series.fyTokenRealReserves,
-      totalSupply,
-      lpReceived
-    );
+    const [_sharesReceived, _fyTokenReceived] = burn(cachedSharesReserves, cachedRealReserves, totalSupply, lpReceived);
 
     const _newPool = newPoolState(
       _sharesReceived.mul(-1),
       _fyTokenReceived.mul(-1),
-      series.sharesReserves,
-      series.fyTokenRealReserves,
+      cachedSharesReserves,
+      cachedRealReserves,
       totalSupply
     );
 
@@ -135,17 +130,19 @@ export const useRemoveLiquidity = () => {
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
-    const extrafyTokenTrade: BigNumber = sellFYToken(
-      series.sharesReserves,
-      series.fyTokenReserves,
-      _fyTokenReceived.sub(matchingVaultDebt),
-      series.getTimeTillMaturity(),
-      series.ts,
-      series.g2,
-      series.decimals,
-      series.c,
-      series.mu
-    );
+    const extrafyTokenTrade: BigNumber = getValuesFromNetwork
+      ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived.sub(matchingVaultDebt))
+      : sellFYToken(
+          series.sharesReserves,
+          series.fyTokenReserves,
+          _fyTokenReceived.sub(matchingVaultDebt),
+          series.getTimeTillMaturity(),
+          series.ts,
+          series.g2,
+          series.decimals,
+          series.c,
+          series.mu
+        );
     /* if valid extraTrade > 0 and user selected to tradeFyToken */
     const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
