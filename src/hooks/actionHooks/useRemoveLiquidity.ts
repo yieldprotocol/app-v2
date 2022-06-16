@@ -86,15 +86,18 @@ export const useRemoveLiquidity = () => {
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
     const ladleAddress = contractMap.get('Ladle').address;
-    const [cachedSharesReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
-    const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
+    const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
+      series.poolContract.getCache(),
+      series.poolContract.totalSupply(),
+    ]);
+    const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply);
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
 
     const [_sharesReceived, _fyTokenReceived] = burn(
       series.sharesReserves,
       series.fyTokenRealReserves,
-      series.totalSupply,
+      totalSupply,
       lpReceived
     );
 
@@ -103,7 +106,7 @@ export const useRemoveLiquidity = () => {
       _fyTokenReceived.mul(-1),
       series.sharesReserves,
       series.fyTokenRealReserves,
-      series.totalSupply
+      totalSupply
     );
 
     const fyTokenTrade = getValuesFromNetwork
