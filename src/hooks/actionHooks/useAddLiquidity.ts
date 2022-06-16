@@ -68,8 +68,10 @@ export const useAddLiquidity = () => {
     const inputToShares = _series.getShares(_input);
     const _inputToSharesLessSlippage = calculateSlippage(inputToShares, slippageTolerance.toString(), true);
 
-    const [cachedSharesReserves, cachedFyTokenReserves] = await _series.poolContract.getCache();
-    const totalSupply = await _series.poolContract.totalSupply();
+    const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
+      _series.poolContract.getCache(),
+      _series.poolContract.totalSupply(),
+    ]);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
     const [_fyTokenToBeMinted] = fyTokenForMint(
