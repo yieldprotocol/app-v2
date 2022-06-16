@@ -1,4 +1,5 @@
 import { Box, Text } from 'grommet';
+import { useEffect } from 'react';
 import Switch from 'react-switch';
 import { useConnection } from '../../hooks/useConnection';
 import useTenderly from '../../hooks/useTenderly';
@@ -21,7 +22,10 @@ const TenderlyForkSetting = () => {
           onColor="#60A5FA"
           uncheckedIcon={false}
           checkedIcon={false}
-          onChange={(val: boolean) => connectionActions.useTenderly(val)}
+          onChange={(val: boolean) => {
+            connectionActions.useTenderly(val);
+            val && window.location.reload();
+          }}
           handleDiameter={20}
           borderRadius={20}
         />
