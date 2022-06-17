@@ -263,7 +263,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
         /* Check the amount of fyTokens potentially recieved */
         const lpReceived = burnFromStrategy(strategy?.strategyPoolBalance!, strategy?.strategyTotalSupply!, _input);
-        const [_sharesReceived, _fyTokenReceived] = burn(
+        const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
           strategySeries?.sharesReserves!,
           strategySeries?.fyTokenRealReserves!,
           strategySeries?.totalSupply!,
@@ -271,12 +271,12 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         );
 
         /* Calculate the token Value */
-        const [tokenSellValue, totalTokenValue] = strategyTokenValue(
+        const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _input,
           strategy?.strategyTotalSupply!,
           strategy?.strategyPoolBalance!,
           strategySeries?.sharesReserves,
-          strategySeries?.fyTokenRealReserves,
+          strategySeries?.fyTokenReserves,
           strategySeries?.totalSupply!,
           strategySeries.getTimeTillMaturity(),
           strategySeries.ts,
@@ -286,22 +286,24 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries.mu
         );
 
-        if (tokenSellValue.gt(ethers.constants.Zero)) {
+        // if we could sell all fyToken to shares
+        if (fyTokenToShares.gt(ethers.constants.Zero)) {
           diagnostics && console.log('NO VAULT : pool trade is possible  : USE REMOVE OPTION 4.1 ');
           setPartialRemoveRequired(false);
 
-          const _val = totalTokenValue;
-          setRemoveBaseReceived(_val);
-          setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
+          // calculate total base value of shares received plus fyToken sold to shares
+          const totalBaseValue = strategySeries.getBase(fyTokenToShares).add(strategySeries.getBase(sharesReceived));
+          setRemoveBaseReceived(totalBaseValue);
+          setRemoveBaseReceived_(ethers.utils.formatUnits(totalBaseValue, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
           setRemoveFyTokenReceived_('0');
         } else {
           diagnostics && console.log('NO VAULT : trade not possible : USE REMOVE OPTION 4.2');
           setPartialRemoveRequired(true);
-          setRemoveBaseReceived(strategySeries.getBase(_sharesReceived));
-          setRemoveBaseReceived_(ethers.utils.formatUnits(_sharesReceived, strategySeries.decimals));
-          setRemoveFyTokenReceived(_fyTokenReceived);
-          setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenReceived, strategySeries.decimals));
+          setRemoveBaseReceived(strategySeries.getBase(sharesReceivedFromBurn));
+          setRemoveBaseReceived_(ethers.utils.formatUnits(sharesReceivedFromBurn, strategySeries.decimals));
+          setRemoveFyTokenReceived(fyTokenReceivedFromBurn);
+          setRemoveFyTokenReceived_(ethers.utils.formatUnits(fyTokenReceivedFromBurn, strategySeries.decimals));
         }
       }
     }
