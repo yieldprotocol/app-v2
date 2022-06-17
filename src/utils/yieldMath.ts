@@ -205,7 +205,7 @@ export function mint(
 
 /**
  * @param { BigNumber | string } sharesReserves
- * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } fyTokenRealReserves
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @returns {[BigNumber, BigNumber]}
@@ -214,12 +214,12 @@ export function mint(
  */
 export function burn(
   sharesReserves: BigNumber | string,
-  fyTokenReserves: BigNumber | string,
+  fyTokenRealReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   lpTokens: BigNumber | string
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(sharesReserves.toString());
-  const Y = new Decimal(fyTokenReserves.toString());
+  const Y = new Decimal(fyTokenRealReserves.toString());
   const S = new Decimal(totalSupply.toString());
   const x = new Decimal(lpTokens.toString());
   const z = x.mul(Z).div(S);
