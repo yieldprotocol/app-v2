@@ -1116,11 +1116,11 @@ export const calcLiquidationPrice = (
 };
 
 /**
- *  @param {BigNumber} sharesChange
- * @param {BigNumber} fyTokenChange
- * @param {BigNumber} poolSharesReserves
- * @param {BigNumber} poolFyTokenRealReserves
- * @param {BigNumber} poolTotalSupply
+ *  @param {BigNumber} sharesChange change in shares
+ * @param {BigNumber} fyTokenChange change in fyToken
+ * @param {BigNumber} poolSharesReserves pool shares reserves
+ * @param {BigNumber} poolFyTokenReserves pool fyToken reserves
+ * @param {BigNumber} poolTotalSupply pool total supply
  *
  * @returns {BigNumber[]} [newSharesReserves, newFyTokenRealReserves, newTotalSupply, newFyTokenVirtualReserves]
  */
@@ -1128,7 +1128,7 @@ export const newPoolState = (
   sharesChange: BigNumber,
   fyTokenChange: BigNumber,
   poolSharesReserves: BigNumber,
-  poolFyTokenRealReserves: BigNumber,
+  poolFyTokenReserves: BigNumber,
   poolTotalSupply: BigNumber
 ): {
   sharesReserves: BigNumber;
@@ -1137,14 +1137,14 @@ export const newPoolState = (
   fyTokenVirtualReserves: BigNumber;
 } => {
   const newSharesReserves = poolSharesReserves.add(sharesChange);
-  const newFyTokenRealReserves = poolFyTokenRealReserves.add(fyTokenChange);
+  const newFyTokenReserves = poolFyTokenReserves.add(fyTokenChange);
   const newTotalSupply = poolTotalSupply.add(fyTokenChange);
-  const newFyTokenVirtualReserves = newTotalSupply.add(newFyTokenRealReserves); // virtualReserves  = totalsupply + realBalance
+  const newFyTokenRealReserves = newFyTokenReserves.sub(newTotalSupply); // real = virtual - totalSupply
   return {
     sharesReserves: newSharesReserves,
     fyTokenRealReserves: newFyTokenRealReserves,
     totalSupply: newTotalSupply,
-    fyTokenVirtualReserves: newFyTokenVirtualReserves,
+    fyTokenVirtualReserves: newFyTokenReserves,
   };
 };
 
@@ -1162,14 +1162,14 @@ export const newPoolState = (
  * @param {BigNumber | string} c
  * @param {BigNumber | string} mu
  *
- * @returns {BigNumber} [soldValue, totalValue]
+ * @returns {BigNumber} [fyToken sold to shares, shares received]
  */
 export const strategyTokenValue = (
   strategyTokenAmount: BigNumber | string,
   strategyTotalSupply: BigNumber,
   strategyPoolBalance: BigNumber,
   poolSharesReserves: BigNumber,
-  poolFyTokenRealReserves: BigNumber,
+  poolFyTokenReserves: BigNumber,
   poolTotalSupply: BigNumber,
   poolTimeToMaturity: string | BigNumber,
   ts: BigNumber | string,
@@ -1179,14 +1179,13 @@ export const strategyTokenValue = (
   mu: BigNumber | string = mu_default
 ): [BigNumber, BigNumber] => {
   // 0. Calc amount of lpTokens from strat token burn
-  // 1. calc amount base/fyToken recieved from burn
-  // 2. calculate new reserves (sharesReserves and fyTokenReserevs)
-  // 3. try trade with new reserves
-  // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
+  // 1. calc amount shares/fyToken recieved from burn
+  // 2. calculate new reserves (sharesReserves and fyTokenReserves)
+  // 3. try to trade fyToken to shares with new reserves
   const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
   const [_sharesReceived, _fyTokenReceived] = burn(
     poolSharesReserves,
-    poolFyTokenRealReserves,
+    poolFyTokenReserves.sub(poolTotalSupply),
     poolTotalSupply,
     lpReceived
   );
@@ -1195,11 +1194,11 @@ export const strategyTokenValue = (
     _sharesReceived.mul(-1),
     _fyTokenReceived.mul(-1),
     poolSharesReserves,
-    poolFyTokenRealReserves,
+    poolFyTokenReserves,
     poolTotalSupply
   );
 
-  const sellValue = sellFYToken(
+  const fyTokenToShares = sellFYToken(
     newPool.sharesReserves,
     newPool.fyTokenVirtualReserves,
     _fyTokenReceived,
@@ -1211,9 +1210,7 @@ export const strategyTokenValue = (
     mu
   );
 
-  const totalValue = sellValue.add(_sharesReceived);
-
-  return [sellValue, totalValue];
+  return [fyTokenToShares, _sharesReceived];
 };
 
 /**
