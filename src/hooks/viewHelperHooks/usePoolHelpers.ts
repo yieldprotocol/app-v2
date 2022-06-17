@@ -298,7 +298,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         } else {
           diagnostics && console.log('NO VAULT : trade not possible : USE REMOVE OPTION 4.2');
           setPartialRemoveRequired(true);
-          setRemoveBaseReceived(_sharesReceived);
+          setRemoveBaseReceived(strategySeries.getBase(_sharesReceived));
           setRemoveBaseReceived_(ethers.utils.formatUnits(_sharesReceived, strategySeries.decimals));
           setRemoveFyTokenReceived(_fyTokenReceived);
           setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenReceived, strategySeries.decimals));
