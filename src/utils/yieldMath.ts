@@ -207,7 +207,7 @@ export function mint(
 
 /**
  * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } fyTokenRealReserves
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @returns {[BigNumber, BigNumber]}
@@ -216,12 +216,12 @@ export function mint(
  */
 export function burn(
   baseReserves: BigNumber | string,
-  fyTokenReserves: BigNumber | string,
+  fyTokenRealReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   lpTokens: BigNumber | string
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
-  const Y = new Decimal(fyTokenReserves.toString());
+  const Y = new Decimal(fyTokenRealReserves.toString());
   const S = new Decimal(totalSupply.toString());
   const x = new Decimal(lpTokens.toString());
   const z = x.mul(Z).div(S);
@@ -1089,7 +1089,7 @@ export const newPoolState = (
  * @param { BigNumber | string } g2
  * @param { number } decimals
  *
- * @returns {BigNumber} [soldValue, totalValue]
+ * @returns {BigNumber} [fyTokenToBase, baseValue]
  */
 export const strategyTokenValue = (
   strategyTokenAmount: BigNumber | string,
@@ -1107,7 +1107,6 @@ export const strategyTokenValue = (
   // 1. calc amount base/fyToken recieved from burn
   // 2. calculate new reserves (baseReserves and fyTokenReserevs)
   // 3. try trade with new reserves
-  // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
   const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
   const [_baseTokenReceived, _fyTokenReceived] = burn(
     poolBaseReserves,
@@ -1134,9 +1133,7 @@ export const strategyTokenValue = (
     decimals
   );
 
-  const totalValue = sellValue.add(_baseTokenReceived);
-
-  return [sellValue, totalValue];
+  return [sellValue, _baseTokenReceived];
 };
 
 /**
