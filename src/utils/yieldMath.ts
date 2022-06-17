@@ -1078,14 +1078,13 @@ export const newPoolState = (
 };
 
 /**
- *  @param {BigNumber}  strategyTokenAmount
- * @param {BigNumber}  strategyTotalSupply
- * @param {BigNumber}  poolStrategyBalance
- * @param {BigNumber}  poolBaseReserves
- * @param {BigNumber}  poolFyTokenReserves
- * @param {BigNumber}  poolTotalSupply
- * @param {number}  poolTimeToMaturity
- *
+ *  @param {BigNumber} strategyTokenAmount
+ * @param {BigNumber} strategyTotalSupply
+ * @param {BigNumber} strategyPoolBalance
+ * @param {BigNumber} poolBaseReserves
+ * @param {BigNumber} poolFyTokenReserves
+ * @param {BigNumber} poolTotalSupply
+ * @param {number} poolTimeToMaturity
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g2
  * @param { number } decimals
@@ -1097,7 +1096,7 @@ export const strategyTokenValue = (
   strategyTotalSupply: BigNumber,
   strategyPoolBalance: BigNumber,
   poolBaseReserves: BigNumber,
-  poolFyTokenRealReserves: BigNumber,
+  poolFyTokenReserves: BigNumber,
   poolTotalSupply: BigNumber,
   poolTimeToMaturity: string | BigNumber,
   ts: BigNumber | string,
@@ -1112,7 +1111,7 @@ export const strategyTokenValue = (
   const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
   const [_baseTokenReceived, _fyTokenReceived] = burn(
     poolBaseReserves,
-    poolFyTokenRealReserves,
+    poolFyTokenReserves.sub(poolTotalSupply),
     poolTotalSupply,
     lpReceived
   );
@@ -1121,7 +1120,7 @@ export const strategyTokenValue = (
     _baseTokenReceived.mul(-1),
     _fyTokenReceived.mul(-1),
     poolBaseReserves,
-    poolFyTokenRealReserves,
+    poolFyTokenReserves,
     poolTotalSupply
   );
 
