@@ -13,6 +13,7 @@ import {
   calculateSlippage,
   sellFYToken,
   secondsToFrom,
+  newPoolState,
 } from '../../utils/yieldMath';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
@@ -188,30 +189,37 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView) {
       if (matchingVault) {
         /* Matching vault (with debt) exists: USE 1 , 2.1 or 2.2 */
-
-        /* Check the amount of fyTokens potentially recieved */
-        const lpReceived = burnFromStrategy(strategy?.strategyPoolBalance!, strategy?.strategyTotalSupply!, _input);
-        const [_baseReceived, _fyTokenReceived] = burn(
-          strategySeries?.baseReserves!,
-          strategySeries?.fyTokenRealReserves!,
-          strategySeries?.totalSupply!,
+        const lpReceived = burnFromStrategy(strategy.strategyPoolBalance!, strategy.strategyTotalSupply!, _input);
+        const [baseReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
+          strategySeries.baseReserves,
+          strategySeries.fyTokenRealReserves,
+          strategySeries.totalSupply,
           lpReceived
         );
-        diagnostics && console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
 
-        if (_fyTokenReceived.gt(matchingVault?.accruedArt!)) {
-          /* Fytoken received greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
+        const newPool = newPoolState(
+          baseReceivedFromBurn.mul(-1),
+          fyTokenReceivedFromBurn.mul(-1),
+          strategySeries.baseReserves,
+          strategySeries.fyTokenReserves,
+          strategySeries.totalSupply
+        );
+
+        diagnostics && console.log('base from burn', baseReceivedFromBurn.toString());
+
+        if (fyTokenReceivedFromBurn.gt(matchingVault?.accruedArt!)) {
+          /* Fytoken sold to base greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
           diagnostics &&
             console.log(
               'FyTokens received will be greater than debt: an extra sellFytoken trade is required: REMOVE OPTION 2.1 or 2.2 '
             );
 
-          const _extraFyTokensToSell = _fyTokenReceived.sub(matchingVault.accruedArt);
+          const _extraFyTokensToSell = fyTokenReceivedFromBurn.sub(matchingVault.accruedArt);
           diagnostics && console.log(_extraFyTokensToSell.toString(), 'FyTokens Need to be sold');
 
           const _extraFyTokenValue = sellFYToken(
-            strategySeries?.baseReserves!,
-            strategySeries?.fyTokenRealReserves!,
+            newPool.baseReserves,
+            newPool.fyTokenVirtualReserves,
             _extraFyTokensToSell,
             secondsToFrom(strategySeries?.maturity.toString()),
             strategySeries?.ts,
@@ -220,10 +228,12 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           );
 
           if (_extraFyTokenValue.gt(ZERO_BN)) {
-            /* CASE> extra fyToken TRADE IS POSSIBLE :  USE REMOVE OPTION 2.1? */
+            /* CASE> extra fyToken TRADE IS POSSIBLE : USE REMOVE OPTION 2.1? */
             diagnostics && console.log('USE REMOVE OPTION 2.1');
             setPartialRemoveRequired(false);
-            const _val = _baseReceived.add(_extraFyTokenValue); // .add(_fyTokenReceived);
+
+            // base received, plus extra fyToken to base, plus accrued art redeemed 1:1 for base
+            const _val = baseReceivedFromBurn.add(_extraFyTokenValue).add(matchingVault.accruedArt);
             setRemoveBaseReceived(_val);
             setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
             setRemoveFyTokenReceived(ethers.constants.Zero);
@@ -232,8 +242,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             /* CASE> extra fyToken TRADE NOT POSSIBLE ( limited by protocol ): USE REMOVE OPTION 2.2 */
             diagnostics && console.log('USE REMOVE OPTION 2.2');
             setPartialRemoveRequired(true);
-            const _fyTokenVal = _fyTokenReceived.sub(matchingVault.accruedArt);
-            const _baseVal = _baseReceived; // .add(matchingVault.art);
+            const _fyTokenVal = fyTokenReceivedFromBurn;
+            const _baseVal = baseReceivedFromBurn;
             setRemoveBaseReceived(_baseVal);
             setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
             setRemoveFyTokenReceived(_fyTokenVal);
@@ -246,7 +256,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
               'FyTokens received will Less than debt: straight No extra trading is required : USE REMOVE OPTION 1 '
             );
           setPartialRemoveRequired(false);
-          const _val = _baseReceived; // .add(_fyTokenReceived);
+          const _val = baseReceivedFromBurn; // .add(_fyTokenReceived);
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
@@ -265,7 +275,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         );
 
         /* Calculate the token Value */
-        const [tokenSellValue, totalTokenValue] = strategyTokenValue(
+        const [fyTokenToBase, baseValue] = strategyTokenValue(
           _input,
           strategy?.strategyTotalSupply!,
           strategy?.strategyPoolBalance!,
@@ -278,11 +288,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries.decimals
         );
 
-        if (tokenSellValue.gt(ethers.constants.Zero)) {
+        if (fyTokenToBase.gt(ethers.constants.Zero)) {
           diagnostics && console.log('NO VAULT : pool trade is possible  : USE REMOVE OPTION 4.1 ');
           setPartialRemoveRequired(false);
 
-          const _val = totalTokenValue;
+          const _val = fyTokenToBase.add(baseValue);
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
