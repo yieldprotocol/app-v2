@@ -100,7 +100,7 @@ export const useRemoveLiquidity = () => {
       _sharesReceived.mul(-1),
       _fyTokenReceived.mul(-1),
       cachedSharesReserves,
-      cachedRealReserves,
+      cachedFyTokenReserves,
       totalSupply
     );
 
