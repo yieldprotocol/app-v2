@@ -68,6 +68,14 @@ const PoolPosition = () => {
   const { matchingVault, maxRemoveWithVault, maxRemoveNoVault, removeBaseReceived_, partialRemoveRequired } =
     usePoolHelpers(removeInput, true);
 
+  const {
+    removeBaseReceived_: removeBaseReceivedMax_,
+    partialRemoveRequired: partialReqd,
+    removeFyTokenReceived_,
+  } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
+
+  cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!);
+
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
@@ -172,7 +180,12 @@ const PoolPosition = () => {
 
                     <InfoBite
                       label="Strategy Token Balance"
-                      value={cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)}
+                      value={`${cleanValue(
+                        _selectedStrategy?.accountBalance_,
+                        selectedBase?.digitFormat!
+                      )} tokens ( ${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
+                        selectedBase.symbol
+                      } )`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
