@@ -1045,11 +1045,11 @@ export const calcLiquidationPrice = (
 };
 
 /**
- *  @param {BigNumber}  baseChange
- * @param {BigNumber}  fyTokenChange
- * @param {BigNumber}  poolBaseReserves
- * @param {BigNumber}  poolFyTokenRealReserves
- * @param {BigNumber}  poolTotalSupply
+ *  @param {BigNumber} baseChange
+ * @param {BigNumber} fyTokenChange
+ * @param {BigNumber} poolBaseReserves
+ * @param {BigNumber} poolFyTokenReserves
+ * @param {BigNumber} poolTotalSupply
  *
  * @returns {BigNumber[]} [newBaseReserves, newFyTokenRealReserves, newTotalSupply, newFyTokenVirtualReserves]
  */
@@ -1057,7 +1057,7 @@ export const newPoolState = (
   baseChange: BigNumber,
   fyTokenChange: BigNumber,
   poolBaseReserves: BigNumber,
-  poolFyTokenRealReserves: BigNumber,
+  poolFyTokenReserves: BigNumber,
   poolTotalSupply: BigNumber
 ): {
   baseReserves: BigNumber;
@@ -1066,14 +1066,14 @@ export const newPoolState = (
   fyTokenVirtualReserves: BigNumber;
 } => {
   const newBaseReserves = poolBaseReserves.add(baseChange);
-  const newFyTokenRealReserves = poolFyTokenRealReserves.add(fyTokenChange);
+  const newFyTokenReserves = poolFyTokenReserves.add(fyTokenChange);
   const newTotalSupply = poolTotalSupply.add(fyTokenChange);
-  const newFyTokenVirtualReserves = newTotalSupply.add(newFyTokenRealReserves); // virtualReserves  = totalsupply + realBalance
+  const newFyTokenRealReserves = newFyTokenReserves.sub(newTotalSupply); // real = virtual - totalSupply
   return {
     baseReserves: newBaseReserves,
     fyTokenRealReserves: newFyTokenRealReserves,
     totalSupply: newTotalSupply,
-    fyTokenVirtualReserves: newFyTokenVirtualReserves,
+    fyTokenVirtualReserves: newFyTokenReserves,
   };
 };
 
