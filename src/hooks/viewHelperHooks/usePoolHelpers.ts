@@ -280,7 +280,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries?.totalSupply!,
           strategySeries.getTimeTillMaturity(),
           strategySeries.ts,
-          strategySeries.g1,
+          strategySeries.g2,
           strategySeries.decimals,
           strategySeries.c,
           strategySeries.mu
