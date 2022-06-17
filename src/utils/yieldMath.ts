@@ -1175,8 +1175,8 @@ export const strategyTokenValue = (
   ts: BigNumber | string,
   g2: BigNumber | string,
   decimals: number,
-  c: BigNumber | string = '0x10000000000000000',
-  mu: BigNumber | string = '0x10000000000000000'
+  c: BigNumber | string = c_default,
+  mu: BigNumber | string = mu_default
 ): [BigNumber, BigNumber] => {
   // 0. Calc amount of lpTokens from strat token burn
   // 1. calc amount base/fyToken recieved from burn
