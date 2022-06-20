@@ -102,7 +102,7 @@ export const useRemoveLiquidity = () => {
       _baseTokenReceived.mul(-1),
       _fyTokenReceived.mul(-1),
       series.baseReserves,
-      series.fyTokenRealReserves,
+      series.fyTokenReserves,
       series.totalSupply
     );
 

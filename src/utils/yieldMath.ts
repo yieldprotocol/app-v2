@@ -207,7 +207,7 @@ export function mint(
 
 /**
  * @param { BigNumber | string } baseReserves
- * @param { BigNumber | string } fyTokenReserves
+ * @param { BigNumber | string } fyTokenRealReserves
  * @param { BigNumber | string } totalSupply
  * @param { BigNumber | string } lpTokens
  * @returns {[BigNumber, BigNumber]}
@@ -216,12 +216,12 @@ export function mint(
  */
 export function burn(
   baseReserves: BigNumber | string,
-  fyTokenReserves: BigNumber | string,
+  fyTokenRealReserves: BigNumber | string,
   totalSupply: BigNumber | string,
   lpTokens: BigNumber | string
 ): [BigNumber, BigNumber] {
   const Z = new Decimal(baseReserves.toString());
-  const Y = new Decimal(fyTokenReserves.toString());
+  const Y = new Decimal(fyTokenRealReserves.toString());
   const S = new Decimal(totalSupply.toString());
   const x = new Decimal(lpTokens.toString());
   const z = x.mul(Z).div(S);
@@ -1045,11 +1045,11 @@ export const calcLiquidationPrice = (
 };
 
 /**
- *  @param {BigNumber}  baseChange
- * @param {BigNumber}  fyTokenChange
- * @param {BigNumber}  poolBaseReserves
- * @param {BigNumber}  poolFyTokenRealReserves
- * @param {BigNumber}  poolTotalSupply
+ *  @param {BigNumber} baseChange
+ * @param {BigNumber} fyTokenChange
+ * @param {BigNumber} poolBaseReserves
+ * @param {BigNumber} poolFyTokenReserves
+ * @param {BigNumber} poolTotalSupply
  *
  * @returns {BigNumber[]} [newBaseReserves, newFyTokenRealReserves, newTotalSupply, newFyTokenVirtualReserves]
  */
@@ -1057,7 +1057,7 @@ export const newPoolState = (
   baseChange: BigNumber,
   fyTokenChange: BigNumber,
   poolBaseReserves: BigNumber,
-  poolFyTokenRealReserves: BigNumber,
+  poolFyTokenReserves: BigNumber,
   poolTotalSupply: BigNumber
 ): {
   baseReserves: BigNumber;
@@ -1066,38 +1066,37 @@ export const newPoolState = (
   fyTokenVirtualReserves: BigNumber;
 } => {
   const newBaseReserves = poolBaseReserves.add(baseChange);
-  const newFyTokenRealReserves = poolFyTokenRealReserves.add(fyTokenChange);
+  const newFyTokenReserves = poolFyTokenReserves.add(fyTokenChange);
   const newTotalSupply = poolTotalSupply.add(fyTokenChange);
-  const newFyTokenVirtualReserves = newTotalSupply.add(newFyTokenRealReserves); // virtualReserves  = totalsupply + realBalance
+  const newFyTokenRealReserves = newFyTokenReserves.sub(newTotalSupply); // real = virtual - totalSupply
   return {
     baseReserves: newBaseReserves,
     fyTokenRealReserves: newFyTokenRealReserves,
     totalSupply: newTotalSupply,
-    fyTokenVirtualReserves: newFyTokenVirtualReserves,
+    fyTokenVirtualReserves: newFyTokenReserves,
   };
 };
 
 /**
- *  @param {BigNumber}  strategyTokenAmount
- * @param {BigNumber}  strategyTotalSupply
- * @param {BigNumber}  poolStrategyBalance
- * @param {BigNumber}  poolBaseReserves
- * @param {BigNumber}  poolFyTokenReserves
- * @param {BigNumber}  poolTotalSupply
- * @param {number}  poolTimeToMaturity
- *
+ *  @param {BigNumber} strategyTokenAmount
+ * @param {BigNumber} strategyTotalSupply
+ * @param {BigNumber} strategyPoolBalance
+ * @param {BigNumber} poolBaseReserves
+ * @param {BigNumber} poolFyTokenReserves
+ * @param {BigNumber} poolTotalSupply
+ * @param {number} poolTimeToMaturity
  * @param { BigNumber | string } ts
  * @param { BigNumber | string } g2
  * @param { number } decimals
  *
- * @returns {BigNumber} [soldValue, totalValue]
+ * @returns {BigNumber} [fyTokenToBase, baseValue]
  */
 export const strategyTokenValue = (
   strategyTokenAmount: BigNumber | string,
   strategyTotalSupply: BigNumber,
   strategyPoolBalance: BigNumber,
   poolBaseReserves: BigNumber,
-  poolFyTokenRealReserves: BigNumber,
+  poolFyTokenReserves: BigNumber,
   poolTotalSupply: BigNumber,
   poolTimeToMaturity: string | BigNumber,
   ts: BigNumber | string,
@@ -1108,11 +1107,10 @@ export const strategyTokenValue = (
   // 1. calc amount base/fyToken recieved from burn
   // 2. calculate new reserves (baseReserves and fyTokenReserevs)
   // 3. try trade with new reserves
-  // 4. add the estimated base derived from selling fyTokens and the current base tokens of the poolToken
   const lpReceived = burnFromStrategy(strategyPoolBalance, strategyTotalSupply!, strategyTokenAmount);
   const [_baseTokenReceived, _fyTokenReceived] = burn(
     poolBaseReserves,
-    poolFyTokenRealReserves,
+    poolFyTokenReserves.sub(poolTotalSupply),
     poolTotalSupply,
     lpReceived
   );
@@ -1121,7 +1119,7 @@ export const strategyTokenValue = (
     _baseTokenReceived.mul(-1),
     _fyTokenReceived.mul(-1),
     poolBaseReserves,
-    poolFyTokenRealReserves,
+    poolFyTokenReserves,
     poolTotalSupply
   );
 
@@ -1135,9 +1133,7 @@ export const strategyTokenValue = (
     decimals
   );
 
-  const totalValue = sellValue.add(_baseTokenReceived);
-
-  return [sellValue, totalValue];
+  return [sellValue, _baseTokenReceived];
 };
 
 /**
