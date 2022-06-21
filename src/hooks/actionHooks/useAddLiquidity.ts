@@ -99,7 +99,7 @@ export const useAddLiquidity = () => {
 
     /* convert shares to be pooled to base, since we send in base */
     const baseToPool = _series.getBase(_sharesToPool);
-    const baseToPoolWithSlippage = BigNumber.from(calculateSlippage(baseToPool, slippageTolerance.toString()));
+    const baseToPoolWithSlippage = BigNumber.from(calculateSlippage(baseToPool, slippageTolerance.toString(), true));
 
     /* if approveMax, check if signature is still required */
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
