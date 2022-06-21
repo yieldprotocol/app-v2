@@ -642,13 +642,15 @@ const ChainProvider = ({ children }: any) => {
     const contractList = [...(chainState.contractMap as any)].map(([v, k]) => [v, k?.address]);
     const seriesList = [...(chainState.seriesRootMap as any)].map(([v, k]) => [v, k?.address]);
     const assetList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.address]);
-    const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k.name, k?.address]);
+    const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k?.symbol, v ]);
+    const joinList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.joinAddress]);
 
     const res = JSON.stringify({
       contracts: contractList,
       series: seriesList,
       assets: assetList,
       strategies: strategyList,
+      joins: joinList,
     });
 
     const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(res)}`;

@@ -70,7 +70,7 @@ export const useCollateralHelpers = (
       const _minSafe = () => {
         if (assetPairInfo.minRatio >= 1.5) return assetPairInfo.minRatio + 1; // eg. 150% -> 250%
         if (assetPairInfo.minRatio < 1.5 && assetPairInfo.minRatio >= 1.4) return assetPairInfo.minRatio + 0.65; // eg. 140% -> 200%
-        if (assetPairInfo.minRatio < 1.4 && assetPairInfo.minRatio > 1.1) return assetPairInfo.minRatio + 0.1; // eg. 133% -> 143%
+        if (assetPairInfo.minRatio < 1.4 && assetPairInfo.minRatio > 1.01) return assetPairInfo.minRatio + 0.1; // eg. 133% -> 143%
         return assetPairInfo.minRatio; // eg. 110% -> 110%
       };
 
