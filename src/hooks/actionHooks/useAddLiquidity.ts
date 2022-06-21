@@ -97,7 +97,9 @@ export const useAddLiquidity = () => {
       true
     ) as [BigNumber, BigNumber];
 
-    const _sharesToPoolWithSlippage = BigNumber.from(calculateSlippage(_sharesToPool, slippageTolerance.toString()));
+    // convert shares to pool to base, since we send in base
+    const baseToPool = _series.getBase(_sharesToPool);
+    const baseToPoolWithSlippage = BigNumber.from(calculateSlippage(baseToPool, slippageTolerance.toString()));
 
     /* if approveMAx, check if signature is still required */
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
@@ -123,8 +125,8 @@ export const useAddLiquidity = () => {
       '>> fyTokenSplit: ',
       _sharesToFyToken.toString(),
 
-      '>> sharesSplitWithSlippage: ',
-      _sharesToPoolWithSlippage.toString(),
+      '>> baseSplitWithSlippage: ',
+      baseToPoolWithSlippage.toString(),
 
       '>> minRatio',
       minRatio.toString(),
@@ -155,10 +157,7 @@ export const useAddLiquidity = () => {
       if (isEthBase && method === AddLiquidityType.BUY) return addEth(_input, _series.poolAddress);
       /* BORROW send WETH to both basejoin and poolAddress */
       if (isEthBase && method === AddLiquidityType.BORROW)
-        return [
-          ...addEth(_sharesToFyToken, _base.joinAddress),
-          ...addEth(_sharesToPoolWithSlippage, _series.poolAddress),
-        ];
+        return [...addEth(_sharesToFyToken, _base.joinAddress), ...addEth(baseToPoolWithSlippage, _series.poolAddress)];
       return []; // sends back an empty array [] if not eth base
     };
 
@@ -178,7 +177,7 @@ export const useAddLiquidity = () => {
 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _series.poolAddress, _input] as LadleActions.Args.TRANSFER,
+        args: [_base.address, _series.poolAddress, _input.mul(101).div(100)] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ignore if not BUY and POOL or isETHbase
       },
       {
@@ -212,7 +211,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _series.poolAddress, _sharesToPoolWithSlippage] as LadleActions.Args.TRANSFER,
+        args: [_base.address, _series.poolAddress, baseToPoolWithSlippage] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
 
