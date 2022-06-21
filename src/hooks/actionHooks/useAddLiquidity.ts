@@ -97,11 +97,11 @@ export const useAddLiquidity = () => {
       true
     ) as [BigNumber, BigNumber];
 
-    // convert shares to pool to base, since we send in base
+    /* convert shares to be pooled to base, since we send in base */
     const baseToPool = _series.getBase(_sharesToPool);
     const baseToPoolWithSlippage = BigNumber.from(calculateSlippage(baseToPool, slippageTolerance.toString()));
 
-    /* if approveMAx, check if signature is still required */
+    /* if approveMax, check if signature is still required */
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
 
     /* if ethBase */
@@ -177,7 +177,7 @@ export const useAddLiquidity = () => {
 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _series.poolAddress, _input.mul(101).div(100)] as LadleActions.Args.TRANSFER,
+        args: [_base.address, _series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ignore if not BUY and POOL or isETHbase
       },
       {
