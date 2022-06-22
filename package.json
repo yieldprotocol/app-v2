@@ -3,11 +3,8 @@
   "version": "2.3.13",
   "private": true,
   "dependencies": {
-<<<<<<< Updated upstream
-=======
     "@ethersproject/abi": "^5.6.4",
-    "@ethersproject/providers": "^5.6.5",
->>>>>>> Stashed changes
+    "@ethersproject/providers": "^5.6.8",
     "@multiavatar/multiavatar": "^1.0.6",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
