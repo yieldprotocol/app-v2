@@ -58,7 +58,7 @@ export const useLendHelpers = (
     }
 
     if (series) {
-      /* checks the protocol limits (max shares allowed in ) */
+      /* checks the protocol limits (max shares (converted to base) allowed in) */
       const _maxSharesIn = maxBaseIn(
         series.sharesReserves,
         series.fyTokenReserves,
