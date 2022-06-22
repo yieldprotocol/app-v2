@@ -9,6 +9,7 @@ import { bytesToBytes32, decimal18ToDecimalN } from '../utils/yieldMath';
 import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
+import { MulticallService } from '../utils/multicall';
 
 enum PriceState {
   UPDATE_PAIR = 'updatePair',
@@ -51,13 +52,17 @@ const PriceProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { fallbackChainId },
+    connection: { fallbackChainId, fallbackProvider },
     assetRootMap,
   } = chainState;
 
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
+
+  /* multicall */
+  const multicallService = new MulticallService(fallbackProvider);
+  const multicall = multicallService.getMulticall(fallbackChainId);
 
   /* LOCAL STATE */
   const [priceState, updateState] = useReducer(priceReducer, initState);
@@ -83,8 +88,8 @@ const PriceProvider = ({ children }: any) => {
 
         // /* Get debt params and spot ratios */
         const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
-          Cauldron.debt(baseId, ilkId),
-          Cauldron.spotOracles(baseId, ilkId),
+          multicall.wrap(Cauldron).debt(baseId, ilkId),
+          multicall.wrap(Cauldron).spotOracles(baseId, ilkId),
         ]);
 
         /* get pricing if available */

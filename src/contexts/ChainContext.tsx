@@ -18,6 +18,7 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
+import { MulticallService } from '../utils/multicall';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -117,6 +118,10 @@ const ChainProvider = ({ children }: any) => {
   const { connectionState, connectionActions } = useConnection();
   const { chainId, fallbackProvider, fallbackChainId } = connectionState;
 
+  /* multicall */
+  const multicallService = new MulticallService(fallbackProvider);
+  const multicall = multicallService.getMulticall(fallbackChainId);
+
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
@@ -159,7 +164,6 @@ const ChainProvider = ({ children }: any) => {
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
         if ([1, 4, 5, 42].includes(fallbackChainId)) {
-
           // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
@@ -191,8 +195,7 @@ const ChainProvider = ({ children }: any) => {
 
         // arbitrum
         if ([42161, 421611].includes(fallbackChainId)) {
-
-          // Modules 
+          // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
           // Oracles
@@ -202,14 +205,13 @@ const ChainProvider = ({ children }: any) => {
             addrs.ChainlinkUSDOracle,
             fallbackProvider
           );
-
         }
       } catch (e) {
         console.log('Could not connect to contracts: ', e);
       }
 
       // if there was an issue loading at htis point simply return
-      if ( !Cauldron || !Ladle || !RateOracle || !Witch) return;
+      if (!Cauldron || !Ladle || !RateOracle || !Witch) return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap as Map<string, Contract>;
@@ -295,8 +297,8 @@ const ChainProvider = ({ children }: any) => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
         const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-          Ladle.queryFilter('JoinAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
+          multicall.wrap(Cauldron).queryFilter('AssetAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
+          multicall.wrap(Ladle).queryFilter('JoinAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
         ]);
 
         /* Create a map from the joinAdded event data or hardcoded join data if available */
@@ -325,7 +327,11 @@ const ChainProvider = ({ children }: any) => {
             ) {
               const contract = contracts.ERC20__factory.connect(address, fallbackProvider);
               try {
-                [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
+                [name, symbol, decimals] = await Promise.all([
+                  multicall.wrap(contract).name(),
+                  multicall.wrap(contract).symbol(),
+                  multicall.wrap(contract).decimals(),
+                ]);
               } catch (e) {
                 console.log(
                   address,
@@ -434,8 +440,8 @@ const ChainProvider = ({ children }: any) => {
       const _getSeries = async () => {
         /* get poolAdded events and series events at the same time */
         const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, lastSeriesUpdate),
-          Ladle.queryFilter('PoolAdded' as ethers.EventFilter, lastSeriesUpdate),
+          multicall.wrap(Cauldron).queryFilter('SeriesAdded' as ethers.EventFilter, lastSeriesUpdate),
+          multicall.wrap(Ladle).queryFilter('PoolAdded' as ethers.EventFilter, lastSeriesUpdate),
         ]);
 
         /* Create a map from the poolAdded event data or hardcoded pool data if available */
@@ -460,16 +466,16 @@ const ChainProvider = ({ children }: any) => {
                 const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
                 const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
                   await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    poolContract.ts(),
-                    poolContract.g1(),
-                    poolContract.g2(),
+                    multicall.wrap(fyTokenContract).name(),
+                    multicall.wrap(fyTokenContract).symbol(),
+                    multicall.wrap(fyTokenContract).version(),
+                    multicall.wrap(fyTokenContract).decimals(),
+                    multicall.wrap(poolContract).name(),
+                    multicall.wrap(poolContract).version(),
+                    multicall.wrap(poolContract).symbol(),
+                    multicall.wrap(poolContract).ts(),
+                    multicall.wrap(poolContract).g1(),
+                    multicall.wrap(poolContract).g2(),
                     // poolContract.decimals(),
                   ]);
                 const newSeries = {
@@ -526,11 +532,11 @@ const ChainProvider = ({ children }: any) => {
 
                 const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
                 const [name, symbol, baseId, decimals, version] = await Promise.all([
-                  Strategy.name(),
-                  Strategy.symbol(),
-                  Strategy.baseId(),
-                  Strategy.decimals(),
-                  Strategy.version(),
+                  multicall.wrap(Strategy).name(),
+                  multicall.wrap(Strategy).symbol(),
+                  multicall.wrap(Strategy).baseId(),
+                  multicall.wrap(Strategy).decimals(),
+                  multicall.wrap(Strategy).version(),
                 ]);
 
                 const newStrategy = {
@@ -640,8 +646,7 @@ const ChainProvider = ({ children }: any) => {
     const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k?.symbol, v]);
     const joinList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.joinAddress]);
 
-    const res = JSON.stringify(
-      {
+    const res = JSON.stringify({
       contracts: contractList,
       series: seriesList,
       assets: assetList,
@@ -649,16 +654,15 @@ const ChainProvider = ({ children }: any) => {
       joins: joinList,
     });
 
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(res);
-    var downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href",     dataStr);
-    downloadAnchorNode.setAttribute("download", 'contracts' + ".json");
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(res)}`;
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute('href', dataStr);
+    downloadAnchorNode.setAttribute('download', 'contracts' + '.json');
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 
-    console.log(res)
-
+    console.log(res);
   };
 
   /* simply Pass on the connection actions */
