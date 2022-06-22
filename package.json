@@ -3,6 +3,11 @@
   "version": "2.3.13",
   "private": true,
   "dependencies": {
+<<<<<<< Updated upstream
+=======
+    "@ethersproject/abi": "^5.6.4",
+    "@ethersproject/providers": "^5.6.5",
+>>>>>>> Stashed changes
     "@multiavatar/multiavatar": "^1.0.6",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
@@ -10,6 +15,7 @@
     "@web3-react/walletconnect-connector": "^6.2.4",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.0.1",
+    "dataloader": "^2.1.0",
     "date-fns": "^2.24.0",
     "decimal.js": "^10.3.1",
     "eslint-config-next": "^12.1.3",

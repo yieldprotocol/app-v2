@@ -65,6 +65,8 @@ export const useClosePosition = () => {
           series.g2,
           series.decimals
         );
+    console.log('🦄 ~ file: useClosePosition.ts ~ line 66 ~ useClosePosition ~  manual preview', _fyTokenValueOfInput);
+    return;
 
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);

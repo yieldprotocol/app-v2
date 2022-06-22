@@ -50,6 +50,8 @@ export const useRollPosition = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
+    const [cachedSharesReserves, cachedFyTokenReserves] = await fromSeries.poolContract.getCache();
+
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
       : buyBase(

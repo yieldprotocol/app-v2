@@ -35,6 +35,7 @@ import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
+import { MulticallService } from '../utils/multicall';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -132,7 +133,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account },
+    connection: { account, fallbackProvider, fallbackChainId },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -151,6 +152,10 @@ const UserProvider = ({ children }: any) => {
 
   /* HOOKS */
   const { pathname } = useRouter();
+
+  /* multicall */
+  const multicallService = new MulticallService(fallbackProvider);
+  const multicall = multicallService.getMulticall(fallbackChainId);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -282,10 +287,10 @@ const UserProvider = ({ children }: any) => {
         seriesList.map(async (series): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-            series.poolContract.getBaseBalance(),
-            series.poolContract.getFYTokenBalance(),
-            series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress),
+            multicall.wrap(series.poolContract).getBaseBalance(),
+            multicall.wrap(series.poolContract).getFYTokenBalance(),
+            multicall.wrap(series.poolContract).totalSupply(),
+            multicall.wrap(series.fyTokenContract).balanceOf(series.poolAddress),
           ]);
 
           const rateCheckAmount = ethers.utils.parseUnits(
@@ -325,8 +330,8 @@ const UserProvider = ({ children }: any) => {
           _publicData.map(async (series): Promise<ISeries> => {
             /* Get all the data simultanenously in a promise.all */
             const [poolTokens, fyTokenBalance] = await Promise.all([
-              series.poolContract.balanceOf(account),
-              series.fyTokenContract.balanceOf(account),
+              multicall.wrap(series.poolContract).balanceOf(account),
+              multicall.wrap(series.fyTokenContract).balanceOf(account),
             ]);
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
@@ -509,10 +514,10 @@ const UserProvider = ({ children }: any) => {
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
           const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-            _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.seriesId(),
-            _strategy.strategyContract.pool(),
-            _strategy.strategyContract.nextSeriesId(),
+            multicall.wrap(_strategy.strategyContract).totalSupply(),
+            multicall.wrap(_strategy.strategyContract).seriesId(),
+            multicall.wrap(_strategy.strategyContract).pool(),
+            multicall.wrap(_strategy.strategyContract).nextSeriesId(),
           ]);
           const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
           const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
@@ -572,8 +577,8 @@ const UserProvider = ({ children }: any) => {
             // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
             .map(async (_strategy: IStrategy): Promise<IStrategy> => {
               const [accountBalance, accountPoolBalance] = await Promise.all([
-                _strategy.strategyContract.balanceOf(account),
-                _strategy.currentSeries?.poolContract.balanceOf(account),
+                multicall.wrap(_strategy.strategyContract).balanceOf(account),
+                multicall.wrap(_strategy.currentSeries?.poolContract).balanceOf(account),
               ]);
 
               const accountStrategyPercent = mulDecimal(
