@@ -73,13 +73,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
         .find(
           (v: IVault) =>
-            v.ilkId === strategyBase.proxyId &&
-            v.baseId === strategyBase.proxyId &&
-            v.seriesId === strategySeries.id &&
-            v.isActive
+            v.ilkId === strategyBase.proxyId && v.baseId === strategyBase.proxyId && v.seriesId === strategySeries.id
         );
       setMatchingVault(_matchingVault);
-      diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
+      console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     } else {
       setMatchingVault(undefined);
     }
