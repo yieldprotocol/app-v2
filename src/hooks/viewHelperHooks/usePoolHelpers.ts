@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IStrategy, IVault } from '../../types';
+import { IAsset, ISeries, ISettingsContext, IStrategy, IUserContext, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
@@ -26,11 +26,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   const {
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
   const strategy: IStrategy | undefined = selectedStrategy;
   const strategySeries: ISeries | undefined = seriesMap?.get(
-    selectedStrategy ? strategy?.currentSeriesId : selectedSeries
+    selectedStrategy ? strategy?.currentSeriesId : selectedSeries?.id
   );
 
   const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.proxyId);
@@ -49,8 +49,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   // const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
 
   /* remove liquidity helpers */
-  const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
-  const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
+  const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
   const [partialRemoveRequired, setPartialRemoveRequired] = useState<boolean>(false);
 
@@ -166,23 +165,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
    * Remove Liquidity specific section
    * */
 
-  /* set max for removal with/without a vault  */
+  /* set max removal (always strategy token balance)  */
   useEffect(() => {
-    /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
-    removeLiquidityView &&
-      strategy &&
-      strategySeries &&
-      matchingVault &&
-      setMaxRemoveWithVault(
-        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
-      );
-    removeLiquidityView &&
-      strategy &&
-      strategySeries &&
-      setMaxRemoveNoVault(
-        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
-      );
-  }, [matchingVault, strategy, strategySeries, removeLiquidityView]);
+    setMaxRemove(ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategy?.decimals));
+  }, [strategy?.accountBalance, strategy?.decimals]);
 
   /* Remove liquidity flow decision tree */
   useEffect(() => {
@@ -316,8 +302,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
     matchingVault,
 
-    maxRemoveNoVault,
-    maxRemoveWithVault,
+    maxRemove,
 
     partialRemoveRequired,
 
