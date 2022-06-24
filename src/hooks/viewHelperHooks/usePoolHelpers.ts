@@ -168,7 +168,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* set max removal (always strategy token balance)  */
   useEffect(() => {
     setMaxRemove(ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategy?.decimals));
-  }, [matchingVault, strategy, strategySeries, removeLiquidityView]);
+  }, [strategy?.accountBalance, strategy?.decimals]);
 
   /* Remove liquidity flow decision tree */
   useEffect(() => {
