@@ -44,10 +44,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(false);
 
-  // const [inputTradeValue, setInputTradeValue] = useState<BigNumber | undefined>();
-  // const [inputTradeValue_, setInputTradeValue_] = useState<string | undefined>();
-  // const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
-
   /* remove liquidity helpers */
   const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
