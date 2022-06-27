@@ -72,10 +72,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
         .find(
           (v: IVault) =>
-            v.ilkId === strategyBase.proxyId &&
-            v.baseId === strategyBase.proxyId &&
-            v.seriesId === strategySeries.id &&
-            v.isActive
+            v.ilkId === strategyBase.proxyId && v.baseId === strategyBase.proxyId && v.seriesId === strategySeries.id
         );
       setMatchingVault(_matchingVault);
       diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
@@ -239,10 +236,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           /* CASE> fytokenReceived less than debt : USE REMOVE OPTION 1 */
           diagnostics &&
             console.log(
-              'FyTokens received will Less than debt: straight No extra trading is required : USE REMOVE OPTION 1 '
+              'FyTokens received will be less than debt: straight no extra trading is required : USE REMOVE OPTION 1'
             );
           setPartialRemoveRequired(false);
-          const _val = baseReceivedFromBurn; // .add(_fyTokenReceived);
+          // add the base received from the burn to the matching vault's debt (redeemable for base 1:1) to get total base value
+          const _val = baseReceivedFromBurn.add(fyTokenReceivedFromBurn);
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
