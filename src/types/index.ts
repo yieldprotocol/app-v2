@@ -90,7 +90,7 @@ export interface IUserContextState {
 }
 
 export interface IUserContextActions {
-  updateVaults: (vaultList: IVault[]) => void;
+  updateVaults: (vaultList: IVault[], chainId: string) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
   updateStrategies: (strategyList: IStrategy[]) => void;
@@ -217,6 +217,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 
   digitFormat: number;
   assetContract: Contract;
+  oracleContract: Contract;
 
   isYieldBase: boolean;
 
@@ -282,6 +283,8 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
+
+
   balance: BigNumber;
   balance_: string;
 }
