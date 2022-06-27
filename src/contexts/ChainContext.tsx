@@ -134,6 +134,7 @@ const ChainProvider = ({ children }: any) => {
       let RateOracle: contracts.CompoundMultiOracle | contracts.AccumulatorOracle;
       let ChainlinkMultiOracle: contracts.ChainlinkMultiOracle;
       let CompositeMultiOracle: contracts.CompositeMultiOracle;
+      let CompoundMultiOracle: contracts.CompoundMultiOracle;
       let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
       let Witch: contracts.Witch;
 
@@ -148,7 +149,7 @@ const ChainProvider = ({ children }: any) => {
 
       // arbitrum specific
       let ChainlinkUSDOracle: contracts.ChainlinkUSDOracle;
-      let AccumulatorOracle: contracts.AccumulatorOracle;
+      let AccumulatorMultiOracle: contracts.AccumulatorOracle;
 
       try {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
@@ -165,7 +166,9 @@ const ChainProvider = ({ children }: any) => {
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
 
           // Oracles
-          RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
+          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, fallbackProvider);
+          // RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
+          RateOracle = AccumulatorMultiOracle;
 
           ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
             addrs.ChainlinkMultiOracle,
@@ -175,6 +178,12 @@ const ChainProvider = ({ children }: any) => {
             addrs.CompositeMultiOracle,
             fallbackProvider
           );
+
+          CompoundMultiOracle = contracts.CompoundMultiOracle__factory.connect(
+            addrs.CompoundMultiOracle,
+            fallbackProvider
+          );
+
           YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(
             addrs.YearnVaultMultiOracle,
             fallbackProvider
@@ -196,8 +205,8 @@ const ChainProvider = ({ children }: any) => {
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
           // Oracles
-          AccumulatorOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorOracle, fallbackProvider);
-          RateOracle = AccumulatorOracle;
+          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, fallbackProvider);
+          RateOracle = AccumulatorMultiOracle;
           ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
             addrs.ChainlinkUSDOracle,
             fallbackProvider
@@ -223,8 +232,9 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
+      newContractMap.set('CompoundMultiOracle', CompoundMultiOracle);
 
-      newContractMap.set('AccumulatorOracle', AccumulatorOracle);
+      newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
 
       // modules
       newContractMap.set('WrapEtherModule', WrapEtherModule);

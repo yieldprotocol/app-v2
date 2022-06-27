@@ -35,6 +35,7 @@ import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
+import { ORACLE_INFO } from '../config/oracles';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -132,7 +133,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account },
+    connection: { account, chainId },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -364,12 +365,13 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
-    async (vaultList: IVaultRoot[]) => {
+    async (vaultList: IVaultRoot[], chainId: number) => {
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
       const Witch = contractMap.get('Witch');
-      const RateOracle = contractMap.get('RateOracle');
+
+      // const RateOracle = contractMap.get('RateOracle');
 
       /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
       if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(lastVaultUpdate)).values()); // fromblock specifically x blocks ago for arb testnet
@@ -403,13 +405,18 @@ const UserProvider = ({ children }: any) => {
           let rate_: string;
 
           if (series.isMature()) {
+            const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
+            const oracleName = ORACLE_INFO.get(chainId)
+              ?.get(vault.baseId)
+              ?.get(RATE);
+
+            const RateOracle = contractMap.get(oracleName);
             rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
             [rate] = await RateOracle.peek(
               bytesToBytes32(vault.baseId, 6),
-              '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
+              RATE, 
               '0'
             );
-
             rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
             diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
 
@@ -633,7 +640,7 @@ const UserProvider = ({ children }: any) => {
     if (!chainLoading && account) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
-      updateVaults([]);
+      updateVaults([], chainId);
     }
     /* keep checking the active account when it changes/ chainloading */
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
