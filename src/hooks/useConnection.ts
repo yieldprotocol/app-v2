@@ -36,7 +36,7 @@ export const useConnection = () => {
   
   /* mocking location */
   // const { connector, library: provider, chainId, activate, deactivate, active } = primaryConnection;
-  // const account = "0x41a1842907f67af8a25338e22e45f9dc88266cee" ; 
+  // const account = "" ; 
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const { library: fallbackProvider, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
