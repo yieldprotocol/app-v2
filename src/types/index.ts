@@ -90,7 +90,7 @@ export interface IUserContextState {
 }
 
 export interface IUserContextActions {
-  updateVaults: (vaultList: IVault[], chainId: string) => void;
+  updateVaults: (vaultList: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
   updateStrategies: (strategyList: IStrategy[]) => void;
