@@ -1,5 +1,4 @@
 import { Box, Text } from 'grommet';
-import { useEffect } from 'react';
 import Switch from 'react-switch';
 import { useConnection } from '../../hooks/useConnection';
 import useTenderly from '../../hooks/useTenderly';
