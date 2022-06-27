@@ -222,6 +222,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 
   digitFormat: number;
   assetContract: Contract;
+  oracleContract: Contract;
 
   isYieldBase: boolean;
 
@@ -293,6 +294,8 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
+
+
   balance: BigNumber;
   balance_: string;
 }

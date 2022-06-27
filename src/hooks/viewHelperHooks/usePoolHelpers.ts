@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IStrategy, IVault } from '../../types';
+import { IAsset, ISeries, ISettingsContext, IStrategy, IUserContext, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
@@ -26,11 +26,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   const {
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
   const strategy: IStrategy | undefined = selectedStrategy;
   const strategySeries: ISeries | undefined = seriesMap?.get(
-    selectedStrategy ? strategy?.currentSeriesId : selectedSeries
+    selectedStrategy ? strategy?.currentSeriesId : selectedSeries?.id
   );
 
   const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.proxyId);
@@ -49,8 +49,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   // const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
 
   /* remove liquidity helpers */
-  const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
-  const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
+  const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
   const [partialRemoveRequired, setPartialRemoveRequired] = useState<boolean>(false);
 
@@ -73,10 +72,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
         .find(
           (v: IVault) =>
-            v.ilkId === strategyBase.proxyId &&
-            v.baseId === strategyBase.proxyId &&
-            v.seriesId === strategySeries.id &&
-            v.isActive
+            v.ilkId === strategyBase.proxyId && v.baseId === strategyBase.proxyId && v.seriesId === strategySeries.id
         );
       setMatchingVault(_matchingVault);
       diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
@@ -170,23 +166,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
    * Remove Liquidity specific section
    * */
 
-  /* set max for removal with/without a vault  */
+  /* set max removal (always strategy token balance)  */
   useEffect(() => {
-    /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
-    removeLiquidityView &&
-      strategy &&
-      strategySeries &&
-      matchingVault &&
-      setMaxRemoveWithVault(
-        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
-      );
-    removeLiquidityView &&
-      strategy &&
-      strategySeries &&
-      setMaxRemoveNoVault(
-        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
-      );
-  }, [matchingVault, strategy, strategySeries, removeLiquidityView]);
+    setMaxRemove(ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategy?.decimals));
+  }, [strategy?.accountBalance, strategy?.decimals]);
 
   /* Remove liquidity flow decision tree */
   useEffect(() => {
@@ -263,13 +246,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           /* CASE> fytokenReceived less than debt : USE REMOVE OPTION 1 */
           diagnostics &&
             console.log(
-              'FyTokens received will Less than debt: straight No extra trading is required : USE REMOVE OPTION 1 '
+              'FyTokens received will be less than debt: straight no extra trading is required : USE REMOVE OPTION 1'
             );
           setPartialRemoveRequired(false);
-          // add the shares received from burn (converted to base) to the matching vault's debt (redeemable 1:1 for shares converted to base)
-          const _val = strategySeries
-            .getBase(sharesReceivedFromBurn)
-            .add(strategySeries.getBase(matchingVault.accruedArt));
+          // add the base received from the burn to the matching vault's debt (redeemable for base 1:1) to get total base value
+          const _val = strategySeries.getBase(sharesReceivedFromBurn).add(fyTokenReceivedFromBurn);
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
@@ -332,8 +313,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
     matchingVault,
 
-    maxRemoveNoVault,
-    maxRemoveWithVault,
+    maxRemove,
 
     partialRemoveRequired,
 

@@ -48,7 +48,6 @@ const PoolPosition = () => {
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
-  const [maxRemove, setMaxRemove] = useState<string | undefined>();
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
 
   const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
@@ -65,8 +64,7 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
-  const { matchingVault, maxRemoveWithVault, maxRemoveNoVault, removeBaseReceived_, partialRemoveRequired } =
-    usePoolHelpers(removeInput, true);
+  const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired } = usePoolHelpers(removeInput, true);
 
   const {
     removeBaseReceived_: removeBaseReceivedMax_,
@@ -85,7 +83,7 @@ const PoolPosition = () => {
   /* input validation hooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries!, [
     0,
-    matchingVault ? maxRemoveWithVault : maxRemoveNoVault,
+    maxRemove,
   ]);
 
   /* LOCAL FNS */
@@ -120,12 +118,6 @@ const PoolPosition = () => {
     },
     [resetRemoveProcess, resetStepper]
   );
-
-  /* SET MAX VALUES */
-  useEffect(() => {
-    /* Checks the max available to remove */
-    _selectedStrategy && matchingVault ? setMaxRemove(maxRemoveWithVault) : setMaxRemove(maxRemoveNoVault);
-  }, [_selectedStrategy, matchingVault, maxRemoveNoVault, maxRemoveWithVault, setMaxRemove]);
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
@@ -252,7 +244,7 @@ const PoolPosition = () => {
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
-                            disabled={maxRemove === '0.0' || !selectedSeries || selectedSeries.seriesIsMature}
+                            disabled={maxRemove === '0.0'}
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
                           />
