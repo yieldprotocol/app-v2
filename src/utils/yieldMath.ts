@@ -606,7 +606,9 @@ export function maxBaseIn(
   const cua = c_.mul(mu_.pow(a.sub(ONE)));
   const Za = sharesReserves_.pow(a);
   const Ya = fyTokenReserves_.pow(a);
-  const sum = cua.add(Za.add(Ya)).div(c_.div(mu_).add(ONE));
+  const top = cua.add(Za).add(Ya);
+  const bottom = c_.div(mu_).add(ONE);
+  const sum = top.div(bottom);
 
   const res = ONE.div(mu_).mul(sum.pow(invA)).sub(sharesReserves_);
 
