@@ -365,7 +365,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
-    async (vaultList: IVaultRoot[], chainId: number) => {
+    async (vaultList: IVaultRoot[]) => {
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
       let _vaultList: IVaultRoot[] = vaultList;
       const Cauldron = contractMap.get('Cauldron');
@@ -640,7 +640,7 @@ const UserProvider = ({ children }: any) => {
     if (!chainLoading && account) {
       console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
-      updateVaults([], chainId);
+      updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
