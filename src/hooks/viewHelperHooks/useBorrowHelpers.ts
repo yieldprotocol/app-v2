@@ -6,7 +6,14 @@ import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import { buyBase, calculateMinCollateral, decimalNToDecimal18, maxBaseIn, maxFyTokenIn } from '../../utils/yieldMath';
+import {
+  buyBase,
+  calculateMinCollateral,
+  decimalNToDecimal18,
+  maxBaseIn,
+  maxFyTokenIn,
+  sellFYToken,
+} from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -131,7 +138,7 @@ export const useBorrowHelpers = (
       const newDebt = buyBase(
         futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
-        vault.accruedArt,
+        futureSeries.getShares(vault.accruedArt),
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
         futureSeries.g2,
@@ -208,7 +215,7 @@ export const useBorrowHelpers = (
           setProtocolLimited(false);
         }
 
-        /* if the series is mature re-set max as all debt ( if balance allows) */
+        /* if the series is mature re-set max as all debt (if balance allows) */
         if (vaultSeries.seriesIsMature) {
           const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
           setMaxRepay(_accruedArt);
