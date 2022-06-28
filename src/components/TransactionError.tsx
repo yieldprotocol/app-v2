@@ -72,11 +72,13 @@ const TransactionError = () => {
                           {JSON.stringify({
                             transaction: txState.txWillFailInfo.transaction,
                             error: txState.txWillFailInfo.error,
+                            blocknum: txState.txWillFailInfo.blocknum,
                           })}
                         </Text>
                       ) : (
                         <Text size="xsmall" truncate>
                           {JSON.stringify(txState.txWillFailInfo.transaction.data)}
+                          { txState.txWillFailInfo.blocknum } 
                         </Text>
                       )}
                     </Box>
@@ -86,6 +88,7 @@ const TransactionError = () => {
                         hash={JSON.stringify({
                           transaction: txState.txWillFailInfo.transaction,
                           error: txState.txWillFailInfo.error,
+                          blocknum: txState.txWillFailInfo.blocknum,
                         })}
                       >
                         <Text size="xsmall">Copy diagnostic information</Text>

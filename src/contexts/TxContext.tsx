@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, useContext } from 'react';
-import { ethers, ContractTransaction } from 'ethers';
+import { ethers, ContractTransaction, providers } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
 import { analyticsLogEvent } from '../utils/appUtils';
@@ -26,7 +26,7 @@ const initState = {
   anyProcessActive: false as boolean,
   txWillFail: false as boolean,
 
-  txWillFailInfo: { error: undefined, transaction: undefined },
+  txWillFailInfo: { error: undefined, transaction: undefined, blocknum: undefined },
 };
 
 interface IYieldSignature {
@@ -123,7 +123,7 @@ const TxProvider = ({ children }: any) => {
 
   const { chainState } = useContext(ChainContext);
   const {
-    connection: { chainId },
+    connection: { chainId, provider },
   } = chainState;
 
   const _resetProcess = (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
@@ -164,7 +164,7 @@ const TxProvider = ({ children }: any) => {
     analyticsLogEvent('TX_FAILED', { txCode }, chainId);
   };
 
-  const handleTxWillFail = (error: any, txCode?: string | undefined, transaction?: any) => {
+  const handleTxWillFail = async (error: any, txCode?: string | undefined, transaction?: any) => {
     /* simply toggles the txWillFail txState */
     if (txState.txWillFail === false) {
       updateState({ type: TxStateItem.TX_WILL_FAIL, payload: true });
@@ -172,7 +172,9 @@ const TxProvider = ({ children }: any) => {
       toast.error(`Transaction Aborted`);
 
       console.log(transaction);
-      updateState({ type: TxStateItem.TX_WILL_FAIL_INFO, payload: { error, transaction } });
+      const blocknum = await provider.getBlockNumber();
+
+      updateState({ type: TxStateItem.TX_WILL_FAIL_INFO, payload: { error, transaction, blocknum } });
 
       txCode && updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
     } else {
