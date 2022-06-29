@@ -135,7 +135,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, useTenderlyFork, chainId },
+    connection: { account, chainId, useTenderlyFork },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -169,64 +169,58 @@ const UserProvider = ({ children }: any) => {
 
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
       const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
+      const vaultsBuilt = await Cauldron.queryFilter(
+        vaultsBuiltFilter,
+        useTenderlyFork ? null : fromBlock,
+        useTenderlyFork ? null : 'latest'
+      );
 
+      let vaultsReceived = [];
       try {
-        const [vaultsBuilt, vaultsReceived] = await Promise.all([
-          Cauldron.queryFilter(
-            vaultsBuiltFilter,
-            useTenderlyFork ? null : fromBlock,
-            useTenderlyFork ? null : 'latest'
-          ),
-          Cauldron.queryFilter(
-            vaultsReceivedFilter,
-            useTenderlyFork ? null : fromBlock,
-            useTenderlyFork ? null : 'latest'
-          ),
-        ]);
+        vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
+      } catch (error) {
+        console.log('could not get vaults received');
+      }
 
-        const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
-          const { vaultId: id, ilkId, seriesId } = x.args;
+      const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
+        const { vaultId: id, ilkId, seriesId } = x.args;
+        const series = seriesRootMap.get(seriesId);
+        return {
+          id,
+          seriesId,
+          baseId: series?.baseId,
+          ilkId,
+          displayName: generateVaultName(id),
+          decimals: series?.decimals,
+        };
+      });
+
+      const receivedEventsList = await Promise.all(
+        vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
+          const { vaultId: id } = x.args;
+          const { ilkId, seriesId } = await Cauldron.vaults(bytesToBytes32(id, 12));
           const series = seriesRootMap.get(seriesId);
           return {
             id,
             seriesId,
-            baseId: series?.baseId,
+            baseId: series.baseId,
             ilkId,
             displayName: generateVaultName(id),
-            decimals: series?.decimals,
+            decimals: series.decimals,
           };
-        });
+        })
+      );
 
-        const recievedEventsList = await Promise.all(
-          vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
-            const { vaultId: id } = x.args;
-            const { ilkId, seriesId } = await Cauldron.vaults(id);
-            const series = seriesRootMap.get(seriesId);
-            return {
-              id,
-              seriesId,
-              baseId: series.baseId,
-              ilkId,
-              displayName: generateVaultName(id),
-              decimals: series.decimals,
-            };
-          })
-        );
+      /* all vaults */
+      const vaultList = [...buildEventList, ...receivedEventsList];
 
-        /* all vaults */
-        const vaultList = [...buildEventList, ...recievedEventsList];
+      const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
+        const _map = acc;
+        _map.set(item.id, item);
+        return _map;
+      }, new Map()) as Map<string, IVaultRoot>;
 
-        const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
-          const _map = acc;
-          _map.set(item.id, item);
-          return _map;
-        }, new Map()) as Map<string, IVaultRoot>;
-
-        return newVaultMap;
-      } catch (error) {
-        console.log('🦄 ~ file: UserContext.tsx ~ line 180 ~ error', error);
-        return new Map();
-      }
+      return newVaultMap;
     },
     [account, contractMap, seriesRootMap, useTenderlyFork]
   );
