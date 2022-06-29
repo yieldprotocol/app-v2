@@ -122,7 +122,7 @@ export const useRepayDebt = () => {
     /* In low liq situations/or mature,  send repay funds to join not pool */
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
-    /* Check if already apporved */
+    /* Check if already approved */
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer);
 
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
