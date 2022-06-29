@@ -160,13 +160,15 @@ const ChainProvider = ({ children }: any) => {
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
         if ([1, 4, 5, 42].includes(fallbackChainId)) {
-
           // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
 
           // Oracles
-          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, fallbackProvider);
+          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(
+            addrs.AccumulatorMultiOracle,
+            fallbackProvider
+          );
           // RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
           RateOracle = AccumulatorMultiOracle;
 
@@ -200,25 +202,26 @@ const ChainProvider = ({ children }: any) => {
 
         // arbitrum
         if ([42161, 421611].includes(fallbackChainId)) {
-
-          // Modules 
+          // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
           // Oracles
-          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, fallbackProvider);
+          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(
+            addrs.AccumulatorMultiOracle,
+            fallbackProvider
+          );
           RateOracle = AccumulatorMultiOracle;
           ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
             addrs.ChainlinkUSDOracle,
             fallbackProvider
           );
-
         }
       } catch (e) {
         console.log('Could not connect to contracts: ', e);
       }
 
       // if there was an issue loading at htis point simply return
-      if ( !Cauldron || !Ladle || !RateOracle || !Witch) return;
+      if (!Cauldron || !Ladle || !RateOracle || !Witch) return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap as Map<string, Contract>;
@@ -605,18 +608,19 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
-      clearCachedItems([
-        'lastAppVersion',
-        'lastChainId',
-        'assets',
-        'series',
-        'lastAssetUpdate',
-        'lastSeriesUpdate',
-        'lastVaultUpdate',
-        'strategies',
-        'lastStrategiesUpdate',
-        'connectionName',
-      ]);
+      window.localStorage.clear();
+      // clearCachedItems([
+      //   'lastAppVersion',
+      //   'lastChainId',
+      //   'assets',
+      //   'series',
+      //   'lastAssetUpdate',
+      //   'lastSeriesUpdate',
+      //   'lastVaultUpdate',
+      //   'strategies',
+      //   'lastStrategiesUpdate',
+      //   'connectionName',
+      // ]);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
@@ -647,11 +651,10 @@ const ChainProvider = ({ children }: any) => {
     const contractList = [...(chainState.contractMap as any)].map(([v, k]) => [v, k?.address]);
     const seriesList = [...(chainState.seriesRootMap as any)].map(([v, k]) => [v, k?.address]);
     const assetList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.address]);
-    const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k?.symbol, v ]);
+    const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k?.symbol, v]);
     const joinList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.joinAddress]);
 
-    const res = JSON.stringify(
-      {
+    const res = JSON.stringify({
       contracts: contractList,
       series: seriesList,
       assets: assetList,
@@ -659,16 +662,15 @@ const ChainProvider = ({ children }: any) => {
       joins: joinList,
     });
 
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(res);
+    var dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(res);
     var downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href",     dataStr);
-    downloadAnchorNode.setAttribute("download", 'contracts' + ".json");
+    downloadAnchorNode.setAttribute('href', dataStr);
+    downloadAnchorNode.setAttribute('download', 'contracts' + '.json');
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 
-    console.log(res)
-
+    console.log(res);
   };
 
   /* simply Pass on the connection actions */

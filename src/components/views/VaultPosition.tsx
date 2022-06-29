@@ -47,6 +47,7 @@ import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
+import { ethers } from 'ethers';
 
 
 const VaultPosition = () => {
@@ -347,7 +348,7 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(_selectedVault?.accruedArt_, vaultBase?.digitFormat!)} ${
+                        value={`${ cleanValue( ethers.utils.formatUnits( _selectedVault?.accruedArt, _selectedVault?.decimals ), 10 )  } ${
                           vaultBase?.displaySymbol
                         }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
                         icon={<FiTrendingUp />}
