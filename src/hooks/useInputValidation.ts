@@ -58,7 +58,7 @@ export const useInputValidation = (
           /* set dust limit Error between 0 and dustLimit */
           limits[0] &&
             _inputAsFloat > parseFloat(limits[0].toString()) &&
-            setInputError('Remaining debt will be below dust levels');
+            setInputError('Remaining debt will be below the required minimum');
 
           /* token balance value */
           aboveMax && setInputError('Amount exceeds token balance');

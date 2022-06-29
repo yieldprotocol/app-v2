@@ -535,7 +535,7 @@ const ChainProvider = ({ children }: any) => {
             strategyAddresses.map(async (strategyAddr) => {
               /* if the strategy is NOT already in the cache : */
               if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
-                console.log('updating constracrt ', strategyAddr);
+                console.log('updating constract ', strategyAddr);
 
                 const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
                 const [name, symbol, baseId, decimals, version] = await Promise.all([
