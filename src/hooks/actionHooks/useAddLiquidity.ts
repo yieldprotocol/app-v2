@@ -88,7 +88,7 @@ export const useAddLiquidity = () => {
       _series.mu
     );
 
-    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
+    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance);
 
     const [_sharesToPool, sharesToFyToken] = splitLiquidity(
       cachedSharesReserves,
