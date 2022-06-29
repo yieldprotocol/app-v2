@@ -78,7 +78,7 @@ const TransactionError = () => {
                       ) : (
                         <Text size="xsmall" truncate>
                           {JSON.stringify(txState.txWillFailInfo.transaction.data)}
-                          { txState.txWillFailInfo.blocknum } 
+                          {txState.txWillFailInfo.blocknum}
                         </Text>
                       )}
                     </Box>
