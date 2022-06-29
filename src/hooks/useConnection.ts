@@ -139,7 +139,7 @@ export const useConnection = () => {
   /* handle chainId changes */
   useEffect(() => {
     fallbackChainId && setCurrentChainInfo(CHAIN_INFO.get(fallbackChainId));
-    if (fallbackChainId && lastChainId && fallbackChainId !== lastChainId) {
+    if (fallbackChainId && fallbackChainId !== lastChainId) {
       window.localStorage.clear();
       setLastChainId(fallbackChainId);
       // eslint-disable-next-line no-restricted-globals
