@@ -705,6 +705,13 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
   }, [account, chainLoading]); // updateVaults ignored here on purpose
 
+  /* explicitly update selected series on series map changes */
+  useEffect(() => {
+    if (userState.selectedSeries) {
+      updateState({ type: UserState.SELECTED_SERIES, payload: userState.seriesMap.get(userState.selectedSeries.id) });
+    }
+  }, [userState.selectedSeries, userState.seriesMap]);
+
   /* Exposed userActions */
   const userActions = {
     updateSeries,
@@ -733,7 +740,6 @@ const UserProvider = ({ children }: any) => {
       []
     ),
   };
-
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
 };
 

@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ActionType, ISeries, IUserContextState } from '../../types';
+import { ActionType, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { maxBaseIn, maxBaseOut, maxFyTokenIn, sellBase, sellFYToken } from '../../utils/yieldMath';
 import { useApr } from '../useApr';
@@ -16,7 +16,7 @@ export const useLendHelpers = (
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState }: { userState: IUserContextState } = useContext(UserContext);
+  const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedBase } = userState;
 
   /* clean to prevent underflow */
