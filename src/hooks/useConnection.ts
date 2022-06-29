@@ -28,7 +28,7 @@ export const useConnection = () => {
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
 
   /* CACHED VARIABLES */
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', null);
   const [connectionName, setConnectionName] = useCachedState('connectionName', '');
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
@@ -140,17 +140,7 @@ export const useConnection = () => {
   useEffect(() => {
     fallbackChainId && setCurrentChainInfo(CHAIN_INFO.get(fallbackChainId));
     if (fallbackChainId && lastChainId && fallbackChainId !== lastChainId) {
-      // localStorage.clear();
-      clearCachedItems([
-        'lastChainId',
-        'assets',
-        'series',
-        'lastAssetUpdate',
-        'lastSeriesUpdate',
-        'strategies',
-        'lastStrategiesUpdate',
-        'connectionName',
-      ]);
+      window.localStorage.clear();
       setLastChainId(fallbackChainId);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
@@ -244,15 +234,7 @@ const useInactiveListener = (suppress: boolean = false) => {
 
         const handleChainChanged = (chainId: string) => {
           console.log('CHAIN CHANGED in the background with payload: ', chainId);
-          // window.localStorage.clear();
-          clearCachedItems([
-            'assets',
-            'series',
-            'lastAssetUpdate',
-            'lastSeriesUpdate',
-            'strategies',
-            'lastStrategiesUpdate',
-          ]);
+          window.localStorage.clear();
           setLastChainId(parseInt(chainId, 16));
           // eslint-disable-next-line no-restricted-globals
           location.reload();
