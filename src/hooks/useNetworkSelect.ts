@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { CHAIN_INFO } from '../config/chainData';
 import { ChainContext } from '../contexts/ChainContext';
 import { IChainContext } from '../types';
+import { useCachedState } from './generalHooks';
 
 interface IAddEthereumChainParameter {
   chainId: string; // A 0x-prefixed hexadecimal string
@@ -40,6 +41,7 @@ export const useNetworkSelect = (chainId: number) => {
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: hexChainId }],
           });
+
         } catch (switchError: any) {
           // This error code indicates that the chain has not been added to MetaMask.
           if (switchError.code === 4902) {
@@ -57,6 +59,8 @@ export const useNetworkSelect = (chainId: number) => {
                   },
                 ],
               });
+
+
             } catch (addError) {
               console.log(addError);
             }
