@@ -1,8 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
-import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IStrategy, IUserContext, IVault } from '../../types';
-import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
   strategyTokenValue,
@@ -14,7 +11,11 @@ import {
   sellFYToken,
   secondsToFrom,
   newPoolState,
-} from '../../utils/yieldMath';
+} from '@yield-protocol/ui-math';
+
+import { UserContext } from '../../contexts/UserContext';
+import { IAsset, ISeries, ISettingsContext, IStrategy, IUserContext, IVault } from '../../types';
+import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 

@@ -1,5 +1,7 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -16,7 +18,6 @@ import {
   IAsset,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */

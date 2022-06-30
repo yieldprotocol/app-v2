@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -17,7 +19,7 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ONE_BN } from '../../utils/constants';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
+
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 

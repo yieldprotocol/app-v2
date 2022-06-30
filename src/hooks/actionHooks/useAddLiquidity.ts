@@ -1,5 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
+import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '@yield-protocol/ui-math';
+
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -21,7 +23,7 @@ import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 
-import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
+
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';

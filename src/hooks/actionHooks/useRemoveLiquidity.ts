@@ -1,5 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
+import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '@yield-protocol/ui-math';
+
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -18,7 +20,6 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '../../utils/yieldMath';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';

@@ -2,6 +2,18 @@ import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
+import {
+  calculateAPR,
+  divDecimal,
+  bytesToBytes32,
+  floorDecimal,
+  mulDecimal,
+  secondsToFrom,
+  sellFYToken,
+  calcAccruedDebt,
+  toBn,
+} from '@yield-protocol/ui-math';
+
 import Decimal from 'decimal.js';
 import {
   IAssetRoot,
@@ -20,17 +32,7 @@ import {
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
-import {
-  calculateAPR,
-  divDecimal,
-  bytesToBytes32,
-  floorDecimal,
-  mulDecimal,
-  secondsToFrom,
-  sellFYToken,
-  calcAccruedDebt,
-  toBn,
-} from '../utils/yieldMath';
+
 
 import { ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';

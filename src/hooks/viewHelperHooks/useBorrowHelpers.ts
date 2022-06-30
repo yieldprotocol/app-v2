@@ -1,19 +1,20 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { SettingsContext } from '../../contexts/SettingsContext';
-import { UserContext } from '../../contexts/UserContext';
-import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
-import { cleanValue } from '../../utils/appUtils';
-import { ZERO_BN } from '../../utils/constants';
-
 import {
   buyBase,
   calculateMinCollateral,
   decimalNToDecimal18,
   maxBaseIn,
   maxFyTokenIn,
-  sellFYToken,
-} from '../../utils/yieldMath';
+} from '@yield-protocol/ui-math';
+
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { UserContext } from '../../contexts/UserContext';
+import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
+import { cleanValue } from '../../utils/appUtils';
+import { ZERO_BN } from '../../utils/constants';
+
+
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -151,8 +152,7 @@ export const useBorrowHelpers = (
         assetPairInfo!.pairPrice,
         newDebt,
         assetPairInfo!.minRatio.toString(),
-        undefined,
-        true
+        undefined
       );
       diagnostics && console.log('min Collat of roll to series', _minCollat.toString());
 

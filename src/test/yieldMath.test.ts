@@ -1,26 +1,25 @@
+import {
+  toBn,
+  _getC,
+  sellBase,
+  buyBase,
+  buyFYToken,
+  sellFYToken,
+  SECONDS_PER_YEAR,
+  maxFyTokenOut,
+  maxFyTokenIn,
+  maxBaseIn,
+  maxBaseOut,
+  g1_DEFAULT,
+  g2_DEFAULT,
+  k
+} from '@yield-protocol/ui-math';
+
 import chai, { expect } from 'chai';
 import { Decimal } from 'decimal.js';
 import { solidity } from 'ethereum-waffle';
-import { BigNumber, ethers, utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import {
-  buyBase,
-  buyFYToken,
-  sellBase,
-  sellFYToken,
-  g1_default,
-  k,
-  toBn,
-  maxBaseIn,
-  maxFyTokenIn,
-  maxBaseOut,
-  SECONDS_PER_YEAR,
-  calculateAPR,
-  floorDecimal,
-  g2_default,
-  _getC,
-  maxFyTokenOut,
-} from '../utils/yieldMath';
 
 chai.use(solidity);
 const { parseUnits } = utils;
@@ -34,8 +33,8 @@ const calcPrice = (shares: BigNumber, fyToken: BigNumber, c: BigNumber | string,
   );
 
 describe('Shares YieldMath', () => {
-  let g1 = toBn(g1_default);
-  let g2 = toBn(g2_default);
+  let g1 = toBn(g1_DEFAULT);
+  let g2 = toBn(g2_DEFAULT);
   let ts = toBn(k);
 
   let sharesReserves: BigNumber;
