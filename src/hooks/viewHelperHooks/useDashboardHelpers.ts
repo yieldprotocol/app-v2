@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
+
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
@@ -15,7 +17,6 @@ import {
 import { cleanValue } from '../../utils/appUtils';
 import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
-import { sellFYToken, strategyTokenValue } from '../../utils/yieldMath';
 import { PriceContext } from '../../contexts/PriceContext';
 
 interface ILendPosition extends ISeries {

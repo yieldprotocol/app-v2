@@ -15,12 +15,14 @@ import {
   ISettingsContext,
 } from '../types';
 
+import { calculateAPR, bytesToBytes32 } from '@yield-protocol/ui-math';
+
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
-import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
+
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
 import { LiquidityEvent, TradeEvent } from '../contracts/Pool';

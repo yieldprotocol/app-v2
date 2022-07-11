@@ -4,6 +4,9 @@ import { FiChevronDown } from 'react-icons/fi';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
+
+import { maxBaseIn } from '@yield-protocol/ui-math';
+
 import {
   ActionType,
   ISeries,
@@ -13,7 +16,6 @@ import {
   IUserContextState,
 } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';

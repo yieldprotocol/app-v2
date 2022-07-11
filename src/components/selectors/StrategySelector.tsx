@@ -4,10 +4,11 @@ import { Avatar, Box, Layer, ResponsiveContext, Text } from 'grommet';
 import { toast } from 'react-toastify';
 import { FiSlash, FiX } from 'react-icons/fi';
 
+import { getPoolPercent } from '@yield-protocol/ui-math';
+
 import styled from 'styled-components';
 import { IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { getPoolPercent } from '../../utils/yieldMath';
 import { cleanValue, formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';

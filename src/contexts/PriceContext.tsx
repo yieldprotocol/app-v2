@@ -1,10 +1,12 @@
 import React, { useCallback, useContext, useReducer } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
+import { bytesToBytes32, decimal18ToDecimalN } from '@yield-protocol/ui-math';
+
 import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
 
 import { ChainContext } from './ChainContext';
-import { bytesToBytes32, decimal18ToDecimalN } from '../utils/yieldMath';
+
 
 import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';

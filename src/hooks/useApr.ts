@@ -1,10 +1,12 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { sellBase, buyBase, calculateAPR } from '@yield-protocol/ui-math';
+
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries, IUserContext, IUserContextState } from '../types';
 import { cleanValue } from '../utils/appUtils';
-import { sellBase, buyBase, calculateAPR } from '../utils/yieldMath';
+
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
