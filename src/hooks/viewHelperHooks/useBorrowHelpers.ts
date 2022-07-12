@@ -1,27 +1,12 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import {
-  buyBase,
-  calculateMinCollateral,
-  decimalNToDecimal18,
-  maxBaseIn,
-  maxFyTokenIn,
-} from '@yield-protocol/ui-math';
+import { buyBase, calculateMinCollateral, decimalNToDecimal18, maxBaseIn, maxFyTokenIn } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
-
-import {
-  buyBase,
-  calculateMinCollateral,
-  decimalNToDecimal18,
-  maxBaseIn,
-  maxFyTokenIn,
-  buyFYToken,
-} from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -53,7 +38,7 @@ export const useBorrowHelpers = (
 
   const [debtInBase, setDebtInBase] = useState<BigNumber>(ethers.constants.Zero);
   const [debtInBase_, setDebtInBase_] = useState<string | undefined>();
-  
+
   const [minDebt, setMinDebt] = useState<BigNumber>();
   const [minDebt_, setMinDebt_] = useState<string | undefined>();
 
