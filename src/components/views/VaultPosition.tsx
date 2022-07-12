@@ -166,6 +166,7 @@ const VaultPosition = () => {
     rollPossible,
     debtAfterRepay,
     debtInBase,
+    debtInBase_,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
@@ -485,7 +486,7 @@ const VaultPosition = () => {
                               </Text>
                             ) : (
                               <Text color="text" alignSelf="end" size="xsmall">
-                                Max debt repayable ({_selectedVault?.accruedArt_!} {vaultBase?.displaySymbol!})
+                                Max debt repayable ({debtInBase_} {vaultBase?.displaySymbol!})
                               </Text>
                             )}
                           </InputInfoWrap>
