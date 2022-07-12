@@ -206,26 +206,6 @@ export const useBorrowHelpers = (
         _maxToDust && setMinRepayable(_maxToDust);
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
-        const _maxSharesIn = maxBaseIn(
-          vaultSeries?.sharesReserves,
-          vaultSeries?.fyTokenReserves,
-          vaultSeries?.getTimeTillMaturity(),
-          vaultSeries?.ts,
-          vaultSeries?.g1,
-          vaultSeries?.decimals,
-          vaultSeries?.c,
-          vaultSeries?.mu
-        );
-
-        /* if maxBasein is less than debt, and set protocol Limited flag */
-        if (_maxBaseIn.lt(vault.accruedArt) && !vaultSeries.seriesIsMature) {
-          console.log('MaxbaseIn: ', _maxBaseIn.toString());
-          console.log('AccruedArt: ', vault.accruedArt.toString());
-          setProtocolLimited(false);
-        } else {
-          setProtocolLimited(false);
-        }
-
         /* if the series is mature re-set max as all debt (if balance allows) */
         if (vaultSeries.seriesIsMature) {
           const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
