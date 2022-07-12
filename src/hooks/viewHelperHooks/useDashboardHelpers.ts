@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
+
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
@@ -15,7 +17,6 @@ import {
 import { cleanValue } from '../../utils/appUtils';
 import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
-import { sellFYToken, strategyTokenValue } from '../../utils/yieldMath';
 import { PriceContext } from '../../contexts/PriceContext';
 
 interface ILendPosition extends ISeries {
@@ -69,18 +70,20 @@ export const useDashboardHelpers = () => {
     const _lendPositions: ILendPosition[] = Array.from(seriesMap.values())
       .map((_series) => {
         const currentValue = sellFYToken(
-          _series.baseReserves,
+          _series.sharesReserves,
           _series.fyTokenReserves,
           _series.fyTokenBalance || ethers.constants.Zero,
           _series.getTimeTillMaturity(),
-          _series.ts!,
-          _series.g2!,
-          _series.decimals!
+          _series.ts,
+          _series.g2,
+          _series.decimals,
+          _series.c,
+          _series.mu
         );
         const currentValue_ =
           currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
             ? _series.fyTokenBalance_
-            : ethers.utils.formatUnits(currentValue, _series.decimals!);
+            : ethers.utils.formatUnits(currentValue, _series.decimals);
         return { ..._series, currentValue_ };
       })
       .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
@@ -99,12 +102,12 @@ export const useDashboardHelpers = () => {
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,
           _strategy?.strategyPoolBalance || ethers.constants.Zero,
-          currentStrategySeries?.baseReserves!,
+          currentStrategySeries?.sharesReserves!,
           currentStrategySeries?.fyTokenRealReserves!,
           currentStrategySeries?.totalSupply!,
           currentStrategySeries?.getTimeTillMaturity()!,
           currentStrategySeries?.ts!,
-          currentStrategySeries?.g2!,
+          currentStrategySeries?.g1!,
           currentStrategySeries?.decimals!
         );
         const currentValue_ = currentValue.eq(ethers.constants.Zero)

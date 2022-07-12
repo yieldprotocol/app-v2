@@ -46,6 +46,7 @@ const initState: IChainContextState = {
     account: null as string | null,
 
     connectionName: null as string | null,
+    useTenderlyFork: false as boolean,
   },
 
   /* flags */
@@ -115,7 +116,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
-  const { chainId, fallbackProvider, fallbackChainId } = connectionState;
+  const { chainId, fallbackProvider, fallbackChainId, useTenderlyFork } = connectionState;
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -307,10 +308,18 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-          Ladle.queryFilter('JoinAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-        ]);
+
+        let assetAddedEvents = [];
+        let joinAddedEvents = [];
+
+        try {
+          [assetAddedEvents, joinAddedEvents] = await Promise.all([
+            Cauldron.queryFilter('AssetAdded' as ethers.EventFilter),
+            Ladle.queryFilter('JoinAdded' as ethers.EventFilter),
+          ]);
+        } catch (e) {
+          console.log('🦄 ~ file: ChainContext.tsx ~ line 295 ~ const_getAssets= ~ e', e);
+        }
 
         /* Create a map from the joinAdded event data or hardcoded join data if available */
         const joinMap = new Map(joinAddedEvents.map((e: JoinAddedEvent) => e.args)); // event values);
@@ -409,7 +418,7 @@ const ChainProvider = ({ children }: any) => {
         fyTokenAddress: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
+        const poolContract = getPoolContract(series.poolAddress, series.maturity);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
 
         const season = getSeason(series.maturity);
@@ -446,10 +455,16 @@ const ChainProvider = ({ children }: any) => {
 
       const _getSeries = async () => {
         /* get poolAdded events and series events at the same time */
-        const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, lastSeriesUpdate),
-          Ladle.queryFilter('PoolAdded' as ethers.EventFilter, lastSeriesUpdate),
-        ]);
+        let seriesAddedEvents = [];
+        let poolAddedEvents = [];
+        try {
+          [seriesAddedEvents, poolAddedEvents] = await Promise.all([
+            Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, useTenderlyFork ? null : lastSeriesUpdate),
+            Ladle.queryFilter('PoolAdded' as ethers.EventFilter, useTenderlyFork ? null : lastSeriesUpdate),
+          ]);
+        } catch (error) {
+          console.log('🦄 ~ file: ChainContext.tsx ~ line 451 ~ const_getSeries= ~ error', error);
+        }
 
         /* Create a map from the poolAdded event data or hardcoded pool data if available */
         const poolMap = new Map(poolAddedEvents.map((e: PoolAddedEvent) => e.args)); // event values);
@@ -460,57 +475,53 @@ const ChainProvider = ({ children }: any) => {
         const newSeriesList: any[] = [];
 
         /* Add in any extra static series */
-        try {
-          await Promise.all(
-            seriesAdded.map(async (x): Promise<void> => {
-              const { seriesId: id, baseId, fyToken } = x;
-              const { maturity } = await Cauldron.series(id);
+        await Promise.all(
+          seriesAdded.map(async (x): Promise<void> => {
+            const { seriesId: id, baseId, fyToken } = x;
+            const { maturity } = await Cauldron.series(id);
 
-              if (poolMap.has(id)) {
-                // only add series if it has a pool
-                const poolAddress = poolMap.get(id);
-                const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-                const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
-                  await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    poolContract.ts(),
-                    poolContract.g1(),
-                    poolContract.g2(),
-                    // poolContract.decimals(),
-                  ]);
-                const newSeries = {
-                  id,
-                  baseId,
-                  maturity,
-                  name,
-                  symbol,
-                  version,
-                  address: fyToken,
-                  fyTokenAddress: fyToken,
-                  decimals,
-                  poolAddress,
-                  poolVersion,
-                  poolName,
-                  poolSymbol,
-                  ts,
-                  g1,
-                  g2,
-                };
-                updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-                newSeriesList.push(newSeries);
-              }
-            })
-          );
-        } catch (e) {
-          console.log('Error fetching series data: ', e);
-        }
+            if (poolMap.has(id)) {
+              // only add series if it has a pool
+              const poolAddress = poolMap.get(id);
+              const poolContract = getPoolContract(poolAddress, maturity);
+              const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
+              const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
+                await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  fyTokenContract.decimals(),
+                  poolContract.name(),
+                  poolContract.version(),
+                  poolContract.symbol(),
+                  poolContract.ts(),
+                  poolContract.g1(),
+                  poolContract.g2(),
+                ]);
+
+              const newSeries = {
+                id,
+                baseId,
+                maturity,
+                name,
+                symbol,
+                version,
+                address: fyToken,
+                fyTokenAddress: fyToken,
+                decimals,
+                poolAddress,
+                poolVersion,
+                poolName,
+                poolSymbol,
+                ts,
+                g1,
+                g2,
+              };
+              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+              newSeriesList.push(newSeries);
+            }
+          })
+        );
         setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
 
@@ -645,6 +656,7 @@ const ChainProvider = ({ children }: any) => {
     connectionState.active,
     connectionState.connectionName,
     connectionState.currentChainInfo,
+    connectionState.useTenderlyFork,
   ]);
 
   const exportContractAddresses = () => {
@@ -662,8 +674,9 @@ const ChainProvider = ({ children }: any) => {
       joins: joinList,
     });
 
-    var dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(res);
-    var downloadAnchorNode = document.createElement('a');
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(res)}`;
+    const downloadAnchorNode = document.createElement('a');
+
     downloadAnchorNode.setAttribute('href', dataStr);
     downloadAnchorNode.setAttribute('download', 'contracts' + '.json');
     document.body.appendChild(downloadAnchorNode); // required for firefox
@@ -672,6 +685,13 @@ const ChainProvider = ({ children }: any) => {
 
     console.log(res);
   };
+
+  /* Assess which pool contract to use: new (with tv) or old (without tv) */
+  const getPoolContract = (poolAddress: string, maturity: number) =>
+    (maturity === 1672412400 ? contracts.Pool__factory : contracts.PoolOld__factory).connect(
+      poolAddress,
+      fallbackProvider
+    );
 
   /* simply Pass on the connection actions */
   const chainActions = { ...connectionActions, exportContractAddresses };

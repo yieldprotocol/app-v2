@@ -28,6 +28,7 @@ export interface IConnectionState {
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
   connectionName: string | null;
+  useTenderlyFork: boolean;
 }
 
 export interface IHistoryList {
@@ -45,8 +46,9 @@ export interface IChainContextActions {
   connect: (connection: string) => void;
   disconnect: () => void;
   isConnected: (connection: string) => void;
+  useTenderly: (shouldUse: boolean) => void;
 
-  exportContractAddresses: ()=> void;
+  exportContractAddresses: () => void;
 }
 
 export interface IPriceContextState {
@@ -120,6 +122,9 @@ export interface ISettingsContextState {
   /* Token wrapping */
   showWrappedTokens: boolean;
   unwrapTokens: boolean;
+
+  useTenderlyFork: boolean;
+
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
@@ -266,8 +271,8 @@ export interface IVaultRoot {
 
 export interface ISeries extends ISeriesRoot {
   apr: string;
-  baseReserves: BigNumber;
-  baseReserves_: string;
+  sharesReserves: BigNumber;
+  sharesReserves_: string;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
@@ -280,6 +285,12 @@ export interface ISeries extends ISeriesRoot {
 
   poolPercent?: string | undefined;
   seriesIsMature: boolean;
+
+  // Yieldspace TV
+  c: BigNumber | undefined;
+  mu: BigNumber | undefined;
+  getShares: (baseAmount: BigNumber) => BigNumber;
+  getBase: (sharesAmount: BigNumber) => BigNumber;
 }
 
 export interface IAsset extends IAssetRoot {

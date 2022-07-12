@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -16,7 +18,6 @@ import {
   IAsset,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 
 /* Lend Actions Hook */
@@ -53,13 +54,15 @@ export const useRollPosition = () => {
     const _fyTokenValueOfInput = fromSeries.seriesIsMature
       ? _input
       : buyBase(
-          fromSeries.baseReserves,
+          fromSeries.sharesReserves,
           fromSeries.fyTokenReserves,
-          _input,
+          fromSeries.getShares(_input),
           fromSeries.getTimeTillMaturity(),
           fromSeries.ts,
           fromSeries.g2,
-          fromSeries.decimals
+          fromSeries.decimals,
+          fromSeries.c,
+          fromSeries.mu
         );
 
     console.log(_fyTokenValueOfInput.toString());

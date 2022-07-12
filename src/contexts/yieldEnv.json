@@ -11,10 +11,10 @@
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
       "NotionalMultiOracle": "0x660bB2F1De01AacA46FCD8004e852234Cf65F3fb",
       "AccumulatorMultiOracle": "0x95750d6F5fba4ed1cc4Dc42D2c01dFD3DB9a11eC",
-      
+
       "transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
       "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA",
-      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6"    
+      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6"
     },
 
     "5": {
@@ -25,7 +25,7 @@
       "CompoundMultiOracle": "0xC6EDBfFb3e998abB792BB7A03160Af9171927287",
       "ChainlinkMultiOracle": "0xaF9E20f4b75dd7bdBFb792AA1918558fCEDbcb68",
       "CompositeMultiOracle": "0x3Ee221CD96BEaf3aD6EaB8AF4c05C5BEEbd902ed",
-      "YearnVaultMultiOracle": "0x691dB8F78413C0D2623FCA3dd71029EbC08a1603", 
+      "YearnVaultMultiOracle": "0x691dB8F78413C0D2623FCA3dd71029EbC08a1603",
       "NotionalMultiOracle": "0x5F5F54757Dd8c04E28F092EDb8013B51F33F4e8F",
       "AccumulatorMultiOracle": "0x95750d6F5fba4ed1cc4Dc42D2c01dFD3DB9a11eC",
 
@@ -34,7 +34,6 @@
 
       "WrapEtherModule": "0x6af513D4C6F5313a1499f6d001b9B6e2E39F9F68",
 
-     
       "ConvexLadleModule": "0x2d45a0925B3B4ac14641A63C2085574AC4E58fD8"
     },
 
@@ -42,7 +41,7 @@
       "Cauldron": "0x64BA0F1D2E5479BF132936328e8c533c95646fE8",
       "Ladle": "0xC5A62972418195031F931944f9C156d563De1fb4",
       "ChainlinkUSDOracle": "0xb952fF816F0F1065D9A653D21bD4d8Ce96AE7b20",
-      "AccumulatorMultiOracle":  "0xbBB7870227750119ab1f230c8785Be8C4e0C5f1A",
+      "AccumulatorMultiOracle": "0xbBB7870227750119ab1f230c8785Be8C4e0C5f1A",
       "AccumulatorOracle": "0xbBB7870227750119ab1f230c8785Be8C4e0C5f1A",
       "Witch": "0xf8eD39321927F5fae30EC33311F1fe596078ccbD",
       "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"

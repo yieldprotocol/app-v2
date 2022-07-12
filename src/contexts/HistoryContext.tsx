@@ -15,12 +15,14 @@ import {
   ISettingsContext,
 } from '../types';
 
+import { calculateAPR, bytesToBytes32 } from '@yield-protocol/ui-math';
+
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
-import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
+
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
 import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
@@ -188,7 +190,7 @@ const HistoryProvider = ({ children }: any) => {
           const liqLogs = await Promise.all(
             eventList.map(async (e: LiquidityEvent) => {
               const { blockNumber, transactionHash } = e;
-              const { maturity, bases, fyTokens, poolTokens } = e.args;
+              const { maturity, base: bases, fyTokens, poolTokens } = e.args;
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
 
@@ -242,7 +244,7 @@ const HistoryProvider = ({ children }: any) => {
               .filter((e: TradeEvent) => e.args.from !== contractMap.get('Ladle').address) // TODO make this for any ladle (Past/future)
               .map(async (e: TradeEvent) => {
                 const { blockNumber, transactionHash } = e;
-                const { maturity, bases, fyTokens } = e.args;
+                const { maturity, base: bases, fyTokens } = e.args;
                 const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
                 const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
                 const tradeApr = calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);

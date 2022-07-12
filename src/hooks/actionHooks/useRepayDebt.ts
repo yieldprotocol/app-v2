@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '@yield-protocol/ui-math';
+
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -15,7 +17,6 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -23,7 +24,6 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
-
 
 export const useRepayDebt = () => {
   const {
@@ -41,7 +41,7 @@ export const useRepayDebt = () => {
     chainState: {
       contractMap,
       connection: { chainId },
-      provider
+      provider,
     },
   } = useContext(ChainContext);
 
@@ -74,28 +74,32 @@ export const useRepayDebt = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const _maxBaseIn = maxBaseIn(
-      series.baseReserves,
+    const _maxSharesIn = maxBaseIn(
+      series.sharesReserves,
       series.fyTokenReserves,
       series.getTimeTillMaturity(),
       series.ts,
       series.g1,
-      series.decimals
+      series.decimals,
+      series.c,
+      series.mu
     );
 
     /* Check the max amount of the trade that the pool can handle */
-    const tradeIsNotPossible = _input.gt(_maxBaseIn);
+    const tradeIsNotPossible = series.getShares(_input).gt(_maxSharesIn);
 
     const _inputAsFyToken = series.seriesIsMature
       ? _input
       : sellBase(
-          series.baseReserves,
+          series.sharesReserves,
           series.fyTokenReserves,
-          _input,
+          series.getShares(_input),
           secondsToFrom(series.maturity.toString()),
           series.ts,
           series.g1,
-          series.decimals
+          series.decimals,
+          series.c,
+          series.mu
         );
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
@@ -119,7 +123,7 @@ export const useRepayDebt = () => {
     /* In low liq situations/or mature,  send repay funds to join not pool */
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
-    /* Check if already apporved */
+    /* Check if already approved */
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer);
 
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);

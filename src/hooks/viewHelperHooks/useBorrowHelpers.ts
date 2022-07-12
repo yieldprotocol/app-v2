@@ -1,5 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import {
+  buyBase,
+  calculateMinCollateral,
+  decimalNToDecimal18,
+  maxBaseIn,
+  maxFyTokenIn,
+} from '@yield-protocol/ui-math';
+
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
@@ -84,9 +92,9 @@ export const useBorrowHelpers = (
     if (input && selectedSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, selectedSeries.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries.decimals);
-      input_.lte(selectedSeries.baseReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
+      input_.lte(selectedSeries.sharesReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
-  }, [input, selectedSeries, selectedSeries?.baseReserves]);
+  }, [input, selectedSeries, selectedSeries?.sharesReserves]);
 
   /* check the new debt level after potential repaying */
   useEffect(() => {
@@ -106,13 +114,15 @@ export const useBorrowHelpers = (
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
 
       const estimate = buyBase(
-        futureSeries.baseReserves,
+        futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
-        input_,
+        futureSeries.getShares(input_),
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
-        futureSeries.g1,
-        futureSeries.decimals
+        futureSeries.g2,
+        futureSeries.decimals,
+        futureSeries.c,
+        futureSeries.mu
       );
       const estimatePlusVaultUsed = vault?.accruedArt?.gt(ethers.constants.Zero)
         ? estimate.add(vault.accruedArt)
@@ -126,30 +136,33 @@ export const useBorrowHelpers = (
   useEffect(() => {
     if (futureSeries && vault && vault.accruedArt) {
       const _maxFyTokenIn = maxFyTokenIn(
-        futureSeries.baseReserves,
+        futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
         futureSeries.g2,
-        futureSeries.decimals
+        futureSeries.decimals,
+        futureSeries.c,
+        futureSeries.mu
       );
 
       const newDebt = buyBase(
-        futureSeries.baseReserves,
+        futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
-        vault.accruedArt,
+        futureSeries.getShares(vault.accruedArt),
         futureSeries.getTimeTillMaturity(),
         futureSeries.ts,
         futureSeries.g2,
-        futureSeries.decimals
+        futureSeries.decimals,
+        futureSeries.c,
+        futureSeries.mu
       );
 
       const _minCollat = calculateMinCollateral(
         assetPairInfo!.pairPrice,
         newDebt,
         assetPairInfo!.minRatio.toString(),
-        undefined,
-        true
+        undefined
       );
       diagnostics && console.log('min Collat of roll to series', _minCollat.toString());
 
@@ -182,7 +195,6 @@ export const useBorrowHelpers = (
   useEffect(() => {
     if (activeAccount && vault && vaultBase && minDebt) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
-
       (async () => {
         const _userBalance = await vaultBase.getBalance(activeAccount);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
@@ -209,25 +221,27 @@ export const useBorrowHelpers = (
         _maxToDust && setMinRepayable(_maxToDust);
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
-        const _maxBaseIn = maxBaseIn(
-          vaultSeries?.baseReserves,
+        const _maxSharesIn = maxBaseIn(
+          vaultSeries?.sharesReserves,
           vaultSeries?.fyTokenReserves,
           vaultSeries?.getTimeTillMaturity(),
           vaultSeries?.ts,
           vaultSeries?.g1,
-          vaultSeries?.decimals
+          vaultSeries?.decimals,
+          vaultSeries?.c,
+          vaultSeries?.mu
         );
 
         /* if maxBasein is less than debt, and set protocol Limited flag */
         if (_maxBaseIn.lt(vault.accruedArt) && !vaultSeries.seriesIsMature) {
           console.log('MaxbaseIn: ', _maxBaseIn.toString());
           console.log('AccruedArt: ', vault.accruedArt.toString());
-          setProtocolLimited(true);
+          setProtocolLimited(false);
         } else {
           setProtocolLimited(false);
         }
 
-        /* if the series is mature re-set max as all debt ( if balance allows) */
+        /* if the series is mature re-set max as all debt (if balance allows) */
         if (vaultSeries.seriesIsMature) {
           const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
           setMaxRepay(_accruedArt);

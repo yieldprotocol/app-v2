@@ -4,219 +4,13 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type { Pool, PoolInterface } from "../Pool";
+import type { PoolOld, PoolOldInterface } from "../PoolOld";
 
 const _abi = [
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "sharesToken_",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "fyToken_",
-        type: "address",
-      },
-      {
-        internalType: "int128",
-        name: "ts_",
-        type: "int128",
-      },
-      {
-        internalType: "uint16",
-        name: "g1Fee_",
-        type: "uint16",
-      },
-    ],
+    inputs: [],
     stateMutability: "nonpayable",
     type: "constructor",
-  },
-  {
-    inputs: [],
-    name: "AfterMaturity",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "Initialized",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "newFYTokenBalance",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "newBaseBalance",
-        type: "uint128",
-      },
-    ],
-    name: "InsufficientFYTokenBalance",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint16",
-        name: "proposedFee",
-        type: "uint16",
-      },
-    ],
-    name: "InvalidFee",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "MaturityOverflow",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "baseAvailable",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "baseNeeded",
-        type: "uint256",
-      },
-    ],
-    name: "NotEnoughBaseIn",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "fYTokensAvailable",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "fYTokensNeeded",
-        type: "uint256",
-      },
-    ],
-    name: "NotEnoughFYTokenIn",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "NotInitialized",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "newRatio",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "minRatio",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maxRatio",
-        type: "uint256",
-      },
-    ],
-    name: "SlippageDuringBurn",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "fyTokenIn",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "max",
-        type: "uint128",
-      },
-    ],
-    name: "SlippageDuringBuyBase",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "baseIn",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "max",
-        type: "uint128",
-      },
-    ],
-    name: "SlippageDuringBuyFYToken",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "newRatio",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "minRatio",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maxRatio",
-        type: "uint256",
-      },
-    ],
-    name: "SlippageDuringMint",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "fyTokenOut",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "min",
-        type: "uint128",
-      },
-    ],
-    name: "SlippageDuringSellBase",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "baseOut",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "min",
-        type: "uint128",
-      },
-    ],
-    name: "SlippageDuringSellFYToken",
-    type: "error",
   },
   {
     anonymous: false,
@@ -241,19 +35,6 @@ const _abi = [
       },
     ],
     name: "Approval",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint16",
-        name: "g1Fee",
-        type: "uint16",
-      },
-    ],
-    name: "FeesSet",
     type: "event",
   },
   {
@@ -286,7 +67,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "int256",
-        name: "base",
+        name: "bases",
         type: "int256",
       },
       {
@@ -303,75 +84,6 @@ const _abi = [
       },
     ],
     name: "Liquidity",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-      {
-        indexed: true,
-        internalType: "bytes4",
-        name: "newAdminRole",
-        type: "bytes4",
-      },
-    ],
-    name: "RoleAdminChanged",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "RoleGranted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "RoleRevoked",
     type: "event",
   },
   {
@@ -423,7 +135,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "int256",
-        name: "base",
+        name: "bases",
         type: "int256",
       },
       {
@@ -462,18 +174,6 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [],
-    name: "gg",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [],
-    name: "gm",
-    type: "event",
-  },
-  {
     inputs: [],
     name: "DOMAIN_SEPARATOR",
     outputs: [
@@ -488,64 +188,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "LOCK",
-    outputs: [
-      {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "LOCK8605463013",
-    outputs: [
-      {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "PERMIT_TYPEHASH",
     outputs: [
       {
         internalType: "bytes32",
         name: "",
         type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "ROOT",
-    outputs: [
-      {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "ROOT4146650865",
-    outputs: [
-      {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
       },
     ],
     stateMutability: "view",
@@ -632,19 +280,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "baseToken",
-    outputs: [
-      {
-        internalType: "contract IERC20Metadata",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -671,17 +306,17 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "lpTokensBurned",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "baseOut",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "fyTokenOut",
+        name: "",
         type: "uint256",
       },
     ],
@@ -710,7 +345,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "lpTokensBurned",
+        name: "tokensBurned",
         type: "uint256",
       },
       {
@@ -731,7 +366,7 @@ const _abi = [
       },
       {
         internalType: "uint128",
-        name: "baseOut",
+        name: "tokenOut",
         type: "uint128",
       },
       {
@@ -744,7 +379,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint128",
-        name: "fyTokenIn",
+        name: "",
         type: "uint128",
       },
     ],
@@ -755,7 +390,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint128",
-        name: "baseOut",
+        name: "tokenOut",
         type: "uint128",
       },
     ],
@@ -763,7 +398,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint128",
-        name: "fyTokenIn",
+        name: "",
         type: "uint128",
       },
     ],
@@ -792,7 +427,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint128",
-        name: "baseIn",
+        name: "",
         type: "uint128",
       },
     ],
@@ -811,7 +446,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint128",
-        name: "baseIn",
+        name: "",
         type: "uint128",
       },
     ],
@@ -820,29 +455,11 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "cumulativeRatioLast",
+    name: "cumulativeBalancesRatio",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "currentCumulativeRatio",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "currentCumulativeRatio_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "blockTimestampCurrent",
         type: "uint256",
       },
     ],
@@ -903,19 +520,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "g1Fee",
-    outputs: [
-      {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "g2",
     outputs: [
       {
@@ -932,22 +536,9 @@ const _abi = [
     name: "getBaseBalance",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "uint112",
         name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getC",
-    outputs: [
-      {
-        internalType: "int128",
-        name: "",
-        type: "int128",
+        type: "uint112",
       },
     ],
     stateMutability: "view",
@@ -958,19 +549,14 @@ const _abi = [
     name: "getCache",
     outputs: [
       {
-        internalType: "uint104",
+        internalType: "uint112",
         name: "",
-        type: "uint104",
+        type: "uint112",
       },
       {
-        internalType: "uint104",
+        internalType: "uint112",
         name: "",
-        type: "uint104",
-      },
-      {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
+        type: "uint112",
       },
       {
         internalType: "uint32",
@@ -983,177 +569,15 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getCurrentSharePrice",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "getFYTokenBalance",
     outputs: [
       {
-        internalType: "uint128",
+        internalType: "uint112",
         name: "",
-        type: "uint128",
+        type: "uint112",
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-    ],
-    name: "getRoleAdmin",
-    outputs: [
-      {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getSharesBalance",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "grantRole",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4[]",
-        name: "roles",
-        type: "bytes4[]",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "grantRoles",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "hasRole",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "remainder",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "minRatio",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maxRatio",
-        type: "uint256",
-      },
-    ],
-    name: "init",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "baseIn",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "fyTokenIn",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lpTokensMinted",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-    ],
-    name: "lockRole",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1196,17 +620,17 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "baseIn",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "fyTokenIn",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "lpTokensMinted",
+        name: "",
         type: "uint256",
       },
     ],
@@ -1245,34 +669,21 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "baseIn",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "fyTokenIn",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "lpTokensMinted",
+        name: "",
         type: "uint256",
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "mu",
-    outputs: [
-      {
-        internalType: "int128",
-        name: "",
-        type: "int128",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -1353,24 +764,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "renounceRole",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "to",
         type: "address",
@@ -1407,42 +800,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "revokeRole",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4[]",
-        name: "roles",
-        type: "bytes4[]",
-      },
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "revokeRoles",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "scaleFactor",
     outputs: [
@@ -1472,7 +829,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint128",
-        name: "fyTokenOut",
+        name: "",
         type: "uint128",
       },
     ],
@@ -1491,7 +848,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint128",
-        name: "fyTokenOut",
+        name: "",
         type: "uint128",
       },
     ],
@@ -1515,7 +872,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint128",
-        name: "baseOut",
+        name: "",
         type: "uint128",
       },
     ],
@@ -1542,50 +899,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint16",
-        name: "g1Fee_",
-        type: "uint16",
-      },
-    ],
-    name: "setFees",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4",
-        name: "role",
-        type: "bytes4",
-      },
-      {
-        internalType: "bytes4",
-        name: "adminRole",
-        type: "bytes4",
-      },
-    ],
-    name: "setRoleAdmin",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "sharesToken",
-    outputs: [
-      {
-        internalType: "contract IERC20Metadata",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "symbol",
     outputs: [
@@ -1596,6 +909,13 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "sync",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1678,44 +998,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "receiver",
-        type: "address",
-      },
-    ],
-    name: "unwrap",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "assets",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "shares",
-        type: "uint256",
-      },
-    ],
-    name: "unwrapPreview",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "assets",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "version",
     outputs: [
@@ -1728,52 +1010,17 @@ const _abi = [
     stateMutability: "pure",
     type: "function",
   },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "receiver",
-        type: "address",
-      },
-    ],
-    name: "wrap",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "shares",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "assets",
-        type: "uint256",
-      },
-    ],
-    name: "wrapPreview",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "shares",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
 ];
 
-export class Pool__factory {
+export class PoolOld__factory {
   static readonly abi = _abi;
-  static createInterface(): PoolInterface {
-    return new utils.Interface(_abi) as PoolInterface;
+  static createInterface(): PoolOldInterface {
+    return new utils.Interface(_abi) as PoolOldInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): Pool {
-    return new Contract(address, _abi, signerOrProvider) as Pool;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): PoolOld {
+    return new Contract(address, _abi, signerOrProvider) as PoolOld;
   }
 }

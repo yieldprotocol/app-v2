@@ -4,6 +4,9 @@ import { FiChevronDown } from 'react-icons/fi';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
+
+import { maxBaseIn } from '@yield-protocol/ui-math';
+
 import {
   ActionType,
   ISeries,
@@ -13,7 +16,6 @@ import {
   IUserContextState,
 } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -82,22 +84,35 @@ const AprText = ({
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
-  const baseIn = maxBaseIn(
-    series.baseReserves,
+  const sharesIn = maxBaseIn(
+    series.sharesReserves,
     series.fyTokenReserves,
     series.getTimeTillMaturity(),
     series.ts,
     series.g1,
-    series.decimals
+    series.decimals,
+    series.c,
+    series.mu
   );
   // diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
       actionType === ActionType.LEND
-        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)) // lending max
-        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
-  }, [_inputValue, actionType, baseIn, series.baseReserves, series?.decimals, series?.seriesIsMature, setLimitHit]);
+        ? setLimitHit(series.getShares(ethers.utils.parseUnits(_inputValue, series.decimals)).gt(sharesIn)) // lending max
+        : setLimitHit(
+            series.getShares(ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(series.sharesReserves)
+          ); // borrow max
+  }, [
+    _inputValue,
+    actionType,
+    sharesIn,
+    series.sharesReserves,
+    series.decimals,
+    series?.seriesIsMature,
+    setLimitHit,
+    series,
+  ]);
 
   return (
     <>

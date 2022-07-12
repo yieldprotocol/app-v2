@@ -1,5 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
+import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '@yield-protocol/ui-math';
+
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -18,7 +20,6 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '../../utils/yieldMath';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
@@ -75,7 +76,8 @@ export const useRemoveLiquidity = () => {
     input: string,
     series: ISeries,
     matchingVault: IVault | undefined,
-    tradeFyToken: boolean = true
+    tradeFyToken: boolean = true,
+    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
@@ -85,36 +87,37 @@ export const useRemoveLiquidity = () => {
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
     const ladleAddress = contractMap.get('Ladle').address;
-
-    const [cachedBaseReserves, cachedFyTokenReserves] = await series.poolContract.getCache();
-    const cachedRealReserves = cachedFyTokenReserves.sub(series.totalSupply);
+    const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
+      series.poolContract.getCache(),
+      series.poolContract.totalSupply(),
+    ]);
+    const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
 
-    const [_baseTokenReceived, _fyTokenReceived] = burn(
-      series.baseReserves,
-      series.fyTokenRealReserves,
-      series.totalSupply,
-      lpReceived
-    );
+    const [_sharesReceived, _fyTokenReceived] = burn(cachedSharesReserves, cachedRealReserves, totalSupply, lpReceived);
 
     const _newPool = newPoolState(
-      _baseTokenReceived.mul(-1),
+      _sharesReceived.mul(-1),
       _fyTokenReceived.mul(-1),
-      series.baseReserves,
-      series.fyTokenReserves,
-      series.totalSupply
+      cachedSharesReserves,
+      cachedFyTokenReserves,
+      totalSupply
     );
 
-    const fyTokenTrade = sellFYToken(
-      _newPool.baseReserves,
-      _newPool.fyTokenVirtualReserves,
-      _fyTokenReceived,
-      series.getTimeTillMaturity(),
-      series.ts,
-      series.g2,
-      series.decimals
-    );
+    const fyTokenTrade = getValuesFromNetwork
+      ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived)
+      : sellFYToken(
+          _newPool.sharesReserves,
+          _newPool.fyTokenVirtualReserves,
+          _fyTokenReceived,
+          series.getTimeTillMaturity(),
+          series.ts,
+          series.g2,
+          series.decimals,
+          series.c,
+          series.mu
+        );
 
     diagnostics && console.log('fyTokenTrade value: ', fyTokenTrade.toString());
     const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
@@ -125,18 +128,22 @@ export const useRemoveLiquidity = () => {
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
     // const useMatchingVault: boolean = !!matchingVault && ( _fyTokenReceived.lte(matchingVaultDebt) || !tradeFyToken) ;
 
-    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
+    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
-    const extrafyTokenTrade: BigNumber = sellFYToken(
-      series.baseReserves,
-      series.fyTokenReserves,
-      _fyTokenReceived.sub(matchingVaultDebt),
-      series.getTimeTillMaturity(),
-      series.ts,
-      series.g2,
-      series.decimals
-    );
+    const extrafyTokenTrade: BigNumber = getValuesFromNetwork
+      ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived.sub(matchingVaultDebt))
+      : sellFYToken(
+          series.sharesReserves,
+          series.fyTokenReserves,
+          _fyTokenReceived.sub(matchingVaultDebt),
+          series.getTimeTillMaturity(),
+          series.ts,
+          series.g2,
+          series.decimals,
+          series.c,
+          series.mu
+        );
     /* if valid extraTrade > 0 and user selected to tradeFyToken */
     const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 

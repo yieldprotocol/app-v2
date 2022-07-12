@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
@@ -17,7 +19,7 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
 
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
+
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -80,17 +82,18 @@ export const useBorrow = () => {
     const cleanCollInput = cleanValue(collInput, ilkToUse.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
-    /* Calculate expected debt (fytokens) from either network or calculated */
     const _expectedFyToken = getValuesFromNetwork
       ? await series.poolContract.buyBasePreview(_input)
       : buyBase(
-          series.baseReserves,
+          series.sharesReserves,
           series.fyTokenReserves,
-          _input,
+          series.getShares(_input), // convert input in base to shares
           series.getTimeTillMaturity(),
           series.ts,
           series.g2,
-          series.decimals
+          series.decimals,
+          series.c,
+          series.mu
         );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 

@@ -6,7 +6,7 @@ import '../styles/globals.css';
 
 const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
 
-const DynamicChainProvider = dynamic(() => import('../contexts/ChainContext'), { ssr: true }); // this is set to true now
+const DynamicChainProvider = dynamic(() => import('../contexts/ChainContext'), { ssr: false }); // this is set to true now
 const DynamicSettingsProvider = dynamic(() => import('../contexts/SettingsContext'), { ssr: false });
 const DynamicUserProvider = dynamic(() => import('../contexts/UserContext'), { ssr: false });
 const DynamicTxProvider = dynamic(() => import('../contexts/TxContext'), { ssr: false });

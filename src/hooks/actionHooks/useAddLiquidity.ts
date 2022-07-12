@@ -1,5 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
+import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '@yield-protocol/ui-math';
+
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -21,7 +23,7 @@ import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 
-import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '../../utils/yieldMath';
+
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -65,35 +67,45 @@ export const useAddLiquidity = () => {
     const cleanInput = cleanValue(input, _base?.decimals!);
 
     const _input = ethers.utils.parseUnits(cleanInput, _base?.decimals);
-    const _inputLessSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
+    const inputToShares = _series.getShares(_input);
+    const _inputToSharesLessSlippage = calculateSlippage(inputToShares, slippageTolerance.toString(), true);
 
-    const [cachedBaseReserves, cachedFyTokenReserves] = await _series?.poolContract.getCache()!;
-    const cachedRealReserves = cachedFyTokenReserves.sub(_series?.totalSupply!.sub(ONE_BN));
+    const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
+      _series.poolContract.getCache(),
+      _series.poolContract.totalSupply(),
+    ]);
+    const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
     const [_fyTokenToBeMinted] = fyTokenForMint(
-      cachedBaseReserves,
+      cachedSharesReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
-      _inputLessSlippage,
+      _inputToSharesLessSlippage,
       _series.getTimeTillMaturity(),
       _series.ts,
       _series.g1,
       _series.decimals,
-      slippageTolerance
+      slippageTolerance,
+      _series.c,
+      _series.mu
     );
 
-    const [minRatio, maxRatio] = calcPoolRatios(cachedBaseReserves, cachedRealReserves);
+    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance);
 
-    const [_baseToPool, _baseToFyToken] = splitLiquidity(
-      cachedBaseReserves,
+    const [_sharesToPool, sharesToFyToken] = splitLiquidity(
+      cachedSharesReserves,
       cachedRealReserves,
-      _inputLessSlippage,
+      inputToShares,
       true
     ) as [BigNumber, BigNumber];
 
-    const _baseToPoolWithSlippage = BigNumber.from(calculateSlippage(_baseToPool, slippageTolerance.toString()));
+    /* convert shares to be pooled to base, since we send in base */
+    const baseToPool = _series.getBase(_sharesToPool);
+    const sharesToFyTokenWithSlippage = BigNumber.from(
+      calculateSlippage(sharesToFyToken, slippageTolerance.toString(), true)
+    );
 
-    /* if approveMAx, check if signature is still required */
+    /* if approveMax, check if signature is still required */
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
 
     /* if ethBase */
@@ -101,29 +113,34 @@ export const useAddLiquidity = () => {
 
     /* DIAGNOSITCS */
     console.log(
+      '\n',
       'input: ',
       _input.toString(),
+      '\n',
       'inputLessSlippage: ',
-      _inputLessSlippage.toString(),
-      'base: ',
-      cachedBaseReserves.toString(),
+      _inputToSharesLessSlippage.toString(),
+      '\n',
+      'shares reserves: ',
+      cachedSharesReserves.toString(),
+      '\n',
       'real: ',
       cachedRealReserves.toString(),
+      '\n',
       'virtual: ',
       cachedFyTokenReserves.toString(),
+      '\n',
       '>> baseSplit: ',
-      _baseToPool.toString(),
-
-      '>> fyTokenSplit: ',
-      _baseToFyToken.toString(),
-
-      '>> baseSplitWithSlippage: ',
-      _baseToPoolWithSlippage.toString(),
-
+      _sharesToPool.toString(),
+      '\n',
+      '>> fyTokenSplit (with slippage): ',
+      sharesToFyTokenWithSlippage.toString(),
+      '\n',
       '>> minRatio',
       minRatio.toString(),
+      '\n',
       '>> maxRatio',
       maxRatio.toString(),
+      '\n',
       'matching vault id',
       matchingVaultId
     );
@@ -149,7 +166,7 @@ export const useAddLiquidity = () => {
       if (isEthBase && method === AddLiquidityType.BUY) return addEth(_input, _series.poolAddress);
       /* BORROW send WETH to both basejoin and poolAddress */
       if (isEthBase && method === AddLiquidityType.BORROW)
-        return [...addEth(_baseToFyToken, _base.joinAddress), ...addEth(_baseToPoolWithSlippage, _series.poolAddress)];
+        return [...addEth(sharesToFyTokenWithSlippage, _base.joinAddress), ...addEth(baseToPool, _series.poolAddress)];
       return []; // sends back an empty array [] if not eth base
     };
 
@@ -195,15 +212,16 @@ export const useAddLiquidity = () => {
         ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ignore if not BORROW and POOL
       },
 
-      /* Note: two transfers */
+      /* First transfer: sends base asset corresponding to the fyToken portion (with slippage) of the split liquidity to the respective join to mint fyToken directly to the pool */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _base.joinAddress, _baseToFyToken] as LadleActions.Args.TRANSFER,
+        args: [_base.address, _base.joinAddress, sharesToFyTokenWithSlippage] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
+      /* Second transfer: sends the shares portion (converted to base) of the split liquidity directly to the pool */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _series.poolAddress, _baseToPoolWithSlippage] as LadleActions.Args.TRANSFER,
+        args: [_base.address, _series.poolAddress, baseToPool] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
 
@@ -212,8 +230,8 @@ export const useAddLiquidity = () => {
         args: [
           matchingVaultId || BLANK_VAULT,
           _series.poolAddress,
-          _baseToFyToken,
-          _baseToFyToken,
+          sharesToFyTokenWithSlippage,
+          sharesToFyTokenWithSlippage,
         ] as LadleActions.Args.POUR,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },

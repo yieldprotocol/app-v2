@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -17,7 +19,7 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ONE_BN } from '../../utils/constants';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
+
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 
@@ -44,7 +46,11 @@ export const useClosePosition = () => {
 
   const { removeEth } = useAddRemoveEth();
 
-  const closePosition = async (input: string | undefined, series: ISeries) => {
+  const closePosition = async (
+    input: string | undefined,
+    series: ISeries,
+    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
+  ) => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const base = assetMap.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
@@ -53,17 +59,20 @@ export const useClosePosition = () => {
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
     const ladleAddress = contractMap.get('Ladle').address;
 
-    /* buy fyToken value ( after maturity  fytoken === base value ) */
+    /* assess how much fyToken is needed to buy base amount (input) */
+    /* after maturity, fytoken === base (input) value */
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
       : buyBase(
-          series.baseReserves,
+          series.sharesReserves,
           series.fyTokenReserves,
-          _input,
+          series.getShares(_input),
           series.getTimeTillMaturity(),
           series.ts,
           series.g2,
-          series.decimals
+          series.decimals,
+          series.c,
+          series.mu
         );
 
     /* calculate slippage on the base token expected to recieve ie. input */
