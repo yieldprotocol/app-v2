@@ -1,6 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { buyBase, calculateMinCollateral, decimalNToDecimal18, maxBaseIn, maxFyTokenIn } from '@yield-protocol/ui-math';
+import {
+  buyBase,
+  buyFYToken,
+  calculateMinCollateral,
+  decimalNToDecimal18,
+  maxBaseIn,
+  maxFyTokenIn,
+} from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -36,6 +43,9 @@ export const useBorrowHelpers = (
 
   const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
 
+  /* the accrued art in base terms at this moment */
+  /* before maturity, this is the estimated amount of fyToken (using art) that can be bought using base */
+  /* after maturity, this is the vault's art plus any variable rate accrued art */
   const [debtInBase, setDebtInBase] = useState<BigNumber>(ethers.constants.Zero);
   const [debtInBase_, setDebtInBase_] = useState<string | undefined>();
 
@@ -184,8 +194,8 @@ export const useBorrowHelpers = (
         const _userBalance = await vaultBase.getBalance(activeAccount);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
 
-        const _baseRequired = buyFYToken(
-          vaultSeries.baseReserves,
+        const _sharesRequired = buyFYToken(
+          vaultSeries.sharesReserves,
           vaultSeries.fyTokenReserves,
           vault.accruedArt,
           vaultSeries.getTimeTillMaturity(),
@@ -194,9 +204,10 @@ export const useBorrowHelpers = (
           vaultSeries.decimals
         );
 
+        const _baseRequired = vaultSeries.getBase(_sharesRequired);
         const _debtInBase = vaultSeries.isMature() ? vault.accruedArt : _baseRequired;
         setDebtInBase(_baseRequired);
-        setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultSeries.decimals).toString());
+        setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultBase.decimals).toString());
 
         /* maxRepayable is either the max tokens they have or max debt */
         const _maxRepayable = _userBalance && vault.accruedArt.gt(_userBalance) ? _userBalance : _debtInBase;
