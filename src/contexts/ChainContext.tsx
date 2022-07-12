@@ -541,36 +541,40 @@ const ChainProvider = ({ children }: any) => {
       /* Iterate through the strategies list and update accordingly */
       const _getStrategies = async () => {
         const newStrategyList: any[] = [];
-        await Promise.all(
-          strategyAddresses.map(async (strategyAddr) => {
-            /* if the strategy is NOT already in the cache : */
-            if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
-              console.log('updating constracrt ', strategyAddr);
+        try {
+          await Promise.all(
+            strategyAddresses.map(async (strategyAddr) => {
+              /* if the strategy is NOT already in the cache : */
+              if (cachedStrategies.findIndex((_s: any) => _s.address === strategyAddr) === -1) {
+                console.log('updating constract ', strategyAddr);
 
-              const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
+                const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
+                const [name, symbol, baseId, decimals, version] = await Promise.all([
+                  Strategy.name(),
+                  Strategy.symbol(),
+                  Strategy.baseId(),
+                  Strategy.decimals(),
+                  Strategy.version(),
+                ]);
 
-              const [name, symbol, baseId, decimals, version] = await Promise.all([
-                Strategy.name(),
-                Strategy.symbol(),
-                Strategy.baseId(),
-                Strategy.decimals(),
-                Strategy.version(),
-              ]);
-              const newStrategy = {
-                id: strategyAddr,
-                address: strategyAddr,
-                symbol,
-                name,
-                version,
-                baseId,
-                decimals,
-              };
-              // update state and cache
-              updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
-              newStrategyList.push(newStrategy);
-            }
-          })
-        );
+                const newStrategy = {
+                  id: strategyAddr,
+                  address: strategyAddr,
+                  symbol,
+                  name,
+                  version,
+                  baseId,
+                  decimals,
+                };
+                // update state and cache
+                updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
+                newStrategyList.push(newStrategy);
+              }
+            })
+          );
+        } catch (e) {
+          console.log('Error fetching strategies', e);
+        }
 
         const _filteredCachedStrategies = cachedStrategies.filter((s: any) => strategyAddresses.includes(s.address));
 
@@ -615,18 +619,19 @@ const ChainProvider = ({ children }: any) => {
     updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
-      clearCachedItems([
-        'lastAppVersion',
-        'lastChainId',
-        'assets',
-        'series',
-        'lastAssetUpdate',
-        'lastSeriesUpdate',
-        'lastVaultUpdate',
-        'strategies',
-        'lastStrategiesUpdate',
-        'connectionName',
-      ]);
+      window.localStorage.clear();
+      // clearCachedItems([
+      //   'lastAppVersion',
+      //   'lastChainId',
+      //   'assets',
+      //   'series',
+      //   'lastAssetUpdate',
+      //   'lastSeriesUpdate',
+      //   'lastVaultUpdate',
+      //   'strategies',
+      //   'lastStrategiesUpdate',
+      //   'connectionName',
+      // ]);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
@@ -671,6 +676,7 @@ const ChainProvider = ({ children }: any) => {
 
     const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(res)}`;
     const downloadAnchorNode = document.createElement('a');
+
     downloadAnchorNode.setAttribute('href', dataStr);
     downloadAnchorNode.setAttribute('download', 'contracts' + '.json');
     document.body.appendChild(downloadAnchorNode); // required for firefox

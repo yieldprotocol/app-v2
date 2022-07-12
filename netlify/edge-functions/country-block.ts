@@ -6,8 +6,8 @@ export default async (request: Request, context: any) => {
     /* ['PT', ['11']], // location for testing */
   ]);
 
-  const countryCode = context.geo?.country?.code || 'RU';
-  const countryName = context.geo?.country?.name || 'Russia';
+  const countryCode = context.geo?.country?.code || 'PT';
+  const countryName = context.geo?.country?.name || 'Portugal';
 
   const subdivisionCode = context.geo?.subdivision?.code;
   const subdivisionName = context.geo?.subdivision?.name;

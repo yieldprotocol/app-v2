@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { CHAIN_INFO } from '../config/chainData';
 import { ChainContext } from '../contexts/ChainContext';
 import { IChainContext } from '../types';
+import { useCachedState } from './generalHooks';
 
 interface IAddEthereumChainParameter {
   chainId: string; // A 0x-prefixed hexadecimal string
@@ -25,6 +26,7 @@ export const useNetworkSelect = (chainId: number) => {
   } = useContext(ChainContext) as IChainContext;
 
   const [isMetamask, setIsMetamask] = useState<any>(null);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', null);
 
   useEffect(() => {
     connectionName?.includes('metamask') ? setIsMetamask(true) : setIsMetamask(false);
@@ -40,6 +42,8 @@ export const useNetworkSelect = (chainId: number) => {
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: hexChainId }],
           });
+          setLastChainId(chainId)
+
         } catch (switchError: any) {
           // This error code indicates that the chain has not been added to MetaMask.
           if (switchError.code === 4902) {
@@ -57,6 +61,8 @@ export const useNetworkSelect = (chainId: number) => {
                   },
                 ],
               });
+              setLastChainId(chainId)
+
             } catch (addError) {
               console.log(addError);
             }
