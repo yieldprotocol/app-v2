@@ -166,7 +166,10 @@ const ChainProvider = ({ children }: any) => {
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, fallbackProvider);
 
           // Oracles
-          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, fallbackProvider);
+          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(
+            addrs.AccumulatorMultiOracle,
+            fallbackProvider
+          );
           // RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, fallbackProvider);
           RateOracle = AccumulatorMultiOracle;
 
@@ -204,7 +207,10 @@ const ChainProvider = ({ children }: any) => {
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
 
           // Oracles
-          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, fallbackProvider);
+          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(
+            addrs.AccumulatorMultiOracle,
+            fallbackProvider
+          );
           RateOracle = AccumulatorMultiOracle;
           ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
             addrs.ChainlinkUSDOracle,
@@ -412,7 +418,7 @@ const ChainProvider = ({ children }: any) => {
         fyTokenAddress: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
+        const poolContract = getPoolContract(series.poolAddress, series.maturity);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
 
         const season = getSeason(series.maturity);
@@ -477,7 +483,7 @@ const ChainProvider = ({ children }: any) => {
             if (poolMap.has(id)) {
               // only add series if it has a pool
               const poolAddress = poolMap.get(id);
-              const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
+              const poolContract = getPoolContract(poolAddress, maturity);
               const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
               const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
                 await Promise.all([
@@ -652,7 +658,7 @@ const ChainProvider = ({ children }: any) => {
     const contractList = [...(chainState.contractMap as any)].map(([v, k]) => [v, k?.address]);
     const seriesList = [...(chainState.seriesRootMap as any)].map(([v, k]) => [v, k?.address]);
     const assetList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.address]);
-    const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k?.symbol, v ]);
+    const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k?.symbol, v]);
     const joinList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.joinAddress]);
 
     const res = JSON.stringify({
@@ -673,6 +679,13 @@ const ChainProvider = ({ children }: any) => {
 
     console.log(res);
   };
+
+  /* Assess which pool contract to use: new (with tv) or old (without tv) */
+  const getPoolContract = (poolAddress: string, maturity: number) =>
+    (maturity === 1672412400 ? contracts.Pool__factory : contracts.PoolOld__factory).connect(
+      poolAddress,
+      fallbackProvider
+    );
 
   /* simply Pass on the connection actions */
   const chainActions = { ...connectionActions, exportContractAddresses };
