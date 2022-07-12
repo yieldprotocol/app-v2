@@ -167,6 +167,7 @@ const VaultPosition = () => {
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
+    debtInBase
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
@@ -349,7 +350,7 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${ cleanValue( ethers.utils.formatUnits( _selectedVault?.accruedArt, _selectedVault?.decimals ), 10 )  } ${
+                        value={`${ cleanValue( ethers.utils.formatUnits( debtInBase, _selectedVault?.decimals ), 10 )  } ${
                           vaultBase?.displaySymbol
                         }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
                         icon={<FiTrendingUp />}

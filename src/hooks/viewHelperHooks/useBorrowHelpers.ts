@@ -6,7 +6,14 @@ import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import { buyBase, calculateMinCollateral, decimalNToDecimal18, maxBaseIn, maxFyTokenIn } from '../../utils/yieldMath';
+import {
+  buyBase,
+  calculateMinCollateral,
+  decimalNToDecimal18,
+  maxBaseIn,
+  maxFyTokenIn,
+  buyFYToken,
+} from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -36,6 +43,9 @@ export const useBorrowHelpers = (
 
   const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
 
+  const [debtInBase, setDebtInBase] = useState<BigNumber>(ethers.constants.Zero);
+  const [debtInBase_, setDebtInBase_] = useState<string | undefined>();
+  
   const [minDebt, setMinDebt] = useState<BigNumber>();
   const [minDebt_, setMinDebt_] = useState<string | undefined>();
 
@@ -177,8 +187,22 @@ export const useBorrowHelpers = (
         const _userBalance = await vaultBase.getBalance(activeAccount);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
 
+        const _baseRequired = buyFYToken(
+          vaultSeries.baseReserves,
+          vaultSeries.fyTokenReserves,
+          vault.accruedArt,
+          vaultSeries.getTimeTillMaturity(),
+          vaultSeries.ts,
+          vaultSeries.g1,
+          vaultSeries.decimals
+        );
+
+        const _debtInBase = vaultSeries.isMature() ? vault.accruedArt : _baseRequired;
+        setDebtInBase(_baseRequired);
+        setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultSeries.decimals).toString());
+
         /* maxRepayable is either the max tokens they have or max debt */
-        const _maxRepayable = _userBalance && vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
+        const _maxRepayable = _userBalance && vault.accruedArt.gt(_userBalance) ? _userBalance : _debtInBase;
 
         /* set the min repayable up to the dust limit */
         const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
@@ -196,7 +220,9 @@ export const useBorrowHelpers = (
 
         /* if maxBasein is less than debt, and set protocol Limited flag */
         if (_maxBaseIn.lt(vault.accruedArt) && !vaultSeries.seriesIsMature) {
-          setProtocolLimited(false);
+          console.log('MaxbaseIn: ', _maxBaseIn.toString());
+          console.log('AccruedArt: ', vault.accruedArt.toString());
+          setProtocolLimited(true);
         } else {
           setProtocolLimited(false);
         }
@@ -224,6 +250,9 @@ export const useBorrowHelpers = (
 
     maxRepay_,
     maxRepay,
+
+    debtInBase,
+    debtInBase_,
 
     debtAfterRepay,
 
