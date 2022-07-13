@@ -55,7 +55,12 @@ export const useRepayDebt = () => {
    * @param input
    * @param reclaimCollateral
    */
-  const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
+  const repay = async (
+    vault: IVault,
+    input: string | undefined,
+    reclaimCollateral: boolean,
+    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
+  ) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contractMap.get('Ladle').address;
@@ -88,19 +93,24 @@ export const useRepayDebt = () => {
     /* Check the max amount of the trade that the pool can handle */
     const tradeIsNotPossible = series.getShares(_input).gt(_maxSharesIn);
 
-    const _inputAsFyToken = series.seriesIsMature
-      ? _input
-      : sellBase(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          series.getShares(_input),
-          secondsToFrom(series.maturity.toString()),
-          series.ts,
-          series.g1,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const fyTokenEstimate =
+      getValuesFromNetwork && !series.seriesIsMature
+        ? await series.poolContract.sellBasePreview(_input)
+        : sellBase(
+            series.sharesReserves,
+            series.fyTokenReserves,
+            series.getShares(_input),
+            secondsToFrom(series.maturity.toString()),
+            series.ts,
+            series.g1,
+            series.decimals,
+            series.c,
+            series.mu
+          );
+
+    // fyToken value equals base after maturity, so use user input
+    const _inputAsFyToken = series.seriesIsMature ? _input : fyTokenEstimate;
+
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
       slippageTolerance.toString(),
