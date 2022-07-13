@@ -10,7 +10,7 @@ import * as contracts from '../contracts';
 import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN } from '../config/assets';
 
-import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
+import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import { AssetAddedEvent, SeriesAddedEvent } from '../contracts/Cauldron';
@@ -29,7 +29,7 @@ enum ChainState {
   ADD_STRATEGY = 'addStrategy',
 }
 
-const START_BLOCK = 15087100-999; // tenderly forked block less ~1000
+export const TENDERLY_START_BLOCK = 15087100 - 999; // tenderly forked block less ~1000
 
 /* Build the context */
 const ChainContext = React.createContext<any>({});
@@ -314,12 +314,16 @@ const ChainProvider = ({ children }: any) => {
         let assetAddedEvents = [];
         let joinAddedEvents = [];
 
-
-
         try {
           [assetAddedEvents, joinAddedEvents] = await Promise.all([
-            Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, useTenderlyFork ? START_BLOCK : lastAssetUpdate ),
-            Ladle.queryFilter('JoinAdded' as ethers.EventFilter, useTenderlyFork ? START_BLOCK : lastAssetUpdate ),
+            Cauldron.queryFilter(
+              'AssetAdded' as ethers.EventFilter,
+              useTenderlyFork ? TENDERLY_START_BLOCK : lastAssetUpdate
+            ),
+            Ladle.queryFilter(
+              'JoinAdded' as ethers.EventFilter,
+              useTenderlyFork ? TENDERLY_START_BLOCK : lastAssetUpdate
+            ),
           ]);
         } catch (e) {
           console.log('🦄 ~ file: ChainContext.tsx ~ line 295 ~ const_getAssets= ~ e', e);
@@ -463,8 +467,14 @@ const ChainProvider = ({ children }: any) => {
         let poolAddedEvents = [];
         try {
           [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-            Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, useTenderlyFork ? START_BLOCK : lastSeriesUpdate),
-            Ladle.queryFilter('PoolAdded' as ethers.EventFilter, useTenderlyFork ? START_BLOCK : lastSeriesUpdate),
+            Cauldron.queryFilter(
+              'SeriesAdded' as ethers.EventFilter,
+              useTenderlyFork ? TENDERLY_START_BLOCK : lastSeriesUpdate
+            ),
+            Ladle.queryFilter(
+              'PoolAdded' as ethers.EventFilter,
+              useTenderlyFork ? TENDERLY_START_BLOCK : lastSeriesUpdate
+            ),
           ]);
         } catch (error) {
           console.log('🦄 ~ file: ChainContext.tsx ~ line 451 ~ const_getSeries= ~ error', error);

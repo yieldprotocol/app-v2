@@ -30,9 +30,8 @@ import {
   ISettingsContext,
 } from '../types';
 
-import { ChainContext } from './ChainContext';
+import { ChainContext, TENDERLY_START_BLOCK } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
-
 
 import { ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
@@ -173,7 +172,7 @@ const UserProvider = ({ children }: any) => {
       const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
       const vaultsBuilt = await Cauldron.queryFilter(
         vaultsBuiltFilter,
-        useTenderlyFork ? 15087100 : fromBlock
+        useTenderlyFork ? TENDERLY_START_BLOCK : fromBlock
       );
 
       let vaultsReceived = [];
