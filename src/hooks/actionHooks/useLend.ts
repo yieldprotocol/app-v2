@@ -1,7 +1,8 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { calculateSlippage, sellBase } from '@yield-protocol/ui-math';
 
+import { formatUnits } from 'ethers/lib/utils';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -16,6 +17,7 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
+  ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
@@ -25,7 +27,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 export const useLend = () => {
   const {
     settingsState: { slippageTolerance },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const {
     chainState: { contractMap },
@@ -59,20 +61,22 @@ export const useLend = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const _inputAsFyToken = getValuesFromNetwork
-      ? await series.poolContract.sellBasePreview(_input)
-      : sellBase(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          series.getShares(_input), // convert base input to shares
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g1,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const fyTokenEstimate =
+      getValuesFromNetwork && !series.seriesIsMature
+        ? await series.poolContract.sellBasePreview(_input)
+        : sellBase(
+            series.sharesReserves,
+            series.fyTokenReserves,
+            series.getShares(_input), // convert base input to shares
+            series.getTimeTillMaturity(),
+            series.ts,
+            series.g1,
+            series.decimals,
+            series.c,
+            series.mu
+          );
 
+    const _inputAsFyToken = series.seriesIsMature ? _input : fyTokenEstimate;
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */
