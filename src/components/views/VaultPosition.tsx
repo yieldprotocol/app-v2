@@ -49,8 +49,6 @@ import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
 
-
-
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
@@ -167,6 +165,7 @@ const VaultPosition = () => {
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
+    debtInBase
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
@@ -275,8 +274,8 @@ const VaultPosition = () => {
     const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
     const _base = assetMap.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
-    
-    // handle using ilk 
+
+    // handle using ilk
     const _ilkToUse = _ilk; // use the unwrapped token if applicable
 
     _selectedVault && setSelectedSeries(_series);
@@ -349,7 +348,7 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${ cleanValue( ethers.utils.formatUnits( _selectedVault?.accruedArt, _selectedVault?.decimals ), 10 )  } ${
+                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, _selectedVault?.decimals), 10)} ${
                           vaultBase?.displaySymbol
                         }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
                         icon={<FiTrendingUp />}
