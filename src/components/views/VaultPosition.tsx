@@ -165,7 +165,7 @@ const VaultPosition = () => {
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
-    debtInBase
+    debtInBase,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
@@ -501,12 +501,6 @@ const VaultPosition = () => {
                             </InputInfoWrap>
                           )}
 
-                        {protocolLimited && (
-                          <InputInfoWrap>
-                            <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
-                          </InputInfoWrap>
-                        )}
-
                         {repayInput && !repayError && debtAfterRepay && (
                           <InputInfoWrap>
                             {repayCollEst && parseFloat(repayCollEst) > 10000 && !debtAfterRepay.eq(ZERO_BN) && (
@@ -529,6 +523,12 @@ const VaultPosition = () => {
                                 All debt will be repaid ( {_selectedVault?.accruedArt_!} {vaultBase?.displaySymbol!} ).
                               </Text>
                             )}
+                          </InputInfoWrap>
+                        )}
+
+                        {protocolLimited && (
+                          <InputInfoWrap>
+                            <Text size="xsmall">We recommend waiting until maturity.</Text>
                           </InputInfoWrap>
                         )}
                       </Box>
