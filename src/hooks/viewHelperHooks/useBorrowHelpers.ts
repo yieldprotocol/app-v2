@@ -5,7 +5,6 @@ import {
   buyFYToken,
   calculateMinCollateral,
   decimalNToDecimal18,
-  maxBaseIn,
   maxFyTokenIn,
 } from '@yield-protocol/ui-math';
 
@@ -66,7 +65,6 @@ export const useBorrowHelpers = (
 
   const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
   const [rollPossible, setRollPossible] = useState<boolean>(false);
-  const [protocolLimited, setProtocolLimited] = useState<boolean>(false);
 
   /* Update the borrow limits if asset pair changes */
   useEffect(() => {
@@ -233,7 +231,6 @@ export const useBorrowHelpers = (
   return {
     borrowPossible,
     rollPossible,
-    protocolLimited,
 
     borrowEstimate,
     borrowEstimate_,

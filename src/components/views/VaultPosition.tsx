@@ -159,7 +159,6 @@ const VaultPosition = () => {
     maxRepay_,
     minRepayable,
     minRepayable_,
-    protocolLimited,
     maxRoll_,
     minDebt,
     userBaseBalance_,
@@ -482,7 +481,6 @@ const VaultPosition = () => {
                             {_selectedVault.accruedArt.gt(maxRepay) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
                                 Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
-                                {!protocolLimited ? '(based on your token balance)' : '(limited by protocol reserves)'}
                               </Text>
                             ) : (
                               <Text color="text" alignSelf="end" size="xsmall">
@@ -501,12 +499,6 @@ const VaultPosition = () => {
                               <Text size="xsmall">(It is only possible to repay the full debt)</Text>
                             </InputInfoWrap>
                           )}
-
-                        {protocolLimited && (
-                          <InputInfoWrap>
-                            <Text size="xsmall">Repayment amount limited by protocol liquidity</Text>
-                          </InputInfoWrap>
-                        )}
 
                         {repayInput && !repayError && debtAfterRepay && (
                           <InputInfoWrap>
