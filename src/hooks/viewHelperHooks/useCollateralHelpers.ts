@@ -139,8 +139,8 @@ export const useCollateralHelpers = (
     if (oraclePrice.gt(ethers.constants.Zero) && _totalCollateral.gt(ethers.constants.Zero)) {
       const ratio = calculateCollateralizationRatio(_totalCollateral, oraclePrice, _totalDebt, false);
       const percent = calculateCollateralizationRatio(_totalCollateral, oraclePrice, _totalDebt, true);
-      setCollateralizationRatio(ratio.toString() || '0');
-      setCollateralizationPercent(parseFloat(percent.toString()! || '0').toFixed(2));
+      setCollateralizationRatio(ratio?.toString() || '0');
+      setCollateralizationPercent(parseFloat(percent?.toString()! || '0').toFixed(2));
     } else {
       setCollateralizationRatio('0.0');
       setCollateralizationPercent(cleanValue('0.0', 2));
