@@ -173,8 +173,7 @@ const UserProvider = ({ children }: any) => {
       const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
       const vaultsBuilt = await Cauldron.queryFilter(
         vaultsBuiltFilter,
-        useTenderlyFork ? null : fromBlock,
-        useTenderlyFork ? null : 'latest'
+        useTenderlyFork ? 15087100 : fromBlock
       );
 
       let vaultsReceived = [];

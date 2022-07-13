@@ -29,6 +29,8 @@ enum ChainState {
   ADD_STRATEGY = 'addStrategy',
 }
 
+const START_BLOCK = 15087100-999; // tenderly forked block less ~1000
+
 /* Build the context */
 const ChainContext = React.createContext<any>({});
 
@@ -312,10 +314,12 @@ const ChainProvider = ({ children }: any) => {
         let assetAddedEvents = [];
         let joinAddedEvents = [];
 
+
+
         try {
           [assetAddedEvents, joinAddedEvents] = await Promise.all([
-            Cauldron.queryFilter('AssetAdded' as ethers.EventFilter),
-            Ladle.queryFilter('JoinAdded' as ethers.EventFilter),
+            Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, useTenderlyFork ? START_BLOCK : lastAssetUpdate ),
+            Ladle.queryFilter('JoinAdded' as ethers.EventFilter, useTenderlyFork ? START_BLOCK : lastAssetUpdate ),
           ]);
         } catch (e) {
           console.log('🦄 ~ file: ChainContext.tsx ~ line 295 ~ const_getAssets= ~ e', e);
@@ -459,8 +463,8 @@ const ChainProvider = ({ children }: any) => {
         let poolAddedEvents = [];
         try {
           [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-            Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, useTenderlyFork ? null : lastSeriesUpdate),
-            Ladle.queryFilter('PoolAdded' as ethers.EventFilter, useTenderlyFork ? null : lastSeriesUpdate),
+            Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, useTenderlyFork ? START_BLOCK : lastSeriesUpdate),
+            Ladle.queryFilter('PoolAdded' as ethers.EventFilter, useTenderlyFork ? START_BLOCK : lastSeriesUpdate),
           ]);
         } catch (error) {
           console.log('🦄 ~ file: ChainContext.tsx ~ line 451 ~ const_getSeries= ~ error', error);
@@ -620,18 +624,6 @@ const ChainProvider = ({ children }: any) => {
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
       window.localStorage.clear();
-      // clearCachedItems([
-      //   'lastAppVersion',
-      //   'lastChainId',
-      //   'assets',
-      //   'series',
-      //   'lastAssetUpdate',
-      //   'lastSeriesUpdate',
-      //   'lastVaultUpdate',
-      //   'strategies',
-      //   'lastStrategiesUpdate',
-      //   'connectionName',
-      // ]);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
