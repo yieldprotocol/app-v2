@@ -92,13 +92,25 @@ export const useBorrowHelpers = (
   /* check the new debt level after potential repaying */
   useEffect(() => {
     if (input && vault && parseFloat(input) > 0) {
+      const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
       const cleanedInput = cleanValue(input, vault.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
-      /* remaining debt is debt less input  ( with a minimum of zero ) */
-      const remainingDebt = vault.accruedArt.sub(input_).gte(ZERO_BN) ? vault.accruedArt.sub(input_) : ZERO_BN;
+      /* remaining debt is: debt denominated in base less input ( with a minimum of zero ) */
+      const estimate = buyBase(
+        vaultSeries.sharesReserves,
+        vaultSeries.fyTokenReserves,
+        vaultSeries.getShares(input_),
+        vaultSeries.getTimeTillMaturity(),
+        vaultSeries.ts,
+        vaultSeries.g2,
+        vaultSeries.decimals,
+        vaultSeries.c,
+        vaultSeries.mu
+      );
+      const remainingDebt = vault.accruedArt.sub(estimate).gte(ZERO_BN) ? vault.accruedArt.sub(estimate) : ZERO_BN;
       setDebtAfterRepay(remainingDebt);
     }
-  }, [input, vault]);
+  }, [input, seriesMap, vault]);
 
   /* Calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
