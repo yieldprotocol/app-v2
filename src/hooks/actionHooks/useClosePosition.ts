@@ -62,7 +62,7 @@ export const useClosePosition = () => {
     /* assess how much fyToken is needed to buy base amount (input) */
     /* after maturity, fytoken === base (input) value */
     const fyTokenValueEstimate =
-      seriesIsMature && !series.seriesIsMature
+      getValuesFromNetwork && !seriesIsMature
         ? await series.poolContract.buyBasePreview(_input)
         : buyBase(
             series.sharesReserves,
@@ -76,7 +76,7 @@ export const useClosePosition = () => {
             series.mu
           );
 
-    const _fyTokenValueOfInput = series.seriesIsMature ? _input : fyTokenValueEstimate;
+    const _fyTokenValueOfInput = seriesIsMature ? _input : fyTokenValueEstimate;
 
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
