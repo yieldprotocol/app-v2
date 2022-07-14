@@ -105,19 +105,20 @@ export const useRemoveLiquidity = () => {
       totalSupply
     );
 
-    const fyTokenTrade = getValuesFromNetwork
-      ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived)
-      : sellFYToken(
-          _newPool.sharesReserves,
-          _newPool.fyTokenVirtualReserves,
-          _fyTokenReceived,
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g2,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const fyTokenTrade =
+      getValuesFromNetwork && !series.seriesIsMature
+        ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived)
+        : sellFYToken(
+            _newPool.sharesReserves,
+            _newPool.fyTokenVirtualReserves,
+            _fyTokenReceived,
+            series.getTimeTillMaturity(),
+            series.ts,
+            series.g2,
+            series.decimals,
+            series.c,
+            series.mu
+          );
 
     diagnostics && console.log('fyTokenTrade value: ', fyTokenTrade.toString());
     const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
@@ -131,19 +132,20 @@ export const useRemoveLiquidity = () => {
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
-    const extrafyTokenTrade: BigNumber = getValuesFromNetwork
-      ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived.sub(matchingVaultDebt))
-      : sellFYToken(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          _fyTokenReceived.sub(matchingVaultDebt),
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g2,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const extrafyTokenTrade =
+      getValuesFromNetwork && !series.seriesIsMature
+        ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived.sub(matchingVaultDebt))
+        : sellFYToken(
+            series.sharesReserves,
+            series.fyTokenReserves,
+            _fyTokenReceived.sub(matchingVaultDebt),
+            series.getTimeTillMaturity(),
+            series.ts,
+            series.g2,
+            series.decimals,
+            series.c,
+            series.mu
+          );
     /* if valid extraTrade > 0 and user selected to tradeFyToken */
     const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
