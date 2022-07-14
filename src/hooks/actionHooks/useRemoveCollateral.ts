@@ -10,8 +10,8 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
-  ISettingsContext,
   RoutedActions,
+  IChainContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
@@ -25,10 +25,9 @@ export const useRemoveCollateral = () => {
   const {
     chainState: {
       contractMap,
-      connection: { chainId },
-      provider,
+      connection: { chainId, provider },
     },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
