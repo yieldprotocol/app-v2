@@ -117,7 +117,7 @@ export const useLendHelpers = (
         series.mu
       );
 
-      const _maxBaseOut = maxBaseOut(series.sharesReserves);
+      const _maxBaseOut = series.getBase(maxBaseOut(series.sharesReserves));
 
       sharesValue.lte(ethers.constants.Zero)
         ? setFyTokenMarketValue('Low liquidity')
