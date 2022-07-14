@@ -13,8 +13,6 @@ import { IAssetPair, IUserContext, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-
-
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
   debtInput: string | undefined,
@@ -107,7 +105,7 @@ export const useCollateralHelpers = (
     /* NOTE: this whole function ONLY deals with decimal18, existing values are converted to decimal18 */
     const _existingCollateral = vault?.ink ? vault.ink : ethers.constants.Zero;
     const existingCollateralAsWei = decimalNToDecimal18(_existingCollateral, _selectedIlk?.decimals || 18);
-    
+
     const newCollateralAsWei =
       collInput && Math.abs(parseFloat(collInput)) > 0 ? ethers.utils.parseUnits(collInput, 18) : ethers.constants.Zero;
     const _totalCollateral = existingCollateralAsWei.add(newCollateralAsWei);
@@ -141,8 +139,8 @@ export const useCollateralHelpers = (
     if (oraclePrice.gt(ethers.constants.Zero) && _totalCollateral.gt(ethers.constants.Zero)) {
       const ratio = calculateCollateralizationRatio(_totalCollateral, oraclePrice, _totalDebt, false);
       const percent = calculateCollateralizationRatio(_totalCollateral, oraclePrice, _totalDebt, true);
-      setCollateralizationRatio(ratio.toString());
-      setCollateralizationPercent(parseFloat(percent.toString()! || '0').toFixed(2));
+      setCollateralizationRatio(ratio?.toString() || '0');
+      setCollateralizationPercent(parseFloat(percent?.toString()! || '0').toFixed(2));
     } else {
       setCollateralizationRatio('0.0');
       setCollateralizationPercent(cleanValue('0.0', 2));
