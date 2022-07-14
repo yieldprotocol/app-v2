@@ -42,7 +42,12 @@ export const useRollPosition = () => {
 
   const { sign, transact } = useChain();
 
-  const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
+  const rollPosition = async (
+    input: string | undefined,
+    fromSeries: ISeries,
+    toSeries: ISeries,
+    getValuesFromNetwork = true
+  ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
     const base: IAsset = assetMap.get(fromSeries.baseId)!;
@@ -51,21 +56,22 @@ export const useRollPosition = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const _fyTokenValueOfInput = fromSeries.seriesIsMature
-      ? _input
-      : buyBase(
-          fromSeries.sharesReserves,
-          fromSeries.fyTokenReserves,
-          fromSeries.getShares(_input),
-          fromSeries.getTimeTillMaturity(),
-          fromSeries.ts,
-          fromSeries.g2,
-          fromSeries.decimals,
-          fromSeries.c,
-          fromSeries.mu
-        );
+    const fyTokenValueEstimate =
+      getValuesFromNetwork && !fromSeries.seriesIsMature
+        ? _input
+        : buyBase(
+            fromSeries.sharesReserves,
+            fromSeries.fyTokenReserves,
+            fromSeries.getShares(_input),
+            fromSeries.getTimeTillMaturity(),
+            fromSeries.ts,
+            fromSeries.g2,
+            fromSeries.decimals,
+            fromSeries.c,
+            fromSeries.mu
+          );
 
-    console.log(_fyTokenValueOfInput.toString());
+    const _fyTokenValueOfInput = fromSeries.seriesIsMature ? _input : fyTokenValueEstimate;
 
     const _minimumFYTokenReceived = calculateSlippage(_fyTokenValueOfInput, slippageTolerance.toString(), true);
     const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress)).gte(_input);
