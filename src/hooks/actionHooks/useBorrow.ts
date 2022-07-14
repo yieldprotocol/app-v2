@@ -82,19 +82,20 @@ export const useBorrow = () => {
     const cleanCollInput = cleanValue(collInput, ilkToUse.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
-    const _expectedFyToken = getValuesFromNetwork
-      ? await series.poolContract.buyBasePreview(_input)
-      : buyBase(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          series.getShares(_input), // convert input in base to shares
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g2,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const _expectedFyToken =
+      getValuesFromNetwork && !series.seriesIsMature
+        ? await series.poolContract.buyBasePreview(_input)
+        : buyBase(
+            series.sharesReserves,
+            series.fyTokenReserves,
+            series.getShares(_input), // convert input in base to shares
+            series.getTimeTillMaturity(),
+            series.ts,
+            series.g2,
+            series.decimals,
+            series.c,
+            series.mu
+          );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
