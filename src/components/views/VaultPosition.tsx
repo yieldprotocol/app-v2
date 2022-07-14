@@ -166,6 +166,7 @@ const VaultPosition = () => {
     rollPossible,
     debtAfterRepay,
     debtInBase,
+    debtInBase_
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
@@ -520,7 +521,7 @@ const VaultPosition = () => {
 
                             {debtAfterRepay?.eq(ZERO_BN) && (
                               <Text color="text-weak" alignSelf="end" size="xsmall">
-                                All debt will be repaid ( {_selectedVault?.accruedArt_!} {vaultBase?.displaySymbol!} ).
+                                All debt will be repaid ( {cleanValue( debtInBase_, 2) } {vaultBase?.displaySymbol!} ).
                               </Text>
                             )}
                           </InputInfoWrap>
