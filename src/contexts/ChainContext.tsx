@@ -120,6 +120,10 @@ const ChainProvider = ({ children }: any) => {
   const { connectionState, connectionActions } = useConnection();
   const { chainId, fallbackProvider, fallbackChainId, useTenderlyFork } = connectionState;
 
+  const getChainTime = async () => useTenderlyFork
+  ? (await fallbackProvider?.getBlock('latest')).timestamp
+  : Math.round(new Date().getTime() / 1000);
+
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
@@ -419,12 +423,15 @@ const ChainProvider = ({ children }: any) => {
       };
 
       /* add on extra/calculated ASYNC series info and contract instances */
-      const _chargeSeries = (series: {
-        maturity: number;
-        baseId: string;
-        poolAddress: string;
-        fyTokenAddress: string;
-      }) => {
+      const _chargeSeries = (
+        series: {
+          maturity: number;
+          baseId: string;
+          poolAddress: string;
+          fyTokenAddress: string;
+        },
+        timestamp?: number // optional timestamp
+      ) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
         const poolContract = getPoolContract(series.poolAddress, series.maturity);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
@@ -433,6 +440,10 @@ const ChainProvider = ({ children }: any) => {
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
         const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
         const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
+
+        const _timestamp = timestamp || Math.round(new Date().getTime() / 1000);
+        // console.log('blockchain Time', timestamp);
+
         return {
           ...series,
 
@@ -455,8 +466,8 @@ const ChainProvider = ({ children }: any) => {
           seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
           // built-in helper functions:
-          getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
-          isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
+          getTimeTillMaturity: () => series.maturity - _timestamp,
+          isMature: () => series.maturity - _timestamp <= 0,
           getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
@@ -531,7 +542,7 @@ const ChainProvider = ({ children }: any) => {
                 g1,
                 g2,
               };
-              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries, await getChainTime() ) });
               newSeriesList.push(newSeries);
             }
           })
@@ -610,8 +621,8 @@ const ChainProvider = ({ children }: any) => {
         cachedAssets.forEach((a: IAssetRoot) => {
           updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
         });
-        cachedSeries.forEach((s: ISeriesRoot) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
+        cachedSeries.forEach(async (s: ISeriesRoot) => {
+          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, await getChainTime() ) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
           strategyAddresses.includes(st.address) &&
