@@ -2,6 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '@yield-protocol/ui-math';
 
+import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -51,10 +52,6 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
-
-  const {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
@@ -76,8 +73,7 @@ export const useRemoveLiquidity = () => {
     input: string,
     series: ISeries,
     matchingVault: IVault | undefined,
-    tradeFyToken: boolean = true,
-    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
+    tradeFyToken: boolean = true
   ) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
@@ -105,60 +101,57 @@ export const useRemoveLiquidity = () => {
       totalSupply
     );
 
-    const fyTokenTrade = getValuesFromNetwork
-      ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived)
-      : sellFYToken(
-          _newPool.sharesReserves,
-          _newPool.fyTokenVirtualReserves,
-          _fyTokenReceived,
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g2,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const fyTokenTrade = sellFYToken(
+      _newPool.sharesReserves,
+      _newPool.fyTokenVirtualReserves,
+      _fyTokenReceived,
+      series.getTimeTillMaturity(),
+      series.ts,
+      series.g2,
+      series.decimals,
+      series.c,
+      series.mu
+    );
 
-    diagnostics && console.log('fyTokenTrade value: ', fyTokenTrade.toString());
+    console.log('fyTokenTrade value: ', formatUnits(fyTokenTrade, series.decimals));
     const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
 
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
+
     // Choose use use matching vault:
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
-    // const useMatchingVault: boolean = !!matchingVault && ( _fyTokenReceived.lte(matchingVaultDebt) || !tradeFyToken) ;
 
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
-    const extrafyTokenTrade: BigNumber = getValuesFromNetwork
-      ? await series.poolContract.sellFYTokenPreview(_fyTokenReceived.sub(matchingVaultDebt))
-      : sellFYToken(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          _fyTokenReceived.sub(matchingVaultDebt),
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g2,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const extrafyTokenTrade = sellFYToken(
+      series.sharesReserves,
+      series.fyTokenReserves,
+      _fyTokenReceived.sub(matchingVaultDebt),
+      series.getTimeTillMaturity(),
+      series.ts,
+      series.g2,
+      series.decimals,
+      series.c,
+      series.mu
+    );
+
     /* if valid extraTrade > 0 and user selected to tradeFyToken */
     const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
 
     /* Diagnostics */
-    diagnostics && console.log('Strategy: ', _strategy);
-    diagnostics && console.log('Vault to use for removal: ', matchingVaultId);
-    diagnostics && console.log('vaultDebt', matchingVaultDebt.toString());
-    diagnostics && console.log(useMatchingVault);
-    diagnostics && console.log('input', _input.toString());
-    diagnostics && console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
-    diagnostics && console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
-    diagnostics && console.log('Debt: ', matchingVaultDebt?.toString());
-    diagnostics && console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
-    diagnostics && console.log('Is FyToken tradable?: ', extraTradeSupported);
-    diagnostics && console.log('extrafyTokentrade value: ', extrafyTokenTrade);
+    console.log('Strategy: ', _strategy);
+    console.log('Vault to use for removal: ', matchingVaultId);
+    console.log('vaultDebt', matchingVaultDebt.toString());
+    console.log(useMatchingVault);
+    console.log('input', _input.toString());
+    console.log('lpTokens recieved from strategy token burn:', lpReceived.toString());
+    console.log('fyToken recieved from lpTokenburn: ', _fyTokenReceived.toString());
+    console.log('Debt: ', matchingVaultDebt?.toString());
+    console.log('Is FyToken Recieved Greater Than Debt: ', fyTokenReceivedGreaterThanDebt);
+    console.log('Is FyToken tradable?: ', extraTradeSupported);
+    console.log('extrafyTokentrade value: ', extrafyTokenTrade);
 
     const alreadyApprovedStrategy = _strategy
       ? (await _strategy.strategyContract.allowance(account!, ladleAddress)).gte(_input)
