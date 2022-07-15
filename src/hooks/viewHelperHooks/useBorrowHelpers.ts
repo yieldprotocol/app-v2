@@ -6,7 +6,14 @@ import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 
-import { buyBase, buyFYToken, calculateMinCollateral, decimalNToDecimal18, maxBaseIn, maxFyTokenIn } from '../../utils/yieldMath';
+import {
+  buyBase,
+  buyFYToken,
+  calculateMinCollateral,
+  decimalNToDecimal18,
+  maxBaseIn,
+  maxFyTokenIn
+} from '../../utils/yieldMath';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -63,12 +70,12 @@ export const useBorrowHelpers = (
     if (assetPairInfo) {
       const _decimals = assetPairInfo.limitDecimals;
       const _maxLessTotal = assetPairInfo.maxDebtLimit.sub(assetPairInfo.pairTotalDebt);
-      const min = assetPairInfo.minDebtLimit;
+      const _min = assetPairInfo.minDebtLimit;
 
       setMaxDebt(_maxLessTotal);
       setMaxDebt_(ethers.utils.formatUnits(_maxLessTotal, _decimals)?.toString());
-      setMinDebt(min);
-      setMinDebt_(ethers.utils.formatUnits(min, assetPairInfo.baseDecimals)?.toString());
+      setMinDebt(_min);
+      setMinDebt_(ethers.utils.formatUnits(_min, assetPairInfo.baseDecimals)?.toString());
     }
   }, [assetPairInfo]);
 
@@ -85,9 +92,9 @@ export const useBorrowHelpers = (
   useEffect(() => {
     if (input && vault && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, vault.decimals);
-      const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
-      /* remaining debt is debt less input  ( with a minimum of zero ) */
-      const remainingDebt = vault.accruedArt.sub(input_).gte(ZERO_BN) ? vault.accruedArt.sub(input_) : ZERO_BN;
+      const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);  // input is in terms of base
+      const remainingDebt = debtInBase.sub(input_).gte(ZERO_BN) ? debtInBase.sub(input_) : ZERO_BN;
+      diagnostics && console.log('remaining debt', remainingDebt.toString());
       setDebtAfterRepay(remainingDebt);
     }
   }, [input, vault]);
@@ -97,7 +104,6 @@ export const useBorrowHelpers = (
     if (input && futureSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, futureSeries.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
-
       const estimate = buyBase(
         futureSeries.baseReserves,
         futureSeries.fyTokenReserves,
@@ -175,7 +181,6 @@ export const useBorrowHelpers = (
   useEffect(() => {
     if (activeAccount && vault && vaultBase && minDebt) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
-
       (async () => {
         const _userBalance = await vaultBase.getBalance(activeAccount);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
@@ -190,16 +195,27 @@ export const useBorrowHelpers = (
           vaultSeries.decimals
         );
 
-        const _debtInBase = vaultSeries.isMature() ? vault.accruedArt : _baseRequired;
-        setDebtInBase(_baseRequired);
-        setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultSeries.decimals).toString());
-
+        const _debtInBase = vaultSeries.isMature() ? vault.accruedArt : _baseRequired.mul(100000001).div(100000000);
+        setDebtInBase(_debtInBase);
+        setDebtInBase_(ethers.utils.formatUnits(_debtInBase, vaultSeries.decimals).toString());
 
         /* maxRepayable is either the max tokens they have or max debt */
-        const _maxRepayable = _userBalance && vault.accruedArt.gt(_userBalance) ? _userBalance : _debtInBase;
+        const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
+
+        const _minInBase = vaultSeries.isMature() 
+        ? minDebt
+        : buyFYToken(
+          vaultSeries.baseReserves,
+          vaultSeries.fyTokenReserves,
+          minDebt,
+          vaultSeries.getTimeTillMaturity(),
+          vaultSeries.ts,
+          vaultSeries.g1,
+          vaultSeries.decimals
+        );
 
         /* set the min repayable up to the dust limit */
-        const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
+        const _maxToDust = _debtInBase.gt(_minInBase) ? _maxRepayable.sub(_minInBase) : _debtInBase;
         _maxToDust && setMinRepayable(_maxToDust);
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
@@ -233,6 +249,8 @@ export const useBorrowHelpers = (
       })();
     }
   }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);
+
+
 
   return {
     borrowPossible,
