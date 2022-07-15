@@ -90,7 +90,7 @@ export const useRepayDebt = () => {
 
     tradeIsNotPossible && console.log('trade is not possible:'); 
     tradeIsNotPossible &&  console.log('input',  _input.toString() );
-    tradeIsNotPossible && console.log('Max base in:',  _maxBaseIn.toString() );
+    tradeIsNotPossible && console.log('Max base in:',  _maxSharesIn.toString() );
 
     const _inputAsFyToken = series.isMature()
       ? _input
