@@ -203,7 +203,7 @@ export const useBorrowHelpers = (
         const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
 
         /* set the min repayable up to the dust limit */
-        const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
+        const _maxToDust = _debtInBase.gt(minDebt) ? _maxRepayable.sub(minDebt) : _debtInBase;
         _maxToDust && setMinRepayable(_maxToDust);
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
@@ -237,6 +237,8 @@ export const useBorrowHelpers = (
       })();
     }
   }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);
+
+
 
   return {
     borrowPossible,
