@@ -70,12 +70,12 @@ export const useBorrowHelpers = (
     if (assetPairInfo) {
       const _decimals = assetPairInfo.limitDecimals;
       const _maxLessTotal = assetPairInfo.maxDebtLimit.sub(assetPairInfo.pairTotalDebt);
-      const min = assetPairInfo.minDebtLimit;
+      const _min = assetPairInfo.minDebtLimit;
 
       setMaxDebt(_maxLessTotal);
       setMaxDebt_(ethers.utils.formatUnits(_maxLessTotal, _decimals)?.toString());
-      setMinDebt(min);
-      setMinDebt_(ethers.utils.formatUnits(min, assetPairInfo.baseDecimals)?.toString());
+      setMinDebt(_min);
+      setMinDebt_(ethers.utils.formatUnits(_min, assetPairInfo.baseDecimals)?.toString());
     }
   }, [assetPairInfo]);
 
@@ -202,8 +202,20 @@ export const useBorrowHelpers = (
         /* maxRepayable is either the max tokens they have or max debt */
         const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
 
+        const _minInBase = vaultSeries.isMature() 
+        ? minDebt
+        : buyFYToken(
+          vaultSeries.baseReserves,
+          vaultSeries.fyTokenReserves,
+          minDebt,
+          vaultSeries.getTimeTillMaturity(),
+          vaultSeries.ts,
+          vaultSeries.g1,
+          vaultSeries.decimals
+        );
+
         /* set the min repayable up to the dust limit */
-        const _maxToDust = _debtInBase.gt(minDebt) ? _maxRepayable.sub(minDebt) : _debtInBase;
+        const _maxToDust = _debtInBase.gt(_minInBase) ? _maxRepayable.sub(_minInBase) : _debtInBase;
         _maxToDust && setMinRepayable(_maxToDust);
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
