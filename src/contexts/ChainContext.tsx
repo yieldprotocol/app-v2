@@ -29,7 +29,7 @@ enum ChainState {
   ADD_STRATEGY = 'addStrategy',
 }
 
-export const TENDERLY_START_BLOCK = 15087100 - 999; // tenderly forked block less ~1000
+export const TENDERLY_START_BLOCK = 15169163; // tenderly forked block less ~1000
 
 /* Build the context */
 const ChainContext = React.createContext<any>({});
