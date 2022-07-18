@@ -284,6 +284,7 @@ export interface ISeries extends ISeriesRoot {
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
+  poolAPY?: string;
   seriesIsMature: boolean;
 
   // Yieldspace TV
@@ -294,8 +295,6 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
-
-
   balance: BigNumber;
   balance_: string;
 }
