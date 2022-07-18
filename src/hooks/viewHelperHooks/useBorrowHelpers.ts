@@ -6,6 +6,7 @@ import {
   calculateMinCollateral,
   decimalNToDecimal18,
   maxFyTokenIn,
+  maxBaseIn
 } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -45,6 +46,7 @@ export const useBorrowHelpers = (
   /* the accrued art in base terms at this moment */
   /* before maturity, this is the estimated amount of fyToken (using art) that can be bought using base */
   /* after maturity, this is the vault's art plus any variable rate accrued art */
+
   const [debtInBase, setDebtInBase] = useState<BigNumber>(ethers.constants.Zero);
   const [debtInBase_, setDebtInBase_] = useState<string | undefined>();
 
@@ -207,6 +209,7 @@ export const useBorrowHelpers = (
         setDebtInBase(_baseRequired);
         setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultBase.decimals).toString());
 
+
         /* maxRepayable is either the max tokens they have or max debt */
         const _maxRepayable = _userBalance && vault.accruedArt.gt(_userBalance) ? _userBalance : _debtInBase;
 
@@ -214,8 +217,26 @@ export const useBorrowHelpers = (
         const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
         _maxToDust && setMinRepayable(_maxToDust);
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
+        
+        const _maxBaseIn = maxBaseIn(
+          vaultSeries?.sharesReserves,
+          vaultSeries?.fyTokenReserves,
+          vaultSeries?.getTimeTillMaturity(),
+          vaultSeries?.ts,
+          vaultSeries?.g1,
+          vaultSeries?.decimals
+        );
 
-        /* if the series is mature re-set max as all debt (if balance allows) */
+        /* if maxBasein is less than debt, and set protocol Limited flag */
+        // if (_maxBaseIn.lt(_debtInBase) && !vaultSeries.seriesIsMature) {
+        //   console.log('MaxbaseIn: ', _maxBaseIn.toString());
+        //   console.log('AccruedArt: ', vault.accruedArt.toString());
+        //   setProtocolLimited(false);
+        // } else {
+        //   setProtocolLimited(false);
+        // }
+
+        /* if the series is mature re-set max as all debt ( if balance allows) */
         if (vaultSeries.seriesIsMature) {
           const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
           setMaxRepay(_accruedArt);
