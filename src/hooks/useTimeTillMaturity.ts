@@ -1,41 +1,43 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { IChainContext, ISeries, ISettingsContext } from '../types';
+import { IChainContext } from '../types';
 
-const useTimeTillMaturity = (series: ISeries, useBlockchainTime = false) => {
+const useTimeTillMaturity = (useBlockchainTime = false) => {
   const {
     chainState: {
-      connection: { fallbackProvider },
+      connection: { fallbackProvider, useTenderlyFork },
     },
   } = useContext(ChainContext) as IChainContext;
 
-  const {
-    settingsState: { useTenderlyFork },
-  } = useContext(SettingsContext) as ISettingsContext;
-
   // block timestamp from network
   const [blockTimestamp, setBlockTimestamp] = useState<number>();
+
   const NOW = Math.round(new Date().getTime() / 1000);
 
-  const getTimeTillMaturity = () => (blockTimestamp ? series.maturity - blockTimestamp : series.maturity - NOW);
+  const getTimeTillMaturity = useCallback(
+    (maturity: number) => (blockTimestamp ? maturity - blockTimestamp : maturity - NOW).toString(),
+    [NOW, blockTimestamp]
+  );
 
-  const isMature = () => (blockTimestamp ? series.maturity - blockTimestamp >= 0 : series.maturity - NOW >= 0);
+  const isMature = useCallback(
+    (maturity: number) => (blockTimestamp ? maturity - blockTimestamp >= 0 : maturity - NOW >= 0),
+    [NOW, blockTimestamp]
+  );
 
   // try to get the latest block timestamp when we are using tenderly, or when explicitly requested
   useEffect(() => {
-    if (useTenderlyFork || useBlockchainTime) {
-      (async () => {
+    const getBlockTimestamp = async () => {
+      if (useTenderlyFork || useBlockchainTime) {
         try {
-          const latestTimestamp = (await fallbackProvider.getBlock('latest')).timestamp;
-          console.log('🦄 ~ file: useTimeTillMaturity.ts ~ line 30 ~ latestTimestamp ', latestTimestamp);
-          setBlockTimestamp(latestTimestamp);
+          setBlockTimestamp((await fallbackProvider.getBlock('latest')).timestamp);
         } catch (e) {
           console.log('error getting latest timestamp', e);
         }
-      })();
-    }
-  }, [fallbackProvider, useBlockchainTime, useTenderlyFork]);
+      }
+    };
+
+    getBlockTimestamp();
+  }, [useBlockchainTime, useTenderlyFork]); // intentionally ommitting fallbackProvider to prevents too many re-renders
 
   return { getTimeTillMaturity, isMature };
 };
