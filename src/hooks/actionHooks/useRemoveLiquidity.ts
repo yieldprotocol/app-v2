@@ -11,7 +11,6 @@ import {
   LadleActions,
   RoutedActions,
   IVault,
-  ISettingsContext,
   IAsset,
   IUserContext,
   IUserContextState,
@@ -22,9 +21,9 @@ import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -62,8 +61,8 @@ export const useRemoveLiquidity = () => {
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
-
   const { removeEth } = useAddRemoveEth();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const {
     historyActions: { updateStrategyHistory },
@@ -105,7 +104,7 @@ export const useRemoveLiquidity = () => {
       _newPool.sharesReserves,
       _newPool.fyTokenVirtualReserves,
       _fyTokenReceived,
-      series.getTimeTillMaturity(),
+      getTimeTillMaturity(series.maturity),
       series.ts,
       series.g2,
       series.decimals,
@@ -129,7 +128,7 @@ export const useRemoveLiquidity = () => {
       series.sharesReserves,
       series.fyTokenReserves,
       _fyTokenReceived.sub(matchingVaultDebt),
-      series.getTimeTillMaturity(),
+      getTimeTillMaturity(series.maturity),
       series.ts,
       series.g2,
       series.decimals,

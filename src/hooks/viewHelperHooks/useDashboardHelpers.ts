@@ -18,6 +18,7 @@ import { cleanValue } from '../../utils/appUtils';
 import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import { PriceContext } from '../../contexts/PriceContext';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -38,6 +39,8 @@ export const useDashboardHelpers = () => {
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
 
   const { priceState, priceActions } = useContext(PriceContext) as IPriceContext;
+
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const { pairMap } = priceState;
   const { updateAssetPair } = priceActions;
@@ -73,7 +76,7 @@ export const useDashboardHelpers = () => {
           _series.sharesReserves,
           _series.fyTokenReserves,
           _series.fyTokenBalance || ethers.constants.Zero,
-          _series.getTimeTillMaturity(),
+          getTimeTillMaturity(_series.maturity),
           _series.ts,
           _series.g2,
           _series.decimals,
@@ -91,7 +94,7 @@ export const useDashboardHelpers = () => {
         _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
       );
     setLendPositions(_lendPositions);
-  }, [seriesMap]);
+  }, [getTimeTillMaturity, seriesMap]);
 
   /* set strategy positions */
   useEffect(() => {
@@ -105,7 +108,7 @@ export const useDashboardHelpers = () => {
           currentStrategySeries?.sharesReserves!,
           currentStrategySeries?.fyTokenRealReserves!,
           currentStrategySeries?.totalSupply!,
-          currentStrategySeries?.getTimeTillMaturity()!,
+          getTimeTillMaturity(currentStrategySeries.maturity)!,
           currentStrategySeries?.ts!,
           currentStrategySeries?.g1!,
           currentStrategySeries?.decimals!
@@ -118,7 +121,7 @@ export const useDashboardHelpers = () => {
       .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
       .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
     setStrategyPositions(_strategyPositions);
-  }, [strategyMap, seriesMap]);
+  }, [strategyMap, seriesMap, getTimeTillMaturity]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const convertValue = useCallback(

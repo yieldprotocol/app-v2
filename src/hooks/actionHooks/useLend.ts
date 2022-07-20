@@ -20,6 +20,7 @@ import {
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -42,8 +43,8 @@ export const useLend = () => {
   } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
-
   const { addEth } = useAddRemoveEth();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const lend = async (
     input: string | undefined,
@@ -65,7 +66,7 @@ export const useLend = () => {
           series.sharesReserves,
           series.fyTokenReserves,
           series.getShares(_input), // convert base input to shares
-          series.getTimeTillMaturity(),
+          getTimeTillMaturity(series.maturity),
           series.ts,
           series.g1,
           series.decimals,

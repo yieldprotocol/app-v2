@@ -19,6 +19,7 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 /* Lend Actions Hook */
 export const useRollPosition = () => {
@@ -41,6 +42,7 @@ export const useRollPosition = () => {
   } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -57,7 +59,7 @@ export const useRollPosition = () => {
           fromSeries.sharesReserves,
           fromSeries.fyTokenReserves,
           fromSeries.getShares(_input),
-          fromSeries.getTimeTillMaturity(),
+          getTimeTillMaturity(fromSeries.maturity),
           fromSeries.ts,
           fromSeries.g2,
           fromSeries.decimals,

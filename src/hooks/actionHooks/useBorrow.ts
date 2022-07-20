@@ -26,6 +26,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 export const useBorrow = () => {
   const {
@@ -47,6 +48,7 @@ export const useBorrow = () => {
 
   const { wrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const borrow = async (
     vault: IVault | undefined,
@@ -88,7 +90,7 @@ export const useBorrow = () => {
           series.sharesReserves,
           series.fyTokenReserves,
           series.getShares(_input), // convert input in base to shares
-          series.getTimeTillMaturity(),
+          getTimeTillMaturity(series.maturity),
           series.ts,
           series.g2,
           series.decimals,

@@ -38,6 +38,7 @@ import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
+import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -154,6 +155,7 @@ const UserProvider = ({ children }: any) => {
 
   /* HOOKS */
   const { pathname } = useRouter();
+  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -341,7 +343,7 @@ const UserProvider = ({ children }: any) => {
             sharesReserves,
             fyTokenReserves,
             rateCheckAmount,
-            series.getTimeTillMaturity(),
+            getTimeTillMaturity(series.maturity),
             series.ts,
             series.g2,
             series.decimals,
@@ -360,7 +362,7 @@ const UserProvider = ({ children }: any) => {
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: series.isMature(),
+            seriesIsMature: isMature(series.maturity),
             c,
             mu,
             getShares,

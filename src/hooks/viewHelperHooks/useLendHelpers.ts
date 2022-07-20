@@ -7,6 +7,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ActionType, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 export const useLendHelpers = (
   series: ISeries | null,
@@ -16,6 +17,8 @@ export const useLendHelpers = (
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
+
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount, selectedBase } = userState;
@@ -63,7 +66,7 @@ export const useLendHelpers = (
       const _maxSharesIn = maxBaseIn(
         series.sharesReserves,
         series.fyTokenReserves,
-        series.getTimeTillMaturity(),
+        getTimeTillMaturity(series.maturity),
         series.ts,
         series.g1,
         series.decimals,
@@ -86,7 +89,7 @@ export const useLendHelpers = (
         setProtocolLimited(true);
       }
     }
-  }, [userBaseBalance, series, selectedBase, diagnostics]);
+  }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity]);
 
   /* Sets max close and current market value of fyTokens held in base tokens */
   useEffect(() => {
@@ -95,7 +98,7 @@ export const useLendHelpers = (
         series.sharesReserves,
         series.fyTokenReserves,
         series.fyTokenBalance || ethers.constants.Zero,
-        series.getTimeTillMaturity(),
+        getTimeTillMaturity(series.maturity),
         series.ts,
         series.g2,
         series.decimals,
@@ -109,7 +112,7 @@ export const useLendHelpers = (
       const _maxFyTokenIn = maxFyTokenIn(
         series.sharesReserves,
         series.fyTokenReserves,
-        series.getTimeTillMaturity(),
+        getTimeTillMaturity(series.maturity),
         series.ts,
         series.g2,
         series.decimals,
@@ -142,7 +145,7 @@ export const useLendHelpers = (
       setMaxClose_(val);
       setMaxClose(series.fyTokenBalance!);
     }
-  }, [series]);
+  }, [getTimeTillMaturity, series]);
 
   /* Sets values at maturity on input change */
   useEffect(() => {
@@ -153,7 +156,7 @@ export const useLendHelpers = (
         sharesReserves,
         fyTokenReserves,
         series.getShares(baseAmount), // convert base amount input to shares amount
-        series.getTimeTillMaturity(),
+        getTimeTillMaturity(series.maturity),
         series.ts,
         series.g1,
         series.decimals,
@@ -163,7 +166,7 @@ export const useLendHelpers = (
       setValueAtMaturity(val);
       setValueAtMaturity_(ethers.utils.formatUnits(val, series.decimals).toString());
     }
-  }, [input, series]);
+  }, [getTimeTillMaturity, input, series]);
 
   /* Maximum Roll possible from series to rollToSeries */
   useEffect(() => {
@@ -171,7 +174,7 @@ export const useLendHelpers = (
       const _maxSharesIn = maxBaseIn(
         rollToSeries.sharesReserves,
         rollToSeries.fyTokenReserves,
-        rollToSeries.getTimeTillMaturity(),
+        getTimeTillMaturity(rollToSeries.maturity),
         rollToSeries.ts,
         rollToSeries.g1,
         rollToSeries.decimals,
@@ -188,7 +191,7 @@ export const useLendHelpers = (
             series.sharesReserves,
             series.fyTokenReserves,
             series.fyTokenBalance || ethers.constants.Zero,
-            series.getTimeTillMaturity(),
+            getTimeTillMaturity(series.maturity),
             series.ts,
             series.g2,
             series.decimals,
@@ -211,7 +214,7 @@ export const useLendHelpers = (
       diagnostics && console.log('FYTOKEN_TO_BASE_VALUE', baseValue.toString());
       diagnostics && console.log('MAXSHARES_IN <= SHARES_VALUE', _maxSharesIn.lte(_sharesValue));
     }
-  }, [diagnostics, rollToSeries, series]);
+  }, [diagnostics, rollToSeries, series, getTimeTillMaturity]);
 
   return {
     maxLend,
