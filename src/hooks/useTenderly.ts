@@ -1,38 +1,29 @@
-import { ethers, providers } from 'ethers';
-import { useCallback, useContext, useEffect } from 'react';
-import { ChainContext } from '../contexts/ChainContext';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { IChainContext, ISettingsContext } from '../types';
+import { ethers } from 'ethers';
+import { useEffect, useState } from 'react';
+import { useConnection } from './useConnection';
 
 const useTenderly = () => {
+  const [startBlock, setStartBlock] = useState<number>();
   const {
-    chainState: {
-      connection: {provider, account },
-    },
-  } = useContext(ChainContext) as IChainContext;
+    connectionState: { useTenderlyFork },
+  } = useConnection();
 
-  const {
-    settingsState: { useTenderlyFork },
-  } = useContext(SettingsContext) as ISettingsContext;
+  useEffect(() => {
+    const getStartBlock = async () => {
+      try {
+        const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+        const { number } = await tenderlyProvider.getBlock('fork_root');
+        console.log('🦄 ~ file: useTenderly.ts ~ line 19 ~ getStartBlock ~  start', number);
+        setStartBlock(number);
+      } catch (e) {
+        console.log('could not get tenderly start block', e);
+      }
+    };
 
-  const fillEther = useCallback(async () => {
+    if (useTenderlyFork) getStartBlock();
+  }, [useTenderlyFork]);
 
-    console.log(account)
-    try {
-      const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
-      const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
-      const c = await tenderlyProvider?.send('tenderly_addBalance', transactionParameters);
-
-    } catch (e) {
-      console.log('could not fill eth on tenderly fork');
-    }
-  }, [account]);
-
-  // useEffect(() => {
-  //   fillEther();
-  // }, [fillEther]);
-
-  return { fillEther };
+  return { tenderlyStartBlock: startBlock };
 };
 
 export default useTenderly;
