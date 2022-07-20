@@ -419,15 +419,12 @@ const ChainProvider = ({ children }: any) => {
       };
 
       /* add on extra/calculated ASYNC series info and contract instances */
-      const _chargeSeries = (
-        series: {
-          maturity: number;
-          baseId: string;
-          poolAddress: string;
-          fyTokenAddress: string;
-        },
-        timestamp?: number // optional timestamp
-      ) => {
+      const _chargeSeries = (series: {
+        maturity: number;
+        baseId: string;
+        poolAddress: string;
+        fyTokenAddress: string;
+      }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
         const poolContract = getPoolContract(series.poolAddress, series.maturity);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
@@ -533,7 +530,7 @@ const ChainProvider = ({ children }: any) => {
                 g1,
                 g2,
               };
-              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries, await getChainTime()) });
+              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
               newSeriesList.push(newSeries);
             }
           })
@@ -613,7 +610,7 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
         });
         cachedSeries.forEach(async (s: ISeriesRoot) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, await getChainTime()) });
+          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
           strategyAddresses.includes(st.address) &&
