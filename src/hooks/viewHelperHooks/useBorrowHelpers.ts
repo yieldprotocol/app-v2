@@ -204,7 +204,9 @@ export const useBorrowHelpers = (
           vaultSeries.decimals
         );
 
-        const _baseRequired = vaultSeries.getBase(_sharesRequired);
+        const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero)
+          ? ethers.constants.Zero
+          : vaultSeries.getBase(_sharesRequired);
         const _debtInBase = vaultSeries.isMature() ? vault.accruedArt : _baseRequired;
         setDebtInBase(_baseRequired);
         setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultBase.decimals).toString());
