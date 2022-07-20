@@ -29,7 +29,7 @@ import {
   ISettingsContext,
 } from '../types';
 
-import { ChainContext, TENDERLY_START_BLOCK } from './ChainContext';
+import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { ZERO_BN } from '../utils/constants';
@@ -39,6 +39,7 @@ import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
+import useTenderly from '../hooks/useTenderly';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -156,6 +157,7 @@ const UserProvider = ({ children }: any) => {
   /* HOOKS */
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const { tenderlyStartBlock } = useTenderly();
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -173,7 +175,7 @@ const UserProvider = ({ children }: any) => {
       const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
       const vaultsBuilt = await Cauldron.queryFilter(
         vaultsBuiltFilter,
-        useTenderlyFork ? TENDERLY_START_BLOCK : fromBlock
+        useTenderlyFork ? tenderlyStartBlock : fromBlock
       );
 
       let vaultsReceived = [];
@@ -223,7 +225,7 @@ const UserProvider = ({ children }: any) => {
 
       return newVaultMap;
     },
-    [account, contractMap, seriesRootMap, useTenderlyFork]
+    [account, contractMap, seriesRootMap, tenderlyStartBlock, useTenderlyFork]
   );
 
   /* Updates the assets with relevant *user* data */
