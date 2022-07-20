@@ -20,24 +20,27 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
   );
 
   const isMature = useCallback(
-    (maturity: number) => (blockTimestamp ? maturity - blockTimestamp >= 0 : maturity - NOW >= 0),
+    (maturity: number) => (blockTimestamp ? maturity - blockTimestamp <= 0 : maturity - NOW <= 0),
     [NOW, blockTimestamp]
   );
 
   // try to get the latest block timestamp when we are using tenderly, or when explicitly requested
   useEffect(() => {
     const getBlockTimestamp = async () => {
-      if (useTenderlyFork || useBlockchainTime) {
-        try {
-          setBlockTimestamp((await fallbackProvider.getBlock('latest')).timestamp);
-        } catch (e) {
-          console.log('error getting latest timestamp', e);
-        }
+      try {
+        const { timestamp } = await fallbackProvider.getBlock('latest');
+        setBlockTimestamp(timestamp);
+      } catch (e) {
+        console.log('error getting latest timestamp', e);
       }
     };
 
-    getBlockTimestamp();
-  }, [useBlockchainTime, useTenderlyFork]); // intentionally ommitting fallbackProvider to prevents too many re-renders
+    if (useTenderlyFork || useBlockchainTime) getBlockTimestamp();
+  }, [useBlockchainTime, useTenderlyFork]); // intentionally ommitting fallbackProvider to prevent too many re-renders
+
+  useEffect(() => {
+    console.log('🦄 ~ file: useTimeTillMaturity.ts ~ line 42 ~ useTimeTillMaturity ~ blockTimestamp', blockTimestamp);
+  }, [blockTimestamp, useBlockchainTime, useTenderlyFork]);
 
   return { getTimeTillMaturity, isMature };
 };
