@@ -38,10 +38,6 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
     if (useTenderlyFork || useBlockchainTime) getBlockTimestamp();
   }, [useBlockchainTime, useTenderlyFork]); // intentionally ommitting fallbackProvider to prevent too many re-renders
 
-  useEffect(() => {
-    console.log('🦄 ~ file: useTimeTillMaturity.ts ~ line 42 ~ useTimeTillMaturity ~ blockTimestamp', blockTimestamp);
-  }, [blockTimestamp, useBlockchainTime, useTenderlyFork]);
-
   return { getTimeTillMaturity, isMature };
 };
 
