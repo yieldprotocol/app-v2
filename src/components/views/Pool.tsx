@@ -45,7 +45,6 @@ function Pool() {
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
-  const [poolMethod, setPoolMethod] = useState<AddLiquidityType>(AddLiquidityType.BUY); // BUY default
   const [stepPosition, setStepPosition] = useState<number>(0);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
@@ -67,9 +66,13 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
-    const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
-    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method, matchingVault);
+    if (selectedStrategy && poolInput)
+      addLiquidity(
+        poolInput,
+        selectedStrategy,
+        canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
+        matchingVault
+      );
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -87,10 +90,6 @@ function Pool() {
   useEffect(() => {
     poolProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [poolProcess, resetInputs]);
-
-  useEffect(() => {
-    canBuyAndPool ? setPoolMethod(AddLiquidityType.BUY) : setPoolMethod(AddLiquidityType.BORROW);
-  }, [canBuyAndPool]);
 
   return (
     <MainViewWrap>
