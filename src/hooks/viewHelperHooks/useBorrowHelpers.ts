@@ -6,7 +6,7 @@ import {
   calculateMinCollateral,
   decimalNToDecimal18,
   maxFyTokenIn,
-  maxBaseIn
+  maxBaseIn,
 } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -96,11 +96,11 @@ export const useBorrowHelpers = (
     if (input && vault && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, vault.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
-      /* remaining debt is debt less input  ( with a minimum of zero ) */
-      const remainingDebt = vault.accruedArt.sub(input_).gte(ZERO_BN) ? vault.accruedArt.sub(input_) : ZERO_BN;
+      /* remaining debt is max repay (in base) less input  (with a minimum of zero) */
+      const remainingDebt = maxRepay.sub(input_).gte(ZERO_BN) ? maxRepay.sub(input_) : ZERO_BN;
       setDebtAfterRepay(remainingDebt);
     }
-  }, [input, vault]);
+  }, [input, vault, maxRepay]);
 
   /* Calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
@@ -209,7 +209,6 @@ export const useBorrowHelpers = (
         setDebtInBase(_baseRequired);
         setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultBase.decimals).toString());
 
-
         /* maxRepayable is either the max tokens they have or max debt */
         const _maxRepayable = _userBalance && vault.accruedArt.gt(_userBalance) ? _userBalance : _debtInBase;
 
@@ -217,7 +216,7 @@ export const useBorrowHelpers = (
         const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
         _maxToDust && setMinRepayable(_maxToDust);
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
-        
+
         const _maxBaseIn = maxBaseIn(
           vaultSeries?.sharesReserves,
           vaultSeries?.fyTokenReserves,
