@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react';
 import { useConnection } from './useConnection';
 
 const useTenderly = () => {
-  const [startBlock, setStartBlock] = useState<number>();
   const {
     connectionState: { useTenderlyFork },
   } = useConnection();
+
+  const [startBlock, setStartBlock] = useState<number>();
 
   useEffect(() => {
     const getStartBlock = async () => {
