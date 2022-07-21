@@ -23,7 +23,6 @@ import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 
-
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -114,6 +113,9 @@ export const useAddLiquidity = () => {
     /* DIAGNOSITCS */
     console.log(
       '\n',
+      'method: ',
+      method,
+      '\n',
       'input: ',
       _input.toString(),
       '\n',
@@ -129,16 +131,16 @@ export const useAddLiquidity = () => {
       'virtual: ',
       cachedFyTokenReserves.toString(),
       '\n',
-      '>> baseSplit: ',
+      'baseSplit: ',
       _sharesToPool.toString(),
       '\n',
-      '>> fyTokenSplit (with slippage): ',
+      'fyTokenSplit (with slippage): ',
       sharesToFyTokenWithSlippage.toString(),
       '\n',
-      '>> minRatio',
+      'minRatio',
       minRatio.toString(),
       '\n',
-      '>> maxRatio',
+      'maxRatio',
       maxRatio.toString(),
       '\n',
       'matching vault id',
