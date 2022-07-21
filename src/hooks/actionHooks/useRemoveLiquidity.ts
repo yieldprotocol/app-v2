@@ -119,7 +119,7 @@ export const useRemoveLiquidity = () => {
       series.mu
     );
 
-    const fyTokenTradeSupported = fyTokenTrade.gt(ethers.constants.Zero);
+    const burnForBaseSupported = fyTokenTrade.gt(ethers.constants.Zero);
 
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
@@ -158,13 +158,13 @@ export const useRemoveLiquidity = () => {
         formatUnits(fyTokenTrade, series.decimals),
         '\n',
         'burnForBase supported without vault debt: ',
-        fyTokenTradeSupported,
+        burnForBaseSupported,
         '\n',
         'extraFyTokenTrade (fyTokenReceived minus debt) estimated value, to check if we can call burnForBase with vault debt: ',
         formatUnits(extrafyTokenTrade, series.decimals),
         '\n',
         'burnForBase supported with vault debt: ',
-        fyTokenTradeSupported,
+        extraTradeSupported,
         '\n',
         'Vault to use for removal: ',
         matchingVaultId,
@@ -339,7 +339,7 @@ export const useRemoveLiquidity = () => {
         args: [toAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_FOR_BASE,
         fnName: RoutedActions.Fn.BURN_FOR_BASE,
         targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature || useMatchingVault || !fyTokenTradeSupported,
+        ignoreIf: series.seriesIsMature || useMatchingVault || !burnForBaseSupported,
       },
 
       // 4.2
@@ -350,7 +350,7 @@ export const useRemoveLiquidity = () => {
         args: [toAddress, account, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature || useMatchingVault || fyTokenTradeSupported,
+        ignoreIf: series.seriesIsMature || useMatchingVault || burnForBaseSupported,
       },
 
       /**
