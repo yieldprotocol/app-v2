@@ -1,6 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { burn, burnFromStrategy, calcPoolRatios, newPoolState, sellFYToken } from '@yield-protocol/ui-math';
+import {
+  burn,
+  burnFromStrategy,
+  calcPoolRatios,
+  calculateSlippage,
+  newPoolState,
+  sellFYToken,
+} from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
@@ -29,25 +36,25 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 
 /*
                                                                             +---------+  DEFUNCT PATH
-                                                                       +--> |OPTION 2.1 |  ( unique call: SELL_FYTOKEN) 
+                                                                       +--> |OPTION 2.1 |  (unique call: SELL_FYTOKEN) 
                                                                 NEVER  |    +---------+
                                                                        |
                                  +------------------> sell Token supported
                                  |Y                                    |
                                  |                               Y/  N |    +--------------------+
-               +------> FyTokenRecieved > Debt                        +--->|OPTION 2.2 (no trade) | (unique call:  none of others ) 
+               +------> FyTokenRecieved > Debt                        +--->|OPTION 2.2 (no trade) | (unique call: none of others) 
                |                 |                    +-----------+         +--------------------+
                |Y                +------------------> | OPTION 1  |
                |                  N                   +-----------+
-               |                                             ( unique call: CLOSE_FROM_LADLE)
+               |                                             (unique call: CLOSE_FROM_LADLE)
     +----> has Vault?
     |N         |        +--------+
-    |          +------> |OPTION 4|.  ----------> (unique call: BURN_FOR_BASE )
+    |          +------> |OPTION 4|.  ----------> (unique call: BURN_FOR_BASE)
 is Mature?        N     +--------+
     |
     |
     |Y         +-----------+
-    +--------->| OPTION 3  | (unique call: REDEEM )
+    +--------->| OPTION 3  | (unique call: REDEEM)
                +-----------+
  */
 
@@ -71,7 +78,7 @@ export const useRemoveLiquidity = () => {
   } = useContext(HistoryContext);
 
   const {
-    settingsState: { diagnostics },
+    settingsState: { diagnostics, slippageTolerance },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const removeLiquidity = async (
@@ -133,6 +140,7 @@ export const useRemoveLiquidity = () => {
     // if user has matching vault debt
     // estimate if we can sell fyToken after repaying vault debt
     // use the difference between the amount of fyToken received from burn and debt (which is repaid) to assess whether we can call sell
+    // potentially use network preview here to be more exact
     const extrafyTokenTrade = sellFYToken(
       _newPool.sharesReserves,
       _newPool.fyTokenVirtualReserves,
@@ -144,6 +152,9 @@ export const useRemoveLiquidity = () => {
       series.c,
       series.mu
     );
+
+    // if extra fyToken trade is possible, estimate min base user to receive (convert shares to base)
+    const minBaseToReceive = calculateSlippage(series.getBase(extrafyTokenTrade), slippageTolerance.toString(), true);
 
     /* if valid extraTrade > 0, we can auto sell fyToken after burning lp tokens and getting back excess (greater than vault debt) fyToken */
     const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
@@ -212,6 +223,12 @@ export const useRemoveLiquidity = () => {
 
     const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
     const toAddress = isEthBase ? ladleAddress : account;
+
+    // when the user has a vault and the fyToken received from burn is greater than debt,
+    // if extra trade is supported after repaying debt,
+    // then we send fyToken to the pool to sell
+    // else we give the fyTokens back to the user directly
+    const repayToAddress = extraTradeSupported ? series.poolAddress : account;
 
     /* handle removeing eth BAse tokens:  */
     // NOTE: REMOVE ETH FOR ALL PATHS/OPTIONS (exit_ether sweeps all the eth out the ladle, so exact amount is not important -> just greater than zero)
@@ -315,24 +332,18 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
+        // since fyToken received is greater than debt, we transfer all remaining fyToken after repaying to the pool to sell
+        args: [matchingVaultId, repayToAddress] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
 
-      /* PATCH!!! if removing ETH-BASE, retrieve fyETH as to not leave it in the ladle  */
       {
-        operation: LadleActions.Fn.RETRIEVE,
-        args: [series.fyTokenAddress, account] as LadleActions.Args.RETRIEVE,
-        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !isEthBase,
+        operation: LadleActions.Fn.ROUTE,
+        args: [toAddress, minBaseToReceive] as RoutedActions.Args.SELL_FYTOKEN,
+        fnName: RoutedActions.Fn.SELL_FYTOKEN,
+        targetContract: series.poolContract,
+        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !extraTradeSupported,
       },
-
-      // {
-      //   operation: LadleActions.Fn.ROUTE,
-      //   args: [account, extrafyTokenTrade] as RoutedActions.Args.SELL_FYTOKEN,
-      //   fnName: RoutedActions.Fn.SELL_FYTOKEN,
-      //   targetContract: series.poolContract,
-      //   ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
-      // },
 
       /* OPTION 4. Remove Liquidity and sell - BEFORE MATURITY + NO VAULT */
 
