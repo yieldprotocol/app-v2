@@ -13,9 +13,8 @@ const useTenderly = () => {
     const getStartBlock = async () => {
       try {
         const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
-        const { number } = await tenderlyProvider.getBlock('fork_root');
-        console.log('🦄 ~ file: useTenderly.ts ~ line 19 ~ getStartBlock ~  start', number);
-        setStartBlock(number);
+        const num = await tenderlyProvider.send('tenderly_getForkBlockNumber', []);
+        setStartBlock(num);
       } catch (e) {
         console.log('could not get tenderly start block', e);
       }
