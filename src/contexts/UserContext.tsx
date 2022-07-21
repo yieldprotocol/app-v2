@@ -458,7 +458,7 @@ const UserProvider = ({ children }: any) => {
             let rate: BigNumber;
             let rate_: string;
 
-            if (series.isMature()) {
+            if (isMature(series.maturity)) {
               const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
               const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
 
@@ -543,7 +543,9 @@ const UserProvider = ({ children }: any) => {
         setLastVaultUpdate('earliest');
 
         console.log('VAULTS: ', combinedVaultMap);
-      } catch (error) {}
+      } catch (e) {
+        console.log('error getting vaults', e);
+      }
     },
     [
       contractMap,
