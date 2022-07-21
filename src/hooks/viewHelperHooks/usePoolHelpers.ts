@@ -9,7 +9,6 @@ import {
   burn,
   calculateSlippage,
   sellFYToken,
-  secondsToFrom,
   newPoolState,
 } from '@yield-protocol/ui-math';
 
