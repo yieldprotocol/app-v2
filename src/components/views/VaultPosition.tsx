@@ -519,7 +519,7 @@ const VaultPosition = () => {
 
                             {debtAfterRepay?.eq(ZERO_BN) && (
                               <Text color="text-weak" alignSelf="end" size="xsmall">
-                                All debt will be repaid ( {debtInBase_} {vaultBase?.displaySymbol!} ).
+                                All debt will be repaid ({debtInBase_} {vaultBase?.displaySymbol!}).
                               </Text>
                             )}
                           </InputInfoWrap>

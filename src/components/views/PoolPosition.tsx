@@ -175,9 +175,9 @@ const PoolPosition = () => {
                       value={`${cleanValue(
                         _selectedStrategy?.accountBalance_,
                         selectedBase?.digitFormat!
-                      )} tokens ( ${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
+                      )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
                         selectedBase.symbol
-                      } )`}
+                      })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
