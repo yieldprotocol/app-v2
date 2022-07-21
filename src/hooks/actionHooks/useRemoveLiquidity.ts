@@ -132,8 +132,8 @@ export const useRemoveLiquidity = () => {
 
     // if user has matching vault debt, we use the difference between the amount of fyToken received from burn and debt to assess whether we can call burnForBase
     const extrafyTokenTrade = sellFYToken(
-      series.sharesReserves,
-      series.fyTokenReserves,
+      _newPool.sharesReserves,
+      _newPool.fyTokenVirtualReserves,
       _fyTokenReceived.sub(matchingVaultDebt),
       series.getTimeTillMaturity(),
       series.ts,
