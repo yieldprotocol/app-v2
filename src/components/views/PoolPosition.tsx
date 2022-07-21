@@ -65,14 +65,7 @@ const PoolPosition = () => {
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
   const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired } = usePoolHelpers(removeInput, true);
-
-  const {
-    removeBaseReceived_: removeBaseReceivedMax_,
-    partialRemoveRequired: partialReqd,
-    removeFyTokenReceived_,
-  } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
-
-  cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!);
+  const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
