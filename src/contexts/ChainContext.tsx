@@ -318,11 +318,11 @@ const ChainProvider = ({ children }: any) => {
           [assetAddedEvents, joinAddedEvents] = await Promise.all([
             Cauldron.queryFilter(
               'AssetAdded' as ethers.EventFilter,
-              useTenderlyFork ? tenderlyStartBlock : lastAssetUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastAssetUpdate
             ),
             Ladle.queryFilter(
               'JoinAdded' as ethers.EventFilter,
-              useTenderlyFork ? tenderlyStartBlock : lastAssetUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastAssetUpdate
             ),
           ]);
         } catch (e) {
@@ -468,11 +468,11 @@ const ChainProvider = ({ children }: any) => {
           [seriesAddedEvents, poolAddedEvents] = await Promise.all([
             Cauldron.queryFilter(
               'SeriesAdded' as ethers.EventFilter,
-              useTenderlyFork ? tenderlyStartBlock : lastSeriesUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
             ),
             Ladle.queryFilter(
               'PoolAdded' as ethers.EventFilter,
-              useTenderlyFork ? tenderlyStartBlock : lastSeriesUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
             ),
           ]);
         } catch (error) {
@@ -623,7 +623,7 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [fallbackChainId, fallbackProvider]);
+  }, [fallbackChainId, fallbackProvider, tenderlyStartBlock, useTenderlyFork]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
