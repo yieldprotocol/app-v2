@@ -173,10 +173,7 @@ const UserProvider = ({ children }: any) => {
 
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
       const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-      const vaultsBuilt = await Cauldron.queryFilter(
-        vaultsBuiltFilter,
-        useTenderlyFork ? tenderlyStartBlock : fromBlock
-      );
+      const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, fromBlock);
 
       let vaultsReceived = [];
       try {
@@ -225,7 +222,7 @@ const UserProvider = ({ children }: any) => {
 
       return newVaultMap;
     },
-    [account, contractMap, seriesRootMap, tenderlyStartBlock, useTenderlyFork]
+    [account, contractMap, seriesRootMap]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -428,8 +425,11 @@ const UserProvider = ({ children }: any) => {
         // const RateOracle = contractMap.get('RateOracle');
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-        if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(lastVaultUpdate)).values()); // fromblock specifically x blocks ago for arb testnet
-
+        console.log('🦄 ~ file: UserContext.tsx ~ line 433 ~ tenderlyStartBlock ', tenderlyStartBlock);
+        if (vaultList.length === 0)
+          _vaultList = Array.from(
+            (await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastVaultUpdate)).values()
+          );
         /* Add in the dynamic vault data by mapping the vaults list */
         const vaultListMod = await Promise.all(
           _vaultList.map(async (vault): Promise<IVault> => {
@@ -445,7 +445,7 @@ const UserProvider = ({ children }: any) => {
                 ? (
                     await Witch.queryFilter(
                       Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                      'earliest',
+                      useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
                       'latest'
                     )
                   ).length > 0
@@ -550,13 +550,16 @@ const UserProvider = ({ children }: any) => {
     [
       contractMap,
       _getVaults,
+      useTenderlyFork,
+      tenderlyStartBlock,
       lastVaultUpdate,
       userState.vaultMap,
       vaultFromUrl,
       setLastVaultUpdate,
       seriesRootMap,
-      assetRootMap,
+      isMature,
       diagnostics,
+      assetRootMap,
       account,
       chainId,
     ]
