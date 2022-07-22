@@ -46,11 +46,7 @@ export const useLend = () => {
   const { addEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const lend = async (
-    input: string | undefined,
-    series: ISeries,
-    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
-  ) => {
+  const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
 
@@ -60,19 +56,17 @@ export const useLend = () => {
 
     const ladleAddress = contractMap.get('Ladle').address;
 
-    const _inputAsFyToken = getValuesFromNetwork
-      ? await series.poolContract.sellBasePreview(_input)
-      : sellBase(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          series.getShares(_input), // convert base input to shares
-          getTimeTillMaturity(series.maturity),
-          series.ts,
-          series.g1,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const _inputAsFyToken = sellBase(
+      series.sharesReserves,
+      series.fyTokenReserves,
+      series.getShares(_input), // convert base input to shares
+      getTimeTillMaturity(series.maturity),
+      series.ts,
+      series.g1,
+      series.decimals,
+      series.c,
+      series.mu
+    );
 
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
