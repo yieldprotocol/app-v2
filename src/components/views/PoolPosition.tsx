@@ -97,8 +97,7 @@ const PoolPosition = () => {
   );
 
   const handleRemove = () => {
-    const shouldTradeExtra = partialRemoveRequired && forceDisclaimerChecked ? false : undefined;
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra);
+    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault);
   };
 
   const resetInputs = useCallback(
