@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useReducer } from 'react';
-import { ApprovalType, IChainContext, ISettingsContextState } from '../types';
-import { ChainContext } from './ChainContext';
+import React, { useEffect, useReducer } from 'react';
+import { useConnection } from '../hooks/useConnection';
+import { ApprovalType, ISettingsContextState } from '../types';
 
 export enum Settings {
   APPROVAL_METHOD = 'approvalMethod',
@@ -87,9 +87,7 @@ const SettingsProvider = ({ children }: any) => {
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
   /* STATE FROM CONTEXT */
-  const {
-    chainState: { connection },
-  } = useContext(ChainContext) as IChainContext;
+  const { connectionState: connection } = useConnection();
 
   /* watch & handle linked approval and effect appropriate settings */
   useEffect(() => {
@@ -100,7 +98,7 @@ const SettingsProvider = ({ children }: any) => {
 
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
-    if (connection.connectionName && connection.connectionName !== 'metamask') {
+    if ((connection.connectionName && connection.connectionName !== 'metamask') || connection.useTenderlyFork) {
       console.log('Using manual ERC20 approval transactions');
       updateState({ type: Settings.APPROVAL_MAX, payload: ApprovalType.TX });
     } else if (connection.connectionName === 'metamask') {
@@ -108,7 +106,7 @@ const SettingsProvider = ({ children }: any) => {
       console.log('Using ERC20Permit signing (EIP-2612) ');
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
     }
-  }, [connection.connectionName]);
+  }, [connection.connectionName, connection.useTenderlyFork]);
 
   /* Exposed userActions */
   const settingsActions = {
