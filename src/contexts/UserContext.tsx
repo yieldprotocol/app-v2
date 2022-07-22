@@ -148,8 +148,6 @@ const UserProvider = ({ children }: any) => {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const [lastVaultUpdate, setLastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
-
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
@@ -425,10 +423,9 @@ const UserProvider = ({ children }: any) => {
         // const RateOracle = contractMap.get('RateOracle');
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-        console.log('🦄 ~ file: UserContext.tsx ~ line 433 ~ tenderlyStartBlock ', tenderlyStartBlock);
         if (vaultList.length === 0)
           _vaultList = Array.from(
-            (await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastVaultUpdate)).values()
+            (await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)).values()
           );
         /* Add in the dynamic vault data by mapping the vaults list */
         const vaultListMod = await Promise.all(
@@ -539,9 +536,6 @@ const UserProvider = ({ children }: any) => {
         vaultFromUrl && updateState({ type: UserState.SELECTED_VAULT, payload: vaultFromUrl });
         updateState({ type: UserState.VAULTS_LOADING, payload: false });
 
-        /* Update the local cache storage */
-        setLastVaultUpdate('earliest');
-
         console.log('VAULTS: ', combinedVaultMap);
       } catch (e) {
         console.log('error getting vaults', e);
@@ -552,10 +546,8 @@ const UserProvider = ({ children }: any) => {
       _getVaults,
       useTenderlyFork,
       tenderlyStartBlock,
-      lastVaultUpdate,
       userState.vaultMap,
       vaultFromUrl,
-      setLastVaultUpdate,
       seriesRootMap,
       isMature,
       diagnostics,
@@ -699,13 +691,19 @@ const UserProvider = ({ children }: any) => {
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
     if (!chainLoading && account) {
-      console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
-  }, [account, chainLoading]); // updateVaults ignored here on purpose
+  }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
+
+  /* Trigger update of all vaults with tenderly start block when we are using tenderly */
+  useEffect(() => {
+    if (!useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
+      updateVaults([]);
+    }
+  }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {
