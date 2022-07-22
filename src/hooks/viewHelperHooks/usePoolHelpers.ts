@@ -171,31 +171,36 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* Remove liquidity flow decision tree */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView) {
+      const lpReceived = burnFromStrategy(strategy.strategyPoolBalance, strategy.strategyTotalSupply, _input);
+      const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
+        strategySeries.sharesReserves,
+        strategySeries.fyTokenRealReserves,
+        strategySeries.totalSupply,
+        lpReceived
+      );
+
+      const newPool = newPoolState(
+        sharesReceivedFromBurn.mul(-1),
+        fyTokenReceivedFromBurn.mul(-1),
+        strategySeries.sharesReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply
+      );
+
+      diagnostics &&
+        console.log(
+          'base from burn',
+          formatUnits(strategySeries.getBase(sharesReceivedFromBurn), strategySeries.decimals)
+        );
+      diagnostics && console.log('fytokens from burn', formatUnits(fyTokenReceivedFromBurn, strategySeries.decimals));
+
+      /* Matching vault (with debt) exists: USE 1, 2.1, or 2.2 */
       if (matchingVault) {
-        /* Matching vault (with debt) exists: USE 1, 2.1, or 2.2 */
-        const lpReceived = burnFromStrategy(strategy.strategyPoolBalance, strategy.strategyTotalSupply, _input);
-        const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
-          strategySeries.sharesReserves,
-          strategySeries.fyTokenRealReserves,
-          strategySeries.totalSupply,
-          lpReceived
-        );
-
-        const newPool = newPoolState(
-          sharesReceivedFromBurn.mul(-1),
-          fyTokenReceivedFromBurn.mul(-1),
-          strategySeries.sharesReserves,
-          strategySeries.fyTokenReserves,
-          strategySeries.totalSupply
-        );
-
-        diagnostics && console.log('shares from burn', formatUnits(sharesReceivedFromBurn, strategySeries.decimals));
-
         if (fyTokenReceivedFromBurn.gt(matchingVault.accruedArt)) {
           /* Fytoken sold to base greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
           diagnostics &&
             console.log(
-              'FyTokens received will be greater than debt: an extra sellFytoken trade is required: REMOVE OPTION 2.1 or 2.2 '
+              'FyTokens received will be greater than debt: an extra sellFytoken trade may be required (if possible): REMOVE OPTION 2.1 or 2.2 '
             );
 
           const _extraFyTokensToSell = fyTokenReceivedFromBurn.sub(matchingVault.accruedArt);
@@ -203,6 +208,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           diagnostics &&
             console.log(formatUnits(_extraFyTokensToSell, strategySeries.decimals), 'FyTokens Need to be sold');
 
+          // estimate if we can sell that extra fyToken
           const _extraFyTokenValue = sellFYToken(
             newPool.sharesReserves,
             newPool.fyTokenVirtualReserves,
@@ -216,7 +222,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           );
 
           if (_extraFyTokenValue.gt(ZERO_BN)) {
-            /* CASE > extra fyToken TRADE IS POSSIBLE : USE REMOVE OPTION 2.1? */
+            /* CASE > extra fyToken TRADE IS POSSIBLE : USE REMOVE OPTION 2.1 */
             diagnostics && console.log('USE REMOVE OPTION 2.1');
             setPartialRemoveRequired(false);
 
@@ -244,7 +250,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           /* CASE > fytokenReceived less than debt : USE REMOVE OPTION 1 */
           diagnostics &&
             console.log(
-              'FyTokens received will be less than debt: straight no extra trading is required : USE REMOVE OPTION 1'
+              'FyTokens received will be less than debt: close from ladle, no extra trading is required : USE REMOVE OPTION 1'
             );
 
           setPartialRemoveRequired(false);
@@ -259,14 +265,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       } else {
         /* CASE > No matching vault exists : USE REMOVE OPTION 4 */
         /* Check the amount of fyTokens potentially recieved */
-        const lpReceived = burnFromStrategy(strategy.poolTotalSupply, strategy.strategyTotalSupply, _input);
-        const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
-          strategySeries.sharesReserves,
-          strategySeries.fyTokenRealReserves,
-          strategySeries.totalSupply,
-          lpReceived
-        );
-
         /* Calculate the token Value */
         const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _input,
