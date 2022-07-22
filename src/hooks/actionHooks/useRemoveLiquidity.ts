@@ -223,7 +223,7 @@ export const useRemoveLiquidity = () => {
         'base received from lpToken burn: ',
         formatUnits(series.getBase(_sharesReceived), series.decimals),
         '\n',
-        'ebt: ',
+        'debt: ',
         formatUnits(matchingVaultDebt, series.decimals),
         '\n',
         'Is FyToken Received Greater Than Debt: ',
