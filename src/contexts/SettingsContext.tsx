@@ -100,7 +100,7 @@ const SettingsProvider = ({ children }: any) => {
   useEffect(() => {
     if ((connection.connectionName && connection.connectionName !== 'metamask') || connection.useTenderlyFork) {
       console.log('Using manual ERC20 approval transactions');
-      updateState({ type: Settings.APPROVAL_MAX, payload: ApprovalType.TX });
+      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
     } else if (connection.connectionName === 'metamask') {
       /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
