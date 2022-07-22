@@ -81,12 +81,7 @@ export const useRemoveLiquidity = () => {
     settingsState: { diagnostics, slippageTolerance },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const removeLiquidity = async (
-    input: string,
-    series: ISeries,
-    matchingVault: IVault | undefined,
-    tradeFyToken: boolean = true
-  ) => {
+  const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
@@ -100,6 +95,7 @@ export const useRemoveLiquidity = () => {
       series.poolContract.totalSupply(),
     ]);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
+    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
 
@@ -113,6 +109,9 @@ export const useRemoveLiquidity = () => {
       totalSupply
     );
 
+    /**
+     * Without vault
+     */
     // without vault, assess if we can call burnForBase (auto sell fyToken to shares)
     const fyTokenTrade = sellFYToken(
       _newPool.sharesReserves,
@@ -128,13 +127,14 @@ export const useRemoveLiquidity = () => {
 
     const burnForBaseSupported = fyTokenTrade.gt(ethers.constants.Zero);
 
+    /**
+     * With vault
+     */
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
-
-    // Choose use use matching vault:
+    // Choose use matching vault:
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
 
-    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
     const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
     // if user has matching vault debt
@@ -156,11 +156,12 @@ export const useRemoveLiquidity = () => {
     // if extra fyToken trade is possible, estimate min base user to receive (convert shares to base)
     const minBaseToReceive = calculateSlippage(series.getBase(extrafyTokenTrade), slippageTolerance.toString(), true);
 
-    /* if valid extraTrade > 0, we can auto sell fyToken after burning lp tokens and getting back excess (greater than vault debt) fyToken */
-    const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && tradeFyToken;
+    /* if extra trade is possible (extraTrade > 0), we can auto sell fyToken after burning lp tokens and getting back excess (greater than vault debt) fyToken */
+    const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && useMatchingVault;
 
-    /* Diagnostics */
-    diagnostics &&
+    /* Diagnostics parsed into without and with vault scenarios */
+    !useMatchingVault &&
+      diagnostics &&
       console.log(
         '\n',
         'Strategy: ',
@@ -175,13 +176,34 @@ export const useRemoveLiquidity = () => {
         'burnForBase supported (without vault debt): ',
         burnForBaseSupported,
         '\n',
+        'input: ',
+        formatUnits(_input, series.decimals),
+        '\n',
+        'lpTokens received from strategy token burn: ',
+        formatUnits(lpReceived, series.decimals),
+        '\n',
+        'fyToken received from lpToken burn: ',
+        formatUnits(_fyTokenReceived, series.decimals),
+        '\n',
+        'base received from lpToken burn: ',
+        formatUnits(series.getBase(_sharesReceived), series.decimals)
+      );
+
+    useMatchingVault &&
+      diagnostics &&
+      console.log(
+        '\n',
+        'Strategy: ',
+        _strategy,
+        '\n',
+        '\n',
         'extraFyTokenTrade (fyTokenReceived minus debt) estimated value...',
         '\n',
-        useMatchingVault && 'to check if we can sell fyToken (with vault debt): ',
-        useMatchingVault && formatUnits(extrafyTokenTrade, series.decimals),
+        'to check if we can sell fyToken (with vault debt): ',
+        formatUnits(extrafyTokenTrade, series.decimals),
         '\n',
-        useMatchingVault && 'sellFyToken supported with vault debt: ',
-        useMatchingVault && extraTradeSupported,
+        'sellFyToken supported with vault debt: ',
+        extraTradeSupported,
         '\n',
         'Vault to use for removal: ',
         matchingVaultId,
@@ -189,29 +211,29 @@ export const useRemoveLiquidity = () => {
         'vaultDebt: ',
         formatUnits(matchingVaultDebt, series.decimals),
         '\n',
-        'useMatchingVault: ',
-        useMatchingVault,
-        '\n',
         'input: ',
         formatUnits(_input, series.decimals),
         '\n',
         'lpTokens received from strategy token burn: ',
         formatUnits(lpReceived, series.decimals),
         '\n',
-        'fyToken received from lpTokenburn: ',
+        'fyToken received from lpToken burn: ',
         formatUnits(_fyTokenReceived, series.decimals),
         '\n',
-        useMatchingVault && 'Debt: ',
-        useMatchingVault && formatUnits(matchingVaultDebt, series.decimals),
+        'base received from lpToken burn: ',
+        formatUnits(series.getBase(_sharesReceived), series.decimals),
         '\n',
-        useMatchingVault && 'Is FyToken Received Greater Than Debt: ',
-        useMatchingVault && fyTokenReceivedGreaterThanDebt,
+        'ebt: ',
+        formatUnits(matchingVaultDebt, series.decimals),
         '\n',
-        useMatchingVault && 'Is FyToken tradable after repaying vault debt?: ',
-        useMatchingVault && extraTradeSupported,
+        'Is FyToken Received Greater Than Debt: ',
+        fyTokenReceivedGreaterThanDebt,
         '\n',
-        'extrafyTokentrade value: ',
-        formatUnits(extrafyTokenTrade, series.decimals)
+        'Is FyToken tradable after repaying vault debt?: ',
+        extraTradeSupported,
+        '\n',
+        'extrafyTokentrade value (in base): ',
+        formatUnits(series.getBase(extrafyTokenTrade), series.decimals)
       );
 
     const alreadyApprovedStrategy = _strategy
@@ -230,7 +252,7 @@ export const useRemoveLiquidity = () => {
     // else we give the fyTokens back to the user directly
     const repayToAddress = extraTradeSupported ? series.poolAddress : account;
 
-    /* handle removeing eth BAse tokens:  */
+    /* handle removing eth Base tokens:  */
     // NOTE: REMOVE ETH FOR ALL PATHS/OPTIONS (exit_ether sweeps all the eth out the ladle, so exact amount is not important -> just greater than zero)
     const removeEthCallData: ICallData[] = isEthBase ? removeEth(ONE_BN) : [];
 
