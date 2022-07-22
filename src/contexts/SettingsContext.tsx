@@ -20,6 +20,7 @@ export enum Settings {
   DASH_HIDE_LEND_POSITIONS = 'dashHideLendPositions',
   DASH_HIDE_POOL_POSITIONS = 'dashHidePoolPositions',
   DASH_CURRENCY = 'dashCurrency',
+  USE_TENDERLY_FORK = 'useTenderlyFork',
 }
 
 const SettingsContext = React.createContext<any>({});
@@ -95,6 +96,11 @@ const SettingsProvider = ({ children }: any) => {
       updateState({ type: Settings.APPROVAL_MAX, payload: false });
     }
   }, [settingsState.approvalMethod]);
+
+  /* update tenderly fork setting */
+  useEffect(() => {
+    updateState({ type: Settings.USE_TENDERLY_FORK, payload: connection.useTenderlyFork });
+  }, [connection.useTenderlyFork]);
 
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
