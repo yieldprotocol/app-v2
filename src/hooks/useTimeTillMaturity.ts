@@ -21,7 +21,7 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
   );
 
   const isMature = useCallback(
-    (maturity: number) => (blockTimestamp ? maturity !== 0 : maturity - NOW <= 0),
+    (maturity: number) => (blockTimestamp ? maturity - blockTimestamp <= 0 : maturity - NOW <= 0),
     [NOW, blockTimestamp]
   );
 
