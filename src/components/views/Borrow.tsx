@@ -127,8 +127,11 @@ const Borrow = () => {
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
+    if (borrowDisabled) return;
+
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
-    !borrowDisabled && borrow(_vault, borrowInput, collatInput);
+    setBorrowDisabled(true);
+    borrow(_vault, borrowInput, collatInput);
   };
 
   useEffect(() => {
