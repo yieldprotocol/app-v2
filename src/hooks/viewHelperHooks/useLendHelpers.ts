@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { buyBase, maxBaseIn, maxBaseOut, maxFyTokenIn, sellBase, sellFYToken } from '@yield-protocol/ui-math';
+import { maxBaseIn, maxBaseOut, maxFyTokenIn, sellBase, sellFYToken } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
