@@ -45,7 +45,6 @@ export const useLendHelpers = (
   const [maxRoll_, setMaxRoll_] = useState<string>();
 
   // estimated fyTokens received after rolling to a new series
-  const [rollEstimate, setRollEstimate] = useState<BigNumber>(ethers.constants.Zero);
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
@@ -240,7 +239,6 @@ export const useLendHelpers = (
           rollToSeries.mu
         );
 
-        setRollEstimate(_fyTokenValueOfInputOut);
         setRollEstimate_(ethers.utils.formatUnits(_fyTokenValueOfInputOut, rollToSeries.decimals).toString());
       }
     }
