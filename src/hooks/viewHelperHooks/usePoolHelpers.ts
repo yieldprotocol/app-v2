@@ -9,7 +9,6 @@ import {
   burn,
   calculateSlippage,
   sellFYToken,
-  secondsToFrom,
   newPoolState,
 } from '@yield-protocol/ui-math';
 
@@ -18,6 +17,7 @@ import { IAsset, ISeries, ISettingsContext, IStrategy, IUserContext, IVault } fr
 import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -35,6 +35,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   );
 
   const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.proxyId);
+
+  /* HOOKS */
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   /* LOCAL STATE */
 
@@ -112,7 +115,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       const _maxFyTokenOut = maxFyTokenOut(
         strategySeries.sharesReserves,
         strategySeries.fyTokenReserves,
-        strategySeries.getTimeTillMaturity(),
+        getTimeTillMaturity(strategySeries.maturity),
         strategySeries.ts,
         strategySeries.g1,
         strategySeries.decimals,
@@ -125,7 +128,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         strategySeries.fyTokenRealReserves,
         strategySeries.fyTokenReserves,
         calculateSlippage(strategySeries.getShares(_input), slippageTolerance.toString(), true),
-        strategySeries.getTimeTillMaturity(),
+        getTimeTillMaturity(strategySeries.maturity),
         strategySeries.ts,
         strategySeries.g1,
         strategySeries.decimals,
@@ -146,7 +149,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       /* Don't allow by default */
       setCanBuyAndPool(false);
     }
-  }, [_input, strategySeries, removeLiquidityView, slippageTolerance, diagnostics]);
+  }, [_input, strategySeries, removeLiquidityView, slippageTolerance, diagnostics, getTimeTillMaturity]);
 
   /* Set Max Pool > effectively user balance */
   useEffect(() => {
@@ -206,7 +209,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             newPool.sharesReserves,
             newPool.fyTokenVirtualReserves,
             _extraFyTokensToSell,
-            strategySeries.getTimeTillMaturity(),
+            getTimeTillMaturity(strategySeries.maturity),
             strategySeries.ts,
             strategySeries.g2,
             strategySeries.decimals,
@@ -272,7 +275,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries.sharesReserves,
           strategySeries.fyTokenReserves,
           strategySeries.totalSupply,
-          strategySeries.getTimeTillMaturity(),
+          getTimeTillMaturity(strategySeries.maturity),
           strategySeries.ts,
           strategySeries.g2,
           strategySeries.decimals,
@@ -301,7 +304,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         }
       }
     }
-  }, [strategy, _input, strategySeries, matchingVault, removeLiquidityView, diagnostics]);
+  }, [strategy, _input, strategySeries, matchingVault, removeLiquidityView, diagnostics, getTimeTillMaturity]);
 
   return {
     maxPool,

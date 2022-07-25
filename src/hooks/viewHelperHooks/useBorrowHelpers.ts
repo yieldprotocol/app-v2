@@ -14,6 +14,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -31,6 +32,8 @@ export const useBorrowHelpers = (
   const {
     userState: { activeAccount, assetMap, seriesMap, selectedSeries },
   } = useContext(UserContext);
+
+  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
 
   const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
   const vaultIlk: IAsset | undefined = assetMap.get(vault?.ilkId!);
@@ -112,7 +115,7 @@ export const useBorrowHelpers = (
         futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
         futureSeries.getShares(input_),
-        futureSeries.getTimeTillMaturity(),
+        getTimeTillMaturity(futureSeries.maturity),
         futureSeries.ts,
         futureSeries.g2,
         futureSeries.decimals,
@@ -133,7 +136,7 @@ export const useBorrowHelpers = (
       const _maxFyTokenIn = maxFyTokenIn(
         futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
-        futureSeries.getTimeTillMaturity(),
+        getTimeTillMaturity(futureSeries.maturity),
         futureSeries.ts,
         futureSeries.g2,
         futureSeries.decimals,
@@ -145,7 +148,7 @@ export const useBorrowHelpers = (
         futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
         futureSeries.getShares(vault.accruedArt),
-        futureSeries.getTimeTillMaturity(),
+        getTimeTillMaturity(futureSeries.maturity),
         futureSeries.ts,
         futureSeries.g2,
         futureSeries.decimals,
@@ -198,7 +201,7 @@ export const useBorrowHelpers = (
           vaultSeries.sharesReserves,
           vaultSeries.fyTokenReserves,
           vault.accruedArt,
-          vaultSeries.getTimeTillMaturity(),
+          getTimeTillMaturity(vaultSeries.maturity),
           vaultSeries.ts,
           vaultSeries.g1,
           vaultSeries.decimals
@@ -207,7 +210,7 @@ export const useBorrowHelpers = (
         const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero)
           ? ethers.constants.Zero
           : vaultSeries.getBase(_sharesRequired);
-        const _debtInBase = vaultSeries.isMature() ? vault.accruedArt : _baseRequired;
+        const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
         setDebtInBase(_baseRequired);
         setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultBase.decimals).toString());
 
@@ -222,7 +225,7 @@ export const useBorrowHelpers = (
         const _maxBaseIn = maxBaseIn(
           vaultSeries?.sharesReserves,
           vaultSeries?.fyTokenReserves,
-          vaultSeries?.getTimeTillMaturity(),
+          getTimeTillMaturity(vaultSeries?.maturity),
           vaultSeries?.ts,
           vaultSeries?.g1,
           vaultSeries?.decimals
@@ -248,7 +251,7 @@ export const useBorrowHelpers = (
         }
       })();
     }
-  }, [activeAccount, minDebt, seriesMap, vault, vaultBase]);
+  }, [activeAccount, getTimeTillMaturity, isMature, minDebt, seriesMap, vault, vaultBase]);
 
   return {
     borrowPossible,

@@ -22,6 +22,7 @@ import { ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -43,8 +44,8 @@ export const useClosePosition = () => {
   } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
-
   const { removeEth } = useAddRemoveEth();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const closePosition = async (
     input: string | undefined,
@@ -67,7 +68,7 @@ export const useClosePosition = () => {
           series.sharesReserves,
           series.fyTokenReserves,
           series.getShares(_input),
-          series.getTimeTillMaturity(),
+          getTimeTillMaturity(series.maturity),
           series.ts,
           series.g2,
           series.decimals,

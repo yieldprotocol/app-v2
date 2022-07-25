@@ -18,6 +18,7 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
+import useTenderly from '../hooks/useTenderly';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -28,8 +29,6 @@ enum ChainState {
   ADD_ASSET = 'addAsset',
   ADD_STRATEGY = 'addStrategy',
 }
-
-export const TENDERLY_START_BLOCK = 15169163; // tenderly forked block less ~1000
 
 /* Build the context */
 const ChainContext = React.createContext<any>({});
@@ -104,6 +103,7 @@ function chainReducer(state: IChainContextState, action: any) {
 }
 
 const ChainProvider = ({ children }: any) => {
+  const { tenderlyStartBlock } = useTenderly();
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
   /* CACHED VARIABLES */
@@ -119,10 +119,6 @@ const ChainProvider = ({ children }: any) => {
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
   const { chainId, fallbackProvider, fallbackChainId, useTenderlyFork } = connectionState;
-
-  const getChainTime = async () => useTenderlyFork
-  ? (await fallbackProvider?.getBlock('latest')).timestamp
-  : Math.round(new Date().getTime() / 1000);
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -322,11 +318,11 @@ const ChainProvider = ({ children }: any) => {
           [assetAddedEvents, joinAddedEvents] = await Promise.all([
             Cauldron.queryFilter(
               'AssetAdded' as ethers.EventFilter,
-              useTenderlyFork ? TENDERLY_START_BLOCK : lastAssetUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastAssetUpdate
             ),
             Ladle.queryFilter(
               'JoinAdded' as ethers.EventFilter,
-              useTenderlyFork ? TENDERLY_START_BLOCK : lastAssetUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastAssetUpdate
             ),
           ]);
         } catch (e) {
@@ -423,15 +419,12 @@ const ChainProvider = ({ children }: any) => {
       };
 
       /* add on extra/calculated ASYNC series info and contract instances */
-      const _chargeSeries = (
-        series: {
-          maturity: number;
-          baseId: string;
-          poolAddress: string;
-          fyTokenAddress: string;
-        },
-        timestamp?: number // optional timestamp
-      ) => {
+      const _chargeSeries = (series: {
+        maturity: number;
+        baseId: string;
+        poolAddress: string;
+        fyTokenAddress: string;
+      }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
         const poolContract = getPoolContract(series.poolAddress, series.maturity);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
@@ -440,9 +433,6 @@ const ChainProvider = ({ children }: any) => {
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
         const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
         const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
-
-        const _timestamp = timestamp || Math.round(new Date().getTime() / 1000);
-        // console.log('blockchain Time', timestamp);
 
         return {
           ...series,
@@ -466,8 +456,6 @@ const ChainProvider = ({ children }: any) => {
           seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
           // built-in helper functions:
-          getTimeTillMaturity: () => series.maturity - _timestamp,
-          isMature: () => series.maturity - _timestamp <= 0,
           getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
@@ -480,11 +468,11 @@ const ChainProvider = ({ children }: any) => {
           [seriesAddedEvents, poolAddedEvents] = await Promise.all([
             Cauldron.queryFilter(
               'SeriesAdded' as ethers.EventFilter,
-              useTenderlyFork ? TENDERLY_START_BLOCK : lastSeriesUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
             ),
             Ladle.queryFilter(
               'PoolAdded' as ethers.EventFilter,
-              useTenderlyFork ? TENDERLY_START_BLOCK : lastSeriesUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
             ),
           ]);
         } catch (error) {
@@ -542,7 +530,7 @@ const ChainProvider = ({ children }: any) => {
                 g1,
                 g2,
               };
-              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries, await getChainTime() ) });
+              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
               newSeriesList.push(newSeries);
             }
           })
@@ -622,7 +610,7 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
         });
         cachedSeries.forEach(async (s: ISeriesRoot) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, await getChainTime() ) });
+          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
           strategyAddresses.includes(st.address) &&
@@ -635,7 +623,7 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [fallbackChainId, fallbackProvider]);
+  }, [fallbackChainId, fallbackProvider, tenderlyStartBlock, useTenderlyFork]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version

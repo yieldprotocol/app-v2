@@ -23,12 +23,12 @@ import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 
-
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS } from '../../config/assets';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 export const useAddLiquidity = () => {
   const {
@@ -50,6 +50,7 @@ export const useAddLiquidity = () => {
   } = useContext(HistoryContext);
 
   const { addEth } = useAddRemoveEth();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const addLiquidity = async (
     input: string,
@@ -81,7 +82,7 @@ export const useAddLiquidity = () => {
       cachedRealReserves,
       cachedFyTokenReserves,
       _inputToSharesLessSlippage,
-      _series.getTimeTillMaturity(),
+      getTimeTillMaturity(_series.maturity),
       _series.ts,
       _series.g1,
       _series.decimals,

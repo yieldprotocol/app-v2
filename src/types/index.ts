@@ -176,8 +176,6 @@ export interface ISeriesRoot extends ISignable {
   seriesMark: React.ElementType;
 
   // baked in token fns
-  getTimeTillMaturity: () => string;
-  isMature: () => boolean;
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
@@ -294,8 +292,6 @@ export interface ISeries extends ISeriesRoot {
 }
 
 export interface IAsset extends IAssetRoot {
-
-
   balance: BigNumber;
   balance_: string;
 }
