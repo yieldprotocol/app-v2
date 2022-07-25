@@ -224,10 +224,14 @@ const VaultPosition = () => {
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
-    const remove: boolean = action === 'REMOVE';
-    if (_selectedVault) {
-      !remove && addCollateral(_selectedVault, addCollatInput);
-      remove && removeCollateral(_selectedVault, removeCollatInput);
+    if (action === 'REMOVE') {
+      if (removeCollateralDisabled) return;
+      setRemoveCollateralDisabled(true);
+      removeCollateral(_selectedVault, removeCollatInput);
+    } else {
+      if (addCollateralDisabled) return;
+      setAddCollateralDisabled(true);
+      addCollateral(_selectedVault, addCollatInput);
     }
   };
 
@@ -260,8 +264,12 @@ const VaultPosition = () => {
     /* if ANY of the following conditions are met: block action */
     !repayInput || repayError || !_selectedVault ? setRepayDisabled(true) : setRepayDisabled(false);
     !rollToSeries || rollError || !_selectedVault ? setRollDisabled(true) : setRollDisabled(false);
-    !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
-    !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
+    !addCollatInput || addCollatError || !_selectedVault
+      ? setAddCollateralDisabled(true)
+      : setAddCollateralDisabled(false);
+    !removeCollatInput || removeCollatError || !_selectedVault
+      ? setRemoveCollateralDisabled(true)
+      : setRemoveCollateralDisabled(false);
   }, [
     repayInput,
     repayError,
