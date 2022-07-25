@@ -45,7 +45,6 @@ function Pool() {
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
-  const [poolMethod, setPoolMethod] = useState<AddLiquidityType>(AddLiquidityType.BUY); // BUY default
   const [stepPosition, setStepPosition] = useState<number>(0);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
@@ -67,9 +66,13 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    console.log('POOLING METHOD: ', poolMethod, 'Matching vault', matchingVault?.id);
-    const _method = !canBuyAndPool ? AddLiquidityType.BORROW : poolMethod; // double check
-    selectedStrategy && addLiquidity(poolInput!, selectedStrategy, _method, matchingVault);
+    if (selectedStrategy && poolInput)
+      addLiquidity(
+        poolInput,
+        selectedStrategy,
+        canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
+        matchingVault
+      );
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -87,10 +90,6 @@ function Pool() {
   useEffect(() => {
     poolProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [poolProcess, resetInputs]);
-
-  useEffect(() => {
-    canBuyAndPool ? setPoolMethod(AddLiquidityType.BUY) : setPoolMethod(AddLiquidityType.BORROW);
-  }, [canBuyAndPool]);
 
   return (
     <MainViewWrap>
@@ -204,76 +203,6 @@ function Pool() {
         </Box>
 
         <Box id="midSection" gap="small">
-          {stepPosition === 1 && !poolProcess?.processActive && (
-            <Box direction="row" justify="between" fill align="center" pad={{ horizontal: 'large' }}>
-              {!mobile && (
-                <Box direction="row" gap="xsmall">
-                  <Tip
-                    plain
-                    content={
-                      <Box
-                        gap="small"
-                        background="background"
-                        pad="medium"
-                        width={{ max: '500px' }}
-                        border={{ color: 'gradient-transparent' }}
-                        elevation="small"
-                        margin={{ vertical: 'small' }}
-                        round="small"
-                      >
-                        <Text size="small">
-                          Providing liquidity requires adding both {selectedBase?.symbol} and fy
-                          {selectedBase?.symbol} into the protocol. This is handled automatically in one of two ways:
-                        </Text>
-
-                        <Box>
-                          <Text size="xsmall">Buy & Pool:</Text>
-                          <Text size="xsmall" weight="lighter">
-                            Provide liquidity by using {selectedBase?.symbol} to buy the fy
-                            {selectedBase?.symbol} required.
-                          </Text>
-                          <Text size="xsmall" weight="lighter">
-                            This is the preferred/cheapest method.
-                          </Text>
-                        </Box>
-                        <Box>
-                          <Text size="xsmall">Borrow & Pool:</Text>
-                          <Text size="xsmall" weight="lighter">
-                            Provide liquidity by using {selectedBase?.symbol} to borrow the required fy
-                            {selectedBase?.symbol} from the protocol
-                          </Text>
-                          <Text size="xsmall" weight="lighter">
-                            (this method is typically used when providing a large amount of liquidity, or in
-                            liquidity-limited situations)
-                          </Text>
-                        </Box>
-                      </Box>
-                    }
-                    dropProps={{
-                      align: { bottom: 'top', left: 'left' },
-                    }}
-                  >
-                    <Box direction="row">
-                      <Text size="small">Pooling method:</Text>
-                      <FiInfo size=".75rem" />
-                    </Box>
-                  </Tip>
-                </Box>
-              )}
-              <RadioButtonGroup
-                name="strategy"
-                options={[
-                  { label: <Text size="xsmall">Buy & pool</Text>, value: 'BUY', disabled: !canBuyAndPool },
-                  { label: <Text size="xsmall">Borrow & Pool</Text>, value: 'BORROW' },
-                ]}
-                value={poolMethod}
-                onChange={(event: any) => setPoolMethod(event.target.value)}
-                direction="row"
-                justify="between"
-              />
-            </Box>
-          )}
-
           {stepPosition === 1 && !poolProcess?.processActive && (
             <CheckBox
               pad={{ vertical: 'small', horizontal: 'large' }}
