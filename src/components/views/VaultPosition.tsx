@@ -211,14 +211,12 @@ const VaultPosition = () => {
 
   const handleRepay = () => {
     if (repayDisabled) return;
-
     setRepayDisabled(true);
     repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
   };
 
   const handleRoll = () => {
     if (rollDisabled) return;
-
     setRollDisabled(true);
     rollDebt(_selectedVault, rollToSeries);
   };
