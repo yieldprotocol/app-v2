@@ -97,7 +97,9 @@ const PoolPosition = () => {
   );
 
   const handleRemove = () => {
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault);
+    if (removeDisabled) return;
+    setRemoveDisabled(true);
+    removeLiquidity(removeInput!, selectedSeries, matchingVault);
   };
 
   const resetInputs = useCallback(
@@ -113,8 +115,8 @@ const PoolPosition = () => {
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
+    !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl as string) || null;
