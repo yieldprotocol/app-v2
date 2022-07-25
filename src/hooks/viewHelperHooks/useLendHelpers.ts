@@ -208,7 +208,10 @@ export const useLendHelpers = (
       // calculate base value of current fyToken balance
       const baseValue = series.getBase(_sharesValue);
 
-      if (_maxSharesIn.lte(_sharesValue)) {
+      if (_maxSharesIn.lte(ethers.constants.Zero)) {
+        setMaxRoll(ethers.constants.Zero);
+        setMaxRoll_('0.00');
+      } else if (_maxSharesIn.lte(_sharesValue)) {
         setMaxRoll(_maxBaseIn);
         setMaxRoll_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
       } else {
@@ -222,7 +225,6 @@ export const useLendHelpers = (
 
       // estimate roll output
       if (input) {
-        console.log('🦄 ~ file: useLendHelpers.ts ~ line 225 ~ useEffect ~ input', input);
         const baseAmount = ethers.utils.parseUnits(input, series.decimals);
 
         // estimate how much fyToken you can get given input (base), using the to series
