@@ -23,6 +23,7 @@ import {
   IUserContextState,
   IUserContextActions,
   IChainContext,
+  ISettingsContext,
 } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
@@ -32,6 +33,7 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 /*
                                                                             +---------+  DEFUNCT PATH
