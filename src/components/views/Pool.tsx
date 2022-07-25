@@ -66,13 +66,15 @@ function Pool() {
 
   /* LOCAL ACTION FNS */
   const handleAdd = () => {
-    if (selectedStrategy && poolInput)
-      addLiquidity(
-        poolInput,
-        selectedStrategy,
-        canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
-        matchingVault
-      );
+    if (poolDisabled) return;
+
+    setPoolDisabled(true);
+    addLiquidity(
+      poolInput,
+      selectedStrategy,
+      canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
+      matchingVault
+    );
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
