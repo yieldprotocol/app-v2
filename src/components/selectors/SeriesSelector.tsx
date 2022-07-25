@@ -197,7 +197,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     if (selectSeriesLocally) {
       filteredOpts = opts
         .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
-        .filter((_series) => _series.id !== selectedSeries?.id); // filter out current globally selected series
+        .filter((_series) => _series.id !== selectedSeries?.id) // filter out current globally selected series
+        .filter((_series) => actionType !== ActionType.LEND || _series.maturity > selectedSeries?.maturity); // prevent rolling backward when in lend position
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
