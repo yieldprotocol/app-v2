@@ -101,21 +101,28 @@ export const useDashboardHelpers = () => {
     const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
       .map((_strategy) => {
         const currentStrategySeries = seriesMap.get(_strategy.currentSeriesId);
-        const [, currentValue] = strategyTokenValue(
+        const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,
           _strategy?.strategyPoolBalance || ethers.constants.Zero,
           currentStrategySeries?.sharesReserves!,
-          currentStrategySeries?.fyTokenRealReserves!,
+          currentStrategySeries?.fyTokenReserves!,
           currentStrategySeries?.totalSupply!,
           getTimeTillMaturity(currentStrategySeries.maturity)!,
           currentStrategySeries?.ts!,
-          currentStrategySeries?.g1!,
-          currentStrategySeries?.decimals!
+          currentStrategySeries?.g2!,
+          currentStrategySeries?.decimals!,
+          currentStrategySeries.c,
+          currentStrategySeries.mu
         );
-        const currentValue_ = currentValue.eq(ethers.constants.Zero)
-          ? _strategy.accountBalance_
-          : ethers.utils.formatUnits(currentValue, _strategy.decimals!);
+
+        const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
+          ? ethers.utils.formatUnits(
+              currentStrategySeries.getBase(fyTokenToShares).add(currentStrategySeries.getBase(sharesReceived)), // add shares received to fyTokenToShares (in base)
+              currentStrategySeries.decimals
+            )
+          : _strategy.accountBalance_; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
+
         return { ..._strategy, currentValue_ };
       })
       .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
