@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { IChainContext } from '../types';
 
@@ -13,7 +13,7 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
   // block timestamp from network
   const [blockTimestamp, setBlockTimestamp] = useState<number>();
 
-  const NOW = Math.round(new Date().getTime() / 1000);
+  const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
   const getTimeTillMaturity = useCallback(
     (maturity: number) => (blockTimestamp ? maturity - blockTimestamp : maturity - NOW).toString(),
