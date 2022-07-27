@@ -114,11 +114,15 @@ const LendPosition = () => {
   );
 
   const handleClosePosition = () => {
-    !closeDisabled && closePosition(closeInput, selectedSeries!);
+    if (closeDisabled) return;
+    setCloseDisabled(true);
+    closePosition(closeInput, selectedSeries!);
   };
 
   const handleRollPosition = () => {
-    !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
+    if (rollDisabled) return;
+    setRollDisabled(true);
+    rollPosition(rollInput, selectedSeries!, rollToSeries);
   };
 
   const resetInputs = useCallback(
@@ -140,7 +144,7 @@ const LendPosition = () => {
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
-    !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
+    !rollInput || !rollToSeries || rollError || !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
   }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
 
   /* Watch process timeouts */

@@ -8,7 +8,6 @@ import {
   bytesToBytes32,
   floorDecimal,
   mulDecimal,
-  secondsToFrom,
   sellFYToken,
   calcAccruedDebt,
   toBn,
@@ -31,7 +30,7 @@ import {
   ISettingsContext,
 } from '../types';
 
-import { ChainContext, TENDERLY_START_BLOCK } from './ChainContext';
+import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
@@ -40,6 +39,8 @@ import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
+import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
+import useTenderly from '../hooks/useTenderly';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -148,14 +149,14 @@ const UserProvider = ({ children }: any) => {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const [lastVaultUpdate, setLastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
-
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
 
   /* HOOKS */
   const { pathname } = useRouter();
+  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const { tenderlyStartBlock } = useTenderly();
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -171,10 +172,7 @@ const UserProvider = ({ children }: any) => {
 
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
       const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-      const vaultsBuilt = await Cauldron.queryFilter(
-        vaultsBuiltFilter,
-        useTenderlyFork ? TENDERLY_START_BLOCK : fromBlock
-      );
+      const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, fromBlock);
 
       let vaultsReceived = [];
       try {
@@ -223,7 +221,7 @@ const UserProvider = ({ children }: any) => {
 
       return newVaultMap;
     },
-    [account, contractMap, seriesRootMap, useTenderlyFork]
+    [account, contractMap, seriesRootMap]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -345,7 +343,7 @@ const UserProvider = ({ children }: any) => {
             sharesReserves,
             fyTokenReserves,
             rateCheckAmount,
-            secondsToFrom(series.maturity.toString()),
+            getTimeTillMaturity(series.maturity),
             series.ts,
             series.g2,
             series.decimals,
@@ -366,7 +364,7 @@ const UserProvider = ({ children }: any) => {
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: series.isMature(),
+            seriesIsMature: isMature(series.maturity),
             c,
             mu,
             poolAPY,
@@ -431,8 +429,10 @@ const UserProvider = ({ children }: any) => {
         // const RateOracle = contractMap.get('RateOracle');
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-        if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(lastVaultUpdate)).values()); // fromblock specifically x blocks ago for arb testnet
-
+        if (vaultList.length === 0)
+          _vaultList = Array.from(
+            (await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)).values()
+          );
         /* Add in the dynamic vault data by mapping the vaults list */
         const vaultListMod = await Promise.all(
           _vaultList.map(async (vault): Promise<IVault> => {
@@ -448,7 +448,7 @@ const UserProvider = ({ children }: any) => {
                 ? (
                     await Witch.queryFilter(
                       Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                      'earliest',
+                      useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
                       'latest'
                     )
                   ).length > 0
@@ -461,7 +461,7 @@ const UserProvider = ({ children }: any) => {
             let rate: BigNumber;
             let rate_: string;
 
-            if (series.isMature()) {
+            if (isMature(series.maturity)) {
               const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
               const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
 
@@ -542,22 +542,22 @@ const UserProvider = ({ children }: any) => {
         vaultFromUrl && updateState({ type: UserState.SELECTED_VAULT, payload: vaultFromUrl });
         updateState({ type: UserState.VAULTS_LOADING, payload: false });
 
-        /* Update the local cache storage */
-        setLastVaultUpdate('earliest');
-
         console.log('VAULTS: ', combinedVaultMap);
-      } catch (error) {}
+      } catch (e) {
+        console.log('error getting vaults', e);
+      }
     },
     [
       contractMap,
       _getVaults,
-      lastVaultUpdate,
+      useTenderlyFork,
+      tenderlyStartBlock,
       userState.vaultMap,
       vaultFromUrl,
-      setLastVaultUpdate,
       seriesRootMap,
-      assetRootMap,
+      isMature,
       diagnostics,
+      assetRootMap,
       account,
       chainId,
     ]
@@ -697,13 +697,19 @@ const UserProvider = ({ children }: any) => {
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
     if (!chainLoading && account) {
-      console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
-  }, [account, chainLoading]); // updateVaults ignored here on purpose
+  }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
+
+  /* Trigger update of all vaults with tenderly start block when we are using tenderly */
+  useEffect(() => {
+    if (!useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
+      updateVaults([]);
+    }
+  }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {

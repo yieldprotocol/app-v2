@@ -65,14 +65,7 @@ const PoolPosition = () => {
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
   const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired } = usePoolHelpers(removeInput, true);
-
-  const {
-    removeBaseReceived_: removeBaseReceivedMax_,
-    partialRemoveRequired: partialReqd,
-    removeFyTokenReceived_,
-  } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
-
-  cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!);
+  const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -104,8 +97,9 @@ const PoolPosition = () => {
   );
 
   const handleRemove = () => {
-    const shouldTradeExtra = partialRemoveRequired && forceDisclaimerChecked ? false : undefined;
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra);
+    if (removeDisabled) return;
+    setRemoveDisabled(true);
+    removeLiquidity(removeInput!, selectedSeries, matchingVault);
   };
 
   const resetInputs = useCallback(
@@ -121,8 +115,8 @@ const PoolPosition = () => {
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
+    !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl as string) || null;
@@ -175,9 +169,9 @@ const PoolPosition = () => {
                       value={`${cleanValue(
                         _selectedStrategy?.accountBalance_,
                         selectedBase?.digitFormat!
-                      )} tokens ( ${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
+                      )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
                         selectedBase.symbol
-                      } )`}
+                      })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
@@ -299,10 +293,10 @@ const PoolPosition = () => {
                       <Box>
                         <Text size="xsmall">
                           Force Removal:
-                          {`(You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
+                          {` (you will receive about ${cleanValue(removeBaseReceived_, 2)} ${
                             selectedBase?.displaySymbol
                           } `}
-                          {`and then rest will be in redeemable fy${selectedBase?.displaySymbol})`}
+                          {`and the rest will be in redeemable fy${selectedBase?.displaySymbol})`}
                         </Text>
                       </Box>
                     }

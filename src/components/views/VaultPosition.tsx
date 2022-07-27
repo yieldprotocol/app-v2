@@ -210,18 +210,26 @@ const VaultPosition = () => {
   );
 
   const handleRepay = () => {
-    _selectedVault && repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
+    if (repayDisabled) return;
+    setRepayDisabled(true);
+    repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
   };
 
   const handleRoll = () => {
-    rollToSeries && _selectedVault && rollDebt(_selectedVault, rollToSeries);
+    if (rollDisabled) return;
+    setRollDisabled(true);
+    rollDebt(_selectedVault, rollToSeries);
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
-    const remove: boolean = action === 'REMOVE';
-    if (_selectedVault) {
-      !remove && addCollateral(_selectedVault, addCollatInput);
-      remove && removeCollateral(_selectedVault, removeCollatInput);
+    if (action === 'REMOVE') {
+      if (removeCollateralDisabled) return;
+      setRemoveCollateralDisabled(true);
+      removeCollateral(_selectedVault, removeCollatInput);
+    } else {
+      if (addCollateralDisabled) return;
+      setAddCollateralDisabled(true);
+      addCollateral(_selectedVault, addCollatInput);
     }
   };
 
@@ -252,10 +260,14 @@ const VaultPosition = () => {
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
-    !repayInput || repayError ? setRepayDisabled(true) : setRepayDisabled(false);
-    !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
-    !addCollatInput || addCollatError ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
-    !removeCollatInput || removeCollatError ? setRemoveCollateralDisabled(true) : setRemoveCollateralDisabled(false);
+    !repayInput || repayError || !_selectedVault ? setRepayDisabled(true) : setRepayDisabled(false);
+    !rollToSeries || rollError || !_selectedVault ? setRollDisabled(true) : setRollDisabled(false);
+    !addCollatInput || addCollatError || !_selectedVault
+      ? setAddCollateralDisabled(true)
+      : setAddCollateralDisabled(false);
+    !removeCollatInput || removeCollatError || !_selectedVault
+      ? setRemoveCollateralDisabled(true)
+      : setRemoveCollateralDisabled(false);
   }, [
     repayInput,
     repayError,
@@ -265,6 +277,7 @@ const VaultPosition = () => {
     addCollatError,
     removeCollatError,
     rollError,
+    _selectedVault,
   ]);
 
   /* EXTRA INITIATIONS */
@@ -519,11 +532,17 @@ const VaultPosition = () => {
 
                             {debtAfterRepay?.eq(ZERO_BN) && (
                               <Text color="text-weak" alignSelf="end" size="xsmall">
-                                All debt will be repaid ( {debtInBase_} {vaultBase?.displaySymbol!} ).
+                                All debt will be repaid ({debtInBase_} {vaultBase?.displaySymbol!}).
                               </Text>
                             )}
                           </InputInfoWrap>
                         )}
+
+                        {/* {protocolLimited && (
+                          <InputInfoWrap>
+                            <Text size="xsmall">We recommend waiting until maturity.</Text>
+                          </InputInfoWrap>
+                        )} */}
                       </Box>
                     )}
 
@@ -583,7 +602,7 @@ const VaultPosition = () => {
                                 <Box pad="xsmall">
                                   <Text size="small">It is not currently possible to roll to this series</Text>
                                   <Text color="text-weak" size="xsmall">
-                                    ( Most likely because the debt doesn't meet the minimum debt requirements of the
+                                    (Most likely because the debt doesn't meet the minimum debt requirements of the
                                     future series).
                                   </Text>
                                 </Box>

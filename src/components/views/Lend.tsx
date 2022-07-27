@@ -67,7 +67,9 @@ const Lend = () => {
 
   /* LOCAL FNS */
   const handleLend = () => {
-    !lendDisabled && lend(lendInput, selectedSeries!);
+    if (lendDisabled) return;
+    setLendDisabled(true);
+    lend(lendInput, selectedSeries!);
   };
 
   const resetInputs = useCallback(() => {

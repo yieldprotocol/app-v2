@@ -26,6 +26,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 export const useBorrow = () => {
   const {
@@ -47,13 +48,9 @@ export const useBorrow = () => {
 
   const { wrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const borrow = async (
-    vault: IVault | undefined,
-    input: string | undefined,
-    collInput: string | undefined,
-    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
-  ) => {
+  const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);
     /* use the vault id provided OR 0 if new/ not provided */
@@ -82,19 +79,17 @@ export const useBorrow = () => {
     const cleanCollInput = cleanValue(collInput, ilkToUse.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
-    const _expectedFyToken = getValuesFromNetwork
-      ? await series.poolContract.buyBasePreview(_input)
-      : buyBase(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          series.getShares(_input), // convert input in base to shares
-          series.getTimeTillMaturity(),
-          series.ts,
-          series.g2,
-          series.decimals,
-          series.c,
-          series.mu
-        );
+    const _expectedFyToken = buyBase(
+      series.sharesReserves,
+      series.fyTokenReserves,
+      series.getShares(_input), // convert input in base to shares
+      getTimeTillMaturity(series.maturity),
+      series.ts,
+      series.g2,
+      series.decimals,
+      series.c,
+      series.mu
+    );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */

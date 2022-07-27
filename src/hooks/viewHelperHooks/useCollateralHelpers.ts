@@ -12,6 +12,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { IAssetPair, IUserContext, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -24,6 +25,9 @@ export const useCollateralHelpers = (
   const {
     userState: { activeAccount, selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
   } = useContext(UserContext) as IUserContext;
+
+  /* HOOKS */
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const _selectedBase = vault ? assetMap.get(vault.baseId) : selectedBase;
   const _selectedIlk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
@@ -121,7 +125,7 @@ export const useCollateralHelpers = (
             _selectedSeries.sharesReserves,
             _selectedSeries.fyTokenReserves,
             _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase.decimals)),
-            _selectedSeries.getTimeTillMaturity(),
+            getTimeTillMaturity(_selectedSeries.maturity),
             _selectedSeries.ts,
             _selectedSeries.g2,
             _selectedSeries.decimals,
@@ -193,6 +197,7 @@ export const useCollateralHelpers = (
     minCollatRatio,
     minSafeCollatRatio,
     _selectedSeries,
+    getTimeTillMaturity,
   ]);
 
   /* Monitor for undercollaterization/ danger-collateralisation, and set flags if reqd. */

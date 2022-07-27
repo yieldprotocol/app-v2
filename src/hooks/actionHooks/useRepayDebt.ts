@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '@yield-protocol/ui-math';
+import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
 
 import { UserContext } from '../../contexts/UserContext';
 import {
@@ -24,6 +24,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 export const useRepayDebt = () => {
   const {
@@ -48,6 +49,7 @@ export const useRepayDebt = () => {
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
+  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
 
   /**
    * REPAY FN
@@ -77,7 +79,7 @@ export const useRepayDebt = () => {
     const _maxSharesIn = maxBaseIn(
       series.sharesReserves,
       series.fyTokenReserves,
-      series.getTimeTillMaturity(),
+      getTimeTillMaturity(series.maturity),
       series.ts,
       series.g1,
       series.decimals,
@@ -88,13 +90,17 @@ export const useRepayDebt = () => {
     /* Check the max amount of the trade that the pool can handle */
     const tradeIsNotPossible = series.getShares(_input).gt(_maxSharesIn);
 
-    const _inputAsFyToken = series.seriesIsMature
+    tradeIsNotPossible && console.log('trade is not possible:');
+    tradeIsNotPossible && console.log('input', _input.toString());
+    tradeIsNotPossible && console.log('Max base in:', _maxSharesIn.toString());
+
+    const _inputAsFyToken = isMature(series.maturity)
       ? _input
       : sellBase(
           series.sharesReserves,
           series.fyTokenReserves,
           series.getShares(_input),
-          secondsToFrom(series.maturity.toString()),
+          getTimeTillMaturity(series.maturity),
           series.ts,
           series.g1,
           series.decimals,
