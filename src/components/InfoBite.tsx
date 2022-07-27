@@ -19,7 +19,14 @@ const InfoBite: FC<IInfoBite> = ({ label, value, icon, loading, labelInfo, child
         <Tip
           plain
           content={
-            <Box background="background" pad="small" elevation="small" round="small">
+            <Box
+              background="background"
+              border={{ color: 'gradient-transparent' }}
+              pad="small"
+              elevation="small"
+              round="small"
+              margin={{ vertical: 'xxsmall' }}
+            >
               <Text size="xsmall">{labelInfo}</Text>
             </Box>
           }
