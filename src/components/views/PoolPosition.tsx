@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiZap } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -163,7 +163,6 @@ const PoolPosition = () => {
                       icon={<FiClock height="1em" />}
                       loading={seriesLoading}
                     />
-
                     <InfoBite
                       label="Strategy Token Balance"
                       value={`${cleanValue(
@@ -188,11 +187,20 @@ const PoolPosition = () => {
                     {_selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Strategy Token Ownership"
-                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)} %  of ${nFormatter(
+                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)}% of ${nFormatter(
                           parseFloat(_selectedStrategy?.strategyTotalSupply_!),
                           2
                         )}`}
                         icon={<FiPercent />}
+                        loading={seriesLoading}
+                      />
+                    )}
+                    {_selectedStrategy.currentSeries.poolAPY && (
+                      <InfoBite
+                        label="Pool APY"
+                        icon={<FiZap />}
+                        value={`${cleanValue(_selectedStrategy.currentSeries.poolAPY, 2)}%`}
+                        labelInfo="Estimated APY based on the current Euler supply APY"
                         loading={seriesLoading}
                       />
                     )}
