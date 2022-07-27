@@ -200,6 +200,7 @@ function Pool() {
                         label="Pool APY"
                         icon={<FiZap />}
                         value={`${cleanValue(selectedStrategy.currentSeries.poolAPY, 2)}%`}
+                        labelInfo="Estimated APY based on the current Euler supply APY"
                       />
                     )}
                   </Box>
