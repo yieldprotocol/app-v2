@@ -706,7 +706,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Trigger update of all vaults with tenderly start block when we are using tenderly */
   useEffect(() => {
-    if (!useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
+    if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
       updateVaults([]);
     }
   }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
