@@ -70,6 +70,7 @@ export const useBorrowHelpers = (
 
   const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
   const [rollPossible, setRollPossible] = useState<boolean>(false);
+  const [rollProtocolLimited, setRollProtocolLimited] = useState<boolean>(false);
 
   /* Update the borrow limits if asset pair changes */
   useEffect(() => {
@@ -168,9 +169,11 @@ export const useBorrowHelpers = (
       if (vault.accruedArt.lt(_maxFyTokenIn)) {
         setMaxRoll(vault.accruedArt);
         setMaxRoll_(ethers.utils.formatUnits(vault.accruedArt, futureSeries.decimals).toString());
+        setRollProtocolLimited(false);
       } else {
         setMaxRoll(_maxFyTokenIn);
         setMaxRoll_(ethers.utils.formatUnits(_maxFyTokenIn, futureSeries.decimals).toString());
+        setRollProtocolLimited(true);
       }
 
       // conditions for allowing rolling
@@ -256,6 +259,7 @@ export const useBorrowHelpers = (
   return {
     borrowPossible,
     rollPossible,
+    rollProtocolLimited,
 
     borrowEstimate,
     borrowEstimate_,

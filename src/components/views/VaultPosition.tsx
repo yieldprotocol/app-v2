@@ -166,6 +166,7 @@ const VaultPosition = () => {
     debtAfterRepay,
     debtInBase,
     debtInBase_,
+    rollProtocolLimited,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
@@ -602,8 +603,10 @@ const VaultPosition = () => {
                                 <Box pad="xsmall">
                                   <Text size="small">It is not currently possible to roll to this series</Text>
                                   <Text color="text-weak" size="xsmall">
-                                    (Most likely because the debt doesn't meet the minimum debt requirements of the
-                                    future series).
+                                    {rollProtocolLimited
+                                      ? `Protocol liquidity is limited in the future series`
+                                      : `Most likely because the debt doesn't meet the minimum debt requirements of the
+                                    future series`}
                                   </Text>
                                 </Box>
                               </InputInfoWrap>
