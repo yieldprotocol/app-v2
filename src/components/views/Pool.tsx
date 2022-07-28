@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Tip } from 'grommet';
-import { FiInfo, FiPercent } from 'react-icons/fi';
+import { FiInfo, FiPercent, FiZap } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
@@ -195,6 +195,14 @@ function Pool() {
                       icon={<FiPercent />}
                       value={`${cleanValue(poolPercentPreview, 2)}%`}
                     />
+                    {selectedStrategy.currentSeries.poolAPY && (
+                      <InfoBite
+                        label="Pool APY"
+                        icon={<FiZap />}
+                        value={`${cleanValue(selectedStrategy.currentSeries.poolAPY, 2)}%`}
+                        labelInfo="Estimated APY based on the current Euler supply APY"
+                      />
+                    )}
                   </Box>
                 </ActiveTransaction>
               </Box>
