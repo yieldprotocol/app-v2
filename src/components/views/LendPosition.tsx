@@ -66,11 +66,11 @@ const LendPosition = () => {
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { fyTokenMarketValue, maxClose_, maxClose, maxRoll_ } = useLendHelpers(
-    selectedSeries!,
-    closeInput,
-    rollToSeries!
-  );
+  /* Close helpers */
+  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput, rollToSeries!);
+
+  /* Roll helpers */
+  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeries!, rollInput, rollToSeries!);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
@@ -352,10 +352,13 @@ const LendPosition = () => {
                         <InfoBite
                           label="Roll To Series"
                           icon={<FiArrowRight />}
-                          value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
+                          value={`Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
                             rollInput,
                             selectedBase?.digitFormat!
-                          )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}`}
+                          )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}, receiving ~${cleanValue(
+                            rollEstimate_,
+                            2
+                          )} fy${selectedBase.displaySymbol}`}
                         />
                       </ActiveTransaction>
                     )}

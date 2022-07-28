@@ -24,23 +24,28 @@ export const useLendHelpers = (
   const { activeAccount, selectedBase } = userState;
 
   /* clean to prevent underflow */
+  const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(ethers.constants.Zero);
+
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
   const [maxLend_, setMaxLend_] = useState<string>();
 
+  /* Position state */
   const [maxClose, setMaxClose] = useState<BigNumber>(ethers.constants.Zero);
   const [maxClose_, setMaxClose_] = useState<string>();
-
-  const [maxRoll, setMaxRoll] = useState<BigNumber>(ethers.constants.Zero);
-  const [maxRoll_, setMaxRoll_] = useState<string>();
 
   const [valueAtMaturity, setValueAtMaturity] = useState<BigNumber>(ethers.constants.Zero);
   const [valueAtMaturity_, setValueAtMaturity_] = useState<string>();
 
-  const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(ethers.constants.Zero);
-
   const [protocolLimited, setProtocolLimited] = useState<boolean>(false);
 
   const [fyTokenMarketValue, setFyTokenMarketValue] = useState<string>();
+
+  /* Roll state */
+  const [maxRoll, setMaxRoll] = useState<BigNumber>(ethers.constants.Zero);
+  const [maxRoll_, setMaxRoll_] = useState<string>();
+
+  // estimated fyTokens received after rolling to a new series
+  const [rollEstimate_, setRollEstimate_] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
 
@@ -202,7 +207,10 @@ export const useLendHelpers = (
       // calculate base value of current fyToken balance
       const baseValue = series.getBase(_sharesValue);
 
-      if (_maxSharesIn.lte(_sharesValue)) {
+      if (_maxSharesIn.lte(ethers.constants.Zero)) {
+        setMaxRoll(ethers.constants.Zero);
+        setMaxRoll_('0.00');
+      } else if (_maxSharesIn.lte(_sharesValue)) {
         setMaxRoll(_maxBaseIn);
         setMaxRoll_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
       } else {
@@ -213,8 +221,28 @@ export const useLendHelpers = (
       diagnostics && console.log('MAXSHARES_IN', _maxSharesIn.toString());
       diagnostics && console.log('FYTOKEN_TO_BASE_VALUE', baseValue.toString());
       diagnostics && console.log('MAXSHARES_IN <= SHARES_VALUE', _maxSharesIn.lte(_sharesValue));
+
+      // estimate roll output
+      if (input) {
+        const baseAmount = ethers.utils.parseUnits(input, series.decimals);
+
+        // estimate how much fyToken you can get given input (base), using the to series
+        const _fyTokenValueOfInputOut = sellBase(
+          rollToSeries.sharesReserves,
+          rollToSeries.fyTokenReserves,
+          rollToSeries.getShares(baseAmount),
+          getTimeTillMaturity(rollToSeries.maturity),
+          rollToSeries.ts,
+          rollToSeries.g1,
+          rollToSeries.decimals,
+          rollToSeries.c,
+          rollToSeries.mu
+        );
+
+        setRollEstimate_(ethers.utils.formatUnits(_fyTokenValueOfInputOut, rollToSeries.decimals).toString());
+      }
     }
-  }, [diagnostics, rollToSeries, series, getTimeTillMaturity]);
+  }, [diagnostics, rollToSeries, series, getTimeTillMaturity, input]);
 
   return {
     maxLend,
@@ -225,6 +253,7 @@ export const useLendHelpers = (
 
     maxRoll,
     maxRoll_,
+    rollEstimate_,
 
     apy,
     valueAtMaturity,
