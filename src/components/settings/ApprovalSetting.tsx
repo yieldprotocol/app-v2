@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
-import { ApprovalType } from '../../types';
+import { ApprovalType, ISettingsContext } from '../../types';
 import { Settings, SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
 
@@ -13,14 +13,14 @@ const AdvancedSetting = () => {
   } = useContext(ChainContext);
 
   const {
-    settingsState: { approvalMethod, approveMax },
+    settingsState: { approvalMethod, approveMax, useTenderlyFork },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
+        <Text size="small" color={connectionName === 'metamask' && !useTenderlyFork ? undefined : 'text-xweak'}>
           Use Approval by Transactions
         </Text>
         <Switch
@@ -37,12 +37,12 @@ const AdvancedSetting = () => {
           }
           handleDiameter={20}
           borderRadius={20}
-          disabled={connectionName !== 'metamask'}
+          disabled={connectionName !== 'metamask' || useTenderlyFork}
         />
       </Box>
 
       <Box direction="row" justify="between">
-        <Text size="small" color={approvalMethod === ApprovalType.TX ? undefined : 'text-xweak'}>
+        <Text size="small" color={approvalMethod === ApprovalType.TX && !useTenderlyFork ? undefined : 'text-xweak'}>
           Approve Max
         </Text>
         <Switch
@@ -55,7 +55,7 @@ const AdvancedSetting = () => {
           checkedIcon={false}
           handleDiameter={20}
           borderRadius={20}
-          disabled={!(approvalMethod === ApprovalType.TX)}
+          disabled={!(approvalMethod === ApprovalType.TX) || useTenderlyFork}
         />
       </Box>
     </Box>

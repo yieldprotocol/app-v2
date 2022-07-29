@@ -66,11 +66,11 @@ const LendPosition = () => {
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { fyTokenMarketValue, maxClose_, maxClose, maxRoll_ } = useLendHelpers(
-    selectedSeries!,
-    closeInput,
-    rollToSeries!
-  );
+  /* Close helpers */
+  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput, rollToSeries!);
+
+  /* Roll helpers */
+  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeries!, rollInput, rollToSeries!);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
@@ -114,11 +114,15 @@ const LendPosition = () => {
   );
 
   const handleClosePosition = () => {
-    !closeDisabled && closePosition(closeInput, selectedSeries!);
+    if (closeDisabled) return;
+    setCloseDisabled(true);
+    closePosition(closeInput, selectedSeries!);
   };
 
   const handleRollPosition = () => {
-    !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
+    if (rollDisabled) return;
+    setRollDisabled(true);
+    rollPosition(rollInput, selectedSeries!, rollToSeries);
   };
 
   const resetInputs = useCallback(
@@ -140,7 +144,7 @@ const LendPosition = () => {
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
-    !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
+    !rollInput || !rollToSeries || rollError || !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
   }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
 
   /* Watch process timeouts */
@@ -348,10 +352,13 @@ const LendPosition = () => {
                         <InfoBite
                           label="Roll To Series"
                           icon={<FiArrowRight />}
-                          value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
+                          value={`Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
                             rollInput,
                             selectedBase?.digitFormat!
-                          )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}`}
+                          )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}, receiving ~${cleanValue(
+                            rollEstimate_,
+                            2
+                          )} fy${selectedBase.displaySymbol}`}
                         />
                       </ActiveTransaction>
                     )}

@@ -6,13 +6,16 @@ import { ETH_BASED_ASSETS } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries, IUserContext, IUserContextState } from '../types';
 import { cleanValue } from '../utils/appUtils';
-
+import useTimeTillMaturity from './useTimeTillMaturity';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { seriesMap, selectedSeries, selectedBase } = userState;
+
+  /* HOOKS */
+  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
 
   const _selectedSeries = series || selectedSeries;
   /* Make sure there won't be an underflow */
@@ -33,7 +36,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           sharesReserves,
           fyTokenReserves,
           _selectedSeries.getShares(baseAmount), // convert input from base to shares
-          _selectedSeries.getTimeTillMaturity(),
+          getTimeTillMaturity(_selectedSeries.maturity),
           _selectedSeries.ts,
           _selectedSeries.g1,
           _selectedSeries.decimals,
@@ -46,7 +49,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           sharesReserves,
           fyTokenReserves,
           _selectedSeries.getShares(baseAmount), // convert input from base to shares
-          _selectedSeries.getTimeTillMaturity(),
+          getTimeTillMaturity(_selectedSeries.maturity),
           _selectedSeries.ts,
           _selectedSeries.g2,
           _selectedSeries.decimals,

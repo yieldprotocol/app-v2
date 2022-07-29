@@ -20,6 +20,7 @@ import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -80,6 +81,8 @@ const AprText = ({
   actionType: ActionType;
   color: string;
 }) => {
+  const { getTimeTillMaturity } = useTimeTillMaturity();
+
   const _inputValue = cleanValue(inputValue, series.decimals);
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
@@ -87,7 +90,7 @@ const AprText = ({
   const sharesIn = maxBaseIn(
     series.sharesReserves,
     series.fyTokenReserves,
-    series.getTimeTillMaturity(),
+    getTimeTillMaturity(series.maturity),
     series.ts,
     series.g1,
     series.decimals,
@@ -194,7 +197,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     if (selectSeriesLocally) {
       filteredOpts = opts
         .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
-        .filter((_series) => _series.id !== selectedSeries?.id); // filter out current globally selected series
+        .filter((_series) => _series.id !== selectedSeries?.id) // filter out current globally selected series
+        .filter((_series) => _series.maturity > selectedSeries?.maturity); // prevent rolling positions to an earlier maturity
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));

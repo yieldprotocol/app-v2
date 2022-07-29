@@ -18,6 +18,7 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
+import useTenderly from '../hooks/useTenderly';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -28,8 +29,6 @@ enum ChainState {
   ADD_ASSET = 'addAsset',
   ADD_STRATEGY = 'addStrategy',
 }
-
-export const TENDERLY_START_BLOCK = 15087100 - 999; // tenderly forked block less ~1000
 
 /* Build the context */
 const ChainContext = React.createContext<any>({});
@@ -104,6 +103,7 @@ function chainReducer(state: IChainContextState, action: any) {
 }
 
 const ChainProvider = ({ children }: any) => {
+  const { tenderlyStartBlock } = useTenderly();
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
   /* CACHED VARIABLES */
@@ -318,11 +318,11 @@ const ChainProvider = ({ children }: any) => {
           [assetAddedEvents, joinAddedEvents] = await Promise.all([
             Cauldron.queryFilter(
               'AssetAdded' as ethers.EventFilter,
-              useTenderlyFork ? TENDERLY_START_BLOCK : lastAssetUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastAssetUpdate
             ),
             Ladle.queryFilter(
               'JoinAdded' as ethers.EventFilter,
-              useTenderlyFork ? TENDERLY_START_BLOCK : lastAssetUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastAssetUpdate
             ),
           ]);
         } catch (e) {
@@ -433,6 +433,7 @@ const ChainProvider = ({ children }: any) => {
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
         const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
         const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
+
         return {
           ...series,
 
@@ -455,8 +456,6 @@ const ChainProvider = ({ children }: any) => {
           seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
           // built-in helper functions:
-          getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
-          isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
           getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
@@ -469,11 +468,11 @@ const ChainProvider = ({ children }: any) => {
           [seriesAddedEvents, poolAddedEvents] = await Promise.all([
             Cauldron.queryFilter(
               'SeriesAdded' as ethers.EventFilter,
-              useTenderlyFork ? TENDERLY_START_BLOCK : lastSeriesUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
             ),
             Ladle.queryFilter(
               'PoolAdded' as ethers.EventFilter,
-              useTenderlyFork ? TENDERLY_START_BLOCK : lastSeriesUpdate
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
             ),
           ]);
         } catch (error) {
@@ -610,7 +609,7 @@ const ChainProvider = ({ children }: any) => {
         cachedAssets.forEach((a: IAssetRoot) => {
           updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
         });
-        cachedSeries.forEach((s: ISeriesRoot) => {
+        cachedSeries.forEach(async (s: ISeriesRoot) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
@@ -624,7 +623,7 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [fallbackChainId, fallbackProvider]);
+  }, [fallbackChainId, fallbackProvider, tenderlyStartBlock, useTenderlyFork]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
