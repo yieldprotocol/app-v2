@@ -38,7 +38,7 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
     };
 
     if (useTenderlyFork || useBlockchainTime) getBlockTimestamp();
-  }, []); // intentionally ommitting fallbackProvider to prevent too many re-renders
+  }, [useTenderlyFork, useBlockchainTime]);
 
   return { getTimeTillMaturity, isMature };
 };
