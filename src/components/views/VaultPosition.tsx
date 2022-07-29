@@ -186,12 +186,7 @@ const VaultPosition = () => {
     [0, maxRemovableCollateral]
   );
 
-  const { inputError: rollError } = useInputValidation(
-    _selectedVault?.accruedArt_,
-    ActionCodes.ROLL_DEBT,
-    vaultSeries!,
-    [0, maxRoll_]
-  );
+  const { inputError: rollError } = useInputValidation(maxRoll_, ActionCodes.ROLL_DEBT, vaultSeries!, [0, maxRoll_]);
 
   /* LOCAL COMPNENT FNS */
   const handleStepper = (back: boolean = false) => {
