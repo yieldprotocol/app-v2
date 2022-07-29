@@ -2,6 +2,7 @@ import React, { useContext, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
+import { calculateAPR, bytesToBytes32 } from '@yield-protocol/ui-math';
 import {
   ISeries,
   IVault,
@@ -14,8 +15,6 @@ import {
   IUserContext,
   ISettingsContext,
 } from '../types';
-
-import { calculateAPR, bytesToBytes32 } from '@yield-protocol/ui-math';
 
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
