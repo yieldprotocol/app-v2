@@ -166,8 +166,8 @@ export const useBorrowHelpers = (
 
       /* SET MAX ROLL */
       if (vault.accruedArt.lt(_maxFyTokenIn)) {
-        setMaxRoll(vault.accruedArt);
-        setMaxRoll_(ethers.utils.formatUnits(vault.accruedArt, futureSeries.decimals).toString());
+        setMaxRoll(debtInBase);
+        setMaxRoll_(ethers.utils.formatUnits(debtInBase, futureSeries.decimals).toString());
       } else {
         setMaxRoll(_maxFyTokenIn);
         setMaxRoll_(ethers.utils.formatUnits(_maxFyTokenIn, futureSeries.decimals).toString());
@@ -187,7 +187,7 @@ export const useBorrowHelpers = (
       diagnostics && console.log('Roll possible: ', rollable);
       setRollPossible(rollable);
     }
-  }, [futureSeries, vault, diagnostics, assetPairInfo, minDebt, vaultIlk?.decimals]);
+  }, [futureSeries, vault, diagnostics, assetPairInfo, minDebt, vaultIlk?.decimals, getTimeTillMaturity, debtInBase]);
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
