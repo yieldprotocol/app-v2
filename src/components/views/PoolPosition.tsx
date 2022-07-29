@@ -161,7 +161,6 @@ const PoolPosition = () => {
                       label="Next Roll Date"
                       value={_selectedStrategy?.currentSeries?.fullDate.toString()!}
                       icon={<FiClock height="1em" />}
-                      loading={seriesLoading}
                     />
                     <InfoBite
                       label="Strategy Token Balance"
@@ -201,7 +200,6 @@ const PoolPosition = () => {
                         icon={<FiZap />}
                         value={`${cleanValue(_selectedStrategy.currentSeries.poolAPY, 2)}%`}
                         labelInfo="Estimated APY based on the current Euler supply APY"
-                        loading={seriesLoading}
                       />
                     )}
                   </Box>
