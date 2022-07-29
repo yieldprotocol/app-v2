@@ -352,7 +352,6 @@ const VaultPosition = () => {
                           label="Maturity date"
                           value={`${vaultSeries?.displayName}`}
                           icon={<FiClock color={vaultSeries?.color} />}
-                          loading={vaultsLoading}
                         />
                       )}
 
