@@ -161,6 +161,7 @@ const VaultPosition = () => {
     minRepayable_,
     maxRoll_,
     minDebt,
+    userBaseBalance,
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
@@ -489,11 +490,11 @@ const VaultPosition = () => {
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                             {_selectedVault.accruedArt.gt(maxRepay) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
-                                Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
+                                Use {vaultBase?.displaySymbol!} balance ({cleanValue(maxRepay_!, 2)})
                               </Text>
                             ) : (
                               <Text color="text" alignSelf="end" size="xsmall">
-                                Max debt repayable ({debtInBase_} {vaultBase?.displaySymbol!})
+                                Repay all debt ({debtInBase_} {vaultBase?.displaySymbol!})
                               </Text>
                             )}
                           </InputInfoWrap>

@@ -9,7 +9,6 @@ import {
   maxBaseIn,
 } from '@yield-protocol/ui-math';
 
-import { formatUnits } from 'ethers/lib/utils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
@@ -43,6 +42,7 @@ export const useBorrowHelpers = (
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
   const [borrowEstimate_, setBorrowEstimate_] = useState<string>();
 
+  const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>();
   const [userBaseBalance_, setUserBaseBalance_] = useState<string | undefined>();
 
   const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
@@ -130,7 +130,7 @@ export const useBorrowHelpers = (
       setBorrowEstimate(estimatePlusVaultUsed);
       setBorrowEstimate_(ethers.utils.formatUnits(estimatePlusVaultUsed, futureSeries.decimals).toString());
     }
-  }, [input, futureSeries, vault]);
+  }, [input, futureSeries, vault, getTimeTillMaturity]);
 
   /* SET MAX ROLL and ROLLABLE including Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {
@@ -198,6 +198,7 @@ export const useBorrowHelpers = (
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
       (async () => {
         const _userBalance = await vaultBase.getBalance(activeAccount);
+        setUserBaseBalance(_userBalance);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
 
         const _sharesRequired = buyFYToken(
@@ -279,6 +280,7 @@ export const useBorrowHelpers = (
     maxRoll_,
 
     userBaseBalance_,
+    userBaseBalance,
 
     maxDebt,
     minDebt,
