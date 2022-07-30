@@ -652,7 +652,7 @@ const VaultPosition = () => {
                         ) : (
                           <InputInfoWrap>
                             <Text color="text" alignSelf="end" size="xsmall">
-                              New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
+                              New collateralization ratio will be {nFormatter(parseFloat(addCollEst!), 2)}%
                             </Text>
                           </InputInfoWrap>
                         )}
