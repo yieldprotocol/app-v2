@@ -552,7 +552,7 @@ const VaultPosition = () => {
                                 reverse
                                 size={0.5}
                                 label={
-                                  <Text size="xsmall" color="text-weak">
+                                  <Text size="xsmall" color="text-weak" alignSelf="center">
                                     Remove collateral in the same transaction
                                   </Text>
                                 }
