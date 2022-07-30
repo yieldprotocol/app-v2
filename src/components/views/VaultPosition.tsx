@@ -653,7 +653,7 @@ const VaultPosition = () => {
                         {!addCollatInput ? (
                           <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                             <Text size="xsmall" color="text-weak">
-                              Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
+                              Use {vaultIlk?.displaySymbol!} balance ({vaultIlk?.balance_!} {vaultIlk?.displaySymbol!})
                             </Text>
                           </InputInfoWrap>
                         ) : (
@@ -709,8 +709,7 @@ const VaultPosition = () => {
                         {!removeCollatInput ? (
                           <InputInfoWrap action={() => setRemoveCollatInput(maxRemovableCollateral)}>
                             <Text size="xsmall" color="text-weak">
-                              Max removable collateral: {cleanValue(maxRemovableCollateral, 6)}{' '}
-                              {vaultIlk?.displaySymbol!}
+                              Remove all collateral ({cleanValue(maxRemovableCollateral, 6)} {vaultIlk?.displaySymbol!})
                             </Text>
                           </InputInfoWrap>
                         ) : (
