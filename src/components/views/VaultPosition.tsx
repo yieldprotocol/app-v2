@@ -161,7 +161,6 @@ const VaultPosition = () => {
     minRepayable_,
     maxRoll_,
     minDebt,
-    userBaseBalance,
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,

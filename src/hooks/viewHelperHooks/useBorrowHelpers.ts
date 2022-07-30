@@ -42,7 +42,6 @@ export const useBorrowHelpers = (
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
   const [borrowEstimate_, setBorrowEstimate_] = useState<string>();
 
-  const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>();
   const [userBaseBalance_, setUserBaseBalance_] = useState<string | undefined>();
 
   const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
@@ -198,7 +197,6 @@ export const useBorrowHelpers = (
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
       (async () => {
         const _userBalance = await vaultBase.getBalance(activeAccount);
-        setUserBaseBalance(_userBalance);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
 
         const _sharesRequired = buyFYToken(
@@ -280,7 +278,6 @@ export const useBorrowHelpers = (
     maxRoll_,
 
     userBaseBalance_,
-    userBaseBalance,
 
     maxDebt,
     minDebt,
