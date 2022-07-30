@@ -2,6 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '@yield-protocol/ui-math';
 
+import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -17,6 +18,7 @@ import {
   IUserContextActions,
   IUserContextState,
   ISettingsContext,
+  ActionType,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
@@ -81,7 +83,7 @@ export const useAddLiquidity = () => {
       cachedSharesReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
-      _inputToSharesLessSlippage,
+      inputToShares,
       getTimeTillMaturity(_series.maturity),
       _series.ts,
       _series.g1,
@@ -113,41 +115,46 @@ export const useAddLiquidity = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
 
     /* DIAGNOSITCS */
-    console.log(
-      '\n',
-      'method: ',
-      method,
-      '\n',
-      'input: ',
-      _input.toString(),
-      '\n',
-      'inputLessSlippage: ',
-      _inputToSharesLessSlippage.toString(),
-      '\n',
-      'shares reserves: ',
-      cachedSharesReserves.toString(),
-      '\n',
-      'real: ',
-      cachedRealReserves.toString(),
-      '\n',
-      'virtual: ',
-      cachedFyTokenReserves.toString(),
-      '\n',
-      'baseSplit: ',
-      _sharesToPool.toString(),
-      '\n',
-      'fyTokenSplit (with slippage): ',
-      sharesToFyTokenWithSlippage.toString(),
-      '\n',
-      'minRatio',
-      minRatio.toString(),
-      '\n',
-      'maxRatio',
-      maxRatio.toString(),
-      '\n',
-      'matching vault id',
-      matchingVaultId
-    );
+
+    method === AddLiquidityType.BUY &&
+      console.log('\n', 'method: ', method, '\n', 'input: ', formatUnits(_input.toString(), strategy.decimals), '\n');
+
+    method === AddLiquidityType.BORROW &&
+      console.log(
+        '\n',
+        'method: ',
+        method,
+        '\n',
+        'input: ',
+        formatUnits(_input, strategy.decimals),
+        '\n',
+        'inputLessSlippage: ',
+        formatUnits(_inputToSharesLessSlippage, strategy.decimals),
+        '\n',
+        'shares reserves: ',
+        formatUnits(cachedSharesReserves, strategy.decimals),
+        '\n',
+        'real: ',
+        formatUnits(cachedRealReserves, strategy.decimals),
+        '\n',
+        'virtual: ',
+        formatUnits(cachedFyTokenReserves, strategy.decimals),
+        '\n',
+        'baseSplit: ',
+        formatUnits(_sharesToPool, strategy.decimals),
+        '\n',
+        'fyTokenSplit (with slippage): ',
+        formatUnits(sharesToFyTokenWithSlippage.toString(), strategy.decimals),
+        '\n',
+        'minRatio',
+        minRatio.toString(),
+        '\n',
+        'maxRatio',
+        maxRatio.toString(),
+        '\n',
+        'matching vault id',
+        matchingVaultId
+      );
 
     /**
      * GET SIGNTURE/APPROVAL DATA
