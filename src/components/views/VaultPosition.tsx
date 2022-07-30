@@ -531,12 +531,6 @@ const VaultPosition = () => {
                             )}
                           </InputInfoWrap>
                         )}
-
-                        {/* {protocolLimited && (
-                          <InputInfoWrap>
-                            <Text size="xsmall">We recommend waiting until maturity.</Text>
-                          </InputInfoWrap>
-                        )} */}
                       </Box>
                     )}
 
