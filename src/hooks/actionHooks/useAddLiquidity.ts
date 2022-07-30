@@ -79,7 +79,7 @@ export const useAddLiquidity = () => {
     ]);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
-    const [_fyTokenToBeMinted] = fyTokenForMint(
+    const [_fyTokenToBuy] = fyTokenForMint(
       cachedSharesReserves,
       cachedRealReserves,
       cachedFyTokenReserves,
@@ -205,7 +205,7 @@ export const useAddLiquidity = () => {
         args: [
           strategy.id || account, // NOTE GOTCHA: receiver is _strategyAddress (if it exists) or else account
           account,
-          _fyTokenToBeMinted,
+          _fyTokenToBuy,
           minRatio,
           maxRatio,
         ] as RoutedActions.Args.MINT_WITH_BASE,
