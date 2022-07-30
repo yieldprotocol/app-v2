@@ -367,14 +367,12 @@ const VaultPosition = () => {
                       {_selectedVault?.ink.gt(ZERO_BN) && (
                         <InfoBite
                           label="Collateral posted"
-                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
+                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
+                            vaultIlk?.displaySymbol
+                          } (${collateralizationPercent}%)`}
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                           loading={vaultsLoading}
-                        >
-                          <Box align="center" direction="row">
-                            <Text size="small">({collateralizationPercent}%)</Text>
-                          </Box>
-                        </InfoBite>
+                        />
                       )}
 
                       {_selectedVault?.accruedArt.gt(ZERO_BN) && (
