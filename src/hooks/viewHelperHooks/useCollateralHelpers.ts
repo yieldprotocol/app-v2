@@ -167,7 +167,7 @@ export const useCollateralHelpers = (
          UPDATE: not required anymore
       */
       const _maxRemove = vault?.accruedArt?.gt(ethers.constants.Zero)
-        ? existingCollateralAsWei.sub(min) // .mul(99).div(100)
+        ? existingCollateralAsWei.sub(min).mul(95).div(100)
         : existingCollateralAsWei;
       setMaxRemovableCollateral(ethers.utils.formatUnits(_maxRemove, 18).toString());
 
