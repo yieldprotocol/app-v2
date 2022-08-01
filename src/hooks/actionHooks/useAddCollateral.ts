@@ -13,6 +13,7 @@ import {
   IUserContextState,
   IUserContextActions,
   IChainContext,
+  IHistoryContext,
 } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -23,6 +24,7 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
+import { HistoryContext } from '../../contexts/HistoryContext';
 
 export const useAddCollateral = () => {
   const {
@@ -35,6 +37,10 @@ export const useAddCollateral = () => {
 
   const { activeAccount: account, selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
+
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
 
   const { sign, transact } = useChain();
   const { wrapAsset } = useWrapUnwrapAsset();
@@ -139,6 +145,7 @@ export const useAddCollateral = () => {
     /* then update UI */
     updateVaults([vault!]);
     updateAssets([base!, ilk!]);
+    updateVaultHistory([vault!]);
   };
 
   return { addCollateral };
