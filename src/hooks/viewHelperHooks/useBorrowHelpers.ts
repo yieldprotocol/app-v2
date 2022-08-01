@@ -9,6 +9,7 @@ import {
   maxBaseIn,
 } from '@yield-protocol/ui-math';
 
+import { formatUnits } from 'ethers/lib/utils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
@@ -220,7 +221,7 @@ export const useBorrowHelpers = (
         setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultBase.decimals).toString());
 
         /* maxRepayable is either the max tokens they have or max debt */
-        const _maxRepayable = _userBalance && debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
+        const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
 
         /* set the min repayable up to the dust limit */
         const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
