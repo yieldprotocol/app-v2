@@ -251,7 +251,8 @@ export const useBorrowHelpers = (
           setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
 
           /* maxRepayable is either the max tokens they have or max debt */
-          const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBaseWithBuffer;
+          const _maxRepayable =
+            _userBalance && _debtInBaseWithBuffer.gt(_userBalance) ? _userBalance : _debtInBaseWithBuffer;
 
           /* set the min repayable up to the dust limit */
           const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
