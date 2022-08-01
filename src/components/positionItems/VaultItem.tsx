@@ -58,7 +58,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
                   Debt:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {vaultsLoading && vault.id === selectedVault?.id ? (
+                  {(vaultsLoading && vault.id === selectedVault?.id) || !debtInBase_ ? (
                     <SkeletonWrap width={30} />
                   ) : (
                     cleanValue(debtInBase_, 2)
