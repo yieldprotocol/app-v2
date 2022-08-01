@@ -97,7 +97,6 @@ const AprText = ({
     series.c,
     series.mu
   );
-  // diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
@@ -106,16 +105,7 @@ const AprText = ({
         : setLimitHit(
             series.getShares(ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(series.sharesReserves)
           ); // borrow max
-  }, [
-    _inputValue,
-    actionType,
-    sharesIn,
-    series.sharesReserves,
-    series.decimals,
-    series?.seriesIsMature,
-    setLimitHit,
-    series,
-  ]);
+  }, [_inputValue, actionType, series, sharesIn]);
 
   return (
     <>

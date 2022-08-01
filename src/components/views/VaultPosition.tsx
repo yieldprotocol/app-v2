@@ -351,7 +351,6 @@ const VaultPosition = () => {
                           label="Maturity date"
                           value={`${vaultSeries?.displayName}`}
                           icon={<FiClock color={vaultSeries?.color} />}
-                          loading={vaultsLoading}
                         />
                       )}
 
@@ -367,14 +366,12 @@ const VaultPosition = () => {
                       {_selectedVault?.ink.gt(ZERO_BN) && (
                         <InfoBite
                           label="Collateral posted"
-                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${vaultIlk?.displaySymbol}`}
+                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
+                            vaultIlk?.displaySymbol
+                          } (${collateralizationPercent}%)`}
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
                           loading={vaultsLoading}
-                        >
-                          <Box align="center" direction="row">
-                            <Text size="small">({collateralizationPercent}%)</Text>
-                          </Box>
-                        </InfoBite>
+                        />
                       )}
 
                       {_selectedVault?.accruedArt.gt(ZERO_BN) && (
@@ -489,11 +486,11 @@ const VaultPosition = () => {
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                             {_selectedVault.accruedArt.gt(maxRepay) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
-                                Maximum repayable is {cleanValue(maxRepay_!, 2)} {vaultBase?.displaySymbol!}{' '}
+                                Use {vaultBase?.displaySymbol!} balance ({cleanValue(maxRepay_!, 2)})
                               </Text>
                             ) : (
                               <Text color="text" alignSelf="end" size="xsmall">
-                                Max debt repayable ({debtInBase_} {vaultBase?.displaySymbol!})
+                                Repay all debt ({debtInBase_} {vaultBase?.displaySymbol!})
                               </Text>
                             )}
                           </InputInfoWrap>
@@ -528,17 +525,11 @@ const VaultPosition = () => {
 
                             {debtAfterRepay?.eq(ZERO_BN) && (
                               <Text color="text-weak" alignSelf="end" size="xsmall">
-                                All debt will be repaid ({cleanValue(debtInBase_, 2)} {vaultBase?.displaySymbol!}).
+                                All debt will be repaid ({cleanValue(debtInBase_, 2)} {vaultBase?.displaySymbol!})
                               </Text>
                             )}
                           </InputInfoWrap>
                         )}
-
-                        {/* {protocolLimited && (
-                          <InputInfoWrap>
-                            <Text size="xsmall">We recommend waiting until maturity.</Text>
-                          </InputInfoWrap>
-                        )} */}
                       </Box>
                     )}
 
@@ -561,7 +552,7 @@ const VaultPosition = () => {
                                 reverse
                                 size={0.5}
                                 label={
-                                  <Text size="xsmall" color="text-weak">
+                                  <Text size="xsmall" color="text-weak" alignSelf="center">
                                     Remove collateral in the same transaction
                                   </Text>
                                 }
@@ -655,13 +646,13 @@ const VaultPosition = () => {
                         {!addCollatInput ? (
                           <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                             <Text size="xsmall" color="text-weak">
-                              Max collateral available: {vaultIlk?.balance_!} {vaultIlk?.displaySymbol!}{' '}
+                              Use {vaultIlk?.displaySymbol!} balance ({vaultIlk?.balance_!} {vaultIlk?.displaySymbol!})
                             </Text>
                           </InputInfoWrap>
                         ) : (
                           <InputInfoWrap>
                             <Text color="text" alignSelf="end" size="xsmall">
-                              New collateralization ratio will be: {nFormatter(parseFloat(addCollEst!), 2)}%
+                              New collateralization ratio will be {nFormatter(parseFloat(addCollEst!), 2)}%
                             </Text>
                           </InputInfoWrap>
                         )}
@@ -711,15 +702,14 @@ const VaultPosition = () => {
                         {!removeCollatInput ? (
                           <InputInfoWrap action={() => setRemoveCollatInput(maxRemovableCollateral)}>
                             <Text size="xsmall" color="text-weak">
-                              Max removable collateral: {cleanValue(maxRemovableCollateral, 6)}{' '}
-                              {vaultIlk?.displaySymbol!}
+                              Remove all collateral ({cleanValue(maxRemovableCollateral, 6)} {vaultIlk?.displaySymbol!})
                             </Text>
                           </InputInfoWrap>
                         ) : (
                           <InputInfoWrap>
                             <Box>
                               <Text color="text" alignSelf="start" size="xsmall">
-                                Your collateralization ratio will be: {nFormatter(parseFloat(removeCollEst!), 2)}%
+                                Your collateralization ratio will be {nFormatter(parseFloat(removeCollEst!), 2)}%
                               </Text>
                               {removeCollEstUnhealthyRatio && (
                                 <Text color="red" alignSelf="start" size="xsmall">

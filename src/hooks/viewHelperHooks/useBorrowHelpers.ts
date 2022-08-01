@@ -100,11 +100,11 @@ export const useBorrowHelpers = (
     if (input && vault && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, vault.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
-      /* remaining debt is max repay (in base) less input  (with a minimum of zero) */
-      const remainingDebt = maxRepay.sub(input_).gte(ZERO_BN) ? maxRepay.sub(input_) : ZERO_BN;
+      /* remaining debt is debt in base less input (with a minimum of zero) */
+      const remainingDebt = debtInBase.sub(input_).gte(ZERO_BN) ? debtInBase.sub(input_) : ZERO_BN;
       setDebtAfterRepay(remainingDebt);
     }
-  }, [input, vault, maxRepay]);
+  }, [input, vault, debtInBase]);
 
   /* Calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
@@ -129,7 +129,7 @@ export const useBorrowHelpers = (
       setBorrowEstimate(estimatePlusVaultUsed);
       setBorrowEstimate_(ethers.utils.formatUnits(estimatePlusVaultUsed, futureSeries.decimals).toString());
     }
-  }, [input, futureSeries, vault]);
+  }, [input, futureSeries, vault, getTimeTillMaturity]);
 
   /* SET MAX ROLL and ROLLABLE including Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {
