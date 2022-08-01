@@ -207,7 +207,9 @@ export const useBorrowHelpers = (
           getTimeTillMaturity(vaultSeries.maturity),
           vaultSeries.ts,
           vaultSeries.g1,
-          vaultSeries.decimals
+          vaultSeries.decimals,
+          vaultSeries.c,
+          vaultSeries.mu
         );
 
         const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero)
@@ -218,7 +220,7 @@ export const useBorrowHelpers = (
         setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultBase.decimals).toString());
 
         /* maxRepayable is either the max tokens they have or max debt */
-        const _maxRepayable = _userBalance && vault.accruedArt.gt(_userBalance) ? _userBalance : _debtInBase;
+        const _maxRepayable = _userBalance && debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
 
         /* set the min repayable up to the dust limit */
         const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
