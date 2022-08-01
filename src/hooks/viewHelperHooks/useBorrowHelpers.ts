@@ -166,8 +166,8 @@ export const useBorrowHelpers = (
 
       /* SET MAX ROLL */
       if (vault.accruedArt.lt(_maxFyTokenIn)) {
-        setMaxRoll(debtInBase);
-        setMaxRoll_(ethers.utils.formatUnits(debtInBase, futureSeries.decimals).toString());
+        setMaxRoll(vault.accruedArt);
+        setMaxRoll_(ethers.utils.formatUnits(vault.accruedArt, futureSeries.decimals).toString());
       } else {
         setMaxRoll(_maxFyTokenIn);
         setMaxRoll_(ethers.utils.formatUnits(_maxFyTokenIn, futureSeries.decimals).toString());
