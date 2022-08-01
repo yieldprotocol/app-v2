@@ -580,9 +580,7 @@ const VaultPosition = () => {
                           <Box fill="horizontal">
                             {rollPossible ? (
                               <InputInfoWrap>
-                                <Text size="xsmall">
-                                  All debt {cleanValue(maxRoll_, 2)} {vaultBase?.displaySymbol} will be rolled.
-                                </Text>
+                                <Text size="xsmall">All debt will be rolled</Text>
                               </InputInfoWrap>
                             ) : (
                               <InputInfoWrap>
