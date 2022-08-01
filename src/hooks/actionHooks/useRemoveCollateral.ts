@@ -10,8 +10,8 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
-  ISettingsContext,
   RoutedActions,
+  IHistoryContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
@@ -20,6 +20,7 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
+import { HistoryContext } from '../../contexts/HistoryContext';
 
 export const useRemoveCollateral = () => {
   const {
@@ -33,6 +34,11 @@ export const useRemoveCollateral = () => {
     UserContext
   ) as IUserContext;
   const { activeAccount: account, selectedIlk, assetMap } = userState;
+
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
+
   const { updateAssets, updateVaults } = userActions;
   const { transact } = useChain();
   const { removeEth } = useAddRemoveEth();
@@ -96,6 +102,7 @@ export const useRemoveCollateral = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([ilk, selectedIlk!]);
+    updateVaultHistory([vault]);
   };
 
   return {
