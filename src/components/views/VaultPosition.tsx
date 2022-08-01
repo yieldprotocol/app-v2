@@ -161,6 +161,7 @@ const VaultPosition = () => {
     minRepayable_,
     maxRoll_,
     minDebt,
+    userBaseBalance,
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
@@ -484,7 +485,7 @@ const VaultPosition = () => {
 
                         {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
-                            {debtInBase.gt(maxRepay) ? (
+                            {debtInBase.gt(userBaseBalance) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
                                 Use {vaultBase?.displaySymbol!} balance ({cleanValue(maxRepay_!, 2)})
                               </Text>

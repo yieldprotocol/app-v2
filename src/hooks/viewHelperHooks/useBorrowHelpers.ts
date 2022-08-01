@@ -44,6 +44,7 @@ export const useBorrowHelpers = (
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
   const [borrowEstimate_, setBorrowEstimate_] = useState<string>();
 
+  const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>();
   const [userBaseBalance_, setUserBaseBalance_] = useState<string | undefined>();
 
   const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
@@ -202,6 +203,7 @@ export const useBorrowHelpers = (
 
       (async () => {
         const _userBalance = await vaultBase.getBalance(activeAccount);
+        setUserBaseBalance(_userBalance);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
 
         /* estimate max fyToken out to assess protocol limits */
@@ -241,12 +243,15 @@ export const useBorrowHelpers = (
           const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero)
             ? ethers.constants.Zero
             : vaultSeries.getBase(_sharesRequired);
+
           const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
-          setDebtInBase(_debtInBase);
-          setDebtInBase_(ethers.utils.formatUnits(_debtInBase, vaultBase.decimals).toString());
+          // add buffer to handle moving interest accumulation
+          const _debtInBaseWithBuffer = _debtInBase.mul(10000).div(9999);
+          setDebtInBase(_debtInBaseWithBuffer);
+          setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
 
           /* maxRepayable is either the max tokens they have or max debt */
-          const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
+          const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBaseWithBuffer;
 
           /* set the min repayable up to the dust limit */
           const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
@@ -289,6 +294,7 @@ export const useBorrowHelpers = (
     maxRoll,
     maxRoll_,
 
+    userBaseBalance,
     userBaseBalance_,
 
     maxDebt,
