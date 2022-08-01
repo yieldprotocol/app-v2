@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -9,6 +10,7 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
+  IHistoryContext,
 } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { MAX_128, ZERO_BN } from '../../utils/constants';
@@ -22,6 +24,10 @@ export const useRollDebt = () => {
 
   const { assetMap, seriesMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
+
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
 
   const { transact } = useChain();
 
@@ -49,6 +55,7 @@ export const useRollDebt = () => {
     updateVaults([vault]);
     updateAssets([base!]);
     updateSeries([fromSeries, toSeries]);
+    updateVaultHistory([vault]);
   };
 
   return rollDebt;
