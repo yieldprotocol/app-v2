@@ -35,11 +35,24 @@ export interface IHistoryList {
   lastBlock: number;
   items: any[];
 }
+
+export interface IHistoryContext {
+  historyState: IHistoryContextState;
+  historyActions: IHistoryContextActions;
+}
+
 export interface IHistoryContextState {
   historyLoading: boolean;
   tradeHistory: IHistoryList;
   poolHistory: IHistoryList;
   vaultHistory: IHistoryList;
+}
+
+export interface IHistoryContextActions {
+  updatePoolHistory: (seriesList: ISeries[]) => Promise<void>;
+  updateStrategyHistory: (strategyList: IStrategy[]) => Promise<void>;
+  updateVaultHistory: (vaultList: IVault[]) => Promise<void>;
+  updateTradeHistory: (seriesList: ISeries[]) => Promise<void>;
 }
 
 export interface IChainContextActions {

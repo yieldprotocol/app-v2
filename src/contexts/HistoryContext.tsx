@@ -14,6 +14,7 @@ import {
   IChainContext,
   IUserContext,
   ISettingsContext,
+  IHistoryContextActions,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -478,7 +479,7 @@ const HistoryProvider = ({ children }: any) => {
   );
 
   /* Exposed userActions */
-  const historyActions = {
+  const historyActions: IHistoryContextActions = {
     updatePoolHistory,
     updateStrategyHistory,
     updateVaultHistory,
