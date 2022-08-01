@@ -7,6 +7,7 @@ import {
   decimalNToDecimal18,
   maxFyTokenIn,
   maxBaseIn,
+  maxFyTokenOut,
 } from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
@@ -197,14 +198,16 @@ export const useBorrowHelpers = (
   useEffect(() => {
     if (activeAccount && vault && vaultBase && minDebt) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
+      if (!vaultSeries) return;
+
       (async () => {
         const _userBalance = await vaultBase.getBalance(activeAccount);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
 
-        const _sharesRequired = buyFYToken(
+        /* estimate max fyToken out to assess protocol limits */
+        const _maxFyTokenOut = maxFyTokenOut(
           vaultSeries.sharesReserves,
           vaultSeries.fyTokenReserves,
-          vault.accruedArt,
           getTimeTillMaturity(vaultSeries.maturity),
           vaultSeries.ts,
           vaultSeries.g1,
@@ -213,29 +216,52 @@ export const useBorrowHelpers = (
           vaultSeries.mu
         );
 
-        const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero)
-          ? ethers.constants.Zero
-          : vaultSeries.getBase(_sharesRequired);
-        const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
-        setDebtInBase(_baseRequired);
-        setDebtInBase_(ethers.utils.formatUnits(_baseRequired, vaultBase.decimals).toString());
+        const limited = _maxFyTokenOut.lt(vault.accruedArt);
 
-        /* maxRepayable is either the max tokens they have or max debt */
-        const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
-
-        /* set the min repayable up to the dust limit */
-        const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
-        _maxToDust && setMinRepayable(_maxToDust);
-        _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
-
-        /* if the series is mature re-set max as all debt ( if balance allows) */
-        if (vaultSeries.seriesIsMature) {
-          const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
-          setMaxRepay(_accruedArt);
-          setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
+        /* adjust max repayable to vault art if protocol limited */
+        if (limited) {
+          const accruedArt_ = ethers.utils.formatUnits(vault.accruedArt, vault.decimals);
+          setMaxRepay(vault.accruedArt);
+          setMaxRepay_(accruedArt_);
+          setDebtInBase(vault.accruedArt);
+          setDebtInBase_(accruedArt_);
         } else {
-          setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase?.decimals)?.toString());
-          setMaxRepay(_maxRepayable);
+          const _sharesRequired = buyFYToken(
+            vaultSeries.sharesReserves,
+            vaultSeries.fyTokenReserves,
+            vault.accruedArt,
+            getTimeTillMaturity(vaultSeries.maturity),
+            vaultSeries.ts,
+            vaultSeries.g1,
+            vaultSeries.decimals,
+            vaultSeries.c,
+            vaultSeries.mu
+          );
+
+          const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero)
+            ? ethers.constants.Zero
+            : vaultSeries.getBase(_sharesRequired);
+          const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
+          setDebtInBase(_debtInBase);
+          setDebtInBase_(ethers.utils.formatUnits(_debtInBase, vaultBase.decimals).toString());
+
+          /* maxRepayable is either the max tokens they have or max debt */
+          const _maxRepayable = _userBalance && _debtInBase.gt(_userBalance) ? _userBalance : _debtInBase;
+
+          /* set the min repayable up to the dust limit */
+          const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
+          _maxToDust && setMinRepayable(_maxToDust);
+          _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
+
+          /* if the series is mature re-set max as all debt (if balance allows) */
+          if (vaultSeries.seriesIsMature) {
+            const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
+            setMaxRepay(_accruedArt);
+            setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
+          } else {
+            setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase.decimals));
+            setMaxRepay(_maxRepayable);
+          }
         }
       })();
     }
