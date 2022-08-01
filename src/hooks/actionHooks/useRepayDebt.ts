@@ -36,7 +36,7 @@ export const useRepayDebt = () => {
   ) as IUserContext;
 
   const { activeAccount: account, seriesMap, assetMap } = userState;
-  const { updateVaults, updateAssets } = userActions;
+  const { updateVaults, updateAssets, updateSeries } = userActions;
 
   const {
     chainState: {
@@ -219,6 +219,7 @@ export const useRepayDebt = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
+    updateSeries([series]);
   };
 
   return repay;
