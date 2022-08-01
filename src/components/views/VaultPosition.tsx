@@ -362,7 +362,7 @@ const VaultPosition = () => {
                           vaultBase?.displaySymbol
                         }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
                         icon={<FiTrendingUp />}
-                        loading={vaultsLoading}
+                        loading={vaultsLoading || !debtInBase_}
                       />
 
                       {_selectedVault?.ink.gt(ZERO_BN) && (
