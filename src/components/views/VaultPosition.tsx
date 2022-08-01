@@ -167,6 +167,7 @@ const VaultPosition = () => {
     debtInBase,
     debtInBase_,
     rollProtocolLimited,
+    repayLimited,
   } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
@@ -486,7 +487,9 @@ const VaultPosition = () => {
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                             {debtInBase.gt(maxRepay) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
-                                Use {vaultBase?.displaySymbol!} balance ({cleanValue(maxRepay_!, 2)})
+                                {repayLimited
+                                  ? `It is currently not possible to repay all debt because of limited protocol liquidity`
+                                  : `Use ${vaultBase?.displaySymbol!} balance (${cleanValue(maxRepay_!, 2)})`}
                               </Text>
                             ) : (
                               <Text color="text" alignSelf="end" size="xsmall">
