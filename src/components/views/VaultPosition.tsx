@@ -161,6 +161,7 @@ const VaultPosition = () => {
     minRepayable_,
     maxRoll_,
     minDebt,
+    userBaseBalance,
     userBaseBalance_,
     rollPossible,
     debtAfterRepay,
@@ -351,6 +352,7 @@ const VaultPosition = () => {
                           label="Maturity date"
                           value={`${vaultSeries?.displayName}`}
                           icon={<FiClock color={vaultSeries?.color} />}
+                          loading={!vaultSeries?.maturity}
                         />
                       )}
 
@@ -360,7 +362,7 @@ const VaultPosition = () => {
                           vaultBase?.displaySymbol
                         }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
                         icon={<FiTrendingUp />}
-                        loading={vaultsLoading}
+                        loading={vaultsLoading || !debtInBase_}
                       />
 
                       {_selectedVault?.ink.gt(ZERO_BN) && (
@@ -484,13 +486,13 @@ const VaultPosition = () => {
 
                         {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
-                            {_selectedVault.accruedArt.gt(maxRepay) ? (
+                            {maxRepay.gt(userBaseBalance) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
-                                Use {vaultBase?.displaySymbol!} balance ({cleanValue(maxRepay_!, 2)})
+                                Use {vaultBase?.displaySymbol!} balance ({cleanValue(userBaseBalance_, 2)})
                               </Text>
                             ) : (
                               <Text color="text" alignSelf="end" size="xsmall">
-                                Repay all debt ({debtInBase_} {vaultBase?.displaySymbol!})
+                                Repay all debt ({maxRepay_} {vaultBase?.displaySymbol!})
                               </Text>
                             )}
                           </InputInfoWrap>
