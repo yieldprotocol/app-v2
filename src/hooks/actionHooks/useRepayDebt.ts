@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
 
+import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
