@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { ReactNode } from 'react';
 import { Box, Text, Tip } from 'grommet';
 import { FiInfo } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
@@ -9,9 +9,10 @@ interface IInfoBite {
   icon?: any;
   loading?: boolean;
   labelInfo?: string;
+  children?: ReactNode;
 }
 
-const InfoBite: FC<IInfoBite> = ({ label, value, icon, loading, labelInfo, children }) => (
+const InfoBite = ({ label, value, icon, loading, labelInfo, children }: IInfoBite) => (
   <Box direction="row" align="center" pad={{ left: 'small', vertical: 'none' }} gap="medium">
     {icon && <Box>{icon}</Box>}
     <Box>
