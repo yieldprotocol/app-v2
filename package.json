@@ -39,6 +39,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --out-dir './src/contracts/'",
     "license-checker": "license-checker --csv --out licenses.csv",
