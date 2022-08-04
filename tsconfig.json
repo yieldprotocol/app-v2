@@ -19,5 +19,5 @@
     "incremental": true
   },
   "include": ["src", "__tests__"],
-  "exclude": ["**node_modules", "**/src/contracts"]
+  "exclude": ["**node_modules", "**/src/contracts**"]
 }
