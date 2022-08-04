@@ -45,12 +45,6 @@
     "license-checker": "license-checker --csv --out licenses.csv",
     "test": "jest --watch"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -81,19 +75,8 @@
     "@types/react-router-dom": "^5.3.0",
     "@types/styled-components": "^5.1.14",
     "@types/uuid": "^8.3.1",
-    "@typescript-eslint/eslint-plugin": "^4.32.0",
-    "@typescript-eslint/parser": "^4.32.0",
     "audit-ci": "^4.1.0",
     "chai": "^4.3.6",
-    "eslint": "^7.32.0",
-    "eslint-config-airbnb-typescript": "^12.3.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-config-react-app": "^6.0.0",
-    "eslint-plugin-flowtype": "^5.10.0",
-    "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.26.1",
-    "eslint-plugin-react-hooks": "^4.2.0",
     "ethereum-waffle": "^3.2.0\n",
     "hardhat": "^2.7.0",
     "mocha": "^9.1.3",
@@ -102,7 +85,7 @@
     "source-map-explorer": "^2.5.2",
     "ts-node": "^9.1.1",
     "typechain": "^5.1.2",
-    "typescript": "^4.4.3"
+    "typescript": "^4.7.4"
   },
   "lavamoat": {
     "allowScripts": {
