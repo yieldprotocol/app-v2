@@ -14,6 +14,7 @@ import {
   IChainContext,
   IUserContext,
   ISettingsContext,
+  IHistoryContextActions,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -26,6 +27,7 @@ import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
 import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
+import useTenderly from '../hooks/useTenderly';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -91,7 +93,7 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { fallbackProvider },
+    connection: { fallbackProvider, useTenderlyFork },
     seriesRootMap,
     assetRootMap,
   } = chainState;
@@ -99,8 +101,9 @@ const HistoryProvider = ({ children }: any) => {
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount: account } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
-  const [lastSeriesUpdate] = ['earliest']; // useCachedState('lastSeriesUpdate', 'earliest');
-  const [lastVaultUpdate] = ['earliest']; // useCachedState('lastVaultUpdate', 'earliest');
+  const { tenderlyStartBlock } = useTenderly();
+  const lastSeriesUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
+  const lastVaultUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
 
   const {
     settingsState: { diagnostics },
@@ -476,7 +479,7 @@ const HistoryProvider = ({ children }: any) => {
   );
 
   /* Exposed userActions */
-  const historyActions = {
+  const historyActions: IHistoryContextActions = {
     updatePoolHistory,
     updateStrategyHistory,
     updateVaultHistory,
