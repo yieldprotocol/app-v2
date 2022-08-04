@@ -44,6 +44,7 @@ function LendItem({
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
           direction={condensed ? 'row' : undefined}
+          width={condensed ? '6rem' : undefined}
         >
           <Text weight={900} size="small">
             {series.displayName}

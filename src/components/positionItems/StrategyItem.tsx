@@ -44,7 +44,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
             <Text size="xsmall">Rolling: {strategy.currentSeries?.fullDate}</Text>
           </Box>
 
-          <Box justify="center">
+          <Box justify="center" width={'6rem'}>
             <Box gap="xxsmall" direction="row">
               <Text weight={450} size="xsmall">
                 Tokens:
