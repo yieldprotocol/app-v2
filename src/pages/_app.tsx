@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { AppProps } from 'next/app';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
 
