@@ -161,7 +161,7 @@ export interface ISeriesRoot extends ISignable {
   displayNameMobile: string;
   maturity: number;
 
-  fullDate: Date;
+  fullDate: string;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
   poolContract: Pool;
