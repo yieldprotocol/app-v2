@@ -68,7 +68,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
             </Box>
           ) : (
             <Text weight={450} size="xsmall" color="text-xweak">
-              Vault transfered or deleted
+              Vault transferred or deleted
             </Text>
           )}
         </Box>
