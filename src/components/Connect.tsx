@@ -56,8 +56,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         ) : (
           <Box fill="horizontal" direction="row" gap="small" align="center">
             <Box height="1.5em">
-              {' '}
-              <YieldMark />{' '}
+              <YieldMark />
             </Box>
             <Text size="medium" weight="lighter" color="text">
               Connect a wallet
@@ -93,7 +92,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
               <Box direction="row" gap="xsmall">
                 {activating ? (
                   <Text size="small" color={connected ? 'white' : 'text'}>
-                    'Connecting'
+                    Connecting
                   </Text>
                 ) : (
                   <Box direction="row" gap="small" align="center">

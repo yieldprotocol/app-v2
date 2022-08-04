@@ -532,8 +532,8 @@ const Borrow = () => {
                   label={
                     <Text size="xsmall" weight="lighter">
                       I understand the risks associated with borrowing. In particular, I understand that as a new
-                      protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
-                      below the minimum collateralization requirement (
+                      protocol, Yield Protocol&apos;s liquidation auctions are not always competitive and if my vault
+                      falls below the minimum collateralization requirement (
                       <Text size="xsmall" color="red">
                         {minCollatRatioPct}%
                       </Text>
