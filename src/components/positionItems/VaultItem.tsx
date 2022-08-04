@@ -8,12 +8,15 @@ import { UserContext } from '../../contexts/UserContext';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
+import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
+import { useAssetPair } from '../../hooks/useAssetPair';
+import { cleanValue } from '../../utils/appUtils';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();
 
   const {
-    userState: { seriesMap, vaultsLoading, selectedVault },
+    userState: { seriesMap, vaultsLoading, selectedVault, assetMap },
     userActions,
   } = useContext(UserContext) as IUserContext;
   const { setSelectedVault } = userActions;
@@ -22,6 +25,10 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
     setSelectedVault(_vault);
     router.push(`/vaultposition/${_vault.id}`);
   };
+  const vaultBase = assetMap.get(vault.baseId);
+  const vaultIlk = assetMap.get(vault.ilkId);
+  const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
+  const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPairInfo, undefined);
 
   return (
     <ItemWrap
@@ -51,7 +58,11 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
                   Debt:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {vaultsLoading && vault.id === selectedVault?.id ? <SkeletonWrap width={30} /> : vault.accruedArt_}
+                  {(vaultsLoading && vault.id === selectedVault?.id) || !debtInBase_ ? (
+                    <SkeletonWrap width={30} />
+                  ) : (
+                    cleanValue(debtInBase_, 2)
+                  )}
                 </Text>
               </Box>
             </Box>
