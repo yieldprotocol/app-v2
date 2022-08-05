@@ -402,7 +402,7 @@ const UserProvider = ({ children }: any) => {
       const newSeriesMap = new Map(
         _combinedData.reduce((acc: Map<string, ISeries>, item) => {
           const _map = acc;
-          _map.set(item.id, item);
+          if (item.maturity !== 1672412400) _map.set(item.id, item);
           return _map;
         }, new Map())
       ) as Map<string, ISeries>;
