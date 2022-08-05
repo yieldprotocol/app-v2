@@ -41,7 +41,7 @@ export const useCollateralHelpers = (
 
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
-  const [liquidationPrice_, setLiquidationPrice_] = useState<string>('0');
+  const [liquidationPrice_, setLiquidationPrice_] = useState<string | undefined>();
 
   const [minCollateral, setMinCollateral] = useState<BigNumber>();
   const [minCollateral_, setMinCollateral_] = useState<string | undefined>();
@@ -83,7 +83,7 @@ export const useCollateralHelpers = (
 
       const liqPrice = vault
         ? cleanValue(
-            calcLiquidationPrice(vault?.ink_, vault.accruedArt_, assetPairInfo.minRatio),
+            calcLiquidationPrice(vault.ink_, vault.accruedArt_, assetPairInfo.minRatio),
             _selectedBase?.digitFormat
           )
         : cleanValue(
@@ -91,9 +91,9 @@ export const useCollateralHelpers = (
             _selectedBase?.digitFormat
           );
 
-      setLiquidationPrice_(liqPrice || '0');
+      setLiquidationPrice_(liqPrice);
     }
-  }, [_selectedBase, assetPairInfo, vault, totalCollateral_, totalDebt_]);
+  }, [_selectedBase?.digitFormat, assetPairInfo, totalCollateral_, totalDebt_, vault]);
 
   /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {

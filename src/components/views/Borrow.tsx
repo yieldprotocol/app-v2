@@ -364,7 +364,7 @@ const Borrow = () => {
                     </Box>
 
                     <Box height={{ min: '1.5rem' }}>
-                      {collatInput ? (
+                      {liquidationPrice_ && (
                         <Box align="center" direction="row" gap="xsmall">
                           <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
                             Liquidation when
@@ -373,7 +373,7 @@ const Borrow = () => {
                             1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
                           </Text>
                         </Box>
-                      ) : null}
+                      )}
                     </Box>
                   </Box>
                 </Box>
