@@ -34,7 +34,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
         /* filter by positive balances on either pool tokens or fyTokens */
         .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (base ? _series.baseId === base.idToUse : true))
+        .filter((_series: ISeries) => (base ? _series.baseId === base.proxyId : true))
         .filter((_series: ISeries) => (series ? _series.id === series.id : true));
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);

@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Box, Select, Text } from 'grommet';
+import { FiChevronDown } from 'react-icons/fi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { CHAIN_INFO } from '../../config/chainData';
 import { useNetworkSelect } from '../../hooks/useNetworkSelect';
@@ -17,8 +18,9 @@ const NetworkSelector = () => {
   const [selectedChainId, setSelectedChainId] = useState<number | undefined>();
 
   const [currentNetwork, setCurrentNetwork] = useState<string>();
+
   useEffect(() => {
-    [1, 4, 42].includes(fallbackChainId!) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
+    [1, 4, 5, 42].includes(fallbackChainId!) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
   }, [fallbackChainId]);
 
   useNetworkSelect(selectedChainId!);
@@ -30,14 +32,18 @@ const NetworkSelector = () => {
     <Box round>
       <Select
         plain
-        dropProps={{ round: 'small' }}
+        size="small"
+        dropProps={{ round: 'large' }}
         disabled={!account}
+        icon={<FiChevronDown />}
         options={
           currentNetwork === 'Ethereum'
             ? [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" pad="xsmall" round>
-                  <ArbitrumLogo />
+                <Box direction="row" gap="small">
+                  <Box height="20px" width="20px">
+                    <ArbitrumLogo />
+                  </Box>
                   <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
                     Arbitrum
                   </Text>
@@ -45,8 +51,10 @@ const NetworkSelector = () => {
               ]
             : [
                 // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small" pad="xsmall" round>
-                  <EthMark />
+                <Box direction="row" gap="small">
+                  <Box height="20px" width="20px">
+                    <EthMark />
+                  </Box>
                   <Text size="small" color={CHAIN_INFO.get(1)?.color}>
                     Ethereum
                   </Text>
@@ -56,16 +64,20 @@ const NetworkSelector = () => {
         value={
           currentNetwork === 'Ethereum' ? (
             <Box direction="row" gap="small">
-              <EthMark />
+              <Box height="20px" width="20px">
+                <EthMark />
+              </Box>
               <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                Ethereum {[4, 42, 421611].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name}
+                Ethereum {[4, 5, 42, 421611].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name}
               </Text>
             </Box>
           ) : (
             <Box direction="row" gap="small" round>
-              <ArbitrumLogo />
+              <Box height="20px" width="20px">
+                <ArbitrumLogo />
+              </Box>
               <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
-                {[4, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
+                {[4, 5, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
               </Text>
             </Box>
           )

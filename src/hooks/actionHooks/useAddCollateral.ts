@@ -12,19 +12,24 @@ import {
   IAsset,
   IUserContextState,
   IUserContextActions,
+  IChainContext,
+  IHistoryContext,
 } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import { ConvexLadleModule } from '../../contracts';
+import { ModuleActions } from '../../types/operations';
+import { HistoryContext } from '../../contexts/HistoryContext';
 
 export const useAddCollateral = () => {
   const {
     chainState: { contractMap },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
@@ -33,9 +38,12 @@ export const useAddCollateral = () => {
   const { activeAccount: account, selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
 
-  const { sign, transact } = useChain();
-  const { wrapAssetToJoin } = useWrapUnwrapAsset();
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
 
+  const { sign, transact } = useChain();
+  const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
@@ -44,10 +52,6 @@ export const useAddCollateral = () => {
 
     /* set the ilk based on if a vault has been selected or it's a new vault */
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
-
-    const ilkForWrap: IAsset | null | undefined =
-      ilk?.isWrappedToken && ilk.unwrappedTokenId ? assetMap.get(ilk.unwrappedTokenId) : selectedIlk; // use the unwrapped token as ilk
-
     const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
     const ladleAddress = contractMap.get('Ladle').address;
 
@@ -59,28 +63,45 @@ export const useAddCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk?.decimals);
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
-    const _isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.id!);
-    const _pourTo = _isEthCollateral ? ladleAddress : account;
+    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.proxyId!);
 
-    /* handle wrapped tokens:  */
-    const wrapping: ICallData[] = await wrapAssetToJoin(_input, ilkForWrap!, txCode); // note: selected ilk used here, not wrapped version
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
+    const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_input) : _allowance;
 
+    /* Handle wrapping of tokens:  */
+    const wrapAssetCallData: ICallData[] = await wrapAsset(_input, ilk!, txCode);
+
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
-    const permits: ICallData[] = await sign(
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: ilk!,
           spender: ilk?.joinAddress!,
           amount: _input,
-          ignoreIf: _isEthCollateral || alreadyApproved === true || wrapping.length > 0,
+          /* ignore if: 1) collateral is ETH 2) approved already 3) wrapAssets call is > 0 (because the permit is handled with wrapping) */
+          ignoreIf: isEthCollateral || alreadyApproved === true || wrapAssetCallData.length > 0,
         },
       ],
       txCode
     );
+
+    /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
+    const addEthCallData: ICallData[] = addEth(
+      ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!) ? _input : ZERO_BN,
+      undefined,
+      selectedIlk?.proxyId
+    );
+
+    /* pour destination based on ilk/asset is an eth asset variety */
+    const pourToAddress = () => {
+      if (isEthCollateral) return ladleAddress;
+      return account;
+    };
 
     /**
      * BUILD CALL DATA ARRAY
@@ -89,33 +110,42 @@ export const useAddCollateral = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeries?.id, selectedIlk?.idToUse, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeries?.id, selectedIlk?.proxyId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault, // ignore if vault exists
       },
-      /* handle wrapped token deposit, if required */
-      ...wrapping,
 
-      /* Handle adding eth if required (ie. if the ilk is ETH_BASED). If not, else simply sent ZERO to the addEth fn */
-      ...addEth(ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!) ? _input : ZERO_BN, undefined, selectedIlk?.idToUse),
+      /* If convex-type collateral, add vault using convex ladle module */
+      {
+        operation: LadleActions.Fn.MODULE,
+        fnName: ModuleActions.Fn.ADD_VAULT,
+        args: [selectedIlk.joinAddress, vaultId] as ModuleActions.Args.ADD_VAULT,
+        targetContract: ConvexLadleModuleContract,
+        ignoreIf: !!vault || !isConvexCollateral,
+      },
+
+      /* handle wrapped token deposit, if required */
+      ...wrapAssetCallData,
+
+      /* add in add ETH calls */
+      ...addEthCallData,
 
       /* handle permits if required */
-      ...permits,
+      ...permitCallData,
+
       {
         operation: LadleActions.Fn.POUR,
-        args: [
-          vaultId,
-          _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
-          _input,
-          ethers.constants.Zero,
-        ] as LadleActions.Args.POUR,
+        args: [vaultId, pourToAddress(), _input, ethers.constants.Zero] as LadleActions.Args.POUR,
         ignoreIf: false, // never ignore
       },
     ];
 
     /* TRANSACT */
     await transact(calls, txCode);
+
+    /* then update UI */
     updateVaults([vault!]);
-    updateAssets([base!, ilk!, ilkForWrap!]);
+    updateAssets([base!, ilk!]);
+    updateVaultHistory([vault!]);
   };
 
   return { addCollateral };

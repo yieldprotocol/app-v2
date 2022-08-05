@@ -3,6 +3,19 @@ import React, { useContext, useEffect, useReducer, useCallback, useState } from 
 import { BigNumber, ethers } from 'ethers';
 
 import {
+  calculateAPR,
+  divDecimal,
+  bytesToBytes32,
+  floorDecimal,
+  mulDecimal,
+  sellFYToken,
+  calcAccruedDebt,
+  toBn,
+} from '@yield-protocol/ui-math';
+
+import Decimal from 'decimal.js';
+import request from 'graphql-request';
+import {
   IAssetRoot,
   ISeriesRoot,
   IVaultRoot,
@@ -19,22 +32,15 @@ import {
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
-import {
-  calculateAPR,
-  divDecimal,
-  bytesToBytes32,
-  floorDecimal,
-  mulDecimal,
-  secondsToFrom,
-  sellFYToken,
-  calcAccruedDebt,
-} from '../utils/yieldMath';
 
-import { ZERO_BN } from '../utils/constants';
+import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
+import { ORACLE_INFO } from '../config/oracles';
+import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
+import useTenderly from '../hooks/useTenderly';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -132,7 +138,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account },
+    connection: { account, chainId, useTenderlyFork },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -143,14 +149,14 @@ const UserProvider = ({ children }: any) => {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const [lastVaultUpdate, setLastVaultUpdate] = useCachedState('lastVaultUpdate', 'earliest');
-
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
 
   /* HOOKS */
   const { pathname } = useRouter();
+  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const { tenderlyStartBlock } = useTenderly();
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -165,12 +171,15 @@ const UserProvider = ({ children }: any) => {
       if (!Cauldron) return new Map();
 
       const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-      const vaultsReceivedfilter = Cauldron.filters.VaultGiven(null, account);
+      const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
+      const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, fromBlock);
 
-      const [vaultsBuilt, vaultsReceived] = await Promise.all([
-        Cauldron.queryFilter(vaultsBuiltFilter, fromBlock, 'latest'),
-        Cauldron.queryFilter(vaultsReceivedfilter, fromBlock, 'latest'),
-      ]);
+      let vaultsReceived = [];
+      try {
+        vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
+      } catch (error) {
+        console.log('could not get vaults received');
+      }
 
       const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
         const { vaultId: id, ilkId, seriesId } = x.args;
@@ -178,17 +187,17 @@ const UserProvider = ({ children }: any) => {
         return {
           id,
           seriesId,
-          baseId: series.baseId,
+          baseId: series?.baseId,
           ilkId,
           displayName: generateVaultName(id),
-          decimals: series.decimals,
+          decimals: series?.decimals,
         };
       });
 
-      const recievedEventsList = await Promise.all(
+      const receivedEventsList = await Promise.all(
         vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
           const { vaultId: id } = x.args;
-          const { ilkId, seriesId } = await Cauldron.vaults(id);
+          const { ilkId, seriesId } = await Cauldron.vaults(bytesToBytes32(id, 12));
           const series = seriesRootMap.get(seriesId);
           return {
             id,
@@ -202,7 +211,7 @@ const UserProvider = ({ children }: any) => {
       );
 
       /* all vaults */
-      const vaultList = [...buildEventList, ...recievedEventsList];
+      const vaultList = [...buildEventList, ...receivedEventsList];
 
       const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
         const _map = acc;
@@ -211,8 +220,6 @@ const UserProvider = ({ children }: any) => {
       }, new Map()) as Map<string, IVaultRoot>;
 
       return newVaultMap;
-      /* Update the local cache storage */
-      // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
     },
     [account, contractMap, seriesRootMap]
   );
@@ -226,7 +233,7 @@ const UserProvider = ({ children }: any) => {
 
       _publicData = await Promise.all(
         assetList.map(async (asset): Promise<IAssetRoot> => {
-          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.idToUse);
+          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.proxyId);
           return {
             ...asset,
             isYieldBase,
@@ -283,13 +290,48 @@ const UserProvider = ({ children }: any) => {
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, mature] = await Promise.all([
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
-            series.isMature(),
           ]);
+
+          let sharesReserves: BigNumber | undefined;
+          let c: BigNumber | undefined;
+          let mu: BigNumber | undefined;
+          let currentSharePrice: BigNumber | undefined;
+          let sharesToken: string | undefined;
+
+          try {
+            [sharesReserves, c, mu, currentSharePrice, sharesToken] = await Promise.all([
+              series.poolContract.getSharesBalance(),
+              series.poolContract.getC(),
+              series.poolContract.mu(),
+              series.poolContract.getCurrentSharePrice(),
+              series.poolContract.sharesToken(),
+            ]);
+          } catch (error) {
+            sharesReserves = baseReserves;
+            currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
+            console.log('using old pool contract that does not include c, mu, and shares');
+          }
+
+          // convert base amounts to shares amounts (baseAmount is wad)
+          const getShares = (baseAmount: BigNumber) =>
+            toBn(
+              new Decimal(baseAmount.toString())
+                .mul(10 ** series.decimals)
+                .div(new Decimal(currentSharePrice.toString()))
+            );
+
+          // convert shares amounts to base amounts
+          const getBase = (sharesAmount: BigNumber) =>
+            toBn(
+              new Decimal(sharesAmount.toString())
+                .mul(new Decimal(currentSharePrice.toString()))
+                .div(10 ** series.decimals)
+            );
 
           const rateCheckAmount = ethers.utils.parseUnits(
             ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
@@ -298,27 +340,36 @@ const UserProvider = ({ children }: any) => {
 
           /* Calculates the base/fyToken unit selling price */
           const _sellRate = sellFYToken(
-            baseReserves,
+            sharesReserves,
             fyTokenReserves,
             rateCheckAmount,
-            secondsToFrom(series.maturity.toString()),
+            getTimeTillMaturity(series.maturity),
             series.ts,
             series.g2,
-            series.decimals
+            series.decimals,
+            c,
+            mu
           );
 
           const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
+          // fetch the euler eToken supply APY from their subgraph
+          const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
           return {
             ...series,
-            baseReserves,
-            baseReserves_: ethers.utils.formatUnits(baseReserves, series.decimals),
+            sharesReserves,
+            sharesReserves_: ethers.utils.formatUnits(sharesReserves, series.decimals),
             fyTokenReserves,
             fyTokenRealReserves,
             totalSupply,
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: mature,
+            seriesIsMature: isMature(series.maturity),
+            c,
+            mu,
+            poolAPY,
+            getShares,
+            getBase,
           };
         })
       );
@@ -331,6 +382,7 @@ const UserProvider = ({ children }: any) => {
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
             ]);
+
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
               ...series,
@@ -368,126 +420,146 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[]) => {
-      updateState({ type: UserState.VAULTS_LOADING, payload: true });
-      let _vaultList: IVaultRoot[] = vaultList;
-      const Cauldron = contractMap.get('Cauldron');
-      const Witch = contractMap.get('Witch');
-      const RateOracle = contractMap.get('RateOracle');
+      try {
+        updateState({ type: UserState.VAULTS_LOADING, payload: true });
+        let _vaultList: IVaultRoot[] = vaultList;
+        const Cauldron = contractMap.get('Cauldron');
+        const Witch = contractMap.get('Witch');
 
-      /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0) _vaultList = Array.from((await _getVaults(lastVaultUpdate)).values()); // fromblock specifically x blocks ago for arb testnet
+        // const RateOracle = contractMap.get('RateOracle');
 
-      /* Add in the dynamic vault data by mapping the vaults list */
-      const vaultListMod = await Promise.all(
-        _vaultList.map(async (vault): Promise<IVault> => {
-          /* Get dynamic vault data */
-          const [
-            { ink, art },
-            { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
+        /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
+        if (vaultList.length === 0)
+          _vaultList = Array.from(
+            (await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)).values()
+          );
+        /* Add in the dynamic vault data by mapping the vaults list */
+        const vaultListMod = await Promise.all(
+          _vaultList.map(async (vault): Promise<IVault> => {
+            /* Get dynamic vault data */
+            const [
+              { ink, art },
+              { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
+            ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
 
-          const series = seriesRootMap.get(seriesId);
+            /* If art 0, check for liquidation event */
+            const hasBeenLiquidated =
+              art === ZERO_BN
+                ? (
+                    await Witch.queryFilter(
+                      Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
+                      useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                      'latest'
+                    )
+                  ).length > 0
+                : false;
 
-          let accruedArt: BigNumber;
-          let rateAtMaturity: BigNumber;
-          let rate: BigNumber;
-          let rate_: string;
+            const series = seriesRootMap.get(seriesId);
 
-          if (await series.isMature()) {
-            rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-            [rate] = await RateOracle.peek(
-              bytesToBytes32(vault.baseId, 6),
-              '0x5241544500000000000000000000000000000000000000000000000000000000', // bytes for 'RATE'
-              '0'
+            let accruedArt: BigNumber;
+            let rateAtMaturity: BigNumber;
+            let rate: BigNumber;
+            let rate_: string;
+
+            if (isMature(series.maturity)) {
+              const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
+              const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
+
+              const RateOracle = contractMap.get(oracleName);
+              rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
+              [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+              rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
+              diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
+
+              [accruedArt] = rateAtMaturity.gt(ZERO_BN)
+                ? calcAccruedDebt(rate, rateAtMaturity, art)
+                : calcAccruedDebt(rate, rate, art);
+            } else {
+              rate = BigNumber.from('1');
+              rate_ = '1';
+              rateAtMaturity = BigNumber.from('1');
+              accruedArt = art;
+            }
+
+            diagnostics && console.log('RATE', rate.toString());
+            diagnostics && console.log('RATEATMATURITY', rateAtMaturity.toString());
+            diagnostics && console.log('ART', art.toString());
+            diagnostics && console.log('ACCRUED_ ART', accruedArt.toString());
+
+            const baseRoot = assetRootMap.get(vault.baseId);
+            const ilkRoot = assetRootMap.get(ilkId);
+
+            const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat);
+            const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat);
+
+            const accruedArt_ = cleanValue(
+              ethers.utils.formatUnits(accruedArt, baseRoot.decimals),
+              baseRoot.digitFormat
             );
 
-            rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
-            diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
+            diagnostics && console.log(vault.displayName, ' art: ', art.toString());
+            diagnostics && console.log(vault.displayName, ' accArt: ', accruedArt.toString());
 
+            return {
+              ...vault,
+              owner, // refreshed in case owner has been updated
+              isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+              hasBeenLiquidated,
+              isActive: owner === account, // refreshed in case owner has been updated
+              seriesId, // refreshed in case seriesId has been updated
+              ilkId, // refreshed in case ilkId has been updated
+              ink,
+              art,
+              accruedArt,
+              rateAtMaturity,
+              rate,
+              rate_,
 
-           [ accruedArt ] = rateAtMaturity.gt(ZERO_BN)
-              ? calcAccruedDebt(rate, rateAtMaturity, art)
-              : calcAccruedDebt(rate, rate, art);
+              ink_, // for display purposes only
+              art_, // for display purposes only
+              accruedArt_, // display purposes
+            };
+          })
+        );
 
-          } else {
-            rate = BigNumber.from('1');
-            rate_ = '1';
-            rateAtMaturity = BigNumber.from('1');
-            accruedArt = art;
-          }
+        /* Get the previous version (Map) of the vaultMap and update it */
+        const newVaultMap = new Map(
+          vaultListMod.reduce((acc: Map<string, IVault>, item) => {
+            const _map = acc;
+            _map.set(item.id, item);
+            return _map;
+          }, new Map())
+        ) as Map<string, IVault>;
 
-          diagnostics && console.log( 'RATE', rate.toString() )
-          diagnostics && console.log( 'RATEATMATURITY', rateAtMaturity.toString() )
-          diagnostics && console.log( 'ART' , art.toString() )
-          diagnostics && console.log( 'ACCRUED_ ART' , accruedArt.toString() )
+        /* if there are no vaults provided - assume a forced refresh of all vaults : */
+        const combinedVaultMap =
+          vaultList.length > 0
+            ? (new Map([...userState.vaultMap, ...newVaultMap]) as Map<string, IVault>)
+            : newVaultMap;
 
-          const baseRoot = assetRootMap.get(vault.baseId);
-          const ilkRoot = assetRootMap.get(ilkId);
+        /* update state */
+        updateState({ type: UserState.VAULT_MAP, payload: combinedVaultMap });
+        vaultFromUrl && updateState({ type: UserState.SELECTED_VAULT, payload: vaultFromUrl });
+        updateState({ type: UserState.VAULTS_LOADING, payload: false });
 
-          const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat);
-          const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat);
-
-          const accruedArt_ = cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot.decimals), baseRoot.digitFormat);
-
-          diagnostics && console.log(vault.displayName, ' art: ', art.toString());
-          diagnostics && console.log(vault.displayName, ' accArt: ', accruedArt.toString());
-
-          return {
-            ...vault,
-            owner, // refreshed in case owner has been updated
-            isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
-            isActive: owner === account, // refreshed in case owner has been updated
-            seriesId, // refreshed in case seriesId has been updated
-            ilkId, // refreshed in case ilkId has been updated
-            ink,
-            art,
-            accruedArt,
-            rateAtMaturity,
-            rate,
-            rate_,
-
-            ink_, // for display purposes only
-            art_, // for display purposes only
-            accruedArt_, // display purposes
-          };
-        })
-      );
-
-      /* Get the previous version (Map) of the vaultMap and update it */
-      const newVaultMap = new Map(
-        vaultListMod.reduce((acc: Map<string, IVault>, item) => {
-          const _map = acc;
-          _map.set(item.id, item);
-          return _map;
-        }, new Map())
-      ) as Map<string, IVault>;
-
-      /* if there are no vaults provided - assume a forced refresh of all vaults : */
-      const combinedVaultMap =
-        vaultList.length > 0 ? (new Map([...userState.vaultMap, ...newVaultMap]) as Map<string, IVault>) : newVaultMap;
-
-      /* update state */
-      updateState({ type: UserState.VAULT_MAP, payload: combinedVaultMap });
-      vaultFromUrl && updateState({ type: UserState.SELECTED_VAULT, payload: vaultFromUrl });
-      updateState({ type: UserState.VAULTS_LOADING, payload: false });
-
-      /* Update the local cache storage */
-      setLastVaultUpdate('earliest');
-      // TODO setCachedVaults({ data: Array.from(newVaultMap.values()), lastBlock: await fallbackProvider.getBlockNumber() });
-
-      console.log('VAULTS: ', combinedVaultMap);
+        console.log('VAULTS: ', combinedVaultMap);
+      } catch (e) {
+        console.log('error getting vaults', e);
+      }
     },
     [
       contractMap,
       _getVaults,
-      lastVaultUpdate,
+      useTenderlyFork,
+      tenderlyStartBlock,
       userState.vaultMap,
       vaultFromUrl,
-      setLastVaultUpdate,
       seriesRootMap,
-      assetRootMap,
+      isMature,
       diagnostics,
+      assetRootMap,
       account,
+      chainId,
     ]
   );
 
@@ -507,6 +579,7 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.pool(),
             _strategy.strategyContract.nextSeriesId(),
           ]);
+
           const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
           const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
 
@@ -624,13 +697,56 @@ const UserProvider = ({ children }: any) => {
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
     if (!chainLoading && account) {
-      console.log('Checking User Vaults');
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
-  }, [account, chainLoading]); // updateVaults ignored here on purpose
+  }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
+
+  /* Trigger update of all vaults with tenderly start block when we are using tenderly */
+  useEffect(() => {
+    if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
+      updateVaults([]);
+    }
+  }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
+
+  /* explicitly update selected series on series map changes */
+  useEffect(() => {
+    if (userState.selectedSeries) {
+      updateState({ type: UserState.SELECTED_SERIES, payload: userState.seriesMap.get(userState.selectedSeries.id) });
+    }
+  }, [userState.selectedSeries, userState.seriesMap]);
+
+  const getPoolAPY = async (sharesTokenAddr: string) => {
+    const query = `
+    query ($address: Bytes!) {
+      eulerMarketStore(id: "euler-market-store") {
+        markets(where:{eTokenAddress:$address}) {
+          supplyAPY
+         } 
+      }
+    }
+  `;
+
+    interface EulerRes {
+      eulerMarketStore: {
+        markets: {
+          supplyAPY: string;
+        }[];
+      };
+    }
+
+    try {
+      const {
+        eulerMarketStore: { markets },
+      } = await request<EulerRes>(EULER_SUPGRAPH_ENDPOINT, query, { address: sharesTokenAddr });
+      return ((+markets[0].supplyAPY * 100) / 1e27).toString();
+    } catch (error) {
+      diagnostics && console.log(`could not get pool apy for pool with shares token: ${sharesTokenAddr}`, error);
+      return undefined;
+    }
+  };
 
   /* Exposed userActions */
   const userActions = {
@@ -660,7 +776,6 @@ const UserProvider = ({ children }: any) => {
       []
     ),
   };
-
   return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
 };
 

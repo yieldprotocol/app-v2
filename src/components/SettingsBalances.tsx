@@ -7,9 +7,10 @@ import AddTokenToMetamask from './AddTokenToMetamask';
 import YieldBalances from './YieldBalances';
 import BoxWrap from './wraps/BoxWrap';
 import { ZERO_BN } from '../utils/constants';
+import Logo from './logos/Logo';
 
 const StyledTableCell = styled(TableCell)`
-  padding: 0.3rem 0.5rem;
+  padding: 0.5rem 0.5rem;
   span {
     svg {
       vertical-align: middle;
@@ -23,13 +24,13 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
       <TableHeader>
         <TableRow>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell plain>
-            <Text size="xsmall"> </Text>
+            <Text size="xsmall" />
           </StyledTableCell>
           <StyledTableCell align="center" plain>
             <Text color="text" size="xsmall">
@@ -45,9 +46,9 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
           .map((asset) => (
             <TableRow key={asset.id}>
               <StyledTableCell plain>
-                <Text size="medium">{asset.image}</Text>
+                <Logo image={asset.image} />
               </StyledTableCell>
-              <StyledTableCell plain>
+              <StyledTableCell plain align="left">
                 <Text size="small" color="text">
                   {asset.displaySymbol}
                 </Text>
@@ -71,6 +72,7 @@ const SettingsBalances = () => {
   } = useContext(UserContext) as IUserContext;
 
   const [open, setOpen] = useState<boolean>(false);
+  const hasBalance = [...assetMap.values()].find((a) => +a.balance_ > 0);
   return (
     <Box pad="medium">
       <BoxWrap>
@@ -78,7 +80,7 @@ const SettingsBalances = () => {
           open={open}
           onOpen={() => setOpen(true)}
           onClose={() => setOpen(false)}
-          dropContent={<DropContent assetMap={assetMap} />}
+          dropContent={hasBalance ? <DropContent assetMap={assetMap} /> : <></>}
           dropProps={{ align: { top: 'bottom', right: 'right' }, round: 'small' }}
         >
           <YieldBalances />

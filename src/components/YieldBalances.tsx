@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
+import Logo from './logos/Logo';
 
 const StyledText = styled(Text)`
   svg,
@@ -17,8 +18,7 @@ const StyledText = styled(Text)`
 const Balance = ({ image, balance, loading }: { image: any; balance: string; loading: boolean }) => (
   <Box direction="row" gap="small" align="center">
     <StyledText size="small" color="text">
-      {loading && <Skeleton circle height={15} width={15} />}
-      {!loading && image}
+      {loading ? <Skeleton circle height={20} width={20} /> : <Logo image={image} height="20px" width="20px" />}
     </StyledText>
     <StyledText size="small" color="text">
       {loading && <Skeleton width={40} />}
@@ -50,9 +50,9 @@ const Balances = () => {
   }, [pathname]);
 
   return (
-    <Box pad="small" justify="center" align="start">
+    <Box pad="small" justify="center" align="start" gap="xsmall">
       <Balance image={selectedBase?.image} balance={baseBalance} loading={assetsLoading} />
-      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.idToUse !== WETH && (
+      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.proxyId !== WETH && (
         <Balance image={selectedIlk?.image} balance={ilkBalance} loading={assetsLoading} />
       )}
     </Box>

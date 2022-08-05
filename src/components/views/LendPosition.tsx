@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useRouter } from 'next/router';
-import { FiArrowRight, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -28,6 +28,7 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
+import Logo from '../logos/Logo';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -65,11 +66,11 @@ const LendPosition = () => {
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { fyTokenMarketValue, maxClose_, maxClose, maxRoll_ } = useLendHelpers(
-    selectedSeries!,
-    closeInput,
-    rollToSeries!
-  );
+  /* Close helpers */
+  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput, rollToSeries!);
+
+  /* Roll helpers */
+  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeries!, rollInput, rollToSeries!);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
@@ -113,11 +114,15 @@ const LendPosition = () => {
   );
 
   const handleClosePosition = () => {
-    !closeDisabled && closePosition(closeInput, selectedSeries!);
+    if (closeDisabled) return;
+    setCloseDisabled(true);
+    closePosition(closeInput, selectedSeries!);
   };
 
   const handleRollPosition = () => {
-    !rollDisabled && rollToSeries && rollPosition(rollInput, selectedSeries!, rollToSeries);
+    if (rollDisabled) return;
+    setRollDisabled(true);
+    rollPosition(rollInput, selectedSeries!, rollToSeries);
   };
 
   const resetInputs = useCallback(
@@ -139,7 +144,7 @@ const LendPosition = () => {
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
   useEffect(() => {
     !closeInput || closeError ? setCloseDisabled(true) : setCloseDisabled(false);
-    !rollInput || !rollToSeries || rollError ? setRollDisabled(true) : setRollDisabled(false);
+    !rollInput || !rollToSeries || rollError || !rollToSeries ? setRollDisabled(true) : setRollDisabled(false);
   }, [closeInput, closeError, rollInput, rollToSeries, rollError]);
 
   /* Watch process timeouts */
@@ -210,7 +215,11 @@ const LendPosition = () => {
                               selectedBase?.digitFormat!
                             )} ${selectedBase?.displaySymbol!}`
                       }
-                      icon={selectedBase?.image}
+                      icon={
+                        <Box height="1em" width="1em">
+                          <Logo image={selectedBase.image} />
+                        </Box>
+                      }
                       loading={seriesLoading}
                     />
                   </Box>
@@ -222,13 +231,14 @@ const LendPosition = () => {
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
+                      size="small"
                       dropProps={{ round: 'small' }}
                       options={[
                         { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
-                        // { text: 'Redeem', index: 3 },
                       ]}
+                      icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
@@ -258,7 +268,7 @@ const LendPosition = () => {
                               setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries}
-                            icon={<>{selectedBase?.image}</>}
+                            icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
                             action={() => setCloseInput(maxClose_)}
@@ -272,7 +282,7 @@ const LendPosition = () => {
                           <InputInfoWrap action={() => setCloseInput(maxClose_)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
-                              {selectedSeries.baseReserves.eq(maxClose) && ' (limited by protocol)'}
+                              {selectedSeries.sharesReserves.eq(maxClose) && ' (limited by protocol)'}
                             </Text>
                           </InputInfoWrap>
                         )}
@@ -321,7 +331,7 @@ const LendPosition = () => {
                               setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries || !rollToSeries}
-                            icon={<>{selectedBase?.image}</>}
+                            icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
                             action={() => setRollInput(maxRoll_)}
@@ -342,10 +352,13 @@ const LendPosition = () => {
                         <InfoBite
                           label="Roll To Series"
                           icon={<FiArrowRight />}
-                          value={` Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
+                          value={`Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
                             rollInput,
                             selectedBase?.digitFormat!
-                          )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}`}
+                          )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}, receiving ~${cleanValue(
+                            rollEstimate_,
+                            2
+                          )} fy${selectedBase.displaySymbol}`}
                         />
                       </ActiveTransaction>
                     )}

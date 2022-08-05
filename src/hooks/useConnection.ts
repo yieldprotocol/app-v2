@@ -26,16 +26,28 @@ export const useConnection = () => {
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
+  const [useTenderlyFork, setUseTenderlyFork] = useCachedState('useTenderlyFork', false);
 
   /* CACHED VARIABLES */
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', 1);
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', null);
   const [connectionName, setConnectionName] = useCachedState('connectionName', '');
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
   const { connector, library: provider, chainId, account, activate, deactivate, active } = primaryConnection;
 
+  /* mocking location */
+  // const { connector, library: provider, chainId, activate, deactivate, active } = primaryConnection;
+  // const account = "" ;
+
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
   const { library: fallbackProvider, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
+
+  const [providerToUse, setProviderToUse] = useState<ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider>(
+    provider
+  );
+  const [fallbackProviderToUse, setFallbackProviderToUse] = useState<
+    ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider
+  >(fallbackProvider);
 
   /* extra hooks */
   const { handleErrorMessage } = useWeb3Errors();
@@ -100,7 +112,7 @@ export const useConnection = () => {
       fallbackActivate(
         new NetworkConnector({
           urls: SUPPORTED_RPC_URLS,
-          defaultChainId: lastChainId,
+          defaultChainId: lastChainId || process.env.REACT_APP_DEFAULT_CHAINID,
         }),
         (e: Error) => {
           setFallbackErrorMessage(handleErrorMessage(e));
@@ -135,23 +147,34 @@ export const useConnection = () => {
   /* handle chainId changes */
   useEffect(() => {
     fallbackChainId && setCurrentChainInfo(CHAIN_INFO.get(fallbackChainId));
-    if (fallbackChainId && lastChainId && fallbackChainId !== lastChainId) {
-      // localStorage.clear();
-      clearCachedItems([
-        'lastChainId',
-        'assets',
-        'series',
-        'lastAssetUpdate',
-        'lastSeriesUpdate',
-        'strategies',
-        'lastStrategiesUpdate',
-        'connectionName',
-      ]);
+    if (fallbackChainId && fallbackChainId !== lastChainId) {
+      window.localStorage.clear();
       setLastChainId(fallbackChainId);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
   }, [fallbackChainId, lastChainId, setLastChainId]);
+
+  /* Use the connected provider if available, else use fallback */
+  useEffect(() => {
+    const getProviders = () => {
+      if (
+        useTenderlyFork
+        // && process.env.ENV === 'development'
+      ) {
+        const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+        return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
+      }
+      return { provider, fallbackProvider };
+    };
+
+    setProviderToUse(getProviders().provider);
+    setFallbackProviderToUse(getProviders().fallbackProvider);
+  }, [chainId, fallbackProvider, provider, useTenderlyFork]);
+
+  const useTenderly = (shouldUse: boolean) => {
+    setUseTenderlyFork(shouldUse);
+  };
 
   return {
     connectionState: {
@@ -163,9 +186,9 @@ export const useConnection = () => {
       /* connections */
       connectionName,
       connector,
-      provider,
-      fallbackProvider,
+      provider: providerToUse,
       chainId,
+      fallbackProvider: fallbackProviderToUse,
       fallbackChainId,
       lastChainId,
 
@@ -176,12 +199,15 @@ export const useConnection = () => {
       account,
       active,
       activatingConnector,
+
+      useTenderlyFork,
     },
 
     connectionActions: {
       connect,
       disconnect,
       isConnected,
+      useTenderly,
     },
   };
 };
@@ -233,15 +259,7 @@ const useInactiveListener = (suppress: boolean = false) => {
 
         const handleChainChanged = (chainId: string) => {
           console.log('CHAIN CHANGED in the background with payload: ', chainId);
-          // window.localStorage.clear();
-          clearCachedItems([
-            'assets',
-            'series',
-            'lastAssetUpdate',
-            'lastSeriesUpdate',
-            'strategies',
-            'lastStrategiesUpdate',
-          ]);
+          window.localStorage.clear();
           setLastChainId(parseInt(chainId, 16));
           // eslint-disable-next-line no-restricted-globals
           location.reload();

@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -16,10 +18,11 @@ import {
   IUserContextActions,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ONE_BN, ZERO_BN } from '../../utils/constants';
-import { buyBase, calculateSlippage } from '../../utils/yieldMath';
+import { ONE_BN } from '../../utils/constants';
+
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -41,10 +44,14 @@ export const useClosePosition = () => {
   } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
-
   const { removeEth } = useAddRemoveEth();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const closePosition = async (input: string | undefined, series: ISeries) => {
+  const closePosition = async (
+    input: string | undefined,
+    series: ISeries,
+    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
+  ) => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const base = assetMap.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
@@ -53,17 +60,20 @@ export const useClosePosition = () => {
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
     const ladleAddress = contractMap.get('Ladle').address;
 
-    /* buy fyToken value ( after maturity  fytoken === base value ) */
+    /* assess how much fyToken is needed to buy base amount (input) */
+    /* after maturity, fytoken === base (input) value */
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
       : buyBase(
-          series.baseReserves,
+          series.sharesReserves,
           series.fyTokenReserves,
-          _input,
-          series.getTimeTillMaturity(),
+          series.getShares(_input),
+          getTimeTillMaturity(series.maturity),
           series.ts,
           series.g2,
-          series.decimals
+          series.decimals,
+          series.c,
+          series.mu
         );
 
     /* calculate slippage on the base token expected to recieve ie. input */
@@ -75,7 +85,7 @@ export const useClosePosition = () => {
     /* if approveMAx, check if signature is required */
     const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress)).gte(_fyTokenValueOfInput);
 
-    const permits: ICallData[] = await sign(
+    const permitCallData: ICallData[] = await sign(
       [
         {
           target: series,
@@ -87,13 +97,28 @@ export const useClosePosition = () => {
       txCode
     );
 
+    const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
+
+    /* Set the transferTo address based on series maturity */
+    const transferToAddress = () => {
+      if (seriesIsMature) return fyTokenAddress;
+      return poolAddress;
+    };
+
+    /* receiver based on whether base is ETH (- or wrapped Base) */
+    const receiverAddress = () => {
+      if (isEthBase) return ladleAddress;
+      // if ( unwrapping) return unwrapHandlerAddress;
+      return account;
+    };
+
     const calls: ICallData[] = [
-      ...permits,
+      ...permitCallData,
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [
           fyTokenAddress,
-          seriesIsMature ? fyTokenAddress : poolAddress, // select destination based on maturity
+          transferToAddress(), // select destination based on maturity
           _fyTokenValueOfInput,
         ] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore, even after maturity because we go through the ladle.
@@ -102,7 +127,7 @@ export const useClosePosition = () => {
       /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [isEthBase ? ladleAddress : account, _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
+        args: [receiverAddress(), _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
         targetContract: series.poolContract,
         ignoreIf: seriesIsMature,
@@ -111,11 +136,11 @@ export const useClosePosition = () => {
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, isEthBase ? ladleAddress : account, _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
+        args: [series.id, receiverAddress(), _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
 
-      ...removeEth(isEthBase ? ONE_BN : ZERO_BN), // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+      ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
     updateSeries([series]);

@@ -1,12 +1,12 @@
 import { useContext } from 'react';
-import { Box, Button, ResponsiveContext, Text } from 'grommet';
-import { FiX } from 'react-icons/fi';
+import { Box, ResponsiveContext, Text } from 'grommet';
 import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
-import { SettingsContext } from '../contexts/SettingsContext';
+import { Settings, SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import GeneralButton from './buttons/GeneralButton';
+import YieldMark from './logos/YieldMark';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -42,7 +42,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         justify="between"
         align="center"
         direction="row"
-        background="gradient"
+        background="gradient-transparent"
         pad="medium"
         round={{ corner: 'top', size: 'small' }}
       >
@@ -54,19 +54,24 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
             }}
           />
         ) : (
-          <Text size="small" color="text">
-            {' '}
-            Connect a wallet{' '}
-          </Text>
+          <Box fill="horizontal" direction="row" gap="small" align="center">
+            <Box height="1.5em">
+              <YieldMark />
+            </Box>
+            <Text size="medium" weight="lighter" color="text">
+              Connect a wallet
+            </Text>
+          </Box>
         )}
 
-        <Button icon={<FiX size="1.5rem" color="text" />} onClick={() => setConnectOpen(false)} plain />
+        {/* <Button icon={<FiX size="1.5rem" color="text" />} onClick={() => setConnectOpen(false)} plain /> */}
       </Box>
+
       {disclaimerChecked === false && (
         <Box border={{ color: 'brand' }} round="small" pad="medium">
           <Disclaimer
             checked={disclaimerChecked}
-            onChange={(event: any) => updateSetting('disclaimerChecked', event.target.checked)}
+            onChange={(event: any) => updateSetting(Settings.DISCLAIMER_CHECKED, event.target.checked)}
           />
         </Box>
       )}
@@ -87,14 +92,16 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
               <Box direction="row" gap="xsmall">
                 {activating ? (
                   <Text size="small" color={connected ? 'white' : 'text'}>
-                    'Connecting'
+                    Connecting
                   </Text>
                 ) : (
-                  <Box direction="row" gap="small">
+                  <Box direction="row" gap="small" align="center">
                     <Text size="small" color={connected ? 'white' : 'text'} textAlign="center">
                       {displayName}
                     </Text>
-                    {image()}
+                    <Box height="24px" width="24px">
+                      {image()}
+                    </Box>
                   </Box>
                 )}
               </Box>

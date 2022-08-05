@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useReducer } from 'react';
-import { ApprovalType, IChainContext, ISettingsContextState } from '../types';
-import { ChainContext } from './ChainContext';
+import React, { useEffect, useReducer } from 'react';
+import { useConnection } from '../hooks/useConnection';
+import { ApprovalType, ISettingsContextState } from '../types';
 
-enum SettingsState {
+export enum Settings {
   APPROVAL_METHOD = 'approvalMethod',
   APPROVAL_MAX = 'approveMax',
   SLIPPAGE_TOLERANCE = 'slippageTolerance',
@@ -20,6 +20,7 @@ enum SettingsState {
   DASH_HIDE_LEND_POSITIONS = 'dashHideLendPositions',
   DASH_HIDE_POOL_POSITIONS = 'dashHidePoolPositions',
   DASH_CURRENCY = 'dashCurrency',
+  USE_TENDERLY_FORK = 'useTenderlyFork',
 }
 
 const SettingsContext = React.createContext<any>({});
@@ -58,6 +59,9 @@ const initState: ISettingsContextState = {
   /* Always Unwrap tokens when removing them */
   unwrapTokens: false,
 
+  /* If using tenderly fork environment */
+  useTenderlyFork: false,
+
   /* Dashboard settings */
   dashHideEmptyVaults: false,
   dashHideInactiveVaults: false,
@@ -84,28 +88,31 @@ const SettingsProvider = ({ children }: any) => {
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
   /* STATE FROM CONTEXT */
-  const {
-    chainState: { connection },
-  } = useContext(ChainContext) as IChainContext;
+  const { connectionState: connection } = useConnection();
 
   /* watch & handle linked approval and effect appropriate settings */
   useEffect(() => {
     if (settingsState.approvalMethod === ApprovalType.SIG) {
-      updateState({ type: SettingsState.APPROVAL_MAX, payload: false });
+      updateState({ type: Settings.APPROVAL_MAX, payload: false });
     }
   }, [settingsState.approvalMethod]);
 
+  /* update tenderly fork setting */
+  useEffect(() => {
+    updateState({ type: Settings.USE_TENDERLY_FORK, payload: connection.useTenderlyFork });
+  }, [connection.useTenderlyFork]);
+
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
-    if (connection.connectionName && connection.connectionName !== 'metamask') {
+    if ((connection.connectionName && connection.connectionName !== 'metamask') || connection.useTenderlyFork) {
       console.log('Using manual ERC20 approval transactions');
-      updateState({ type: SettingsState.APPROVAL_MAX, payload: ApprovalType.TX });
+      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
     } else if (connection.connectionName === 'metamask') {
       /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
-      updateState({ type: SettingsState.APPROVAL_METHOD, payload: ApprovalType.SIG });
+      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
     }
-  }, [connection.connectionName]);
+  }, [connection.connectionName, connection.useTenderlyFork]);
 
   /* Exposed userActions */
   const settingsActions = {
@@ -115,13 +122,20 @@ const SettingsProvider = ({ children }: any) => {
   /* Update all settings in state based on localStorage */
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      Object.values(SettingsState).forEach((setting) => {
+      Object.values(Settings).forEach((setting) => {
         if (JSON.parse(localStorage.getItem(setting)) !== null) {
           updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)) });
         }
       });
     }
   }, []);
+
+  /* Use approval by tx if using tenderly fork */
+  useEffect(() => {
+    if (settingsState.useTenderlyFork) {
+      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
+    }
+  }, [settingsState.useTenderlyFork]);
 
   return <SettingsContext.Provider value={{ settingsState, settingsActions }}>{children}</SettingsContext.Provider>;
 };

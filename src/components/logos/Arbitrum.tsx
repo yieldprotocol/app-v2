@@ -2,7 +2,7 @@ import * as React from 'react';
 
 function ArbitrumLogo(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" viewBox="0 0 124.983 140.32">
+    <svg xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" viewBox="0 0 124.983 140.32" {...props}>
       <g id="symbol" transform="translate(-177.491 -53.193)">
         <path
           id="Path_153"

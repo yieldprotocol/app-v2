@@ -46,7 +46,7 @@ export const useInputValidation = (
         case ActionCodes.BORROW:
           input &&
             _selectedSeries &&
-            ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.baseReserves) &&
+            ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.sharesReserves) &&
             setInputError(`Amount exceeds the ${_selectedBase?.symbol} currently available in pool`);
           aboveMax && setInputError('Exceeds the max allowable debt for this series');
           belowMin &&
@@ -58,7 +58,7 @@ export const useInputValidation = (
           /* set dust limit Error between 0 and dustLimit */
           limits[0] &&
             _inputAsFloat > parseFloat(limits[0].toString()) &&
-            setInputError('Remaining debt will be below dust levels');
+            setInputError('Remaining debt will be below the required minimum');
 
           /* token balance value */
           aboveMax && setInputError('Amount exceeds token balance');

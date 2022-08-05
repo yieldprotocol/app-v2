@@ -6,8 +6,8 @@ function ENSMark(props: React.SVGProps<SVGSVGElement>) {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 72.52 80.95"
-      height="1em"
-      width="1em"
+      height="100%"
+      width="100%"
       {...props}
     >
       <defs>

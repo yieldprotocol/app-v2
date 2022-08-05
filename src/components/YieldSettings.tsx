@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
-import { FiChevronUp, FiChevronDown, FiExternalLink, FiX } from 'react-icons/fi';
+import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
@@ -14,6 +14,9 @@ import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
 import NetworkSetting from './settings/NetworkSetting';
+import TenderlyForkSetting from './settings/TenderlyForkSetting';
+import UnwrapSetting from './settings/UnwrapSetting';
+import BackButton from './buttons/BackButton';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,9 +56,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       style={{ overflow: 'auto' }}
     >
       <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
-        <Box alignSelf="end" onClick={() => setSettingsOpen(false)} pad="small">
-          <FiX size="1.5rem" />
-        </Box>
+        {mobile && <BackButton action={() => setSettingsOpen(false)} />}
 
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
@@ -63,7 +64,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           </Box>
         )}
 
-        <Box align="end">
+        <Box align="end" pad={{ vertical: 'small' }}>
           {!mobile && currentChainInfo.explorer && (
             <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
               <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
@@ -73,7 +74,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             </Anchor>
           )}
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-            {mobile && <YieldAvatar address={account} size={2} />}
+            {mobile && <YieldAvatar address={account} size={4} />}
             <CopyWrap hash={account}>
               <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(account, 6)}</Text>
             </CopyWrap>
@@ -111,27 +112,47 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
       </Box>
 
       {!mobile && (
-        <Box pad="medium" background="gradient" flex={false}>
-          <NetworkSetting />
+        <Box background="gradient-transparent" flex={false}>
+          <Box pad="medium" background="gradient-transparent">
+            <NetworkSetting />
+          </Box>
         </Box>
       )}
 
       <Box pad="medium" gap="medium" flex={false}>
         <ThemeSetting />
         <ApprovalSetting />
+        <UnwrapSetting />
         <SlippageSetting />
+        {
+          // process.env.ENV === 'development' &&
+          <TenderlyForkSetting />
+        }
       </Box>
 
       <Box pad="medium" gap="small" flex={false}>
         <Text size="small"> Troubleshooting </Text>
         <GeneralButton action={handleResetApp} background="background">
           <Tip
-            content={<Text size="xsmall">Having issues? Try resetting the app.</Text>}
+            plain
+            content={
+              <Box
+                background="background"
+                pad="small"
+                width={{ max: '500px' }}
+                border={{ color: 'gradient-transparent' }}
+                elevation="small"
+                margin={{ vertical: 'small' }}
+                round="small"
+              >
+                <Text size="xsmall">Having issues? Try resetting the app.</Text>
+              </Box>
+            }
             dropProps={{
-              align: { right: 'left' },
+              align: { right: 'left', top: 'bottom' },
             }}
           >
-            <Text size="xsmall"> Reset App </Text>
+            <Text size="xsmall">Reset App</Text>
           </Tip>
         </GeneralButton>
       </Box>

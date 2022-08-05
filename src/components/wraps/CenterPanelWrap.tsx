@@ -114,7 +114,7 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                 round="xsmall"
                 background="lightBackground"
               >
-                <Box fill round="xsmall" background="lightBackground">
+                <Box fill round="xsmall" background="lightBackground" justify="between">
                   {children}
                 </Box>
               </Box>

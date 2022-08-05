@@ -1,8 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
-import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IStrategy, IVault } from '../../types';
-import { cleanValue } from '../../utils/appUtils';
 import {
   fyTokenForMint,
   strategyTokenValue,
@@ -12,10 +9,16 @@ import {
   burn,
   calculateSlippage,
   sellFYToken,
-  secondsToFrom,
-} from '../../utils/yieldMath';
+  newPoolState,
+} from '@yield-protocol/ui-math';
+
+import { formatUnits } from 'ethers/lib/utils';
+import { UserContext } from '../../contexts/UserContext';
+import { IAsset, ISeries, ISettingsContext, IStrategy, IUserContext, IVault } from '../../types';
+import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -25,14 +28,17 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   const {
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
   const strategy: IStrategy | undefined = selectedStrategy;
   const strategySeries: ISeries | undefined = seriesMap?.get(
-    selectedStrategy ? strategy?.currentSeriesId : selectedSeries
+    selectedStrategy ? strategy?.currentSeriesId : selectedSeries?.id
   );
 
-  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.idToUse);
+  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.proxyId);
+
+  /* HOOKS */
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   /* LOCAL STATE */
 
@@ -43,13 +49,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const [maxPool, setMaxPool] = useState<string | undefined>();
   const [canBuyAndPool, setCanBuyAndPool] = useState<boolean | undefined>(false);
 
-  // const [inputTradeValue, setInputTradeValue] = useState<BigNumber | undefined>();
-  // const [inputTradeValue_, setInputTradeValue_] = useState<string | undefined>();
-  // const [accountTradeValue, setAccountTradeValue] = useState<string | undefined>();
-
   /* remove liquidity helpers */
-  const [maxRemoveNoVault, setMaxRemoveNoVault] = useState<string | undefined>();
-  const [maxRemoveWithVault, setMaxRemoveWithVault] = useState<string | undefined>();
+  const [maxRemove, setMaxRemove] = useState<string | undefined>();
 
   const [partialRemoveRequired, setPartialRemoveRequired] = useState<boolean>(false);
 
@@ -72,10 +73,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
         .find(
           (v: IVault) =>
-            v.ilkId === strategyBase.idToUse &&
-            v.baseId === strategyBase.idToUse &&
-            v.seriesId === strategySeries.id &&
-            v.isActive
+            v.ilkId === strategyBase.proxyId && v.baseId === strategyBase.proxyId && v.seriesId === strategySeries.id
         );
       setMatchingVault(_matchingVault);
       diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
@@ -116,24 +114,28 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       let _fyTokenToBuy = ethers.constants.Zero;
 
       const _maxFyTokenOut = maxFyTokenOut(
-        strategySeries.baseReserves,
+        strategySeries.sharesReserves,
         strategySeries.fyTokenReserves,
-        strategySeries.getTimeTillMaturity(),
-        strategySeries.ts,
-        strategySeries.g1,
-        strategySeries.decimals
-      );
-
-      [_fyTokenToBuy] = fyTokenForMint(
-        strategySeries.baseReserves,
-        strategySeries.fyTokenRealReserves,
-        strategySeries.fyTokenReserves,
-        calculateSlippage(_input, slippageTolerance.toString(), true),
-        strategySeries.getTimeTillMaturity(),
+        getTimeTillMaturity(strategySeries.maturity),
         strategySeries.ts,
         strategySeries.g1,
         strategySeries.decimals,
-        slippageTolerance
+        strategySeries.c,
+        strategySeries.mu
+      );
+
+      [_fyTokenToBuy] = fyTokenForMint(
+        strategySeries.sharesReserves,
+        strategySeries.fyTokenRealReserves,
+        strategySeries.fyTokenReserves,
+        calculateSlippage(strategySeries.getShares(_input), slippageTolerance.toString(), true),
+        getTimeTillMaturity(strategySeries.maturity),
+        strategySeries.ts,
+        strategySeries.g1,
+        strategySeries.decimals,
+        slippageTolerance,
+        strategySeries.c,
+        strategySeries.mu
       );
 
       /* Check if buy and pool option is allowed */
@@ -148,7 +150,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       /* Don't allow by default */
       setCanBuyAndPool(false);
     }
-  }, [_input, strategySeries, removeLiquidityView, slippageTolerance, diagnostics]);
+  }, [_input, strategySeries, removeLiquidityView, slippageTolerance, diagnostics, getTimeTillMaturity]);
 
   /* Set Max Pool > effectively user balance */
   useEffect(() => {
@@ -165,88 +167,100 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
    * Remove Liquidity specific section
    * */
 
-  /* set max for removal with/without a vault  */
+  /* set max removal (always strategy token balance)  */
   useEffect(() => {
-    /* if series is mature set max to user tokens, else set a max depending on if there is a vault */
-    removeLiquidityView &&
-      strategy &&
-      strategySeries &&
-      matchingVault &&
-      setMaxRemoveWithVault(
-        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
-      );
-    removeLiquidityView &&
-      strategy &&
-      strategySeries &&
-      setMaxRemoveNoVault(
-        ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategySeries.decimals)
-      );
-  }, [matchingVault, strategy, strategySeries, removeLiquidityView]);
+    setMaxRemove(ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategy?.decimals));
+  }, [strategy?.accountBalance, strategy?.decimals]);
 
   /* Remove liquidity flow decision tree */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView) {
-      if (matchingVault) {
-        /* Matching vault (with debt) exists: USE 1 , 2.1 or 2.2 */
+      const lpReceived = burnFromStrategy(strategy.strategyPoolBalance, strategy.strategyTotalSupply, _input);
+      const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
+        strategySeries.sharesReserves,
+        strategySeries.fyTokenRealReserves,
+        strategySeries.totalSupply,
+        lpReceived
+      );
 
-        /* Check the amount of fyTokens potentially recieved */
-        const lpReceived = burnFromStrategy(strategy?.strategyPoolBalance!, strategy?.strategyTotalSupply!, _input);
-        const [_baseReceived, _fyTokenReceived] = burn(
-          strategySeries?.baseReserves!,
-          strategySeries?.fyTokenRealReserves!,
-          strategySeries?.totalSupply!,
-          lpReceived
+      const newPool = newPoolState(
+        sharesReceivedFromBurn.mul(-1),
+        fyTokenReceivedFromBurn.mul(-1),
+        strategySeries.sharesReserves,
+        strategySeries.fyTokenReserves,
+        strategySeries.totalSupply
+      );
+
+      diagnostics &&
+        console.log(
+          'base from burn',
+          formatUnits(strategySeries.getBase(sharesReceivedFromBurn), strategySeries.decimals)
         );
-        diagnostics && console.log('burnt (base, fytokens)', _baseReceived.toString(), _fyTokenReceived.toString());
+      diagnostics && console.log('fytokens from burn', formatUnits(fyTokenReceivedFromBurn, strategySeries.decimals));
 
-        if (_fyTokenReceived.gt(matchingVault?.accruedArt!)) {
-          /* Fytoken received greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
+      /* Matching vault (with debt) exists: USE 1, 2.1, or 2.2 */
+      if (matchingVault) {
+        if (fyTokenReceivedFromBurn.gt(matchingVault.accruedArt)) {
+          /* Fytoken sold to base greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
           diagnostics &&
             console.log(
-              'FyTokens received will be greater than debt: an extra sellFytoken trade is required: REMOVE OPTION 2.1 or 2.2 '
+              'FyTokens received will be greater than debt: an extra sellFytoken trade may be required (if possible): REMOVE OPTION 2.1 or 2.2 '
             );
 
-          const _extraFyTokensToSell = _fyTokenReceived.sub(matchingVault.accruedArt);
-          diagnostics && console.log(_extraFyTokensToSell.toString(), 'FyTokens Need to be sold');
+          const _extraFyTokensToSell = fyTokenReceivedFromBurn.sub(matchingVault.accruedArt);
 
+          diagnostics &&
+            console.log(formatUnits(_extraFyTokensToSell, strategySeries.decimals), 'FyTokens Need to be sold');
+
+          // estimate if we can sell that extra fyToken
           const _extraFyTokenValue = sellFYToken(
-            strategySeries?.baseReserves!,
-            strategySeries?.fyTokenRealReserves!,
+            newPool.sharesReserves,
+            newPool.fyTokenVirtualReserves,
             _extraFyTokensToSell,
-            secondsToFrom(strategySeries?.maturity.toString()),
-            strategySeries?.ts,
-            strategySeries?.g2,
-            strategySeries?.decimals
+            getTimeTillMaturity(strategySeries.maturity),
+            strategySeries.ts,
+            strategySeries.g2,
+            strategySeries.decimals,
+            strategySeries.c,
+            strategySeries.mu
           );
 
           if (_extraFyTokenValue.gt(ZERO_BN)) {
-            /* CASE> extra fyToken TRADE IS POSSIBLE :  USE REMOVE OPTION 2.1? */
+            /* CASE > extra fyToken TRADE IS POSSIBLE : USE REMOVE OPTION 2.1 */
             diagnostics && console.log('USE REMOVE OPTION 2.1');
             setPartialRemoveRequired(false);
-            const _val = _baseReceived.add(_extraFyTokenValue); // .add(_fyTokenReceived);
+
+            // shares received (converted to base), plus extra fyToken to shares (converted to base), plus accrued art redeemed 1:1 for shares (converted to base)
+            const _val = strategySeries
+              .getBase(sharesReceivedFromBurn)
+              .add(strategySeries.getBase(_extraFyTokenValue))
+              .add(matchingVault.accruedArt);
             setRemoveBaseReceived(_val);
             setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
             setRemoveFyTokenReceived(ethers.constants.Zero);
             setRemoveFyTokenReceived_('0');
           } else {
-            /* CASE> extra fyToken TRADE NOT POSSIBLE ( limited by protocol ): USE REMOVE OPTION 2.2 */
+            /* CASE > extra fyToken TRADE NOT POSSIBLE (limited by protocol): USE REMOVE OPTION 2.2 */
             diagnostics && console.log('USE REMOVE OPTION 2.2');
             setPartialRemoveRequired(true);
-            const _fyTokenVal = _fyTokenReceived.sub(matchingVault.accruedArt);
-            const _baseVal = _baseReceived; // .add(matchingVault.art);
+            const _fyTokenVal = fyTokenReceivedFromBurn;
+            const _baseVal = strategySeries.getBase(sharesReceivedFromBurn);
             setRemoveBaseReceived(_baseVal);
             setRemoveBaseReceived_(ethers.utils.formatUnits(_baseVal, strategySeries.decimals));
             setRemoveFyTokenReceived(_fyTokenVal);
             setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenVal, strategySeries.decimals));
           }
         } else {
-          /* CASE> fytokenReceived less than debt : USE REMOVE OPTION 1 */
+          /* CASE > fytokenReceived less than debt : USE REMOVE OPTION 1 */
           diagnostics &&
             console.log(
-              'FyTokens received will Less than debt: straight No extra trading is required : USE REMOVE OPTION 1 '
+              'FyTokens received will be less than debt: close from ladle, no extra trading is required : USE REMOVE OPTION 1'
             );
+
           setPartialRemoveRequired(false);
-          const _val = _baseReceived; // .add(_fyTokenReceived);
+
+          // add the base received from the burn to the matching vault's debt (redeemable for base 1:1) to get total base value
+          const _val = strategySeries.getBase(sharesReceivedFromBurn).add(fyTokenReceivedFromBurn);
           setRemoveBaseReceived(_val);
           setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
@@ -254,50 +268,45 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         }
       } else {
         /* CASE > No matching vault exists : USE REMOVE OPTION 4 */
-
         /* Check the amount of fyTokens potentially recieved */
-        const lpReceived = burnFromStrategy(strategy?.strategyPoolBalance!, strategy?.strategyTotalSupply!, _input);
-        const [_baseReceived, _fyTokenReceived] = burn(
-          strategySeries?.baseReserves!,
-          strategySeries?.fyTokenRealReserves!,
-          strategySeries?.totalSupply!,
-          lpReceived
-        );
-
         /* Calculate the token Value */
-        const [tokenSellValue, totalTokenValue] = strategyTokenValue(
+        const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _input,
-          strategy?.strategyTotalSupply!,
-          strategy?.strategyPoolBalance!,
-          strategySeries?.baseReserves,
-          strategySeries?.fyTokenRealReserves,
-          strategySeries?.totalSupply!,
-          strategySeries.getTimeTillMaturity(),
+          strategy.strategyTotalSupply,
+          strategy.strategyPoolBalance,
+          strategySeries.sharesReserves,
+          strategySeries.fyTokenReserves,
+          strategySeries.totalSupply,
+          getTimeTillMaturity(strategySeries.maturity),
           strategySeries.ts,
           strategySeries.g2,
-          strategySeries.decimals
+          strategySeries.decimals,
+          strategySeries.c,
+          strategySeries.mu
         );
 
-        if (tokenSellValue.gt(ethers.constants.Zero)) {
-          diagnostics && console.log('NO VAULT : pool trade is possible  : USE REMOVE OPTION 4.1 ');
+        // if we could sell all fyToken to shares
+        if (fyTokenToShares.gt(ethers.constants.Zero)) {
+          diagnostics && console.log('NO VAULT : pool trade is possible : USE REMOVE OPTION 4.1 ');
           setPartialRemoveRequired(false);
 
-          const _val = totalTokenValue;
-          setRemoveBaseReceived(_val);
-          setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
+          // calculate total base value of shares received plus fyToken sold to shares
+          const totalBaseValue = strategySeries.getBase(fyTokenToShares).add(strategySeries.getBase(sharesReceived));
+          setRemoveBaseReceived(totalBaseValue);
+          setRemoveBaseReceived_(ethers.utils.formatUnits(totalBaseValue, strategySeries.decimals));
           setRemoveFyTokenReceived(ethers.constants.Zero);
           setRemoveFyTokenReceived_('0');
         } else {
           diagnostics && console.log('NO VAULT : trade not possible : USE REMOVE OPTION 4.2');
           setPartialRemoveRequired(true);
-          setRemoveBaseReceived(_baseReceived);
-          setRemoveBaseReceived_(ethers.utils.formatUnits(_baseReceived, strategySeries.decimals));
-          setRemoveFyTokenReceived(_fyTokenReceived);
-          setRemoveFyTokenReceived_(ethers.utils.formatUnits(_fyTokenReceived, strategySeries.decimals));
+          setRemoveBaseReceived(strategySeries.getBase(sharesReceivedFromBurn));
+          setRemoveBaseReceived_(ethers.utils.formatUnits(sharesReceivedFromBurn, strategySeries.decimals));
+          setRemoveFyTokenReceived(fyTokenReceivedFromBurn);
+          setRemoveFyTokenReceived_(ethers.utils.formatUnits(fyTokenReceivedFromBurn, strategySeries.decimals));
         }
       }
     }
-  }, [strategy, _input, strategySeries, matchingVault, removeLiquidityView, diagnostics]);
+  }, [strategy, _input, strategySeries, matchingVault, removeLiquidityView, diagnostics, getTimeTillMaturity]);
 
   return {
     maxPool,
@@ -306,8 +315,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
     matchingVault,
 
-    maxRemoveNoVault,
-    maxRemoveWithVault,
+    maxRemove,
 
     partialRemoveRequired,
 
@@ -315,6 +323,5 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     removeFyTokenReceived,
     removeBaseReceived_,
     removeFyTokenReceived_,
-
   };
 };

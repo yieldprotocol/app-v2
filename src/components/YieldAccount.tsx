@@ -77,8 +77,12 @@ const YieldAccount = (props: any) => {
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        {assetsLoading && <Skeleton circle height={15} width={15} />}
-                        {ethBalance && <EthMark />}
+                        {assetsLoading && <Skeleton circle height={20} width={20} />}
+                        {ethBalance && (
+                          <Box height="20px" width="20px">
+                            <EthMark />
+                          </Box>
+                        )}
                       </StyledText>
                       <StyledText size="small" color="text">
                         {assetsLoading ? <Skeleton width={40} /> : ethBalance}

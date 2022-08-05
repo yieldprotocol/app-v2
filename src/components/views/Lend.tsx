@@ -39,6 +39,7 @@ import LendItem from '../positionItems/LendItem';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
+import Line from '../elements/Line';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -66,7 +67,9 @@ const Lend = () => {
 
   /* LOCAL FNS */
   const handleLend = () => {
-    !lendDisabled && lend(lendInput, selectedSeries!);
+    if (lendDisabled) return;
+    setLendDisabled(true);
+    lend(lendInput, selectedSeries!);
   };
 
   const resetInputs = useCallback(() => {
@@ -96,124 +99,136 @@ const Lend = () => {
       )}
 
       <CenterPanelWrap series={selectedSeries}>
-        <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
+        <Box id="topsection">
           {stepPosition === 0 && (
-            <Box gap="large">
-              <YieldCardHeader>
-                <Box gap={mobile ? undefined : 'xsmall'}>
-                  <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
-                  <AltText color="text-weak" size="xsmall">
-                    Lend popular ERC20 tokens for{' '}
-                    <Text size="small" color="text">
-                      {' '}
-                      fixed returns
-                    </Text>
-                  </AltText>
-                </Box>
-              </YieldCardHeader>
-
-              <Box gap="medium">
-                <SectionWrap>
-                  <Box direction="row-responsive">
-                    <Box basis={mobile ? '50%' : '60%'}>
-                      <InputWrap
-                        action={() => console.log('maxAction')}
-                        isError={lendError}
-                        disabled={selectedSeries?.seriesIsMature}
-                      >
-                        <TextInput
-                          plain
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Enter amount"
-                          value={lendInput || ''}
-                          onChange={(event: any) =>
-                            setLendInput(cleanValue(event.target.value, selectedSeries?.decimals))
-                          }
-                          disabled={selectedSeries?.seriesIsMature}
-                        />
-                        <MaxButton
-                          action={() => setLendInput(maxLend_)}
-                          disabled={maxLend_ === '0' || selectedSeries?.seriesIsMature}
-                          clearAction={() => setLendInput('')}
-                          showingMax={!!lendInput && (lendInput === maxLend_ || !!lendError)}
-                        />
-                      </InputWrap>
-                    </Box>
-                    <Box basis={mobile ? '50%' : '40%'}>
-                      <AssetSelector />
-                    </Box>
+            <>
+              <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }} gap="large">
+                <YieldCardHeader>
+                  <Box gap={mobile ? undefined : 'xsmall'}>
+                    <ColorText size={mobile ? 'medium' : '2rem'}>LEND</ColorText>
+                    <AltText color="text-weak" size="xsmall">
+                      Lend popular ERC20 tokens for{' '}
+                      <Text size="small" color="text">
+                        fixed returns
+                      </Text>
+                    </AltText>
                   </Box>
-                </SectionWrap>
+                </YieldCardHeader>
 
-                {mobile ? (
-                  <SeriesOrStrategySelectorModal
-                    inputValue={lendInput!}
-                    actionType={ActionType.LEND}
-                    open={modalOpen}
-                    setOpen={toggleModal}
-                  />
-                ) : (
-                  <SectionWrap
-                    title={
-                      seriesMap.size > 0
-                        ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity date:`
-                        : ''
-                    }
-                  >
-                    <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                <Box gap="medium">
+                  <SectionWrap>
+                    <Box direction="row-responsive">
+                      <Box basis={mobile ? '50%' : '60%'}>
+                        <InputWrap
+                          action={() => console.log('maxAction')}
+                          isError={lendError}
+                          disabled={selectedSeries?.seriesIsMature}
+                        >
+                          <TextInput
+                            plain
+                            type="number"
+                            inputMode="decimal"
+                            placeholder="Enter amount"
+                            value={lendInput || ''}
+                            onChange={(event: any) =>
+                              setLendInput(cleanValue(event.target.value, selectedSeries?.decimals))
+                            }
+                            disabled={selectedSeries?.seriesIsMature}
+                          />
+                          <MaxButton
+                            action={() => setLendInput(maxLend_)}
+                            disabled={maxLend_ === '0' || selectedSeries?.seriesIsMature}
+                            clearAction={() => setLendInput('')}
+                            showingMax={!!lendInput && (lendInput === maxLend_ || !!lendError)}
+                          />
+                        </InputWrap>
+                      </Box>
+                      <Box basis={mobile ? '50%' : '40%'}>
+                        <AssetSelector />
+                      </Box>
+                    </Box>
                   </SectionWrap>
+
+                  {mobile ? (
+                    <SeriesOrStrategySelectorModal
+                      inputValue={lendInput!}
+                      actionType={ActionType.LEND}
+                      open={modalOpen}
+                      setOpen={toggleModal}
+                    />
+                  ) : (
+                    <SectionWrap
+                      title={
+                        seriesMap.size > 0
+                          ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity date:`
+                          : ''
+                      }
+                    >
+                      <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                    </SectionWrap>
+                  )}
+                </Box>
+
+                {selectedBase && selectedSeries && protocolLimited && (
+                  <InputInfoWrap action={() => setLendInput(maxLend_)}>
+                    <Text size="xsmall" color="text-weak">
+                      Max lend is{' '}
+                      <Text size="small" color="text-weak">
+                        {cleanValue(maxLend_, 2)} {selectedBase?.displaySymbol}
+                      </Text>{' '}
+                      (limited by protocol liquidity)
+                    </Text>
+                  </InputInfoWrap>
                 )}
               </Box>
-
-              {selectedBase && selectedSeries && protocolLimited && (
-                <InputInfoWrap action={() => setLendInput(maxLend_)}>
-                  <Text size="xsmall" color="text-weak">
-                    Max lend is{' '}
-                    <Text size="small" color="text-weak">
-                      {cleanValue(maxLend_, 2)} {selectedBase?.displaySymbol}
-                    </Text>{' '}
-                    (limited by protocol liquidity)
-                  </Text>
-                </InputInfoWrap>
-              )}
-            </Box>
+            </>
           )}
-
           {stepPosition === 1 && (
-            <Box gap="medium">
-              <YieldCardHeader>
+            <>
+              <Box
+                height={{ min: '350px' }}
+                background="gradient-transparent"
+                round={{ corner: 'top', size: 'xsmall' }}
+                pad="medium"
+                gap="large"
+              >
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
                   <BackButton action={() => setStepPosition(0)} />
                 ) : (
                   <Box pad="1em" />
                 )}
-              </YieldCardHeader>
 
-              <ActiveTransaction full txProcess={lendProcess}>
-                <Box
-                  gap="small"
-                  pad={{ horizontal: 'large', vertical: 'medium' }}
-                  round="xsmall"
-                  animation={{ type: 'zoomIn', size: 'small' }}
-                >
-                  <InfoBite
-                    label="Amount to lend"
-                    icon={<BiMessageSquareAdd />}
-                    value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
-                  />
-                  <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                  <InfoBite
-                    label="Redeemable @ Maturity"
-                    icon={<FiTrendingUp />}
-                    value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
-                  />
-                  <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
-                </Box>
-              </ActiveTransaction>
-            </Box>
+                <ActiveTransaction full txProcess={lendProcess}>
+                  <Box
+                    pad={{ horizontal: 'medium', vertical: 'medium' }}
+                    gap="small"
+                    animation={{ type: 'zoomIn', size: 'small' }}
+                    flex={false}
+                  >
+                    <InfoBite
+                      label="Amount to lend"
+                      icon={<BiMessageSquareAdd />}
+                      value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
+                    />
+                    <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    <InfoBite
+                      label="Redeemable @ Maturity"
+                      icon={<FiTrendingUp />}
+                      value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!)} ${
+                        selectedBase?.displaySymbol
+                      }`}
+                    />
+                    <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
+                  </Box>
+                </ActiveTransaction>
+              </Box>
+              <Line />
+              <Box />
+            </>
           )}
+        </Box>
 
+        <Box id="midsection" pad="medium">
           {stepPosition === 1 &&
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && (

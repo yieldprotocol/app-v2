@@ -1,5 +1,6 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
-import { ERC1155, ERC20, ERC20Permit, FYToken, Pool, Strategy } from '../contracts';
+import { ReactNode } from 'react';
+import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -28,12 +29,19 @@ export interface IConnectionState {
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
   connectionName: string | null;
+  useTenderlyFork: boolean;
 }
 
 export interface IHistoryList {
   lastBlock: number;
   items: any[];
 }
+
+export interface IHistoryContext {
+  historyState: IHistoryContextState;
+  historyActions: IHistoryContextActions;
+}
+
 export interface IHistoryContextState {
   historyLoading: boolean;
   tradeHistory: IHistoryList;
@@ -41,10 +49,20 @@ export interface IHistoryContextState {
   vaultHistory: IHistoryList;
 }
 
+export interface IHistoryContextActions {
+  updatePoolHistory: (seriesList: ISeries[]) => Promise<void>;
+  updateStrategyHistory: (strategyList: IStrategy[]) => Promise<void>;
+  updateVaultHistory: (vaultList: IVault[]) => Promise<void>;
+  updateTradeHistory: (seriesList: ISeries[]) => Promise<void>;
+}
+
 export interface IChainContextActions {
   connect: (connection: string) => void;
   disconnect: () => void;
   isConnected: (connection: string) => void;
+  useTenderly: (shouldUse: boolean) => void;
+
+  exportContractAddresses: () => void;
 }
 
 export interface IPriceContextState {
@@ -118,6 +136,9 @@ export interface ISettingsContextState {
   /* Token wrapping */
   showWrappedTokens: boolean;
   unwrapTokens: boolean;
+
+  useTenderlyFork: boolean;
+
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
@@ -132,6 +153,7 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
+  tokenType: TokenType;
 }
 
 export interface ISeriesRoot extends ISignable {
@@ -140,7 +162,7 @@ export interface ISeriesRoot extends ISignable {
   displayNameMobile: string;
   maturity: number;
 
-  fullDate: Date;
+  fullDate: string;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
   poolContract: Pool;
@@ -165,11 +187,9 @@ export interface ISeriesRoot extends ISignable {
   oppStartColor: string;
   oppEndColor: string;
 
-  seriesMark: React.ElementType;
+  seriesMark: ReactNode;
 
   // baked in token fns
-  getTimeTillMaturity: () => string;
-  isMature: () => boolean;
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
@@ -184,47 +204,43 @@ export enum TokenType {
 
 export interface IAssetInfo {
   tokenType: TokenType;
-  tokenIdentifier?: number; // used for identifying tokens in a multitoken contract
+  tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
   name: string;
   version: string;
   symbol: string;
   decimals: number;
 
-  showToken: boolean;
-  isWrappedToken: boolean; // Note: this is if it a token wrapped by the yield protocol (except ETH - which is handled differently)
+  showToken: boolean; // Display/hide the token on the UI
 
-  color: string;
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
-
   displaySymbol?: string; // override for symbol display
 
-  wrapHandlerAddress?: string;
-
-  wrappedTokenId?: string;
-  wrappedTokenAddress?: string;
-
-  unwrappedTokenId?: string;
-  unwrappedTokenAddress?: string;
-
   limitToSeries?: string[];
+
+  wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
+  unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
+  proxyId?: string;
 }
 
 export interface IAssetRoot extends IAssetInfo, ISignable {
   // fixed/static:
   id: string;
 
-  color: string;
   image: React.FC;
   displayName: string;
   displayNameMobile: string;
   joinAddress: string;
 
   digitFormat: number;
-  baseContract: Contract;
+  assetContract: Contract;
+  oracleContract: Contract;
 
   isYieldBase: boolean;
-  idToUse: string;
+
+  isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
+  wrappingRequired: boolean;
+  proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
 
   // baked in token fns
   getBalance: (account: string) => Promise<BigNumber>;
@@ -235,14 +251,12 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
 export interface IAssetPair {
   baseId: string;
   ilkId: string;
-
   oracle: string;
 
   baseDecimals: number;
   limitDecimals: number;
 
   minRatio: number;
-
   minDebtLimit: BigNumber;
   maxDebtLimit: BigNumber;
   pairPrice: BigNumber;
@@ -269,8 +283,8 @@ export interface IVaultRoot {
 
 export interface ISeries extends ISeriesRoot {
   apr: string;
-  baseReserves: BigNumber;
-  baseReserves_: string;
+  sharesReserves: BigNumber;
+  sharesReserves_: string;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
@@ -282,7 +296,14 @@ export interface ISeries extends ISeriesRoot {
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
+  poolAPY?: string;
   seriesIsMature: boolean;
+
+  // Yieldspace TV
+  c: BigNumber | undefined;
+  mu: BigNumber | undefined;
+  getShares: (baseAmount: BigNumber) => BigNumber;
+  getBase: (sharesAmount: BigNumber) => BigNumber;
 }
 
 export interface IAsset extends IAssetRoot {
@@ -293,7 +314,10 @@ export interface IAsset extends IAssetRoot {
 export interface IDummyVault extends IVaultRoot {}
 export interface IVault extends IVaultRoot {
   owner: string;
+
   isWitchOwner: boolean;
+  hasBeenLiquidated: boolean;
+
   isActive: boolean;
   ink: BigNumber;
   art: BigNumber;
@@ -391,12 +415,7 @@ export interface IDomain {
 export enum ApprovalType {
   TX = 'TX',
   SIG = 'SIG',
-}
-
-export enum SignType {
-  ERC2612 = 'ERC2612_TYPE',
-  DAI = 'DAI_TYPE',
-  FYTOKEN = 'FYTOKEN_TYPE',
+  DAI_SIG = 'DAI_SIG',
 }
 
 export enum TxState {

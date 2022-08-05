@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { Button, DropButton, Text, Box } from 'grommet';
 import { FiMoreVertical } from 'react-icons/fi';
 import { ActionType } from '../types';
-import { SettingsContext } from '../contexts/SettingsContext';
+import { Settings, SettingsContext } from '../contexts/SettingsContext';
 
 const DashboardSettings = ({ actionType }: { actionType: string }) => {
   const {
@@ -18,7 +18,7 @@ const DashboardSettings = ({ actionType }: { actionType: string }) => {
         <Box gap="xxsmall">
           <Button
             onClick={() => {
-              updateSetting('dashHideEmptyVaults', !dashHideEmptyVaults);
+              updateSetting(Settings.DASH_HIDE_EMPTY_VAULTS, !dashHideEmptyVaults);
               setSettingsOpen(false);
             }}
             plain

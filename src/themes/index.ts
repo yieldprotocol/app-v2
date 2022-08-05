@@ -5,11 +5,19 @@ export const yieldTheme = {
   global: {
     focus: 'none',
     elevation: {
+      // dark: {
+      //   xsmall: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+      //   small: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+      //   medium: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+      //   large: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+      //   xlarge: '0px 10px 24px rgba(255, 255, 255, 0.20)',
+      // },
+
       dark: {
-        xsmall: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
-        small: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
-        medium: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
-        large: 'inset 1px 1px 1px #202A30, inset -0.25px -0.25px 0.25px #202A30',
+        xsmall: '1px 1px 1px #202A30,  0.25px 0.25px 0.25px #202A30',
+        small: '1px 1px 1px #202A30, 0.25px 0.25px 0.25px #202A30',
+        medium: '1px 1px 1px #202A30, 0.25px 0.25px 0.25px #202A30',
+        large: '1px 1px 1px #202A30, 0.25px 0.25px 0.25px #202A30',
         xlarge: '0px 10px 24px rgba(255, 255, 255, 0.20)',
       },
     },
@@ -67,13 +75,20 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
       hoverBackground: {
-        dark: '#262626',
+        dark: '#181818',
         light: '#FFFFFF',
+      },
+      selected: {
+        dark: '-webkit-linear-gradient(135deg, #f7953380, #f3705580, #ef4e7b80, #a166ab80, #5073b880, #1098ad80, #07b39b80, #6fba8280)',
+        light:
+          '-webkit-linear-gradient(135deg, #f7953340, #f3705540, #ef4e7b40, #a166ab40, #5073b840, #1098ad40, #07b39b40, #6fba8240)',
       },
     },
 
     drop: { border: { radius: '6px' }, elevation: 'xlarge' },
     anchor: { color: 'brand' },
+
+    // hover: { background: 'red' }
   },
 
   grommet: {
@@ -107,6 +122,15 @@ export const yieldTheme = {
       theme.dark ? `color: ${theme.global.colors.text.dark}` : `color: ${theme.global.colors.text.light}`,
   },
 
+  tip: { 
+    size:'xsmall',
+    content: {
+      background: "background", 
+      pad: { vertical: "xsmall", horizontal: "xsmall" }, 
+      round: "xsmall",
+    }
+  },
+
   button: {
     border: {
       radius: '6px',
@@ -131,6 +155,12 @@ export const yieldTheme = {
       pad: { horizontal: 'xsmall', vertical: undefined },
       background: 'lightBackground',
       border: false,
+    },
+  },
+
+  select: {
+    options: {
+      text: { size: 'small' },
     },
   },
 

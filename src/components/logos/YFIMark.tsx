@@ -2,14 +2,14 @@ import * as React from 'react';
 
 function YFIMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1000 1000" fill="none" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="80%" height="80%" viewBox="0 0 1000 1000" fill="none" {...props}>
       <g data-name="Layer 1">
         <path
           fill={props.color || '#3366CC'}
           stroke="none"
           d="M500 0c276.1 0 500 223.9 500 500s-223.9 500-500 500S0 776.1 0 500 223.9 0 500 0z"
         />
-        <path fill="#fff" d="M479.4 710.8L479.4 294.8 524.7 294.8 524.7 710.8 479.4 710.8z" data-name="SVGID"/>
+        <path fill="#fff" d="M479.4 710.8L479.4 294.8 524.7 294.8 524.7 710.8 479.4 710.8z" data-name="SVGID" />
         <path
           fill="#fff"
           d="M710 433.4l-139.9 37.1-31.2-145.2 41.6-9.4 16.4 68.8s37.8-62-12.6-126.2c-29.7-33-43.8-34.4-77.1-39.6-29.3-4.2-97.4 5.7-117.7 85.2-8.6 51.2 1.1 89.1 67.1 138.7l-3.7 55.2s-73.7-51.9-92.7-88.3c-14.7-28.8-39.9-85.7 5.6-164.9 24.5-39.6 72.8-77.6 157.9-73.6 42.8 1.8 147.3 54.1 131.1 176.3-2.8 22.9-14.7 53.4-14.7 53.4l57.4-12.8 12.5 45.3z"

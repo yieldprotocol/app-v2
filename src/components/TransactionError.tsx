@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Box, Layer, Text } from 'grommet';
+import { Anchor, Box, Layer, Text } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { TxContext } from '../contexts/TxContext';
 import CopyWrap from './wraps/CopyWrap';
@@ -16,12 +16,19 @@ const TransactionError = () => {
         <Layer onClickOutside={() => txActions.handleTxWillFail()} responsive>
           <Box pad="large" round="small" gap="small" width="600px">
             <Box fill="horizontal" align="center" direction="row" gap="medium" pad="small">
-              <FiAlertTriangle size="2em" /> Transaction aborted
+              <FiAlertTriangle size="2em" />
+              Transaction aborted
             </Box>
 
             <Box pad="small">
               <Text size="small">
-                It seems your transaction was likely to fail, and so it was aborted before being submitted.
+                It seems your transaction was likely to fail, and so it was aborted before being submitted.{' '}
+                <Anchor
+                  href="https://docs.yieldprotocol.com/#/troubleshooting"
+                  target="_blank"
+                  label="Learn more."
+                  size="small"
+                />
               </Text>
             </Box>
 
@@ -53,7 +60,7 @@ const TransactionError = () => {
             <Box pad="small">
               {txState.txWillFailInfo.error && (
                 <Box gap="small">
-                  <Text size="small"> Diagnostics</Text>
+                  <Text size="small">Diagnostics</Text>
                   <Box pad="small" border gap="small" round="small">
                     <Text size="xsmall">
                       Reason for revert: {txState.txWillFailInfo.error.message.split('execution reverted: ')[1]}
@@ -65,11 +72,13 @@ const TransactionError = () => {
                           {JSON.stringify({
                             transaction: txState.txWillFailInfo.transaction,
                             error: txState.txWillFailInfo.error,
+                            blocknum: txState.txWillFailInfo.blocknum,
                           })}
                         </Text>
                       ) : (
                         <Text size="xsmall" truncate>
                           {JSON.stringify(txState.txWillFailInfo.transaction.data)}
+                          {txState.txWillFailInfo.blocknum}
                         </Text>
                       )}
                     </Box>
@@ -79,6 +88,7 @@ const TransactionError = () => {
                         hash={JSON.stringify({
                           transaction: txState.txWillFailInfo.transaction,
                           error: txState.txWillFailInfo.error,
+                          blocknum: txState.txWillFailInfo.blocknum,
                         })}
                       >
                         <Text size="xsmall">Copy diagnostic information</Text>

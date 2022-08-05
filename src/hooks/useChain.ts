@@ -4,10 +4,8 @@ import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
-import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions } from '../types';
+import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions, TokenType } from '../types';
 import { MAX_256, ZERO_BN } from '../utils/constants';
-
-import { DAI_PERMIT_ASSETS, NON_PERMIT_ASSETS } from '../config/assets';
 
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
@@ -97,8 +95,8 @@ export const useChain = () => {
       console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
     } catch (e: any) {
       gasEst = BigNumber.from(500000);
-       /* handle if the tx if going to fail and transactions aren't forced */
-      if (!forceTransactions) return handleTxWillFail(e.error, txCode, e.transaction)
+      /* handle if the tx if going to fail and transactions aren't forced */
+      if (!forceTransactions) return handleTxWillFail(e.error, txCode, e.transaction);
     }
 
     /* Finally, send out the transaction */
@@ -144,7 +142,8 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Amount', _amount?.toString());
 
         /* Request the signature if using DaiType permit style */
-        if (DAI_PERMIT_ASSETS.includes(reqSig.target.symbol) && chainId !== 42161) {
+        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chainId !== 42161) {
+          // dai in arbitrum uses regular permits
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
@@ -222,7 +221,12 @@ export const useChain = () => {
               true
             ),
           txCode,
-          NON_PERMIT_ASSETS.includes(reqSig.target.symbol) ? ApprovalType.TX : approvalMethod
+
+          reqSig.target.tokenType === TokenType.ERC20_DaiPermit ||
+            reqSig.target.tokenType === TokenType.ERC20_Permit ||
+            !reqSig.target.tokenType // handle fyTokens (don't have an explicit tokenType in the asset config)
+            ? approvalMethod
+            : ApprovalType.TX
         );
 
         const args = [

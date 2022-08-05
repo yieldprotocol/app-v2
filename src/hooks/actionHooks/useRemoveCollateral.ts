@@ -1,7 +1,6 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -11,77 +10,99 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
-  ISettingsContext,
+  RoutedActions,
+  IHistoryContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ConvexJoin__factory } from '../../contracts';
+import { HistoryContext } from '../../contexts/HistoryContext';
 
-// TODO will fail if balance of join is less than amount
 export const useRemoveCollateral = () => {
   const {
-    chainState: { contractMap },
+    chainState: {
+      contractMap,
+      connection: { chainId },
+      provider,
+    },
   } = useContext(ChainContext);
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
   const { activeAccount: account, selectedIlk, assetMap } = userState;
-  const { updateAssets, updateVaults } = userActions;
+
   const {
-    settingsState: { unwrapTokens },
-  } = useContext(SettingsContext) as ISettingsContext;
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
 
+  const { updateAssets, updateVaults } = userActions;
   const { transact } = useChain();
-
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
 
-  const removeCollateral = async (vault: IVault, input: string) => {
+  const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
     /* get associated series and ilk */
     const ilk = assetMap.get(vault.ilkId)!;
     const ladleAddress = contractMap.get('Ladle').address;
+    /* get unwrap handler if required */
+    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chainId);
+    /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
+    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
 
     /* parse inputs to BigNumber in Wei, and NEGATE */
     const cleanedInput = cleanValue(input, ilk.decimals);
-    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals).mul(-1);
-
-    /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
-    const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.id);
-    // const isEthBase = ETH_BASED_ASSETS.includes(selectedIlk?.idToUse!);
-
-    let _pourTo = isEthCollateral ? ladleAddress : account;
+    const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
 
     /* handle wrapped tokens:  */
-    let unwrap: ICallData[] = [];
-    if (ilk.wrapHandlerAddress && unwrapTokens) {
-      _pourTo = ilk.wrapHandlerAddress;
-      unwrap = await unwrapAsset(ilk, account!);
-    }
+    const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account) : [];
+    const removeEthCallData: ICallData[] = isEthCollateral ? removeEth(ONE_BN) : []; // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+
+    /* is convex-type collateral */
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
+    const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
+
+    /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */
+    const pourToAddress = () => {
+      console.log('Requires unwrapping? ', unwrapCallData.length);
+      if (isEthCollateral) return ladleAddress;
+      if (unwrapCallData.length) return unwrapHandlerAddress; // if there is something to unwrap
+      return account;
+    };
 
     const calls: ICallData[] = [
+      /* convex-type collateral; ensure checkpoint before giving collateral back to account */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [vault.owner] as RoutedActions.Args.CHECKPOINT,
+        fnName: RoutedActions.Fn.CHECKPOINT,
+        targetContract: convexJoinContract, // use the convex join contract to checkpoint
+        ignoreIf: !isConvexCollateral,
+      },
       {
         operation: LadleActions.Fn.POUR,
         args: [
           vault.id,
-          _pourTo /* pour destination based on ilk/asset is an eth asset variety */,
-          _input,
-          ethers.constants.Zero,
+          pourToAddress(),
+          _input.mul(-1), // NOTE: negated value!
+          ZERO_BN, // No debt written off
         ] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
-      ...removeEth(isEthCollateral ? ONE_BN : ZERO_BN), // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
-      ...unwrap,
+      ...removeEthCallData,
+      ...unwrapCallData,
     ];
 
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([ilk, selectedIlk!]);
+    updateVaultHistory([vault]);
   };
 
   return {

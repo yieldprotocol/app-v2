@@ -1,8 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
+import { FiChevronDown } from 'react-icons/fi';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
+
+import { maxBaseIn } from '@yield-protocol/ui-math';
+
 import {
   ActionType,
   ISeries,
@@ -12,11 +16,11 @@ import {
   IUserContextState,
 } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -70,36 +74,43 @@ const AprText = ({
   inputValue,
   series,
   actionType,
+  color,
 }: {
   inputValue: string | undefined;
   series: ISeries;
   actionType: ActionType;
+  color: string;
 }) => {
+  const { getTimeTillMaturity } = useTimeTillMaturity();
+
   const _inputValue = cleanValue(inputValue, series.decimals);
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
-  const baseIn = maxBaseIn(
-    series.baseReserves,
+  const sharesIn = maxBaseIn(
+    series.sharesReserves,
     series.fyTokenReserves,
-    series.getTimeTillMaturity(),
+    getTimeTillMaturity(series.maturity),
     series.ts,
     series.g1,
-    series.decimals
+    series.decimals,
+    series.c,
+    series.mu
   );
-  // diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
       actionType === ActionType.LEND
-        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)) // lending max
-        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
-  }, [_inputValue, actionType, baseIn, series.baseReserves, series?.decimals, series?.seriesIsMature, setLimitHit]);
+        ? setLimitHit(series.getShares(ethers.utils.parseUnits(_inputValue, series.decimals)).gt(sharesIn)) // lending max
+        : setLimitHit(
+            series.getShares(ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(series.sharesReserves)
+          ); // borrow max
+  }, [_inputValue, actionType, series, sharesIn]);
 
   return (
     <>
       {!series?.seriesIsMature && !limitHit && (
-        <Text size="1.2em">
+        <Text size="1.2em" color={color}>
           {apr} <Text size="xsmall">% {[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
       )}
@@ -112,7 +123,9 @@ const AprText = ({
 
       {series.seriesIsMature && (
         <Box direction="row" gap="xsmall" align="center">
-          <Text size="xsmall">Mature</Text>
+          <Text size="xsmall" color={color}>
+            Mature
+          </Text>
         </Box>
       )}
     </>
@@ -155,7 +168,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </Box>
       )}
       {_series && actionType !== 'POOL' && (
-        <AprText inputValue={_inputValue} series={_series} actionType={actionType} />
+        <AprText inputValue={_inputValue} series={_series} actionType={actionType} color="text" />
       )}
     </Box>
   );
@@ -164,9 +177,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   useEffect(() => {
     const opts = Array.from(seriesMap.values());
 
-    /* filter out options based on base Id and if mature */
+    /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts.filter(
-      (_series) => _series.baseId === selectedBase?.idToUse && !_series.seriesIsMature
+      (_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature
       // !ignoredSeries?.includes(_series.baseId)
     );
 
@@ -174,7 +187,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     if (selectSeriesLocally) {
       filteredOpts = opts
         .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
-        .filter((_series) => _series.id !== selectedSeries?.id); // filter out current globally selected series
+        .filter((_series) => _series.id !== selectedSeries?.id) // filter out current globally selected series
+        .filter((_series) => _series.maturity > selectedSeries?.maturity); // prevent rolling positions to an earlier maturity
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
@@ -210,6 +224,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select
             plain
+            size="small"
             dropProps={{ round: 'large' }}
             id="seriesSelect"
             name="seriesSelect"
@@ -217,14 +232,19 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             options={options}
             value={_selectedSeries!}
             labelKey={(x: any) => optionText(x)}
+            icon={<FiChevronDown />}
             valueLabel={
               options.length ? (
                 <Box pad={mobile ? 'medium' : 'small'}>
-                  <Text color="text"> {optionExtended(_selectedSeries!)}</Text>
+                  <Text color="text" size="small">
+                    {optionExtended(_selectedSeries!)}
+                  </Text>
                 </Box>
               ) : (
                 <Box pad={mobile ? 'medium' : 'small'}>
-                  <Text color="text-weak">No available series yet.</Text>
+                  <Text color="text-weak" size="small">
+                    No available series yet.
+                  </Text>
                 </Box>
               )
             }
@@ -233,7 +253,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             // eslint-disable-next-line react/no-children-prop
             children={(x: any) => (
               <Box pad={mobile ? 'medium' : 'small'} gap="small" direction="row">
-                <Text color="text">{optionExtended(x)}</Text>
+                <Text color="text" size="small">
+                  {optionExtended(x)}
+                </Text>
               </Box>
             )}
           />
@@ -241,10 +263,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        // <ShadeBox
-        //   height={mobile ? undefined : '250px'}
-        //   pad={{ vertical: 'small' }}
-        // >
         <Grid columns={mobile ? '100%' : '40%'} gap="small">
           {seriesLoading ? (
             <>
@@ -256,8 +274,14 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               <StyledBox
                 key={series.id}
                 pad="xsmall"
-                // eslint-disable-next-line no-nested-ternary
-                round={i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }}
+                round={
+                  // eslint-disable-next-line no-nested-ternary
+                  mobile
+                    ? 'xlarge'
+                    : i % 2 === 0
+                    ? { corner: 'left', size: 'large' }
+                    : { corner: 'right', size: 'large' }
+                }
                 onClick={() => handleSelect(series)}
                 background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
                 elevation="xsmall"
@@ -279,8 +303,17 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   </Avatar>
 
                   <Box>
-                    <AprText inputValue={_inputValue} series={series} actionType={actionType} />
-                    <Text size="small" color={series.id === _selectedSeries?.id ? series.textColor : undefined}>
+                    <AprText
+                      inputValue={_inputValue}
+                      series={series}
+                      actionType={actionType}
+                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                    />
+                    <Text
+                      size="small"
+                      weight="lighter"
+                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                    >
                       {series.displayName}
                     </Text>
                   </Box>
@@ -289,7 +322,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             ))
           )}
         </Grid>
-        // </ShadeBox>
       )}
     </>
   );

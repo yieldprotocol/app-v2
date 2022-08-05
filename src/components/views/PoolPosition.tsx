@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiZap } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -48,7 +48,6 @@ const PoolPosition = () => {
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
-  const [maxRemove, setMaxRemove] = useState<string | undefined>();
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
 
   const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
@@ -65,8 +64,9 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
-  const { matchingVault, maxRemoveWithVault, maxRemoveNoVault, removeBaseReceived_, partialRemoveRequired } =
+  const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired, removeFyTokenReceived_ } =
     usePoolHelpers(removeInput, true);
+  const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -77,7 +77,7 @@ const PoolPosition = () => {
   /* input validation hooks */
   const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries!, [
     0,
-    matchingVault ? maxRemoveWithVault : maxRemoveNoVault,
+    maxRemove,
   ]);
 
   /* LOCAL FNS */
@@ -98,8 +98,9 @@ const PoolPosition = () => {
   );
 
   const handleRemove = () => {
-    const shouldTradeExtra = partialRemoveRequired && forceDisclaimerChecked ? false : undefined;
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra);
+    if (removeDisabled) return;
+    setRemoveDisabled(true);
+    removeLiquidity(removeInput!, selectedSeries, matchingVault);
   };
 
   const resetInputs = useCallback(
@@ -113,16 +114,10 @@ const PoolPosition = () => {
     [resetRemoveProcess, resetStepper]
   );
 
-  /* SET MAX VALUES */
-  useEffect(() => {
-    /* Checks the max available to remove */
-    _selectedStrategy && matchingVault ? setMaxRemove(maxRemoveWithVault) : setMaxRemove(maxRemoveNoVault);
-  }, [_selectedStrategy, matchingVault, maxRemoveNoVault, maxRemoveWithVault, setMaxRemove]);
-
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
+    !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl as string) || null;
@@ -167,12 +162,15 @@ const PoolPosition = () => {
                       label="Next Roll Date"
                       value={_selectedStrategy?.currentSeries?.fullDate.toString()!}
                       icon={<FiClock height="1em" />}
-                      loading={seriesLoading}
                     />
-
                     <InfoBite
                       label="Strategy Token Balance"
-                      value={cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)}
+                      value={`${cleanValue(
+                        _selectedStrategy?.accountBalance_,
+                        selectedBase?.digitFormat!
+                      )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
+                        selectedBase.symbol
+                      })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
@@ -189,7 +187,7 @@ const PoolPosition = () => {
                     {_selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Strategy Token Ownership"
-                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)} %  of ${nFormatter(
+                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)}% of ${nFormatter(
                           parseFloat(_selectedStrategy?.strategyTotalSupply_!),
                           2
                         )}`}
@@ -197,15 +195,14 @@ const PoolPosition = () => {
                         loading={seriesLoading}
                       />
                     )}
-
-                    {/* {selectedStrategy.currentSeries && accountTradeValue && (
+                    {_selectedStrategy.currentSeries.poolAPY && (
                       <InfoBite
-                        label="Strategy Token Value"
-                        value={`${cleanValue(accountTradeValue!, selectedBase?.digitFormat)} ${selectedBase?.displaySymbol}`}
-                        icon={<FiTrendingUp />}
-                        loading={seriesLoading}
+                        label="Pool APY"
+                        icon={<FiZap />}
+                        value={`${cleanValue(_selectedStrategy.currentSeries.poolAPY, 2)}%`}
+                        labelInfo="Estimated APY based on the current Euler supply APY"
                       />
-                    )} */}
+                    )}
                   </Box>
                 </SectionWrap>
               </Box>
@@ -215,12 +212,13 @@ const PoolPosition = () => {
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
                       plain
+                      size="small"
                       dropProps={{ round: 'small' }}
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
-                        // { text: 'Roll Liquidity', index: 2 },
                       ]}
+                      icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
@@ -243,11 +241,11 @@ const PoolPosition = () => {
                             onChange={(event: any) =>
                               setRemoveInput(cleanValue(event.target.value, selectedSeries?.decimals))
                             }
-                            icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
+                            icon={<YieldMark height="24px" width="24px" colors={[selectedSeries?.startColor!]} />}
                           />
                           <MaxButton
                             action={() => setRemoveInput(maxRemove)}
-                            disabled={maxRemove === '0.0' || !selectedSeries || selectedSeries.seriesIsMature}
+                            disabled={maxRemove === '0.0'}
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
                           />
@@ -301,11 +299,9 @@ const PoolPosition = () => {
                     label={
                       <Box>
                         <Text size="xsmall">
-                          Force Removal:
-                          {` (You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
-                            selectedBase?.displaySymbol
-                          } `}
-                          {`and then rest will be in redeemable fy${selectedBase?.displaySymbol})`}
+                          Force removal and
+                          {` receive ~${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} `}
+                          {`and ~${removeFyTokenReceived_} fy${selectedBase?.displaySymbol}`}
                         </Text>
                       </Box>
                     }
@@ -330,7 +326,6 @@ const PoolPosition = () => {
               {actionActive.index === 0 &&
                 stepPosition[actionActive.index] !== 0 &&
                 removeProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-                  // !(removeTx.success || removeTx.failed) && (
                   <TransactButton
                     primary
                     label={

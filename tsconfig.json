@@ -18,6 +18,6 @@
     "downlevelIteration": true,
     "incremental": true
   },
-  "include": ["src"],
-  "exclude": ["**node_modules", "**/src/contracts"]
+  "include": ["src", "__tests__"],
+  "exclude": ["**node_modules", "**/src/contracts**"]
 }

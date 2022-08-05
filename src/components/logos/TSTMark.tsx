@@ -2,7 +2,7 @@ import * as React from 'react';
 
 function TSTMark(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 254 254">
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 254 254">
       <g>
         <circle fill="#E84142" cx="127" cy="127" r="127" />
         <path

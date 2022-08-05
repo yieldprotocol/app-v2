@@ -1,7 +1,7 @@
 import { useContext } from 'react';
-import { Anchor, Box, Text } from 'grommet';
+import { Anchor, Box, Text, Tip } from 'grommet';
 
-import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy } from 'react-icons/fi';
+import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy, FiDownload } from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
@@ -19,6 +19,7 @@ const YieldInfo = () => {
       connection: { fallbackChainId },
       appVersion,
     },
+    chainActions: {exportContractAddresses}
   } = useContext(ChainContext) as IChainContext;
 
   const connectedChain = CHAIN_INFO.get(fallbackChainId!);
@@ -33,58 +34,80 @@ const YieldInfo = () => {
       </Box>
       <Box direction="row" gap={IconGap}>
         <BoxWrap>
-          <Anchor
-            color="text-weak"
-            href="https://github.com/yieldprotocol"
-            target="_blank"
-            onClick={() => handleExternal('Github')}
-          >
-            <Github size={IconSize} />
-          </Anchor>
+          <Tip content={<Text size='small'>Github</Text>}>
+            <Anchor
+              color="text-weak"
+              href="https://github.com/yieldprotocol"
+              target="_blank"
+              onClick={() => handleExternal('Github')}
+            >
+              <Github size={IconSize} />
+            </Anchor>
+          </Tip>
         </BoxWrap>
 
         <BoxWrap>
-          <Anchor
-            color="text-weak"
-            href="http://docs.yieldprotocol.com"
-            target="_blank"
-            onClick={() => handleExternal('Docs')}
-          >
-            <Docs size={IconSize} />
-          </Anchor>
+          <Tip content={<Text size='small'>Docs</Text>}>
+            <Anchor
+              color="text-weak"
+              href="http://docs.yieldprotocol.com"
+              target="_blank"
+              onClick={() => handleExternal('Docs')}
+            >
+              <Docs size={IconSize} />
+            </Anchor>
+          </Tip>
         </BoxWrap>
 
         <BoxWrap>
-          <Anchor
-            color="text-weak"
-            href="https://discord.gg/JAFfDj5"
-            target="_blank"
-            onClick={() => handleExternal('Discord')}
-          >
-            <Discord size={IconSize} />
-          </Anchor>
+          <Tip content={<Text size='small'>Discord</Text>}>
+            <Anchor
+              color="text-weak"
+              href="https://discord.gg/JAFfDj5"
+              target="_blank"
+              onClick={() => handleExternal('Discord')}
+            >
+              <Discord size={IconSize} />
+            </Anchor>
+          </Tip>
         </BoxWrap>
 
         <BoxWrap>
-          <Anchor
-            color="text-weak"
-            href="https://yieldprotocol.com/terms/"
-            target="_blank"
-            onClick={() => handleExternal('Terms')}
-          >
-            <Terms size={IconSize} />
-          </Anchor>
+          <Tip content={<Text size='small'>Ts&Cs</Text>}>
+            <Anchor
+              color="text-weak"
+              href="https://yieldprotocol.com/terms/"
+              target="_blank"
+              onClick={() => handleExternal('Terms')}
+            >
+              <Terms size={IconSize} />
+            </Anchor>
+          </Tip>
         </BoxWrap>
 
         <BoxWrap>
-          <Anchor
-            color="text-weak"
-            href="https://yieldprotocol.com/privacy/"
-            target="_blank"
-            onClick={() => handleExternal('Privacy')}
-          >
-            <Privacy size={IconSize} />
-          </Anchor>
+          <Tip content={<Text size='small'>Privacy</Text>} >
+            <Anchor
+              color="text-weak"
+              href="https://yieldprotocol.com/privacy/"
+              target="_blank"
+              onClick={() => handleExternal('Privacy')}
+            >
+              <Privacy size={IconSize} />
+            </Anchor>
+          </Tip>
+        </BoxWrap>
+
+        <BoxWrap>
+          <Tip content={<Text size='small'>Export Contract Addresses</Text>} >
+            <Anchor
+              color="text-weak"
+              target="_blank"
+              onClick={() => exportContractAddresses()}
+            >
+              <FiDownload size={IconSize} />
+            </Anchor>
+          </Tip>
         </BoxWrap>
       </Box>
 
