@@ -185,7 +185,6 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
     `;
 
 export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
-  // console.log('🦄 ~ file: appUtils.ts ~ line 188 ~ getPositionPath ~ receipt', receipt);
   const action = txCode.split('_')[0];
   const positionId = txCode.split('_')[1];
 
@@ -210,7 +209,7 @@ export const getPositionPath = (txCode: string, receipt: any, contractMap?: any,
     case ActionCodes.ADD_LIQUIDITY:
     case ActionCodes.REMOVE_LIQUIDITY:
     case ActionCodes.ROLL_LIQUIDITY:
-      return `/poolposition/${getStrategyAddrFromReceipt(receipt)}`;
+      return `/poolposition/${getStrategyAddrFromReceipt(receipt, action)}`;
 
     default:
       return '/';
@@ -231,9 +230,9 @@ export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
   return series?.id! || '';
 };
 
-export const getStrategyAddrFromReceipt = (receipt: any) => {
+export const getStrategyAddrFromReceipt = (receipt: any, action: ActionCodes) => {
   if (!receipt) return '';
-  return receipt.events[0].address;
+  return action === ActionCodes.ADD_LIQUIDITY ? receipt.events[15].address : receipt.events[0].address;
 };
 
 export const formatStrategyName = (name: string) => {
