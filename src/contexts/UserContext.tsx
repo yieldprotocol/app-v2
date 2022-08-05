@@ -348,7 +348,7 @@ const UserProvider = ({ children }: any) => {
       const newSeriesMap = new Map(
         _combinedData.reduce((acc: Map<string, ISeries>, item) => {
           const _map = acc;
-          _map.set(item.id, item);
+          if (item.maturity !== 1672412400) _map.set(item.id, item);
           return _map;
         }, new Map())
       ) as Map<string, ISeries>;
@@ -406,17 +406,11 @@ const UserProvider = ({ children }: any) => {
 
           if (series.isMature()) {
             const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-            const oracleName = ORACLE_INFO.get(chainId)
-              ?.get(vault.baseId)
-              ?.get(RATE);
+            const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
 
             const RateOracle = contractMap.get(oracleName);
             rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-            [rate] = await RateOracle.peek(
-              bytesToBytes32(vault.baseId, 6),
-              RATE, 
-              '0'
-            );
+            [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
             rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
             diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
 
