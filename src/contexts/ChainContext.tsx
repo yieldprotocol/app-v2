@@ -466,7 +466,7 @@ const ChainProvider = ({ children }: any) => {
               const { seriesId: id, baseId, fyToken } = x;
               const { maturity } = await Cauldron.series(id);
 
-              if (poolMap.has(id)) {
+              if (poolMap.has(id) && maturity !== 1672412400) {
                 // only add series if it has a pool
                 const poolAddress = poolMap.get(id);
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
