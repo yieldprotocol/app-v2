@@ -185,7 +185,6 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
     `;
 
 export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
-  // console.log('🦄 ~ file: appUtils.ts ~ line 188 ~ getPositionPath ~ receipt', receipt);
   const action = txCode.split('_')[0];
   const positionId = txCode.split('_')[1];
 
