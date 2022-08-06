@@ -180,7 +180,7 @@ export const useRollPosition = () => {
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
     updateTradeHistory([fromSeries, toSeries]);
-    router.push(`/lendposition/${toSeries.id}`);
+    router.replace(`/lendposition/${toSeries.id}`);
   };
 
   return rollPosition;
