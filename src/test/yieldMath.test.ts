@@ -720,7 +720,7 @@ describe('Shares YieldMath', () => {
       const _maxFyTokenOut = maxFyTokenOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
 
       // desmos output
-      expect(_maxFyTokenOut).to.be.closeTo(parseUnits('-26317.890', decimals), comparePrecision); // -26,317.8905585
+      expect(_maxFyTokenOut).to.be.closeTo(parseUnits('-26727.444', decimals), comparePrecision); // -26,727.4447095
     });
 
     it('should match maxBaseOut desmos', () => {
