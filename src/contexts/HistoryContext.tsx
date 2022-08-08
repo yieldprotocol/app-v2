@@ -25,9 +25,12 @@ import { Cauldron } from '../contracts';
 
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
-import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
+import { LiquidityEvent, TradeEvent as NewTradeEvent } from '../contracts/Pool';
+import { TradeEvent as OldTradeEvent } from '../contracts/PoolOld';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 import useTenderly from '../hooks/useTenderly';
+
+type TradeEvent = NewTradeEvent & OldTradeEvent;
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -246,10 +249,13 @@ const HistoryProvider = ({ children }: any) => {
               .filter((e: TradeEvent) => e.args.from !== contractMap.get('Ladle').address) // TODO make this for any ladle (Past/future)
               .map(async (e: TradeEvent) => {
                 const { blockNumber, transactionHash } = e;
-                const { maturity, base: bases, fyTokens } = e.args;
+                const { maturity, fyTokens } = e.args;
+
+                // if we are using the old pool contract, use "bases" nomenclature
+                const bases = e.args.base ?? e.args.bases;
                 const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
                 const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
-                const tradeApr = calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
+                const tradeApr = !bases ? '0' : calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
 
                 return {
                   blockNumber,
@@ -265,14 +271,14 @@ const HistoryProvider = ({ children }: any) => {
                   /* inferred trade type */
                   actionCode: type_,
 
-                  primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases.abs(), decimals), 2)} ${
+                  primaryInfo: `${cleanValue(ethers.utils.formatUnits(!bases ? '0' : bases.abs(), decimals), 2)} ${
                     base.displaySymbol
                   }`,
                   secondaryInfo: `${cleanValue(tradeApr, 2)}% APY`,
 
                   /* Formatted values:  */
                   date_: dateFormat(date),
-                  bases_: ethers.utils.formatUnits(bases, decimals),
+                  bases_: ethers.utils.formatUnits(bases ?? '0', decimals),
                   fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
                 };
               })

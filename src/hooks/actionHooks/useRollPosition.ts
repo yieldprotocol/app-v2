@@ -23,9 +23,11 @@ import {
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useRouter } from 'next/router';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
+  const router = useRouter();
   const {
     settingsState: { slippageTolerance, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
@@ -38,7 +40,7 @@ export const useRollPosition = () => {
     UserContext
   ) as IUserContext;
   const { activeAccount: account, assetMap } = userState;
-  const { updateSeries, updateAssets } = userActions;
+  const { updateSeries, updateAssets, setSelectedSeries } = userActions;
 
   const {
     historyActions: { updateTradeHistory },
@@ -178,6 +180,7 @@ export const useRollPosition = () => {
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
     updateTradeHistory([fromSeries, toSeries]);
+    router.replace(`/lendposition/${toSeries.id}`);
   };
 
   return rollPosition;

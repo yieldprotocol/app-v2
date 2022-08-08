@@ -36,5 +36,10 @@ export const useProcess = (
     if (_process) setTxProcess(_process);
   }, [processes, txCode]);
 
+  /* Reset process on first load */
+  useEffect(() => {
+    resetProcess();
+  }, []);
+
   return { txProcess, resetProcess };
 };
