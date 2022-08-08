@@ -92,12 +92,14 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
     } else {
-      /* select strategy with the lowest totalSupply */
+      /* select strategy with the lowest totalSupply and is active */
       opts.length &&
         userActions.setSelectedStrategy(
-          opts.reduce((prev, curr) =>
-            parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
-          )
+          opts
+            .filter((s) => s.active)
+            .reduce((prev, curr) =>
+              parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
+            )
         );
       /* or select random strategy from opts */
       // userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
