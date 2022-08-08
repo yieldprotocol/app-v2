@@ -237,7 +237,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               options.length ? (
                 <Box pad={mobile ? 'medium' : 'small'}>
                   <Text color="text" size="small">
-                    {' '}
                     {optionExtended(_selectedSeries!)}
                   </Text>
                 </Box>

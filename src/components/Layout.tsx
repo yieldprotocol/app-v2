@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import Script from 'next/script';
 import Head from 'next/head';
 import { base, Grommet, Box } from 'grommet';
-import { FC, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
 import { deepMerge } from 'grommet/utils';
@@ -17,7 +17,11 @@ const DynamicNetworkError = dynamic(() => import('./NetworkError'), { ssr: false
 const DynamicTransactionWidget = dynamic(() => import('./TransactionWidget'), { ssr: false });
 const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ssr: false });
 
-const Layout: FC = ({ children }) => {
+interface ILayout {
+  children?: ReactNode;
+}
+
+const Layout = ({ children }: ILayout) => {
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
   const colorScheme = useColorScheme();
 

@@ -1,4 +1,5 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
+import { ReactNode } from 'react';
 import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
@@ -161,7 +162,7 @@ export interface ISeriesRoot extends ISignable {
   displayNameMobile: string;
   maturity: number;
 
-  fullDate: Date;
+  fullDate: string;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
   poolContract: Pool;
@@ -186,7 +187,7 @@ export interface ISeriesRoot extends ISignable {
   oppStartColor: string;
   oppEndColor: string;
 
-  seriesMark: React.ElementType;
+  seriesMark: ReactNode;
 
   // baked in token fns
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series

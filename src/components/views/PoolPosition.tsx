@@ -64,7 +64,8 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
-  const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired } = usePoolHelpers(removeInput, true);
+  const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired, removeFyTokenReceived_ } =
+    usePoolHelpers(removeInput, true);
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   /* TX data */
@@ -298,11 +299,9 @@ const PoolPosition = () => {
                     label={
                       <Box>
                         <Text size="xsmall">
-                          Force Removal:
-                          {` (you will receive about ${cleanValue(removeBaseReceived_, 2)} ${
-                            selectedBase?.displaySymbol
-                          } `}
-                          {`and the rest will be in redeemable fy${selectedBase?.displaySymbol})`}
+                          Force removal and
+                          {` receive ~${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} `}
+                          {`and ~${removeFyTokenReceived_} fy${selectedBase?.displaySymbol}`}
                         </Text>
                       </Box>
                     }
