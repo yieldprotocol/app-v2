@@ -354,6 +354,27 @@ describe('Shares YieldMath', () => {
         expect(result).to.be.closeTo(parseUnits('1230211.594', decimals), comparePrecision); // 1,230,211.59495
       });
     });
+
+    describe('maxBaseIn', () => {
+      // https://www.desmos.com/calculator/q0vu2axmji
+      it('should output a specific number with a specific input', () => {
+        c = BigNumber.from('0x1199999999999999a');
+        mu = BigNumber.from('0x10ccccccccccccccd');
+        ts = toBn(
+          new Decimal(
+            1 /
+              BigNumber.from(SECONDS_PER_YEAR)
+                .mul(10 * 25)
+                .toNumber()
+          ).mul(2 ** 64)
+        ); // inv of seconds in 10 years
+        sharesReserves = parseUnits('1100000', decimals);
+        fyTokenReserves = parseUnits('1500000', decimals);
+        timeTillMaturity = (77760000).toString();
+        const result = maxBaseIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
+        expect(result).to.be.closeTo(parseUnits('160364.770', decimals), comparePrecision); // 160,364.770445
+      });
+    });
   });
 
   describe('when c is 110 and mu is 105', () => {
@@ -683,10 +704,9 @@ describe('Shares YieldMath', () => {
 
     it('should match maxBaseIn desmos', () => {
       const maxSharesIn = maxBaseIn(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
-      console.log('🦄 ~ file: yieldMath.test.ts ~ line 688 ~ it ~ maxSharesIn', formatUnits(maxSharesIn, decimals));
 
       // desmos output
-      expect(maxSharesIn).to.be.closeTo(parseUnits('-52633.304', decimals), comparePrecision); // −52,633.304
+      expect(maxSharesIn).to.be.closeTo(parseUnits('-26317.890', decimals), comparePrecision); // −26,317.8905585
     });
 
     it('should match maxFyTokenIn desmos', () => {
@@ -700,7 +720,7 @@ describe('Shares YieldMath', () => {
       const _maxFyTokenOut = maxFyTokenOut(sharesReserves, fyTokenReserves, timeTillMaturity, ts, g1, decimals, c, mu);
 
       // desmos output
-      expect(_maxFyTokenOut).to.be.closeTo(parseUnits('-26727.444', decimals), comparePrecision); // -26727.4447095
+      expect(_maxFyTokenOut).to.be.closeTo(parseUnits('-26317.890', decimals), comparePrecision); // -26,317.8905585
     });
 
     it('should match maxBaseOut desmos', () => {
