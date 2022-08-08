@@ -611,8 +611,8 @@ export function buyFYToken(
  * x = Δy
  *
  *      1/μ * ( (               sum                 )^(   invA    ) - z
- *      1/μ * ( ( (  cua   ) * Za  + Ya ) / c/μ + 1 )^(   invA    ) - z
- * Δz = 1/μ * ( ( ( cμ^(a-1) * z^a + y^a) / c/μ + 1 )^(1 / (1 - t)) - z
+ *      1/μ * ( ( (  cua   ) * Za  + Ya ) / (c/μ + 1) )^(   invA    ) - z
+ * Δz = 1/μ * ( ( ( cμ^a * z^a + μy^a) / (c + μ) )^(1 / (1 - t)) - z
  *
  */
 export function maxBaseIn(
@@ -636,11 +636,11 @@ export function maxBaseIn(
   const c_ = _getC(c);
   const mu_ = _getMu(mu);
 
-  const cua = c_.mul(mu_.pow(a.sub(ONE)));
+  const cua = c_.mul(mu_.pow(a));
   const Za = sharesReserves_.pow(a);
-  const Ya = fyTokenReserves_.pow(a);
-  const top = cua.add(Za).add(Ya);
-  const bottom = c_.div(mu_).add(ONE);
+  const Ya = mu_.mul(fyTokenReserves_.pow(a));
+  const top = cua.mul(Za).add(Ya);
+  const bottom = c_.add(mu_);
   const sum = top.div(bottom);
 
   const res = ONE.div(mu_).mul(sum.pow(invA)).sub(sharesReserves_);
