@@ -94,6 +94,8 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
       .map((_strategy) => {
+        if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
+
         const currentStrategySeries = seriesMap.get(_strategy.currentSeriesId);
         const [, currentValue] = strategyTokenValue(
           _strategy?.accountBalance || ethers.constants.Zero,
