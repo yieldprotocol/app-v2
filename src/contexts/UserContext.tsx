@@ -307,6 +307,9 @@ const UserProvider = ({ children }: any) => {
 
           const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
 
+          // some logic to decide if the series is shown or not
+          const showSeries = series.maturity !== 1672412400;
+
           return {
             ...series,
             baseReserves,
@@ -317,6 +320,7 @@ const UserProvider = ({ children }: any) => {
             totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
             apr: `${Number(apr).toFixed(2)}`,
             seriesIsMature: series.isMature(),
+            showSeries,
           };
         })
       );
@@ -348,7 +352,8 @@ const UserProvider = ({ children }: any) => {
       const newSeriesMap = new Map(
         _combinedData.reduce((acc: Map<string, ISeries>, item) => {
           const _map = acc;
-          if (item.maturity !== 1672412400) _map.set(item.id, item);
+          // if (item.maturity !== 1672412400) _map.set(item.id, item);
+          _map.set(item.id, item);
           return _map;
         }, new Map())
       ) as Map<string, ISeries>;

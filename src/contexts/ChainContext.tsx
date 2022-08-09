@@ -466,7 +466,8 @@ const ChainProvider = ({ children }: any) => {
               const { seriesId: id, baseId, fyToken } = x;
               const { maturity } = await Cauldron.series(id);
 
-              if (poolMap.has(id) && maturity !== 1672412400) {
+              // if (poolMap.has(id) && maturity !== 1672412400) {
+              if (poolMap.has(id)) {
                 // only add series if it has a pool
                 const poolAddress = poolMap.get(id);
                 const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
@@ -502,6 +503,7 @@ const ChainProvider = ({ children }: any) => {
                   ts,
                   g1,
                   g2,
+                  showSeries: false,
                 };
                 updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
                 newSeriesList.push(newSeries);
@@ -662,8 +664,8 @@ const ChainProvider = ({ children }: any) => {
       joins: joinList,
     });
 
-    var dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(res);
-    var downloadAnchorNode = document.createElement('a');
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(res)}`;
+    const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute('href', dataStr);
     downloadAnchorNode.setAttribute('download', 'contracts' + '.json');
     document.body.appendChild(downloadAnchorNode); // required for firefox

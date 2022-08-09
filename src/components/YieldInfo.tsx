@@ -1,7 +1,13 @@
 import { useContext } from 'react';
 import { Anchor, Box, Text, Tip } from 'grommet';
 
-import { FiGithub as Github, FiBookOpen as Docs, FiFileText as Terms, FiKey as Privacy, FiDownload } from 'react-icons/fi';
+import {
+  FiGithub as Github,
+  FiBookOpen as Docs,
+  FiFileText as Terms,
+  FiKey as Privacy,
+  FiDownload,
+} from 'react-icons/fi';
 import { FaDiscord as Discord } from 'react-icons/fa';
 
 import { ChainContext } from '../contexts/ChainContext';
@@ -19,7 +25,7 @@ const YieldInfo = () => {
       connection: { fallbackChainId },
       appVersion,
     },
-    chainActions: {exportContractAddresses}
+    chainActions: { exportContractAddresses },
   } = useContext(ChainContext) as IChainContext;
 
   const connectedChain = CHAIN_INFO.get(fallbackChainId!);
@@ -34,7 +40,7 @@ const YieldInfo = () => {
       </Box>
       <Box direction="row" gap={IconGap}>
         <BoxWrap>
-          <Tip content={<Text size='small'>Github</Text>}>
+          <Tip content={<Text size="small">Github</Text>}>
             <Anchor
               color="text-weak"
               href="https://github.com/yieldprotocol"
@@ -47,7 +53,7 @@ const YieldInfo = () => {
         </BoxWrap>
 
         <BoxWrap>
-          <Tip content={<Text size='small'>Docs</Text>}>
+          <Tip content={<Text size="small">Docs</Text>}>
             <Anchor
               color="text-weak"
               href="http://docs.yieldprotocol.com"
@@ -60,7 +66,7 @@ const YieldInfo = () => {
         </BoxWrap>
 
         <BoxWrap>
-          <Tip content={<Text size='small'>Discord</Text>}>
+          <Tip content={<Text size="small">Discord</Text>}>
             <Anchor
               color="text-weak"
               href="https://discord.gg/JAFfDj5"
@@ -73,7 +79,7 @@ const YieldInfo = () => {
         </BoxWrap>
 
         <BoxWrap>
-          <Tip content={<Text size='small'>Ts&Cs</Text>}>
+          <Tip content={<Text size="small">Ts&Cs</Text>}>
             <Anchor
               color="text-weak"
               href="https://yieldprotocol.com/terms/"
@@ -86,7 +92,7 @@ const YieldInfo = () => {
         </BoxWrap>
 
         <BoxWrap>
-          <Tip content={<Text size='small'>Privacy</Text>} >
+          <Tip content={<Text size="small">Privacy</Text>}>
             <Anchor
               color="text-weak"
               href="https://yieldprotocol.com/privacy/"
@@ -99,12 +105,8 @@ const YieldInfo = () => {
         </BoxWrap>
 
         <BoxWrap>
-          <Tip content={<Text size='small'>Export Contract Addresses</Text>} >
-            <Anchor
-              color="text-weak"
-              target="_blank"
-              onClick={() => exportContractAddresses()}
-            >
+          <Tip content={<Text size="small">Export Contract Addresses</Text>}>
+            <Anchor color="text-weak" target="_blank" onClick={() => exportContractAddresses()}>
               <FiDownload size={IconSize} />
             </Anchor>
           </Tip>
@@ -118,6 +120,13 @@ const YieldInfo = () => {
           </Box>
         </Box>
       )}
+
+      <Box align='center'>
+        <Text size="xsmall"> NOTICE:</Text>
+
+        <Text size="xsmall"> We are aware of a few UI issues, in particular related to the December pools. </Text>
+        <Text size="xsmall"> If you are having any difficulties, please check back shortly.</Text>
+      </Box>
     </Box>
   );
 };

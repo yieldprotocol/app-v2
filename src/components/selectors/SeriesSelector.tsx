@@ -170,10 +170,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     const opts = Array.from(seriesMap.values());
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
-    let filteredOpts = opts.filter(
-      (_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature
-      // !ignoredSeries?.includes(_series.baseId)
-    );
+    let filteredOpts = opts
+      .filter((s) => s.showSeries)
+      .filter(
+        (_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature
+        // !ignoredSeries?.includes(_series.baseId)
+      );
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {

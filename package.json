@@ -85,7 +85,7 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "ethereum-waffle": "^3.2.0\n",
+    "ethereum-waffle": "^4.0.4",
     "hardhat": "^2.7.0",
     "prettier": "^2.4.1",
     "react-test-renderer": "^17.0.2",
