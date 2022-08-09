@@ -124,10 +124,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <ApprovalSetting />
         <UnwrapSetting />
         <SlippageSetting />
-        {
-          // process.env.ENV === 'development' &&
-          <TenderlyForkSetting />
-        }
+        {process.env.ENV === 'development' && <TenderlyForkSetting />}
       </Box>
 
       <Box pad="medium" gap="small" flex={false}>
