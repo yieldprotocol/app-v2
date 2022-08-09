@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Box, Header, Layer, ResponsiveContext } from 'grommet';
+import { Box, Header, Layer, ResponsiveContext , Text} from 'grommet';
 import { FiX } from 'react-icons/fi';
 
 import YieldMark from './logos/YieldMark';
@@ -35,6 +35,11 @@ const YieldMobileMenu = ({ toggleMenu, callback }: ILayerProps) => {
           </Header>
           <YieldNavigation callbackFn={() => toggleMenu()} />
         </Box>
+      </Box>
+
+      <Box pad='medium'>
+        <Text size="small"> NOTICE:</Text>
+        <Text size="small"> We are aware of a few the UI issues, in particular related to the December pools. If you are having any difficulties, please check back shortly. </Text>
       </Box>
     </Layer>
   ) : null;
