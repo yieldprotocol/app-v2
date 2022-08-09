@@ -38,8 +38,8 @@ const YieldMobileMenu = ({ toggleMenu, callback }: ILayerProps) => {
       </Box>
 
       <Box pad='medium'>
-        <Text size="small"> NOTICE:</Text>
-        <Text size="small"> We are aware of a few the UI issues, in particular related to the December pools. If you are having any difficulties, please check back shortly. </Text>
+        <Text size="xsmall"> NOTICE:</Text>
+        <Text size="xsmall"> We are aware of a few UI issues, in particular related to the December pools. If you are having any difficulties, please check back shortly. </Text>
       </Box>
     </Layer>
   ) : null;
