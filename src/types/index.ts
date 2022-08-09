@@ -161,7 +161,6 @@ export interface ISeriesRoot extends ISignable {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
-  showSeries: boolean;
 
   fullDate: string;
   fyTokenContract: FYToken;
