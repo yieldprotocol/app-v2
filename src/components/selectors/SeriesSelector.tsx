@@ -167,7 +167,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(seriesMap.values());
+    const opts = Array.from(seriesMap.values()).filter(s => s.showSeries) ;
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts.filter(
