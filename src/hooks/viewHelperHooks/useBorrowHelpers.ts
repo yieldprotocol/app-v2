@@ -6,11 +6,9 @@ import {
   calculateMinCollateral,
   decimalNToDecimal18,
   maxFyTokenIn,
-  maxBaseIn,
   maxFyTokenOut,
 } from '@yield-protocol/ui-math';
 
-import { formatUnits } from 'ethers/lib/utils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
@@ -80,12 +78,12 @@ export const useBorrowHelpers = (
     if (assetPairInfo) {
       const _decimals = assetPairInfo.limitDecimals;
       const _maxLessTotal = assetPairInfo.maxDebtLimit.sub(assetPairInfo.pairTotalDebt);
-      const min = assetPairInfo.minDebtLimit;
+      const _min = assetPairInfo.minDebtLimit;
 
       setMaxDebt(_maxLessTotal);
       setMaxDebt_(ethers.utils.formatUnits(_maxLessTotal, _decimals)?.toString());
-      setMinDebt(min);
-      setMinDebt_(ethers.utils.formatUnits(min, assetPairInfo.baseDecimals)?.toString());
+      setMinDebt(_min);
+      setMinDebt_(ethers.utils.formatUnits(_min, assetPairInfo.baseDecimals)?.toString());
     }
   }, [assetPairInfo]);
 
@@ -114,7 +112,6 @@ export const useBorrowHelpers = (
     if (input && futureSeries && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, futureSeries.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, futureSeries.decimals);
-
       const estimate = buyBase(
         futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,

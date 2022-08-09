@@ -66,6 +66,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
     const filteredOpts = opts
+      .filter((_st) => _st.currentSeries?.showSeries)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .filter((_st) => _st.id !== selectedStrategy?.id)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
@@ -85,7 +86,9 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts: IStrategy[] = Array.from(strategyMap.values()).filter(
+    const opts: IStrategy[] = Array.from(strategyMap.values())
+    .filter((_st) => _st.currentSeries?.showSeries)
+    .filter(
       (_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature
     );
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
@@ -93,12 +96,15 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
     } else {
-      /* select strategy with the lowest totalSupply */
+      /* select strategy with the lowest totalSupply and is active */
       opts.length &&
         userActions.setSelectedStrategy(
-          opts.reduce((prev, curr) =>
-            parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
-          )
+          opts
+          .filter((s) => s.currentSeries?.showSeries)
+            .filter((s) => s.active)
+            .reduce((prev, curr) =>
+              parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
+            )
         );
       /* or select random strategy from opts */
       // userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);

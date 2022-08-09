@@ -355,6 +355,9 @@ const UserProvider = ({ children }: any) => {
           // fetch the euler eToken supply APY from their subgraph
           const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
+          // some logic to decide if the series is shown or not
+          const showSeries = series.maturity !== 1672412400;
+
           return {
             ...series,
             sharesReserves,
@@ -402,6 +405,7 @@ const UserProvider = ({ children }: any) => {
       const newSeriesMap = new Map(
         _combinedData.reduce((acc: Map<string, ISeries>, item) => {
           const _map = acc;
+          // if (item.maturity !== 1672412400) _map.set(item.id, item);
           _map.set(item.id, item);
           return _map;
         }, new Map())

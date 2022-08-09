@@ -75,7 +75,6 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   ));
 
   return (
-    <>
       <Header
         pad={mobile ? 'medium' : 'large'}
         height={mobile ? undefined : 'xsmall'}
@@ -108,7 +107,6 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           </Box>
         </Grid>
       </Header>
-    </>
   );
 };
 
