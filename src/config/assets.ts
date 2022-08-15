@@ -28,6 +28,11 @@ export const FUSDC2209 = '0x313700000000';
 /* Convex Curve LP token assets */
 export const CVX3CRV = '0x313900000000';
 
+/* Euler eToken assets */
+export const EDAI = '0x323000000000';
+export const EUSDC = '0x323100000000';
+export const EWETH = '0x323200000000';
+
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
   CVX3CRV,
@@ -272,6 +277,39 @@ ASSET_INFO.set(FRAX, {
   symbol: 'FRAX',
   showToken: true,
   digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [],
+});
+
+ASSET_INFO.set(EDAI, {
+  version: '1',
+  name: 'eDAI',
+  decimals: 18,
+  symbol: 'EDAI',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [],
+});
+
+ASSET_INFO.set(EUSDC, {
+  version: '1',
+  name: 'eUSDC',
+  decimals: 18,
+  symbol: 'EUSDC',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [],
+});
+
+ASSET_INFO.set(EWETH, {
+  version: '1',
+  name: 'eWETH',
+  decimals: 18,
+  symbol: 'EWETH',
+  showToken: true,
+  digitFormat: 6,
   tokenType: TokenType.ERC20_,
   limitToSeries: [],
 });
