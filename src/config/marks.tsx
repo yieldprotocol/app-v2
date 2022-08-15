@@ -2,6 +2,9 @@ import CVX3CRVMark from '../components/logos/CVX3CRVMark';
 import DaiMark from '../components/logos/DaiMark';
 import ENSMark from '../components/logos/ENSMark';
 import EthMark from '../components/logos/EthMark';
+import EulerDAIMark from '../components/logos/EulerDAIMark';
+import EulerUSDCMark from '../components/logos/EulerUSDCMark';
+import EulerWETHMark from '../components/logos/EulerWETHMark';
 import FRAXMark from '../components/logos/FRAXMark';
 import LinkMark from '../components/logos/LinkMark';
 import MakerMark from '../components/logos/MakerMark';
@@ -32,6 +35,9 @@ const markMap = new Map([
   ['Cvx3Crv Mock', <CVX3CRVMark key="cvx3crv mock" />],
   ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],
+  ['eDAI', <EulerDAIMark key="edai" />],
+  ['eUSDC', <EulerUSDCMark key="eusdc" />],
+  ['eWETH', <EulerWETHMark key="eweth" />],
 ]);
 
 export default markMap;
