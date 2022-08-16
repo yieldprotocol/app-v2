@@ -486,7 +486,7 @@ const VaultPosition = () => {
 
                         {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
-                            {maxRepay.gt(userBaseBalance) ? (
+                            {maxRepay.eq(userBaseBalance) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
                                 Use {vaultBase?.displaySymbol!} balance ({cleanValue(userBaseBalance_, 2)})
                               </Text>
