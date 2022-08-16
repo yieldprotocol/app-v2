@@ -289,7 +289,7 @@ ASSET_INFO.set(EDAI, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303130370000', '0x303130380000'], // sept dai, dec dai
+  limitToSeries: ['0x303130370000', '0x303130380000'], // sept dai 2022, dec dai 2022
 });
 
 ASSET_INFO.set(EUSDC, {
@@ -300,7 +300,7 @@ ASSET_INFO.set(EUSDC, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303230370000', '0x303230380000'], // sept usdc, dec weth
+  limitToSeries: ['0x303230370000', '0x303230380000'], // sept usdc 2022, dec weth 2022
 });
 
 ASSET_INFO.set(EWETH, {
@@ -311,5 +311,5 @@ ASSET_INFO.set(EWETH, {
   showToken: true,
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303030370000', '0x303030380000'], // sept weth, dec weth
+  limitToSeries: ['0x303030370000', '0x303030380000'], // sept weth 2022, dec weth 2022
 });
