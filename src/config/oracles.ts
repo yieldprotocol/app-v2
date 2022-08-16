@@ -18,6 +18,9 @@ import {
   FDAI2209,
   FRAX,
   CVX3CRV,
+  EUSDC,
+  EDAI,
+  EWETH,
 } from './assets';
 
 const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000';
@@ -28,6 +31,7 @@ const CHAINLINK_MULTI_ORACLE = 'ChainlinkMultiOracle';
 const YEARNVAULT_MULTI_ORACLE = 'YearnVaultMultiOracle';
 const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
 const NOTIONAL_MULTI_ORACLE = 'NotionalMultiOracle';
+const EULER_MULTI_ORACLE = 'EulerMultiOracle';
 
 const ACCUMULATOR_MULTI_ORACLE = 'AccumulatorMultiOracle';
 
@@ -63,6 +67,8 @@ usdcIlkOracle1.set(FUSDC2206, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2209, NOTIONAL_MULTI_ORACLE);
 /* convex */
 usdcIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
+/* euler */
+usdcIlkOracle1.set(EUSDC, EULER_MULTI_ORACLE);
 
 /* rate */
 usdcIlkOracle1.set(RATE, COMPOUND_MULTI_ORACLE);
@@ -89,10 +95,11 @@ daiIlkOracle1.set(FDAI2206, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2209, NOTIONAL_MULTI_ORACLE);
 /* convex */
 daiIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
+/* euler */
+daiIlkOracle1.set(EDAI, EULER_MULTI_ORACLE);
 
-/* rate oracle */ 
+/* rate oracle */
 daiIlkOracle1.set(RATE, COMPOUND_MULTI_ORACLE);
-
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle1);
 
@@ -110,6 +117,8 @@ wethIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 wethIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
+/* euler */
+wethIlkOracle1.set(EWETH, EULER_MULTI_ORACLE);
 
 /* rate */
 wethIlkOracle1.set(RATE, COMPOUND_MULTI_ORACLE);
