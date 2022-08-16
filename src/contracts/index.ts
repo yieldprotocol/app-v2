@@ -12,6 +12,7 @@ export type { ConvexLadleModule } from "./ConvexLadleModule";
 export type { ERC1155 } from "./ERC1155";
 export type { ERC20 } from "./ERC20";
 export type { ERC20Permit } from "./ERC20Permit";
+export type { EulerMultiOracle } from "./EulerMultiOracle";
 export type { FYToken } from "./FYToken";
 export type { Join } from "./Join";
 export type { Join1155 } from "./Join1155";
@@ -38,6 +39,7 @@ export { ConvexLadleModule__factory } from "./factories/ConvexLadleModule__facto
 export { ERC1155__factory } from "./factories/ERC1155__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { ERC20Permit__factory } from "./factories/ERC20Permit__factory";
+export { EulerMultiOracle__factory } from "./factories/EulerMultiOracle__factory";
 export { FYToken__factory } from "./factories/FYToken__factory";
 export { Join__factory } from "./factories/Join__factory";
 export { Join1155__factory } from "./factories/Join1155__factory";
