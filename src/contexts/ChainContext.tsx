@@ -150,6 +150,9 @@ const ChainProvider = ({ children }: any) => {
       // Convex
       let ConvexLadleModule: contracts.ConvexLadleModule;
 
+      // Euler
+      let EulerMultiOracle: contracts.EulerMultiOracle;
+
       // arbitrum specific
       let ChainlinkUSDOracle: contracts.ChainlinkUSDOracle;
       let AccumulatorMultiOracle: contracts.AccumulatorOracle;
@@ -193,14 +196,13 @@ const ChainProvider = ({ children }: any) => {
             addrs.YearnVaultMultiOracle,
             fallbackProvider
           );
+
           NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
             addrs.NotionalMultiOracle,
             fallbackProvider
           );
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
-            addrs.NotionalMultiOracle,
-            fallbackProvider
-          );
+
+          EulerMultiOracle = contracts.EulerMultiOracle__factory.connect(addrs.EulerMultiOracle, fallbackProvider);
         }
 
         // arbitrum
@@ -239,6 +241,7 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
       newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
       newContractMap.set('CompoundMultiOracle', CompoundMultiOracle);
+      newContractMap.set('EulerMultiOracle', EulerMultiOracle);
 
       newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
 
