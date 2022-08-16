@@ -14,7 +14,8 @@
 
       "transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
       "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA",
-      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6"
+      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6",
+      "EulerMultiOracle": "0x275e5d8bebbc79878b096f234246024076ea82bb"
     },
 
     "5": {
