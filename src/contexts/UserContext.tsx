@@ -373,6 +373,7 @@ const UserProvider = ({ children }: any) => {
             poolAPY,
             getShares,
             getBase,
+            showSeries,
           };
         })
       );
