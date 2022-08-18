@@ -1,5 +1,8 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
+
+import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -15,7 +18,6 @@ import {
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { calculateSlippage, maxBaseIn, secondsToFrom, sellBase } from '../../utils/yieldMath';
 import { ChainContext } from '../../contexts/ChainContext';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -23,7 +25,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
-
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 export const useRepayDebt = () => {
   const {
@@ -35,19 +37,20 @@ export const useRepayDebt = () => {
   ) as IUserContext;
 
   const { activeAccount: account, seriesMap, assetMap } = userState;
-  const { updateVaults, updateAssets } = userActions;
+  const { updateVaults, updateAssets, updateSeries } = userActions;
 
   const {
     chainState: {
       contractMap,
       connection: { chainId },
-      provider
+      provider,
     },
   } = useContext(ChainContext);
 
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
+  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
 
   /**
    * REPAY FN
@@ -74,32 +77,36 @@ export const useRepayDebt = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const _maxBaseIn = maxBaseIn(
-      series.baseReserves,
+    const _maxSharesIn = maxBaseIn(
+      series.sharesReserves,
       series.fyTokenReserves,
-      series.getTimeTillMaturity(),
+      getTimeTillMaturity(series.maturity),
       series.ts,
       series.g1,
-      series.decimals
+      series.decimals,
+      series.c,
+      series.mu
     );
 
     /* Check the max amount of the trade that the pool can handle */
-    const tradeIsNotPossible = _input.gt(_maxBaseIn);
+    const tradeIsNotPossible = series.getShares(_input).gt(_maxSharesIn);
 
-    tradeIsNotPossible && console.log('trade is not possible:'); 
-    tradeIsNotPossible &&  console.log('input',  _input.toString() );
-    tradeIsNotPossible && console.log('Max base in:',  _maxBaseIn.toString() );
+    tradeIsNotPossible && console.log('trade is not possible:');
+    tradeIsNotPossible && console.log('input', _input.toString());
+    tradeIsNotPossible && console.log('Max base in:', _maxSharesIn.toString());
 
-    const _inputAsFyToken = series.isMature()
+    const _inputAsFyToken = isMature(series.maturity)
       ? _input
       : sellBase(
-          series.baseReserves,
+          series.sharesReserves,
           series.fyTokenReserves,
-          _input,
-          secondsToFrom(series.maturity.toString()),
+          series.getShares(_input),
+          getTimeTillMaturity(series.maturity),
           series.ts,
           series.g1,
-          series.decimals
+          series.decimals,
+          series.c,
+          series.mu
         );
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
@@ -123,7 +130,7 @@ export const useRepayDebt = () => {
     /* In low liq situations/or mature,  send repay funds to join not pool */
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
-    /* Check if already apporved */
+    /* Check if already approved */
     const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer);
 
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
@@ -213,6 +220,7 @@ export const useRepayDebt = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
+    updateSeries([series]);
   };
 
   return repay;

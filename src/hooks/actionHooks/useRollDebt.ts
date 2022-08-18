@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import {
   ICallData,
@@ -9,6 +10,7 @@ import {
   IUserContext,
   IUserContextActions,
   IUserContextState,
+  IHistoryContext,
 } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { MAX_128, ZERO_BN } from '../../utils/constants';
@@ -20,8 +22,12 @@ export const useRollDebt = () => {
     UserContext
   ) as IUserContext;
 
-  const { assetMap } = userState;
-  const { updateVaults, updateAssets } = userActions;
+  const { assetMap, seriesMap } = userState;
+  const { updateVaults, updateAssets, updateSeries } = userActions;
+
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
 
   const { transact } = useChain();
 
@@ -29,6 +35,7 @@ export const useRollDebt = () => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const base = assetMap.get(vault.baseId);
     const hasDebt = vault.accruedArt.gt(ZERO_BN);
+    const fromSeries = seriesMap.get(vault.seriesId);
 
     const calls: ICallData[] = [
       {
@@ -47,6 +54,8 @@ export const useRollDebt = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base!]);
+    updateSeries([fromSeries, toSeries]);
+    updateVaultHistory([vault]);
   };
 
   return rollDebt;

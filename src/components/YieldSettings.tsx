@@ -14,6 +14,7 @@ import ApprovalSetting from './settings/ApprovalSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import GeneralButton from './buttons/GeneralButton';
 import NetworkSetting from './settings/NetworkSetting';
+import TenderlyForkSetting from './settings/TenderlyForkSetting';
 import UnwrapSetting from './settings/UnwrapSetting';
 import BackButton from './buttons/BackButton';
 
@@ -123,6 +124,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         <ApprovalSetting />
         <UnwrapSetting />
         <SlippageSetting />
+        {process.env.ENV === 'development' && <TenderlyForkSetting />}
       </Box>
 
       <Box pad="medium" gap="small" flex={false}>

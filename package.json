@@ -1,13 +1,15 @@
 {
   "name": "app-v2",
-  "version": "2.3.20",
+  "version": "2.4.0",
   "private": true,
   "dependencies": {
+    "@ethersproject/providers": "^5.6.8",
     "@multiavatar/multiavatar": "^1.0.6",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/network-connector": "^6.1.9",
     "@web3-react/walletconnect-connector": "^6.2.4",
+    "@yield-protocol/ui-math": "^1.0.3",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.0.1",
     "date-fns": "^2.24.0",
@@ -15,12 +17,13 @@
     "eslint-config-next": "^12.1.3",
     "eth-permit": "^0.2.1",
     "ethers": "^5.5.4",
+    "graphql-request": "^4.3.0",
     "grommet": "^2.18.0",
     "next": "^12.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-icons": "^4.2.0",
-    "react-loading-skeleton": "^2.2.0",
+    "react-loading-skeleton": "^3.1.0",
     "react-spinners": "^0.10.6",
     "react-spring": "^9.2.4",
     "react-switch": "^6.0.0",
@@ -34,15 +37,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "type-contracts": "typechain --target=ethers-v5 './src/contracts/abis/*.json' --out-dir './src/contracts/'",
-    "license-checker": "license-checker --csv --out licenses.csv"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "license-checker": "license-checker --csv --out licenses.csv",
+    "test": "jest --watch"
   },
   "browserslist": {
     "production": [
@@ -67,32 +66,26 @@
     "@types/d3-shape": "^3.0.2",
     "@types/identicon.js": "^2.3.1",
     "@types/jest": "^26.0.24",
+    "@types/mocha": "^9.0.0",
     "@types/node": "^15.14.9",
-    "@types/react": "^17.0.26",
+    "@types/react": "^18.0.15",
     "@types/react-dom": "^17.0.9",
     "@types/react-router-dom": "^5.3.0",
     "@types/styled-components": "^5.1.14",
     "@types/uuid": "^8.3.1",
-    "@typescript-eslint/eslint-plugin": "^4.32.0",
-    "@typescript-eslint/parser": "^4.32.0",
     "audit-ci": "^4.1.0",
-    "eslint": "^7.32.0",
-    "eslint-config-airbnb-typescript": "^12.3.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-config-react-app": "^6.0.0",
-    "eslint-plugin-flowtype": "^5.10.0",
-    "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.26.1",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "ethereum-waffle": "^4.0.4",
+    "chai": "^4.3.6",
+    "eslint": "^8.21.0",
     "hardhat": "^2.7.0",
+    "mocha": "^9.1.3",
     "prettier": "^2.4.1",
     "react-test-renderer": "^17.0.2",
     "source-map-explorer": "^2.5.2",
     "ts-node": "^9.1.1",
     "typechain": "^5.1.2",
-    "typescript": "^4.4.3"
+    "typescript": "^4.7.4",
+    "jest": "^28.1.1",
+    "jest-environment-jsdom": "^28.1.0"
   },
   "lavamoat": {
     "allowScripts": {

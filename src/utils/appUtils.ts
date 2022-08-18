@@ -1,7 +1,8 @@
 import { format, getMonth, subDays } from 'date-fns';
+import { ContractReceipt } from 'ethers';
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
-import { ActionCodes } from '../types';
+import { ActionCodes, ISeries } from '../types';
 
 export const copyToClipboard = (str: string) => {
   const el = document.createElement('textarea');
@@ -185,7 +186,6 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
     `;
 
 export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
-  // console.log('🦄 ~ file: appUtils.ts ~ line 188 ~ getPositionPath ~ receipt', receipt);
   const action = txCode.split('_')[0];
   const positionId = txCode.split('_')[1];
 
@@ -210,7 +210,7 @@ export const getPositionPath = (txCode: string, receipt: any, contractMap?: any,
     case ActionCodes.ADD_LIQUIDITY:
     case ActionCodes.REMOVE_LIQUIDITY:
     case ActionCodes.ROLL_LIQUIDITY:
-      return `/poolposition/${getStrategyAddrFromReceipt(receipt)}`;
+      return `/poolposition/${getStrategyAddrFromReceipt(receipt, action)}`;
 
     default:
       return '/';
@@ -224,16 +224,16 @@ export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
   return vaultIdHex?.slice(0, 26) || '';
 };
 
-export const getSeriesAfterRollPosition = (receipt: any, seriesMap: any) => {
+export const getSeriesAfterRollPosition = (receipt: ContractReceipt | undefined, seriesMap: Map<string, ISeries>) => {
   if (!receipt) return '';
-  const contractAddress = receipt.events[7]?.address!;
-  const series = [...seriesMap.values()].filter((s) => s.address === contractAddress)[0];
+  const poolAddress = receipt.events[10]?.address!;
+  const series = [...seriesMap.values()].find((s) => s.poolAddress === poolAddress);
   return series?.id! || '';
 };
 
-export const getStrategyAddrFromReceipt = (receipt: any) => {
+export const getStrategyAddrFromReceipt = (receipt: any, action: ActionCodes) => {
   if (!receipt) return '';
-  return receipt.events[0].address;
+  return action === ActionCodes.ADD_LIQUIDITY ? receipt.events[15].address : receipt.events[0].address;
 };
 
 export const formatStrategyName = (name: string) => {

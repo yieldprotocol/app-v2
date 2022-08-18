@@ -1,4 +1,5 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
+import { ReactNode } from 'react';
 import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
@@ -28,12 +29,19 @@ export interface IConnectionState {
   signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
   connectionName: string | null;
+  useTenderlyFork: boolean;
 }
 
 export interface IHistoryList {
   lastBlock: number;
   items: any[];
 }
+
+export interface IHistoryContext {
+  historyState: IHistoryContextState;
+  historyActions: IHistoryContextActions;
+}
+
 export interface IHistoryContextState {
   historyLoading: boolean;
   tradeHistory: IHistoryList;
@@ -41,12 +49,20 @@ export interface IHistoryContextState {
   vaultHistory: IHistoryList;
 }
 
+export interface IHistoryContextActions {
+  updatePoolHistory: (seriesList: ISeries[]) => Promise<void>;
+  updateStrategyHistory: (strategyList: IStrategy[]) => Promise<void>;
+  updateVaultHistory: (vaultList: IVault[]) => Promise<void>;
+  updateTradeHistory: (seriesList: ISeries[]) => Promise<void>;
+}
+
 export interface IChainContextActions {
   connect: (connection: string) => void;
   disconnect: () => void;
   isConnected: (connection: string) => void;
+  useTenderly: (shouldUse: boolean) => void;
 
-  exportContractAddresses: ()=> void;
+  exportContractAddresses: () => void;
 }
 
 export interface IPriceContextState {
@@ -120,6 +136,9 @@ export interface ISettingsContextState {
   /* Token wrapping */
   showWrappedTokens: boolean;
   unwrapTokens: boolean;
+
+  useTenderlyFork: boolean;
+
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
@@ -144,7 +163,7 @@ export interface ISeriesRoot extends ISignable {
   maturity: number;
   showSeries: boolean;
 
-  fullDate: Date;
+  fullDate: string;
   fyTokenContract: FYToken;
   fyTokenAddress: string;
   poolContract: Pool;
@@ -169,11 +188,9 @@ export interface ISeriesRoot extends ISignable {
   oppStartColor: string;
   oppEndColor: string;
 
-  seriesMark: React.ElementType;
+  seriesMark: ReactNode;
 
   // baked in token fns
-  getTimeTillMaturity: () => string;
-  isMature: () => boolean;
   getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
 }
 
@@ -267,8 +284,8 @@ export interface IVaultRoot {
 
 export interface ISeries extends ISeriesRoot {
   apr: string;
-  baseReserves: BigNumber;
-  baseReserves_: string;
+  sharesReserves: BigNumber;
+  sharesReserves_: string;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
@@ -280,12 +297,17 @@ export interface ISeries extends ISeriesRoot {
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
+  poolAPY?: string;
   seriesIsMature: boolean;
+
+  // Yieldspace TV
+  c: BigNumber | undefined;
+  mu: BigNumber | undefined;
+  getShares: (baseAmount: BigNumber) => BigNumber;
+  getBase: (sharesAmount: BigNumber) => BigNumber;
 }
 
 export interface IAsset extends IAssetRoot {
-
-
   balance: BigNumber;
   balance_: string;
 }

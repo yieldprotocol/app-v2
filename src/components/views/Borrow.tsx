@@ -47,9 +47,11 @@ import YieldNavigation from '../YieldNavigation';
 import VaultItem from '../positionItems/VaultItem';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
+import useTenderly from '../../hooks/useTenderly';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  useTenderly();
 
   /* STATE FROM CONTEXT */
   const {
@@ -125,8 +127,11 @@ const Borrow = () => {
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
+    if (borrowDisabled) return;
+
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
-    !borrowDisabled && borrow(_vault, borrowInput, collatInput);
+    setBorrowDisabled(true);
+    borrow(_vault, borrowInput, collatInput);
   };
 
   useEffect(() => {
@@ -299,11 +304,11 @@ const Borrow = () => {
                 </Box>
 
                 {!borrowInputError && borrowInput && !borrowPossible && selectedSeries && (
-                  <InputInfoWrap action={() => setBorrowInput(selectedSeries?.baseReserves_!)}>
+                  <InputInfoWrap action={() => setBorrowInput(selectedSeries?.sharesReserves_!)}>
                     <Text size="xsmall" color="text-weak">
                       Max borrow is{' '}
                       <Text size="small" color="text-weak">
-                        {cleanValue(selectedSeries?.baseReserves_!, 2)} {selectedBase?.displaySymbol}
+                        {cleanValue(selectedSeries?.sharesReserves_!, 2)} {selectedBase?.displaySymbol}
                       </Text>{' '}
                       (limited by protocol liquidity)
                     </Text>
@@ -359,7 +364,7 @@ const Borrow = () => {
                     </Box>
 
                     <Box height={{ min: '1.5rem' }}>
-                      {collatInput ? (
+                      {liquidationPrice_ && (
                         <Box align="center" direction="row" gap="xsmall">
                           <Text size={mobile ? 'xsmall' : 'small'} color="text-weak">
                             Liquidation when
@@ -368,7 +373,7 @@ const Borrow = () => {
                             1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
                           </Text>
                         </Box>
-                      ) : null}
+                      )}
                     </Box>
                   </Box>
                 </Box>
@@ -527,8 +532,8 @@ const Borrow = () => {
                   label={
                     <Text size="xsmall" weight="lighter">
                       I understand the risks associated with borrowing. In particular, I understand that as a new
-                      protocol, Yield Protocol's liquidation auctions are not always competitive and if my vault falls
-                      below the minimum collateralization requirement (
+                      protocol, Yield Protocol&apos;s liquidation auctions are not always competitive and if my vault
+                      falls below the minimum collateralization requirement (
                       <Text size="xsmall" color="red">
                         {minCollatRatioPct}%
                       </Text>

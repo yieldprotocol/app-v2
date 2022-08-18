@@ -10,7 +10,7 @@ import * as contracts from '../contracts';
 import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN } from '../config/assets';
 
-import { nameFromMaturity, getSeason, SeasonType, clearCachedItems } from '../utils/appUtils';
+import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import { AssetAddedEvent, SeriesAddedEvent } from '../contracts/Cauldron';
@@ -18,6 +18,7 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
+import useTenderly from '../hooks/useTenderly';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -46,6 +47,7 @@ const initState: IChainContextState = {
     account: null as string | null,
 
     connectionName: null as string | null,
+    useTenderlyFork: false as boolean,
   },
 
   /* flags */
@@ -101,6 +103,7 @@ function chainReducer(state: IChainContextState, action: any) {
 }
 
 const ChainProvider = ({ children }: any) => {
+  const { tenderlyStartBlock } = useTenderly();
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
   /* CACHED VARIABLES */
@@ -115,7 +118,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
-  const { chainId, fallbackProvider, fallbackChainId } = connectionState;
+  const { chainId, fallbackProvider, fallbackChainId, useTenderlyFork } = connectionState;
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
@@ -307,10 +310,24 @@ const ChainProvider = ({ children }: any) => {
       const _getAssets = async () => {
         /* get all the assetAdded, oracleAdded and joinAdded events and series events at the same time */
         const blockNum = await fallbackProvider.getBlockNumber();
-        const [assetAddedEvents, joinAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('AssetAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-          Ladle.queryFilter('JoinAdded' as ethers.EventFilter, lastAssetUpdate, blockNum),
-        ]);
+
+        let assetAddedEvents = [];
+        let joinAddedEvents = [];
+
+        try {
+          [assetAddedEvents, joinAddedEvents] = await Promise.all([
+            Cauldron.queryFilter(
+              'AssetAdded' as ethers.EventFilter,
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastAssetUpdate
+            ),
+            Ladle.queryFilter(
+              'JoinAdded' as ethers.EventFilter,
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastAssetUpdate
+            ),
+          ]);
+        } catch (e) {
+          console.log('🦄 ~ file: ChainContext.tsx ~ line 295 ~ const_getAssets= ~ e', e);
+        }
 
         /* Create a map from the joinAdded event data or hardcoded join data if available */
         const joinMap = new Map(joinAddedEvents.map((e: JoinAddedEvent) => e.args)); // event values);
@@ -409,13 +426,14 @@ const ChainProvider = ({ children }: any) => {
         fyTokenAddress: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
+        const poolContract = getPoolContract(series.poolAddress, series.maturity);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
 
         const season = getSeason(series.maturity);
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
         const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
         const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
+
         return {
           ...series,
 
@@ -438,18 +456,28 @@ const ChainProvider = ({ children }: any) => {
           seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
           // built-in helper functions:
-          getTimeTillMaturity: () => series.maturity - Math.round(new Date().getTime() / 1000),
-          isMature: () => series.maturity - Math.round(new Date().getTime() / 1000) <= 0,
           getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
 
       const _getSeries = async () => {
         /* get poolAdded events and series events at the same time */
-        const [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-          Cauldron.queryFilter('SeriesAdded' as ethers.EventFilter, lastSeriesUpdate),
-          Ladle.queryFilter('PoolAdded' as ethers.EventFilter, lastSeriesUpdate),
-        ]);
+        let seriesAddedEvents = [];
+        let poolAddedEvents = [];
+        try {
+          [seriesAddedEvents, poolAddedEvents] = await Promise.all([
+            Cauldron.queryFilter(
+              'SeriesAdded' as ethers.EventFilter,
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
+            ),
+            Ladle.queryFilter(
+              'PoolAdded' as ethers.EventFilter,
+              useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
+            ),
+          ]);
+        } catch (error) {
+          console.log('🦄 ~ file: ChainContext.tsx ~ line 451 ~ const_getSeries= ~ error', error);
+        }
 
         /* Create a map from the poolAdded event data or hardcoded pool data if available */
         const poolMap = new Map(poolAddedEvents.map((e: PoolAddedEvent) => e.args)); // event values);
@@ -460,59 +488,53 @@ const ChainProvider = ({ children }: any) => {
         const newSeriesList: any[] = [];
 
         /* Add in any extra static series */
-        try {
-          await Promise.all(
-            seriesAdded.map(async (x): Promise<void> => {
-              const { seriesId: id, baseId, fyToken } = x;
-              const { maturity } = await Cauldron.series(id);
+        await Promise.all(
+          seriesAdded.map(async (x): Promise<void> => {
+            const { seriesId: id, baseId, fyToken } = x;
+            const { maturity } = await Cauldron.series(id);
 
-              // if (poolMap.has(id) && maturity !== 1672412400) {
-              if (poolMap.has(id)) {
-                // only add series if it has a pool
-                const poolAddress = poolMap.get(id);
-                const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-                const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-                const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
-                  await Promise.all([
-                    fyTokenContract.name(),
-                    fyTokenContract.symbol(),
-                    fyTokenContract.version(),
-                    fyTokenContract.decimals(),
-                    poolContract.name(),
-                    poolContract.version(),
-                    poolContract.symbol(),
-                    poolContract.ts(),
-                    poolContract.g1(),
-                    poolContract.g2(),
-                    // poolContract.decimals(),
-                  ]);
-                const newSeries = {
-                  id,
-                  baseId,
-                  maturity,
-                  name,
-                  symbol,
-                  version,
-                  address: fyToken,
-                  fyTokenAddress: fyToken,
-                  decimals,
-                  poolAddress,
-                  poolVersion,
-                  poolName,
-                  poolSymbol,
-                  ts,
-                  g1,
-                  g2,
-                  showSeries: false,
-                };
-                updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-                newSeriesList.push(newSeries);
-              }
-            })
-          );
-        } catch (e) {
-          console.log('Error fetching series data: ', e);
-        }
+            if (poolMap.has(id)) {
+              // only add series if it has a pool
+              const poolAddress = poolMap.get(id);
+              const poolContract = getPoolContract(poolAddress, maturity);
+              const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
+              const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
+                await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  fyTokenContract.decimals(),
+                  poolContract.name(),
+                  poolContract.version(),
+                  poolContract.symbol(),
+                  poolContract.ts(),
+                  poolContract.g1(),
+                  poolContract.g2(),
+                ]);
+
+              const newSeries = {
+                id,
+                baseId,
+                maturity,
+                name,
+                symbol,
+                version,
+                address: fyToken,
+                fyTokenAddress: fyToken,
+                decimals,
+                poolAddress,
+                poolVersion,
+                poolName,
+                poolSymbol,
+                ts,
+                g1,
+                g2,
+              };
+              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+              newSeriesList.push(newSeries);
+            }
+          })
+        );
         setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
         setCachedSeries([...cachedSeries, ...newSeriesList]);
 
@@ -587,7 +609,7 @@ const ChainProvider = ({ children }: any) => {
         cachedAssets.forEach((a: IAssetRoot) => {
           updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
         });
-        cachedSeries.forEach((s: ISeriesRoot) => {
+        cachedSeries.forEach(async (s: ISeriesRoot) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
@@ -601,7 +623,7 @@ const ChainProvider = ({ children }: any) => {
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
-  }, [fallbackChainId, fallbackProvider]);
+  }, [fallbackChainId, fallbackProvider, tenderlyStartBlock, useTenderlyFork]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
@@ -611,18 +633,6 @@ const ChainProvider = ({ children }: any) => {
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
       window.localStorage.clear();
-      // clearCachedItems([
-      //   'lastAppVersion',
-      //   'lastChainId',
-      //   'assets',
-      //   'series',
-      //   'lastAssetUpdate',
-      //   'lastSeriesUpdate',
-      //   'lastVaultUpdate',
-      //   'strategies',
-      //   'lastStrategiesUpdate',
-      //   'connectionName',
-      // ]);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
@@ -647,6 +657,7 @@ const ChainProvider = ({ children }: any) => {
     connectionState.active,
     connectionState.connectionName,
     connectionState.currentChainInfo,
+    connectionState.useTenderlyFork,
   ]);
 
   const exportContractAddresses = () => {
@@ -674,6 +685,13 @@ const ChainProvider = ({ children }: any) => {
 
     console.log(res);
   };
+
+  /* Assess which pool contract to use: new (with tv) or old (without tv) */
+  const getPoolContract = (poolAddress: string, maturity: number) =>
+    (maturity === 1672412400 ? contracts.Pool__factory : contracts.PoolOld__factory).connect(
+      poolAddress,
+      fallbackProvider
+    );
 
   /* simply Pass on the connection actions */
   const chainActions = { ...connectionActions, exportContractAddresses };

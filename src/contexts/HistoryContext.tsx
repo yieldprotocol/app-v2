@@ -2,6 +2,7 @@ import React, { useContext, useReducer, useCallback } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { format } from 'date-fns';
 
+import { calculateAPR, bytesToBytes32 } from '@yield-protocol/ui-math';
 import {
   ISeries,
   IVault,
@@ -13,6 +14,7 @@ import {
   IChainContext,
   IUserContext,
   ISettingsContext,
+  IHistoryContextActions,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -20,11 +22,15 @@ import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
-import { calculateAPR, bytesToBytes32 } from '../utils/yieldMath';
+
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
-import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
+import { LiquidityEvent, TradeEvent as NewTradeEvent } from '../contracts/Pool';
+import { TradeEvent as OldTradeEvent } from '../contracts/PoolOld';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
+import useTenderly from '../hooks/useTenderly';
+
+type TradeEvent = NewTradeEvent & OldTradeEvent;
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -90,7 +96,7 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { fallbackProvider },
+    connection: { fallbackProvider, useTenderlyFork },
     seriesRootMap,
     assetRootMap,
   } = chainState;
@@ -98,8 +104,9 @@ const HistoryProvider = ({ children }: any) => {
   const { userState } = useContext(UserContext) as IUserContext;
   const { activeAccount: account } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
-  const [lastSeriesUpdate] = ['earliest']; // useCachedState('lastSeriesUpdate', 'earliest');
-  const [lastVaultUpdate] = ['earliest']; // useCachedState('lastVaultUpdate', 'earliest');
+  const { tenderlyStartBlock } = useTenderly();
+  const lastSeriesUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
+  const lastVaultUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
 
   const {
     settingsState: { diagnostics },
@@ -188,7 +195,7 @@ const HistoryProvider = ({ children }: any) => {
           const liqLogs = await Promise.all(
             eventList.map(async (e: LiquidityEvent) => {
               const { blockNumber, transactionHash } = e;
-              const { maturity, bases, fyTokens, poolTokens } = e.args;
+              const { maturity, base: bases, fyTokens, poolTokens } = e.args;
               const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
               const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
 
@@ -242,10 +249,13 @@ const HistoryProvider = ({ children }: any) => {
               .filter((e: TradeEvent) => e.args.from !== contractMap.get('Ladle').address) // TODO make this for any ladle (Past/future)
               .map(async (e: TradeEvent) => {
                 const { blockNumber, transactionHash } = e;
-                const { maturity, bases, fyTokens } = e.args;
+                const { maturity, fyTokens } = e.args;
+
+                // if we are using the old pool contract, use "bases" nomenclature
+                const bases = e.args.base ?? e.args.bases;
                 const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
                 const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
-                const tradeApr = calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
+                const tradeApr = !bases ? '0' : calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
 
                 return {
                   blockNumber,
@@ -261,14 +271,14 @@ const HistoryProvider = ({ children }: any) => {
                   /* inferred trade type */
                   actionCode: type_,
 
-                  primaryInfo: `${cleanValue(ethers.utils.formatUnits(bases.abs(), decimals), 2)} ${
+                  primaryInfo: `${cleanValue(ethers.utils.formatUnits(!bases ? '0' : bases.abs(), decimals), 2)} ${
                     base.displaySymbol
                   }`,
                   secondaryInfo: `${cleanValue(tradeApr, 2)}% APY`,
 
                   /* Formatted values:  */
                   date_: dateFormat(date),
-                  bases_: ethers.utils.formatUnits(bases, decimals),
+                  bases_: ethers.utils.formatUnits(bases ?? '0', decimals),
                   fyTokens_: ethers.utils.formatUnits(fyTokens, decimals),
                 };
               })
@@ -475,7 +485,7 @@ const HistoryProvider = ({ children }: any) => {
   );
 
   /* Exposed userActions */
-  const historyActions = {
+  const historyActions: IHistoryContextActions = {
     updatePoolHistory,
     updateStrategyHistory,
     updateVaultHistory,

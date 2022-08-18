@@ -46,7 +46,7 @@ export const useInputValidation = (
         case ActionCodes.BORROW:
           input &&
             _selectedSeries &&
-            ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.baseReserves) &&
+            ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.sharesReserves) &&
             setInputError(`Amount exceeds the ${_selectedBase?.symbol} currently available in pool`);
           aboveMax && setInputError('Exceeds the max allowable debt for this series');
           belowMin &&

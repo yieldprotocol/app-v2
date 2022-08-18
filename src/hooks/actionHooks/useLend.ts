@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { calculateSlippage, sellBase } from '@yield-protocol/ui-math';
+
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -16,9 +18,9 @@ import {
   IUserContextState,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { calculateSlippage, sellBase } from '../../utils/yieldMath';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
+import useTimeTillMaturity from '../useTimeTillMaturity';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -41,8 +43,8 @@ export const useLend = () => {
   } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
-
   const { addEth } = useAddRemoveEth();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -55,14 +57,17 @@ export const useLend = () => {
     const ladleAddress = contractMap.get('Ladle').address;
 
     const _inputAsFyToken = sellBase(
-      series.baseReserves,
+      series.sharesReserves,
       series.fyTokenReserves,
-      _input,
-      series.getTimeTillMaturity(),
+      series.getShares(_input), // convert base input to shares
+      getTimeTillMaturity(series.maturity),
       series.ts,
       series.g1,
-      series.decimals
+      series.decimals,
+      series.c,
+      series.mu
     );
+
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */

@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiZap } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -64,15 +64,9 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
-  const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired } = usePoolHelpers(removeInput, true);
-
-  const {
-    removeBaseReceived_: removeBaseReceivedMax_,
-    partialRemoveRequired: partialReqd,
-    removeFyTokenReceived_,
-  } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
-
-  cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!);
+  const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired, removeFyTokenReceived_ } =
+    usePoolHelpers(removeInput, true);
+  const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -104,8 +98,9 @@ const PoolPosition = () => {
   );
 
   const handleRemove = () => {
-    const shouldTradeExtra = partialRemoveRequired && forceDisclaimerChecked ? false : undefined;
-    selectedSeries && removeLiquidity(removeInput!, selectedSeries, matchingVault, shouldTradeExtra);
+    if (removeDisabled) return;
+    setRemoveDisabled(true);
+    removeLiquidity(removeInput!, selectedSeries, matchingVault);
   };
 
   const resetInputs = useCallback(
@@ -121,8 +116,8 @@ const PoolPosition = () => {
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput]);
+    !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl as string) || null;
@@ -167,17 +162,15 @@ const PoolPosition = () => {
                       label="Next Roll Date"
                       value={_selectedStrategy?.currentSeries?.fullDate.toString()!}
                       icon={<FiClock height="1em" />}
-                      loading={seriesLoading}
                     />
-
                     <InfoBite
                       label="Strategy Token Balance"
                       value={`${cleanValue(
                         _selectedStrategy?.accountBalance_,
                         selectedBase?.digitFormat!
-                      )} tokens ( ${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
+                      )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
                         selectedBase.symbol
-                      } )`}
+                      })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
@@ -194,12 +187,20 @@ const PoolPosition = () => {
                     {_selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Strategy Token Ownership"
-                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)} %  of ${nFormatter(
+                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)}% of ${nFormatter(
                           parseFloat(_selectedStrategy?.strategyTotalSupply_!),
                           2
                         )}`}
                         icon={<FiPercent />}
                         loading={seriesLoading}
+                      />
+                    )}
+                    {_selectedStrategy.currentSeries.poolAPY && (
+                      <InfoBite
+                        label="Pool APY"
+                        icon={<FiZap />}
+                        value={`${cleanValue(_selectedStrategy.currentSeries.poolAPY, 2)}%`}
+                        labelInfo="Estimated APY based on the current Euler supply APY"
                       />
                     )}
                   </Box>
@@ -298,11 +299,9 @@ const PoolPosition = () => {
                     label={
                       <Box>
                         <Text size="xsmall">
-                          Force Removal:
-                          {`(You will receive about ${cleanValue(removeBaseReceived_, 2)} ${
-                            selectedBase?.displaySymbol
-                          } `}
-                          {`and then rest will be in redeemable fy${selectedBase?.displaySymbol})`}
+                          Force removal and
+                          {` receive ~${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} `}
+                          {`and ~${removeFyTokenReceived_} fy${selectedBase?.displaySymbol}`}
                         </Text>
                       </Box>
                     }

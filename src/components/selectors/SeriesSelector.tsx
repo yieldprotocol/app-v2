@@ -4,6 +4,9 @@ import { FiChevronDown } from 'react-icons/fi';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
+
+import { maxBaseIn } from '@yield-protocol/ui-math';
+
 import {
   ActionType,
   ISeries,
@@ -13,11 +16,11 @@ import {
   IUserContextState,
 } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { maxBaseIn } from '../../utils/yieldMath';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -78,26 +81,31 @@ const AprText = ({
   actionType: ActionType;
   color: string;
 }) => {
+  const { getTimeTillMaturity } = useTimeTillMaturity();
+
   const _inputValue = cleanValue(inputValue, series.decimals);
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
-  const baseIn = maxBaseIn(
-    series.baseReserves,
+  const sharesIn = maxBaseIn(
+    series.sharesReserves,
     series.fyTokenReserves,
-    series.getTimeTillMaturity(),
+    getTimeTillMaturity(series.maturity),
     series.ts,
     series.g1,
-    series.decimals
+    series.decimals,
+    series.c,
+    series.mu
   );
-  // diagnostics && console.log(series.id, ' maxbaseIn', baseIn.toString());
 
   useEffect(() => {
     if (!series?.seriesIsMature && _inputValue)
       actionType === ActionType.LEND
-        ? setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(baseIn)) // lending max
-        : setLimitHit(ethers.utils.parseUnits(_inputValue, series?.decimals).gt(series.baseReserves)); // borrow max
-  }, [_inputValue, actionType, baseIn, series.baseReserves, series?.decimals, series?.seriesIsMature, setLimitHit]);
+        ? setLimitHit(series.getShares(ethers.utils.parseUnits(_inputValue, series.decimals)).gt(sharesIn)) // lending max
+        : setLimitHit(
+            series.getShares(ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(series.sharesReserves)
+          ); // borrow max
+  }, [_inputValue, actionType, series, sharesIn]);
 
   return (
     <>
@@ -181,7 +189,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     if (selectSeriesLocally) {
       filteredOpts = opts
         .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
-        .filter((_series) => _series.id !== selectedSeries?.id); // filter out current globally selected series
+        .filter((_series) => _series.id !== selectedSeries?.id) // filter out current globally selected series
+        .filter((_series) => _series.maturity > selectedSeries?.maturity); // prevent rolling positions to an earlier maturity
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
@@ -230,7 +239,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               options.length ? (
                 <Box pad={mobile ? 'medium' : 'small'}>
                   <Text color="text" size="small">
-                    {' '}
                     {optionExtended(_selectedSeries!)}
                   </Text>
                 </Box>
