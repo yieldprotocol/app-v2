@@ -121,12 +121,11 @@ const YieldInfo = () => {
         </Box>
       )}
 
-      <Box align='center'>
+      {/* <Box align='center'>
         <Text size="xsmall"> NOTICE:</Text>
-
         <Text size="xsmall"> We are aware of a few UI issues, in particular related to the December pools. </Text>
         <Text size="xsmall"> If you are having any difficulties, please check back shortly.</Text>
-      </Box>
+      </Box> */}
     </Box>
   );
 };
