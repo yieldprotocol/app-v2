@@ -104,7 +104,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* set ilk to be USDC if ETH base */
   useEffect(() => {
-    if (selectedBase?.proxyId === WETH) {
+    if (selectedBase?.proxyId === WETH || selectedBase?.id === WETH ) {
       setSelectedIlk(assetMap.get(USDC));
     }
   }, [assetMap, selectedBase, setSelectedIlk]);
