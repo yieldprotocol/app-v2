@@ -490,7 +490,7 @@ const ChainProvider = ({ children }: any) => {
         /* Add in any extra static series */
         await Promise.all(
           seriesAdded
-          .filter( (x) => !(chainId === 42161 && x.seriesId === '0x303030370000') ) //remove this when ETH arb series is ready
+          .filter((x) => !(chainId === 42161 && x.seriesId === '0x303030370000')) // remove this when ETH arb series is ready
           .map(async (x): Promise<void> => {
             const { seriesId: id, baseId, fyToken } = x;
             const { maturity } = await Cauldron.series(id);
