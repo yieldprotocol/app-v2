@@ -489,10 +489,11 @@ const ChainProvider = ({ children }: any) => {
 
         /* Add in any extra static series */
         await Promise.all(
-          seriesAdded.map(async (x): Promise<void> => {
+          seriesAdded
+          .filter( (x) => !(chainId === 42161 && x.seriesId === '0x303030370000') ) //remove this when ETH arb series is ready
+          .map(async (x): Promise<void> => {
             const { seriesId: id, baseId, fyToken } = x;
             const { maturity } = await Cauldron.series(id);
-
             if (poolMap.has(id)) {
               // only add series if it has a pool
               const poolAddress = poolMap.get(id);
@@ -530,6 +531,8 @@ const ChainProvider = ({ children }: any) => {
                 g1,
                 g2,
               };
+
+              console.log ( newSeries.id )
               updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
               newSeriesList.push(newSeries);
             }
@@ -542,7 +545,6 @@ const ChainProvider = ({ children }: any) => {
       };
 
       /* Attach contract instance */
-
       const _chargeStrategy = (strategy: any) => {
         const Strategy = contracts.Strategy__factory.connect(strategy.address, fallbackProvider);
         return {
