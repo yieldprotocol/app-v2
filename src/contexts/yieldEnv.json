@@ -44,7 +44,7 @@
       "AccumulatorMultiOracle": "0xbBB7870227750119ab1f230c8785Be8C4e0C5f1A",
       "AccumulatorOracle": "0xbBB7870227750119ab1f230c8785Be8C4e0C5f1A",
       "Witch": "0xf8eD39321927F5fae30EC33311F1fe596078ccbD",
-      "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
+      "WrapEtherModule": "0x4cd01ed221d6d198e2656c16c32803bf78134568"
     },
 
     "42161": {
@@ -54,7 +54,7 @@
       "AccumulatorOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
       "AccumulatorMultiOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
       "Witch": "0x08173D0885B00BDD640aaE57D05AbB74cd00d669",
-      "WrapEtherModule": "0xd6AdA52c4A04895c3Ef4668a1defd186ccD5aC44"
+      "WrapEtherModule": "0x4cd01ed221d6d198e2656c16c32803bf78134568"
     }
   },
 
