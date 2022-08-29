@@ -243,7 +243,7 @@ export const useBorrowHelpers = (
 
           const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
           // add buffer to handle moving interest accumulation
-          const _debtInBaseWithBuffer = _debtInBase.mul(10000).div(9999);
+          const _debtInBaseWithBuffer = _debtInBase.mul(1000).div(999);
           setDebtInBase(_debtInBaseWithBuffer);
           setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
 
