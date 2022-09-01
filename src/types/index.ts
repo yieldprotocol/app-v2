@@ -138,6 +138,7 @@ export interface ISettingsContextState {
   unwrapTokens: boolean;
 
   useTenderlyFork: boolean;
+  tenderlyForkRpcUrl: string;
 
   /* DashSettings */
   dashHideEmptyVaults: boolean;
