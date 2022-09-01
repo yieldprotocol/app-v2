@@ -21,6 +21,7 @@ export enum Settings {
   DASH_HIDE_POOL_POSITIONS = 'dashHidePoolPositions',
   DASH_CURRENCY = 'dashCurrency',
   USE_TENDERLY_FORK = 'useTenderlyFork',
+  TENDERLY_FORK_RPC_URL = 'tenderlyForkRpcUrl',
 }
 
 const SettingsContext = React.createContext<any>({});
@@ -61,6 +62,7 @@ const initState: ISettingsContextState = {
 
   /* If using tenderly fork environment */
   useTenderlyFork: false,
+  tenderlyForkRpcUrl: '',
 
   /* Dashboard settings */
   dashHideEmptyVaults: false,
@@ -100,7 +102,8 @@ const SettingsProvider = ({ children }: any) => {
   /* update tenderly fork setting */
   useEffect(() => {
     updateState({ type: Settings.USE_TENDERLY_FORK, payload: connection.useTenderlyFork });
-  }, [connection.useTenderlyFork]);
+    updateState({ type: Settings.TENDERLY_FORK_RPC_URL, payload: connection.tenderlyForkRpcUrl });
+  }, [connection.useTenderlyFork, connection.tenderlyForkRpcUrl]);
 
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {

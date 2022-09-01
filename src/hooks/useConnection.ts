@@ -27,6 +27,7 @@ export const useConnection = () => {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
   const [useTenderlyFork, setUseTenderlyFork] = useCachedState('useTenderlyFork', false);
+  const [tenderlyForkRpcUrl, setTenderlyForkRpcUrl] = useCachedState('tenderlyForkRpcUrl', '');
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', null);
@@ -158,8 +159,12 @@ export const useConnection = () => {
   /* Use the connected provider if available, else use fallback */
   useEffect(() => {
     const getProviders = () => {
-      if (useTenderlyFork && process.env.ENV === 'development') {
-        const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+      if (
+        tenderlyForkRpcUrl !== '' &&
+        useTenderlyFork
+        // && process.env.ENV === 'development'
+      ) {
+        const tenderlyProvider = new ethers.providers.JsonRpcProvider(tenderlyForkRpcUrl);
         return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
       }
       return { provider, fallbackProvider };
@@ -167,10 +172,11 @@ export const useConnection = () => {
 
     setProviderToUse(getProviders().provider);
     setFallbackProviderToUse(getProviders().fallbackProvider);
-  }, [chainId, fallbackProvider, provider, useTenderlyFork]);
+  }, [chainId, fallbackProvider, provider, tenderlyForkRpcUrl, useTenderlyFork]);
 
-  const useTenderly = (shouldUse: boolean) => {
-    setUseTenderlyFork(shouldUse);
+  const useTenderly = (rpcUrl: string) => {
+    setTenderlyForkRpcUrl(rpcUrl);
+    rpcUrl !== '' && setUseTenderlyFork(true);
   };
 
   return {
@@ -198,6 +204,7 @@ export const useConnection = () => {
       activatingConnector,
 
       useTenderlyFork,
+      tenderlyForkRpcUrl,
     },
 
     connectionActions: {
