@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
+import { toast } from 'react-toastify';
 import {
   burn,
   burnFromStrategy,
@@ -28,6 +29,7 @@ import {
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
+import { TxContext } from '../../contexts/TxContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
@@ -63,6 +65,9 @@ export const useRemoveLiquidity = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext) as IChainContext;
+
+  const { txActions } = useContext(TxContext);
+  const {resetProcess} = txActions;
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
@@ -285,6 +290,7 @@ export const useRemoveLiquidity = () => {
 
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
     const calls: ICallData[] = [
+      
       ...permitCallData,
 
       /* FOR ALL REMOVES (when using a strategy) > move tokens from strategy to pool tokens  */
@@ -419,7 +425,11 @@ export const useRemoveLiquidity = () => {
       ...removeEthCallData,
     ];
 
-    await transact(calls, txCode);
+    // await transact(calls, txCode);
+    toast.warn('Liquidity withdrawal temporarily disabled')
+    resetProcess(txCode);
+
+
     updateSeries([series]);
     updateAssets([_base]);
     updateStrategies([_strategy]);
