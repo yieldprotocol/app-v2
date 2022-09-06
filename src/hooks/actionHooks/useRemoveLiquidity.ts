@@ -359,20 +359,34 @@ export const useRemoveLiquidity = () => {
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
+      
+      // {
+      //   operation: LadleActions.Fn.REPAY_FROM_LADLE,
+      //   // since fyToken received is greater than debt, we transfer all remaining fyToken after repaying to the pool to sell
+      //   args: [matchingVaultId, repayToAddress] as LadleActions.Args.REPAY_FROM_LADLE,
+      //   ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
+      // },
+      // {
+      //   operation: LadleActions.Fn.ROUTE,
+      //   args: [toAddress, minBaseToReceive] as RoutedActions.Args.SELL_FYTOKEN,
+      //   fnName: RoutedActions.Fn.SELL_FYTOKEN,
+      //   targetContract: series.poolContract,
+      //   ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !extraTradeSupported,
+      // },
+
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        // since fyToken received is greater than debt, we transfer all remaining fyToken after repaying to the pool to sell
-        args: [matchingVaultId, repayToAddress] as LadleActions.Args.REPAY_FROM_LADLE,
+        args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
 
+      /* PATCH!!! if removing ETH-BASE, retrieve fyETH as to not leave it in the ladle  */
       {
-        operation: LadleActions.Fn.ROUTE,
-        args: [toAddress, minBaseToReceive] as RoutedActions.Args.SELL_FYTOKEN,
-        fnName: RoutedActions.Fn.SELL_FYTOKEN,
-        targetContract: series.poolContract,
-        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !extraTradeSupported,
+        operation: LadleActions.Fn.RETRIEVE,
+        args: [series.fyTokenAddress, account] as LadleActions.Args.RETRIEVE,
+        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !isEthBase,
       },
+
 
       /* OPTION 4. Remove Liquidity and sell - BEFORE MATURITY + NO VAULT */
 
@@ -426,9 +440,12 @@ export const useRemoveLiquidity = () => {
     ];
 
     // await transact(calls, txCode);
-    toast.warn('Liquidity withdrawal temporarily disabled')
-    resetProcess(txCode);
-
+    if (!series.seriesIsMature && useMatchingVault && fyTokenReceivedGreaterThanDebt) {
+      toast.warn('Liquidity withdrawal temporarily disabled')
+      resetProcess(txCode);
+    } else {
+      await transact(calls, txCode);
+    }
 
     updateSeries([series]);
     updateAssets([_base]);

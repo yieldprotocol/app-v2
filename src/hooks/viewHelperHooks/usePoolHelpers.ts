@@ -200,6 +200,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
       /* Matching vault (with debt) exists: USE 1, 2.1, or 2.2 */
       if (matchingVault) {
+
         if (fyTokenReceivedFromBurn.gt(matchingVault.accruedArt)) {
           /* Fytoken sold to base greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
           diagnostics &&
@@ -286,7 +287,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         );
 
         // if we could sell all fyToken to shares
-        if (fyTokenToShares.gt(ethers.constants.Zero)) {
+        if (!fyTokenToShares.eq(ethers.constants.Zero)) {
           diagnostics && console.log('NO VAULT : pool trade is possible : USE REMOVE OPTION 4.1 ');
           setPartialRemoveRequired(false);
 
