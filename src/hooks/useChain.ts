@@ -172,15 +172,17 @@ export const useChain = () => {
             approvalMethod
           );
 
+          console.log(v < 27 ? v+27: v )
+
           const args = [
             reqSig.target.address,
             _spender,
             nonce,
             expiry,
             allowed, // TODO check use amount if provided, else defaults to MAX.
-            v,
+            v<27? v+27:v, // handle ledger signing ( 00 is 27 or  01 is 28 )
             r,
-            s < 27 ? s+27: s, // handle ledger signing ( 00 is 27 or  01 is 28 )
+            s, 
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
 
           return {
@@ -230,14 +232,16 @@ export const useChain = () => {
             : ApprovalType.TX
         );
 
+        console.log(v < 27 ? v+27: v )
+
         const args = [
           reqSig.target.address, // the asset id OR the seriesId (if signing fyToken)
           _spender,
           value,
           deadline,
-          v,
+          v<27? v+27:v, // handle ledger signing ( 00 is 27 or  01 is 28 )
           r,
-          s < 27 ? s+27: s, // handle ledger signing ( 00 is 27 or  01 is 28 )
+          s, 
         ] as LadleActions.Args.FORWARD_PERMIT;
 
         return {
