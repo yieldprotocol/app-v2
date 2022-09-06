@@ -360,12 +360,12 @@ export const useRemoveLiquidity = () => {
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
       
-      // {
-      //   operation: LadleActions.Fn.REPAY_FROM_LADLE,
-      //   // since fyToken received is greater than debt, we transfer all remaining fyToken after repaying to the pool to sell
-      //   args: [matchingVaultId, repayToAddress] as LadleActions.Args.REPAY_FROM_LADLE,
-      //   ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
-      // },
+      {
+        operation: LadleActions.Fn.REPAY_FROM_LADLE,
+        // since fyToken received is greater than debt, we transfer all remaining fyToken after repaying to the pool to sell
+        args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
+        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
+      },
       // {
       //   operation: LadleActions.Fn.ROUTE,
       //   args: [toAddress, minBaseToReceive] as RoutedActions.Args.SELL_FYTOKEN,
@@ -373,12 +373,6 @@ export const useRemoveLiquidity = () => {
       //   targetContract: series.poolContract,
       //   ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !extraTradeSupported,
       // },
-
-      {
-        operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
-        ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
-      },
 
       /* PATCH!!! if removing ETH-BASE, retrieve fyETH as to not leave it in the ladle  */
       {
