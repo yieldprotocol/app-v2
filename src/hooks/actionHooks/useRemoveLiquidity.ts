@@ -362,7 +362,6 @@ export const useRemoveLiquidity = () => {
       
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
-        // since fyToken received is greater than debt, we transfer all remaining fyToken after repaying to the pool to sell
         args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
@@ -433,13 +432,15 @@ export const useRemoveLiquidity = () => {
       ...removeEthCallData,
     ];
 
-    // await transact(calls, txCode);
-    if (!series.seriesIsMature && useMatchingVault && fyTokenReceivedGreaterThanDebt) {
-      toast.warn('Liquidity withdrawal temporarily disabled')
-      resetProcess(txCode);
-    } else {
-      await transact(calls, txCode);
-    }
+    await transact(calls, txCode);
+
+    /* Isolate a particular user case if required */
+    // if (!series.seriesIsMature && useMatchingVault && fyTokenReceivedGreaterThanDebt) {
+    //   toast.warn('Liquidity withdrawal temporarily disabled')
+    //   resetProcess(txCode);
+    // } else {
+    //   await transact(calls, txCode);
+    // }
 
     updateSeries([series]);
     updateAssets([_base]);
