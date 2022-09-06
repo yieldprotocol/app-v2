@@ -180,7 +180,7 @@ export const useChain = () => {
             allowed, // TODO check use amount if provided, else defaults to MAX.
             v,
             r,
-            s,
+            s < 27 ? s+27: s, // handle ledger signing ( 00 is 27 or  01 is 28 )
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
 
           return {
@@ -237,7 +237,7 @@ export const useChain = () => {
           deadline,
           v,
           r,
-          s,
+          s < 27 ? s+27: s, // handle ledger signing ( 00 is 27 or  01 is 28 )
         ] as LadleActions.Args.FORWARD_PERMIT;
 
         return {
