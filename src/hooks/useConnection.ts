@@ -11,8 +11,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useCachedState } from './generalHooks';
 import { CHAIN_INFO, SUPPORTED_RPC_URLS } from '../config/chainData';
 import { CONNECTORS, CONNECTOR_INFO, INIT_INJECTED } from '../config/connectors';
-import { clearCachedItems } from '../utils/appUtils';
-// import TrezorMark from '../components/logos/TrezorMark';
 
 const NO_BROWSER_EXT =
   'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
@@ -26,7 +24,10 @@ export const useConnection = () => {
   const [currentChainInfo, setCurrentChainInfo] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [fallbackErrorMessage, setFallbackErrorMessage] = useState<string | undefined>(undefined);
+
+  /* test env */
   const [useTenderlyFork, setUseTenderlyFork] = useCachedState('useTenderlyFork', false);
+  const [useLocalhost, setUseLocalHost] = useCachedState('useLocalhost', true);
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', null);
@@ -162,12 +163,18 @@ export const useConnection = () => {
         const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
         return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
       }
+
+      if (useLocalhost && process.env.ENV === 'development') {
+        const localhostProvider = new ethers.providers.JsonRpcProvider(process.env.LOCALHOST_RPC_URL);
+        return { provider: localhostProvider, fallbackProvider: localhostProvider };
+      }
       return { provider, fallbackProvider };
     };
 
     setProviderToUse(getProviders().provider);
     setFallbackProviderToUse(getProviders().fallbackProvider);
-  }, [chainId, fallbackProvider, provider, useTenderlyFork]);
+
+  }, [chainId, fallbackProvider, provider, useTenderlyFork, useLocalhost]);
 
   const useTenderly = (shouldUse: boolean) => {
     setUseTenderlyFork(shouldUse);
