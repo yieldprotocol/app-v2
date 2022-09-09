@@ -27,7 +27,7 @@ export const useConnection = () => {
 
   /* test env */
   const [useTenderlyFork, setUseTenderlyFork] = useCachedState('useTenderlyFork', false);
-  const [useLocalhost, setUseLocalHost] = useCachedState('useLocalhost', true);
+  const [useLocalhost, setUseLocalHost] = useCachedState('useLocalhost', false);
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', null);

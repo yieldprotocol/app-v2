@@ -208,6 +208,7 @@ const TxProvider = ({ children }: any) => {
           _isfallback ? ProcessStage.SIGNING_TRANSACTION_PENDING : ProcessStage.TRANSACTION_PENDING
         );
       } catch (e) {
+        console.log( 'failed aarg')
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
         analyticsLogEvent('TX_REJECTED', { txCode }, chainId);
