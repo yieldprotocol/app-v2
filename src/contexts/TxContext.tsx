@@ -279,7 +279,6 @@ const TxProvider = ({ children }: any) => {
         allowed: undefined,
       };
     }
-
     _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
     return _sig;
   };

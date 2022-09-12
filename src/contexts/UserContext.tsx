@@ -314,7 +314,7 @@ const UserProvider = ({ children }: any) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-            console.log('using old pool contract that does not include c, mu, and shares');
+            console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
           // convert base amounts to shares amounts (baseAmount is wad)
