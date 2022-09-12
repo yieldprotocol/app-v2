@@ -19,7 +19,8 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 import useTenderly from '../hooks/useTenderly';
-import { SERIES_1, SERIES_42161 } from '../config/series';
+import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
+import { GiConsoleController } from 'react-icons/gi';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -424,10 +425,11 @@ const ChainProvider = ({ children }: any) => {
         maturity: number;
         baseId: string;
         poolAddress: string;
+        poolType: PoolType;
         fyTokenAddress: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = getPoolContract(series.poolAddress, series.maturity);
+        const poolContract = (series.poolType === PoolType.TV  ? contracts.Pool__factory : contracts.PoolOld__factory).connect(series.poolAddress, fallbackProvider);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
 
         const season = getSeason(series.maturity);
@@ -464,167 +466,76 @@ const ChainProvider = ({ children }: any) => {
       const _getSeries = async () => {
 
         let seriesMap = new Map();
-        chainId === 1 ? seriesMap = SERIES_1 : seriesMap =SERIES_42161;
-
-        // /* get poolAdded events and series events at the same time */
-        // let seriesAddedEvents = [];
-        // let poolAddedEvents = [];
-        // try {
-        //   [seriesAddedEvents, poolAddedEvents] = await Promise.all([
-        //     Cauldron.queryFilter(
-        //       'SeriesAdded' as ethers.EventFilter,
-        //       useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
-        //     ),
-        //     Ladle.queryFilter(
-        //       'PoolAdded' as ethers.EventFilter,
-        //       useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : lastSeriesUpdate
-        //     ),
-        //   ]);
-        // } catch (error) {
-        //   console.log('🦄 ~ file: ChainContext.tsx ~ line 451 ~ const_getSeries= ~ error', error);
-        // }
-
-        // const poolsAdded = poolAddedEvents.map((e: PoolAddedEvent) => e.args);
-        // /* Create a map from the poolAdded event data or hardcoded pool data if available */
-        // const poolMap = new Map(poolsAdded);
-
-        // console.log( poolMap)
-
-        // /* Create a array from the seriesAdded event data or hardcoded series data if available */
-        // const seriesAdded = seriesAddedEvents.map((e: SeriesAddedEvent) => e.args);
-
-        // /* if there are new pools, but no new series replace the pools in existing series - Should only affect Tenderly forks */
-        // if (useTenderlyFork && !seriesAdded.length && poolsAdded.length ) {
-        //   await Promise.all(
-        //     poolsAdded.map(async ( pool_ )=> {
-        //       const {seriesId,pool } = pool_;
-        //       const poolContract = getPoolContract(pool, 12);
-        //       const baseId = `${seriesId.slice(0, 6)}00000000`
-        //       const fyToken =  await poolContract.fyToken();
-        //       seriesAdded.push( {seriesId, baseId, fyToken} as any )           
-        //     })
-        //   );
-        // }
-
-        const newSeriesList: any[] = [];
-
+        chainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);    
+        // const newSeriesList: any[] = [];
 
         await Promise.all(
-          Array.from(seriesMap).map(async (x): Promise<void> => {        
+          Array.from(seriesMap).map(async (x): Promise<void> => {
             const id = x[0];
-            const baseId = `${id.slice(0, 6)}00000000`
+            const baseId = `${id.slice(0, 6)}00000000`;
             const fyTokenAddress = x[1].fyTokenAddress;
             const poolAddress = x[1].poolAddress;
+            const poolType = x[1].poolType;
 
-            console.log( fyTokenAddress, poolAddress)
+            /* Check if already in the cache, if so use it */
+            if (cachedSeries.find((el: ISeriesRoot) => el.id === id)) {
+              console.log(id, ': Already in cache.');
+              const series_ = cachedSeries.find((el: ISeriesRoot) => el.id === id);
+              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(series_) });
+              return series_;
+            }
 
             const { maturity } = await Cauldron.series(id);
- 
-              const poolContract = getPoolContract(poolAddress, maturity);
-              const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
+            const poolContract = (poolType === PoolType.TV  ? contracts.Pool__factory : contracts.PoolOld__factory).connect(poolAddress, fallbackProvider);
+            const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
 
-              const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
-                await Promise.all([
-                  fyTokenContract.name(),
-                  fyTokenContract.symbol(),
-                  fyTokenContract.version(),
-                  fyTokenContract.decimals(),
-                  poolContract.name(),
-                  poolContract.version(),
-                  poolContract.symbol(),
-                  poolContract.ts(),
-                  poolContract.g1(),
-                  poolContract.g2(),
-                ]);
+            const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] = await Promise.all([
+              fyTokenContract.name(),
+              fyTokenContract.symbol(),
+              fyTokenContract.version(),
+              fyTokenContract.decimals(),
+              poolContract.name(),
+              poolContract.version(),
+              poolContract.symbol(),
+              poolContract.ts(),
+              poolContract.g1(),
+              poolContract.g2(),
+            ]);
 
-              const newSeries = {
-                id,
-                baseId,
-                maturity,
-                name,
-                symbol,
-                version,
-                address: fyTokenAddress,
-                fyTokenAddress: fyTokenAddress,
-                decimals,
-                poolAddress,
-                poolVersion,
-                poolName,
-                poolSymbol,
-                ts,
-                g1,
-                g2,
-              };
+            const newSeries = {
+              id,
+              baseId,
+              maturity,
+              name,
+              symbol,
+              version,
+              address: fyTokenAddress,
+              fyTokenAddress: fyTokenAddress,
+              decimals,
+              poolAddress,
+              poolVersion,
+              poolName,
+              poolSymbol,
+              poolType,
+              ts,
+              g1,
+              g2,
+            };
 
-              // console.log('new sereis!', newSeries )
-              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-              newSeriesList.push(newSeries);
+            console.log(newSeries);
+            updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+            // setCachedSeries([...cachedSeries, newSeries]);
+            // newSeriesList.push(newSeries);
           })
         );
 
+          console.log('ROOTMAP',  chainState.seriesRootMap )
 
+        // setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
 
-
-
-        /* Add in any extra static series */
-        // await Promise.all(
-        //   seriesAdded.map(async (x): Promise<void> => {
-
-        //     const { seriesId: id, baseId, fyToken } = x;
-        //     const { maturity } = await Cauldron.series(id);
-
-        //     if (poolMap.has(id)) {
-
-        //       // console.log('HERE doing the things', id, baseId, fyToken ) ;
-
-        //       // only add series if it has a pool
-        //       const poolAddress = poolMap.get(id);
-        //       const poolContract = getPoolContract(poolAddress, maturity);
-              
-        //       const fyTokenContract = contracts.FYToken__factory.connect(fyToken, fallbackProvider);
-        //       const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
-        //         await Promise.all([
-        //           fyTokenContract.name(),
-        //           fyTokenContract.symbol(),
-        //           fyTokenContract.version(),
-        //           fyTokenContract.decimals(),
-        //           poolContract.name(),
-        //           poolContract.version(),
-        //           poolContract.symbol(),
-        //           poolContract.ts(),
-        //           poolContract.g1(),
-        //           poolContract.g2(),
-        //         ]);
-
-        //       const newSeries = {
-        //         id,
-        //         baseId,
-        //         maturity,
-        //         name,
-        //         symbol,
-        //         version,
-        //         address: fyToken,
-        //         fyTokenAddress: fyToken,
-        //         decimals,
-        //         poolAddress,
-        //         poolVersion,
-        //         poolName,
-        //         poolSymbol,
-        //         ts,
-        //         g1,
-        //         g2,
-        //       };
-
-        //       updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-        //       newSeriesList.push(newSeries);
-        //     }
-        //   })
-        // );
-
-        setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
-        // set cached series - if not using tenderly fork
-        setCachedSeries([...cachedSeries, ...newSeriesList]);
-
+        // set cached series
+        console.log('Series fetch successfull');
+        // setCachedSeries(newSeriesList);
         console.log('Yield Protocol Series data updated.');
       };
 
@@ -690,8 +601,8 @@ const ChainProvider = ({ children }: any) => {
           await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
+        // console.log( 'loaded data' )
       } else {
-
         // get assets, series and strategies from cache and 'charge' them, and add to state:
         cachedAssets.forEach((a: IAssetRoot) => {
           updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
@@ -707,11 +618,11 @@ const ChainProvider = ({ children }: any) => {
         });
 
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+        // console.log('Checking for new Assets and Series, and Strategies ...');
 
-        console.log('Checking for new Assets and Series, and Strategies ...');
-        
         // then async check for any updates (they should automatically populate the map):
-        (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+        // (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+        (async () => Promise.all([_getAssets(), _getStrategies()]))();
       }
     }
   }, [fallbackChainId, fallbackProvider, tenderlyStartBlock, useTenderlyFork]);
@@ -776,13 +687,6 @@ const ChainProvider = ({ children }: any) => {
 
     console.log(res);
   };
-
-  /* Assess which pool contract to use: new (with tv) or old (without tv) */
-  const getPoolContract = (poolAddress: string, maturity: number) =>
-    (maturity === 0 ? contracts.Pool__factory : contracts.PoolOld__factory).connect(
-      poolAddress,
-      fallbackProvider
-    );
 
   /* simply Pass on the connection actions */
   const chainActions = { ...connectionActions, exportContractAddresses };
