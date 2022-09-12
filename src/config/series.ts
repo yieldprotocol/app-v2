@@ -8,12 +8,6 @@ export const SERIES_42161 = new Map<string, SeriesInfo >();
 
 SERIES_1.set('234234', { fyTokenAddress: '', poolAddress: '', poolType: PoolType.TV });
 
-
-// SERIES_42161.set('0x303230380000', {
-//   fyTokenAddress: '0xD4aeA765BC2c56f09074254eb5a3f5FF9d709449',
-//   poolAddress: '0x405203b69c56bed9821c361e8378b6d3c2aa2452',
-// });
-
 SERIES_42161.set('0x303130360000', {
   fyTokenAddress: '0xa3eCAF5c5E98C1a500f4596576dAD3328A701C73',
   poolAddress: '0x6651f8E1ff6863Eb366a319F9A94191346D0e323',
@@ -56,8 +50,13 @@ SERIES_42161.set('0x303230360000', {
   poolType: PoolType.NONTV,
 });
 
-SERIES_42161.set('0x303130380000', {
-  fyTokenAddress: '0xe8Ec1A61f6C86e8d33C327FEdad559c20b9A66a2',
-  poolAddress: '0xdbf261d6b46245a45e8c05791ff71d974a64c8fd',
-  poolType: PoolType.NONTV,
-});
+// SERIES_42161.set('0x303130380000', {
+//   fyTokenAddress: '0xe8Ec1A61f6C86e8d33C327FEdad559c20b9A66a2',
+//   poolAddress: '0xdbf261d6b46245a45e8c05791ff71d974a64c8fd',
+//   poolType: PoolType.NONTV,
+// });
+
+// SERIES_42161.set('0x303230380000', {
+//   fyTokenAddress: '0xD4aeA765BC2c56f09074254eb5a3f5FF9d709449',
+//   poolAddress: '0x405203b69c56bed9821c361e8378b6d3c2aa2452',
+// });

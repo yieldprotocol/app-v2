@@ -429,7 +429,9 @@ const ChainProvider = ({ children }: any) => {
         fyTokenAddress: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = (series.poolType === PoolType.TV  ? contracts.Pool__factory : contracts.PoolOld__factory).connect(series.poolAddress, fallbackProvider);
+        const poolContract = (
+          series.poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
+        ).connect(series.poolAddress, fallbackProvider);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
 
         const season = getSeason(series.maturity);
@@ -464,11 +466,10 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-
         let seriesMap = new Map();
-        chainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);    
-        // const newSeriesList: any[] = [];
+        chainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
 
+        const newSeriesList: any[] = [];
         await Promise.all(
           Array.from(seriesMap).map(async (x): Promise<void> => {
             const id = x[0];
@@ -482,60 +483,64 @@ const ChainProvider = ({ children }: any) => {
               console.log(id, ': Already in cache.');
               const series_ = cachedSeries.find((el: ISeriesRoot) => el.id === id);
               updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(series_) });
-              return series_;
+              return Promise.resolve();
+              // return series_;
+            } else {
+
+              console.log( 'NETWORK CALL for:  ', id );
+              const { maturity } = await Cauldron.series(id);
+              const poolContract = (
+                poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
+              ).connect(poolAddress, fallbackProvider);
+              const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
+
+              const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
+                await Promise.all([
+                  fyTokenContract.name(),
+                  fyTokenContract.symbol(),
+                  fyTokenContract.version(),
+                  fyTokenContract.decimals(),
+                  poolContract.name(),
+                  poolContract.version(),
+                  poolContract.symbol(),
+                  poolContract.ts(),
+                  poolContract.g1(),
+                  poolContract.g2(),
+                ]);
+
+              const newSeries = {
+                id,
+                baseId,
+                maturity,
+                name,
+                symbol,
+                version,
+                address: fyTokenAddress,
+                fyTokenAddress: fyTokenAddress,
+                decimals,
+                poolAddress,
+                poolVersion,
+                poolName,
+                poolSymbol,
+                poolType,
+                ts,
+                g1,
+                g2,
+              };
+
+              console.log(newSeries);
+              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+              // setCachedSeries([...cachedSeries, newSeries]);
+              newSeriesList.push(newSeries);
             }
-
-            const { maturity } = await Cauldron.series(id);
-            const poolContract = (poolType === PoolType.TV  ? contracts.Pool__factory : contracts.PoolOld__factory).connect(poolAddress, fallbackProvider);
-            const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
-
-            const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] = await Promise.all([
-              fyTokenContract.name(),
-              fyTokenContract.symbol(),
-              fyTokenContract.version(),
-              fyTokenContract.decimals(),
-              poolContract.name(),
-              poolContract.version(),
-              poolContract.symbol(),
-              poolContract.ts(),
-              poolContract.g1(),
-              poolContract.g2(),
-            ]);
-
-            const newSeries = {
-              id,
-              baseId,
-              maturity,
-              name,
-              symbol,
-              version,
-              address: fyTokenAddress,
-              fyTokenAddress: fyTokenAddress,
-              decimals,
-              poolAddress,
-              poolVersion,
-              poolName,
-              poolSymbol,
-              poolType,
-              ts,
-              g1,
-              g2,
-            };
-
-            console.log(newSeries);
-            updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-            // setCachedSeries([...cachedSeries, newSeries]);
-            // newSeriesList.push(newSeries);
           })
         );
-
-          console.log('ROOTMAP',  chainState.seriesRootMap )
 
         // setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
 
         // set cached series
-        console.log('Series fetch successfull');
-        // setCachedSeries(newSeriesList);
+        console.log('All Series fetch successfull.');
+        setCachedSeries(newSeriesList);
         console.log('Yield Protocol Series data updated.');
       };
 
@@ -598,7 +603,9 @@ const ChainProvider = ({ children }: any) => {
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
-          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
+          // await Promise.all([_getAssets(), _getStrategies()]);
+          // await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
+          await Promise.all([_getAssets(), _getSeries()]);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
         // console.log( 'loaded data' )
