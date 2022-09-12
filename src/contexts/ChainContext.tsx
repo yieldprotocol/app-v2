@@ -316,14 +316,15 @@ const ChainProvider = ({ children }: any) => {
         let newAssetList = [];
 
         // If the cache is empty then, get series data:
-        assetMap.size && cachedAssets.length === 0 &&
+        assetMap.size > 0 &&
+          cachedAssets.length === 0 &&
           (await Promise.all(
-            Array.from(assetMap).map(async (x:[string, AssetInfo]): Promise<void> => {
+            Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
               const id = x[0];
               const assetInfo = x[1];
 
               let { name, symbol, decimals, version } = assetInfo;
-              
+
               /* On first load checks & corrects the ERC20 name/symbol/decimals (if possible ) */
               if (
                 assetInfo.tokenType === TokenType.ERC20_ ||
@@ -387,10 +388,10 @@ const ChainProvider = ({ children }: any) => {
               updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
               newAssetList.push(newAsset);
             })
-          ) .catch(() => console.log('Problems getting Asset data. Check addresses in asset config.')));
+          ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.')));
 
-          console.log( newAssetList)
-        newAssetList.length && setCachedSeries(newAssetList);
+        console.log(newAssetList);
+        newAssetList.length && setCachedAssets(newAssetList);
         newAssetList.length && console.log('Yield Protocol Asset data updated successfully.');
       };
 
@@ -446,6 +447,7 @@ const ChainProvider = ({ children }: any) => {
         let newSeriesList = [];
 
         // If the cache is empty then, get series data:
+        seriesMap.size > 0 &&
         cachedSeries.length === 0 &&
           (await Promise.all(
             Array.from(seriesMap).map(async (x): Promise<void> => {
@@ -569,26 +571,26 @@ const ChainProvider = ({ children }: any) => {
       //   })();
       //   // console.log( 'loaded data' )
       // } else {
-        // get assets, series and strategies from cache and 'charge' them, and add to state:
-        cachedAssets.forEach((a: IAssetRoot) => {
-          updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
-        });
+      // get assets, series and strategies from cache and 'charge' them, and add to state:
+      cachedAssets.forEach((a: IAssetRoot) => {
+        updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
+      });
 
-        cachedSeries.forEach(async (s: ISeriesRoot) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
-        });
+      cachedSeries.forEach(async (s: ISeriesRoot) => {
+        updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
+      });
 
-        cachedStrategies.forEach((st: IStrategyRoot) => {
-          strategyAddresses.includes(st.address) &&
-            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
-        });
+      cachedStrategies.forEach((st: IStrategyRoot) => {
+        strategyAddresses.includes(st.address) &&
+          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
+      });
 
-        updateState({ type: ChainState.CHAIN_LOADING, payload: false });
-        // console.log('Checking for new Assets and Series, and Strategies ...');
+      updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+      // console.log('Checking for new Assets and Series, and Strategies ...');
 
-        // then async check for any updates (they should automatically populate the map):
-        (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
-      }
+      // then async check for any updates (they should automatically populate the map):
+      (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+    }
     // }
   }, [fallbackChainId, fallbackProvider, tenderlyStartBlock, useTenderlyFork]);
 
