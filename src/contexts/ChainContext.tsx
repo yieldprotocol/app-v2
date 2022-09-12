@@ -523,9 +523,10 @@ const ChainProvider = ({ children }: any) => {
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
             newSeriesList.push(newSeries);
           })
-        );
+        ).catch( () => console.log( 'Problems getting Series data. Check addresses in series config.'));
+        
         newSeriesList.length && setCachedSeries(newSeriesList);
-        console.log('Yield Protocol Series data updated successfully.');
+        newSeriesList.length && console.log('Yield Protocol Series data updated successfully.');
       };
 
       /* Attach contract instance */
