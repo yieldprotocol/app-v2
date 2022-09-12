@@ -356,7 +356,7 @@ const UserProvider = ({ children }: any) => {
           const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
           // some logic to decide if the series is shown or not
-          const showSeries = series.maturity !== 1672412400;
+          const showSeries = chainId === 1 ? true : series.maturity !== 1672412400;
 
           return {
             ...series,
