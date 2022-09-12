@@ -468,9 +468,12 @@ const ChainProvider = ({ children }: any) => {
       const _getSeries = async () => {
         let seriesMap = new Map();
         chainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
+        
+        // if ( cachedSeries.length ) {console.log( 'something in sereis cache!! ')}
+        let newSeriesList = [];
 
-        const newSeriesList: any[] = [];
-        await Promise.all(
+        // if the cache is empty then, get series data: 
+        cachedSeries.length === 0 && await Promise.all(
           Array.from(seriesMap).map(async (x): Promise<void> => {
             const id = x[0];
             const baseId = `${id.slice(0, 6)}00000000`;
@@ -478,70 +481,51 @@ const ChainProvider = ({ children }: any) => {
             const poolAddress = x[1].poolAddress;
             const poolType = x[1].poolType;
 
-            /* Check if already in the cache, if so use it */
-            if (cachedSeries.find((el: ISeriesRoot) => el.id === id)) {
-              console.log(id, ': Already in cache.');
-              const series_ = cachedSeries.find((el: ISeriesRoot) => el.id === id);
-              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(series_) });
-              return Promise.resolve();
-              // return series_;
-            } else {
+            const { maturity } = await Cauldron.series(id);
+            const poolContract = (
+              poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
+            ).connect(poolAddress, fallbackProvider);
+            const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
 
-              console.log( 'NETWORK CALL for:  ', id );
-              const { maturity } = await Cauldron.series(id);
-              const poolContract = (
-                poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
-              ).connect(poolAddress, fallbackProvider);
-              const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
+            const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] = await Promise.all([
+              fyTokenContract.name(),
+              fyTokenContract.symbol(),
+              fyTokenContract.version(),
+              fyTokenContract.decimals(),
+              poolContract.name(),
+              poolContract.version(),
+              poolContract.symbol(),
+              poolContract.ts(),
+              poolContract.g1(),
+              poolContract.g2(),
+            ]);
 
-              const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] =
-                await Promise.all([
-                  fyTokenContract.name(),
-                  fyTokenContract.symbol(),
-                  fyTokenContract.version(),
-                  fyTokenContract.decimals(),
-                  poolContract.name(),
-                  poolContract.version(),
-                  poolContract.symbol(),
-                  poolContract.ts(),
-                  poolContract.g1(),
-                  poolContract.g2(),
-                ]);
-
-              const newSeries = {
-                id,
-                baseId,
-                maturity,
-                name,
-                symbol,
-                version,
-                address: fyTokenAddress,
-                fyTokenAddress: fyTokenAddress,
-                decimals,
-                poolAddress,
-                poolVersion,
-                poolName,
-                poolSymbol,
-                poolType,
-                ts,
-                g1,
-                g2,
-              };
-
-              console.log(newSeries);
-              updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-              // setCachedSeries([...cachedSeries, newSeries]);
-              newSeriesList.push(newSeries);
-            }
+            const newSeries = {
+              id,
+              baseId,
+              maturity,
+              name,
+              symbol,
+              version,
+              address: fyTokenAddress,
+              fyTokenAddress: fyTokenAddress,
+              decimals,
+              poolAddress,
+              poolVersion,
+              poolName,
+              poolSymbol,
+              poolType,
+              ts,
+              g1,
+              g2,
+            };
+            // console.log(newSeries);
+            updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+            newSeriesList.push(newSeries);
           })
         );
-
-        // setLastSeriesUpdate(await fallbackProvider?.getBlockNumber());
-
-        // set cached series
-        console.log('All Series fetch successfull.');
-        setCachedSeries(newSeriesList);
-        console.log('Yield Protocol Series data updated.');
+        newSeriesList.length && setCachedSeries(newSeriesList);
+        console.log('Yield Protocol Series data updated successfully.');
       };
 
       /* Attach contract instance */
@@ -600,12 +584,11 @@ const ChainProvider = ({ children }: any) => {
       /**
        * LOAD the Series and Assets *
        * */
-      if (cachedAssets.length === 0 || cachedSeries.length === 0) {
+      if (cachedAssets.length === 0 ) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
-          // await Promise.all([_getAssets(), _getStrategies()]);
           // await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
-          await Promise.all([_getAssets(), _getSeries()]);
+          await Promise.all([_getAssets()]);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
         // console.log( 'loaded data' )
@@ -628,8 +611,7 @@ const ChainProvider = ({ children }: any) => {
         // console.log('Checking for new Assets and Series, and Strategies ...');
 
         // then async check for any updates (they should automatically populate the map):
-        // (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
-        (async () => Promise.all([_getAssets(), _getStrategies()]))();
+        (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
     }
   }, [fallbackChainId, fallbackProvider, tenderlyStartBlock, useTenderlyFork]);
