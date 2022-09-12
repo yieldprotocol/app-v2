@@ -390,7 +390,6 @@ const ChainProvider = ({ children }: any) => {
             })
           ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.')));
 
-        console.log(newAssetList);
         newAssetList.length && setCachedAssets(newAssetList);
         newAssetList.length && console.log('Yield Protocol Asset data updated successfully.');
       };
