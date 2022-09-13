@@ -1,6 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { calcPoolRatios, calculateSlippage, fyTokenForMint, MAX_256, splitLiquidity, ZERO_BN } from '@yield-protocol/ui-math';
+import {
+  calcPoolRatios,
+  calculateSlippage,
+  fyTokenForMint,
+  MAX_256,
+  splitLiquidity,
+  ZERO_BN,
+} from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
@@ -79,9 +86,9 @@ export const useAddLiquidity = () => {
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
     // const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance) ;
-    const [minRatio, maxRatio_] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance); 
+    const [minRatio, maxRatio_] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance);
     const maxRatio = cachedFyTokenReserves.eq(totalSupply) ? MAX_256 : maxRatio_;
-    cachedFyTokenReserves.eq(totalSupply) && console.log( 'EDGE-CASE WARNING: CachedRealReserves are 0.' )
+    cachedFyTokenReserves.eq(totalSupply) && console.log('EDGE-CASE WARNING: CachedRealReserves are 0.');
 
     /* if approveMax, check if signature is still required */
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
