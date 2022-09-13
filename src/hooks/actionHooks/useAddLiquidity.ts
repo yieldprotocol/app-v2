@@ -85,7 +85,6 @@ export const useAddLiquidity = () => {
 
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
-    // const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance) ;
     const [minRatio, maxRatio_] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance);
     const maxRatio = cachedFyTokenReserves.eq(totalSupply) ? MAX_256 : maxRatio_;
     cachedFyTokenReserves.eq(totalSupply) && console.log('EDGE-CASE WARNING: CachedRealReserves are 0.');
