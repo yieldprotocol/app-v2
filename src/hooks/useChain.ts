@@ -172,8 +172,6 @@ export const useChain = () => {
             approvalMethod
           );
 
-          console.log(v < 27 ? v+27: v )
-
           const args = [
             reqSig.target.address,
             _spender,
