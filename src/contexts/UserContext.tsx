@@ -573,9 +573,10 @@ const UserProvider = ({ children }: any) => {
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
+
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
-      console.log('inhere usercontext strategies');
+
       _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
@@ -717,10 +718,11 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
   }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
 
-  /* Trigger update of all vaults with tenderly start block when we are using tenderly */
+  /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
   useEffect(() => {
     if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
       updateVaults([]);
+      updateStrategies(Array.from(strategyRootMap.values()));
     }
   }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
 
