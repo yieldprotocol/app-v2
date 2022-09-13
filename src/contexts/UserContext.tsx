@@ -690,8 +690,13 @@ const UserProvider = ({ children }: any) => {
   /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
   useEffect(() => {
     if (!chainLoading) {
-      seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
-      assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
+      if (seriesRootMap.size) {
+        updateSeries(Array.from(seriesRootMap.values()));
+      }
+
+      if (assetRootMap.size) {
+        updateAssets(Array.from(assetRootMap.values()));
+      }
     }
   }, [account, chainLoading, assetRootMap, seriesRootMap, updateSeries, updateAssets]);
 
