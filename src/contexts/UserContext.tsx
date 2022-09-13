@@ -699,8 +699,10 @@ const UserProvider = ({ children }: any) => {
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {
-    !userState.seriesLoading && strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
-  }, [strategyRootMap, updateStrategies, userState.seriesLoading]);
+    if (!userState.seriesLoading && !chainLoading && strategyRootMap.size) {
+      updateStrategies(Array.from(strategyRootMap.values()));
+    }
+  }, [strategyRootMap, updateStrategies, userState.seriesLoading, chainLoading]);
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
