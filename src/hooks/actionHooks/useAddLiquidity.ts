@@ -79,7 +79,8 @@ export const useAddLiquidity = () => {
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
     // const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance) ;
-    const [minRatio, maxRatio] = [calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance)[0], MAX_256]; 
+    const [minRatio, maxRatio_] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance); 
+    const maxRatio = cachedFyTokenReserves.lte(totalSupply) ? maxRatio_ : MAX_256;
 
     /* if approveMax, check if signature is still required */
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
