@@ -316,7 +316,7 @@ const ChainProvider = ({ children }: any) => {
 
         let newAssetList = [];
 
-        // If the cache is empty then, get series data:
+        // If the cache is empty then, get asset data:
         assetMap.size > 0 &&
           cachedAssets.length === 0 &&
           (await Promise.all(
@@ -566,7 +566,7 @@ const ChainProvider = ({ children }: any) => {
       (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
     }
     // }
-  }, []);
+  }, [fallbackChainId]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
