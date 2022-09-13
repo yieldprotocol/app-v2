@@ -7,20 +7,17 @@ import { useConnection } from '../hooks/useConnection';
 
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
-import { IAssetInfo, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { AssetInfo, ASSETS_1, ASSETS_42161, ASSET_INFO, ETH_BASED_ASSETS, UNKNOWN } from '../config/assets';
+import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { AssetInfo, ASSETS_1, ASSETS_42161, ASSET_INFO, ETH_BASED_ASSETS } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
-import { AssetAddedEvent, SeriesAddedEvent } from '../contracts/Cauldron';
-import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 import useTenderly from '../hooks/useTenderly';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
-import { GiConsoleController } from 'react-icons/gi';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -312,8 +309,6 @@ const ChainProvider = ({ children }: any) => {
         let assetMap = new Map();
         fallbackChainId === 1 ? (assetMap = ASSETS_1) : (assetMap = ASSETS_42161);
 
-        console.log('inhere assets');
-
         let newAssetList = [];
 
         // If the cache is empty then, get asset data:
@@ -385,7 +380,6 @@ const ChainProvider = ({ children }: any) => {
                 showToken: assetInfo.showToken || false,
               };
 
-              // console.log(newSeries);
               updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
               newAssetList.push(newAsset);
             })
@@ -441,7 +435,6 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-        console.log('inhere series');
         let seriesMap = new Map();
         fallbackChainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
 
@@ -514,7 +507,6 @@ const ChainProvider = ({ children }: any) => {
 
       /* Iterate through the strategies list and update accordingly */
       const _getStrategies = async () => {
-        console.log('inhere strategies');
         const newStrategyList: any[] = [];
         try {
           await Promise.all(

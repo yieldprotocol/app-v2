@@ -227,7 +227,6 @@ const UserProvider = ({ children }: any) => {
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
     async (assetList: IAssetRoot[]) => {
-      console.log('inhere usercontext assets');
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
       let _publicData: IAssetRoot[] = [];
       let _accountData: IAsset[] = [];
@@ -283,7 +282,6 @@ const UserProvider = ({ children }: any) => {
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
     async (seriesList: ISeriesRoot[]): Promise<Map<string, ISeries>> => {
-      console.log('inhere usercontext series');
       updateState({ type: UserState.SERIES_LOADING, payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];
