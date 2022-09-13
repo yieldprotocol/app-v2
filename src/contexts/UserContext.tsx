@@ -36,7 +36,7 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
-import { ETH_BASED_ASSETS } from '../config/assets';
+import { ETH_BASED_ASSETS, FRAX } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
@@ -356,7 +356,7 @@ const UserProvider = ({ children }: any) => {
           const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
           // some logic to decide if the series is shown or not
-          const showSeries = chainId === 1 ? true : series.maturity !== 1672412400;
+          const showSeries = chainId === 1 && series.baseId !== FRAX ? true : series.maturity !== 1672412400;
 
           return {
             ...series,
