@@ -7,7 +7,7 @@ import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } fro
 
 import { NetworkConnector } from '@web3-react/network-connector';
 import { ethers } from 'ethers';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCachedState } from './generalHooks';
 import { CHAIN_INFO, SUPPORTED_RPC_URLS } from '../config/chainData';
 import { CONNECTORS, CONNECTOR_INFO, INIT_INJECTED } from '../config/connectors';
@@ -27,7 +27,7 @@ export const useConnection = () => {
 
   /* test env */
   const [useTenderlyFork, setUseTenderlyFork] = useCachedState('useTenderlyFork', false);
-  const [useLocalhost, setUseLocalHost] = useCachedState('useLocalhost', false);
+  const [networkFork, setNetworkFork] = useCachedState('Network fork', undefined);
 
   /* CACHED VARIABLES */
   const [lastChainId, setLastChainId] = useCachedState('lastChainId', null);
@@ -105,7 +105,7 @@ export const useConnection = () => {
       and change the FALLBACK provider accordingly.
       NOTE: Currently, there is no way to change the fallback provider manually, but the last chainId is cached.
   */
-  useEffect(() => {
+  useMemo(() => {
     /* Case: Auto Connection FAILURE > Set the fallback connector to the lastChainId */
     if (tried && !chainId) {
       console.log('Connecting fallback Provider to the default network');
@@ -163,21 +163,21 @@ export const useConnection = () => {
         const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
         return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
       }
-
-      if (useLocalhost && process.env.ENV === 'development') {
-        const localhostProvider = new ethers.providers.JsonRpcProvider(process.env.LOCALHOST_RPC_URL);
-        return { provider: localhostProvider, fallbackProvider: localhostProvider };
-      }
       return { provider, fallbackProvider };
     };
 
     setProviderToUse(getProviders().provider);
     setFallbackProviderToUse(getProviders().fallbackProvider);
 
-  }, [chainId, fallbackProvider, provider, useTenderlyFork, useLocalhost]);
+  }, [chainId, fallbackProvider, provider, useTenderlyFork]);
 
   const useTenderly = (shouldUse: boolean) => {
     setUseTenderlyFork(shouldUse);
+  };
+
+  const useFork = (type: 'LOCALHOST' | 'TENDERLY' ) => {
+    type === 'TENDERLY' && setNetworkFork(type);
+    type === 'LOCALHOST' && setNetworkFork(type);
   };
 
   return {
@@ -205,12 +205,15 @@ export const useConnection = () => {
       activatingConnector,
 
       useTenderlyFork,
+      networkFork,
     },
 
     connectionActions: {
       connect,
       disconnect,
       isConnected,
+
+      useFork,
       useTenderly,
     },
   };

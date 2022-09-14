@@ -1,6 +1,6 @@
-import React, { useEffect, useReducer } from 'react';
-import { useConnection } from '../hooks/useConnection';
+import React, { useContext, useEffect, useReducer } from 'react';
 import { ApprovalType, ISettingsContextState } from '../types';
+import { ChainContext } from './ChainContext';
 
 export enum Settings {
   APPROVAL_METHOD = 'approvalMethod',
@@ -88,7 +88,8 @@ const SettingsProvider = ({ children }: any) => {
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
   /* STATE FROM CONTEXT */
-  const { connectionState: connection } = useConnection();
+  const { chainState } = useContext(ChainContext);
+  const { connection } = chainState;
 
   /* watch & handle linked approval and effect appropriate settings */
   useEffect(() => {

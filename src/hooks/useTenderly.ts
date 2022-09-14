@@ -1,24 +1,24 @@
 import { ethers } from 'ethers';
-import { useCallback, useEffect, useState } from 'react';
-import { useConnection } from './useConnection';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { ChainContext}  from '../contexts/ChainContext';
 
 const useTenderly = () => {
-  const {
-    connectionState: { useTenderlyFork, account },
-  } = useConnection();
+
+  const { chainState } = useContext(ChainContext);
+  const { connection  } = chainState;
 
   const [startBlock, setStartBlock] = useState<number>();
 
   const fillEther = useCallback(async () => {
-    console.log(account);
+    console.log( connection.account);
     try {
       const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
-      const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
+      const transactionParameters = [[connection.account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
       await tenderlyProvider?.send('tenderly_addBalance', transactionParameters);
     } catch (e) {
       console.log('could not fill eth on tenderly fork');
     }
-  }, [account]);
+  }, [connection.account]);
 
   useEffect(() => {
     const getStartBlock = async () => {
@@ -31,8 +31,9 @@ const useTenderly = () => {
       }
     };
 
-    if (useTenderlyFork) getStartBlock();
-  }, [useTenderlyFork]);
+    if (connection.useTenderlyFork) getStartBlock();
+    
+  }, [connection.useTenderlyFork]);
 
   return { tenderlyStartBlock: startBlock, fillEther };
 };

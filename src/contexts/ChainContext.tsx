@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { format } from 'date-fns';
 
@@ -16,7 +16,7 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
-import useTenderly from '../hooks/useTenderly';
+
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
 
 enum ChainState {
@@ -102,7 +102,7 @@ function chainReducer(state: IChainContextState, action: any) {
 }
 
 const ChainProvider = ({ children }: any) => {
-  const { tenderlyStartBlock } = useTenderly();
+  
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
   /* CACHED VARIABLES */
@@ -122,13 +122,16 @@ const ChainProvider = ({ children }: any) => {
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
-  useEffect(() => {
+  useMemo(() => {
+
     if (fallbackProvider && fallbackChainId) {
+      
       console.log('Fallback ChainId: ', fallbackChainId);
+      console.log('Fallback Provider: ', fallbackProvider);
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
-      const seasonColorMap = [1, 4, 5, 42].includes(fallbackChainId as number) ? ethereumColorMap : arbitrumColorMap;
+      const seasonColorMap = [1, 4].includes(fallbackChainId as number) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: contracts.Cauldron;
       let Ladle: contracts.Ladle;
@@ -552,13 +555,18 @@ const ChainProvider = ({ children }: any) => {
       });
 
       updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+
       // console.log('Checking for new Assets and Series, and Strategies ...');
 
       // then async check for any updates (they should automatically populate the map):
-      (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
-    }
-    // }
-  }, [fallbackChainId]);
+      // (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+
+      (async () => { _getAssets(), _getSeries(), _getStrategies()})();
+
+    } else { console.log( 'Checking fallback chain Id' )}
+
+
+  }, [fallbackProvider?.connection.url, fallbackChainId]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
@@ -578,12 +586,15 @@ const ChainProvider = ({ children }: any) => {
   /**
    * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
    */
-  useEffect(() => {
+  useMemo(() => {
+    console.log( 'connection updated')
     updateState({
       type: ChainState.CONNECTION,
       payload: connectionState,
     });
-  }, [
+  }, [ 
+    connectionState.fallbackProvider?.connection.url,
+    connectionState.provider,
     connectionState.fallbackChainId,
     connectionState.chainId,
     connectionState.account,
