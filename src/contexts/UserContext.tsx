@@ -197,7 +197,7 @@ const UserProvider = ({ children }: any) => {
       const receivedEventsList = await Promise.all(
         vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
           const { vaultId: id } = x.args;
-          const { ilkId, seriesId } = await Cauldron.vaults(bytesToBytes32(id, 12));
+          const { ilkId, seriesId } = await Cauldron.vaults(id);
           const series = seriesRootMap.get(seriesId);
           return {
             id,
