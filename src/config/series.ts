@@ -173,7 +173,6 @@ SERIES_42161.set('0x303230360000', {
   poolType: PoolType.NONTV,
 });
 
-
 SERIES_42161.set('0x303130380000', {
   fyTokenAddress: '0xe8Ec1A61f6C86e8d33C327FEdad559c20b9A66a2',
   poolAddress: '0xcf9067aa60bc6ec5acf4f9be70203efa4f6f71e3',

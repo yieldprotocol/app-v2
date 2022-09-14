@@ -573,6 +573,7 @@ const UserProvider = ({ children }: any) => {
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
+
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
 
@@ -690,15 +691,22 @@ const UserProvider = ({ children }: any) => {
   /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
   useEffect(() => {
     if (!chainLoading) {
-      seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
-      assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
+      if (seriesRootMap.size) {
+        updateSeries(Array.from(seriesRootMap.values()));
+      }
+
+      if (assetRootMap.size) {
+        updateAssets(Array.from(assetRootMap.values()));
+      }
     }
   }, [account, chainLoading, assetRootMap, seriesRootMap, updateSeries, updateAssets]);
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {
-    !userState.seriesLoading && strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
-  }, [strategyRootMap, updateStrategies, userState.seriesLoading]);
+    if (!userState.seriesLoading && !chainLoading && strategyRootMap.size) {
+      updateStrategies(Array.from(strategyRootMap.values()));
+    }
+  }, [strategyRootMap, updateStrategies, userState.seriesLoading, chainLoading]);
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
@@ -710,10 +718,11 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
   }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
 
-  /* Trigger update of all vaults with tenderly start block when we are using tenderly */
+  /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
   useEffect(() => {
     if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
       updateVaults([]);
+      updateStrategies(Array.from(strategyRootMap.values()));
     }
   }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
 
