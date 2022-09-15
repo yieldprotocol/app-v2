@@ -106,6 +106,7 @@ const HistoryProvider = ({ children }: any) => {
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const { tenderlyStartBlock } = useTenderly();
+  
   const lastSeriesUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
   const lastVaultUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
 

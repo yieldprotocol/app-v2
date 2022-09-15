@@ -1,11 +1,10 @@
 import { Box, Text } from 'grommet';
+import { useContext } from 'react';
 import Switch from 'react-switch';
 import useTenderly from '../../hooks/useTenderly';
 import GeneralButton from '../buttons/GeneralButton';
 
 const TenderlyForkSetting = () => {
-
-
   const useTenderlyFork = false;
   const { fillEther } = useTenderly();
 

@@ -10,7 +10,7 @@ const useTenderly = () => {
   const [startBlock, setStartBlock] = useState<number>();
 
   const fillEther = useCallback(async () => {
-    console.log(account);
+    console.log( account);
     try {
       const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
       const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
@@ -32,6 +32,7 @@ const useTenderly = () => {
     };
 
     if (useTenderlyFork) getStartBlock();
+    
   }, [useTenderlyFork]);
 
   return { tenderlyStartBlock: startBlock, fillEther };

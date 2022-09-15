@@ -122,7 +122,7 @@ export const useChain = () => {
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
-    
+
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
       const _ladleAddr = contractMap.get('Ladle').address;
@@ -185,6 +185,7 @@ export const useChain = () => {
             expiry,
             allowed, // TODO check use amount if provided, else defaults to MAX.
             v < 27 ? v + 27 : v, // handle ledger signing ( 00 is 27 or  01 is 28 )
+
             r,
             s,
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
@@ -229,7 +230,6 @@ export const useChain = () => {
               true
             ),
           txCode,
-
           reqSig.target.tokenType === TokenType.ERC20_DaiPermit ||
             reqSig.target.tokenType === TokenType.ERC20_Permit ||
             !reqSig.target.tokenType // handle fyTokens (don't have an explicit tokenType in the asset config)
