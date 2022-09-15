@@ -110,15 +110,18 @@ const ChainProvider = ({ children }: any) => {
   /**
    * Update on connection/state on network changes chain
    */
+ 
+  useMemo(() => {
 
-  useEffect(() => {
+    console.log(provider)
+    const chainId = chain ? chain.id : 1;
 
-    if (chain && chain.id) {
-      console.log('Connected to chain Id: ', chain.id);
+    if (provider) {
+      console.log('Connected to chain Id: ', chainId);
 
       /* Get the instances of the Base contracts */
-      const addrs = (yieldEnv.addresses as any)[chain.id];
-      const seasonColorMap = [1, 4, 5, 42].includes(chain.id) ? ethereumColorMap : arbitrumColorMap;
+      const addrs = (yieldEnv.addresses as any)[chainId];
+      const seasonColorMap = chainId === 1 ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: contracts.Cauldron;
       let Ladle: contracts.Ladle;
@@ -150,7 +153,7 @@ const ChainProvider = ({ children }: any) => {
         // module access
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
 
-        if ([1, 4, 5, 42].includes(chain.id)) {
+        if ([1, 4, 5, 42].includes(chainId)) {
           // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, provider);
@@ -174,7 +177,7 @@ const ChainProvider = ({ children }: any) => {
         }
 
         // arbitrum
-        if ([42161, 421611].includes(chain.id)) {
+        if ([42161, 421611].includes(chainId)) {
           // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
 
@@ -213,7 +216,7 @@ const ChainProvider = ({ children }: any) => {
       updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
-      const strategyAddresses = yieldEnv.strategies[chain.id] as string[];
+      const strategyAddresses = yieldEnv.strategies[chainId] as string[];
 
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
@@ -271,7 +274,7 @@ const ChainProvider = ({ children }: any) => {
 
       const _getAssets = async () => {
         let assetMap = new Map();
-        chain.id === 1 ? (assetMap = ASSETS_1) : (assetMap = ASSETS_42161);
+        chainId === 1 ? (assetMap = ASSETS_1) : (assetMap = ASSETS_42161);
 
         let newAssetList = [];
 
@@ -319,9 +322,9 @@ const ChainProvider = ({ children }: any) => {
               }
 
             /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chain.id);
+            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
             /* check if a wrapping handler is provided, if so, wrapping is required */
-            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chain.id);
+            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
 
               const newAsset = {
                 ...assetInfo,
@@ -400,7 +403,7 @@ const ChainProvider = ({ children }: any) => {
 
       const _getSeries = async () => {
         let seriesMap = new Map();
-        chain.id === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
+        chainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
 
         let newSeriesList = [];
 
@@ -517,16 +520,14 @@ const ChainProvider = ({ children }: any) => {
 
       updateState({ type: ChainState.CHAIN_LOADING, payload: false });
 
-      // console.log('Checking for new Assets and Series, and Strategies ...');
+      console.log('Checking for new Assets and Series, and Strategies ...');
 
       // then async check for any updates (they should automatically populate the map):
-      // (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+      (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
 
-      (async () => { _getAssets(), _getSeries(), _getStrategies()})();
+  }
 
-    }
-
-  }, [chain]);
+  }, [provider, chain?.id]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version

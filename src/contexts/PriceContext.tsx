@@ -1,12 +1,8 @@
 import React, { useCallback, useContext, useReducer } from 'react';
 import { BigNumber, ethers } from 'ethers';
-
 import { bytesToBytes32, decimal18ToDecimalN } from '@yield-protocol/ui-math';
-
 import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
-
 import { ChainContext } from './ChainContext';
-
 
 import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
@@ -57,7 +53,7 @@ const PriceProvider = ({ children }: any) => {
     assetRootMap,
   } = chainState;
 
-  const {chain} = useNetwork();
+  const { chain } = useNetwork();
 
   const {
     settingsState: { diagnostics },
@@ -71,7 +67,7 @@ const PriceProvider = ({ children }: any) => {
       diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading);
       const pairId = `${baseId}${ilkId}`;
       const Cauldron = contractMap.get('Cauldron');
-      const oracleName = ORACLE_INFO.get(chain.id! || 1)
+      const oracleName = ORACLE_INFO.get(chain?.id! || 1)
         ?.get(baseId)
         ?.get(ilkId);
       const PriceOracle = contractMap.get(oracleName!);
