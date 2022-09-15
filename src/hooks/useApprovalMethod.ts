@@ -14,7 +14,7 @@ export const useApprovalMethod = (): ApprovalType => {
   const [approvalMethodToUse, setApprovalMethodToUse] = useState<ApprovalType>(ApprovalType.SIG);
 
   useEffect(() => {
-    if (activeConnector && activeConnector.name !== 'metaMask' || approvalMethod === ApprovalType.TX ) {
+    if (activeConnector && activeConnector.name !== 'MetaMask' || approvalMethod === ApprovalType.TX ) {
       setApprovalMethodToUse(ApprovalType.TX);
     } else {
       setApprovalMethodToUse(ApprovalType.SIG);
