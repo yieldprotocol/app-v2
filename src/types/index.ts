@@ -145,6 +145,9 @@ export interface ISettingsContextState {
   dashHideLendPositions: boolean;
   dashHidePoolPositions: boolean;
   dashCurrency: string;
+
+  useFork: boolean;
+  forkUrl: string;
 }
 
 export interface ISignable {
