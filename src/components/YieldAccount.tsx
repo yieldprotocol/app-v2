@@ -13,6 +13,7 @@ import { WETH } from '../config/assets';
 import SettingsBalances from './SettingsBalances';
 import { useEns } from '../hooks/useEns';
 import GeneralButton from './buttons/GeneralButton';
+import { useAccount, useConnect, useEnsAddress, useEnsName } from 'wagmi';
 
 const StyledText = styled(Text)`
   svg,
@@ -34,17 +35,14 @@ const StyledBox = styled(Box)`
 
 const YieldAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
+
+  const { address, connector: activeConnector, isConnected } = useAccount();
+  const { data: ensName, isError, isLoading } = useEnsName({ address });
 
   const {
     userState: { assetMap, assetsLoading },
   } = useContext(UserContext);
 
-  const { ensName } = useEns();
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
 
@@ -59,7 +57,7 @@ const YieldAccount = (props: any) => {
         setConnectOpen={setConnectOpen}
       />
 
-      {account ? (
+      {isConnected ? (
         <Box direction="row" gap="xsmall" align="center">
           {!mobile && <SettingsBalances />}
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
@@ -71,7 +69,7 @@ const YieldAccount = (props: any) => {
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
-                    {ensName || abbreviateHash(account, 5)}
+                    {ensName || abbreviateHash(address, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
@@ -91,7 +89,7 @@ const YieldAccount = (props: any) => {
                   </Box>
                 </Box>
                 <Box>
-                  <YieldAvatar address={account} size={2} />
+                  <YieldAvatar address={address} size={2} />
                 </Box>
               </Box>
             )}

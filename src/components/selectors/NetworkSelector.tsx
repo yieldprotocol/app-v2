@@ -7,21 +7,19 @@ import { useNetworkSelect } from '../../hooks/useNetworkSelect';
 import { IChainContext } from '../../types';
 import ArbitrumLogo from '../logos/Arbitrum';
 import EthMark from '../logos/EthMark';
+import { useAccount, useNetwork } from 'wagmi';
 
 const NetworkSelector = () => {
-  const {
-    chainState: {
-      connection: { account, fallbackChainId },
-    },
-  } = useContext(ChainContext) as IChainContext;
+
+ const {isConnected} = useAccount();
+ const {chain} = useNetwork();
 
   const [selectedChainId, setSelectedChainId] = useState<number | undefined>();
 
-  const [currentNetwork, setCurrentNetwork] = useState<string>();
-
-  useEffect(() => {
-    [1, 4, 5, 42].includes(fallbackChainId!) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
-  }, [fallbackChainId]);
+  // const [currentNetwork, setCurrentNetwork] = useState<string>();
+  // useEffect(() => {
+  //   [1, 4, 5, 42].includes(chain.id) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
+  // }, [chain.id]);
 
   useNetworkSelect(selectedChainId!);
 
@@ -34,10 +32,10 @@ const NetworkSelector = () => {
         plain
         size="small"
         dropProps={{ round: 'large' }}
-        disabled={!account}
+        disabled={!isConnected}
         icon={<FiChevronDown />}
         options={
-          currentNetwork === 'Ethereum'
+          chain?.name === 'Ethereum'
             ? [
                 // eslint-disable-next-line react/jsx-key
                 <Box direction="row" gap="small">
@@ -62,13 +60,13 @@ const NetworkSelector = () => {
               ]
         }
         value={
-          currentNetwork === 'Ethereum' ? (
+          chain?.name === 'Ethereum' ? (
             <Box direction="row" gap="small">
               <Box height="20px" width="20px">
                 <EthMark />
               </Box>
               <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                Ethereum {[4, 5, 42, 421611].includes(fallbackChainId!) && CHAIN_INFO.get(fallbackChainId!)?.name}
+                Ethereum {[4, 5, 42, 421611].includes(chain?.id) && CHAIN_INFO.get(chain.id)?.name}
               </Text>
             </Box>
           ) : (
@@ -77,12 +75,12 @@ const NetworkSelector = () => {
                 <ArbitrumLogo />
               </Box>
               <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
-                {[4, 5, 42, 421611].includes(fallbackChainId!) ? CHAIN_INFO.get(fallbackChainId!)?.name : 'Arbitrum'}
+                {[4, 5, 42, 421611].includes(chain?.id) ? CHAIN_INFO.get(chain?.id)?.name : 'Arbitrum'}
               </Text>
             </Box>
           )
         }
-        onChange={() => handleNetworkChange(currentNetwork === 'Ethereum' ? 'Arbitrum' : 'Ethereum')}
+        onChange={() => handleNetworkChange(chain?.name === 'Ethereum' ? 'Arbitrum' : 'Ethereum')}
       />
     </Box>
   );

@@ -1,11 +1,11 @@
 import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
-import { useConnection } from './useConnection';
+import { useAccount } from 'wagmi';
 
 const useTenderly = () => {
-  const {
-    connectionState: { useTenderlyFork, account },
-  } = useConnection();
+
+  const {address: account} = useAccount();
+  const useTenderlyFork = false;
 
   const [startBlock, setStartBlock] = useState<number>();
 

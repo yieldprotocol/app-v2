@@ -4,7 +4,7 @@ import { ChainContext } from '../contexts/ChainContext';
 export const useTimeTravel = () => {
   const {
     chainState: {
-      connection: { fallbackProvider },
+      connection: { provider },
     },
   } = useContext(ChainContext);
 
@@ -13,12 +13,12 @@ export const useTimeTravel = () => {
   const [timestamp, setTimestamp] = useState<number | null>(null);
 
   useEffect(() => {
-    fallbackProvider &&
+    provider &&
       (async () => {
-        const { timestamp: ts } = await fallbackProvider.getBlock('latest');
+        const { timestamp: ts } = await provider.getBlock('latest');
         setTimestamp(ts);
       })();
-  }, [block, fallbackProvider]);
+  }, [block, provider]);
 
   const takeSnapshot = async () => {
     const res = await fetch('http://localhost:8545', {
@@ -33,7 +33,7 @@ export const useTimeTravel = () => {
     console.log('Snapshot taken', num.result);
     setSnapshotNumber(num.result);
     window.localStorage.setItem('snapshot', num.result);
-    setBlock(fallbackProvider.blockNumber);
+    setBlock(provider.blockNumber);
   };
 
   const revertToSnapshot = async () => {
@@ -49,7 +49,7 @@ export const useTimeTravel = () => {
     // eslint-disable-next-line no-console
     console.log('Reverted to Snapshot', (await res.json()).result);
     takeSnapshot();
-    setBlock(fallbackProvider.blockNumber);
+    setBlock(provider.blockNumber);
     window.localStorage.clear();
     window.location.reload();
   };
@@ -65,7 +65,7 @@ export const useTimeTravel = () => {
     // eslint-disable-next-line no-console
     console.log('Reverted to first snapshot', (await res.json()).result);
     takeSnapshot();
-    setBlock(fallbackProvider.blockNumber);
+    setBlock(provider.blockNumber);
     window.localStorage.clear();
     window.location.reload();
   };
@@ -80,7 +80,7 @@ export const useTimeTravel = () => {
     });
     // eslint-disable-next-line no-console
     console.log(await res.json());
-    setBlock(fallbackProvider.blockNumber);
+    setBlock(provider.blockNumber);
     window.location.reload();
   };
 
@@ -94,9 +94,9 @@ export const useTimeTravel = () => {
     });
     // eslint-disable-next-line no-console
     console.log(await res.json());
-    setBlock(fallbackProvider.blockNumber);
+    setBlock(provider.blockNumber);
     // eslint-disable-next-line no-console
-    console.log('new block:', fallbackProvider.blockNumber);
+    console.log('new block:', provider.blockNumber);
   };
 
   const advanceTimeAndBlock = async (time: string) => {

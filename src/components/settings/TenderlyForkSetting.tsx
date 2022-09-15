@@ -1,11 +1,12 @@
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
-import { useConnection } from '../../hooks/useConnection';
 import useTenderly from '../../hooks/useTenderly';
 import GeneralButton from '../buttons/GeneralButton';
 
 const TenderlyForkSetting = () => {
-  const { connectionState, connectionActions } = useConnection();
+
+
+  const useTenderlyFork = false;
   const { fillEther } = useTenderly();
 
   return (
@@ -16,13 +17,13 @@ const TenderlyForkSetting = () => {
         </Text>
         <Switch
           width={55}
-          checked={connectionState.useTenderlyFork}
+          checked={useTenderlyFork}
           offColor="#BFDBFE"
           onColor="#60A5FA"
           uncheckedIcon={false}
           checkedIcon={false}
           onChange={(val: boolean) => {
-            connectionActions.useTenderly(val);
+            // connectionActions.useTenderly(val);
             val && window.location.reload();
           }}
           handleDiameter={20}

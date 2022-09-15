@@ -11,8 +11,7 @@ export interface IChainContext {
 
 export interface IChainContextState {
   appVersion: string;
-  connection: IConnectionState;
-
+  // connection: IConnectionState;
   chainLoading: boolean;
 
   contractMap: Map<string, Contract>;
@@ -21,16 +20,16 @@ export interface IChainContextState {
   strategyRootMap: Map<string, IStrategyRoot>;
 }
 
-export interface IConnectionState {
-  provider: ethers.providers.Web3Provider | null;
-  chainId: number | null;
-  fallbackProvider: ethers.providers.JsonRpcProvider | null;
-  fallbackChainId: number | null;
-  signer: ethers.providers.JsonRpcSigner | null;
-  account: string | null;
-  connectionName: string | null;
-  useTenderlyFork: boolean;
-}
+// export interface IConnectionState {
+//   provider: ethers.providers.Web3Provider | null;
+//   chainId: number | null;
+//   provider: ethers.providers.JsonRpcProvider | null;
+//   chainId: number | null;
+//   signer: ethers.providers.JsonRpcSigner | null;
+//   account: string | null;
+//   connectionName: string | null;
+//   useTenderlyFork: boolean;
+// }
 
 export interface IHistoryList {
   lastBlock: number;

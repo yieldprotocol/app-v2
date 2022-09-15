@@ -40,14 +40,14 @@ export const useConnection = () => {
   // const account = "" ;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
-  const { library: fallbackProvider, chainId: fallbackChainId, activate: fallbackActivate } = fallbackConnection;
+  const { library: provider, chainId: chainId, activate: fallbackActivate } = fallbackConnection;
 
   const [providerToUse, setProviderToUse] = useState<ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider>(
     provider
   );
-  const [fallbackProviderToUse, setFallbackProviderToUse] = useState<
+  const [providerToUse, setproviderToUse] = useState<
     ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider
-  >(fallbackProvider);
+  >(provider);
 
   /* extra hooks */
   const { handleErrorMessage } = useWeb3Errors();
@@ -146,28 +146,28 @@ export const useConnection = () => {
 
   /* handle chainId changes */
   useEffect(() => {
-    fallbackChainId && setCurrentChainInfo(CHAIN_INFO.get(fallbackChainId));
-    if (fallbackChainId && fallbackChainId !== lastChainId) {
+    chainId && setCurrentChainInfo(CHAIN_INFO.get(chainId));
+    if (chainId && chainId !== lastChainId) {
       window.localStorage.clear();
-      setLastChainId(fallbackChainId);
+      setLastChainId(chainId);
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
-  }, [fallbackChainId, lastChainId, setLastChainId]);
+  }, [chainId, lastChainId, setLastChainId]);
 
   /* Use the connected provider if available, else use fallback */
   useEffect(() => {
     const getProviders = () => {
       if (useTenderlyFork && process.env.ENV === 'development') {
         const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
-        return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
+        return { provider: tenderlyProvider, provider: tenderlyProvider };
       }
-      return { provider, fallbackProvider };
+      return { provider, provider };
     };
 
     setProviderToUse(getProviders().provider);
-    setFallbackProviderToUse(getProviders().fallbackProvider);
-  }, [chainId, fallbackProvider, provider, useTenderlyFork]);
+    setproviderToUse(getProviders().provider);
+  }, [chainId, provider, provider, useTenderlyFork]);
 
   const useTenderly = (shouldUse: boolean) => {
     setUseTenderlyFork(shouldUse);
@@ -185,8 +185,8 @@ export const useConnection = () => {
       connector,
       provider: providerToUse,
       chainId,
-      fallbackProvider: fallbackProviderToUse,
-      fallbackChainId,
+      provider: providerToUse,
+      chainId,
       lastChainId,
 
       currentChainInfo,

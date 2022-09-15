@@ -1,16 +1,13 @@
 import { useContext } from 'react';
 import { Layer, ResponsiveContext } from 'grommet';
-import { ChainContext } from '../contexts/ChainContext';
 import YieldSettings from './YieldSettings';
 import Connect from './Connect';
+import { useAccount } from 'wagmi';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
+
+  const {isConnected} = useAccount();
 
   return (
     <>
@@ -30,7 +27,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }:
         </Layer>
       )}
 
-      {account && settingsOpen && (
+      {isConnected && settingsOpen && (
         <Layer
           modal={false}
           responsive={true}

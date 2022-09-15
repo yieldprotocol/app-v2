@@ -17,15 +17,23 @@ import NetworkSetting from './settings/NetworkSetting';
 import TenderlyForkSetting from './settings/TenderlyForkSetting';
 import UnwrapSetting from './settings/UnwrapSetting';
 import BackButton from './buttons/BackButton';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    chainState: {
-      connection: { account, CONNECTOR_INFO, currentChainInfo, connectionName },
-    },
-    chainActions: { disconnect },
-  } = useContext(ChainContext);
+  // const {
+  //   chainState: {
+  //     connection: { account, CONNECTOR_INFO, currentChainInfo, connectionName },
+  //   },
+  //   chainActions: { disconnect },
+  // } = useContext(ChainContext);
+
+  const { address, connector: activeConnector, isConnected } = useAccount()
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect()
+
+  const { disconnect } = useDisconnect()
+ 
   const {
     txState: { transactions },
   } = useContext(TxContext);
@@ -60,23 +68,23 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
 
         {!mobile && (
           <Box gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
-            <YieldAvatar address={account} size={7} />
+            <YieldAvatar address={address} size={7} />
           </Box>
         )}
 
         <Box align="end" pad={{ vertical: 'small' }}>
-          {!mobile && currentChainInfo.explorer && (
-            <Anchor href={`${currentChainInfo.explorer}/address/${account}`} margin="xsmall" target="_blank">
+          {/* {!mobile && currentChainInfo.explorer && (
+            <Anchor href={`${currentChainInfo.explorer}/address/${address}`} margin="xsmall" target="_blank">
               <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
               <Text margin="xxsmall" size="xsmall">
                 View on Explorer
               </Text>
             </Anchor>
-          )}
+          )} */}
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-            {mobile && <YieldAvatar address={account} size={4} />}
-            <CopyWrap hash={account}>
-              <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(account, 6)}</Text>
+            {mobile && <YieldAvatar address={address} size={4} />}
+            <CopyWrap hash={address}>
+              <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
             </CopyWrap>
           </Box>
         </Box>
@@ -90,8 +98,8 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
             margin={{ top: 'medium' }}
           >
             <BoxWrap direction="row" gap="small">
-              {connectionName && (
-                <Text size="xsmall">Connected with {CONNECTOR_INFO.get(connectionName).displayName}</Text>
+              {activeConnector && (
+                <Text size="xsmall">Connected with {activeConnector.name}</Text>
               )}
               {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
             </BoxWrap>

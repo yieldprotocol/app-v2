@@ -11,6 +11,7 @@ import { ChainContext } from './ChainContext';
 import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
+import { useNetwork } from 'wagmi';
 
 enum PriceState {
   UPDATE_PAIR = 'updatePair',
@@ -53,9 +54,10 @@ const PriceProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { fallbackChainId },
     assetRootMap,
   } = chainState;
+
+  const {chain} = useNetwork();
 
   const {
     settingsState: { diagnostics },
@@ -69,7 +71,7 @@ const PriceProvider = ({ children }: any) => {
       diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading);
       const pairId = `${baseId}${ilkId}`;
       const Cauldron = contractMap.get('Cauldron');
-      const oracleName = ORACLE_INFO.get(fallbackChainId || 1)
+      const oracleName = ORACLE_INFO.get(chain.id! || 1)
         ?.get(baseId)
         ?.get(ilkId);
       const PriceOracle = contractMap.get(oracleName!);
@@ -133,7 +135,7 @@ const PriceProvider = ({ children }: any) => {
       }
       return null;
     },
-    [assetRootMap, contractMap, diagnostics, fallbackChainId, priceState.pairLoading]
+    [assetRootMap, contractMap, diagnostics, chain, priceState.pairLoading]
   );
 
   const priceActions = { updateAssetPair };

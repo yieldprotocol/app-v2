@@ -11,9 +11,8 @@ import YieldMark from './logos/YieldMark';
 
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
-import { ChainContext } from '../contexts/ChainContext';
 import DashMobileButton from './buttons/DashMobileButton';
-import { IChainContext } from '../types';
+import { useAccount } from 'wagmi';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -43,11 +42,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const isPositionPath = router.pathname.includes('position');
   const [yieldMarkhover, setYieldMarkHover] = useState<boolean>(false);
 
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext) as IChainContext;
+  const {isConnected} = useAccount();
 
   // eslint-disable-next-line react/display-name
   const YieldAvatar = forwardRef(({ onClick, href }: any, ref: any) => (
@@ -102,7 +97,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           <Box />
 
           <Box align="center" direction="row" gap="small">
-            {account && mobile && router.pathname !== '/dashboard' && <DashMobileButton />}
+            {isConnected && mobile && router.pathname !== '/dashboard' && <DashMobileButton />}
             <YieldAccount />
           </Box>
         </Grid>

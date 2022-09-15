@@ -15,6 +15,7 @@ import BoxWrap from './wraps/BoxWrap';
 import NetworkSelector from './selectors/NetworkSelector';
 import { IChainContext } from '../types';
 import { CHAIN_INFO } from '../config/chainData';
+import { useAccount, useConnect, useNetwork } from 'wagmi';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -22,13 +23,11 @@ const IconGap = 'small';
 const YieldInfo = () => {
   const {
     chainState: {
-      connection: { fallbackChainId },
       appVersion,
     },
     chainActions: { exportContractAddresses },
   } = useContext(ChainContext) as IChainContext;
 
-  const connectedChain = CHAIN_INFO.get(fallbackChainId!);
   const handleExternal = (destination: string) => {};
 
   return (
@@ -113,13 +112,13 @@ const YieldInfo = () => {
         </BoxWrap>
       </Box>
 
-      {connectedChain && (
+      {/* {connectedChain && ( */}
         <Box align="end" gap="xsmall">
           <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
             <NetworkSelector />
           </Box>
         </Box>
-      )}
+      {/* )} */}
 
       {/* <Box align='center'>
         <Text size="xsmall"> NOTICE:</Text>

@@ -41,6 +41,7 @@ import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
+import { useAccount, useProvider } from 'wagmi';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -138,12 +139,15 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, chainId, useTenderlyFork },
     chainLoading,
     seriesRootMap,
     assetRootMap,
     strategyRootMap,
   } = chainState;
+
+  const { address:account } = useAccount();
+  const chainId = 1;
+  const useTenderlyFork = false;
 
   const {
     settingsState: { diagnostics },
@@ -289,6 +293,7 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
+          
           /* Get all the data simultanenously in a promise.all */
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),

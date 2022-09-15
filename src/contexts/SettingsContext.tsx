@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import { useConnection } from '../hooks/useConnection';
+import { useAccount } from 'wagmi';
 import { ApprovalType, ISettingsContextState } from '../types';
 
 export enum Settings {
@@ -88,7 +88,11 @@ const SettingsProvider = ({ children }: any) => {
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
   /* STATE FROM CONTEXT */
-  const { connectionState: connection } = useConnection();
+  const {connector, isConnected} = useAccount();
+
+  console.log('CONNECTOR ', connector)
+
+  const useTenderlyFork = false; 
 
   /* watch & handle linked approval and effect appropriate settings */
   useEffect(() => {
@@ -99,20 +103,20 @@ const SettingsProvider = ({ children }: any) => {
 
   /* update tenderly fork setting */
   useEffect(() => {
-    updateState({ type: Settings.USE_TENDERLY_FORK, payload: connection.useTenderlyFork });
-  }, [connection.useTenderlyFork]);
+    updateState({ type: Settings.USE_TENDERLY_FORK, payload: useTenderlyFork });
+  }, [useTenderlyFork]);
 
   /* watch & handle connection changes and effect appropriate settings */
   useEffect(() => {
-    if ((connection.connectionName && connection.connectionName !== 'metamask') || connection.useTenderlyFork) {
+    if ((connector?.id !== 'metaMask') || useTenderlyFork) {
       console.log('Using manual ERC20 approval transactions');
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
-    } else if (connection.connectionName === 'metamask') {
+    } else if (connector?.id === 'metaMask') {
       /* On metamask default to SIG */
       console.log('Using ERC20Permit signing (EIP-2612) ');
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
     }
-  }, [connection.connectionName, connection.useTenderlyFork]);
+  }, [connector]);
 
   /* Exposed userActions */
   const settingsActions = {

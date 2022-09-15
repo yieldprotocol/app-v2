@@ -45,6 +45,7 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
+    
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Set the router contract instance, ladle by default */
@@ -117,6 +118,7 @@ export const useChain = () => {
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
+    
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Get the spender if not provided, defaults to ladle */
@@ -193,6 +195,8 @@ export const useChain = () => {
           Or else - if not DAI-BASED, request the signature using ERC2612 Permit style
           (handleSignature() wraps the sign function for in app tracking and tracing )
         */
+        console.log( signer )
+
         const { v, r, s, value, deadline } = await handleSign(
           () =>
             signERC2612Permit(
@@ -228,8 +232,6 @@ export const useChain = () => {
             ? approvalMethod
             : ApprovalType.TX
         );
-
-        console.log(v < 27 ? v + 27 : v);
 
         const args = [
           reqSig.target.address, // the asset id OR the seriesId (if signing fyToken)
