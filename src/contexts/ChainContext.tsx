@@ -555,9 +555,11 @@ const ChainProvider = ({ children }: any) => {
       // console.log('Checking for new Assets and Series, and Strategies ...');
 
       // then async check for any updates (they should automatically populate the map):
-      (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+      (async () =>
+        await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(() => {
+          updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+        }))();
     }
-    // }
   }, [fallbackChainId]);
 
   /**
