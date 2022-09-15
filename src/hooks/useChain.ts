@@ -27,7 +27,6 @@ export const useChain = () => {
 
   const {
     chainState: {
-      // connection: { account, provider, chainId },
       contractMap,
     },
   } = useContext(ChainContext);
@@ -199,7 +198,6 @@ export const useChain = () => {
           Or else - if not DAI-BASED, request the signature using ERC2612 Permit style
           (handleSignature() wraps the sign function for in app tracking and tracing )
         */
-        console.log( signer )
 
         const { v, r, s, value, deadline } = await handleSign(
           () =>
