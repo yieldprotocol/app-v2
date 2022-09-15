@@ -37,7 +37,7 @@ export const useChain = () => {
 
 
   /* wagmi connection stuff */
-  const {address:account } = useAccount();
+  const { address: account } = useAccount();
   const {chain} = useNetwork();
   const { data: signer, isError, isLoading } = useSigner()
   
