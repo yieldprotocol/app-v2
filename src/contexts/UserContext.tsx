@@ -163,6 +163,8 @@ const UserProvider = ({ children }: any) => {
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(
     async (fromBlock: number = 1) => {
+
+      console.log('here')
       const Cauldron = contractMap.get('Cauldron');
       if (!Cauldron) return new Map();
 
@@ -424,6 +426,7 @@ const UserProvider = ({ children }: any) => {
     async (vaultList: IVaultRoot[]) => {
       try {
         updateState({ type: UserState.VAULTS_LOADING, payload: true });
+
         let _vaultList: IVaultRoot[] = vaultList;
         const Cauldron = contractMap.get('Cauldron');
         const Witch = contractMap.get('Witch');

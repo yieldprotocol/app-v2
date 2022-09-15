@@ -406,14 +406,10 @@ const ChainProvider = ({ children }: any) => {
         let seriesMap = new Map();
         chainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
 
-        console.log('SERIESMAP: ',  seriesMap );
         let newSeriesList = [];
-
         // If the cache is empty then, get series data:
         await Promise.all(
           Array.from(seriesMap).map(async (x): Promise<void> => {
-
-            console.log( x[0])
             const id = x[0];
             const baseId = `${id.slice(0, 6)}00000000`;
             const fyTokenAddress = x[1].fyTokenAddress;
@@ -521,8 +517,7 @@ const ChainProvider = ({ children }: any) => {
       cachedAssets.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
       });
-
-    
+ 
       console.log('Checking for new Assets and Series, and Strategies ...');
 
       // then async check for any updates (they should automatically populate the map):
@@ -530,9 +525,6 @@ const ChainProvider = ({ children }: any) => {
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
       }))();
 
-      
-
-    
   }
 
   }, [provider, chain?.id]);
