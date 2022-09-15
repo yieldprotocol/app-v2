@@ -5,11 +5,6 @@ import NetworkSelector from '../selectors/NetworkSelector';
 import { useAccount } from 'wagmi';
 
 const AdvancedSetting = () => {
-  const {
-    chainState: {
-      connection: { connectionName },
-    },
-  } = useContext(ChainContext);
 
   const {connector} = useAccount();
 
