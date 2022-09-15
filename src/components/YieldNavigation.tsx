@@ -10,7 +10,7 @@ import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import { useAccount } from 'wagmi';
 
-const StyledLink = styled(Text)`
+const StyledLink = styled.div`
   text-decoration: none;
   border-radius: 5px;
 
@@ -65,8 +65,8 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   ];
 
   const NavLink = ({ link }: { link: any }) => (
-    <Link href={link.to} passHref>
-      <StyledLink onClick={()=>callbackFn() } style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}>
+    <Link href={link.to} >  
+      <StyledLink onClick={()=>callbackFn()} style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'lightGrey' }}>
         <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
       </StyledLink>
     </Link>

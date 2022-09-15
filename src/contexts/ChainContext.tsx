@@ -107,15 +107,13 @@ const ChainProvider = ({ children }: any) => {
   const provider = useProvider();
   const { chain } = useNetwork();
 
-  const useTenderlyFork = false;
-
   /**
    * Update on connection/state on network changes chain
    */
 
-  useMemo(() => {
+  useEffect(() => {
 
-    if (chain) {
+    if (chain && chain.id) {
       console.log('Connected to chain Id: ', chain.id);
 
       /* Get the instances of the Base contracts */
@@ -524,10 +522,9 @@ const ChainProvider = ({ children }: any) => {
       // then async check for any updates (they should automatically populate the map):
       // (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
 
-      // (async () => { _getAssets(), _getSeries(), _getStrategies()})();
+      (async () => { _getAssets(), _getSeries(), _getStrategies()})();
 
-    } else { console.log( 'Checking fallback chain Id' )}
-
+    }
 
   }, [chain]);
 
