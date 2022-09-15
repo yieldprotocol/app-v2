@@ -18,7 +18,7 @@ const AdvancedSetting = () => {
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={connector.name === 'MetaMask' && !useTenderlyFork ? undefined : 'text-xweak'}>
+        <Text size="small" color={connector?.name === 'MetaMask' && !useTenderlyFork ? undefined : 'text-xweak'}>
           Use Approval by Transactions
         </Text>
         <Switch
@@ -35,7 +35,7 @@ const AdvancedSetting = () => {
           }
           handleDiameter={20}
           borderRadius={20}
-          disabled={connector.name === 'MetaMask' || useTenderlyFork}
+          disabled={connector?.name === 'MetaMask' || useTenderlyFork}
         />
       </Box>
 
