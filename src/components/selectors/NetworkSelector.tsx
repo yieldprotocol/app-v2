@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from 'react';
 import { Box, Select, Text } from 'grommet';
 import { FiChevronDown } from 'react-icons/fi';
 import { ChainContext } from '../../contexts/ChainContext';
-import { CHAIN_INFO } from '../../config/chainData';
 import { useNetworkSelect } from '../../hooks/useNetworkSelect';
 import { IChainContext } from '../../types';
 import ArbitrumLogo from '../logos/Arbitrum';

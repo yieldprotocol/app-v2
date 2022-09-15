@@ -14,8 +14,6 @@ import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import NetworkSelector from './selectors/NetworkSelector';
 import { IChainContext } from '../types';
-import { CHAIN_INFO } from '../config/chainData';
-import { useAccount, useConnect, useNetwork } from 'wagmi';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';

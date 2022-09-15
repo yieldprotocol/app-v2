@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { FiArrowUpRight, FiX } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
 import { IChainContext, IUserContext } from '../types';
-import { CHAIN_INFO } from '../config/chainData';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import { ZERO_BN } from '../utils/constants';
@@ -29,28 +28,28 @@ const NetworkBanner = () => {
   } = useContext(UserContext) as IUserContext;
 
   const [show, setShow] = useState<boolean>(true);
-  const currentChainInfo = chain && CHAIN_INFO.get(chain.id);
+  const currentChainInfo = chain;
 
   const ethBalance = assetMap.get(WETH)?.balance;
 
   if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.gt(ZERO_BN))) return null;
 
   return SHOWABLE_CHAINS.includes(chain.id) && show ? (
-    <StyledBox pad="small" background={{ color: currentChainInfo.color, opacity: 0.9 }} round gap="small">
+    <StyledBox pad="small" background={{  opacity: 0.9 }} round gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {chain.name}</Box>
         <Button onClick={() => setShow(false)}>
           <FiX color="white" />
         </Button>
       </Box>
-      <Box gap="xsmall" background={{ color: currentChainInfo.color, opacity: 0.5 }} color="black" round pad="small">
+      <Box gap="xsmall" background={{  opacity: 0.5 }} color="black" round pad="small">
         <Text size="xsmall">This is a beta release of Yield on the {chain.name} network</Text>
         <Text size="xsmall" weight="bold">
           You must bridge assets from Ethereum Mainnet to {chain.name} before using Yield on{' '}
           {chain.name}
         </Text>
       </Box>
-      {currentChainInfo.bridge && (
+      {/* {currentChainInfo.bridge && (
         <Box pad="small" background="gradient" round>
           <Anchor
             style={{ textDecorationColor: 'white' }}
@@ -66,7 +65,7 @@ const NetworkBanner = () => {
             target="_blank"
           />
         </Box>
-      )}
+      )} */}
     </StyledBox>
   ) : null;
 };
