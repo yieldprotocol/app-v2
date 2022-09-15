@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers';
 import { useContext } from 'react';
+import { useAccount } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, LadleActions, IUserContext, IUserContextState, IUserContextActions } from '../../types';
@@ -11,11 +12,7 @@ export const useAddRemoveEth = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
-  const { activeAccount: account } = userState;
+  const { address: account } = useAccount();
   const WrapEtherModuleContract = contractMap.get('WrapEtherModule');
 
   const addEth = (

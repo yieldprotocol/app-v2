@@ -25,6 +25,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
+import { useAccount } from 'wagmi';
 
 export const useAddCollateral = () => {
   const {
@@ -35,8 +36,9 @@ export const useAddCollateral = () => {
     UserContext
   ) as IUserContext;
 
-  const { activeAccount: account, selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
+  const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
+  const { address: account } = useAccount();
 
   const {
     historyActions: { updateVaultHistory },

@@ -6,6 +6,7 @@ import { IAsset, ISeries, ISettingsContext, IUserContext, IUserContextState, IVa
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { useAccount } from 'wagmi';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -20,7 +21,9 @@ function VaultPositionSelector(target: any) {
     settingsState: { dashHideInactiveVaults },
   } = useContext(SettingsContext) as ISettingsContext;
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount: account, vaultMap, selectedSeries, selectedBase } = userState;
+  const { vaultMap, selectedSeries, selectedBase } = userState;
+
+  const { isConnected } = useAccount();
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
@@ -70,9 +73,9 @@ function VaultPositionSelector(target: any) {
 
   return (
     <>
-      {account && (
+      {isConnected && (
         <Box justify="end" fill>
-          {account && allVaults.length > 0 && (
+          {isConnected  && allVaults.length > 0 && (
             <Box gap="small">
               <Box
                 animation="fadeIn"

@@ -19,20 +19,13 @@ import { useAccount, useConnect, useDisconnect, useEnsName } from 'wagmi';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  // const {
-  //   chainState: {
-  //     connection: { account, CONNECTOR_INFO, currentChainInfo, connectionName },
-  //   },
-  //   chainActions: { disconnect },
-  // } = useContext(ChainContext);
 
   const { address, connector: activeConnector, isConnected } = useAccount()
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect()
-
   const { disconnect } = useDisconnect()
 
- 
+
   const {
     txState: { transactions },
   } = useContext(TxContext);

@@ -10,7 +10,6 @@ import { useChain } from '../useChain';
 export const useWrapUnwrapAsset = () => {
   const {
     chainState: {
-      // connection: { account, provider, chainId },
       contractMap,
       assetRootMap,
     },
@@ -22,8 +21,6 @@ export const useWrapUnwrapAsset = () => {
 
   const {chain} = useNetwork();
   const {data:signer} = useSigner()
-  // const signer = account ? provider?.getSigner(account) : provider?.getSigner(0);
-
   const { sign } = useChain();
 
   const wrapHandlerAbi = ['function wrap(address to)', 'function unwrap(address to)'];

@@ -21,6 +21,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
+import { useAccount } from 'wagmi';
 
 export const useRemoveCollateral = () => {
   const {
@@ -33,7 +34,8 @@ export const useRemoveCollateral = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, selectedIlk, assetMap } = userState;
+  const { selectedIlk, assetMap } = userState;
+  const { address: account } = useAccount();
 
   const {
     historyActions: { updateVaultHistory },

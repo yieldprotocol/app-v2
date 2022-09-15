@@ -103,7 +103,6 @@ const ChainProvider = ({ children }: any) => {
   const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
 
   /* Connection hook */
-  const { address: account } = useAccount();
   const provider = useProvider();
   const { chain } = useNetwork();
 

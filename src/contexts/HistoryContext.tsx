@@ -19,7 +19,6 @@ import {
 
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
-import { UserContext } from './UserContext';
 import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
 
@@ -29,7 +28,7 @@ import { LiquidityEvent, TradeEvent as NewTradeEvent } from '../contracts/Pool';
 import { TradeEvent as OldTradeEvent } from '../contracts/PoolOld';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 import useTenderly from '../hooks/useTenderly';
-import { useProvider } from 'wagmi';
+import { useAccount, useProvider } from 'wagmi';
 
 type TradeEvent = NewTradeEvent & OldTradeEvent;
 
@@ -105,12 +104,12 @@ const HistoryProvider = ({ children }: any) => {
 
   const provider = useProvider();
 
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount: account } = userState;
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const { tenderlyStartBlock } = useTenderly();
   const lastSeriesUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
   const lastVaultUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
+
+  const { address: account } = useAccount();
 
   const {
     settingsState: { diagnostics },

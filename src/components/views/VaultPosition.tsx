@@ -48,6 +48,7 @@ import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
+import { useAccount } from 'wagmi';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -61,8 +62,10 @@ const VaultPosition = () => {
     UserContext
   ) as IUserContext;
 
-  const { activeAccount: account, assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
+  const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
+
+  const { address: account} = useAccount();
 
   const _selectedVault = vaultMap.get(idFromUrl as string);
 

@@ -1,12 +1,10 @@
-import { chain, WagmiConfig, createClient, configureChains, allChains } from 'wagmi';
+import { chain, WagmiConfig, createClient, configureChains, Chain } from 'wagmi';
 
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { infuraProvider } from 'wagmi/providers/infura';
 import { publicProvider } from 'wagmi/providers/public';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
-import { InjectedConnector } from 'wagmi/connectors/injected';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { useContext, useEffect } from 'react';
@@ -16,28 +14,47 @@ const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
   const { settingsState } = useContext(SettingsContext);
 
-  const { useFork, forkUrl } = settingsState;
+  const { useFork, useTenderlyFork, forkUrl } = settingsState;
+
+  const tenderly: Chain = {
+    id: 1_1,
+    name: 'Tenderly Fork',
+    network: 'tenderly',
+    nativeCurrency: {
+      decimals: 18,
+      name: 'Ether',
+      symbol: 'ETH',
+    },
+    rpcUrls: {
+      default: forkUrl,
+    },
+    // blockExplorers: {
+    //   default: { name: 'SnowTrace', url: 'https://snowtrace.io' },
+    // },
+    testnet: true,
+  }
 
   // Configure chains & providers with the Alchemy provider.
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider, webSocketProvider } = configureChains(
-    [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
+    [ chain.mainnet, chain.arbitrum, tenderly ],
     // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
     [
-      alchemyProvider({ apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv' }), // TODO move this key to env
+      // alchemyProvider({ apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv' }), // TODO move this key to env
       // infuraProvider({ apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv' }), // TODO move this key to env
-      // jsonRpcProvider({
-      //   rpc: (chain) => ({
-      //     http: 'https://rpc.tenderly.co/fork/717ceb3b-f9a9-4fa0-b1ea-3eb0dd114ddf',
-      //     // webSocket: `wss://${chain.id}.example.com`,
-      //   }),
-      // }),
+      
+      jsonRpcProvider({
+        rpc: (chain) => ({
+          http: forkUrl,
+          // webSocket: `wss://${chain.id}.example.com`,
+        }),
+        priority: useTenderlyFork ? 100 : 0,
+      }),
+
       publicProvider(),
     ]
   );
-
-  console.log( chains )
 
   // Set up client
   const client = createClient({
