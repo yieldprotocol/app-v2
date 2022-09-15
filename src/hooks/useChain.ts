@@ -10,6 +10,7 @@ import { MAX_256, ZERO_BN } from '../utils/constants';
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { useAccount, useNetwork, useProvider, useSigner } from 'wagmi';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -26,7 +27,7 @@ export const useChain = () => {
 
   const {
     chainState: {
-      connection: { account, provider, chainId },
+      // connection: { account, provider, chainId },
       contractMap,
     },
   } = useContext(ChainContext);
@@ -35,6 +36,13 @@ export const useChain = () => {
     txActions: { handleTx, handleSign, handleTxWillFail },
   } = useContext(TxContext);
 
+
+  /* wagmi connection stuff */
+  const {address:account } = useAccount();
+  const provider = useProvider();
+  const {chain} = useNetwork();
+  const { data: signer, isError, isLoading } = useSigner()
+  
   const approvalMethod = useApprovalMethod();
 
   /**
@@ -45,8 +53,6 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
-    
-    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Set the router contract instance, ladle by default */
     const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
@@ -119,8 +125,6 @@ export const useChain = () => {
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
     
-    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
-
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
       const _ladleAddr = contractMap.get('Ladle').address;
@@ -144,7 +148,7 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Amount', _amount?.toString());
 
         /* Request the signature if using DaiType permit style */
-        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chainId !== 42161) {
+        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chain.id !== 42161) {
           // dai in arbitrum uses regular permits
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
@@ -155,7 +159,7 @@ export const useChain = () => {
                 {
                   name: reqSig.target.name,
                   version: reqSig.target.version,
-                  chainId,
+                  chainId: chain.id,
                   verifyingContract: reqSig.target.address,
                 },
                 account,
@@ -206,7 +210,7 @@ export const useChain = () => {
                 // uses custom domain if provided, else use created Domain
                 name: reqSig.target.name,
                 version: reqSig.target.version,
-                chainId,
+                chainId: chain.id,
                 verifyingContract: reqSig.target.address,
               },
               account,

@@ -2,18 +2,18 @@ import { useContext, useEffect, useState } from 'react';
 import { Box, Button, Layer, Text } from 'grommet';
 import { FiAlertCircle } from 'react-icons/fi';
 import { ChainContext } from '../contexts/ChainContext';
+import { useConnect, useDisconnect } from 'wagmi';
 
 const NetworkError = () => {
-  const {
-    chainState: { connection },
-    chainActions: { disconnect },
-  } = useContext(ChainContext);
+
+  const { error } = useConnect();
+  const { disconnect } = useDisconnect();
 
   const [showError, setShowError] = useState<boolean>(false);
 
   useEffect(() => {
-    connection.errorMessage || connection.fallbackErrorMessage ? setShowError(true) : setShowError(false);
-  }, [connection.errorMessage, connection.fallbackErrorMessage]);
+    error?.message  ? setShowError(true) : setShowError(false);
+  }, [error]);
 
   return (
     <>
@@ -21,8 +21,7 @@ const NetworkError = () => {
         <Layer>
           <Box pad="medium" round="small" gap="small" align="center" width="600px">
             <FiAlertCircle size="2em" /> <Text size="large">Oops. There was a connection error.</Text>
-            <Text size="small"> {connection.errorMessage || connection.fallbackErrorMessage} </Text>
-            {!connection.fallbackErrorMessage && (
+            <Text size="small"> {error.message} </Text>
               <Button
                 label="Continue without connecting a wallet"
                 onClick={() => {
@@ -30,7 +29,6 @@ const NetworkError = () => {
                   disconnect();
                 }}
               />
-            )}
           </Box>
         </Layer>
       )}

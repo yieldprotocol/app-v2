@@ -11,9 +11,8 @@ import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import SettingsBalances from './SettingsBalances';
-import { useEns } from '../hooks/useEns';
 import GeneralButton from './buttons/GeneralButton';
-import { useAccount, useConnect, useEnsAddress, useEnsName } from 'wagmi';
+import { useAccount,  useEnsName } from 'wagmi';
 
 const StyledText = styled(Text)`
   svg,

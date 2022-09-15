@@ -7,28 +7,35 @@ import { useNetworkSelect } from '../../hooks/useNetworkSelect';
 import { IChainContext } from '../../types';
 import ArbitrumLogo from '../logos/Arbitrum';
 import EthMark from '../logos/EthMark';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
 
 const NetworkSelector = () => {
 
- const {isConnected} = useAccount();
- const {chain} = useNetwork();
-
-  const [selectedChainId, setSelectedChainId] = useState<number | undefined>();
-
-  // const [currentNetwork, setCurrentNetwork] = useState<string>();
-  // useEffect(() => {
-  //   [1, 4, 5, 42].includes(chain.id) ? setCurrentNetwork('Ethereum') : setCurrentNetwork('Arbitrum');
-  // }, [chain.id]);
-
-  useNetworkSelect(selectedChainId!);
-
-  const handleNetworkChange = (chainName: string) =>
-    setSelectedChainId([...CHAIN_INFO.entries()].find(([, chainInfo]) => chainInfo.name === chainName)![0]);
+  const { chain } = useNetwork();
+  const { chains, error, isLoading, pendingChainId, switchNetwork } = useSwitchNetwork();
 
   return (
     <Box round>
-      <Select
+      <>
+        {chain && <div>Connected to {chain.name}</div>}
+
+        {chains.map((x) => (
+          <button
+            disabled={!switchNetwork || x.id === chain?.id}
+            key={x.id}
+            onClick={() => {
+              switchNetwork?.(x.id);
+            }}
+          >
+            {x.name}
+            {isLoading && pendingChainId === x.id && ' (switching)'}
+          </button>
+        ))}
+
+        <div>{error && error.message}</div>
+      </>
+
+      {/* <Select
         plain
         size="small"
         dropProps={{ round: 'large' }}
@@ -81,7 +88,7 @@ const NetworkSelector = () => {
           )
         }
         onChange={() => handleNetworkChange(chain?.name === 'Ethereum' ? 'Arbitrum' : 'Ethereum')}
-      />
+      /> */}
     </Box>
   );
 };

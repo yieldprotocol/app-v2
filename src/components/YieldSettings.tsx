@@ -1,13 +1,11 @@
 import { useContext, useState } from 'react';
 import { Anchor, Box, Collapsible, ResponsiveContext, Text, Tip } from 'grommet';
 import { FiChevronUp, FiChevronDown, FiExternalLink } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import { TxContext } from '../contexts/TxContext';
 import CopyWrap from './wraps/CopyWrap';
 import TransactionItem from './TransactionItem';
-import { useEns } from '../hooks/useEns';
 import BoxWrap from './wraps/BoxWrap';
 import SlippageSetting from './settings/SlippageSetting';
 import ApprovalSetting from './settings/ApprovalSetting';
@@ -17,7 +15,7 @@ import NetworkSetting from './settings/NetworkSetting';
 import TenderlyForkSetting from './settings/TenderlyForkSetting';
 import UnwrapSetting from './settings/UnwrapSetting';
 import BackButton from './buttons/BackButton';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useEnsName } from 'wagmi';
 
 const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -33,12 +31,13 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
     useConnect()
 
   const { disconnect } = useDisconnect()
+
  
   const {
     txState: { transactions },
   } = useContext(TxContext);
 
-  const { ensName } = useEns();
+  const { data } = useEnsName();
 
   const [transactionsOpen, setTransactionsOpen] = useState<boolean>(false);
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState<boolean>(false);
@@ -84,7 +83,7 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
             {mobile && <YieldAvatar address={address} size={4} />}
             <CopyWrap hash={address}>
-              <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
+              <Text size={mobile ? 'medium' : 'xlarge'}>{data || abbreviateHash(address, 6)}</Text>
             </CopyWrap>
           </Box>
         </Box>

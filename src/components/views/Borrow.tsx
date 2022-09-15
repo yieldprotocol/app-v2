@@ -48,6 +48,7 @@ import VaultItem from '../positionItems/VaultItem';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 import useTenderly from '../../hooks/useTenderly';
+import { useNetwork } from 'wagmi';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -57,9 +58,11 @@ const Borrow = () => {
   const {
     chainState: {
       contractMap,
-      connection: { chainId },
     },
   } = useContext(ChainContext);
+
+  const {chain} = useNetwork();
+  
   const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
     UserContext
   ) as IUserContext;
@@ -141,7 +144,7 @@ const Borrow = () => {
   const handleNavAction = (_stepPosition: number) => {
     _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
-    analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
+    analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chain.id);
   };
 
   const handleGaugeColorChange: any = (val: string) => {

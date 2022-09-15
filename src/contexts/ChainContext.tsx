@@ -18,7 +18,7 @@ import { JoinAddedEvent, PoolAddedEvent } from '../contracts/Ladle';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount, useProvider } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -103,21 +103,23 @@ const ChainProvider = ({ children }: any) => {
   const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
 
   /* Connection hook */
-  const { address:account } = useAccount();
+  const { address: account } = useAccount();
   const provider = useProvider();
-  const chainId = 1;
+  const { chain } = useNetwork();
+
   const useTenderlyFork = false;
 
   /**
-   * Update on FALLBACK connection/state on network changes (id/library)
+   * Update on connection/state on network changes chain
    */
   useEffect(() => {
 
-      console.log('Primary ChainId: ', chainId);
+    if (chain) {
+      console.log('Connected to chain Id: ', chain.id);
 
       /* Get the instances of the Base contracts */
-      const addrs = (yieldEnv.addresses as any)[chainId];
-      const seasonColorMap = [1, 4, 5, 42].includes(chainId as number) ? ethereumColorMap : arbitrumColorMap;
+      const addrs = (yieldEnv.addresses as any)[chain.id];
+      const seasonColorMap = [1, 4, 5, 42].includes(chain.id) ? ethereumColorMap : arbitrumColorMap;
 
       let Cauldron: contracts.Cauldron;
       let Ladle: contracts.Ladle;
@@ -149,62 +151,38 @@ const ChainProvider = ({ children }: any) => {
         // module access
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
 
-        if ([1, 4, 5, 42].includes(chainId)) {
+        if ([1, 4, 5, 42].includes(chain.id)) {
           // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
           ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, provider);
 
           // Oracles
-          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(
-            addrs.AccumulatorMultiOracle,
-            provider
-          );
+          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, provider);
           // RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, provider);
           RateOracle = AccumulatorMultiOracle;
 
-          ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(
-            addrs.ChainlinkMultiOracle,
-            provider
-          );
-          CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(
-            addrs.CompositeMultiOracle,
-            provider
-          );
+          ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkMultiOracle, provider);
+          CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(addrs.CompositeMultiOracle, provider);
 
-          CompoundMultiOracle = contracts.CompoundMultiOracle__factory.connect(
-            addrs.CompoundMultiOracle,
-            provider
-          );
+          CompoundMultiOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, provider);
 
           YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(
             addrs.YearnVaultMultiOracle,
             provider
           );
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
-            addrs.NotionalMultiOracle,
-            provider
-          );
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(
-            addrs.NotionalMultiOracle,
-            provider
-          );
+          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(addrs.NotionalMultiOracle, provider);
+          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(addrs.NotionalMultiOracle, provider);
         }
 
         // arbitrum
-        if ([42161, 421611].includes(chainId)) {
+        if ([42161, 421611].includes(chain.id)) {
           // Modules
           WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
 
           // Oracles
-          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(
-            addrs.AccumulatorMultiOracle,
-            provider
-          );
+          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, provider);
           RateOracle = AccumulatorMultiOracle;
-          ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(
-            addrs.ChainlinkUSDOracle,
-            provider
-          );
+          ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(addrs.ChainlinkUSDOracle, provider);
         }
       } catch (e) {
         console.log('Could not connect to contracts: ', e);
@@ -236,7 +214,7 @@ const ChainProvider = ({ children }: any) => {
       updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
-      const strategyAddresses = yieldEnv.strategies[chainId] as string[];
+      const strategyAddresses = yieldEnv.strategies[chain.id] as string[];
 
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
@@ -251,9 +229,7 @@ const ChainProvider = ({ children }: any) => {
           case TokenType.ERC20_:
             assetContract = contracts.ERC20__factory.connect(asset.address, provider);
             getBalance = async (acc) =>
-              ETH_BASED_ASSETS.includes(asset.proxyId)
-                ? provider.getBalance(acc)
-                : assetContract.balanceOf(acc);
+              ETH_BASED_ASSETS.includes(asset.proxyId) ? provider.getBalance(acc) : assetContract.balanceOf(acc);
             getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
             break;
 
@@ -365,9 +341,9 @@ const ChainProvider = ({ children }: any) => {
             }
 
             /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
+            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chain.id);
             /* check if a wrapping handler is provided, if so, wrapping is required */
-            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
+            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chain.id);
 
             const newAsset = {
               ...assetInfo,
@@ -608,8 +584,8 @@ const ChainProvider = ({ children }: any) => {
         // then async check for any updates (they should automatically populate the map):
         (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
       }
-
-  }, [ provider, tenderlyStartBlock, useTenderlyFork]);
+    }
+  }, [chain, tenderlyStartBlock, useTenderlyFork]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
@@ -625,18 +601,6 @@ const ChainProvider = ({ children }: any) => {
     setLastAppVersion(process.env.REACT_APP_VERSION);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ignore to only happen once on init
-
-  /**
-   * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
-   */
-  useEffect(() => {
-    console.log( 'changes')
-    updateState({
-      type: ChainState.CONNECTION,
-      payload: [provider, account, chainId],
-    });
-  }, [ provider, account, chainId ]);
-
 
   const exportContractAddresses = () => {
     const contractList = [...(chainState.contractMap as any)].map(([v, k]) => [v, k?.address]);
@@ -666,10 +630,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* Assess which pool contract to use: new (with tv) or old (without tv) */
   const getPoolContract = (poolAddress: string, maturity: number) =>
-    (maturity === 1672412400 ? contracts.Pool__factory : contracts.PoolOld__factory).connect(
-      poolAddress,
-      provider
-    );
+    (maturity === 1672412400 ? contracts.Pool__factory : contracts.PoolOld__factory).connect(poolAddress, provider);
 
   /* simply Pass on the connection actions */
   const chainActions = { exportContractAddresses };
