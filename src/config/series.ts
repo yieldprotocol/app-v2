@@ -11,8 +11,6 @@ export interface SeriesInfo {
 export const SERIES_1 = new Map<string, SeriesInfo>();
 export const SERIES_42161 = new Map<string, SeriesInfo>();
 
-SERIES_1.set('234234', { fyTokenAddress: '', poolAddress: '', poolType: PoolType.TV });
-
 SERIES_1.set('0x303230350000', {
   fyTokenAddress: '0x33c4F1A98CF0F540D8a1F6119129337eC5973E29',
   poolAddress: '0x80142add3A597b1eD1DE392A56B2cef3d8302797',

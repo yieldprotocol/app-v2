@@ -117,6 +117,7 @@ const ChainProvider = ({ children }: any) => {
     const chainId = chain ? chain.id : 1;
 
     if (provider) {
+
       console.log('Connected to chain Id: ', chainId);
 
       /* Get the instances of the Base contracts */
@@ -410,6 +411,8 @@ const ChainProvider = ({ children }: any) => {
         // If the cache is empty then, get series data:
         await Promise.all(
           Array.from(seriesMap).map(async (x): Promise<void> => {
+
+            console.log( x[0])
             const id = x[0];
             const baseId = `${id.slice(0, 6)}00000000`;
             const fyTokenAddress = x[1].fyTokenAddress;
