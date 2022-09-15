@@ -99,6 +99,7 @@ const ChainProvider = ({ children }: any) => {
   const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 'earliest');
 
   const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
+
   const [cachedSeries, setCachedSeries] = useCachedState('series', []);
   const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
 
@@ -523,12 +524,12 @@ const ChainProvider = ({ children }: any) => {
       // then async check for any updates (they should automatically populate the map):
       // (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
 
-      (async () => { _getAssets(), _getSeries(), _getStrategies()})();
+      // (async () => { _getAssets(), _getSeries(), _getStrategies()})();
 
     } else { console.log( 'Checking fallback chain Id' )}
 
 
-  }, [provider, chain]);
+  }, [chain]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
