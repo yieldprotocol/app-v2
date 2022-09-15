@@ -75,7 +75,6 @@ export interface IUserContext {
 
 export interface IUserContextState {
   userLoading: boolean;
-  activeAccount: string | null;
 
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;

@@ -45,7 +45,6 @@ import { useAccount, useProvider } from 'wagmi';
 
 enum UserState {
   USER_LOADING = 'userLoading',
-  ACTIVE_ACCOUNT = 'activeAccount',
   ASSET_MAP = 'assetMap',
   SERIES_MAP = 'seriesMap',
   VAULT_MAP = 'vaultMap',
@@ -65,9 +64,6 @@ const UserContext = React.createContext<any>({});
 
 const initState: IUserContextState = {
   userLoading: false,
-  /* activeAccount */
-  activeAccount: null,
-
   /* Item maps */
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
@@ -96,10 +92,6 @@ function userReducer(state: IUserContextState, action: any) {
   switch (action.type) {
     case UserState.USER_LOADING:
       return { ...state, userLoading: onlyIfChanged(action) };
-
-    case UserState.ACTIVE_ACCOUNT:
-      return { ...state, activeAccount: onlyIfChanged(action) };
-
     case UserState.ASSET_MAP:
       return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
     case UserState.SERIES_MAP:
@@ -698,12 +690,11 @@ const UserProvider = ({ children }: any) => {
       if (seriesRootMap.size) {
         updateSeries(Array.from(seriesRootMap.values()));
       }
-
       if (assetRootMap.size) {
         updateAssets(Array.from(assetRootMap.values()));
       }
     }
-  }, [account, chainLoading, assetRootMap, seriesRootMap, updateSeries, updateAssets]);
+  }, [chainLoading, assetRootMap, seriesRootMap]);
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {
@@ -719,7 +710,7 @@ const UserProvider = ({ children }: any) => {
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
-    updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
+    // updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
   }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
 
   /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */

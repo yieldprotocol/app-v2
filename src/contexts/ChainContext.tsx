@@ -406,6 +406,7 @@ const ChainProvider = ({ children }: any) => {
         let seriesMap = new Map();
         chainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
 
+        console.log('SERIESMAP: ',  seriesMap );
         let newSeriesList = [];
 
         // If the cache is empty then, get series data:
@@ -436,8 +437,8 @@ const ChainProvider = ({ children }: any) => {
               poolContract.ts(),
               poolContract.g1(),
               poolContract.g2(),
-            ]);
-
+            ]); 
+            
             const newSeries = {
               id,
               baseId,
@@ -521,13 +522,17 @@ const ChainProvider = ({ children }: any) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
       });
 
-      updateState({ type: ChainState.CHAIN_LOADING, payload: false });
-
+    
       console.log('Checking for new Assets and Series, and Strategies ...');
 
       // then async check for any updates (they should automatically populate the map):
-      (async () => Promise.all([_getAssets(), _getSeries(), _getStrategies()]))();
+      (async () => await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(()=> {
+        updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+      }))();
 
+      
+
+    
   }
 
   }, [provider, chain?.id]);
