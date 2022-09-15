@@ -21,7 +21,7 @@ interface IAddEthereumChainParameter {
 export const useNetworkSelect = (chainId: number) => {
   const {
     chainState: {
-      connection: { fallbackChainId, provider, connectionName },
+      connection: { chainId, provider, connectionName },
     },
   } = useContext(ChainContext) as IChainContext;
 
@@ -34,7 +34,7 @@ export const useNetworkSelect = (chainId: number) => {
 
   useEffect(() => {
     const providerRequest = provider?.provider?.request;
-    if (chainId !== fallbackChainId && isMetamask && chainId && providerRequest) {
+    if (chainId !== chainId && isMetamask && chainId && providerRequest) {
       (async () => {
         const hexChainId = ethers.utils.hexValue(chainId);
         try {
@@ -71,5 +71,5 @@ export const useNetworkSelect = (chainId: number) => {
         }
       })();
     }
-  }, [chainId, fallbackChainId, isMetamask, provider]);
+  }, [chainId, chainId, isMetamask, provider]);
 };

@@ -15,6 +15,7 @@ import { Settings, SettingsContext } from '../../contexts/SettingsContext';
 import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
+import { useAccount } from 'wagmi';
 
 const StyledBox = styled(Box)`
   * {
@@ -40,10 +41,11 @@ const Dashboard = () => {
 
   const {
     chainState: {
-      connection: { account },
       chainLoading,
     },
   } = useContext(ChainContext);
+  
+  const { isConnected } = useAccount();
 
   const {
     vaultPositions,
@@ -64,8 +66,8 @@ const Dashboard = () => {
         margin={{ top: 'xlarge' }}
         basis={mobile ? undefined : '60%'}
       >
-        {!account && !chainLoading && <Text>Please connect to your account</Text>}
-        {account && (
+        {!isConnected && !chainLoading && <Text>Please connect to your account</Text>}
+        {isConnected && (
           <Box width={mobile ? '100%' : undefined} gap="large">
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
@@ -160,7 +162,7 @@ const Dashboard = () => {
       {!mobile && (
         <PanelWrap right>
           {/* <Box /> */}
-          {account && (
+          {isConnected && (
             <Box
               // margin={{ top: '30%' }}
               margin={{ top: 'xlarge' }}

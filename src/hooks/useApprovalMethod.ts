@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+import { useAccount, useConnect } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ApprovalType } from '../types';
@@ -8,21 +9,17 @@ export const useApprovalMethod = (): ApprovalType => {
     settingsState: { approvalMethod },
   } = useContext(SettingsContext);
 
-  const {
-    chainState: {
-      connection: { connectionName },
-    },
-  } = useContext(ChainContext);
+  const { connector: activeConnector, isConnected } = useAccount()
 
   const [approvalMethodToUse, setApprovalMethodToUse] = useState<ApprovalType>(ApprovalType.SIG);
 
   useEffect(() => {
-    if (connectionName !== 'metamask' || approvalMethod === ApprovalType.TX ) {
+    if (activeConnector && activeConnector.name !== 'MetaMask' || approvalMethod === ApprovalType.TX ) {
       setApprovalMethodToUse(ApprovalType.TX);
     } else {
       setApprovalMethodToUse(ApprovalType.SIG);
     }
-  }, [approvalMethod, setApprovalMethodToUse, connectionName]);
+  }, [approvalMethod, setApprovalMethodToUse, activeConnector]);
 
   return approvalMethodToUse;
 };

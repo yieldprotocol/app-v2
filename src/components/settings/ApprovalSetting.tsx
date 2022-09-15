@@ -4,14 +4,12 @@ import Switch from 'react-switch';
 import { ApprovalType, ISettingsContext } from '../../types';
 import { Settings, SettingsContext } from '../../contexts/SettingsContext';
 import { ChainContext } from '../../contexts/ChainContext';
+import { useAccount } from 'wagmi';
 
 const AdvancedSetting = () => {
-  const {
-    chainState: {
-      connection: { connectionName },
-    },
-  } = useContext(ChainContext);
 
+  const {connector} = useAccount();
+  
   const {
     settingsState: { approvalMethod, approveMax, useTenderlyFork },
     settingsActions: { updateSetting },
@@ -20,7 +18,7 @@ const AdvancedSetting = () => {
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={connectionName === 'metamask' && !useTenderlyFork ? undefined : 'text-xweak'}>
+        <Text size="small" color={connector.name === 'MetaMask' && !useTenderlyFork ? undefined : 'text-xweak'}>
           Use Approval by Transactions
         </Text>
         <Switch
@@ -37,7 +35,7 @@ const AdvancedSetting = () => {
           }
           handleDiameter={20}
           borderRadius={20}
-          disabled={connectionName !== 'metamask' || useTenderlyFork}
+          disabled={connector.name === 'MetaMask' || useTenderlyFork}
         />
       </Box>
 

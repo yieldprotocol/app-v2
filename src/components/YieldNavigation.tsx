@@ -8,6 +8,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
+import { useAccount } from 'wagmi';
 
 const StyledLink = styled(Text)`
   text-decoration: none;
@@ -40,11 +41,9 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
   const [height] = useWindowSize();
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
+
+  const {isConnected} = useAccount();
+ 
   const {
     settingsState: { darkMode },
   } = useContext(SettingsContext) as ISettingsContext;
@@ -62,7 +61,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
     { label: 'BORROW', to: '/borrow' },
     { label: 'LEND', to: '/lend' },
     { label: 'POOL', to: '/pool' },
-    { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
+    { label: 'DASHBOARD', to: '/dashboard', disabled: !isConnected},
   ];
 
   const NavLink = ({ link }: { link: any }) => (

@@ -36,6 +36,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { useAccount } from 'wagmi';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -72,7 +73,8 @@ export const useRemoveLiquidity = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, selectedStrategy } = userState;
+  const { assetMap, selectedStrategy } = userState;
+  const { address: account } = useAccount();
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();

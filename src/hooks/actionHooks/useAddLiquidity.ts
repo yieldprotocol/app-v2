@@ -37,6 +37,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 export const useAddLiquidity = () => {
   const {
@@ -49,8 +50,10 @@ export const useAddLiquidity = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, seriesMap } = userState;
+  const { assetMap, seriesMap } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
+
+  const { address: account } = useAccount();
 
   const { sign, transact } = useChain();
   const {

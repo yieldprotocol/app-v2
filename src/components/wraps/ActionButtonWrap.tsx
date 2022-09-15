@@ -4,6 +4,7 @@ import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
 import SidebarSettings from '../Sidebar';
 import { useColorScheme } from '../../hooks/useColorScheme';
+import { useAccount } from 'wagmi';
 
 const StyledButton: any = styled(Button)`
   -webkit-transition: transform 0.2s ease-in-out;
@@ -48,12 +49,9 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const theme = useColorScheme();
 
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
 
+  const {isConnected} = useAccount();
+  
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
@@ -71,7 +69,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
         alignSelf="end"
       >
-        {account ? (
+        {isConnected ? (
           children
         ) : (
           <StyledButton

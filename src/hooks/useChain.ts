@@ -10,6 +10,7 @@ import { MAX_256, ZERO_BN } from '../utils/constants';
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { useAccount, useNetwork, useProvider, useSigner } from 'wagmi';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -26,7 +27,6 @@ export const useChain = () => {
 
   const {
     chainState: {
-      connection: { account, provider, chainId },
       contractMap,
     },
   } = useContext(ChainContext);
@@ -35,6 +35,12 @@ export const useChain = () => {
     txActions: { handleTx, handleSign, handleTxWillFail },
   } = useContext(TxContext);
 
+
+  /* wagmi connection stuff */
+  const { address: account } = useAccount();
+  const {chain} = useNetwork();
+  const { data: signer, isError, isLoading } = useSigner()
+  
   const approvalMethod = useApprovalMethod();
 
   /**
@@ -45,8 +51,6 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
-    
-    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Set the router contract instance, ladle by default */
     const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
@@ -118,8 +122,7 @@ export const useChain = () => {
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
-    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
-
+    
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
       const _ladleAddr = contractMap.get('Ladle').address;
@@ -142,19 +145,22 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Spender', _spender);
         diagnostics && console.log('Sign: Amount', _amount?.toString());
 
+
+        console.log(signer); 
+
         /* Request the signature if using DaiType permit style */
-        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chainId !== 42161) {
+        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chain.id !== 42161) {
           // dai in arbitrum uses regular permits
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
               signDaiPermit(
-                provider,
+                signer,
                 /* build domain */
                 {
                   name: reqSig.target.name,
                   version: reqSig.target.version,
-                  chainId,
+                  chainId: chain.id,
                   verifyingContract: reqSig.target.address,
                 },
                 account,
@@ -178,7 +184,7 @@ export const useChain = () => {
             nonce,
             expiry,
             allowed, // TODO check use amount if provided, else defaults to MAX.
-            v,
+            v < 27 ? v + 27 : v, // handle ledger signing ( 00 is 27 or  01 is 28 )
             r,
             s,
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
@@ -194,16 +200,17 @@ export const useChain = () => {
           Or else - if not DAI-BASED, request the signature using ERC2612 Permit style
           (handleSignature() wraps the sign function for in app tracking and tracing )
         */
+
         const { v, r, s, value, deadline } = await handleSign(
           () =>
             signERC2612Permit(
-              provider,
+              signer,
               /* build domain */
               reqSig.domain || {
                 // uses custom domain if provided, else use created Domain
                 name: reqSig.target.name,
                 version: reqSig.target.version,
-                chainId,
+                chainId: chain.id,
                 verifyingContract: reqSig.target.address,
               },
               account,
@@ -235,7 +242,7 @@ export const useChain = () => {
           _spender,
           value,
           deadline,
-          v,
+          v < 27 ? v + 27 : v, // handle ledger signing ( 00 is 27 or  01 is 28 )
           r,
           s,
         ] as LadleActions.Args.FORWARD_PERMIT;

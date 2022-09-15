@@ -4,6 +4,8 @@ import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
 import { analyticsLogEvent } from '../utils/appUtils';
 import { ChainContext } from './ChainContext';
+import { use } from 'chai';
+import { useNetwork, useProvider } from 'wagmi';
 
 enum TxStateItem {
   TRANSACTIONS = 'transactions',
@@ -121,10 +123,8 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
-  const { chainState } = useContext(ChainContext);
-  const {
-    connection: { chainId, provider },
-  } = chainState;
+  const provider = useProvider(); 
+  const { chain } = useNetwork(); 
 
   const _resetProcess = (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
 
@@ -161,7 +161,7 @@ const TxProvider = ({ children }: any) => {
     updateState({ type: TxStateItem.TRANSACTIONS, payload: _tx });
     console.log('txHash: ', tx?.hash);
 
-    analyticsLogEvent('TX_FAILED', { txCode }, chainId);
+    analyticsLogEvent('TX_FAILED', { txCode }, chain?.id);
   };
 
   const handleTxWillFail = async (error: any, txCode?: string | undefined, transaction?: any) => {
@@ -179,7 +179,7 @@ const TxProvider = ({ children }: any) => {
       txCode && updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
     } else {
       updateState({ type: TxStateItem.TX_WILL_FAIL, payload: false });
-      analyticsLogEvent('TX_WILL_FAIL', { txCode }, chainId);
+      analyticsLogEvent('TX_WILL_FAIL', { txCode }, chain?.id);
     }
   };
 
@@ -210,7 +210,7 @@ const TxProvider = ({ children }: any) => {
       } catch (e) {
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
-        analyticsLogEvent('TX_REJECTED', { txCode }, chainId);
+        analyticsLogEvent('TX_REJECTED', { txCode }, chain?.id);
         return null;
       }
 
@@ -226,7 +226,7 @@ const TxProvider = ({ children }: any) => {
       if (_isfallback === false) {
         /* transaction completion : success OR failure */
         _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
-        analyticsLogEvent('TX_COMPLETE', { txCode }, chainId);
+        analyticsLogEvent('TX_COMPLETE', { txCode }, chain?.id);
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */

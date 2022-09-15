@@ -24,6 +24,7 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
+import { useAccount } from 'wagmi';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
@@ -39,8 +40,10 @@ export const useRollPosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
-  const { updateSeries, updateAssets, setSelectedSeries } = userActions;
+  const { assetMap } = userState;
+  const { updateSeries, updateAssets } = userActions;
+
+  const { address: account } = useAccount();
 
   const {
     historyActions: { updateTradeHistory },

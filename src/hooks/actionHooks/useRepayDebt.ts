@@ -26,6 +26,7 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 export const useRepayDebt = () => {
   const {
@@ -36,8 +37,9 @@ export const useRepayDebt = () => {
     UserContext
   ) as IUserContext;
 
-  const { activeAccount: account, seriesMap, assetMap } = userState;
+  const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
+  const { address: account } = useAccount();
 
   const {
     chainState: {

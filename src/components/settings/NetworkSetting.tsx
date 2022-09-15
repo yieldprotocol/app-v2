@@ -2,18 +2,16 @@ import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import { ChainContext } from '../../contexts/ChainContext';
 import NetworkSelector from '../selectors/NetworkSelector';
+import { useAccount } from 'wagmi';
 
 const AdvancedSetting = () => {
-  const {
-    chainState: {
-      connection: { connectionName },
-    },
-  } = useContext(ChainContext);
+
+  const {connector} = useAccount();
 
   return (
     <Box direction="row" justify="between">
       <Box alignSelf="center">
-        <Text size="small" color={connectionName === 'metamask' ? undefined : 'text-xweak'}>
+        <Text size="small" color={connector.name === 'MetaMask' ? undefined : 'text-xweak'}>
           Network
         </Text>
       </Box>

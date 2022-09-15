@@ -1,52 +1,91 @@
-import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
-import { ethers } from 'ethers';
-import { useContext, useEffect, useState } from 'react';
-import { IChainContext, IUserContext } from '../types';
-import { ChainContext } from './ChainContext';
-import { UserContext } from './UserContext';
+import { chain, WagmiConfig, createClient, configureChains, Chain } from 'wagmi';
 
-const getTenderlyProvider = () => new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { publicProvider } from 'wagmi/providers/public';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 
-/* Init the signing web3 environment */
-export function getLibrary(provider: ethers.providers.ExternalProvider) {
-  const library = new ethers.providers.Web3Provider(provider);
-  library.pollingInterval = 6000;
-  return library;
-}
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { useContext, useEffect } from 'react';
+import { SettingsContext } from './SettingsContext';
 
-/* init the fallback web3 connection */
-const Web3FallbackProvider = createWeb3ReactRoot('fallback');
-export function getFallbackLibrary(provider: any) {
-  try {
-    if (provider.chainId === 42161)
-      return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_ARBITRUM_KEY);
+const ProviderContext = ({ children }: { children: any }) => {
+  /* bring in all the settings in case we want to use them settings up the netwrok */
+  const { settingsState } = useContext(SettingsContext);
 
-    if (provider.chainId === 421611)
-      return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_ARBITRUM_RINKEBY_KEY);
+  const { useFork, useTenderlyFork, forkUrl } = settingsState;
 
-    if (provider.chainId === 1)
-      return new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_MAINNET_KEY);
-
-    const library = new ethers.providers.InfuraProvider(provider.chainId, process.env.INFURA_KEY);
-    library.pollingInterval = 6000;
-
-    return library;
-  } catch (e) {
-    if (provider.chainId === 1) {
-      console.log('Could not connect to infura provider on mainnet, trying alchemy');
-      const library = new ethers.providers.AlchemyProvider(provider.chainId, process.env.ALCHEMY_MAINNET_KEY);
-      library.pollingInterval = 6000;
-      return library;
-    }
-    console.log('Could not connect to fallback provider');
-    return undefined;
+  const tenderly: Chain = {
+    id: 1_1,
+    name: 'Tenderly Fork',
+    network: 'tenderly',
+    nativeCurrency: {
+      decimals: 18,
+      name: 'Ether',
+      symbol: 'ETH',
+    },
+    rpcUrls: {
+      default: forkUrl,
+    },
+    // blockExplorers: {
+    //   default: { name: 'SnowTrace', url: 'https://snowtrace.io' },
+    // },
+    testnet: true,
   }
-}
 
-const ProviderContext = ({ children }: { children: any }) => (
-  <Web3FallbackProvider getLibrary={getFallbackLibrary}>
-    <Web3ReactProvider getLibrary={getLibrary}>{children}</Web3ReactProvider>
-  </Web3FallbackProvider>
-);
+  // Configure chains & providers with the Alchemy provider.
+
+  // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
+  const { chains, provider, webSocketProvider } = configureChains(
+    [ chain.mainnet, chain.arbitrum, tenderly ],
+    // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
+    [
+      // alchemyProvider({ apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv' }), // TODO move this key to env
+      // infuraProvider({ apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv' }), // TODO move this key to env
+      
+      jsonRpcProvider({
+        rpc: (chain) => ({
+          http: forkUrl,
+          // webSocket: `wss://${chain.id}.example.com`,
+        }),
+        priority: useTenderlyFork ? 100 : 0,
+      }),
+
+      publicProvider(),
+    ]
+  );
+
+  // Set up client
+  const client = createClient({
+    autoConnect: true,
+    connectors: [
+      new MetaMaskConnector({ chains }),
+      new CoinbaseWalletConnector({
+        chains,
+        options: {
+          appName: 'yieldProtocol',
+        },
+      }),
+      new WalletConnectConnector({
+        chains,
+        options: {
+          qrcode: true,
+        },
+      }),
+    ],
+    provider,
+    webSocketProvider,
+  });
+
+  /* watch & handle linked approval and effect appropriate settings */
+  useEffect(() => {
+    console.log(settingsState);
+  }, [settingsState]);
+
+  /* before doing anything here, check the settings */
+
+  return <WagmiConfig client={client}>{children}</WagmiConfig>;
+};
 
 export default ProviderContext;

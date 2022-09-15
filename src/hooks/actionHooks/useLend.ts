@@ -21,6 +21,7 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -35,8 +36,9 @@ export const useLend = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
+  const { assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
+  const { address: account } = useAccount();
 
   const {
     historyActions: { updateTradeHistory },

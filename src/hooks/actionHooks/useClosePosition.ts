@@ -23,6 +23,7 @@ import { ONE_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -37,7 +38,8 @@ export const useClosePosition = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
+  const { assetMap } = userState;
+  const { address: account } = useAccount();
   const { updateSeries, updateAssets } = userActions;
   const {
     historyActions: { updateTradeHistory },

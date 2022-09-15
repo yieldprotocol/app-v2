@@ -7,6 +7,7 @@ import { Settings, SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import GeneralButton from './buttons/GeneralButton';
 import YieldMark from './logos/YieldMark';
+import { useAccount, useConnect } from 'wagmi';
 
 const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -16,18 +17,8 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const {
-    chainState: {
-      connection: { account, activatingConnector, CONNECTORS, CONNECTOR_INFO, connectionName, connector },
-    },
-    chainActions: { connect },
-  } = useContext(ChainContext);
-
-  const handleConnect = (connectorName: string) => {
-    connect(connectorName);
-    setConnectOpen(false);
-    setSettingsOpen(false);
-  };
+  const { connector: activeConnector, isConnected } = useAccount();
+  const { connect, connectors, error, isLoading, pendingConnector } = useConnect();
 
   return (
     <Box
@@ -46,7 +37,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
         pad="medium"
         round={{ corner: 'top', size: 'small' }}
       >
-        {account && CONNECTORS ? (
+        {isConnected ? (
           <BackButton
             action={() => {
               setSettingsOpen(true);
@@ -75,7 +66,20 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
           />
         </Box>
       )}
-      <Box pad="medium" gap={mobile ? 'large' : 'small'}>
+
+      <div>
+        {connectors.map((connector) => (
+          <button disabled={!connector.ready} key={connector.id} onClick={() => connect({ connector })}>
+            {connector.name}
+            {!connector.ready && ' (unsupported)'}
+            {isLoading && connector.id === pendingConnector?.id && ' (connecting)'}
+          </button>
+        ))}
+
+        {error && <div>{error.message}</div>}
+      </div>
+
+      {/* <Box pad="medium" gap={mobile ? 'large' : 'small'}>
         {[...CONNECTORS.keys()].map((name: string) => {
           const { displayName, image } = CONNECTOR_INFO.get(name);
           const currentConnector = CONNECTORS.get(name);
@@ -108,7 +112,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
             </GeneralButton>
           );
         })}
-      </Box>
+      </Box> */}
     </Box>
   );
 };

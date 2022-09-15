@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import { useConnection } from '../hooks/useConnection';
+import { useAccount } from 'wagmi';
 import { ApprovalType, ISettingsContextState } from '../types';
 
 export enum Settings {
@@ -21,6 +21,8 @@ export enum Settings {
   DASH_HIDE_POOL_POSITIONS = 'dashHidePoolPositions',
   DASH_CURRENCY = 'dashCurrency',
   USE_TENDERLY_FORK = 'useTenderlyFork',
+  USE_FORK = 'useFork',
+  FORK_RPC = 'forkUrl',
 }
 
 const SettingsContext = React.createContext<any>({});
@@ -69,6 +71,9 @@ const initState: ISettingsContextState = {
   dashHideLendPositions: false,
   dashHidePoolPositions: false,
   dashCurrency: 'USDC',
+
+  useFork: false,
+  forkUrl: 'https://rpc.tenderly.co/fork/717ceb3b-f9a9-4fa0-b1ea-3eb0dd114ddf'
 };
 
 function settingsReducer(state: ISettingsContextState, action: any) {
@@ -87,9 +92,6 @@ const SettingsProvider = ({ children }: any) => {
   /* LOCAL STATE */
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
-  /* STATE FROM CONTEXT */
-  const { connectionState: connection } = useConnection();
-
   /* watch & handle linked approval and effect appropriate settings */
   useEffect(() => {
     if (settingsState.approvalMethod === ApprovalType.SIG) {
@@ -97,22 +99,18 @@ const SettingsProvider = ({ children }: any) => {
     }
   }, [settingsState.approvalMethod]);
 
-  /* update tenderly fork setting */
-  useEffect(() => {
-    updateState({ type: Settings.USE_TENDERLY_FORK, payload: connection.useTenderlyFork });
-  }, [connection.useTenderlyFork]);
 
   /* watch & handle connection changes and effect appropriate settings */
-  useEffect(() => {
-    if ((connection.connectionName && connection.connectionName !== 'metamask') || connection.useTenderlyFork) {
-      console.log('Using manual ERC20 approval transactions');
-      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
-    } else if (connection.connectionName === 'metamask') {
-      /* On metamask default to SIG */
-      console.log('Using ERC20Permit signing (EIP-2612) ');
-      updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
-    }
-  }, [connection.connectionName, connection.useTenderlyFork]);
+  // useEffect(() => {
+  //   if ((connector?.id !== 'metaMask') || useTenderlyFork) {
+  //     console.log('Using manual ERC20 approval transactions');
+  //     updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
+  //   } else if (connector?.id === 'metaMask') {
+  //     /* On metamask default to SIG */
+  //     console.log('Using ERC20Permit signing (EIP-2612) ');
+  //     updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
+  //   }
+  // }, [connector]);
 
   /* Exposed userActions */
   const settingsActions = {
@@ -130,7 +128,7 @@ const SettingsProvider = ({ children }: any) => {
     }
   }, []);
 
-  /* Use approval by tx if using tenderly fork */
+  /* switch to ALWAYS use approval by tx if using tenderly fork */
   useEffect(() => {
     if (settingsState.useTenderlyFork) {
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });

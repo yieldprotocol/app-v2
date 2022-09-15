@@ -132,7 +132,7 @@ export const useLendHelpers = (
         : setFyTokenMarketValue(ethers.utils.formatUnits(baseValue, series.decimals));
 
       /* set max Closing */
-      if (baseValue.lte(ethers.constants.Zero) && series.fyTokenBalance.gt(_maxFyTokenIn)) {
+      if (baseValue.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(_maxFyTokenIn)) {
         setMaxClose(_maxBaseOut);
         setMaxClose_(ethers.utils.formatUnits(_maxBaseOut, series.decimals));
       } else if (baseValue.lte(ethers.constants.Zero)) {

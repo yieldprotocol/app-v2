@@ -11,25 +11,13 @@ export interface IChainContext {
 
 export interface IChainContextState {
   appVersion: string;
-  connection: IConnectionState;
-
+  // connection: IConnectionState;
   chainLoading: boolean;
 
   contractMap: Map<string, Contract>;
   assetRootMap: Map<string, IAssetRoot>;
   seriesRootMap: Map<string, ISeriesRoot>;
   strategyRootMap: Map<string, IStrategyRoot>;
-}
-
-export interface IConnectionState {
-  provider: ethers.providers.Web3Provider | null;
-  chainId: number | null;
-  fallbackProvider: ethers.providers.JsonRpcProvider | null;
-  fallbackChainId: number | null;
-  signer: ethers.providers.JsonRpcSigner | null;
-  account: string | null;
-  connectionName: string | null;
-  useTenderlyFork: boolean;
 }
 
 export interface IHistoryList {
@@ -146,6 +134,9 @@ export interface ISettingsContextState {
   dashHideLendPositions: boolean;
   dashHidePoolPositions: boolean;
   dashCurrency: string;
+
+  useFork: boolean;
+  forkUrl: string;
 }
 
 export interface ISignable {

@@ -1,14 +1,16 @@
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
+import { SettingsContext } from '../contexts/SettingsContext';
 import { IChainContext } from '../types';
 
 const useTimeTillMaturity = (useBlockchainTime = false) => {
-  const {
-    chainState: {
-      connection: { useTenderlyFork },
-    },
-  } = useContext(ChainContext) as IChainContext;
+
+  // const {
+  //   settingState: {useTenderlyFork},
+  // } = useContext(SettingsContext)
+
+  const useTenderlyFork = false;
 
   // block timestamp from network
   const [blockTimestamp, setBlockTimestamp] = useState<number>();

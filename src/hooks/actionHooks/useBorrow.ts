@@ -27,6 +27,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 export const useBorrow = () => {
   const {
@@ -41,8 +42,9 @@ export const useBorrow = () => {
     UserContext
   ) as IUserContext;
 
-  const { activeAccount: account, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
+  const { selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
+  const { address: account } = useAccount();
 
   const { addEth, removeEth } = useAddRemoveEth();
 
