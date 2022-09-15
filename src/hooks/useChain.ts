@@ -38,7 +38,6 @@ export const useChain = () => {
 
   /* wagmi connection stuff */
   const {address:account } = useAccount();
-  const provider = useProvider();
   const {chain} = useNetwork();
   const { data: signer, isError, isLoading } = useSigner()
   
@@ -146,6 +145,9 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Spender', _spender);
         diagnostics && console.log('Sign: Amount', _amount?.toString());
 
+
+        console.log(signer); 
+
         /* Request the signature if using DaiType permit style */
         if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chain.id !== 42161) {
           // dai in arbitrum uses regular permits
@@ -153,7 +155,7 @@ export const useChain = () => {
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
               signDaiPermit(
-                provider,
+                signer,
                 /* build domain */
                 {
                   name: reqSig.target.name,
@@ -202,7 +204,7 @@ export const useChain = () => {
         const { v, r, s, value, deadline } = await handleSign(
           () =>
             signERC2612Permit(
-              provider,
+              signer,
               /* build domain */
               reqSig.domain || {
                 // uses custom domain if provided, else use created Domain
