@@ -11,7 +11,7 @@ const AdvancedSetting = () => {
   return (
     <Box direction="row" justify="between">
       <Box alignSelf="center">
-        <Text size="small" color={connector.name === 'MetaMask' ? undefined : 'text-xweak'}>
+        <Text size="small" color={connector?.name === 'MetaMask' ? undefined : 'text-xweak'}>
           Network
         </Text>
       </Box>
