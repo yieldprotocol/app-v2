@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button } from 'grommet';
 import { FiPlusCircle } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
+import { useAccount, useProvider } from 'wagmi';
 
 interface ITokenData {
   address: string | undefined;
@@ -11,11 +11,10 @@ interface ITokenData {
 }
 
 const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => {
-  const {
-    chainState: {
-      connection: { provider },
-    },
-  } = useContext(ChainContext);
+
+  const provider = useProvider();
+  const {connector} = useAccount(); 
+
   const [metamask, setMetamask] = useState<any>(null);
   const [, setSuccess] = useState<boolean>(false);
   const [, setFailed] = useState<boolean>(false);
@@ -42,8 +41,8 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
 
   useEffect(() => {
     if (provider) {
-      if (provider.connection.url === 'metamask') {
-        setMetamask(provider.provider);
+      if (connector.name === 'MetaMask') {
+        setMetamask(provider);
       }
     }
   }, [provider]);
