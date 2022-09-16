@@ -66,7 +66,7 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
   </Box>
 );
 
-const SettingsBalances = () => {
+const HeaderBalances = () => {
   const {
     userState: { assetMap },
   } = useContext(UserContext) as IUserContext;
@@ -90,4 +90,4 @@ const SettingsBalances = () => {
   );
 };
 
-export default SettingsBalances;
+export default HeaderBalances;

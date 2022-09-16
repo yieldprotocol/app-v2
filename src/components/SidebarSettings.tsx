@@ -17,14 +17,13 @@ import UnwrapSetting from './settings/UnwrapSetting';
 import BackButton from './buttons/BackButton';
 import { useAccount, useConnect, useDisconnect, useEnsName } from 'wagmi';
 
-const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
+const Settings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { address, connector: activeConnector, isConnected } = useAccount()
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect()
   const { disconnect } = useDisconnect()
-
 
   const {
     txState: { transactions },
@@ -65,14 +64,6 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
         )}
 
         <Box align="end" pad={{ vertical: 'small' }}>
-          {/* {!mobile && currentChainInfo.explorer && (
-            <Anchor href={`${currentChainInfo.explorer}/address/${address}`} margin="xsmall" target="_blank">
-              <FiExternalLink size="1rem" style={{ verticalAlign: 'middle' }} />
-              <Text margin="xxsmall" size="xsmall">
-                View on Explorer
-              </Text>
-            </Anchor>
-          )} */}
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
             {mobile && <YieldAvatar address={address} size={4} />}
             <CopyWrap hash={address}>
@@ -179,4 +170,4 @@ const YieldSettings = ({ setSettingsOpen, setConnectOpen }: any) => {
   );
 };
 
-export default YieldSettings;
+export default Settings;

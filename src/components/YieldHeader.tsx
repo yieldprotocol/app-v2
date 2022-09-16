@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { FiMenu } from 'react-icons/fi';
 import { Box, Header, Grid, ResponsiveContext, Avatar } from 'grommet';
 
-import YieldNavigation from './YieldNavigation';
-import YieldAccount from './YieldAccount';
+import Navigation from './Navigation';
+import YieldAccount from './HeaderAccount';
 import YieldMark from './logos/YieldMark';
 
 import BackButton from './buttons/BackButton';
@@ -45,7 +45,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const {isConnected} = useAccount();
 
   // eslint-disable-next-line react/display-name
-  const YieldAvatar = forwardRef(({ onClick, href }: any, ref: any) => (
+  const YieldIcon = forwardRef(({ onClick, href }: any, ref: any) => (
     <a href={href} onClick={onClick} ref={ref}>
       <StyledAvatar
         background="hoverBackground"
@@ -89,10 +89,10 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
             {mobile && isPositionPath && <BackButton action={() => router.back()} />}
             {!mobile && (
               <Link href="/borrow" passHref>
-                <YieldAvatar />
+                <YieldIcon />
               </Link>
             )}
-            {!mobile && <YieldNavigation />}
+            {!mobile && <Navigation />}
           </Box>
           <Box />
 

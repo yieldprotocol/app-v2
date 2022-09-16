@@ -110,9 +110,7 @@ const ChainProvider = ({ children }: any) => {
    * Update on connection/state on network changes chain
    */
 
-  useEffect(() => {
-
-  
+  useEffect(() => { 
     const chainId = chain ? chain.id : 1; // TODO DEFAULT CHAIN ID
 
     if (provider) {

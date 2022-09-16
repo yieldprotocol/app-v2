@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Layer, ResponsiveContext } from 'grommet';
-import YieldSettings from './YieldSettings';
-import Connect from './Connect';
+import SidebarSettings from './SidebarSettings';
+import SidebarConnect from './SidebarConnect';
 import { useAccount } from 'wagmi';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }: any) => {
@@ -23,7 +23,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }:
           background="lightBackground"
           onEsc={() => setConnectOpen(false)}
         >
-          <Connect setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
+          <SidebarConnect setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>
       )}
 
@@ -37,7 +37,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen, connectOpen, setConnectOpen }:
           onClickOutside={() => setSettingsOpen(false)}
           onEsc={() => setConnectOpen(false)}
         >
-          <YieldSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
+          <SidebarSettings setConnectOpen={setConnectOpen} setSettingsOpen={setSettingsOpen} />
         </Layer>
       )}
     </>

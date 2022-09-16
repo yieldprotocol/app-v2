@@ -10,7 +10,7 @@ import SidebarSettings from './Sidebar';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
-import SettingsBalances from './SettingsBalances';
+import HeaderBalances from './HeaderBalances';
 import GeneralButton from './buttons/GeneralButton';
 import { useAccount,  useEnsName } from 'wagmi';
 
@@ -32,7 +32,7 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const YieldAccount = (props: any) => {
+const HeaderAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { address, connector: activeConnector, isConnected } = useAccount();
@@ -58,7 +58,7 @@ const YieldAccount = (props: any) => {
 
       {isConnected ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <SettingsBalances />}
+          {!mobile && <HeaderBalances />}
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
               <Box>
@@ -105,4 +105,4 @@ const YieldAccount = (props: any) => {
   );
 };
 
-export default YieldAccount;
+export default HeaderAccount;

@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useContext } from 'react';
 import styled, { CSSProperties } from 'styled-components';
 import { Box, ThemeContext, ResponsiveContext, Text } from 'grommet';
-import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
@@ -46,7 +45,7 @@ interface IYieldNavigationProps {
   callbackFn?: any;
 }
 
-const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
+const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
   const [height] = useWindowSize();
@@ -113,6 +112,6 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   );
 };
 
-YieldNavigation.defaultProps = { sideNavigation: false, callbackFn: () => null };
+Navigation.defaultProps = { sideNavigation: false, callbackFn: () => null };
 
-export default YieldNavigation;
+export default Navigation;

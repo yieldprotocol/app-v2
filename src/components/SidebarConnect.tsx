@@ -1,11 +1,9 @@
 import { useContext } from 'react';
 import { Box, ResponsiveContext, Text } from 'grommet';
-import { ChainContext } from '../contexts/ChainContext';
 import BackButton from './buttons/BackButton';
 import Disclaimer from './Disclaimer';
 import { Settings, SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
-import GeneralButton from './buttons/GeneralButton';
 import YieldMark from './logos/YieldMark';
 import { useAccount, useConnect } from 'wagmi';
 

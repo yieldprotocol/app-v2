@@ -19,7 +19,7 @@ import CenterPanelWrap from '../wraps/CenterPanelWrap';
 
 import PositionSelector from '../selectors/LendPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
-import YieldInfo from '../YieldInfo';
+import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
 
 import NextButton from '../buttons/NextButton';
@@ -38,7 +38,7 @@ import LendItem from '../positionItems/LendItem';
 
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
-import YieldNavigation from '../YieldNavigation';
+import Navigation from '../Navigation';
 import Line from '../elements/Line';
 import { useAccount } from 'wagmi';
 
@@ -96,7 +96,7 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap basis="30%">
-          <YieldNavigation sideNavigation={true} />
+          <Navigation sideNavigation={true} />
           <PositionSelector actionType={ActionType.LEND} />
         </PanelWrap>
       )}

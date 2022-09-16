@@ -4,7 +4,7 @@ import { Box, ResponsiveContext, Text } from 'grommet';
 import Skeleton from '../wraps/SkeletonWrap';
 import { ChainContext } from '../../contexts/ChainContext';
 import { ActionType, ISettingsContext, IUserContextState } from '../../types';
-import YieldInfo from '../YieldInfo';
+import YieldInfo from '../FooterInfo';
 import DashboardBalanceSummary from '../DashboardBalanceSummary';
 import MainViewWrap from '../wraps/MainViewWrap';
 import PanelWrap from '../wraps/PanelWrap';

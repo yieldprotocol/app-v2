@@ -18,7 +18,7 @@ import { IChainContext } from '../types';
 const IconSize = '1.15rem';
 const IconGap = 'small';
 
-const YieldInfo = () => {
+const FooterInfo = () => {
   const {
     chainState: {
       appVersion,
@@ -127,4 +127,4 @@ const YieldInfo = () => {
   );
 };
 
-export default YieldInfo;
+export default FooterInfo;

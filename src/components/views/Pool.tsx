@@ -17,7 +17,7 @@ import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import StrategyPositionSelector from '../selectors/StrategyPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
-import YieldInfo from '../YieldInfo';
+import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
 import NextButton from '../buttons/NextButton';
 import TransactButton from '../buttons/TransactButton';
@@ -31,7 +31,7 @@ import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import { useProcess } from '../../hooks/useProcess';
 import StrategyItem from '../positionItems/StrategyItem';
 
-import YieldNavigation from '../YieldNavigation';
+import Navigation from '../Navigation';
 import Line from '../elements/Line';
 import { useAccount } from 'wagmi';
 
@@ -100,7 +100,7 @@ function Pool() {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap basis="30%">
-          <YieldNavigation sideNavigation={true} />
+          <Navigation sideNavigation={true} />
           <StrategyPositionSelector />
         </PanelWrap>
       )}

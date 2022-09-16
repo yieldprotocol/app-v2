@@ -21,7 +21,7 @@ import ActiveTransaction from '../ActiveTransaction';
 
 import { analyticsLogEvent, cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
-import YieldInfo from '../YieldInfo';
+import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
 import { Gauge } from '../Gauge';
 import InfoBite from '../InfoBite';
@@ -43,7 +43,7 @@ import { useProcess } from '../../hooks/useProcess';
 import { ChainContext } from '../../contexts/ChainContext';
 import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
-import YieldNavigation from '../YieldNavigation';
+import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
@@ -246,7 +246,7 @@ const Borrow = () => {
       <MainViewWrap>
         {!mobile && (
           <PanelWrap basis="30%">
-            <YieldNavigation sideNavigation={true} />
+            <Navigation sideNavigation={true} />
             <VaultSelector />
           </PanelWrap>
         )}
