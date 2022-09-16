@@ -449,8 +449,6 @@ const UserProvider = ({ children }: any) => {
               { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
             ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
-            // console.log('in here')
-
             /* If art 0, check for liquidation event */
             const hasBeenLiquidated =
               art === ZERO_BN

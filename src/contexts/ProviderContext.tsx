@@ -21,13 +21,13 @@ const ProviderContext = ({ children }: { children: any }) => {
     [
       // infuraProvider({ apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv' }), // TODO move this key to env
       // alchemyProvider({ apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv' }), // TODO move this key to env
-      // jsonRpcProvider({
-      //   rpc: (chain) => ({
-      //     http: forkUrl,
-      //     // webSocket: `wss://${chain.id}.example.com`,
-      //   }),
-      //   priority: useTenderlyFork ? 100 : 0,
-      // }),
+      jsonRpcProvider({
+        rpc: (chain) => ({
+          http: forkUrl,
+          // webSocket: `wss://${chain.id}.example.com`,
+        }),
+        priority: useTenderlyFork ? 0 : 100,
+      }),
       publicProvider(),
     ]
   );

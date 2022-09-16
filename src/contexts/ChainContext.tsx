@@ -111,7 +111,7 @@ const ChainProvider = ({ children }: any) => {
    * Update on connection/state on network changes chain
    */
  
-  useMemo(() => {
+  useEffect(() => {
 
     console.log(provider)
     const chainId = chain ? chain.id : 1;
@@ -479,7 +479,7 @@ const ChainProvider = ({ children }: any) => {
           await Promise.all(
             strategyAddresses.map(async (strategyAddr) => {
               /* if the strategy is NOT already in the cache : */
-              console.log('Updating Strategy contract ', strategyAddr);
+              // console.log('Updating Strategy contract ', strategyAddr);
 
               const Strategy = contracts.Strategy__factory.connect(strategyAddr, provider);
               const [name, symbol, baseId, decimals, version] = await Promise.all([
@@ -527,7 +527,7 @@ const ChainProvider = ({ children }: any) => {
 
   }
 
-  }, [provider, chain?.id]);
+  }, [ provider ]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
