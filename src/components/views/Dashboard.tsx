@@ -41,7 +41,7 @@ const Dashboard = () => {
 
   const {
     chainState: {
-      chainLoading,
+      chainLoaded,
     },
   } = useContext(ChainContext);
   
@@ -66,7 +66,7 @@ const Dashboard = () => {
         margin={{ top: 'xlarge' }}
         basis={mobile ? undefined : '60%'}
       >
-        {!isConnected && !chainLoading && <Text>Please connect to your account</Text>}
+        {!isConnected && chainLoaded && <Text>Please connect to your account</Text>}
         {isConnected && (
           <Box width={mobile ? '100%' : undefined} gap="large">
             <Box gap="medium">

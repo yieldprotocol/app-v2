@@ -36,8 +36,6 @@ const ProviderContext = ({ children }: { children: any }) => {
     ]
   );
 
-  console.log( chains )
-
   // Set up client
   const client = createClient({
     autoConnect: true,

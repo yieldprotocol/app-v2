@@ -13,7 +13,7 @@ export interface IChainContext {
 export interface IChainContextState {
   appVersion: string;
   // connection: IConnectionState;
-  chainLoading: boolean;
+  chainLoaded: boolean;
 
   contractMap: Map<string, Contract>;
   assetRootMap: Map<string, IAssetRoot>;

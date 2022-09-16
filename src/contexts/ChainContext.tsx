@@ -21,7 +21,7 @@ import { useAccount, useNetwork, useProvider } from 'wagmi';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
 
 enum ChainState {
-  CHAIN_LOADING = 'chainLoading',
+  CHAIN_LOADED = 'chainLoaded',
   APP_VERSION = 'appVersion',
   CONNECTION = 'connection',
   CONTRACT_MAP = 'contractMap',
@@ -37,7 +37,7 @@ const initState: IChainContextState = {
   appVersion: '0.0.0' as string,
 
   /* flags */
-  chainLoading: true,
+  chainLoaded: false,
 
   /* Connected Contract Maps */
   contractMap: new Map<string, Contract>([]),
@@ -53,8 +53,8 @@ function chainReducer(state: IChainContextState, action: any) {
 
   /* Reducer switch */
   switch (action.type) {
-    case ChainState.CHAIN_LOADING:
-      return { ...state, chainLoading: onlyIfChanged(action) };
+    case ChainState.CHAIN_LOADED:
+      return { ...state, chainLoaded: onlyIfChanged(action) };
 
     case ChainState.APP_VERSION:
       return { ...state, appVersion: onlyIfChanged(action) };
@@ -110,13 +110,13 @@ const ChainProvider = ({ children }: any) => {
    * Update on connection/state on network changes chain
    */
 
-  useEffect(() => { 
+  useMemo(() => { 
     const chainId = chain ? chain.id : 1; // TODO DEFAULT CHAIN ID
 
     if (provider) {
 
       console.log('Connected to chain Id: ', chainId);
-
+      
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[chainId];
       const seasonColorMap = chainId === 1 ? ethereumColorMap : arbitrumColorMap;
@@ -351,7 +351,7 @@ const ChainProvider = ({ children }: any) => {
           ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.')));
 
         newAssetList.length && setCachedAssets(newAssetList);
-        newAssetList.length && console.log('Yield Protocol Asset data updated successfully.');
+        newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
       };
 
       /* add on extra/calculated ASYNC series info and contract instances */
@@ -457,7 +457,7 @@ const ChainProvider = ({ children }: any) => {
           })
         ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
 
-        newSeriesList.length && console.log('Yield Protocol Series data updated successfully.');
+        newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
       };
 
       /* Attach contract instance */
@@ -505,7 +505,7 @@ const ChainProvider = ({ children }: any) => {
           console.log('Error fetching strategies', e);
         }
 
-        console.log('Yield Protocol Strategy data updated.');
+        console.log('Yield Protocol Strategy data retrieved successfully.');
       };
 
       /**
@@ -519,7 +519,7 @@ const ChainProvider = ({ children }: any) => {
       // then async check for any updates (they should automatically populate the map):
       (async () =>
         await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(() => {
-          updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+          updateState({ type: ChainState.CHAIN_LOADED, payload: true });
         }))();
     }
   }, [provider]);
