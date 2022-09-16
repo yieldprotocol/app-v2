@@ -232,7 +232,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             name="seriesSelect"
             placeholder="Select Series"
             options={options}
-            value={_selectedSeries!}
+            value={_selectedSeries || undefined}
             labelKey={(x: any) => optionText(x)}
             icon={<FiChevronDown />}
             valueLabel={

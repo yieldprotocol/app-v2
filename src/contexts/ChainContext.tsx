@@ -111,10 +111,12 @@ const ChainProvider = ({ children }: any) => {
    */
 
   useEffect(() => {
-    console.log(provider);
+
+  
     const chainId = chain ? chain.id : 1; // TODO DEFAULT CHAIN ID
 
     if (provider) {
+
       console.log('Connected to chain Id: ', chainId);
 
       /* Get the instances of the Base contracts */

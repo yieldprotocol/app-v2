@@ -15,6 +15,7 @@ const ProviderContext = ({ children }: { children: any }) => {
   const { settingsState } = useContext(SettingsContext);
   const { useFork, useTenderlyFork, forkUrl } = settingsState;
 
+
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider, webSocketProvider } = configureChains(
     [chain.mainnet, chain.arbitrum], // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
@@ -34,6 +35,8 @@ const ProviderContext = ({ children }: { children: any }) => {
       publicProvider(),
     ]
   );
+
+  console.log( chains )
 
   // Set up client
   const client = createClient({

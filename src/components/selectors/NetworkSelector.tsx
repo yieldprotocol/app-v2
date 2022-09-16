@@ -34,60 +34,6 @@ const NetworkSelector = () => {
         <div>{error && error.message}</div>
       </>
 
-      {/* <Select
-        plain
-        size="small"
-        dropProps={{ round: 'large' }}
-        disabled={!isConnected}
-        icon={<FiChevronDown />}
-        options={
-          chain?.name === 'Ethereum'
-            ? [
-                // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small">
-                  <Box height="20px" width="20px">
-                    <ArbitrumLogo />
-                  </Box>
-                  <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
-                    Arbitrum
-                  </Text>
-                </Box>,
-              ]
-            : [
-                // eslint-disable-next-line react/jsx-key
-                <Box direction="row" gap="small">
-                  <Box height="20px" width="20px">
-                    <EthMark />
-                  </Box>
-                  <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                    Ethereum
-                  </Text>
-                </Box>,
-              ]
-        }
-        value={
-          chain?.name === 'Ethereum' ? (
-            <Box direction="row" gap="small">
-              <Box height="20px" width="20px">
-                <EthMark />
-              </Box>
-              <Text size="small" color={CHAIN_INFO.get(1)?.color}>
-                Ethereum {[4, 5, 42, 421611].includes(chain?.id) && CHAIN_INFO.get(chain.id)?.name}
-              </Text>
-            </Box>
-          ) : (
-            <Box direction="row" gap="small" round>
-              <Box height="20px" width="20px">
-                <ArbitrumLogo />
-              </Box>
-              <Text size="small" color={CHAIN_INFO.get(42161)?.colorSecondary}>
-                {[4, 5, 42, 421611].includes(chain?.id) ? CHAIN_INFO.get(chain?.id)?.name : 'Arbitrum'}
-              </Text>
-            </Box>
-          )
-        }
-        onChange={() => handleNetworkChange(chain?.name === 'Ethereum' ? 'Arbitrum' : 'Ethereum')}
-      /> */}
     </Box>
   );
 };

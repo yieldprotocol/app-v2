@@ -130,7 +130,12 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const { contractMap, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccount(
+    // { onConnect({ address, connector, isReconnected }) {
+    //   console.log('Connected: ', { address, connector, isReconnected })
+    // }, }
+  );
+
   const { chain } = useNetwork();
 
   const useTenderlyFork = false;
