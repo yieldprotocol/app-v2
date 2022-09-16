@@ -12,6 +12,7 @@ import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
+import { useAccount } from 'wagmi';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -38,7 +39,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
+  const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
+
+  const { address: activeAccount } = useAccount();
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);

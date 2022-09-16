@@ -89,7 +89,6 @@ function chainReducer(state: IChainContextState, action: any) {
 }
 
 const ChainProvider = ({ children }: any) => {
-  
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
   /* CACHED VARIABLES */
@@ -110,14 +109,12 @@ const ChainProvider = ({ children }: any) => {
   /**
    * Update on connection/state on network changes chain
    */
- 
-  useEffect(() => {
 
-    console.log(provider)
-    const chainId = chain ? chain.id : 1;
+  useEffect(() => {
+    console.log(provider);
+    const chainId = chain ? chain.id : 1; // TODO DEFAULT CHAIN ID
 
     if (provider) {
-
       console.log('Connected to chain Id: ', chainId);
 
       /* Get the instances of the Base contracts */
@@ -322,10 +319,10 @@ const ChainProvider = ({ children }: any) => {
                 }
               }
 
-            /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
-            /* check if a wrapping handler is provided, if so, wrapping is required */
-            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
+              /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
+              const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
+              /* check if a wrapping handler is provided, if so, wrapping is required */
+              const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
 
               const newAsset = {
                 ...assetInfo,
@@ -433,8 +430,8 @@ const ChainProvider = ({ children }: any) => {
               poolContract.ts(),
               poolContract.g1(),
               poolContract.g2(),
-            ]); 
-            
+            ]);
+
             const newSeries = {
               id,
               baseId,
@@ -517,17 +514,15 @@ const ChainProvider = ({ children }: any) => {
       cachedAssets.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
       });
- 
+
       console.log('Checking for new Assets and Series, and Strategies ...');
-
       // then async check for any updates (they should automatically populate the map):
-      (async () => await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(()=> {
-        updateState({ type: ChainState.CHAIN_LOADING, payload: false });
-      }))();
-
-  }
-
-  }, [ provider ]);
+      (async () =>
+        await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(() => {
+          updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+        }))();
+    }
+  }, [provider]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version

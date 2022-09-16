@@ -35,13 +35,12 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS, FRAX } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount, useNetwork, useProvider } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -129,15 +128,9 @@ function userReducer(state: IUserContextState, action: any) {
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const {
-    contractMap,
-    chainLoading,
-    seriesRootMap,
-    assetRootMap,
-    strategyRootMap,
-  } = chainState;
+  const { contractMap, chainLoading, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
-  const { address:account } = useAccount();
+  const { address: account } = useAccount();
   const { chain } = useNetwork();
 
   const useTenderlyFork = false;
@@ -164,7 +157,6 @@ const UserProvider = ({ children }: any) => {
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(
     async (fromBlock: number = 1) => {
-
       const Cauldron = contractMap.get('Cauldron');
       if (!Cauldron) return new Map();
 
@@ -287,7 +279,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
-          
           /* Get all the data simultanenously in a promise.all */
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),
@@ -354,8 +345,9 @@ const UserProvider = ({ children }: any) => {
           // fetch the euler eToken supply APY from their subgraph
           const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
-          // some logic to decide if the series is shown or not
-          const showSeries = chain.id === 1 && series.baseId !== FRAX ? true : series.maturity !== 1672412400;
+          // some logic to decide if the series is shown or not : 
+          // const showSeries = chain?.id === 1 && series.baseId !== FRAX ? true : series.maturity !== 1672412400;
+          const showSeries = true; // Show all series 
 
           return {
             ...series,
@@ -423,10 +415,9 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
-
     async (vaultList: IVaultRoot[]) => {
       try {
-        updateState({ type: UserState.VAULTS_LOADING, payload: true });   
+        updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
         let _vaultList: IVaultRoot[] = vaultList;
         const Cauldron = contractMap.get('Cauldron');
@@ -435,15 +426,14 @@ const UserProvider = ({ children }: any) => {
         // const RateOracle = contractMap.get('RateOracle');
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-        if (vaultList.length === 0) {
+        if (vaultList.length === 0) {     
           const vaults = await _getVaults();
           _vaultList = Array.from(vaults.values());
         }
-       
+
         /* Add in the dynamic vault data by mapping the vaults list */
         const vaultListMod = await Promise.all(
           _vaultList.map(async (vault): Promise<IVault> => {
-
             /* Get dynamic vault data */
             const [
               { ink, art },
@@ -548,6 +538,7 @@ const UserProvider = ({ children }: any) => {
         /* update state */
         updateState({ type: UserState.VAULT_MAP, payload: combinedVaultMap });
         vaultFromUrl && updateState({ type: UserState.SELECTED_VAULT, payload: vaultFromUrl });
+        
         updateState({ type: UserState.VAULTS_LOADING, payload: false });
 
         console.log('VAULTS: ', combinedVaultMap);
@@ -555,19 +546,8 @@ const UserProvider = ({ children }: any) => {
         console.log('Error getting vaults', e);
       }
     },
-    [
-      contractMap,
-      _getVaults,
-      useTenderlyFork,
-      tenderlyStartBlock,
-      userState.vaultMap,
-      vaultFromUrl,
-      seriesRootMap,
-      isMature,
-      diagnostics,
-      assetRootMap,
+    [   
       account,
-      chain.id,
     ]
   );
 
@@ -704,10 +684,10 @@ const UserProvider = ({ children }: any) => {
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {
-    if (!userState.seriesLoading && !chainLoading && strategyRootMap.size) {
+    if (!chainLoading && !userState.seriesLoading && strategyRootMap.size) {
       updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [strategyRootMap, updateStrategies, userState.seriesLoading, chainLoading]);
+  }, [strategyRootMap, userState.seriesLoading, chainLoading]);
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
@@ -716,21 +696,23 @@ const UserProvider = ({ children }: any) => {
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
-    // updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
-  }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
+  }, [account, chainLoading]);
 
-  /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
-  useEffect(() => {
-    if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
-      updateVaults([]);
-      updateStrategies(Array.from(strategyRootMap.values()));
-    }
-  }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
+  // /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
+  // useEffect(() => {
+  //   if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
+  //     updateVaults([]);
+  //     updateStrategies(Array.from(strategyRootMap.values()));
+  //   }
+  // }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {
     if (userState.selectedSeries) {
-      updateState({ type: UserState.SELECTED_SERIES, payload: userState.seriesMap.get(userState.selectedSeries.id) });
+      updateState({
+        type: UserState.SELECTED_SERIES,
+        payload: userState.seriesMap.get(userState.selectedSeries.id),
+      });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
 

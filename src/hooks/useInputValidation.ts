@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries, IUserContext, IUserContextState, IVault } from '../types';
 
@@ -13,9 +14,11 @@ export const useInputValidation = (
 ) => {
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { assetMap, selectedSeries, selectedBase, activeAccount } = userState;
+  const { assetMap, selectedSeries, selectedBase } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;
+
+  const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
   const [inputError, setInputError] = useState<string | null>();

@@ -19,6 +19,7 @@ import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -27,7 +28,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap, activeAccount },
+    userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },
   } = useContext(UserContext) as IUserContext;
 
   const strategy: IStrategy | undefined = selectedStrategy;
@@ -39,6 +40,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
 

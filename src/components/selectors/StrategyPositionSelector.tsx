@@ -8,12 +8,15 @@ import { IStrategy, IUserContext, IUserContextState } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
+import { useAccount } from 'wagmi';
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
 
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, strategyMap, selectedBase } = userState;
+  const { strategyMap, selectedBase } = userState;
+
+  const { address: activeAccount } = useAccount();
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);

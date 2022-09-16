@@ -8,6 +8,7 @@ import { ActionType, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 export const useLendHelpers = (
   series: ISeries | null,
@@ -19,9 +20,10 @@ export const useLendHelpers = (
   } = useContext(SettingsContext);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { address: activeAccount } = useAccount();
 
   const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedBase } = userState;
+  const { selectedBase } = userState;
 
   /* clean to prevent underflow */
   const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(ethers.constants.Zero);

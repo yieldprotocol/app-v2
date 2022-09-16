@@ -15,6 +15,7 @@ import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -30,8 +31,10 @@ export const useBorrowHelpers = (
   } = useContext(SettingsContext);
 
   const {
-    userState: { activeAccount, assetMap, seriesMap, selectedSeries },
+    userState: { assetMap, seriesMap, selectedSeries },
   } = useContext(UserContext);
+
+  const {address:account} = useAccount();
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
 
@@ -194,12 +197,12 @@ export const useBorrowHelpers = (
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
-    if (activeAccount && vault && vaultBase && minDebt) {
+    if (account && vault && vaultBase && minDebt) {
       const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
       if (!vaultSeries) return;
 
       (async () => {
-        const _userBalance = await vaultBase.getBalance(activeAccount);
+        const _userBalance = await vaultBase.getBalance(account);
         setUserBaseBalance(_userBalance);
         setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
 
@@ -244,6 +247,7 @@ export const useBorrowHelpers = (
           const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
           // add buffer to handle moving interest accumulation
           const _debtInBaseWithBuffer = _debtInBase.mul(1000).div(999);
+
           setDebtInBase(_debtInBaseWithBuffer);
           setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
 
@@ -268,7 +272,7 @@ export const useBorrowHelpers = (
         }
       })();
     }
-  }, [activeAccount, getTimeTillMaturity, isMature, minDebt, seriesMap, vault, vaultBase]);
+  }, [account, getTimeTillMaturity, isMature, minDebt, seriesMap, vault, vaultBase]);
 
   return {
     borrowPossible,

@@ -9,6 +9,7 @@ import { ActionType, IAsset, ISeries, IUserContext, IUserContextState } from '..
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
+import { useAccount } from 'wagmi';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -18,7 +19,9 @@ interface IPositionFilter {
 function PositionSelector({ actionType }: { actionType: ActionType }) {
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, seriesMap, selectedSeries, selectedBase } = userState;
+  const { seriesMap, selectedSeries, selectedBase } = userState;
+
+  const { address: activeAccount } = useAccount();
 
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);

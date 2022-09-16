@@ -33,13 +33,16 @@ import StrategyItem from '../positionItems/StrategyItem';
 
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
+import { useAccount } from 'wagmi';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
+  const { selectedBase, selectedStrategy, strategyMap } = userState;
+
+  const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);

@@ -28,6 +28,7 @@ import { useProcess } from '../../hooks/useProcess';
 import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
+import { useAccount } from 'wagmi';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -39,7 +40,9 @@ const PoolPosition = () => {
     userState,
     userActions: { setSelectedStrategy },
   } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
+  const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
+
+  const { address: activeAccount } = useAccount();
 
   const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl as string);
 

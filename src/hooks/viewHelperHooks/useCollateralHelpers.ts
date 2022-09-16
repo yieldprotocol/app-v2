@@ -13,6 +13,7 @@ import { IAssetPair, IUserContext, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAccount } from 'wagmi';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -23,11 +24,12 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
+    userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
   } = useContext(UserContext) as IUserContext;
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { address: activeAccount } = useAccount();
 
   const _selectedBase = vault ? assetMap.get(vault.baseId) : selectedBase;
   const _selectedIlk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
