@@ -164,7 +164,6 @@ const UserProvider = ({ children }: any) => {
   const _getVaults = useCallback(
     async (fromBlock: number = 1) => {
 
-      console.log('here')
       const Cauldron = contractMap.get('Cauldron');
       if (!Cauldron) return new Map();
 
@@ -219,7 +218,7 @@ const UserProvider = ({ children }: any) => {
 
       return newVaultMap;
     },
-    [account, contractMap, seriesRootMap]
+    [contractMap, seriesRootMap]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -423,9 +422,10 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
+
     async (vaultList: IVaultRoot[]) => {
       try {
-        updateState({ type: UserState.VAULTS_LOADING, payload: true });
+        updateState({ type: UserState.VAULTS_LOADING, payload: true });   
 
         let _vaultList: IVaultRoot[] = vaultList;
         const Cauldron = contractMap.get('Cauldron');
@@ -434,18 +434,22 @@ const UserProvider = ({ children }: any) => {
         // const RateOracle = contractMap.get('RateOracle');
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-        if (vaultList.length === 0)
-          _vaultList = Array.from(
-            (await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)).values()
-          );
+        if (vaultList.length === 0) {
+          const vaults = await _getVaults();
+          _vaultList = Array.from(vaults.values());
+        }
+       
         /* Add in the dynamic vault data by mapping the vaults list */
         const vaultListMod = await Promise.all(
           _vaultList.map(async (vault): Promise<IVault> => {
+
             /* Get dynamic vault data */
             const [
               { ink, art },
               { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-            ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
+            ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
+
+            // console.log('in here')
 
             /* If art 0, check for liquidation event */
             const hasBeenLiquidated =
@@ -549,7 +553,7 @@ const UserProvider = ({ children }: any) => {
 
         console.log('VAULTS: ', combinedVaultMap);
       } catch (e) {
-        console.log('error getting vaults', e);
+        console.log('Error getting vaults', e);
       }
     },
     [
