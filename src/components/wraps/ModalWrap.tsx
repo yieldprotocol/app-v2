@@ -7,7 +7,7 @@ import PanelWrap from './PanelWrap';
 
 import { UserContext } from '../../contexts/UserContext';
 import { ISeries, IUserContextState } from '../../types';
-import YieldHeader from '../YieldHeader';
+import Header from '../Header';
 import YieldMobileMenu from '../YieldMobileMenu';
 
 interface IModalWrap {
@@ -59,7 +59,7 @@ function ModalWrap({ children, series }: IModalWrap) {
 
         {mobile && (
           <Box>
-            <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+            <Header actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
             {menuLayerOpen ? <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
           </Box>
         )}

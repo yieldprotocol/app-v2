@@ -3,14 +3,13 @@ import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import { FiSettings } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
-import { ChainContext } from '../contexts/ChainContext';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
 import SidebarSettings from './Sidebar';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
-import HeaderBalances from './HeaderBalances';
+import HeaderBalancesModal from './HeaderBalancesModal';
 import GeneralButton from './buttons/GeneralButton';
 import { useAccount,  useEnsName } from 'wagmi';
 
@@ -58,7 +57,7 @@ const HeaderAccount = (props: any) => {
 
       {isConnected ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <HeaderBalances />}
+          {!mobile && <HeaderBalancesModal />}
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
               <Box>

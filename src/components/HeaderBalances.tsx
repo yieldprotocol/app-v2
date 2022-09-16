@@ -1,93 +1,62 @@
-import { useContext, useState } from 'react';
-import { Box, DropButton, Table, TableHeader, TableCell, TableRow, Text, TableBody } from 'grommet';
+import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
+import { Box, Text } from 'grommet';
+
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { IAsset, IUserContext } from '../types';
-import AddTokenToMetamask from './AddTokenToMetamask';
-import YieldBalances from './YieldBalances';
-import BoxWrap from './wraps/BoxWrap';
-import { ZERO_BN } from '../utils/constants';
+import { WETH } from '../config/assets';
+import Skeleton from './wraps/SkeletonWrap';
 import Logo from './logos/Logo';
 
-const StyledTableCell = styled(TableCell)`
-  padding: 0.5rem 0.5rem;
+const StyledText = styled(Text)`
+  svg,
   span {
-    svg {
-      vertical-align: middle;
-    }
+    vertical-align: middle;
   }
 `;
 
-const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
-  <Box pad="small" background="hoverBackground">
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <StyledTableCell plain>
-            <Text size="xsmall" />
-          </StyledTableCell>
-          <StyledTableCell plain>
-            <Text size="xsmall" />
-          </StyledTableCell>
-          <StyledTableCell plain>
-            <Text size="xsmall" />
-          </StyledTableCell>
-          <StyledTableCell align="center" plain>
-            <Text color="text" size="xsmall">
-              Add To Metamask
-            </Text>
-          </StyledTableCell>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {[...assetMap.values()]
-          .filter((asset) => asset.showToken)
-          .filter((asset) => asset.balance.gt(ZERO_BN))
-          .map((asset) => (
-            <TableRow key={asset.id}>
-              <StyledTableCell plain>
-                <Logo image={asset.image} />
-              </StyledTableCell>
-              <StyledTableCell plain align="left">
-                <Text size="small" color="text">
-                  {asset.displaySymbol}
-                </Text>
-              </StyledTableCell>
-              <StyledTableCell plain>
-                <Text size="small">{asset.balance_}</Text>
-              </StyledTableCell>
-              <StyledTableCell plain>
-                <AddTokenToMetamask address={asset.address} symbol={asset.symbol} decimals={asset.decimals} image="" />
-              </StyledTableCell>
-            </TableRow>
-          ))}
-      </TableBody>
-    </Table>
+const Balance = ({ image, balance, loading }: { image: any; balance: string; loading: boolean }) => (
+  <Box direction="row" gap="small" align="center">
+    <StyledText size="small" color="text">
+      {loading ? <Skeleton circle height={20} width={20} /> : <Logo image={image} height="20px" width="20px" />}
+    </StyledText>
+    <StyledText size="small" color="text">
+      {loading && <Skeleton width={40} />}
+      {!loading && balance}
+    </StyledText>
   </Box>
 );
 
-const HeaderBalances = () => {
+const YieldBalances = () => {
   const {
-    userState: { assetMap },
-  } = useContext(UserContext) as IUserContext;
+    userState: { selectedBase, selectedIlk, assetsLoading, assetMap },
+  } = useContext(UserContext);
 
-  const [open, setOpen] = useState<boolean>(false);
-  const hasBalance = [...assetMap.values()].find((a) => +a.balance_ > 0);
+  const [baseBalance, setBaseBalance] = useState<string>(selectedBase?.balance_);
+  const [ilkBalance, setIlkBalance] = useState<string>(selectedIlk?.balance_);
+
+  /* If the url references a series/vault...set that one as active */
+  useEffect(() => {
+    selectedBase && setBaseBalance(assetMap.get(selectedBase.id).balance_);
+    selectedIlk && setIlkBalance(assetMap.get(selectedIlk.id).balance_);
+  }, [assetMap, selectedBase, selectedIlk]);
+
+  const { pathname } = useRouter();
+  const [path, setPath] = useState<string>();
+
+  /* If the url references a series/vault...set that one as active */
+  useEffect(() => {
+    pathname && setPath(pathname.split('/')[1]);
+  }, [pathname]);
+
   return (
-    <Box pad="medium">
-      <BoxWrap>
-        <DropButton
-          open={open}
-          onOpen={() => setOpen(true)}
-          onClose={() => setOpen(false)}
-          dropContent={hasBalance ? <DropContent assetMap={assetMap} /> : <></>}
-          dropProps={{ align: { top: 'bottom', right: 'right' }, round: 'small' }}
-        >
-          <YieldBalances />
-        </DropButton>
-      </BoxWrap>
+    <Box pad="small" justify="center" align="start" gap="xsmall">
+      <Balance image={selectedBase?.image} balance={baseBalance} loading={assetsLoading} />
+      {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.proxyId !== WETH && (
+        <Balance image={selectedIlk?.image} balance={ilkBalance} loading={assetsLoading} />
+      )}
     </Box>
   );
 };
 
-export default HeaderBalances;
+export default YieldBalances;
