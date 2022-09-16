@@ -41,7 +41,7 @@ import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount, useProvider } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -138,7 +138,8 @@ const UserProvider = ({ children }: any) => {
   } = chainState;
 
   const { address:account } = useAccount();
-  const chainId = 1;
+  const { chain } = useNetwork();
+
   const useTenderlyFork = false;
 
   const {
@@ -354,7 +355,7 @@ const UserProvider = ({ children }: any) => {
           const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
           // some logic to decide if the series is shown or not
-          const showSeries = chainId === 1 && series.baseId !== FRAX ? true : series.maturity !== 1672412400;
+          const showSeries = chain.id === 1 && series.baseId !== FRAX ? true : series.maturity !== 1672412400;
 
           return {
             ...series,
@@ -470,7 +471,7 @@ const UserProvider = ({ children }: any) => {
 
             if (isMature(series.maturity)) {
               const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-              const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
+              const oracleName = ORACLE_INFO.get(chain.id)?.get(vault.baseId)?.get(RATE);
 
               const RateOracle = contractMap.get(oracleName);
               rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
@@ -566,7 +567,7 @@ const UserProvider = ({ children }: any) => {
       diagnostics,
       assetRootMap,
       account,
-      chainId,
+      chain.id,
     ]
   );
 

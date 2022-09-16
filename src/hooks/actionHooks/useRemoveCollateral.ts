@@ -21,13 +21,12 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 
 export const useRemoveCollateral = () => {
   const {
     chainState: {
       contractMap,
-      connection: { chainId },
       provider,
     },
   } = useContext(ChainContext);
@@ -36,6 +35,7 @@ export const useRemoveCollateral = () => {
   ) as IUserContext;
   const { selectedIlk, assetMap } = userState;
   const { address: account } = useAccount();
+  const { chain } = useNetwork();
 
   const {
     historyActions: { updateVaultHistory },
@@ -54,7 +54,7 @@ export const useRemoveCollateral = () => {
     const ilk = assetMap.get(vault.ilkId)!;
     const ladleAddress = contractMap.get('Ladle').address;
     /* get unwrap handler if required */
-    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chainId);
+    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chain.id);
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
 

@@ -26,7 +26,7 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 
 export const useRepayDebt = () => {
   const {
@@ -40,11 +40,11 @@ export const useRepayDebt = () => {
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccount();
+  const {chain} = useNetwork();
 
   const {
     chainState: {
       contractMap,
-      connection: { chainId },
       provider,
     },
   } = useContext(ChainContext);
@@ -157,8 +157,8 @@ export const useRepayDebt = () => {
     /* Address to send the funds to either ladle (if eth is used as collateral) or account */
     const reclaimToAddress = () => {
       if (isEthCollateral) return ladleAddress;
-      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chainId))
-        return ilk.unwrapHandlerAddresses?.get(chainId); // if there is somethign to unwrap
+      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chain.id))
+        return ilk.unwrapHandlerAddresses?.get(chain.id); // if there is somethign to unwrap
       return account;
     };
 
