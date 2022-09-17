@@ -102,27 +102,21 @@ function chainReducer(state: IChainContextState, action: any) {
 }
 
 const ChainProvider = ({ children }: any) => {
-  const { tenderlyStartBlock } = useTenderly();
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
-  const [lastAssetUpdate, setLastAssetUpdate] = useCachedState('lastAssetUpdate', 'earliest');
-  const [lastSeriesUpdate, setLastSeriesUpdate] = useCachedState('lastSeriesUpdate', 'earliest');
-
-  const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
-  const [cachedSeries, setCachedSeries] = useCachedState('series', []);
-  const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
-
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
-  const { chainId, fallbackProvider, fallbackChainId, useTenderlyFork } = connectionState;
+  const { fallbackProvider, fallbackChainId } = connectionState;
 
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   useEffect(() => {
+    console.log('🦄 ~ file: ChainContext.tsx ~ line 127 ~ useEffect ~ fallbackChainId', fallbackChainId);
+    console.log('🦄 ~ file: ChainContext.tsx ~ line 128 ~ useEffect ~ fallbackProvider', fallbackProvider);
     if (fallbackProvider && fallbackChainId) {
       console.log('Fallback ChainId: ', fallbackChainId);
 
@@ -309,11 +303,8 @@ const ChainProvider = ({ children }: any) => {
         let assetMap = new Map();
         fallbackChainId === 1 ? (assetMap = ASSETS_1) : (assetMap = ASSETS_42161);
 
-        let newAssetList = [];
-
         // If the cache is empty then, get asset data:
         assetMap.size > 0 &&
-          cachedAssets.length === 0 &&
           (await Promise.all(
             Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
               const id = x[0];
@@ -381,12 +372,10 @@ const ChainProvider = ({ children }: any) => {
               };
 
               updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
-              newAssetList.push(newAsset);
             })
           ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.')));
 
-        newAssetList.length && setCachedAssets(newAssetList);
-        newAssetList.length && console.log('Yield Protocol Asset data updated successfully.');
+        console.log('Yield Protocol Asset data updated successfully.');
       };
 
       /* add on extra/calculated ASYNC series info and contract instances */
@@ -438,8 +427,6 @@ const ChainProvider = ({ children }: any) => {
         let seriesMap = new Map();
         fallbackChainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
 
-        let newSeriesList = [];
-
         // If the cache is empty then, get series data:
         await Promise.all(
           Array.from(seriesMap).map(async (x): Promise<void> => {
@@ -489,11 +476,10 @@ const ChainProvider = ({ children }: any) => {
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-            newSeriesList.push(newSeries);
           })
         ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
 
-        newSeriesList.length && console.log('Yield Protocol Series data updated successfully.');
+        console.log('Yield Protocol Series data updated successfully.');
       };
 
       /* Attach contract instance */
@@ -507,7 +493,6 @@ const ChainProvider = ({ children }: any) => {
 
       /* Iterate through the strategies list and update accordingly */
       const _getStrategies = async () => {
-        const newStrategyList: any[] = [];
         try {
           await Promise.all(
             strategyAddresses.map(async (strategyAddr) => {
@@ -532,9 +517,9 @@ const ChainProvider = ({ children }: any) => {
                 baseId,
                 decimals,
               };
-              // update state and cache
+
+              // update state
               updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
-              newStrategyList.push(newStrategy);
             })
           );
         } catch (e) {
@@ -547,20 +532,12 @@ const ChainProvider = ({ children }: any) => {
       /**
        * LOAD the Series and Assets *
        * */
-      cachedAssets.forEach((a: IAssetRoot) => {
-        updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
-      });
-
-      updateState({ type: ChainState.CHAIN_LOADING, payload: false });
-      // console.log('Checking for new Assets and Series, and Strategies ...');
-
-      // then async check for any updates (they should automatically populate the map):
       (async () =>
         await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(() => {
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         }))();
     }
-  }, [fallbackChainId]);
+  }, [fallbackChainId, fallbackProvider]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
