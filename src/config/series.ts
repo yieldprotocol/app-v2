@@ -175,12 +175,12 @@ SERIES_42161.set('0x303230360000', {
 
 SERIES_42161.set('0x303130380000', {
   fyTokenAddress: '0xe8Ec1A61f6C86e8d33C327FEdad559c20b9A66a2',
-  poolAddress: '0xb6b41764f7b288c76fade26c3fc37242a5cd069a',
+  poolAddress: '0x25e46aD1cC867c5253a179F45e1aB46144c8aBc0',
   poolType: PoolType.NONTV,
 });
 
 SERIES_42161.set('0x303230380000', {
   fyTokenAddress: '0xD4aeA765BC2c56f09074254eb5a3f5FF9d709449',
-  poolAddress: '0x8af1613bdf5631cbd220e8ea8566e3f8712cb807',
+  poolAddress: '0x81Ae3D05e4F0d0DD29d6840424a0b761A7fdB51c',
   poolType: PoolType.NONTV,
 });
