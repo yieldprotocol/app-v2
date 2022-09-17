@@ -172,7 +172,7 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
-  
+
   poolType: PoolType;
 
   decimals: number;
@@ -192,9 +192,7 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-
-  // baked in token fns
-  getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
+  baseAddress: string;
 }
 
 export enum TokenType {

@@ -16,7 +16,6 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
-import useTenderly from '../hooks/useTenderly';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
 
 enum ChainState {
@@ -417,9 +416,6 @@ const ChainProvider = ({ children }: any) => {
           oppEndColor,
           oppTextColor,
           seriesMark: <YieldMark colors={[startColor, endColor]} />,
-
-          // built-in helper functions:
-          getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
         };
       };
 
@@ -442,18 +438,20 @@ const ChainProvider = ({ children }: any) => {
             ).connect(poolAddress, fallbackProvider);
             const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
 
-            const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2] = await Promise.all([
-              fyTokenContract.name(),
-              fyTokenContract.symbol(),
-              fyTokenContract.version(),
-              fyTokenContract.decimals(),
-              poolContract.name(),
-              poolContract.version(),
-              poolContract.symbol(),
-              poolContract.ts(),
-              poolContract.g1(),
-              poolContract.g2(),
-            ]);
+            const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
+              await Promise.all([
+                fyTokenContract.name(),
+                fyTokenContract.symbol(),
+                fyTokenContract.version(),
+                fyTokenContract.decimals(),
+                poolContract.name(),
+                poolContract.version(),
+                poolContract.symbol(),
+                poolContract.ts(),
+                poolContract.g1(),
+                poolContract.g2(),
+                poolContract.base(),
+              ]);
 
             const newSeries = {
               id,
@@ -463,7 +461,7 @@ const ChainProvider = ({ children }: any) => {
               symbol,
               version,
               address: fyTokenAddress,
-              fyTokenAddress: fyTokenAddress,
+              fyTokenAddress,
               decimals,
               poolAddress,
               poolVersion,
@@ -473,6 +471,7 @@ const ChainProvider = ({ children }: any) => {
               ts,
               g1,
               g2,
+              baseAddress,
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
