@@ -205,6 +205,9 @@ export enum TokenType {
 }
 
 export interface IAssetInfo {
+  assetAddress: string;
+  joinAddress: string;
+
   tokenType: TokenType;
   tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
@@ -212,6 +215,7 @@ export interface IAssetInfo {
   version: string;
   symbol: string;
   decimals: number;
+  isYieldBase?: boolean;
 
   showToken: boolean; // Display/hide the token on the UI
 
@@ -237,8 +241,6 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   digitFormat: number;
   assetContract: Contract;
   oracleContract: Contract;
-
-  isYieldBase: boolean;
 
   isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;

@@ -1,4 +1,4 @@
-import { IAssetInfo, TokenType } from '../types';
+import { TokenType } from '../types';
 
 export interface AssetInfo {
   assetAddress: string;
@@ -11,6 +11,7 @@ export interface AssetInfo {
   version: string;
   symbol: string;
   decimals: number;
+  isYieldBase?: boolean;
 
   showToken: boolean; // Display/hide the token on the UI
 
@@ -62,8 +63,6 @@ export const CONVEX_BASED_ASSETS = [
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
-export const ASSET_INFO = new Map<string, AssetInfo>();
-
 export const ASSETS_42161 = new Map<string, AssetInfo>();
 
 export const ASSETS_1 = new Map<string, AssetInfo>();
@@ -79,6 +78,7 @@ ASSETS_1.set(DAI, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_DaiPermit,
+  isYieldBase: true,
 });
 
 ASSETS_1.set(USDC, {
@@ -92,6 +92,7 @@ ASSETS_1.set(USDC, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_Permit,
+  isYieldBase: true,
 });
 
 ASSETS_1.set(WBTC, {
@@ -132,6 +133,7 @@ ASSETS_1.set(WETH, {
   showToken: true,
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
+  isYieldBase: true,
 });
 
 ASSETS_1.set(wstETH, {
@@ -316,6 +318,7 @@ ASSETS_1.set(FRAX, {
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
   limitToSeries: [],
+  isYieldBase: true,
 });
 
 // ASSETS_1.set(CVX3CRV, {
@@ -350,6 +353,7 @@ ASSETS_42161.set(DAI, {
 
   assetAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
   joinAddress: '0xc31cce4fFA203d8F8D865b6cfaa4F36AD77E9810',
+  isYieldBase: true,
 });
 
 ASSETS_42161.set(USDC, {
@@ -364,6 +368,7 @@ ASSETS_42161.set(USDC, {
 
   assetAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
   joinAddress: '0x1229C71482E458fa2cd51d13eB157Bd2b5D5d1Ee',
+  isYieldBase: true,
 });
 
 ASSETS_42161.set(WETH, {
@@ -379,4 +384,5 @@ ASSETS_42161.set(WETH, {
 
   assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
   joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
+  isYieldBase: true,
 });

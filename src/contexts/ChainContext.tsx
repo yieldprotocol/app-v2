@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { AssetInfo, ASSETS_1, ASSETS_42161, ASSET_INFO, ETH_BASED_ASSETS } from '../config/assets';
+import { AssetInfo, ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
@@ -242,6 +242,9 @@ const ChainProvider = ({ children }: any) => {
       /* Get the hardcoded strategy addresses */
       const strategyAddresses = yieldEnv.strategies[fallbackChainId] as string[];
 
+      /* get asset map config */
+      const assetConfig = fallbackChainId === 1 ? ASSETS_1 : ASSETS_42161;
+
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
         /* attach either contract, (or contract of the wrappedToken ) */
@@ -283,14 +286,14 @@ const ChainProvider = ({ children }: any) => {
 
         return {
           ...asset,
-          digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
+          digitFormat: assetConfig.get(asset.id)?.digitFormat || 6,
           image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
 
           assetContract,
 
           /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
-          wrapHandlerAddresses: ASSET_INFO.get(asset.id)?.wrapHandlerAddresses,
-          unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses,
+          wrapHandlerAddresses: assetConfig.get(asset.id)?.wrapHandlerAddresses,
+          unwrapHandlerAddresses: assetConfig.get(asset.id)?.unwrapHandlerAddresses,
 
           getBalance,
           getAllowance,
@@ -427,12 +430,11 @@ const ChainProvider = ({ children }: any) => {
         await Promise.all(
           Array.from(seriesMap).map(async (x): Promise<void> => {
             const id = x[0];
-            const baseId = `${id.slice(0, 6)}00000000`;
             const fyTokenAddress = x[1].fyTokenAddress;
             const poolAddress = x[1].poolAddress;
             const poolType = x[1].poolType;
 
-            const { maturity } = await Cauldron.series(id);
+            const { maturity, baseId } = await Cauldron.series(id);
             const poolContract = (
               poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
             ).connect(poolAddress, fallbackProvider);
