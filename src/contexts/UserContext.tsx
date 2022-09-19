@@ -228,23 +228,13 @@ const UserProvider = ({ children }: any) => {
   const updateAssets = useCallback(
     async (assetList: IAssetRoot[]) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
-      let _publicData: IAssetRoot[] = [];
       let _accountData: IAsset[] = [];
-
-      _publicData = await Promise.all(
-        assetList.map(async (asset): Promise<IAssetRoot> => {
-          return {
-            ...asset,
-            displaySymbol: asset?.displaySymbol,
-          };
-        })
-      );
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
         try {
           _accountData = await Promise.all(
-            _publicData.map(async (asset): Promise<IAsset> => {
+            assetList.map(async (asset): Promise<IAsset> => {
               const balance = asset.name !== 'UNKNOWN' ? await asset.getBalance(account) : ZERO_BN;
               return {
                 ...asset,
@@ -259,7 +249,7 @@ const UserProvider = ({ children }: any) => {
           console.log(e);
         }
       }
-      const _combinedData = _accountData.length ? _accountData : _publicData;
+      const _combinedData = _accountData.length ? _accountData : assetList;
 
       /* reduce the asset list into a new map */
       const newAssetMap = new Map(
@@ -274,7 +264,7 @@ const UserProvider = ({ children }: any) => {
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
-    [account, seriesRootMap]
+    [account]
   );
 
   /* Updates the series with relevant *user* data */
@@ -686,7 +676,7 @@ const UserProvider = ({ children }: any) => {
     [account, userState.seriesMap] // userState.strategyMap excluded on purpose
   );
 
-  /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
+  /* When the chainContext is finished loading get the dynamic series and asset data */
   useEffect(() => {
     if (!chainLoading) {
       if (seriesRootMap.size) {
@@ -697,9 +687,9 @@ const UserProvider = ({ children }: any) => {
         updateAssets(Array.from(assetRootMap.values()));
       }
     }
-  }, [account, chainLoading, assetRootMap, seriesRootMap, updateSeries, updateAssets]);
+  }, [assetRootMap, chainLoading, seriesRootMap]);
 
-  /* Only When seriesContext is finished loading get the strategies data */
+  /* Only when seriesContext is finished loading get the strategies data */
   useEffect(() => {
     if (!userState.seriesLoading && !chainLoading && strategyRootMap.size) {
       updateStrategies(Array.from(strategyRootMap.values()));
@@ -709,7 +699,7 @@ const UserProvider = ({ children }: any) => {
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
     if (!chainLoading && account) {
-      /* trigger update of update all vaults by passing empty array */
+      /* trigger update of all vaults by passing empty array */
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
@@ -722,7 +712,7 @@ const UserProvider = ({ children }: any) => {
       updateVaults([]);
       updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
+  }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork, strategyRootMap]); // updateVaults ignored here on purpose
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {

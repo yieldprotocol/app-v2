@@ -105,6 +105,9 @@ const ChainProvider = ({ children }: any) => {
 
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
+  const [cachedAssets, setCachedAssets] = useCachedState('assets', []);
+  const [cachedSeries, setCachedSeries] = useCachedState('series', []);
+  const [cachedStrategies, setCachedStrategies] = useCachedState('strategies', []);
 
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
@@ -114,8 +117,6 @@ const ChainProvider = ({ children }: any) => {
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   useEffect(() => {
-    console.log('🦄 ~ file: ChainContext.tsx ~ line 127 ~ useEffect ~ fallbackChainId', fallbackChainId);
-    console.log('🦄 ~ file: ChainContext.tsx ~ line 128 ~ useEffect ~ fallbackProvider', fallbackProvider);
     if (fallbackProvider && fallbackChainId) {
       console.log('Fallback ChainId: ', fallbackChainId);
 
@@ -243,7 +244,10 @@ const ChainProvider = ({ children }: any) => {
       const strategyAddresses = yieldEnv.strategies[fallbackChainId] as string[];
 
       /* get asset map config */
-      const assetConfig = fallbackChainId === 1 ? ASSETS_1 : ASSETS_42161;
+      const ASSET_CONFIG = fallbackChainId === 1 ? ASSETS_1 : ASSETS_42161;
+
+      /* get series map config */
+      const SERIES_CONFIG = fallbackChainId === 1 ? SERIES_1 : SERIES_42161;
 
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
@@ -286,14 +290,14 @@ const ChainProvider = ({ children }: any) => {
 
         return {
           ...asset,
-          digitFormat: assetConfig.get(asset.id)?.digitFormat || 6,
+          digitFormat: ASSET_CONFIG.get(asset.id)?.digitFormat || 6,
           image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
 
           assetContract,
 
           /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
-          wrapHandlerAddresses: assetConfig.get(asset.id)?.wrapHandlerAddresses,
-          unwrapHandlerAddresses: assetConfig.get(asset.id)?.unwrapHandlerAddresses,
+          wrapHandlerAddresses: ASSET_CONFIG.get(asset.id)?.wrapHandlerAddresses,
+          unwrapHandlerAddresses: ASSET_CONFIG.get(asset.id)?.unwrapHandlerAddresses,
 
           getBalance,
           getAllowance,
@@ -302,80 +306,78 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getAssets = async () => {
-        let assetMap = new Map();
-        fallbackChainId === 1 ? (assetMap = ASSETS_1) : (assetMap = ASSETS_42161);
+        let assetMap = ASSET_CONFIG;
+        const newAssetList: any[] = [];
 
-        // If the cache is empty then, get asset data:
-        assetMap.size > 0 &&
-          (await Promise.all(
-            Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
-              const id = x[0];
-              const assetInfo = x[1];
+        await Promise.all(
+          Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
+            const id = x[0];
+            const assetInfo = x[1];
 
-              let { name, symbol, decimals, version } = assetInfo;
+            let { name, symbol, decimals, version } = assetInfo;
 
-              /* On first load checks & corrects the ERC20 name/symbol/decimals (if possible ) */
-              if (
-                assetInfo.tokenType === TokenType.ERC20_ ||
-                assetInfo.tokenType === TokenType.ERC20_Permit ||
-                assetInfo.tokenType === TokenType.ERC20_DaiPermit
-              ) {
-                const contract = contracts.ERC20__factory.connect(assetInfo.assetAddress, fallbackProvider);
-                try {
-                  [name, symbol, decimals] = await Promise.all([
-                    contract.name(),
-                    contract.symbol(),
-                    contract.decimals(),
-                  ]);
-                } catch (e) {
-                  console.log(
-                    id,
-                    ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
-                  );
-                }
+            /* On first load checks & corrects the ERC20 name/symbol/decimals (if possible ) */
+            if (
+              assetInfo.tokenType === TokenType.ERC20_ ||
+              assetInfo.tokenType === TokenType.ERC20_Permit ||
+              assetInfo.tokenType === TokenType.ERC20_DaiPermit
+            ) {
+              const contract = contracts.ERC20__factory.connect(assetInfo.assetAddress, fallbackProvider);
+              try {
+                [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
+              } catch (e) {
+                console.log(
+                  id,
+                  ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
+                );
               }
-              /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
-              if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
-                const contract = contracts.ERC20Permit__factory.connect(assetInfo.assetAddress, fallbackProvider);
-                try {
-                  version = await contract.version();
-                } catch (e) {
-                  console.log(
-                    id,
-                    ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
-                  );
-                }
+            }
+            /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
+            if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
+              const contract = contracts.ERC20Permit__factory.connect(assetInfo.assetAddress, fallbackProvider);
+              try {
+                version = await contract.version();
+              } catch (e) {
+                console.log(
+                  id,
+                  ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
+                );
               }
+            }
 
-              /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-              const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(fallbackChainId);
-              /* check if a wrapping handler is provided, if so, wrapping is required */
-              const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(fallbackChainId);
+            /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
+            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(fallbackChainId);
+            /* check if a wrapping handler is provided, if so, wrapping is required */
+            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(fallbackChainId);
 
-              const newAsset = {
-                ...assetInfo,
-                id,
-                address: assetInfo.assetAddress,
-                name,
-                symbol,
-                decimals,
-                version,
+            const newAsset = {
+              ...assetInfo,
+              id,
+              address: assetInfo.assetAddress,
+              name,
+              symbol,
+              decimals,
+              version,
 
-                /* Redirect the id/join if required due to using wrapped tokens */
-                joinAddress: assetInfo.joinAddress, // assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
+              /* Redirect the id/join if required due to using wrapped tokens */
+              joinAddress: assetInfo.joinAddress, // assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
 
-                isWrappedToken,
-                wrappingRequired,
-                proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
+              isWrappedToken,
+              wrappingRequired,
+              proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
 
-                /* Default setting of assetInfo fields if required */
-                displaySymbol: assetInfo.displaySymbol || symbol,
-                showToken: assetInfo.showToken || false,
-              };
+              /* Default setting of assetInfo fields if required */
+              displaySymbol: assetInfo.displaySymbol || symbol,
+              showToken: assetInfo.showToken || false,
+            };
 
-              updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
-            })
-          ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.')));
+            updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
+            newAssetList.push(newAsset);
+          })
+        ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.'));
+
+        // log the new assets in the cache
+        setCachedAssets(newAssetList);
 
         console.log('Yield Protocol Asset data updated successfully.');
       };
@@ -423,10 +425,10 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-        let seriesMap = new Map();
-        fallbackChainId === 1 ? (seriesMap = SERIES_1) : (seriesMap = SERIES_42161);
+        let seriesMap = SERIES_CONFIG;
 
-        // If the cache is empty then, get series data:
+        const newSeriesList: any[] = [];
+
         await Promise.all(
           Array.from(seriesMap).map(async (x): Promise<void> => {
             const id = x[0];
@@ -477,8 +479,11 @@ const ChainProvider = ({ children }: any) => {
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+            newSeriesList.push(newSeries);
           })
         ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
+
+        setCachedSeries(newSeriesList);
 
         console.log('Yield Protocol Series data updated successfully.');
       };
@@ -494,6 +499,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* Iterate through the strategies list and update accordingly */
       const _getStrategies = async () => {
+        const newStrategyList: IStrategyRoot[] = [];
         try {
           await Promise.all(
             strategyAddresses.map(async (strategyAddr) => {
@@ -509,7 +515,7 @@ const ChainProvider = ({ children }: any) => {
                 Strategy.version(),
               ]);
 
-              const newStrategy = {
+              const newStrategy = _chargeStrategy({
                 id: strategyAddr,
                 address: strategyAddr,
                 symbol,
@@ -517,26 +523,45 @@ const ChainProvider = ({ children }: any) => {
                 version,
                 baseId,
                 decimals,
-              };
+              });
 
               // update state
-              updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
+              updateState({ type: ChainState.ADD_STRATEGY, payload: newStrategy });
+              newStrategyList.push(newStrategy);
             })
           );
         } catch (e) {
           console.log('Error fetching strategies', e);
         }
 
+        setCachedStrategies(newStrategyList);
         console.log('Yield Protocol Strategy data updated.');
       };
 
       /**
        * LOAD the Series and Assets *
        * */
-      (async () =>
-        await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(() => {
-          updateState({ type: ChainState.CHAIN_LOADING, payload: false });
-        }))();
+      if (cachedAssets.length === 0 || cachedSeries.length === 0) {
+        console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
+        (async () => {
+          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(() => {
+            updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+          });
+        })();
+      } else {
+        // get assets, series and strategies from cache and 'charge' them, and add to state:
+        cachedAssets.forEach((a: IAssetRoot) => {
+          updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
+        });
+        cachedSeries.forEach(async (s: ISeriesRoot) => {
+          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
+        });
+        cachedStrategies.forEach((st: IStrategyRoot) => {
+          strategyAddresses.includes(st.address) &&
+            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
+        });
+        updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+      }
     }
   }, [fallbackChainId, fallbackProvider]);
 
