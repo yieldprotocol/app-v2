@@ -283,7 +283,7 @@ const UserProvider = ({ children }: any) => {
     /* Add in the dynamic series data of the series in the list */
     _publicData = await Promise.all(
       seriesList
-      .filter((series)=> isMature(series.maturity) ) // OPTIMISATION TO NOTE: only fetch extra data if the series isnt mature 
+      .filter((series)=> !isMature(series.maturity) ) // OPTIMISATION TO NOTE: only fetch extra data if the series isnt mature 
       .map(async (series): Promise<ISeries> => {
 
         /* Get all the data simultanenously in a promise.all */
