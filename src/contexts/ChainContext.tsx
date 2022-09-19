@@ -16,33 +16,28 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
-import { useAccount, useConnect, useNetwork, useProvider, useSwitchNetwork } from 'wagmi';
+import { useNetwork, useProvider } from 'wagmi';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
-import { getContractAddress } from 'ethers/lib/utils';
 
 enum ChainState {
   CHAIN_LOADED = 'chainLoaded',
-  APP_VERSION = 'appVersion',
-  CONNECTION = 'connection',
   CONTRACT_MAP = 'contractMap',
   ADD_SERIES = 'addSeries',
   ADD_ASSET = 'addAsset',
   ADD_STRATEGY = 'addStrategy',
-  CLEAR_MAPS = 'clearMaps',
 }
 
 /* Build the context */
 const ChainContext = React.createContext<any>({});
 
 const initState: IChainContextState = {
-  appVersion: '0.0.0' as string,
   /* flags */
   chainLoaded: false,
   /* Connected Contract Maps */
-  contractMap: new Map<string, Contract>([]),
-  assetRootMap: new Map<string, IAssetRoot>([]),
-  seriesRootMap: new Map<string, ISeriesRoot>([]),
-  strategyRootMap: new Map<string, IStrategyRoot>([]),
+  contractMap: new Map<string, Contract>(),
+  assetRootMap: new Map<string, IAssetRoot>(),
+  seriesRootMap: new Map<string, ISeriesRoot>(),
+  strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
 function chainReducer(state: IChainContextState, action: any) {
@@ -54,12 +49,6 @@ function chainReducer(state: IChainContextState, action: any) {
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: onlyIfChanged(action) };
-
-    case ChainState.APP_VERSION:
-      return { ...state, appVersion: onlyIfChanged(action) };
-
-    case ChainState.CONNECTION:
-      return { ...state, connection: onlyIfChanged(action) };
 
     case ChainState.CONTRACT_MAP:
       return { ...state, contractMap: action.payload };
@@ -82,15 +71,6 @@ function chainReducer(state: IChainContextState, action: any) {
         strategyRootMap: state.strategyRootMap.set(action.payload.address, action.payload),
       };
 
-    case ChainState.CLEAR_MAPS:
-      return {
-        ...state,
-        strategyRootMap: new Map(),
-        assetRootMap: new Map(),
-        seriesRootMap: new Map(),
-        contractmap: new Map(),
-      };
-
     default:
       return state;
   }
@@ -102,19 +82,29 @@ const ChainProvider = ({ children }: any) => {
   /* Connection hook */
   const provider = useProvider();
   const { chain } = useNetwork();
-  const { address } = useAccount();
-
-  // const chainId = chain ? chain.id : provider.chains[0].id;
-  const [chainId, setChainId] = useState(provider.chains[0].id);
-  useEffect(() => {
-    chain && setChainId(chain.id);
-  }, [chain]);
 
   /* CACHED VARIABLES */
-  const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
-  const [cachedAssets, setCachedAssets] = useCachedState(`assets`, [], chainId.toString());
-  const [cachedSeries, setCachedSeries] = useCachedState(`series`, [], chainId.toString());
-  const [cachedStrategies, setCachedStrategies] = useCachedState(`strategies`, [], chainId.toString());
+  const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '', '');
+
+  /* Track chainId changes */
+  const [lastChainId, setLastChainId] = useCachedState('lastChainId', provider.chains[0].id);
+  const [chainId, setChainId] = useState<number>();
+  useEffect(() => {
+    if (chain) {
+      console.log('Connected to chainId: ', chain.id);
+      setChainId(chain.id);
+      setLastChainId(chain.id);
+      _getContracts(chainId);
+    } else {
+      console.log('There is no chainId. Use last known chainId: ', lastChainId);
+      setChainId(lastChainId);
+      _getContracts(lastChainId);
+    }
+  }, [chain]);
+
+  const [cachedAssets, setCachedAssets] = useCachedState(`assets_${chainId}`, []);
+  const [cachedSeries, setCachedSeries] = useCachedState(`series_${chainId}`, []);
+  const [cachedStrategies, setCachedStrategies] = useCachedState(`strategies_${chainId}`, []);
 
   const _getContracts = (_chainId: number) => {
     console.log('Fetching Protocol contract addresses for chain Id: ', _chainId);
@@ -269,8 +259,8 @@ const ChainProvider = ({ children }: any) => {
 
   const _getAssets = async (_chainId: number) => {
     /* Select correct Asset map */
-    let assetMap = _chainId === 1 ? ASSETS_1 : ASSETS_42161
-    
+    let assetMap = _chainId === 1 ? ASSETS_1 : ASSETS_42161;
+
     /**
      * IF:  the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
@@ -404,13 +394,14 @@ const ChainProvider = ({ children }: any) => {
   };
 
   const _getSeries = async (_chainId: number) => {
-    let seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
+    let seriesMap = lastChainId === 1 ? SERIES_1 : SERIES_42161;
     const addrs = (yieldEnv.addresses as any)[_chainId];
     const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, provider);
+
     /**
-     * IF:  the CACHE is empty then, get fetch asset data for chainId and cache it:
+     * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
-    if (seriesMap.size > 0 && cachedSeries.length === 0) {
+    if (cachedSeries.length === 0) {
       let newSeriesList = [];
       await Promise.all(
         Array.from(seriesMap).map(async (x): Promise<void> => {
@@ -464,7 +455,7 @@ const ChainProvider = ({ children }: any) => {
         })
       ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
 
-      // newSeriesList.length && setCachedSeries(newSeriesList);
+      newSeriesList.length && setCachedSeries(newSeriesList);
       newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
     } else {
       /**
@@ -489,7 +480,7 @@ const ChainProvider = ({ children }: any) => {
   /* Iterate through the strategies list and update accordingly */
   const _getStrategies = async (_chainId: number) => {
     const newStrategyList: any[] = [];
-    const strategyList = yieldEnv.strategies[_chainId]
+    const strategyList = yieldEnv.strategies[_chainId];
     /**
      * IF:  the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
@@ -538,24 +529,11 @@ const ChainProvider = ({ children }: any) => {
     }
   };
 
-  useEffect(() => {
-    console.log('ChainId changed: ', chainId);
-    updateState({ type: ChainState.CHAIN_LOADED, payload: false });
-    // updateState({ type: ChainState.CLEAR_MAPS, payload: true });
-  }, [chainId]);
-
-  /**
-   * Update on connection/state on network changes chain
-   */
-  useEffect(() => {
-    provider && _getContracts(chainId);
-  }, [provider, chainId]);
-
   /**
    * Update on asset/series/strategies state on network changes chain
    */
   useEffect(() => {
-    if (chainState.contractMap.size > 0) {
+    if (chainState.contractMap.size > 0 && chainId) {
       console.log('Checking for new Assets and Series, and Strategies : ', chainId);
       // then async check for any updates (they should automatically populate the map):
       (async () =>
@@ -563,13 +541,12 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.CHAIN_LOADED, payload: true });
         }))();
     }
-  }, [chainState.contractMap]);
+  }, [chainId, chainState.contractMap]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
    */
   useEffect(() => {
-    updateState({ type: 'appVersion', payload: process.env.REACT_APP_VERSION });
     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
       window.localStorage.clear();
@@ -578,7 +555,7 @@ const ChainProvider = ({ children }: any) => {
     }
     setLastAppVersion(process.env.REACT_APP_VERSION);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // ignore to only happen once on init
+  }, []);
 
   const exportContractAddresses = () => {
     const contractList = [...(chainState.contractMap as any)].map(([v, k]) => [v, k?.address]);

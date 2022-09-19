@@ -11,10 +11,7 @@ export interface IChainContext {
 }
 
 export interface IChainContextState {
-  appVersion: string;
-  // connection: IConnectionState;
   chainLoaded: boolean;
-
   contractMap: Map<string, Contract>;
   assetRootMap: Map<string, IAssetRoot>;
   seriesRootMap: Map<string, ISeriesRoot>;

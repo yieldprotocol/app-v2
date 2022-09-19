@@ -17,7 +17,7 @@ export const useCachedState = (key: string, initialValue: any, append?: string) 
     return initialValue;
   };
 
-  const _key = `${key}_${append}`;
+  const _key =  append ? `${key}_${append}` : key ;
   const [storedValue, setStoredValue] = useState( () => getValue() );
 
   const setValue = useCallback(
