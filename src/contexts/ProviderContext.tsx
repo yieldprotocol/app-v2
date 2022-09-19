@@ -13,18 +13,16 @@ import { SettingsContext } from './SettingsContext';
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
   const { settingsState } = useContext(SettingsContext);
+  
   const { useFork, useTenderlyFork, forkUrl } = settingsState;
-
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider, webSocketProvider } = configureChains(
     [chain.mainnet, chain.arbitrum], // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
     [
-      // infuraProvider({ apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv' }), // TODO move this key to env
-      // alchemyProvider({
-      //   apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv', // TODO move this key to env
-      //   priority: useTenderlyFork ? 100 : 0,
-      // }),
+      alchemyProvider({
+        apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv', // TODO move this key to env
+      }),
       // jsonRpcProvider({
       //   rpc: (chain) => ({
       //     http: forkUrl,
@@ -61,9 +59,9 @@ const ProviderContext = ({ children }: { children: any }) => {
   // Configure chains & providers with the Alchemy provider.
 
   /* watch & handle linked approval and effect appropriate settings */
-  useEffect(() => {
-    // console.log(settingsState);
-  }, [settingsState]);
+  // useEffect(() => {
+  //   // console.log(settingsState);
+  // }, [settingsState]);
 
   /* before doing anything here, check the settings */
 
