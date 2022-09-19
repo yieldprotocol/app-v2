@@ -131,10 +131,6 @@ const UserProvider = ({ children }: any) => {
   const { contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const { address: account } = useAccount();
-  // { onConnect({ address, connector, isReconnected }) {
-  //   console.log('Connected: ', { address, connector, isReconnected })
-  // }, }
-
   const { chain } = useNetwork();
 
   const useTenderlyFork = false;
@@ -283,95 +279,98 @@ const UserProvider = ({ children }: any) => {
     /* Add in the dynamic series data of the series in the list */
     _publicData = await Promise.all(
       seriesList
-      .filter((series)=> !isMature(series.maturity) ) // OPTIMISATION TO NOTE: only fetch extra data if the series isnt mature 
-      .map(async (series): Promise<ISeries> => {
+        // .filter((series)=> !isMature(series.maturity) ) // OPTIMISATION TO NOTE: only fetch extra data if the series isnt mature
+        .map(async (series): Promise<ISeries> => {
+          const seriesIsMature = isMature(series.maturity);
 
-        /* Get all the data simultanenously in a promise.all */
-        const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-          series.poolContract.getBaseBalance(),
-          series.poolContract.getFYTokenBalance(),
-          series.poolContract.totalSupply(),
-          series.fyTokenContract.balanceOf(series.poolAddress),
-        ]) // .catch(() => { console.log('Problem loading series: ', series.id ); return [ZERO_BN, ZERO_BN, ZERO_BN, ZERO_BN, ]});
-
-        let sharesReserves: BigNumber | undefined;
-        let c: BigNumber | undefined;
-        let mu: BigNumber | undefined;
-        let currentSharePrice: BigNumber | undefined;
-        let sharesToken: string | undefined;
-
-        try {
-          [sharesReserves, c, mu, currentSharePrice, sharesToken] = await Promise.all([
-            series.poolContract.getSharesBalance(),
-            series.poolContract.getC(),
-            series.poolContract.mu(),
-            series.poolContract.getCurrentSharePrice(),
-            series.poolContract.sharesToken(),
+          /* Get all the data simultanenously in a promise.all */
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
+            series.poolContract.getBaseBalance(),
+            series.poolContract.getFYTokenBalance(),
+            series.poolContract.totalSupply(),
+            series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
-        } catch (error) {
-          sharesReserves = baseReserves;
-          currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-          console.log('Using old pool contract that does not include c, mu, and shares');
-        }
 
-        // convert base amounts to shares amounts (baseAmount is wad)
-        const getShares = (baseAmount: BigNumber) =>
-          toBn(
-            new Decimal(baseAmount.toString()).mul(10 ** series.decimals).div(new Decimal(currentSharePrice.toString()))
+          let sharesReserves: BigNumber | undefined;
+          let c: BigNumber | undefined;
+          let mu: BigNumber | undefined;
+          let currentSharePrice: BigNumber | undefined;
+          let sharesToken: string | undefined;
+
+          try {
+            [sharesReserves, c, mu, currentSharePrice, sharesToken] = await Promise.all([
+              series.poolContract.getSharesBalance(),
+              series.poolContract.getC(),
+              series.poolContract.mu(),
+              series.poolContract.getCurrentSharePrice(),
+              series.poolContract.sharesToken(),
+            ]);
+          } catch (error) {
+            sharesReserves = baseReserves;
+            currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
+            console.log('Using old pool contract that does not include c, mu, and shares');
+          }
+
+          // convert base amounts to shares amounts (baseAmount is wad)
+          const getShares = (baseAmount: BigNumber) =>
+            toBn(
+              new Decimal(baseAmount.toString())
+                .mul(10 ** series.decimals)
+                .div(new Decimal(currentSharePrice.toString()))
+            );
+
+          // convert shares amounts to base amounts
+          const getBase = (sharesAmount: BigNumber) =>
+            toBn(
+              new Decimal(sharesAmount.toString())
+                .mul(new Decimal(currentSharePrice.toString()))
+                .div(10 ** series.decimals)
+            );
+
+          const rateCheckAmount = ethers.utils.parseUnits(
+            ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
+            series.decimals
           );
 
-        // convert shares amounts to base amounts
-        const getBase = (sharesAmount: BigNumber) =>
-          toBn(
-            new Decimal(sharesAmount.toString())
-              .mul(new Decimal(currentSharePrice.toString()))
-              .div(10 ** series.decimals)
+          /* Calculates the base/fyToken unit selling price */
+          const _sellRate = sellFYToken(
+            sharesReserves,
+            fyTokenReserves,
+            rateCheckAmount,
+            getTimeTillMaturity(series.maturity),
+            series.ts,
+            series.g2,
+            series.decimals,
+            c,
+            mu
           );
 
-        const rateCheckAmount = ethers.utils.parseUnits(
-          ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
-          series.decimals
-        );
+          const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
+          // fetch the euler eToken supply APY from their subgraph
+          const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
-        /* Calculates the base/fyToken unit selling price */
-        const _sellRate = sellFYToken(
-          sharesReserves,
-          fyTokenReserves,
-          rateCheckAmount,
-          getTimeTillMaturity(series.maturity),
-          series.ts,
-          series.g2,
-          series.decimals,
-          c,
-          mu
-        );
+          // some logic to decide if the series is shown or not :
+          // const showSeries = chain?.id === 1 && series.baseId !== FRAX ? true : series.maturity !== 1672412400;
+          const showSeries = true; // Show all series
 
-        const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
-        // fetch the euler eToken supply APY from their subgraph
-        const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
-
-        // some logic to decide if the series is shown or not :
-        // const showSeries = chain?.id === 1 && series.baseId !== FRAX ? true : series.maturity !== 1672412400;
-        const showSeries = true; // Show all series
-
-        return {
-          ...series,
-          sharesReserves,
-          sharesReserves_: ethers.utils.formatUnits(sharesReserves, series.decimals),
-          fyTokenReserves,
-          fyTokenRealReserves,
-          totalSupply,
-          totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
-          apr: `${Number(apr).toFixed(2)}`,
-          seriesIsMature: isMature(series.maturity),
-          c,
-          mu,
-          poolAPY,
-          getShares,
-          getBase,
-          showSeries,
-        };
-      })
+          return {
+            ...series,
+            sharesReserves,
+            sharesReserves_: ethers.utils.formatUnits(sharesReserves, series.decimals),
+            fyTokenReserves,
+            fyTokenRealReserves,
+            totalSupply,
+            totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
+            apr: `${Number(apr).toFixed(2)}`,
+            seriesIsMature,
+            c,
+            mu,
+            poolAPY,
+            getShares,
+            getBase,
+            showSeries,
+          };
+        })
     );
 
     if (account) {
@@ -419,6 +418,7 @@ const UserProvider = ({ children }: any) => {
   /* Updates the vaults with *user* data */
   const updateVaults = async (vaultList: IVaultRoot[]) => {
     console.log('Updating vaults...');
+
     try {
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
@@ -553,12 +553,10 @@ const UserProvider = ({ children }: any) => {
     let _publicData: IStrategy[] = [];
     let _accountData: IStrategy[] = [];
 
-    
-
     _publicData = await Promise.all(
       strategyList.map(async (_strategy): Promise<IStrategy> => {
-
-        console.log( _strategy.address);
+        
+        console.log(_strategy.address);
 
         /* Get all the data simultanenously in a promise.all */
         const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([

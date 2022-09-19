@@ -102,11 +102,13 @@ const ChainProvider = ({ children }: any) => {
   const [cachedSeries, setCachedSeries] = useCachedState(`seriess_${chainId}`, []);
   const [cachedStrategies, setCachedStrategies] = useCachedState(`strategies_${chainId}`, []);
 
+  // useEffect(()=> {
+  //   chain.id && provider && address && location.reload();
+  // },[provider && address && chain])
 
   /**
    * Update on connection/state on network changes chain
    */
-
   useEffect(() => {
     // use the first int he list as the default chainId
     if (provider) {

@@ -7,13 +7,13 @@ import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { SettingsContext } from './SettingsContext';
 
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
   const { settingsState } = useContext(SettingsContext);
-  
+
   const { useFork, useTenderlyFork, forkUrl } = settingsState;
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
@@ -35,26 +35,30 @@ const ProviderContext = ({ children }: { children: any }) => {
   );
 
   // Set up client
-  const client = createClient({
-    autoConnect: true,
-    connectors: [
-      new MetaMaskConnector({ chains }),
-      new CoinbaseWalletConnector({
-        chains,
-        options: {
-          appName: 'yieldProtocol',
-        },
+  const client = useMemo(
+    () =>
+      createClient({
+        autoConnect: true,
+        connectors: [
+          new MetaMaskConnector({ chains }),
+          new CoinbaseWalletConnector({
+            chains,
+            options: {
+              appName: 'yieldProtocol',
+            },
+          }),
+          new WalletConnectConnector({
+            chains,
+            options: {
+              qrcode: true,
+            },
+          }),
+        ],
+        provider,
+        webSocketProvider,
       }),
-      new WalletConnectConnector({
-        chains,
-        options: {
-          qrcode: true,
-        },
-      }),
-    ],
-    provider,
-    webSocketProvider,
-  });
+    []
+  );
 
   // Configure chains & providers with the Alchemy provider.
 
