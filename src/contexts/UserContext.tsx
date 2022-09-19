@@ -282,14 +282,17 @@ const UserProvider = ({ children }: any) => {
 
     /* Add in the dynamic series data of the series in the list */
     _publicData = await Promise.all(
-      seriesList.map(async (series): Promise<ISeries> => {
+      seriesList
+      .filter((series)=> isMature(series.maturity) ) // OPTIMISATION TO NOTE: only fetch extra data if the series isnt mature 
+      .map(async (series): Promise<ISeries> => {
+
         /* Get all the data simultanenously in a promise.all */
         const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
           series.poolContract.getBaseBalance(),
           series.poolContract.getFYTokenBalance(),
           series.poolContract.totalSupply(),
           series.fyTokenContract.balanceOf(series.poolAddress),
-        ]);
+        ]) // .catch(() => { console.log('Problem loading series: ', series.id ); return [ZERO_BN, ZERO_BN, ZERO_BN, ZERO_BN, ]});
 
         let sharesReserves: BigNumber | undefined;
         let c: BigNumber | undefined;
@@ -550,8 +553,13 @@ const UserProvider = ({ children }: any) => {
     let _publicData: IStrategy[] = [];
     let _accountData: IStrategy[] = [];
 
+    
+
     _publicData = await Promise.all(
       strategyList.map(async (_strategy): Promise<IStrategy> => {
+
+        console.log( _strategy.address);
+
         /* Get all the data simultanenously in a promise.all */
         const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
           _strategy.strategyContract.totalSupply(),
@@ -696,7 +704,6 @@ const UserProvider = ({ children }: any) => {
       });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
-
 
   const getPoolAPY = async (sharesTokenAddr: string) => {
     const query = `
