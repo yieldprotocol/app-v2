@@ -559,11 +559,13 @@ const ChainProvider = ({ children }: any) => {
    * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
+    console.log( 'changes')
     updateState({
       type: ChainState.CONNECTION,
       payload: connectionState,
     });
   }, [
+    connectionState.provider,
     connectionState.fallbackChainId,
     connectionState.chainId,
     connectionState.account,

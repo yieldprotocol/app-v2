@@ -1,6 +1,6 @@
 {
   "name": "app-v2",
-  "version": "2.4.8",
+  "version": "2.4.9",
   "private": true,
   "dependencies": {
     "@ethersproject/providers": "^5.6.8",

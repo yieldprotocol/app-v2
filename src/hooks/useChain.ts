@@ -45,7 +45,6 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
-    
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
 
     /* Set the router contract instance, ladle by default */
@@ -173,17 +172,15 @@ export const useChain = () => {
             approvalMethod
           );
 
-          console.log(v < 27 ? v+27: v )
-
           const args = [
             reqSig.target.address,
             _spender,
             nonce,
             expiry,
             allowed, // TODO check use amount if provided, else defaults to MAX.
-            v<27?v+27:v, // handle ledger signing ( 00 is 27 or  01 is 28 )
+            v < 27 ? v + 27 : v, // handle ledger signing ( 00 is 27 or  01 is 28 )
             r,
-            s, 
+            s,
           ] as LadleActions.Args.FORWARD_DAI_PERMIT;
 
           return {
@@ -232,16 +229,16 @@ export const useChain = () => {
             : ApprovalType.TX
         );
 
-        console.log(v < 27 ? v+27: v )
+        console.log(v < 27 ? v + 27 : v);
 
         const args = [
           reqSig.target.address, // the asset id OR the seriesId (if signing fyToken)
           _spender,
           value,
           deadline,
-          v<27? v+27:v, // handle ledger signing ( 00 is 27 or  01 is 28 )
+          v < 27 ? v + 27 : v, // handle ledger signing ( 00 is 27 or  01 is 28 )
           r,
-          s, 
+          s,
         ] as LadleActions.Args.FORWARD_PERMIT;
 
         return {
