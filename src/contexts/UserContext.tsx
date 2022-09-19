@@ -555,7 +555,6 @@ const UserProvider = ({ children }: any) => {
 
     _publicData = await Promise.all(
       strategyList.map(async (_strategy): Promise<IStrategy> => {
-        
         console.log(_strategy.address);
 
         /* Get all the data simultanenously in a promise.all */
@@ -692,7 +691,6 @@ const UserProvider = ({ children }: any) => {
     }
     /* keep checking the active account when it changes/ chainloading */
   }, [account, chainLoaded]);
-
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {

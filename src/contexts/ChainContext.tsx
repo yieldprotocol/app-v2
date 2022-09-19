@@ -25,6 +25,7 @@ enum ChainState {
   ADD_SERIES = 'addSeries',
   ADD_ASSET = 'addAsset',
   ADD_STRATEGY = 'addStrategy',
+  CLEAR_MAPS = 'clearMaps'
 }
 
 /* Build the context */
@@ -51,28 +52,38 @@ function chainReducer(state: IChainContextState, action: any) {
       return { ...state, chainLoaded: onlyIfChanged(action) };
 
     case ChainState.CONTRACT_MAP:
-      return { ...state, contractMap: action.payload };
+      return { ...state, contractMap: new Map(action.payload) };
 
     case ChainState.ADD_SERIES:
       return {
         ...state,
-        seriesRootMap: state.seriesRootMap.set(action.payload.id, action.payload),
+        seriesRootMap: new Map(state.seriesRootMap.set(action.payload.id, action.payload)),
       };
 
     case ChainState.ADD_ASSET:
       return {
         ...state,
-        assetRootMap: state.assetRootMap.set(action.payload.id, action.payload),
+        assetRootMap: new Map(state.assetRootMap.set(action.payload.id, action.payload)),
       };
 
     case ChainState.ADD_STRATEGY:
       return {
         ...state,
-        strategyRootMap: state.strategyRootMap.set(action.payload.address, action.payload),
+        strategyRootMap: new Map(state.strategyRootMap.set(action.payload.address, action.payload)),
       };
 
-    default:
+    case ChainState.CLEAR_MAPS: { 
+      console.log( 'clearing state')
+      return {
+        ...state,
+        ...initState
+      }
+    };
+
+    default: { 
+      console.log('returning default state' );
       return state;
+    };
   }
 }
 
@@ -91,14 +102,18 @@ const ChainProvider = ({ children }: any) => {
   const [chainId, setChainId] = useState<number>();
   useEffect(() => {
     if (chain) {
-      console.log('Connected to chainId: ', chain.id);
+      console.log('Connected to chainId: ', chain.id,  ' && Last chainId: ', lastChainId  );
+      if (chain.id !== lastChainId) {
+        console.log( 'ChainId different to lastChainId ')
+        updateState({ type: ChainState.CLEAR_MAPS, payload: undefined })
+        updateState({ type: ChainState.CHAIN_LOADED, payload: false })
+        setLastChainId(chain.id);
+      } 
       setChainId(chain.id);
-      setLastChainId(chain.id);
-      _getContracts(chainId);
+      
     } else {
-      console.log('There is no chainId. Use last known chainId: ', lastChainId);
+      console.log('There is no chainId immediately avaialable. Using the last known chainId: ', lastChainId);
       setChainId(lastChainId);
-      _getContracts(lastChainId);
     }
   }, [chain]);
 
@@ -107,8 +122,7 @@ const ChainProvider = ({ children }: any) => {
   const [cachedStrategies, setCachedStrategies] = useCachedState(`strategies_${chainId}`, []);
 
   const _getContracts = (_chainId: number) => {
-    console.log('Fetching Protocol contract addresses for chain Id: ', _chainId);
-
+    
     /* Get the instances of the Base contracts */
     const addrs = (yieldEnv.addresses as any)[_chainId];
 
@@ -262,7 +276,7 @@ const ChainProvider = ({ children }: any) => {
     let assetMap = _chainId === 1 ? ASSETS_1 : ASSETS_42161;
 
     /**
-     * IF:  the CACHE is empty then, get fetch asset data for chainId and cache it:
+     * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     if (cachedAssets.length === 0) {
       let newAssetList = [];
@@ -455,7 +469,7 @@ const ChainProvider = ({ children }: any) => {
         })
       ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
 
-      newSeriesList.length && setCachedSeries(newSeriesList);
+      // newSeriesList.length && setCachedSeries(newSeriesList);
       newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
     } else {
       /**
@@ -533,15 +547,16 @@ const ChainProvider = ({ children }: any) => {
    * Update on asset/series/strategies state on network changes chain
    */
   useEffect(() => {
-    if (chainState.contractMap.size > 0 && chainId) {
+    if (chainId) {
+      console.log('Fetching Protocol contract addresses for chain Id: ', chainId);
+      _getContracts(chainId);
       console.log('Checking for new Assets and Series, and Strategies : ', chainId);
-      // then async check for any updates (they should automatically populate the map):
       (async () =>
         await Promise.all([_getAssets(chainId), _getSeries(chainId), _getStrategies(chainId)]).then(() => {
           updateState({ type: ChainState.CHAIN_LOADED, payload: true });
         }))();
-    }
-  }, [chainId, chainState.contractMap]);
+    };
+  }, [chainId]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
