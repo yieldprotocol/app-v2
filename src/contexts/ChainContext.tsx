@@ -307,7 +307,6 @@ const ChainProvider = ({ children }: any) => {
 
       const _getAssets = async () => {
         let assetMap = ASSET_CONFIG;
-        console.log('🦄 ~ file: ChainContext.tsx ~ line 308 ~ const_getAssets= ~ assetMap', assetMap);
         const newAssetList: any[] = [];
 
         await Promise.all(
