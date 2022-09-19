@@ -665,7 +665,7 @@ const UserProvider = ({ children }: any) => {
     return combinedMap;
   };
 
-  /* When the chainContext is finished loading get the dynamic series, asset and strategies data. Also, updated when account changes */
+  /* When the chainContext is finished loading get the dynamic series, asset and strategies data. */
   useEffect(() => {
     if (chainLoaded) {
       if (seriesRootMap.size) {
@@ -675,7 +675,7 @@ const UserProvider = ({ children }: any) => {
         updateAssets(Array.from(assetRootMap.values()));
       }
     }
-  }, [account, chainLoaded, assetRootMap, seriesRootMap]);
+  }, [chainLoaded, assetRootMap, seriesRootMap]);
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {
@@ -692,6 +692,7 @@ const UserProvider = ({ children }: any) => {
     }
     /* keep checking the active account when it changes/ chainloading */
   }, [account, chainLoaded]);
+
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 
 /* Simple Hook for caching & retrieved data */
-export const useCachedState = (key: string, initialValue: any, account?: string) => {
+export const useCachedState = (key: string, initialValue: any, append?: string) => {
+
   const getValue = () => {
     try {
       if (typeof window !== 'undefined') {
-        const item = localStorage.getItem(genKey);
+        const item = localStorage.getItem(_key);
         /* Parse stored json or if none, return initialValue */
         return item ? JSON.parse(item) : initialValue;
       }
@@ -16,8 +17,8 @@ export const useCachedState = (key: string, initialValue: any, account?: string)
     return initialValue;
   };
 
-  const genKey = account ? `${account}_${key}` : key;
-  const [storedValue, setStoredValue] = useState(() => getValue());
+  const _key = `${key}_${append}`;
+  const [storedValue, setStoredValue] = useState( () => getValue() );
 
   const setValue = useCallback(
     (value: any) => {
@@ -26,7 +27,7 @@ export const useCachedState = (key: string, initialValue: any, account?: string)
           // For same API as useState
           const valueToStore = value instanceof Function ? value(storedValue) : value;
           setStoredValue(valueToStore);
-          localStorage.setItem(genKey, JSON.stringify(valueToStore));
+          localStorage.setItem( _key, JSON.stringify(valueToStore));
         }
       } catch (error) {
         // TODO: handle the error cases needs work
@@ -34,14 +35,14 @@ export const useCachedState = (key: string, initialValue: any, account?: string)
         console.log(error);
       }
     },
-    [genKey, storedValue]
+    [_key, storedValue]
   );
 
   const clearAll = () => typeof window !== 'undefined' && localStorage.clear();
 
   useEffect(() => {
     if (typeof window !== 'undefined') setValue(storedValue);
-  }, [genKey, setValue, storedValue]);
+  }, [_key, setValue, storedValue]);
 
   return [storedValue, setValue, clearAll] as const;
 };

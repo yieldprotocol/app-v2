@@ -58,7 +58,9 @@ function VaultPositionSelector(target: any) {
       // sorting to prioritize active vaults
       // eslint-disable-next-line no-nested-ternary
       .sort((vaultA: IVault, vaultB: IVault) => (vaultA.isActive === vaultB.isActive ? 0 : vaultA.isActive ? -1 : 1));
-    setAllVaults(_allVaults);
+    
+      setAllVaults(_allVaults);
+
     if (selectedBase) {
       handleFilter({ base: selectedBase, series: undefined, ilk: undefined });
     }
