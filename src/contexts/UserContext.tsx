@@ -228,23 +228,13 @@ const UserProvider = ({ children }: any) => {
   const updateAssets = useCallback(
     async (assetList: IAssetRoot[]) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
-      let _publicData: IAssetRoot[] = [];
       let _accountData: IAsset[] = [];
-
-      _publicData = await Promise.all(
-        assetList.map(async (asset): Promise<IAssetRoot> => {
-          return {
-            ...asset,
-            displaySymbol: asset?.displaySymbol,
-          };
-        })
-      );
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
         try {
           _accountData = await Promise.all(
-            _publicData.map(async (asset): Promise<IAsset> => {
+            assetList.map(async (asset): Promise<IAsset> => {
               const balance = asset.name !== 'UNKNOWN' ? await asset.getBalance(account) : ZERO_BN;
               return {
                 ...asset,
@@ -259,7 +249,7 @@ const UserProvider = ({ children }: any) => {
           console.log(e);
         }
       }
-      const _combinedData = _accountData.length ? _accountData : _publicData;
+      const _combinedData = _accountData.length ? _accountData : assetList;
 
       /* reduce the asset list into a new map */
       const newAssetMap = new Map(
