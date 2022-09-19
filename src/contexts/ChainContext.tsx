@@ -427,6 +427,8 @@ const ChainProvider = ({ children }: any) => {
       const _getSeries = async () => {
         let seriesMap = SERIES_CONFIG;
 
+        const newSeriesList: any[] = [];
+
         await Promise.all(
           Array.from(seriesMap).map(async (x): Promise<void> => {
             const id = x[0];
@@ -477,8 +479,11 @@ const ChainProvider = ({ children }: any) => {
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+            newSeriesList.push(newSeries);
           })
         ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
+
+        setCachedSeries(newSeriesList);
 
         console.log('Yield Protocol Series data updated successfully.');
       };
@@ -494,6 +499,7 @@ const ChainProvider = ({ children }: any) => {
 
       /* Iterate through the strategies list and update accordingly */
       const _getStrategies = async () => {
+        const newStrategyList: IStrategyRoot[] = [];
         try {
           await Promise.all(
             strategyAddresses.map(async (strategyAddr) => {
@@ -509,7 +515,7 @@ const ChainProvider = ({ children }: any) => {
                 Strategy.version(),
               ]);
 
-              const newStrategy = {
+              const newStrategy = _chargeStrategy({
                 id: strategyAddr,
                 address: strategyAddr,
                 symbol,
@@ -517,16 +523,18 @@ const ChainProvider = ({ children }: any) => {
                 version,
                 baseId,
                 decimals,
-              };
+              });
 
               // update state
-              updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
+              updateState({ type: ChainState.ADD_STRATEGY, payload: newStrategy });
+              newStrategyList.push(newStrategy);
             })
           );
         } catch (e) {
           console.log('Error fetching strategies', e);
         }
 
+        setCachedStrategies(newStrategyList);
         console.log('Yield Protocol Strategy data updated.');
       };
 
