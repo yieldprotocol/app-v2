@@ -224,9 +224,10 @@ const ChainProvider = ({ children }: any) => {
   };
 
   /* add on extra/calculated ASSET info and contract instances  (no async) */
-  const _chargeAsset = (asset: any) => {
-    /* attach either contract, (or contract of the wrappedToken ) */
+  const _chargeAsset = (asset: any, _chainId:number) => {
+    let assetMap = _chainId === 1 ? ASSETS_1 : ASSETS_42161;
 
+    /* attach either contract, (or contract of the wrappedToken ) */
     let assetContract: Contract;
     let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
     let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
@@ -262,14 +263,14 @@ const ChainProvider = ({ children }: any) => {
 
     return {
       ...asset,
-      digitFormat: ASSET_INFO.get(asset.id)?.digitFormat || 6,
+      digitFormat: assetMap.get(asset.id)?.digitFormat || 6,
       image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
 
       assetContract,
 
       /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
-      wrapHandlerAddresses: ASSET_INFO.get(asset.id)?.wrapHandlerAddresses,
-      unwrapHandlerAddresses: ASSET_INFO.get(asset.id)?.unwrapHandlerAddresses,
+      wrapHandlerAddresses: assetMap.get(asset.id)?.wrapHandlerAddresses,
+      unwrapHandlerAddresses: assetMap.get(asset.id)?.unwrapHandlerAddresses,
 
       getBalance,
       getAllowance,
@@ -348,7 +349,7 @@ const ChainProvider = ({ children }: any) => {
             showToken: assetInfo.showToken || false,
           };
 
-          updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
+          updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset, _chainId) });
           newAssetList.push(newAsset);
         })
       ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.'));
@@ -363,7 +364,7 @@ const ChainProvider = ({ children }: any) => {
        * ELSE: else charge the assets from the cache
        * */
       cachedAssets.forEach((a: IAssetRoot) => {
-        updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
+        updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a, _chainId) });
       });
 
       console.log('Yield Protocol Asset data retrieved successfully (from cache).');
