@@ -1,12 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
+import { useProvider } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 
 export const useBlockNum = () => {
-  const {
-    chainState: {
-      connection: { provider },
-    },
-  } = useContext(ChainContext);
+
+  const provider = useProvider();
 
   const [blockNum, setBlockNum] = useState<string | null>(null);
 
