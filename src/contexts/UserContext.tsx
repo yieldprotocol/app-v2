@@ -711,6 +711,7 @@ const UserProvider = ({ children }: any) => {
     if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
       updateVaults([]);
       updateStrategies(Array.from(strategyRootMap.values()));
+      updateSeries(Array.from(seriesRootMap.values()));
     }
   }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork, strategyRootMap]); // updateVaults ignored here on purpose
 
