@@ -30,7 +30,7 @@ const ProviderContext = ({ children }: { children: any }) => {
       //   }),
       //   // priority: useTenderlyFork ? 0 : 100,
       // }),
-      publicProvider(),
+      // publicProvider(),
     ]
   );
 

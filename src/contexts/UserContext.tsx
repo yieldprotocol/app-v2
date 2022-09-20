@@ -128,7 +128,7 @@ function userReducer(state: IUserContextState, action: any) {
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const { contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const { chainId, contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const { address: account } = useAccount();
   const { chain } = useNetwork();
@@ -665,7 +665,7 @@ const UserProvider = ({ children }: any) => {
   };
 
   /* When the chainContext is finished loading get the dynamic series, asset and strategies data. */
-  useEffect(() => {
+  useEffect(() => { 
     if (chainLoaded) {
       if (seriesRootMap.size) {
         updateSeries(Array.from(seriesRootMap.values()));
@@ -674,7 +674,7 @@ const UserProvider = ({ children }: any) => {
         updateAssets(Array.from(assetRootMap.values()));
       }
     }
-  }, [chainLoaded, assetRootMap, seriesRootMap]);
+  }, [account, chainLoaded ]);
 
   /* Only When seriesContext is finished loading get the strategies data */
   useEffect(() => {

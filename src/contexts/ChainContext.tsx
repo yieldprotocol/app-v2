@@ -16,10 +16,11 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
-import { useNetwork, useProvider } from 'wagmi';
+import { useNetwork, useProvider, useSwitchNetwork } from 'wagmi';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
 
 enum ChainState {
+  CHAIN_ID = 'chainId',
   CHAIN_LOADED = 'chainLoaded',
   CONTRACT_MAP = 'contractMap',
   ADD_SERIES = 'addSeries',
@@ -33,6 +34,7 @@ const ChainContext = React.createContext<any>({});
 
 const initState: IChainContextState = {
   /* flags */
+  chainId: undefined,
   chainLoaded: false,
   /* Connected Contract Maps */
   contractMap: new Map<string, Contract>(),
@@ -50,6 +52,9 @@ function chainReducer(state: IChainContextState, action: any) {
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: onlyIfChanged(action) };
+
+    case ChainState.CHAIN_ID:
+      return { ...state, chainId: onlyIfChanged(action) };
 
     case ChainState.CONTRACT_MAP:
       return { ...state, contractMap: new Map(action.payload) };
@@ -81,7 +86,7 @@ function chainReducer(state: IChainContextState, action: any) {
     };
 
     default: { 
-      console.log('returning default state' );
+      console.log('Returning default state' );
       return state;
     };
   }
@@ -93,27 +98,31 @@ const ChainProvider = ({ children }: any) => {
   /* Connection hook */
   const provider = useProvider();
   const { chain } = useNetwork();
+  const { pendingChainId } = useSwitchNetwork();
 
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '', '');
 
-  /* Track chainId changes */
-  const [lastChainId, setLastChainId] = useCachedState('lastChainId', provider.chains[0].id);
-  const [chainId, setChainId] = useState<number>();
+  /**
+   * 
+   * track chainId changes
+   * 
+   * */
+  const [chainId, setChainId] = useState<number>(provider.chains[0].id);
   useEffect(() => {
     if (chain) {
-      console.log('Connected to chainId: ', chain.id,  ' && Last chainId: ', lastChainId  );
-      if (chain.id !== lastChainId) {
-        console.log( 'ChainId different to lastChainId ')
+      console.log('Connected to chainId: ', chain.id);
+
+      if ( chain.id !== chainState.chainId  ) {
+        console.log( 'ChainId different to previously used ChainId: ', chainState.chainId )
         updateState({ type: ChainState.CLEAR_MAPS, payload: undefined })
-        updateState({ type: ChainState.CHAIN_LOADED, payload: false })
-        setLastChainId(chain.id);
-      } 
+        updateState({ type: ChainState.CHAIN_LOADED, payload: false })      
+      }
+      updateState({ type: ChainState.CHAIN_ID, payload: chain.id })
       setChainId(chain.id);
-      
+
     } else {
-      console.log('There is no chainId immediately avaialable. Using the last known chainId: ', lastChainId);
-      setChainId(lastChainId);
+      console.log('There is no chainId immediately avaialable. Waiting on provider...');
     }
   }, [chain]);
 
@@ -407,13 +416,15 @@ const ChainProvider = ({ children }: any) => {
     };
   };
 
-  const _getSeries = async (_chainId: number) => {
-    let seriesMap = lastChainId === 1 ? SERIES_1 : SERIES_42161;
+  const _getSeries = async (_chainId: number ) => {
+
+    let seriesMap = _chainId === 1 ? SERIES_1 : SERIES_42161;
+    
     const addrs = (yieldEnv.addresses as any)[_chainId];
     const Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, provider);
 
     /**
-     * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
+     * If: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     if (cachedSeries.length === 0) {
       let newSeriesList = [];
@@ -426,6 +437,7 @@ const ChainProvider = ({ children }: any) => {
           const poolType = x[1].poolType;
 
           const { maturity } = await Cauldron.series(id);
+
           const poolContract = (
             poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
           ).connect(poolAddress, provider);
@@ -467,7 +479,7 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
           newSeriesList.push(newSeries);
         })
-      ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
+      ).catch((e) => console.log('Problems getting Series data. Check addresses in series config.', e));
 
       // newSeriesList.length && setCachedSeries(newSeriesList);
       newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
@@ -544,7 +556,9 @@ const ChainProvider = ({ children }: any) => {
   };
 
   /**
-   * Update on asset/series/strategies state on network changes chain
+   * 
+   * STARTIN POINT>
+   * Update on asset/series/strategies state on network changes chainId
    */
   useEffect(() => {
     if (chainId) {
@@ -552,7 +566,9 @@ const ChainProvider = ({ children }: any) => {
       _getContracts(chainId);
       console.log('Checking for new Assets and Series, and Strategies : ', chainId);
       (async () =>
-        await Promise.all([_getAssets(chainId), _getSeries(chainId), _getStrategies(chainId)]).then(() => {
+        await Promise.all([_getAssets(chainId), _getSeries(chainId), _getStrategies(chainId)])
+        .catch(() => console.log('error getting data'))
+        .finally(() => {
           updateState({ type: ChainState.CHAIN_LOADED, payload: true });
         }))();
     };

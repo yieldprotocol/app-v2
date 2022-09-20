@@ -48,7 +48,7 @@ const priceReducer = (state: IPriceContextState, action: any) => {
 const PriceProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const {
+  const {  
     contractMap,
     assetRootMap,
   } = chainState;
