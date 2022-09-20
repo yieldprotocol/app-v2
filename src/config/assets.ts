@@ -1,4 +1,4 @@
-import { IAssetInfo, TokenType } from '../types';
+import { TokenType } from '../types';
 
 export interface AssetInfo {
   assetAddress: string;
@@ -11,6 +11,7 @@ export interface AssetInfo {
   version: string;
   symbol: string;
   decimals: number;
+  isYieldBase?: boolean;
 
   showToken: boolean; // Display/hide the token on the UI
 
@@ -62,25 +63,9 @@ export const CONVEX_BASED_ASSETS = [
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
-export const ASSET_INFO = new Map<string, AssetInfo>();
-
 export const ASSETS_42161 = new Map<string, AssetInfo>();
 
 export const ASSETS_1 = new Map<string, AssetInfo>();
-
-/* Unknown token for temporarily handling new tokens added */
-// ASSET_INFO.set(UNKNOWN, {
-//   assetAddress: '',
-//   joinAddress: '',
-
-//   version: '1',
-//   name: 'UNKNOWN',
-//   decimals: 18,
-//   symbol: 'UNKNOWN',
-//   showToken: false,
-//   digitFormat: 2,
-//   tokenType: TokenType.ERC20_,
-// });
 
 ASSETS_1.set(DAI, {
   assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -93,6 +78,7 @@ ASSETS_1.set(DAI, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_DaiPermit,
+  isYieldBase: true,
 });
 
 ASSETS_1.set(USDC, {
@@ -106,6 +92,7 @@ ASSETS_1.set(USDC, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_Permit,
+  isYieldBase: true,
 });
 
 ASSETS_1.set(WBTC, {
@@ -135,7 +122,6 @@ ASSETS_1.set(ENS, {
 });
 
 ASSETS_1.set(WETH, {
-
   assetAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   joinAddress: '0x3bDb887Dc46ec0E964Df89fFE2980db0121f0fD0',
 
@@ -147,10 +133,10 @@ ASSETS_1.set(WETH, {
   showToken: true,
   digitFormat: 6,
   tokenType: TokenType.ERC20_,
+  isYieldBase: true,
 });
 
 ASSETS_1.set(wstETH, {
-
   assetAddress: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
   joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
 
@@ -171,7 +157,6 @@ ASSETS_1.set(wstETH, {
 });
 
 ASSETS_1.set(stETH, {
-
   assetAddress: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
   joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
 
@@ -182,15 +167,12 @@ ASSETS_1.set(stETH, {
   showToken: false,
   digitFormat: 6,
   tokenType: TokenType.ERC20_Permit,
-  wrapHandlerAddresses: new Map([
-    [1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1'],
-  ]),
+  wrapHandlerAddresses: new Map([[1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1']]),
   unwrapHandlerAddresses: new Map([]),
   proxyId: wstETH,
 });
 
 ASSETS_1.set(LINK, {
-
   assetAddress: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
   joinAddress: '0xbDaBb91cDbDc252CBfF3A707819C5f7Ec2B92833',
 
@@ -204,7 +186,6 @@ ASSETS_1.set(LINK, {
 });
 
 ASSETS_1.set(yvUSDC, {
-
   assetAddress: '0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE',
   joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
 
@@ -219,7 +200,6 @@ ASSETS_1.set(yvUSDC, {
 });
 
 ASSETS_1.set(UNI, {
-
   assetAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
   joinAddress: '0x41567f6A109f5bdE283Eb5501F21e3A0bEcbB779',
 
@@ -233,7 +213,6 @@ ASSETS_1.set(UNI, {
 });
 
 ASSETS_1.set(FDAI2203, {
-
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0xb8d37d6Fcbc6882480633aBF3682b1D4ae2aB124',
 
@@ -250,11 +229,9 @@ ASSETS_1.set(FDAI2203, {
 
   wrapHandlerAddresses: new Map([]),
   unwrapHandlerAddresses: new Map([]),
-
 });
 
 ASSETS_1.set(FUSDC2203, {
-
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x4970B046565BEE1DE8308E41BD22d0061A251911',
 
@@ -270,7 +247,6 @@ ASSETS_1.set(FUSDC2203, {
 });
 
 ASSETS_1.set(FDAI2206, {
-
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x9f41f9eE1A7B24b6B016a7e61a4161A0CFCf5987',
 
@@ -286,7 +262,6 @@ ASSETS_1.set(FDAI2206, {
 });
 
 ASSETS_1.set(FUSDC2206, {
-
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x62DdD41F8A65B03746656D85b6B2539aE42e23e8',
 
@@ -302,7 +277,6 @@ ASSETS_1.set(FUSDC2206, {
 });
 
 ASSETS_1.set(FDAI2209, {
-
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x399bA81A1f1Ed0221c39179C50d4d4Bc85C3F3Ab',
 
@@ -318,7 +292,6 @@ ASSETS_1.set(FDAI2209, {
 });
 
 ASSETS_1.set(FUSDC2209, {
-
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x0Bfd3B8570A4247157c5468861d37dA55AAb9B4b',
 
@@ -333,9 +306,7 @@ ASSETS_1.set(FUSDC2209, {
   limitToSeries: ['0x303230370000'],
 });
 
-
-ASSET_INFO.set(FRAX, {
-
+ASSETS_1.set(FRAX, {
   assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
   joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
 
@@ -347,8 +318,8 @@ ASSET_INFO.set(FRAX, {
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
   limitToSeries: [],
+  isYieldBase: true,
 });
-
 
 // ASSETS_1.set(CVX3CRV, {
 
@@ -370,7 +341,6 @@ ASSET_INFO.set(FRAX, {
 //   ],
 // });
 
-
 ASSETS_42161.set(DAI, {
   version: '2',
   name: 'Dai stable coin',
@@ -383,6 +353,7 @@ ASSETS_42161.set(DAI, {
 
   assetAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
   joinAddress: '0xc31cce4fFA203d8F8D865b6cfaa4F36AD77E9810',
+  isYieldBase: true,
 });
 
 ASSETS_42161.set(USDC, {
@@ -397,6 +368,7 @@ ASSETS_42161.set(USDC, {
 
   assetAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
   joinAddress: '0x1229C71482E458fa2cd51d13eB157Bd2b5D5d1Ee',
+  isYieldBase: true,
 });
 
 ASSETS_42161.set(WETH, {
@@ -411,5 +383,6 @@ ASSETS_42161.set(WETH, {
   tokenType: TokenType.ERC20_,
 
   assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-  joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10'
+  joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
+  isYieldBase: true,
 });

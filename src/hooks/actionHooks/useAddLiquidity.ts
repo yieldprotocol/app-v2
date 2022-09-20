@@ -86,10 +86,11 @@ export const useAddLiquidity = () => {
       _series.poolContract.totalSupply(),
     ]);
 
+    const hasZeroRealReserves = cachedFyTokenReserves.eq(totalSupply);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
 
     const [minRatio, maxRatio_] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance);
-    const maxRatio = cachedFyTokenReserves.eq(totalSupply) ? MAX_256 : maxRatio_;
+    const maxRatio = hasZeroRealReserves ? MAX_256 : maxRatio_;
     cachedFyTokenReserves.eq(totalSupply) && console.log('EDGE-CASE WARNING: CachedRealReserves are 0.');
 
     /* if approveMax, check if signature is still required */
@@ -121,9 +122,9 @@ export const useAddLiquidity = () => {
       true
     ) as [BigNumber, BigNumber];
 
-    const fyTokenToBorrowWithSlippage = BigNumber.from(
-      calculateSlippage(fyTokenToBorrow, slippageTolerance.toString(), true)
-    );
+    const fyTokenToBorrowWithSlippage = hasZeroRealReserves
+      ? ethers.constants.Zero
+      : BigNumber.from(calculateSlippage(fyTokenToBorrow, slippageTolerance.toString(), true));
 
     /* convert shares to be pooled (when borrowing and pooling) to base, since we send in base */
     const baseToPool = _series.getBase(sharesToPool);

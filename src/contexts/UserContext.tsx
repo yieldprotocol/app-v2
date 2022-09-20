@@ -681,7 +681,7 @@ const UserProvider = ({ children }: any) => {
     }
   }, [account, chainLoaded]);
 
-  /* Only When seriesContext is finished loading get the strategies data */
+  /* Only when seriesContext is finished loading get the strategies data */
   useEffect(() => {
     if (chainLoaded && !userState.seriesLoading && strategyRootMap.size) {
       updateStrategies(Array.from(strategyRootMap.values()));

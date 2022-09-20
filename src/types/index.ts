@@ -160,7 +160,7 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
-  
+
   poolType: PoolType;
 
   decimals: number;
@@ -180,9 +180,7 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-
-  // baked in token fns
-  getBaseAddress: () => string; // antipattern, but required here because app simulatneoulsy gets assets and series
+  baseAddress: string;
 }
 
 export enum TokenType {
@@ -195,6 +193,9 @@ export enum TokenType {
 }
 
 export interface IAssetInfo {
+  assetAddress: string;
+  joinAddress: string;
+
   tokenType: TokenType;
   tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
@@ -202,6 +203,7 @@ export interface IAssetInfo {
   version: string;
   symbol: string;
   decimals: number;
+  isYieldBase?: boolean;
 
   showToken: boolean; // Display/hide the token on the UI
 
@@ -227,8 +229,6 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   digitFormat: number;
   assetContract: Contract;
   oracleContract: Contract;
-
-  isYieldBase: boolean;
 
   isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;

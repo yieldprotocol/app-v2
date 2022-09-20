@@ -176,7 +176,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Remove liquidity flow decision tree */
   useEffect(() => {
-    if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView) {
+    if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView && strategy) {
       const lpReceived = burnFromStrategy(strategy.strategyPoolBalance, strategy.strategyTotalSupply, _input);
       const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
         strategySeries.sharesReserves,
@@ -202,7 +202,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
       /* Matching vault (with debt) exists: USE 1, 2.1, or 2.2 */
       if (matchingVault) {
-
         if (fyTokenReceivedFromBurn.gt(matchingVault.accruedArt)) {
           /* Fytoken sold to base greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
           diagnostics &&
