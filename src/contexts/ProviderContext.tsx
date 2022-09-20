@@ -38,7 +38,7 @@ const ProviderContext = ({ children }: { children: any }) => {
   const client = useMemo(
     () =>
       createClient({
-        autoConnect: true,
+        autoConnect: false,
         connectors: [
           new MetaMaskConnector({ chains }),
           new CoinbaseWalletConnector({

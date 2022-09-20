@@ -16,7 +16,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
   } = useContext(SettingsContext) as ISettingsContext;
 
   const { connector: activeConnector, isConnected } = useAccount();
-  const { connect, connectors, error, isLoading, pendingConnector } = useConnect();
+  const { connectAsync, connectors, error, isLoading, pendingConnector } = useConnect();
 
   return (
     <Box
@@ -67,7 +67,7 @@ const Connect = ({ setSettingsOpen, setConnectOpen }: any) => {
 
       <div>
         {connectors.map((connector) => (
-          <button disabled={!connector.ready} key={connector.id} onClick={() => connect({ connector })}>
+          <button disabled={!connector.ready} key={connector.id} onClick={() => connectAsync({ connector })}>
             {connector.name}
             {!connector.ready && ' (unsupported)'}
             {isLoading && connector.id === pendingConnector?.id && ' (connecting)'}

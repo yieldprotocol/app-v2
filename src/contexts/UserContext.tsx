@@ -41,6 +41,7 @@ import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
 import { useAccount, useNetwork } from 'wagmi';
+import { GiConsoleController } from 'react-icons/gi';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -128,14 +129,21 @@ function userReducer(state: IUserContextState, action: any) {
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const { chainId:chainId_chainContext, contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const {
+    chainId: chainId_chainContext,
+    contractMap,
+    chainLoaded,
+    seriesRootMap,
+    assetRootMap,
+    strategyRootMap,
+  } = chainState;
 
   const { address: account, isConnecting } = useAccount();
   const { chain } = useNetwork();
 
-  useEffect(()=>{
-    console.log( 'CHAINs in uC :' ,  chain?.id, chainId_chainContext )
-  },[chain, chainId_chainContext ])
+  useEffect(() => {
+    console.log('CHAINs in uC :', chain?.id, chainId_chainContext);
+  }, [chain, chainId_chainContext]);
 
   const useTenderlyFork = false;
 
@@ -668,34 +676,33 @@ const UserProvider = ({ children }: any) => {
     return combinedMap;
   };
 
-  /* When the chainContext is finished loading get the dynamic series, asset and strategies data. */
-  useEffect(() => { 
-
-    if ( chainLoaded ) {
-      if (seriesRootMap.size) {
-        updateSeries(Array.from(seriesRootMap.values()));
-      }
+  /**
+   *
+   * When the chainContext is finished loading get the dynamic series, asset and strategies data.
+   *
+   * */
+  useEffect(() => {
+    if (chainLoaded ) {
       if (assetRootMap.size) {
         updateAssets(Array.from(assetRootMap.values()));
       }
+      if (seriesRootMap.size) {
+        updateSeries(Array.from(seriesRootMap.values())).then(() => {
+          /* when finished, update strategies */
+          updateStrategies(Array.from(strategyRootMap.values()));
+        });
+      }
     }
-  }, [account, chainLoaded]);
-
-  /* Only when seriesContext is finished loading get the strategies data */
-  useEffect(() => {
-    if (chainLoaded && !userState.seriesLoading && strategyRootMap.size) {
-      updateStrategies(Array.from(strategyRootMap.values()));
-    }
-  }, [strategyRootMap, userState.seriesLoading, chainLoaded]);
+  }, [chainLoaded ]);
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
-    if (chainLoaded && account) {
+    if (account ) {
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
-  }, [account, chainLoaded]);
+  }, [account]);
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {

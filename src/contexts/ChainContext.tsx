@@ -16,7 +16,7 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
-import { useNetwork, useProvider, useSwitchNetwork } from 'wagmi';
+import { useNetwork, useProvider } from 'wagmi';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
 
 enum ChainState {
@@ -122,7 +122,7 @@ const ChainProvider = ({ children }: any) => {
       console.log('There is no chainId immediately avaialable. Waiting on provider...');
     }
   }, [chain]);
-
+  
   const [cachedAssets, setCachedAssets] = useCachedState(`assets_${chainId}`, []);
   const [cachedSeries, setCachedSeries] = useCachedState(`series_${chainId}`, []);
   const [cachedStrategies, setCachedStrategies] = useCachedState(`strategies_${chainId}`, []);
