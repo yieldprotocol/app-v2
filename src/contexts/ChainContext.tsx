@@ -98,7 +98,6 @@ const ChainProvider = ({ children }: any) => {
   /* Connection hook */
   const provider = useProvider();
   const { chain } = useNetwork();
-  const { pendingChainId } = useSwitchNetwork();
 
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '', '');
@@ -112,7 +111,6 @@ const ChainProvider = ({ children }: any) => {
   useEffect(() => {
     if (chain) {
       console.log('Connected to chainId: ', chain.id);
-
       if ( chain.id !== chainState.chainId  ) {
         console.log( 'ChainId different to previously used ChainId: ', chainState.chainId )
         updateState({ type: ChainState.CLEAR_MAPS, payload: undefined })
@@ -120,7 +118,6 @@ const ChainProvider = ({ children }: any) => {
       }
       updateState({ type: ChainState.CHAIN_ID, payload: chain.id })
       setChainId(chain.id);
-
     } else {
       console.log('There is no chainId immediately avaialable. Waiting on provider...');
     }
@@ -358,13 +355,17 @@ const ChainProvider = ({ children }: any) => {
 
       // newAssetList.length && setCachedAssets(newAssetList);
       newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
+
     } else {
+
+      console.log( 'Using assets that have been cached!! ', cachedAssets);
       /**
        * ELSE: else charge the assets from the cache
        * */
       cachedAssets.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
       });
+
       console.log('Yield Protocol Asset data retrieved successfully (from cache).');
     }
   };
@@ -557,20 +558,23 @@ const ChainProvider = ({ children }: any) => {
 
   /**
    * 
-   * STARTIN POINT>
+   * STARTIN POINT >
    * Update on asset/series/strategies state on network changes chainId
    */
   useEffect(() => {
     if (chainId) {
       console.log('Fetching Protocol contract addresses for chain Id: ', chainId);
       _getContracts(chainId);
+
       console.log('Checking for new Assets and Series, and Strategies : ', chainId);
+      
       (async () =>
         await Promise.all([_getAssets(chainId), _getSeries(chainId), _getStrategies(chainId)])
-        .catch(() => console.log('error getting data'))
+        .catch(() => console.log('Error getting protocol data.'))
         .finally(() => {
           updateState({ type: ChainState.CHAIN_LOADED, payload: true });
         }))();
+
     };
   }, [chainId]);
 
