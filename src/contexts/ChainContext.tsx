@@ -78,11 +78,8 @@ function chainReducer(state: IChainContextState, action: any) {
       };
 
     case ChainState.CLEAR_MAPS: { 
-      console.log( 'clearing state')
-      return {
-        ...state,
-        ...initState
-      }
+      console.log( 'Clearing state')
+      return initState
     };
 
     default: { 

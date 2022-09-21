@@ -236,12 +236,10 @@ const UserProvider = ({ children }: any) => {
 
     const updatedAssets = await Promise.all(
       assetList.map(async (asset) => {
-        const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.proxyId);
         const balance = account ? await asset.getBalance(account) : ZERO_BN;
         const newAsset = {
           /* public data */
           ...asset,
-          isYieldBase,
           displaySymbol: asset?.displaySymbol,
           /* account data */
           balance: balance || ethers.constants.Zero,
@@ -385,8 +383,6 @@ const UserProvider = ({ children }: any) => {
   const updateStrategies = async (strategyList: IStrategyRoot[]) => {
     console.log('Updating Strategies...');
     updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
-
-    console.log('SERIES MAP ',  userState.seriesMap  ); 
 
     const updatedStrategies = await Promise.all(
       strategyList.map(async (_strategy) => {
@@ -613,7 +609,8 @@ const UserProvider = ({ children }: any) => {
   /**
    *
    * When the chainContext is finished loading get the dynamic series, asset and strategies data.
-   * ( also on account change )
+   * 
+   * (also on account change )
    *
    * */
   useEffect(() => {
@@ -628,11 +625,10 @@ const UserProvider = ({ children }: any) => {
     }
   }, [chainLoaded, account]);
 
-
+  /* once series has finished loading,... reload strategy data */
   useEffect(()=> {
     !userState.seriesLoading && updateStrategies(Array.from(strategyRootMap.values()));
   },[userState.seriesLoading])
-
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {
