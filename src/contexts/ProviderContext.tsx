@@ -13,7 +13,6 @@ import { SettingsContext } from './SettingsContext';
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
   const { settingsState } = useContext(SettingsContext);
-
   const { useFork, useTenderlyFork, forkUrl } = settingsState;
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)

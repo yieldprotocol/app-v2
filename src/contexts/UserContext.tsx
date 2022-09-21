@@ -138,12 +138,16 @@ const UserProvider = ({ children }: any) => {
     strategyRootMap,
   } = chainState;
 
-  const { address: account, isConnecting } = useAccount();
+  const { address: account, isConnecting, isReconnecting, isConnected, isDisconnected } = useAccount();
   const { chain } = useNetwork();
 
-  useEffect(() => {
-    console.log('CHAINs in uC :', chain?.id, chainId_chainContext);
-  }, [chain, chainId_chainContext]);
+  // useEffect(() => {
+  //   console.log('CHAINs in uC :', chain?.id, chainId_chainContext);
+  // }, [chain, chainId_chainContext]);
+
+  useEffect(()=> {
+    console.log(isConnecting, isReconnecting, isConnected, isDisconnected)
+  }, [isConnecting, isReconnecting,isConnected, isDisconnected ])
 
   const useTenderlyFork = false;
 
@@ -180,7 +184,7 @@ const UserProvider = ({ children }: any) => {
       try {
         vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
       } catch (error) {
-        console.log('could not get vaults received');
+        console.log('Could not get vaults received.');
       }
 
       const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
@@ -679,10 +683,11 @@ const UserProvider = ({ children }: any) => {
   /**
    *
    * When the chainContext is finished loading get the dynamic series, asset and strategies data.
-   *
+   * ( also on account change? )
+   * 
    * */
   useEffect(() => {
-    if (chainLoaded ) {
+    if ( chainLoaded ) {
       if (assetRootMap.size) {
         updateAssets(Array.from(assetRootMap.values()));
       }
@@ -693,16 +698,16 @@ const UserProvider = ({ children }: any) => {
         });
       }
     }
-  }, [chainLoaded ]);
+  }, [ chainLoaded ]);
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
-    if (account ) {
+    if ( account ) {  
       /* trigger update of update all vaults by passing empty array */
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
-  }, [account]);
+  }, [ account ]);
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {
