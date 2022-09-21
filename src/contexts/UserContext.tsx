@@ -423,10 +423,10 @@ const UserProvider = ({ children }: any) => {
         // const RateOracle = contractMap.get('RateOracle');
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-        if (vaultList.length === 0)
-          _vaultList = Array.from(
-            (await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)).values()
-          );
+        if (vaultList.length === 0) {
+          const vaults = await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)
+          _vaultList = Array.from(vaults.values());
+          }
         /* Add in the dynamic vault data by mapping the vaults list */
         const vaultListMod = await Promise.all(
           _vaultList.map(async (vault): Promise<IVault> => {
@@ -434,7 +434,7 @@ const UserProvider = ({ children }: any) => {
             const [
               { ink, art },
               { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-            ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
+            ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
             /* If art 0, check for liquidation event */
             const hasBeenLiquidated =
