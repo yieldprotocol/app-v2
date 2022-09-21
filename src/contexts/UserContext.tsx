@@ -614,25 +614,14 @@ const UserProvider = ({ children }: any) => {
    *
    * */
   useEffect(() => {
-    if (chainLoaded) {
-      if (assetRootMap.size) {
-        updateAssets(Array.from(assetRootMap.values()));
-      }
-      if (seriesRootMap.size) {
-        updateSeries(Array.from(seriesRootMap.values()))
-      }
-      if (account) updateVaults([]);
-    }
-    console.log('amap', assetRootMap )
-    console.log('smap', seriesRootMap )
 
     chainLoaded && updateAssets(Array.from(assetRootMap.values()));
     chainLoaded && updateSeries(Array.from(seriesRootMap.values()));
-    account && updateVaults([]);
+    chainLoaded && account && updateVaults([]);
 
   }, [chainLoaded, account]);
 
-  /* once series has finished loading,... reload strategy data */
+  /* Once series has finished loading,... reload strategy data */
   useEffect(()=> {
     !userState.seriesLoading && updateStrategies(Array.from(strategyRootMap.values()));
   },[userState.seriesLoading])
