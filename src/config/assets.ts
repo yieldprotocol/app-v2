@@ -11,21 +11,19 @@ export interface AssetInfo {
   version: string;
   symbol: string;
   decimals: number;
-  isYieldBase?: boolean;
-
-  showToken: boolean; // Display/hide the token on the UI
+  showToken: boolean; // Display/hide the token on the UI DEFAULTS 
 
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
   displaySymbol?: string; // override for symbol display
+
+  isYieldBase?: boolean;
 
   limitToSeries?: string[];
 
   wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
   unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
-  proxyId?: string;
+  proxyId?: string; // associated token (eg. )
 }
-
-export const UNKNOWN = '0x000000000000';
 
 export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
