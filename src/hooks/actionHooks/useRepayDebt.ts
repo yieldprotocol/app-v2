@@ -26,12 +26,16 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 
 export const useRepayDebt = () => {
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
+
+  const {
+    chainState: { contractMap },
+  } = useContext(ChainContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
@@ -40,14 +44,8 @@ export const useRepayDebt = () => {
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccount();
-  const {chain} = useNetwork();
-
-  const {
-    chainState: {
-      contractMap,
-      provider,
-    },
-  } = useContext(ChainContext);
+  const { chain } = useNetwork();
+  const provider = useProvider();
 
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();

@@ -56,9 +56,7 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const {
-    chainState: {
-      contractMap,
-    },
+    chainState: { contractMap },
   } = useContext(ChainContext);
 
   const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
@@ -67,9 +65,8 @@ const Borrow = () => {
   const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
 
-  const {chain} = useNetwork();
+  const { chain } = useNetwork();
   const { address: activeAccount } = useAccount();
-
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);

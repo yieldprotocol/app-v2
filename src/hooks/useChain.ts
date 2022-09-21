@@ -26,21 +26,18 @@ export const useChain = () => {
   } = useContext(SettingsContext) as ISettingsContext;
 
   const {
-    chainState: {
-      contractMap,
-    },
+    chainState: { contractMap },
   } = useContext(ChainContext);
 
   const {
     txActions: { handleTx, handleSign, handleTxWillFail },
   } = useContext(TxContext);
 
-
   /* wagmi connection stuff */
   const { address: account } = useAccount();
-  const {chain} = useNetwork();
-  const { data: signer, isError, isLoading } = useSigner()
-  
+  const { chain } = useNetwork();
+  const { data: signer, isError, isLoading } = useSigner();
+
   const approvalMethod = useApprovalMethod();
 
   /**
@@ -51,7 +48,6 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
-
     /* Set the router contract instance, ladle by default */
     const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
 
@@ -122,7 +118,6 @@ export const useChain = () => {
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
-
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
       const _ladleAddr = contractMap.get('Ladle').address;
@@ -145,8 +140,7 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Spender', _spender);
         diagnostics && console.log('Sign: Amount', _amount?.toString());
 
-
-        console.log(signer); 
+        console.log(signer);
 
         /* Request the signature if using DaiType permit style */
         if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chain.id !== 42161) {

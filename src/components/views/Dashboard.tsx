@@ -40,11 +40,9 @@ const Dashboard = () => {
   }: { userState: IUserContextState } = useContext(UserContext);
 
   const {
-    chainState: {
-      chainLoaded,
-    },
+    chainState: { chainLoaded },
   } = useContext(ChainContext);
-  
+
   const { isConnected } = useAccount();
 
   const {
@@ -100,7 +98,10 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
-                <Box onClick={() => updateSetting(Settings.DASH_HIDE_LEND_POSITIONS, !dashHideLendPositions)} pad="xsmall">
+                <Box
+                  onClick={() => updateSetting(Settings.DASH_HIDE_LEND_POSITIONS, !dashHideLendPositions)}
+                  pad="xsmall"
+                >
                   {dashHideLendPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show positions
@@ -128,7 +129,10 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Liquidity </Text>
-                <Box onClick={() => updateSetting(Settings.DASH_HIDE_POOL_POSITIONS, !dashHidePoolPositions)} pad="xsmall">
+                <Box
+                  onClick={() => updateSetting(Settings.DASH_HIDE_POOL_POSITIONS, !dashHidePoolPositions)}
+                  pad="xsmall"
+                >
                   {dashHidePoolPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show positions

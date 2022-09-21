@@ -1,12 +1,10 @@
 import { useEffect, useState, useContext } from 'react';
+import { useProvider } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 
 export const useTimeTravel = () => {
-  const {
-    chainState: {
-      connection: { provider },
-    },
-  } = useContext(ChainContext);
+
+  const provider = useProvider();
 
   const [snapshotNumber, setSnapshotNumber] = useState<any>('0x1');
   const [block, setBlock] = useState<any>(null);

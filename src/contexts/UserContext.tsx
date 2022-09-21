@@ -623,6 +623,13 @@ const UserProvider = ({ children }: any) => {
       }
       if (account) updateVaults([]);
     }
+    console.log('amap', assetRootMap )
+    console.log('smap', seriesRootMap )
+
+    chainLoaded && updateAssets(Array.from(assetRootMap.values()));
+    chainLoaded && updateSeries(Array.from(seriesRootMap.values()));
+    account && updateVaults([]);
+
   }, [chainLoaded, account]);
 
   /* once series has finished loading,... reload strategy data */

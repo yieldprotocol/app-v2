@@ -21,21 +21,21 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 
 export const useRemoveCollateral = () => {
   const {
-    chainState: {
-      contractMap,
-      provider,
-    },
+    chainState: { contractMap },
   } = useContext(ChainContext);
+
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
+
   const { selectedIlk, assetMap } = userState;
   const { address: account } = useAccount();
   const { chain } = useNetwork();
+  const provider = useProvider();
 
   const {
     historyActions: { updateVaultHistory },

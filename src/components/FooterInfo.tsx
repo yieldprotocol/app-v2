@@ -20,9 +20,6 @@ const IconGap = 'small';
 
 const FooterInfo = () => {
   const {
-    chainState: {
-      appVersion,
-    },
     chainActions: { exportContractAddresses },
   } = useContext(ChainContext) as IChainContext;
 
@@ -32,7 +29,7 @@ const FooterInfo = () => {
     <Box gap="small" align="end" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
       <Box alignSelf="end">
         <Text size="xsmall" color="text-weak">
-          App version: v{appVersion}
+          App version: v{process.env.REACT_APP_VERSION}
         </Text>
       </Box>
       <Box direction="row" gap={IconGap}>
@@ -111,11 +108,11 @@ const FooterInfo = () => {
       </Box>
 
       {/* {connectedChain && ( */}
-        <Box align="end" gap="xsmall">
-          <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
-            <NetworkSelector />
-          </Box>
+      <Box align="end" gap="xsmall">
+        <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
+          <NetworkSelector />
         </Box>
+      </Box>
       {/* )} */}
 
       {/* <Box align='center'>
