@@ -376,8 +376,6 @@ const ChainProvider = ({ children }: any) => {
       /**
        * ELSE: else charge the assets from the cache
        * */
-      console.log('Using assets that have been cached: ', cachedValues);
-
       cachedValues.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a, _chainId) });
       });
