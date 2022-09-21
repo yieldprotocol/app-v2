@@ -41,14 +41,18 @@ import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
 import { useAccount, useNetwork } from 'wagmi';
-import { GiConsoleController } from 'react-icons/gi';
 
 enum UserState {
   USER_LOADING = 'userLoading',
-  ASSET_MAP = 'assetMap',
   SERIES_MAP = 'seriesMap',
   VAULT_MAP = 'vaultMap',
   STRATEGY_MAP = 'strategyMap',
+
+  UPDATE_ASSET = 'updateAsset',
+  UPDATE_SERIES = 'updateSeries',
+  UPDATE_VAULT = 'updateVault',
+  UPDATE_STRATEGY = 'updateStrategy',
+
   VAULTS_LOADING = 'vaultsLoading',
   SERIES_LOADING = 'seriesLoading',
   ASSETS_LOADING = 'assetsLoading',
@@ -92,14 +96,24 @@ function userReducer(state: IUserContextState, action: any) {
   switch (action.type) {
     case UserState.USER_LOADING:
       return { ...state, userLoading: onlyIfChanged(action) };
-    case UserState.ASSET_MAP:
-      return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
+
     case UserState.SERIES_MAP:
       return { ...state, seriesMap: new Map([...state.seriesMap, ...action.payload]) };
+
     case UserState.VAULT_MAP:
       return { ...state, vaultMap: new Map([...state.vaultMap, ...action.payload]) };
+
     case UserState.STRATEGY_MAP:
       return { ...state, strategyMap: new Map([...state.strategyMap, ...action.payload]) };
+
+    case UserState.UPDATE_ASSET:
+      return { ...state, assetMap: new Map(state.assetMap.set(action.payload.id, action.payload)) };
+    case UserState.UPDATE_SERIES:
+      return { ...state, seriesMap: new Map(state.seriesMap.set(action.payload.id, action.payload)) };
+    case UserState.UPDATE_VAULT:
+      return { ...state, vaultMap: new Map(state.vaultMap.set(action.payload.id, action.payload)) };
+    case UserState.UPDATE_STRATEGY:
+      return { ...state, strategyMap: new Map(state.strategyMap.set(action.payload.id, action.payload)) };
 
     case UserState.VAULTS_LOADING:
       return { ...state, vaultsLoading: onlyIfChanged(action) };
@@ -141,13 +155,9 @@ const UserProvider = ({ children }: any) => {
   const { address: account, isConnecting, isReconnecting, isConnected, isDisconnected } = useAccount();
   const { chain } = useNetwork();
 
-  // useEffect(() => {
-  //   console.log('CHAINs in uC :', chain?.id, chainId_chainContext);
-  // }, [chain, chainId_chainContext]);
-
-  useEffect(()=> {
-    console.log(isConnecting, isReconnecting, isConnected, isDisconnected)
-  }, [isConnecting, isReconnecting,isConnected, isDisconnected ])
+  useEffect(() => {
+    console.log(isConnecting, isReconnecting, isConnected, isDisconnected);
+  }, [isConnecting, isReconnecting, isConnected, isDisconnected]);
 
   const useTenderlyFork = false;
 
@@ -171,116 +181,137 @@ const UserProvider = ({ children }: any) => {
   }, [pathname, userState.vaultMap]);
 
   /* internal function for getting the users vaults */
-  const _getVaults = useCallback(
-    async (fromBlock: number = 1) => {
-      const Cauldron = contractMap.get('Cauldron');
-      if (!Cauldron) return new Map();
+  const _getVaults = async (fromBlock: number = 1) => {
+    console.log('Fetchin vaults.');
+    const Cauldron = contractMap.get('Cauldron');
+    if (!Cauldron) return new Map();
 
-      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-      const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-      const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, fromBlock);
+    const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
+    const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
+    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, fromBlock);
 
-      let vaultsReceived = [];
-      try {
-        vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
-      } catch (error) {
-        console.log('Could not get vaults received.');
-      }
+    let vaultsReceived = [];
+    try {
+      vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
+    } catch (error) {
+      console.log('Could not get vaults received.');
+    }
 
-      const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
-        const { vaultId: id, ilkId, seriesId } = x.args;
+    const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
+      const { vaultId: id, ilkId, seriesId } = x.args;
+      const series = seriesRootMap.get(seriesId);
+      return {
+        id,
+        seriesId,
+        baseId: series?.baseId,
+        ilkId,
+        displayName: generateVaultName(id),
+        decimals: series?.decimals,
+      };
+    });
+
+    const receivedEventsList = await Promise.all(
+      vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
+        const { vaultId: id } = x.args;
+        const { ilkId, seriesId } = await Cauldron.vaults(id);
         const series = seriesRootMap.get(seriesId);
         return {
           id,
           seriesId,
-          baseId: series?.baseId,
+          baseId: series.baseId,
           ilkId,
           displayName: generateVaultName(id),
-          decimals: series?.decimals,
+          decimals: series.decimals,
         };
-      });
+      })
+    );
 
-      const receivedEventsList = await Promise.all(
-        vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
-          const { vaultId: id } = x.args;
-          const { ilkId, seriesId } = await Cauldron.vaults(id);
-          const series = seriesRootMap.get(seriesId);
-          return {
-            id,
-            seriesId,
-            baseId: series.baseId,
-            ilkId,
-            displayName: generateVaultName(id),
-            decimals: series.decimals,
-          };
-        })
-      );
+    /* all vaults */
+    const vaultList = [...buildEventList, ...receivedEventsList];
 
-      /* all vaults */
-      const vaultList = [...buildEventList, ...receivedEventsList];
+    const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
+      const _map = acc;
+      _map.set(item.id, item);
+      return _map;
+    }, new Map()) as Map<string, IVaultRoot>;
 
-      const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
-        const _map = acc;
-        _map.set(item.id, item);
-        return _map;
-      }, new Map()) as Map<string, IVaultRoot>;
-
-      return newVaultMap;
-    },
-    [account, contractMap, seriesRootMap]
-  );
+    return newVaultMap;
+  };
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = async (assetList: IAssetRoot[]) => {
     console.log('Updating assets...');
 
     updateState({ type: UserState.ASSETS_LOADING, payload: true });
-    let _publicData: IAssetRoot[] = [];
-    let _accountData: IAsset[] = [];
 
-    _publicData = await Promise.all(
-      assetList.map(async (asset): Promise<IAssetRoot> => {
+    const updatedAssets = await Promise.all(
+      assetList.map(async (asset) => {
         const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.proxyId);
-        return {
+        const balance = account ? await asset.getBalance(account) : ZERO_BN;
+        const newAsset = {
+          /* public data */
           ...asset,
           isYieldBase,
           displaySymbol: asset?.displaySymbol,
+          /* account data */
+          balance: balance || ethers.constants.Zero,
+          balance_: balance
+            ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
+            : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
         };
+        updateState({ type: UserState.UPDATE_ASSET, payload: newAsset });
+        return newAsset;
       })
     );
 
-    /* add in the dynamic asset data of the assets in the list */
-    if (account) {
-      try {
-        _accountData = await Promise.all(
-          _publicData.map(async (asset): Promise<IAsset> => {
-            const balance = asset.name !== 'UNKNOWN' ? await asset.getBalance(account) : ZERO_BN;
-            return {
-              ...asset,
-              balance: balance || ethers.constants.Zero,
-              balance_: balance
-                ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
-                : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
-            };
-          })
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    const _combinedData = _accountData.length ? _accountData : _publicData;
+    // let _publicData: IAssetRoot[] = [];
+    // let _accountData: IAsset[] = [];
 
-    /* reduce the asset list into a new map */
-    const newAssetMap = new Map(
-      _combinedData.reduce((acc: Map<string, IAssetRoot>, item) => {
-        const _map = acc;
-        _map.set(item.id, item);
-        return _map;
-      }, new Map())
-    );
+    // _publicData = await Promise.all(
+    //   assetList.map(async (asset): Promise<IAssetRoot> => {
+    //     const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.proxyId);
+    //     return {
+    //       ...asset,
+    //       isYieldBase,
+    //       displaySymbol: asset?.displaySymbol,
+    //     };
+    //   })
+    // );
 
-    updateState({ type: UserState.ASSET_MAP, payload: newAssetMap });
-    console.log('ASSETS updated (with dynamic data): ', newAssetMap);
+    // /* add in the dynamic asset data of the assets in the list */
+    // if (account) {
+    //   try {
+    //     _accountData = await Promise.all(
+    //       _publicData.map(async (asset): Promise<IAsset> => {
+    //         const balance = asset.name !== 'UNKNOWN' ? await asset.getBalance(account) : ZERO_BN;
+    //         return {
+    //           ...asset,
+    //           balance: balance || ethers.constants.Zero,
+    //           balance_: balance
+    //             ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
+    //             : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
+    //         };
+    //       })
+    //     );
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
+    // }
+    // const _combinedData = _accountData.length ? _accountData : _publicData;
+
+    // /* reduce the asset list into a new map */
+    // const newAssetMap = new Map(
+    //   _combinedData.reduce((acc: Map<string, IAssetRoot>, item) => {
+    //     const _map = acc;
+    //     _map.set(item.id, item);
+    //     return _map;
+    //   }, new Map())
+    // );
+
+    // updateState({ type: UserState.ASSET_MAP, payload: newAssetMap });
+    
+    console.log('ASSETS updated (with dynamic data):');
+    console.table(updatedAssets, ['id', 'symbol', 'address', 'balance_']);
     updateState({ type: UserState.ASSETS_LOADING, payload: false });
   };
 
@@ -569,6 +600,10 @@ const UserProvider = ({ children }: any) => {
     let _publicData: IStrategy[] = [];
     let _accountData: IStrategy[] = [];
 
+    strategyList.length
+      ? console.log(' arg list ', strategyList)
+      : console.log(' stateList', Array.from(userState.strategyMap.values()));
+
     _publicData = await Promise.all(
       strategyList.map(async (_strategy): Promise<IStrategy> => {
         console.log(_strategy.address);
@@ -683,11 +718,11 @@ const UserProvider = ({ children }: any) => {
   /**
    *
    * When the chainContext is finished loading get the dynamic series, asset and strategies data.
-   * ( also on account change? )
-   * 
+   * ( also on account change )
+   *
    * */
   useEffect(() => {
-    if ( chainLoaded ) {
+    if (chainLoaded) {
       if (assetRootMap.size) {
         updateAssets(Array.from(assetRootMap.values()));
       }
@@ -698,16 +733,15 @@ const UserProvider = ({ children }: any) => {
         });
       }
     }
-  }, [ chainLoaded ]);
+  }, [chainLoaded]);
 
-  /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
-    if ( account ) {  
-      /* trigger update of update all vaults by passing empty array */
+    if (account) {
+      updateAssets([]);
+      updateSeries([]);
       updateVaults([]);
     }
-    /* keep checking the active account when it changes/ chainloading */
-  }, [ account ]);
+  }, [account]);
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {
