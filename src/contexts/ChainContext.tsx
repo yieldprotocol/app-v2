@@ -16,7 +16,7 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
-import { useNetwork, useProvider } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
 
 enum ChainState {
@@ -95,22 +95,21 @@ const ChainProvider = ({ children }: any) => {
   /* Connection hook */
   const provider = useProvider();
   const { chain } = useNetwork();
+  const { address, isConnecting } = useAccount();
 
-  /* CACHED VARIABLES */
+  /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '', '');
 
   /**
-   *
-   * track chainId changes
-   *
+   * Track chainId changes.
+   * (defaults to getting the protocol data from the first chain in the provider list)
    * */
-  // const [chainId, setChainId] = useState<number>(provider.chains[0].id);
   useEffect(() => {
     if (chain) {
       console.log('Connected to chainId: ', chain.id);
       if (chain.id !== chainState.chainId) {
         console.log('ChainId different to previously used ChainId: ', chainState.chainId);
-        updateState({ type: ChainState.CLEAR_MAPS, payload: undefined });
+        /* update protocol info */
         _getProtocolData(chain.id);
       }
       updateState({ type: ChainState.CHAIN_ID, payload: chain.id });
@@ -120,12 +119,26 @@ const ChainProvider = ({ children }: any) => {
     }
   }, [chain]);
 
-  const [cachedAssets, setCachedAssets] = useCachedState(`assets_${chainState.chainId || provider.chains[0].id}`, []);
-  const [cachedSeries, setCachedSeries] = useCachedState(`series_${chainState.chainId || provider.chains[0].id}`, []);
-  const [cachedStrategies, setCachedStrategies] = useCachedState(
-    `strategies_${chainState.chainId || provider.chains[0].id}`,
-    []
-  );
+  /**
+   * A  bit hacky, but if connecting account, set chainloading
+   * so that we can udate on every account change in userContext.
+   */
+  useEffect(() => {
+    isConnecting && updateState({ type: ChainState.CHAIN_LOADED, payload: false });
+  }, [isConnecting]);
+
+  /**
+   * Handle version updates on first load -> complete refresh if app is different to published version
+   */
+  useEffect(() => {
+    console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
+    if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
+      window.localStorage.clear();
+      // eslint-disable-next-line no-restricted-globals
+      location.reload();
+    }
+    setLastAppVersion(process.env.REACT_APP_VERSION);
+  }, []);
 
   const _getContracts = (_chainId: number) => {
     /* Get the instances of the Base contracts */
@@ -284,7 +297,10 @@ const ChainProvider = ({ children }: any) => {
     /**
      * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
-    if (cachedAssets.length === 0) {
+    const cacheKey = `assets_${_chainId}`;
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+
+    if (cachedValues === null || cachedValues.length === 0) {
       let newAssetList = [];
       await Promise.all(
         Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
@@ -352,14 +368,17 @@ const ChainProvider = ({ children }: any) => {
           newAssetList.push(newAsset);
         })
       ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.'));
-      // newAssetList.length && setCachedAssets(newAssetList);
+
+      /* cache results */
+      newAssetList.length && localStorage.setItem(cacheKey, JSON.stringify(newAssetList));
       newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
     } else {
       /**
        * ELSE: else charge the assets from the cache
        * */
-      console.log('Using assets that have been cached: ', cachedAssets);
-      cachedAssets.forEach((a: IAssetRoot) => {
+      console.log('Using assets that have been cached: ', cachedValues);
+
+      cachedValues.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a, _chainId) });
       });
       console.log('Yield Protocol Asset data retrieved successfully (from cache).');
@@ -424,7 +443,10 @@ const ChainProvider = ({ children }: any) => {
     /**
      * If: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
-    if (cachedSeries.length === 0) {
+    const cacheKey = `series_${_chainId}`;
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+
+    if (cachedValues === null || cachedValues.length === 0) {
       let newSeriesList = [];
       await Promise.all(
         Array.from(seriesMap).map(async (x): Promise<void> => {
@@ -479,13 +501,14 @@ const ChainProvider = ({ children }: any) => {
         })
       ).catch((e) => console.log('Problems getting Series data. Check addresses in series config.', e));
 
-      // newSeriesList.length && setCachedSeries(newSeriesList);
+      /* cache results */
+      newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
       newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
     } else {
       /**
        * ELSE: else charge the series from the cache
        * */
-      cachedSeries.forEach((s: ISeriesRoot) => {
+      cachedValues.forEach((s: ISeriesRoot) => {
         updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, _chainId) });
       });
       console.log('Yield Protocol Series data retrieved successfully (from cache).');
@@ -506,9 +529,12 @@ const ChainProvider = ({ children }: any) => {
     const newStrategyList: any[] = [];
     const strategyList = yieldEnv.strategies[_chainId];
     /**
-     * IF:  the CACHE is empty then, get fetch asset data for chainId and cache it:
+     * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
-    if (cachedStrategies.length === 0) {
+    const cacheKey = `strategies_${_chainId}`;
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+
+    if (cachedValues === null || cachedValues.length === 0) {
       try {
         await Promise.all(
           strategyList.map(async (strategyAddr) => {
@@ -540,13 +566,15 @@ const ChainProvider = ({ children }: any) => {
       } catch (e) {
         console.log('Error fetching strategies', e);
       }
-      // newStrategyList.length && setCachedStrategies(newStrategyList);
+
+      /* cache results */
+      newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
       newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
     } else {
       /**
        * ELSE: else charge the strategies from the cache
        * */
-      cachedStrategies.forEach((st: IStrategyRoot) => {
+      cachedValues.forEach((st: IStrategyRoot) => {
         updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
       });
       console.log('Yield Protocol Strategy data retrieved successfully (from cache).');
@@ -554,7 +582,11 @@ const ChainProvider = ({ children }: any) => {
   };
 
   const _getProtocolData = async (_chainId: number) => {
+    /* set loading flag */
     updateState({ type: ChainState.CHAIN_LOADED, payload: false });
+
+    /* Clear maps in local memory */
+    updateState({ type: ChainState.CLEAR_MAPS, payload: undefined });
 
     console.log('Fetching Protocol contract addresses for chain Id: ', _chainId);
     _getContracts(_chainId);
@@ -579,19 +611,6 @@ const ChainProvider = ({ children }: any) => {
   //     console.log('Checking for new Assets and Series, and Strategies : ', chainId);
   //   };
   // }, [chainId]);
-
-  /**
-   * Handle version updates on first load -> complete refresh if app is different to published version
-   */
-  useEffect(() => {
-    console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
-    if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
-      window.localStorage.clear();
-      // eslint-disable-next-line no-restricted-globals
-      location.reload();
-    }
-    setLastAppVersion(process.env.REACT_APP_VERSION);
-  }, []);
 
   /**
    * functionality to export protocol addresses

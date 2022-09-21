@@ -143,14 +143,14 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const { chainId: chainId, contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
-  const { address: account, isConnecting, isReconnecting, isConnected, isDisconnected } = useAccount();
+  const { address: account, isConnected } = useAccount();
   const { chain } = useNetwork();
 
-  // useEffect(() => {
-  //   console.log(isConnecting, isReconnecting, isConnected, isDisconnected);
-  // }, [isConnecting, isReconnecting, isConnected, isDisconnected]);
-
   const useTenderlyFork = false;
+
+  // useEffect(()=>{
+  //   console.log('Connected status ::::::::', status)
+  // },[status])
 
   const {
     settingsState: { diagnostics },
@@ -291,7 +291,7 @@ const UserProvider = ({ children }: any) => {
         } else {
           sharesReserves = baseReserves;
           currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-          console.log('Using non-TV pool contract that does not include c, mu, and shares');
+          diagnostics && console.log('Using non-TV pool contract that does not include c, mu, and shares');
         }
 
         // convert base amounts to shares amounts (baseAmount is wad)
@@ -373,7 +373,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     console.log('SERIES updated (with dynamic data): ');
-    console.table(updatedSeries, ['id', 'displayName', 'baseId', 'seriesIsMature', 'showSeries']);
+    console.table(updatedSeries, ['id', 'displayName', 'baseId','poolType', 'seriesIsMature', 'showSeries']);
     updateState({ type: UserState.SERIES_LOADING, payload: false });
 
     return updatedSeries;
@@ -609,24 +609,25 @@ const UserProvider = ({ children }: any) => {
   /**
    *
    * When the chainContext is finished loading get the dynamic series, asset and strategies data.
-   * 
    * (also on account change )
    *
    * */
   useEffect(() => {
-
     chainLoaded && updateAssets(Array.from(assetRootMap.values()));
     chainLoaded && updateSeries(Array.from(seriesRootMap.values()));
     chainLoaded && account && updateVaults([]);
+  }, [ chainLoaded, account ]);
 
-  }, [chainLoaded, account]);
-
-  /* Once series has finished loading,... reload strategy data */
+  /**
+   * If series has finished loading,...reload strategy data 
+   * */
   useEffect(()=> {
     !userState.seriesLoading && updateStrategies(Array.from(strategyRootMap.values()));
   },[userState.seriesLoading])
 
-  /* explicitly update selected series on series map changes */
+  /**
+   * explicitly update selected series on series map changes 
+   * */
   useEffect(() => {
     if (userState.selectedSeries) {
       updateState({

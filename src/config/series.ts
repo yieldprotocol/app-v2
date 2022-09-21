@@ -1,6 +1,6 @@
 export enum PoolType {
-  TV,
-  NONTV,
+  TV='TV',
+  NONTV='NONTV',
 }
 export interface SeriesInfo {
   fyTokenAddress: string;
