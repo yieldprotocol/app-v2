@@ -222,9 +222,10 @@ export const useChain = () => {
               true
             ),
           txCode,
-          reqSig.target.tokenType === TokenType.ERC20_DaiPermit ||
+          (reqSig.target.tokenType === TokenType.ERC20_DaiPermit ||
             reqSig.target.tokenType === TokenType.ERC20_Permit ||
-            !reqSig.target.tokenType // handle fyTokens (don't have an explicit tokenType in the asset config)
+            !reqSig.target.tokenType) && // handle fyTokens (don't have an explicit tokenType in the asset config)
+            reqSig.target.tokenType !== TokenType.ERC20_
             ? approvalMethod
             : ApprovalType.TX
         );
