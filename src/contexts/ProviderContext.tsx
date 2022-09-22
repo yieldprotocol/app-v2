@@ -34,16 +34,11 @@ const ProviderContext = ({ children }: { children: any }) => {
     [chain.mainnet, chain.arbitrum], // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
     [
       alchemyProvider({
-        apiKey: 'ZXDCq5iy0KrKR0XjsqC6E4QG7Z_FuXDv', // TODO move this key to env
+        apiKey: process.env.ALCHEMY_MAINNET_KEY,
       }),
-      // jsonRpcProvider({
-      //   rpc: (chain) => ({
-      //     http: forkUrl,
-      //     // webSocket: `wss://${chain.id}.example.com`,
-      //   }),
-      //   // priority: useTenderlyFork ? 0 : 100,
-      // }),
-      // publicProvider(),
+      alchemyProvider({
+        apiKey: process.env.ALCHEMY_ARBITRUM_KEY,
+      }),
     ]
   );
 
@@ -64,9 +59,7 @@ const ProviderContext = ({ children }: { children: any }) => {
     },
     {
       groupName: 'Test environments',
-      wallets: [
-
-      ],
+      wallets: [],
     },
   ]);
 
@@ -112,7 +105,7 @@ const ProviderContext = ({ children }: { children: any }) => {
     </Text>
   );
 
-  const CustomAvatar: AvatarComponent = ({ address }) => ( <YieldAvatar address={address} size={2} noBorder /> )
+  const CustomAvatar: AvatarComponent = ({ address }) => <YieldAvatar address={address} size={2} noBorder />;
 
   return (
     <WagmiConfig client={client}>
@@ -145,8 +138,7 @@ const myCustomTheme: Theme = {
     modal: '8px',
     modalMobile: '...',
   },
-}
-
+};
 
 function generateColorFromAddress(address: string) {
   throw new Error('Function not implemented.');
