@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { BigNumber, Contract } from 'ethers';
 import { format } from 'date-fns';
 
@@ -18,6 +18,8 @@ import YieldMark from '../components/logos/YieldMark';
 
 import { useAccount, useNetwork, useProvider } from 'wagmi';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
+import { SettingsContext } from './SettingsContext';
+import { toast } from 'react-toastify';
 
 enum ChainState {
   CHAIN_ID = 'chainId',
@@ -53,9 +55,6 @@ function chainReducer(state: IChainContextState, action: any) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: onlyIfChanged(action) };
 
-    case ChainState.CHAIN_ID:
-      return { ...state, chainId: onlyIfChanged(action) };
-
     case ChainState.CONTRACT_MAP:
       return { ...state, contractMap: new Map(action.payload) };
 
@@ -78,12 +77,10 @@ function chainReducer(state: IChainContextState, action: any) {
       };
 
     case ChainState.CLEAR_MAPS: {
-      console.log('Clearing state');
       return initState;
     }
 
     default: {
-      console.log('Returning default state');
       return state;
     }
   }
@@ -92,13 +89,18 @@ function chainReducer(state: IChainContextState, action: any) {
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
-  /* Connection hook */
+  /* STATE FROM CONTEXT */
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
+  /* HOOKS */
   const provider = useProvider();
   const { chain } = useNetwork();
-  const { address, isConnecting } = useAccount();
+  const { isConnecting } = useAccount();
 
   /* SIMPLE CACHED VARIABLES */
-  const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '', '');
+  const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
   /**
    * Track chainId changes.
@@ -108,20 +110,21 @@ const ChainProvider = ({ children }: any) => {
     if (chain) {
       console.log('Connected to chainId: ', chain.id);
       if (chain.id !== chainState.chainId) {
-        console.log('ChainId different to previously used ChainId: ', chainState.chainId);
+        diagnostics && console.log('ChainId different to previously used ChainId: ', chainState.chainId);
         /* update protocol info */
         _getProtocolData(chain.id);
       }
       updateState({ type: ChainState.CHAIN_ID, payload: chain.id });
     } else {
-      console.log('There is no chainId immediately avaialable. Using default id from provider...');
+      diagnostics && console.log('There is no chainId immediately avaialable. Using default id from provider...');
       _getProtocolData(provider.chains[0].id);
     }
   }, [chain]);
 
   /**
-   * A  bit hacky, but if connecting account, set chainloading
-   * so that we can udate on every account change in userContext.
+   * A bit hacky, but if connecting account, we set 'chainloading'
+   * so that we can safely udate on every account change in userContext
+   * without re-triggering loading before local memory has been cleared.
    */
   useEffect(() => {
     isConnecting && updateState({ type: ChainState.CHAIN_LOADED, payload: false });
@@ -212,7 +215,6 @@ const ChainProvider = ({ children }: any) => {
     if (!Cauldron || !Ladle || !RateOracle || !Witch) return;
 
     /* Update the baseContracts state : ( hardcoded based on networkId ) */
-    // const newContractMap = chainState.contractMap as Map<string, Contract>;
     const newContractMap = new Map();
 
     newContractMap.set('Cauldron', Cauldron);
@@ -319,10 +321,7 @@ const ChainProvider = ({ children }: any) => {
             try {
               [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
             } catch (e) {
-              console.log(
-                id,
-                ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
-              );
+              diagnostics && console.log(id, ': ERC20 contract auto-validation unsuccessfull');
             }
           }
           /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
@@ -331,10 +330,7 @@ const ChainProvider = ({ children }: any) => {
             try {
               version = await contract.version();
             } catch (e) {
-              console.log(
-                id,
-                ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
-              );
+              diagnostics && console.log(id, ': contract VERSION auto-validation unsuccessfull');
             }
           }
 
@@ -367,7 +363,7 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset, _chainId) });
           newAssetList.push(newAsset);
         })
-      ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.'));
+      ).catch(() => console.log('Problems getting Asset data. Check ASSET CONFIG'));
 
       /* cache results */
       newAssetList.length && localStorage.setItem(cacheKey, JSON.stringify(newAssetList));
@@ -379,7 +375,7 @@ const ChainProvider = ({ children }: any) => {
       cachedValues.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a, _chainId) });
       });
-      console.log('Yield Protocol Asset data retrieved successfully (from cache).');
+      console.log('Yield Protocol Asset data retrieved successfully ::: CACHE ::: ');
     }
   };
 
@@ -497,7 +493,7 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries, _chainId) });
           newSeriesList.push(newSeries);
         })
-      ).catch((e) => console.log('Problems getting Series data. Check addresses in series config.', e));
+      ).catch((e) => console.log('Problems getting Series data. Check SERIES CONFIG.', e));
 
       /* cache results */
       newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
@@ -509,7 +505,7 @@ const ChainProvider = ({ children }: any) => {
       cachedValues.forEach((s: ISeriesRoot) => {
         updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, _chainId) });
       });
-      console.log('Yield Protocol Series data retrieved successfully (from cache).');
+      console.log('Yield Protocol Series data retrieved successfully ::: CACHE :::');
     }
   };
 
@@ -575,7 +571,7 @@ const ChainProvider = ({ children }: any) => {
       cachedValues.forEach((st: IStrategyRoot) => {
         updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
       });
-      console.log('Yield Protocol Strategy data retrieved successfully (from cache).');
+      console.log('Yield Protocol Strategy data retrieved successfully ::: CACHE :::');
     }
   };
 
@@ -591,24 +587,14 @@ const ChainProvider = ({ children }: any) => {
 
     console.log('Checking for new Assets and Series, and Strategies : ', _chainId);
     await Promise.all([_getAssets(_chainId), _getSeries(_chainId), _getStrategies(_chainId)])
-      .catch(() => console.log('Error getting Protocol data.'))
+      .catch(() => {
+        toast.error('Error getting Yield Protocol data.');
+        console.log('Error getting Yield Protocol data.');
+      })
       .finally(() => {
         updateState({ type: ChainState.CHAIN_LOADED, payload: true });
       });
   };
-
-  // /**
-  //  *
-  //  * STARTIN POINT >
-  //  * Update on asset/series/strategies state on network changes chainId
-  //  */
-  // useEffect(() => {
-  //   if (chainId) {
-  //     console.log('Fetching Protocol contract addresses for chain Id: ', chainId);
-  //     _getContracts(chainId);
-  //     console.log('Checking for new Assets and Series, and Strategies : ', chainId);
-  //   };
-  // }, [chainId]);
 
   /**
    * functionality to export protocol addresses

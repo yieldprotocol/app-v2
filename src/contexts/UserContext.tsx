@@ -141,26 +141,22 @@ function userReducer(state: IUserContextState, action: any) {
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const { chainId: chainId, contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
-
-  const { address: account, isConnected } = useAccount();
-  const { chain } = useNetwork();
-
-  const useTenderlyFork = false;
-
-  // useEffect(()=>{
-  //   console.log('Connected status ::::::::', status)
-  // },[status])
+  const { contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
+
+  const useTenderlyFork = false;
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
 
   /* HOOKS */
+  const { address: account, isConnected } = useAccount();
+  const { chain } = useNetwork();
+
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { tenderlyStartBlock } = useTenderly();
