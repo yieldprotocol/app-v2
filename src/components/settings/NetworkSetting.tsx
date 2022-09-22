@@ -1,12 +1,9 @@
-import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { ChainContext } from '../../contexts/ChainContext';
 import NetworkSelector from '../selectors/NetworkSelector';
 import { useAccount } from 'wagmi';
 
 const AdvancedSetting = () => {
-
-  const {connector} = useAccount();
+  const { connector } = useAccount();
 
   return (
     <Box direction="row" justify="between">
