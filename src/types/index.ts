@@ -11,7 +11,7 @@ export interface IChainContext {
 }
 
 export interface IChainContextState {
-  chainId: number;
+  chainId: number | undefined;
   chainLoaded: boolean;
   contractMap: Map<string, Contract>;
   assetRootMap: Map<string, IAssetRoot>;
@@ -324,7 +324,6 @@ export interface IVault extends IVaultRoot {
   rate_: string;
 
   accruedArt_: string;
-  
 }
 
 export interface IStrategy extends IStrategyRoot {
