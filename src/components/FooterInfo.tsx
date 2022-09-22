@@ -107,13 +107,7 @@ const FooterInfo = () => {
         </BoxWrap>
       </Box>
 
-      {/* {connectedChain && ( */}
-      <Box align="end" gap="xsmall">
-        <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
-          <NetworkSelector />
-        </Box>
-      </Box>
-      {/* )} */}
+      <NetworkSelector />
 
       {/* <Box align='center'>
         <Text size="xsmall"> NOTICE:</Text>
