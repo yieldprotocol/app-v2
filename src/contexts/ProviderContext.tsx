@@ -1,28 +1,18 @@
 import { chain, WagmiConfig, createClient, configureChains, useConnect } from 'wagmi';
-
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-
-import { SafeConnector } from '@gnosis.pm/safe-apps-wagmi';
-
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext } from 'react';
 import { SettingsContext } from './SettingsContext';
 import {
   darkTheme,
   RainbowKitProvider,
-  getDefaultWallets,
   DisclaimerComponent,
   wallet,
   connectorsForWallets,
   Theme,
   AvatarComponent,
 } from '@rainbow-me/rainbowkit';
-
-import '@rainbow-me/rainbowkit/styles.css';
 import YieldAvatar from '../components/YieldAvatar';
+import '@rainbow-me/rainbowkit/styles.css';
 
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
@@ -63,39 +53,13 @@ const ProviderContext = ({ children }: { children: any }) => {
     },
   ]);
 
-  // const connectors = [
-  //  const GnosisConnector = new SafeConnector({ chains })
-  //   new MetaMaskConnector({ chains }),
-  //   new CoinbaseWalletConnector({
-  //     chains,
-  //     options: {
-  //       appName: 'yieldProtocol',
-  //     },
-  //   }),
-  //   new WalletConnectConnector({
-  //     chains,
-  //     options: {
-  //       qrcode: false,
-  //     },
-  //   }),
-  // ]
-
-  // const { connectors } = getDefaultWallets({
-  //   appName: 'Yield Protocol App',
-  //   chains,
-  // });
-
   // Set up client
-  const client = useMemo(
-    () =>
-      createClient({
-        autoConnect: true,
-        connectors,
-        provider,
-        webSocketProvider,
-      }),
-    []
-  );
+  const client = createClient({
+    autoConnect: true,
+    connectors,
+    provider,
+    webSocketProvider,
+  });
 
   const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
     <Text>
@@ -143,16 +107,3 @@ const myCustomTheme: Theme = {
 function generateColorFromAddress(address: string) {
   throw new Error('Function not implemented.');
 }
-// const AUTOCONNECTED_CONNECTOR_IDS = ['safe'];
-// function useAutoConnect() {
-//   const { connect, connectors } = useConnect();
-//   useEffect(() => {
-//     AUTOCONNECTED_CONNECTOR_IDS.forEach((connector) => {
-//       const connectorInstance = connectors.find((c) => c.id === connector && c.ready);
-//       if (connectorInstance) {
-//         connect(connectorInstance);
-//       }
-//     });
-//   }, [connect, connectors]);
-// }
-// export { useAutoConnect };
