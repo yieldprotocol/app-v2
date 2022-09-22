@@ -16,8 +16,8 @@ const NetworkSelector = () => {
   const { openConnectModal } = useConnectModal();
 
   return ( chain 
-    ? <Text size='xsmall' onClick={() => openChainModal()}> Connected to: {chain?.name} </Text>
-    : <Text size='xsmall' onClick={() => openConnectModal()}> Viewing chain: {provider.chains[0].name} </Text>
+    ? <Text size='xsmall' onClick={() => openChainModal()}> {chain?.name} </Text>
+    : <Text size='xsmall' onClick={() => openConnectModal()}> {provider.chains[0].name} </Text>
     )
 };
 

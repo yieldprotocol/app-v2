@@ -18,9 +18,11 @@ import {
   wallet,
   connectorsForWallets,
   Theme,
+  AvatarComponent,
 } from '@rainbow-me/rainbowkit';
 
 import '@rainbow-me/rainbowkit/styles.css';
+import YieldAvatar from '../components/YieldAvatar';
 
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
@@ -110,6 +112,8 @@ const ProviderContext = ({ children }: { children: any }) => {
     </Text>
   );
 
+  const CustomAvatar: AvatarComponent = ({ address }) => ( <YieldAvatar address={address} size={2} noBorder /> )
+
   return (
     <WagmiConfig client={client}>
       <RainbowKitProvider
@@ -121,7 +125,7 @@ const ProviderContext = ({ children }: { children: any }) => {
         // theme={darkTheme()}
         showRecentTransactions={true}
         modalSize="compact"
-        // avatar={CustomAvatar}
+        avatar={CustomAvatar}
         theme={myCustomTheme}
       >
         {children}
@@ -141,11 +145,12 @@ const myCustomTheme: Theme = {
     modal: '8px',
     modalMobile: '...',
   },
-
-
-
 }
 
+
+function generateColorFromAddress(address: string) {
+  throw new Error('Function not implemented.');
+}
 // const AUTOCONNECTED_CONNECTOR_IDS = ['safe'];
 // function useAutoConnect() {
 //   const { connect, connectors } = useConnect();
