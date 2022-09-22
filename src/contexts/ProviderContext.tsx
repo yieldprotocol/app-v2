@@ -1,14 +1,14 @@
-import { chain, WagmiConfig, createClient, configureChains, Chain } from 'wagmi';
+import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
 
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+
 
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { SettingsContext } from './SettingsContext';
+import { ConnectKitProvider } from 'connectkit';
 
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
@@ -68,7 +68,19 @@ const ProviderContext = ({ children }: { children: any }) => {
 
   /* before doing anything here, check the settings */
 
-  return <WagmiConfig client={client}>{children}</WagmiConfig>;
+  return (
+    <WagmiConfig client={client}>
+      <ConnectKitProvider 
+        theme="soft"
+        customTheme={{
+          "--ck-border-radius": 8,
+        }}
+        mode='auto'
+      >
+        {children}
+      </ConnectKitProvider>
+    </WagmiConfig>
+  );
 };
 
 export default ProviderContext;

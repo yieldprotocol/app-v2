@@ -5,6 +5,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import SidebarSettings from '../Sidebar';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { useAccount } from 'wagmi';
+import { ConnectKitButton } from 'connectkit';
 
 const StyledButton: any = styled(Button)`
   -webkit-transition: transform 0.2s ease-in-out;
@@ -49,9 +50,8 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const theme = useColorScheme();
 
+  const { isConnected } = useAccount();
 
-  const {isConnected} = useAccount();
-  
   const [connectOpen, setConnectOpen] = useState<boolean>(false);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
@@ -69,20 +69,27 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
         alignSelf="end"
       >
-        {isConnected ? (
-          children
-        ) : (
-          <StyledButton
-            background={theme === 'dark' ? '#181818' : '#FEFEFE'}
-            secondary
-            label={
-              <Text size={mobile ? 'small' : undefined} color="text">
-                Connect Wallet
-              </Text>
-            }
-            onClick={() => setConnectOpen(true)}
-          />
-        )}
+        
+        <ConnectKitButton.Custom>
+          {({ isConnected, isConnecting, show, hide, address, ensName }) => {
+            return isConnected ? (
+              children
+            ) : (
+              <StyledButton
+                background={theme === 'dark' ? '#181818' : '#FEFEFE'}
+                secondary
+                label={
+                  <Text size={mobile ? 'small' : undefined} color="text">
+                    Connect Wallet
+                  </Text>
+                }
+                onClick={show}
+                // onClick={() => setConnectOpen(true)}
+              />
+            );
+          }}
+        </ConnectKitButton.Custom>
+
       </Box>
       <SidebarSettings
         connectOpen={connectOpen}
