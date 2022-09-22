@@ -309,6 +309,7 @@ export interface IVault extends IVaultRoot {
 
   isWitchOwner: boolean;
   hasBeenLiquidated: boolean;
+  isVaultMature: boolean;
 
   isActive: boolean;
   ink: BigNumber;
@@ -323,7 +324,7 @@ export interface IVault extends IVaultRoot {
   rate_: string;
 
   accruedArt_: string;
-  // liquidationPrice_: string;
+  
 }
 
 export interface IStrategy extends IStrategyRoot {
