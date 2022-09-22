@@ -1,10 +1,7 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
-import { ChainContext } from '../../contexts/ChainContext';
-import SidebarSettings from '../Sidebar';
 import { useColorScheme } from '../../hooks/useColorScheme';
-import { useAccount } from 'wagmi';
 import { ConnectKitButton } from 'connectkit';
 
 const StyledButton: any = styled(Button)`
@@ -50,11 +47,6 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const theme = useColorScheme();
 
-  const { isConnected } = useAccount();
-
-  const [connectOpen, setConnectOpen] = useState<boolean>(false);
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-
   return mobile ? (
     <Layer position="bottom" background="background" modal={false} responsive={false} full="horizontal" animate={false}>
       <Box gap="small" fill="horizontal" pad="small">
@@ -69,9 +61,8 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
         alignSelf="end"
       >
-        
         <ConnectKitButton.Custom>
-          {({ isConnected, isConnecting, show, hide, address, ensName }) => {
+          {({ isConnected, show }) => {
             return isConnected ? (
               children
             ) : (
@@ -84,19 +75,12 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
                   </Text>
                 }
                 onClick={show}
-                // onClick={() => setConnectOpen(true)}
               />
             );
           }}
         </ConnectKitButton.Custom>
 
       </Box>
-      <SidebarSettings
-        connectOpen={connectOpen}
-        setConnectOpen={setConnectOpen}
-        setSettingsOpen={setSettingsOpen}
-        settingsOpen={settingsOpen}
-      />
     </>
   );
 }

@@ -43,7 +43,7 @@ const initState: ISettingsContextState = {
   darkMode: false,
 
   /* Set color theme based on system */
-  autoTheme: false,
+  autoTheme: true,
 
   /* Has the usage disclaimer been checked? */
   disclaimerChecked: false,

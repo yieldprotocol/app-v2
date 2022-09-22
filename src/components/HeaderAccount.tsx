@@ -5,13 +5,13 @@ import { FiSettings } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
 import { abbreviateHash } from '../utils/appUtils';
 import YieldAvatar from './YieldAvatar';
-import SidebarSettings from './Sidebar';
+import Sidebar from './Sidebar';
 import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import HeaderBalancesModal from './HeaderBalancesModal';
 import GeneralButton from './buttons/GeneralButton';
-import { ConnectKitButton } from 'connectkit';
+import { ConnectKitButton, useModal } from 'connectkit';
 
 const StyledText = styled(Text)`
   svg,
@@ -42,19 +42,18 @@ const HeaderAccount = (props: any) => {
   } = useContext(UserContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-  const [connectOpen, setConnectOpen] = useState<boolean>(false);
 
+  const {open:connectOpen, setOpen} = useModal();
+ 
   const ethBalance = assetMap.get(WETH)?.balance_;
 
   return (
     <>
-      <SidebarSettings
+      <Sidebar
         settingsOpen={settingsOpen}
         setSettingsOpen={setSettingsOpen}
-        connectOpen={connectOpen}
-        setConnectOpen={setConnectOpen}
       />
-
+      
       <ConnectKitButton.Custom>
         {({ isConnected, isConnecting, show, hide, address, ensName }) => {
           return isConnected ? (
@@ -95,14 +94,14 @@ const HeaderAccount = (props: any) => {
                 )}
               </StyledBox>
             </Box>
-          ) : !isConnecting  ? (
+          ) : (!isConnecting && !connectOpen ) ? (
             <GeneralButton action={show} background="gradient-transparent">
               <Text size="small" color="text">
                 Connect Wallet
               </Text>
             </GeneralButton>
           ) : (
-            <Skeleton  width={80} />
+            <Skeleton width={80} onClick={setOpen(true) } />
           );
         }}
       </ConnectKitButton.Custom>

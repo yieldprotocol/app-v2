@@ -2,18 +2,19 @@ import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
 
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 
-
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { useContext, useMemo } from 'react';
 import { SettingsContext } from './SettingsContext';
 import { ConnectKitProvider } from 'connectkit';
+import Disclaimer from '../components/Disclaimer';
+import { Anchor } from 'grommet';
 
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
   const { settingsState } = useContext(SettingsContext);
-  const { useFork, useTenderlyFork, forkUrl } = settingsState;
+  const { useFork, useTenderlyFork, forkUrl, disclaimerChecked } = settingsState;
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider, webSocketProvider } = configureChains(
@@ -40,16 +41,16 @@ const ProviderContext = ({ children }: { children: any }) => {
         autoConnect: true,
         connectors: [
           new MetaMaskConnector({ chains }),
-          new CoinbaseWalletConnector({
-            chains,
-            options: {
-              appName: 'yieldProtocol',
-            },
-          }),
           new WalletConnectConnector({
             chains,
             options: {
               qrcode: true,
+            },
+          }),
+          new CoinbaseWalletConnector({
+            chains,
+            options: {
+              appName: 'yieldProtocol',
             },
           }),
         ],
@@ -70,12 +71,27 @@ const ProviderContext = ({ children }: { children: any }) => {
 
   return (
     <WagmiConfig client={client}>
-      <ConnectKitProvider 
-        theme="soft"
-        customTheme={{
-          "--ck-border-radius": 8,
+      <ConnectKitProvider
+        mode="auto"
+        options={{
+          hideQuestionMarkCTA: true,
+          hideNoWalletCTA: true,
+          disclaimer: (
+            <div>
+              <p>
+                Disclaimer: By connecting my wallet, I agree to the{' '}
+                <a href="https://yieldprotocol.com/terms/" target="_blank">
+                  Terms of Service
+                </a>{' '}
+                and the{' '}
+                <a href="https://yieldprotocol.com/privacy/" target="_blank">
+                  Privacy Policy
+                </a>
+                .
+              </p>
+            </div>
+          ),
         }}
-        mode='auto'
       >
         {children}
       </ConnectKitProvider>
