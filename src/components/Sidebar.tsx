@@ -28,7 +28,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
 
   const { chain } = useNetwork();
   const { address, connector } = useAccount();
-  const { data } = useEnsName();
+  const { data: ensName } = useEnsName();
 
   const { disconnect } = useDisconnect();
 
@@ -79,7 +79,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
             <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
               {mobile && <YieldAvatar address={address} size={4} />}
               <CopyWrap hash={address}>
-                <Text size={mobile ? 'medium' : 'xlarge'}>{data || abbreviateHash(address, 6)}</Text>
+                <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
               </CopyWrap>
             </Box>
           </Box>
