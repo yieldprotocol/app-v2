@@ -461,7 +461,7 @@ const UserProvider = ({ children }: any) => {
   };
 
   /* Updates the vaults with *user* data */
-  const updateVaults = async (vaultList: IVaultRoot[]) => {
+  const updateVaults = async (vaultList: IVaultRoot[] = []) => {
     console.log('Updating vaults...');
     updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
@@ -566,7 +566,7 @@ const UserProvider = ({ children }: any) => {
       updateSeries(Array.from(seriesRootMap.values()))
         /*  when series has finished loading,...load/reload strategy data */
         .finally(() => updateStrategies(Array.from(strategyRootMap.values())));
-    chainLoaded && account && updateVaults([]);
+    chainLoaded && account && updateVaults();
   }, [chainLoaded, account]);
 
   /**
