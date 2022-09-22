@@ -6,7 +6,7 @@ import { FiMenu } from 'react-icons/fi';
 import { Box, Header, Grid, ResponsiveContext, Avatar } from 'grommet';
 
 import Navigation from './Navigation';
-import YieldAccount from './HeaderAccount';
+import HeaderAccount from './HeaderAccount';
 import YieldMark from './logos/YieldMark';
 
 import BackButton from './buttons/BackButton';
@@ -98,7 +98,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
 
         <Box align="center" direction="row" gap="small">
           {isConnected && mobile && router.pathname !== '/dashboard' && <DashMobileButton />}
-          <YieldAccount />
+          <HeaderAccount />
         </Box>
       </Grid>
     </Header>
