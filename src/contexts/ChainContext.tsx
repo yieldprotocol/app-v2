@@ -107,28 +107,27 @@ const ChainProvider = ({ children }: any) => {
    * (defaults to getting the protocol data from the first chain in the provider list)
    * */
   useEffect(() => {
-    if (chain) {
-      console.log('Connected to chainId: ', chain.id);
-      if (chain.id !== chainState.chainId) {
-        diagnostics && console.log('ChainId different to previously used ChainId: ', chainState.chainId);
-        /* update protocol info */
-        _getProtocolData(chain.id);
-      }
-      updateState({ type: ChainState.CHAIN_ID, payload: chain.id });
-    } else {
-      diagnostics && console.log('There is no chainId immediately avaialable. Using default id from provider...');
-      _getProtocolData(provider.chains[0].id);
+    const chainId = chain?.id;
+
+    if (chainId) {
+      console.log('Connected to chainId: ', chainId);
+      /* update protocol info */
+      _getProtocolData(chainId);
+      return updateState({ type: ChainState.CHAIN_ID, payload: chainId });
     }
-  }, [chain]);
+
+    diagnostics && console.log('There is no connected chain: using default chain from provider...');
+    _getProtocolData(provider.chains![0].id);
+  }, [chain?.id]);
 
   /**
    * A bit hacky, but if connecting account, we set 'chainloading'
    * so that we can safely update on every ACCOUNT change in userContext
    * without re-triggering loading before local memory has been cleared.
    */
-  useEffect(() => {
-    isConnecting && updateState({ type: ChainState.CHAIN_LOADED, payload: false });
-  }, [isConnecting]);
+  // useEffect(() => {
+  //   isConnecting && updateState({ type: ChainState.CHAIN_LOADED, payload: false });
+  // }, [isConnecting]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
@@ -212,7 +211,7 @@ const ChainProvider = ({ children }: any) => {
     }
 
     // if there was an issue loading at this point simply return
-    if (!Cauldron || !Ladle || !RateOracle || !Witch) return;
+    if (!Cauldron! || !Ladle! || !RateOracle! || !Witch!) return;
 
     /* Update the baseContracts state : ( hardcoded based on networkId ) */
     const newContractMap = new Map();
@@ -222,17 +221,17 @@ const ChainProvider = ({ children }: any) => {
     newContractMap.set('Witch', Witch);
 
     newContractMap.set('RateOracle', RateOracle);
-    newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
-    newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-    newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
-    newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
-    newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
-    newContractMap.set('CompoundMultiOracle', CompoundMultiOracle);
-    newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
+    newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle!);
+    newContractMap.set('CompositeMultiOracle', CompositeMultiOracle!);
+    newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle!);
+    newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle!);
+    newContractMap.set('NotionalMultiOracle', NotionalMultiOracle!);
+    newContractMap.set('CompoundMultiOracle', CompoundMultiOracle!);
+    newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle!);
 
     // modules
-    newContractMap.set('WrapEtherModule', WrapEtherModule);
-    newContractMap.set('ConvexLadleModule', ConvexLadleModule);
+    newContractMap.set('WrapEtherModule', WrapEtherModule!);
+    newContractMap.set('ConvexLadleModule', ConvexLadleModule!);
 
     updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
   };
@@ -300,10 +299,10 @@ const ChainProvider = ({ children }: any) => {
      * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     const cacheKey = `assets_${_chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues === null || cachedValues.length === 0) {
-      let newAssetList = [];
+      let newAssetList = [] as any[];
       await Promise.all(
         Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
           const id = x[0];
