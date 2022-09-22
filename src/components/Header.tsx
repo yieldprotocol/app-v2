@@ -42,7 +42,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const isPositionPath = router.pathname.includes('position');
   const [yieldMarkhover, setYieldMarkHover] = useState<boolean>(false);
 
-  const {isConnected} = useAccount();
+  const { isConnected } = useAccount();
 
   // eslint-disable-next-line react/display-name
   const YieldIcon = forwardRef(({ onClick, href }: any, ref: any) => (
@@ -70,38 +70,38 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   ));
 
   return (
-      <Header
-        pad={mobile ? 'medium' : 'large'}
-        height={mobile ? undefined : 'xsmall'}
-        style={{ position: 'fixed', top: '0px' }}
-        direction="row"
-        fill="horizontal"
-        background={mobile ? undefined : 'background'}
-        elevation={undefined}
-      >
-        <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
-          <Box direction="row" gap="large" align="center">
-            {mobile && !isPositionPath && (
-              <Box onClick={actionList[0]}>
-                <FiMenu size="1.5rem" />
-              </Box>
-            )}
-            {mobile && isPositionPath && <BackButton action={() => router.back()} />}
-            {!mobile && (
-              <Link href="/borrow" passHref>
-                <YieldIcon />
-              </Link>
-            )}
-            {!mobile && <Navigation />}
-          </Box>
-          <Box />
+    <Header
+      pad={mobile ? 'medium' : 'large'}
+      height={mobile ? undefined : 'xsmall'}
+      style={{ position: 'fixed', top: '0px' }}
+      direction="row"
+      fill="horizontal"
+      background={mobile ? undefined : 'background'}
+      elevation={undefined}
+    >
+      <Grid columns={['auto', '1fr', 'auto']} fill="horizontal">
+        <Box direction="row" gap="large" align="center">
+          {mobile && !isPositionPath && (
+            <Box onClick={actionList[0]}>
+              <FiMenu size="1.5rem" />
+            </Box>
+          )}
+          {mobile && isPositionPath && <BackButton action={() => router.back()} />}
+          {!mobile && (
+            <Link href="/borrow" passHref>
+              <YieldIcon />
+            </Link>
+          )}
+          {!mobile && <Navigation />}
+        </Box>
+        <Box />
 
-          <Box align="center" direction="row" gap="small">
-            {isConnected && mobile && router.pathname !== '/dashboard' && <DashMobileButton />}
-            <YieldAccount />
-          </Box>
-        </Grid>
-      </Header>
+        <Box align="center" direction="row" gap="small">
+          {isConnected && mobile && router.pathname !== '/dashboard' && <DashMobileButton />}
+          <YieldAccount />
+        </Box>
+      </Grid>
+    </Header>
   );
 };
 
