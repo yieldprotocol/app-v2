@@ -1,4 +1,4 @@
-import { chain, WagmiConfig, createClient, configureChains, useConnect } from 'wagmi';
+import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { useContext } from 'react';
 import { SettingsContext } from './SettingsContext';
@@ -20,7 +20,7 @@ const ProviderContext = ({ children }: { children: any }) => {
   const { useFork, useTenderlyFork, forkUrl, disclaimerChecked } = settingsState;
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
-  const { chains, provider, webSocketProvider } = configureChains(
+  const { chains, provider } = configureChains(
     [chain.mainnet, chain.arbitrum], // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
     [
       alchemyProvider({
@@ -55,10 +55,8 @@ const ProviderContext = ({ children }: { children: any }) => {
 
   // Set up client
   const client = createClient({
-    autoConnect: true,
     connectors,
     provider,
-    webSocketProvider,
   });
 
   const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
