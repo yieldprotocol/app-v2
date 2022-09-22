@@ -78,42 +78,26 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           <Box align="end" pad={{ vertical: 'small' }}>
             <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
               {mobile && <YieldAvatar address={address} size={4} />}
-              <CopyWrap hash={address}>
-                <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
-              </CopyWrap>
+              {address && (
+                <CopyWrap hash={address}>
+                  <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
+                </CopyWrap>
+              )}
             </Box>
           </Box>
 
           <Box gap="small">
-            <Box
-              direction="row"
-              justify="end"
-              // onClick={() => setConnectionSettingsOpen(!connectionSettingsOpen)}
-              gap="medium"
-              margin={{ top: 'medium' }}
-            >
+            <Box direction="row" justify="end" gap="medium" margin={{ top: 'medium' }}>
               <BoxWrap direction="row" gap="small">
                 {connector && <Text size="xsmall">Connected with {connector.name}</Text>}
-                {/* {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />} */}
               </BoxWrap>
             </Box>
 
-            <Box direction="row" justify="end" onClick={() => disconnect()} gap="medium" margin={{ top: 'medium' }}>
+            <Box direction="row" justify="end" onClick={() => null} gap="medium" margin={{ top: 'medium' }}>
               <BoxWrap direction="row" gap="small">
                 <Text size="xsmall">Logout</Text>
               </BoxWrap>
             </Box>
-            {/* <Collapsible open={connectionSettingsOpen}>
-              <Box gap="xsmall">
-                <GeneralButton action={handleChangeConnectType} background="gradient-transparent">
-                  <Text size="xsmall">Change Connection</Text>
-                </GeneralButton>
-
-                <GeneralButton action={() => disconnect()} background="gradient-transparent">
-                  <Text size="xsmall">Disconnect</Text>
-                </GeneralButton>
-              </Box>
-            </Collapsible> */}
           </Box>
         </Box>
 
@@ -183,9 +167,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
         </Box>
       </Box>
     </Layer>
-  ) : (
-    <div />
-  );
+  ) : null;
 };
 
 export default Sidebar;
