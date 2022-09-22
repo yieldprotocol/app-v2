@@ -1,7 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import { useAccount } from 'wagmi';
 import { ApprovalType, ISettingsContextState } from '../types';
-import { ChainContext } from './ChainContext';
 
 export enum Settings {
   APPROVAL_METHOD = 'approvalMethod',

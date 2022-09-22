@@ -27,7 +27,6 @@ import {
   IStrategyRoot,
   IStrategy,
   IChainContext,
-  ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -40,7 +39,7 @@ import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 import { PoolType } from '../config/series';
 
 enum UserState {
@@ -117,7 +116,7 @@ function userReducer(state: IUserContextState, action: any) {
       return { ...state, strategyMap: new Map(state.strategyMap.set(action.payload.id, action.payload)) };
 
     case UserState.CLEAR_VAULTS:
-      return { ...state, vaultMap: new Map()}
+      return { ...state, vaultMap: new Map() };
 
     case UserState.SELECTED_VAULT:
       return { ...state, selectedVault: action.payload };
@@ -148,34 +147,31 @@ const UserProvider = ({ children }: any) => {
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
-  
-  /* CACHED STATE */
-  
 
   /* HOOKS */
   const { address: account } = useAccount();
   const { chain } = useNetwork();
+  const provider = useProvider();
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { tenderlyStartBlock } = useTenderly();
 
   /* internal function for getting the users vaults */
-  const _getVaults = async (fromBlock: number = 1) => {
+  const _getVaults = async () => {
+
     const Cauldron = contractMap.get('Cauldron');
-    // if (!Cauldron) return new Map();
 
+    const cacheKey = `vaults_${account}_${chain.id}`;
+    const cachedVaults = JSON.parse(localStorage.getItem(cacheKey));
+    const cachedVaultList = cachedVaults ? cachedVaults : [];
+
+    const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chain.id}`;
+    const lastVaultUpdate = JSON.parse(localStorage.getItem(lastVaultUpdateKey)) || 'earliest';
+
+    /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-    const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, fromBlock);
-
-    let vaultsReceived = [];
-    try {
-      vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
-    } catch (error) {
-      console.log('Could not get vaults received.');
-    }
-
+    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, lastVaultUpdate);
     const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
       const { vaultId: id, ilkId, seriesId } = x.args;
       const series = seriesRootMap.get(seriesId);
@@ -189,6 +185,9 @@ const UserProvider = ({ children }: any) => {
       };
     });
 
+    /* Get a list of the vaults that were RECEIVED */
+    const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
+    const vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate);
     const receivedEventsList = await Promise.all(
       vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
         const { vaultId: id } = x.args;
@@ -206,14 +205,21 @@ const UserProvider = ({ children }: any) => {
     );
 
     /* all vaults */
-    const vaultList = [...buildEventList, ...receivedEventsList];
+    const allVaultList = [...buildEventList, ...receivedEventsList, ...cachedVaultList];
 
-    const newVaultMap = vaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
+    /* Cache results */
+    const latestBlock = (await provider.getBlockNumber()).toString();
+    
+    allVaultList.length && localStorage.setItem(cacheKey, JSON.stringify(allVaultList));
+    allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock ); 
+
+    const newVaultMap = allVaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
       const _map = acc;
       _map.set(item.id, item);
       return _map;
     }, new Map()) as Map<string, IVaultRoot>;
 
+    // newVaultList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
     return newVaultMap;
   };
 
@@ -464,7 +470,6 @@ const UserProvider = ({ children }: any) => {
 
   /* Updates the vaults with *user* data */
   const updateVaults = async (vaultList: IVaultRoot[]) => {
-    
     console.log('Updating vaults...');
     updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
@@ -475,7 +480,7 @@ const UserProvider = ({ children }: any) => {
     /**
      * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
     if (vaultList.length === 0) {
-      updateState({ type: UserState.CLEAR_VAULTS  });
+      updateState({ type: UserState.CLEAR_VAULTS });
       const vaults = await _getVaults();
       _vaults = Array.from(vaults.values());
     }
@@ -553,7 +558,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('Vaults updated successfully.');
-    console.table(updatedVaults, ['displayName','id', 'accruedArt_', 'ink_', 'baseId', 'ilkId', 'hasBeenLiquidated']);
+    console.table(updatedVaults, ['displayName', 'id', 'accruedArt_', 'ink_', 'baseId', 'ilkId', 'hasBeenLiquidated']);
     updateState({ type: UserState.VAULTS_LOADING, payload: false });
   };
 

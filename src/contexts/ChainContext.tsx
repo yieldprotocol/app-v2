@@ -123,7 +123,7 @@ const ChainProvider = ({ children }: any) => {
 
   /**
    * A bit hacky, but if connecting account, we set 'chainloading'
-   * so that we can safely udate on every account change in userContext
+   * so that we can safely update on every ACCOUNT change in userContext
    * without re-triggering loading before local memory has been cleared.
    */
   useEffect(() => {
