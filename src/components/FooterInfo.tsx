@@ -14,15 +14,18 @@ import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import NetworkSelector from './selectors/NetworkSelector';
 import { IChainContext } from '../types';
+import { useNetwork } from 'wagmi';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
 
 const FooterInfo = () => {
+
   const {
     chainActions: { exportContractAddresses },
   } = useContext(ChainContext) as IChainContext;
 
+  const {chain} = useNetwork();
   const handleExternal = (destination: string) => {};
 
   return (
@@ -107,13 +110,7 @@ const FooterInfo = () => {
         </BoxWrap>
       </Box>
 
-      {/* {connectedChain && ( */}
-      <Box align="end" gap="xsmall">
-        <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
-          <NetworkSelector />
-        </Box>
-      </Box>
-      {/* )} */}
+      <Text size='xsmall'>{ chain ? 'Connected to: ': 'Viewing network: ' } <NetworkSelector /> </Text> 
 
       {/* <Box align='center'>
         <Text size="xsmall"> NOTICE:</Text>
