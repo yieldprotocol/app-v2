@@ -21,8 +21,8 @@ const Settings = ({ setSettingsOpen, setConnectOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { address, connector: activeConnector, isConnected } = useAccount()
-  const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect()
+  // const { connect, connectors, error, isLoading, pendingConnector } =
+  //   useConnect()
   const { disconnect } = useDisconnect()
 
   const {

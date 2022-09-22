@@ -12,6 +12,7 @@ import { WETH } from '../config/assets';
 import HeaderBalancesModal from './HeaderBalancesModal';
 import GeneralButton from './buttons/GeneralButton';
 import { ConnectKitButton, useModal } from 'connectkit';
+import { useAccount } from 'wagmi';
 
 const StyledText = styled(Text)`
   svg,
@@ -34,7 +35,7 @@ const StyledBox = styled(Box)`
 const HeaderAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  // const { address } = useAccount();
+  const { address } = useAccount();
   // const { data: ensName, isError, isLoading } = useEnsName({ address });
 
   const {
@@ -101,7 +102,7 @@ const HeaderAccount = (props: any) => {
               </Text>
             </GeneralButton>
           ) : (
-            <Skeleton width={80} onClick={setOpen(true) } />
+            <Skeleton width={80} onClick={()=> setOpen(true) } />
           );
         }}
       </ConnectKitButton.Custom>

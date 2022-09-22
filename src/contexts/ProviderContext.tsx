@@ -74,8 +74,8 @@ const ProviderContext = ({ children }: { children: any }) => {
       <ConnectKitProvider
         mode="auto"
         options={{
-          hideQuestionMarkCTA: true,
-          hideNoWalletCTA: true,
+          // hideQuestionMarkCTA: true,
+          // hideNoWalletCTA: true,
           disclaimer: (
             <div>
               <p>
