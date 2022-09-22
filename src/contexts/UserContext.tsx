@@ -209,18 +209,10 @@ const UserProvider = ({ children }: any) => {
 
     /* Cache results */
     const latestBlock = (await provider.getBlockNumber()).toString();
-    
     allVaultList.length && localStorage.setItem(cacheKey, JSON.stringify(allVaultList));
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock ); 
 
-    const newVaultMap = allVaultList.reduce((acc: Map<string, IVaultRoot>, item) => {
-      const _map = acc;
-      _map.set(item.id, item);
-      return _map;
-    }, new Map()) as Map<string, IVaultRoot>;
-
-    // newVaultList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
-    return newVaultMap;
+    return allVaultList;
   };
 
   /* Updates the assets with relevant *user* data */
@@ -481,8 +473,8 @@ const UserProvider = ({ children }: any) => {
      * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
     if (vaultList.length === 0) {
       updateState({ type: UserState.CLEAR_VAULTS });
-      const vaults = await _getVaults();
-      _vaults = Array.from(vaults.values());
+      _vaults = await _getVaults();
+      // _vaults = Array.from(vaults.values());
     }
 
     const updatedVaults = await Promise.all(
