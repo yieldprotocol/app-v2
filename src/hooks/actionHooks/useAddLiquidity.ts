@@ -311,7 +311,7 @@ export const useAddLiquidity = () => {
     updateAssets([_base]);
     updateStrategies([strategy]);
     updateStrategyHistory([strategy]);
-    updateVaults([]);
+    updateVaults();
   };
 
   return addLiquidity;
