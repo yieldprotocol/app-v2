@@ -9,7 +9,7 @@ import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 
-const StyledLink = styled(Text)`
+const StyledLink = styled.div`
   text-decoration: none;
   border-radius: 5px;
 

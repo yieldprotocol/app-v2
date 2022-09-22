@@ -8,6 +8,7 @@ import { ActionType, ISeries, IUserContext } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { cleanValue } from '../../utils/appUtils';
 
 export const useLendHelpers = (
   series: ISeries | null,
@@ -155,7 +156,8 @@ export const useLendHelpers = (
   /* Sets values at maturity on input change */
   useEffect(() => {
     if (series && !series.seriesIsMature && input) {
-      const baseAmount = ethers.utils.parseUnits(input, series.decimals);
+      const cleanInput = cleanValue(input, series.decimals);
+      const baseAmount = ethers.utils.parseUnits(cleanInput, series.decimals);
       const { sharesReserves, fyTokenReserves } = series;
       const val = sellBase(
         sharesReserves,

@@ -228,25 +228,13 @@ const UserProvider = ({ children }: any) => {
   const updateAssets = useCallback(
     async (assetList: IAssetRoot[]) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
-      let _publicData: IAssetRoot[] = [];
       let _accountData: IAsset[] = [];
-
-      _publicData = await Promise.all(
-        assetList.map(async (asset): Promise<IAssetRoot> => {
-          const isYieldBase = !!Array.from(seriesRootMap.values()).find((x) => x.baseId === asset?.proxyId);
-          return {
-            ...asset,
-            isYieldBase,
-            displaySymbol: asset?.displaySymbol,
-          };
-        })
-      );
 
       /* add in the dynamic asset data of the assets in the list */
       if (account) {
         try {
           _accountData = await Promise.all(
-            _publicData.map(async (asset): Promise<IAsset> => {
+            assetList.map(async (asset): Promise<IAsset> => {
               const balance = asset.name !== 'UNKNOWN' ? await asset.getBalance(account) : ZERO_BN;
               return {
                 ...asset,
@@ -261,7 +249,7 @@ const UserProvider = ({ children }: any) => {
           console.log(e);
         }
       }
-      const _combinedData = _accountData.length ? _accountData : _publicData;
+      const _combinedData = _accountData.length ? _accountData : assetList;
 
       /* reduce the asset list into a new map */
       const newAssetMap = new Map(
@@ -276,7 +264,7 @@ const UserProvider = ({ children }: any) => {
       console.log('ASSETS updated (with dynamic data): ', newAssetMap);
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
-    [account, seriesRootMap]
+    [account]
   );
 
   /* Updates the series with relevant *user* data */
@@ -314,7 +302,7 @@ const UserProvider = ({ children }: any) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-            console.log('using old pool contract that does not include c, mu, and shares');
+            console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
           // convert base amounts to shares amounts (baseAmount is wad)
@@ -356,7 +344,8 @@ const UserProvider = ({ children }: any) => {
           const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
           // some logic to decide if the series is shown or not
-          const showSeries = series.maturity !== 1672412400;
+          // const showSeries = series.maturity !== 1672412400;
+          const showSeries = true;
 
           return {
             ...series,
@@ -434,10 +423,10 @@ const UserProvider = ({ children }: any) => {
         // const RateOracle = contractMap.get('RateOracle');
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
-        if (vaultList.length === 0)
-          _vaultList = Array.from(
-            (await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)).values()
-          );
+        if (vaultList.length === 0) {
+          const vaults = await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)
+          _vaultList = Array.from(vaults.values());
+          }
         /* Add in the dynamic vault data by mapping the vaults list */
         const vaultListMod = await Promise.all(
           _vaultList.map(async (vault): Promise<IVault> => {
@@ -445,7 +434,7 @@ const UserProvider = ({ children }: any) => {
             const [
               { ink, art },
               { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-            ] = await Promise.all([await Cauldron?.balances(vault.id), await Cauldron?.vaults(vault.id)]);
+            ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
             /* If art 0, check for liquidation event */
             const hasBeenLiquidated =
@@ -572,6 +561,7 @@ const UserProvider = ({ children }: any) => {
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
+
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
 
@@ -686,35 +676,43 @@ const UserProvider = ({ children }: any) => {
     [account, userState.seriesMap] // userState.strategyMap excluded on purpose
   );
 
-  /* When the chainContext is finished loading get the dynamic series, asset and strategies data */
+  /* When the chainContext is finished loading get the dynamic series and asset data */
   useEffect(() => {
     if (!chainLoading) {
-      seriesRootMap.size && updateSeries(Array.from(seriesRootMap.values()));
-      assetRootMap.size && updateAssets(Array.from(assetRootMap.values()));
-    }
-  }, [account, chainLoading, assetRootMap, seriesRootMap, updateSeries, updateAssets]);
+      if (seriesRootMap.size) {
+        updateSeries(Array.from(seriesRootMap.values()));
+      }
 
-  /* Only When seriesContext is finished loading get the strategies data */
+      if (assetRootMap.size) {
+        updateAssets(Array.from(assetRootMap.values()));
+      }
+    }
+  }, [assetRootMap, chainLoading, seriesRootMap]);
+
+  /* Only when seriesContext is finished loading get the strategies data */
   useEffect(() => {
-    !userState.seriesLoading && strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
-  }, [strategyRootMap, updateStrategies, userState.seriesLoading]);
+    if (!userState.seriesLoading && !chainLoading && strategyRootMap.size) {
+      updateStrategies(Array.from(strategyRootMap.values()));
+    }
+  }, [strategyRootMap, updateStrategies, userState.seriesLoading, chainLoading]);
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
     if (!chainLoading && account) {
-      /* trigger update of update all vaults by passing empty array */
+      /* trigger update of all vaults by passing empty array */
       updateVaults([]);
     }
     /* keep checking the active account when it changes/ chainloading */
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
   }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
 
-  /* Trigger update of all vaults with tenderly start block when we are using tenderly */
+  /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
   useEffect(() => {
     if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
       updateVaults([]);
+      updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork]); // updateVaults ignored here on purpose
+  }, [account, chainLoading, tenderlyStartBlock, useTenderlyFork, strategyRootMap]); // updateVaults ignored here on purpose
 
   /* explicitly update selected series on series map changes */
   useEffect(() => {
