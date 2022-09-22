@@ -62,11 +62,10 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         alignSelf="end"
       >
         <ConnectButton.Custom>
-          {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
-            // Note: If your app doesn't use authentication, you
+          {({ account, chain, openConnectModal, mounted }) => {
             const connected = mounted && account && chain;
 
-            return !connected ? (
+            return connected ? (
               children
             ) : (
               <StyledButton
@@ -77,7 +76,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
                     Connect Wallet
                   </Text>
                 }
-                onClick={()=>openConnectModal()}
+                onClick={() => openConnectModal()}
               />
             );
           }}
