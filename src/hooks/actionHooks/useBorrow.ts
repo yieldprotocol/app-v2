@@ -177,7 +177,7 @@ export const useBorrow = () => {
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)
     */
-    updateVaults([]);
+    updateVaults();
     updateAssets([base, ilkToUse, selectedIlk!]);
     updateSeries([series]);
   };

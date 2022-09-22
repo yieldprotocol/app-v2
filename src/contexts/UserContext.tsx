@@ -244,7 +244,7 @@ const UserProvider = ({ children }: any) => {
   };
 
   /* Updates the series with relevant *user* data */
-  const updateSeries = async (seriesList: ISeriesRoot[], accountInfoOnly: boolean = false) => {
+  const updateSeries = async (seriesList: ISeriesRoot[]) => {
     console.log('Updating series...');
     updateState({ type: UserState.SERIES_LOADING, payload: true });
 
@@ -474,7 +474,6 @@ const UserProvider = ({ children }: any) => {
     if (vaultList.length === 0) {
       updateState({ type: UserState.CLEAR_VAULTS });
       _vaults = await _getVaults();
-      // _vaults = Array.from(vaults.values());
     }
 
     const updatedVaults = await Promise.all(
@@ -556,7 +555,7 @@ const UserProvider = ({ children }: any) => {
 
   /**
    *
-   * When the chainContext is finished loading get the dynamic series, asset and strategies data.
+   * When the chainContext is finished loading get the dynamic series, asset and strategies data (after series).
    * (also on account change )
    *
    * */
@@ -569,12 +568,6 @@ const UserProvider = ({ children }: any) => {
     chainLoaded && account && updateVaults();
   }, [chainLoaded, account]);
 
-  /**
-   * If series has finished loading,...load/reload strategy data
-   * */
-  // useEffect(()=> {
-  //   !userState.seriesLoading && updateStrategies(Array.from(strategyRootMap.values()));
-  // },[userState.seriesLoading])
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
