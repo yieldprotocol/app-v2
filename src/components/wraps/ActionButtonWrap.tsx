@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { useColorScheme } from '../../hooks/useColorScheme';
-import { ConnectKitButton } from 'connectkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const StyledButton: any = styled(Button)`
   -webkit-transition: transform 0.2s ease-in-out;
@@ -61,9 +61,12 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
         alignSelf="end"
       >
-        <ConnectKitButton.Custom>
-          {({ isConnected, show }) => {
-            return isConnected ? (
+        <ConnectButton.Custom>
+          {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+            // Note: If your app doesn't use authentication, you
+            const connected = mounted && account && chain;
+
+            return !connected ? (
               children
             ) : (
               <StyledButton
@@ -74,12 +77,11 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
                     Connect Wallet
                   </Text>
                 }
-                onClick={show}
+                onClick={()=>openConnectModal()}
               />
             );
           }}
-        </ConnectKitButton.Custom>
-
+        </ConnectButton.Custom>
       </Box>
     </>
   );

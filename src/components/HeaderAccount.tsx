@@ -1,18 +1,18 @@
 import { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
-import { FiSettings } from 'react-icons/fi';
-import Skeleton from './wraps/SkeletonWrap';
-import { abbreviateHash } from '../utils/appUtils';
-import YieldAvatar from './YieldAvatar';
 import Sidebar from './Sidebar';
-import EthMark from './logos/EthMark';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
-import HeaderBalancesModal from './HeaderBalancesModal';
+import { useAccount, useEnsName } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { FiSettings } from 'react-icons/fi';
+import Skeleton from 'react-loading-skeleton';
+import { abbreviateHash } from '../utils/appUtils';
 import GeneralButton from './buttons/GeneralButton';
-import { ConnectKitButton, useModal } from 'connectkit';
-import { useAccount } from 'wagmi';
+import HeaderBalancesModal from './HeaderBalancesModal';
+import EthMark from './logos/EthMark';
+import YieldAvatar from './YieldAvatar';
 
 const StyledText = styled(Text)`
   svg,
@@ -36,6 +36,7 @@ const HeaderAccount = (props: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { address } = useAccount();
+  const { data: ensName } = useEnsName();
   // const { data: ensName, isError, isLoading } = useEnsName({ address });
 
   const {
@@ -44,20 +45,21 @@ const HeaderAccount = (props: any) => {
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
-  const {open:connectOpen, setOpen} = useModal();
- 
+  // const {open:connectOpen, setOpen} = useModal();
+
   const ethBalance = assetMap.get(WETH)?.balance_;
 
   return (
     <>
-      <Sidebar
-        settingsOpen={settingsOpen}
-        setSettingsOpen={setSettingsOpen}
-      />
-      
-      <ConnectKitButton.Custom>
-        {({ isConnected, isConnecting, show, hide, address, ensName }) => {
-          return isConnected ? (
+      <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
+
+      {/* <ConnectButton /> */}
+
+      <ConnectButton.Custom>
+        {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+          const connected = mounted && account && chain;
+
+          return connected ? (
             <Box direction="row" gap="xsmall" align="center">
               {!mobile && <HeaderBalancesModal />}
               <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
@@ -95,17 +97,15 @@ const HeaderAccount = (props: any) => {
                 )}
               </StyledBox>
             </Box>
-          ) : (!isConnecting && !connectOpen ) ? (
-            <GeneralButton action={show} background="gradient-transparent">
+          ) : (
+            <GeneralButton action={() => openConnectModal()} background="gradient-transparent">
               <Text size="small" color="text">
                 Connect Wallet
               </Text>
             </GeneralButton>
-          ) : (
-            <Skeleton width={80} onClick={()=> setOpen(true) } />
-          );
+          )
         }}
-      </ConnectKitButton.Custom>
+      </ConnectButton.Custom>
     </>
   );
 };

@@ -7,9 +7,9 @@ import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { useContext, useMemo } from 'react';
 import { SettingsContext } from './SettingsContext';
-import { ConnectKitProvider } from 'connectkit';
-import Disclaimer from '../components/Disclaimer';
-import { Anchor } from 'grommet';
+import { darkTheme, RainbowKitProvider, getDefaultWallets, } from '@rainbow-me/rainbowkit';
+
+import '@rainbow-me/rainbowkit/styles.css';
 
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
@@ -34,67 +34,50 @@ const ProviderContext = ({ children }: { children: any }) => {
     ]
   );
 
+   // const connectors = [
+  //   new MetaMaskConnector({ chains }),
+  //   new CoinbaseWalletConnector({
+  //     chains,
+  //     options: {
+  //       appName: 'yieldProtocol',
+  //     },
+  //   }),
+  //   new WalletConnectConnector({
+  //     chains,
+  //     options: {
+  //       qrcode: false,
+  //     },
+  //   }),
+  // ]
+
+  const { connectors } = getDefaultWallets({
+    appName: 'Yield Protocol App',
+    chains
+  });
+
+
   // Set up client
   const client = useMemo(
     () =>
       createClient({
         autoConnect: true,
-        connectors: [
-          new MetaMaskConnector({ chains }),
-          new WalletConnectConnector({
-            chains,
-            options: {
-              qrcode: true,
-            },
-          }),
-          new CoinbaseWalletConnector({
-            chains,
-            options: {
-              appName: 'yieldProtocol',
-            },
-          }),
-        ],
+        connectors,
         provider,
         webSocketProvider,
       }),
     []
   );
 
-  // Configure chains & providers with the Alchemy provider.
-
-  /* watch & handle linked approval and effect appropriate settings */
-  // useEffect(() => {
-  //   // console.log(settingsState);
-  // }, [settingsState]);
-
-  /* before doing anything here, check the settings */
-
   return (
     <WagmiConfig client={client}>
-      <ConnectKitProvider
-        mode="auto"
-        options={{
-          // hideQuestionMarkCTA: true,
-          // hideNoWalletCTA: true,
-          disclaimer: (
-            <div>
-              <p>
-                Disclaimer: By connecting my wallet, I agree to the{' '}
-                <a href="https://yieldprotocol.com/terms/" target="_blank">
-                  Terms of Service
-                </a>{' '}
-                and the{' '}
-                <a href="https://yieldprotocol.com/privacy/" target="_blank">
-                  Privacy Policy
-                </a>
-                .
-              </p>
-            </div>
-          ),
-        }}
+      <RainbowKitProvider 
+      chains={chains}
+      // theme={darkTheme()}
+      showRecentTransactions={true}
+      modalSize="compact"
       >
         {children}
-      </ConnectKitProvider>
+      </RainbowKitProvider>
     </WagmiConfig>
   );
 };

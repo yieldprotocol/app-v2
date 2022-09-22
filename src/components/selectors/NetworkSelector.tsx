@@ -7,34 +7,21 @@ import { IChainContext } from '../../types';
 import ArbitrumLogo from '../logos/Arbitrum';
 import EthMark from '../logos/EthMark';
 import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const NetworkSelector = () => {
-
   const { chain } = useNetwork();
   const { chains, error, isLoading, pendingChainId, switchNetwork } = useSwitchNetwork();
 
   return (
-    <Box round>
-      <>
-        {chain && <div>Connected to {chain.name}</div>}
-
-        {chains.map((x) => (
-          <button
-            disabled={!switchNetwork || x.id === chain?.id}
-            key={x.id}
-            onClick={() => {
-              switchNetwork?.(x.id);
-            }}
-          >
-            {x.name}
-            {isLoading && pendingChainId === x.id && ' (switching)'}
-          </button>
-        ))}
-
-        <div>{error && error.message}</div>
-      </>
-
-    </Box>
+    <ConnectButton.Custom>
+      {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+        // const connected = mounted && account && chain;
+        return (
+          <div onClick={()=> openChainModal() }> Connected to: {chain?.name} </div>
+        )
+      }}
+    </ConnectButton.Custom>
   );
 };
 

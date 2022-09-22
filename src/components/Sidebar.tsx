@@ -1,15 +1,17 @@
 import { useContext } from 'react';
 import { Layer, ResponsiveContext } from 'grommet';
 import SidebarSettings from './SidebarSettings';
-import { ConnectKitButton } from 'connectkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   return (
-      <ConnectKitButton.Custom>
-          {({ isConnected, show }) => {
-            return isConnected && settingsOpen ? (
+    <ConnectButton.Custom>
+    {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+      // Note: If your app doesn't use authentication, you
+      const connected = mounted && account && chain;
+            return connected && settingsOpen ? (
               <Layer
               modal={false}
               responsive={true}
@@ -19,11 +21,11 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
               onClickOutside={() => setSettingsOpen(false)}
               onEsc={() => setSettingsOpen(false)}
             >
-              <SidebarSettings setConnectOpen={show} setSettingsOpen={setSettingsOpen} />
+              <SidebarSettings setConnectOpen={openConnectModal()} setSettingsOpen={setSettingsOpen} />
             </Layer>
             ) : <div />;
           }}
-        </ConnectKitButton.Custom>
+        </ConnectButton.Custom>
   );
 };
 

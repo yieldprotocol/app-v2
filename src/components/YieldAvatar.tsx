@@ -18,7 +18,7 @@ function YieldAvatar(props: any) {
 
   const { data } = useEnsAvatar();
   const colorScheme = useColorScheme();
-  const _avatar = multiavatar(props.address.concat(21));
+  const _avatar = multiavatar(props.address?.concat(21));
   const _size = props.size.toString().concat('em');
 
   return (
