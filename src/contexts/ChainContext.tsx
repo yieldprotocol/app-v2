@@ -46,14 +46,13 @@ const initState: IChainContextState = {
 };
 
 function chainReducer(state: IChainContextState, action: any) {
-  /* Helper: only change the state if different from existing */
-  const onlyIfChanged = (_action: any): IChainContextState =>
-    state[action.type] === _action.payload ? state[action.type] : _action.payload;
-
   /* Reducer switch */
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
-      return { ...state, chainLoaded: onlyIfChanged(action) };
+      return { ...state, chainLoaded: action.payload };
+
+    case ChainState.CHAIN_ID:
+      return { ...state, chainId: action.payload };
 
     case ChainState.CONTRACT_MAP:
       return { ...state, contractMap: new Map(action.payload) };
@@ -107,7 +106,7 @@ const ChainProvider = ({ children }: any) => {
    * (defaults to getting the protocol data from the first chain in the provider list)
    * */
   useEffect(() => {
-    const chainId = chain?.id;
+    const chainId = chain?.id || chainState.chainId;
 
     if (chainId) {
       console.log('Connected to chainId: ', chainId);
@@ -117,7 +116,7 @@ const ChainProvider = ({ children }: any) => {
     }
 
     diagnostics && console.log('There is no connected chain: using default chain from state or chains config...');
-    _getProtocolData(chainState.chainId || chains[0].id);
+    _getProtocolData(chains[0].id);
   }, [chain?.id, chainState.chainId, chains, diagnostics]);
 
   /**
