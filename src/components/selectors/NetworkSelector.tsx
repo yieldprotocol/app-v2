@@ -1,10 +1,9 @@
 import { Text } from 'grommet';
-import { useNetwork, useProvider } from 'wagmi';
+import { useNetwork } from 'wagmi';
 import { useChainModal, useConnectModal } from '@rainbow-me/rainbowkit';
 
 const NetworkSelector = () => {
-  const { chain } = useNetwork();
-  const provider = useProvider();
+  const { chain, chains } = useNetwork();
   const { openChainModal } = useChainModal();
   const { openConnectModal } = useConnectModal();
 
@@ -14,7 +13,7 @@ const NetworkSelector = () => {
     </Text>
   ) : (
     <Text size="xsmall" onClick={openConnectModal}>
-      {provider.chains![0].name}
+      {chains[0].name}
     </Text>
   );
 };
