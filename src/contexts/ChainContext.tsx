@@ -424,7 +424,7 @@ const ChainProvider = ({ children }: any) => {
       seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
       // built-in helper functions:
-      getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
+      getBaseAddress: () => chainState.assetRootMap.get(series.baseId)?.address, // TODO refactor to get this static - if possible?
     };
   };
 
@@ -437,10 +437,10 @@ const ChainProvider = ({ children }: any) => {
      * If: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     const cacheKey = `series_${_chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues === null || cachedValues.length === 0) {
-      let newSeriesList = [];
+      let newSeriesList: any[] = [];
       await Promise.all(
         Array.from(seriesMap).map(async (x): Promise<void> => {
           const id = x[0];
@@ -525,7 +525,7 @@ const ChainProvider = ({ children }: any) => {
      * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     const cacheKey = `strategies_${_chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues === null || cachedValues.length === 0) {
       try {
@@ -621,11 +621,11 @@ const ChainProvider = ({ children }: any) => {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 
-    console.table(contractList);
-    console.table(seriesList);
-    console.table(assetList);
-    console.table(joinList);
-    console.table(strategyList);
+    // console.table(contractList);
+    // console.table(seriesList);
+    // console.table(assetList);
+    // console.table(joinList);
+    // console.table(strategyList);
   };
 
   /* simply Pass on the connection actions */
