@@ -34,7 +34,7 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ETH_BASED_ASSETS, FRAX } from '../config/assets';
+import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
@@ -239,7 +239,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('ASSETS updated (with dynamic data):');
-    console.table(updatedAssets, ['id', 'symbol', 'address', 'balance_']);
+    // console.table(updatedAssets, ['id', 'symbol', 'address', 'balance_']);
     updateState({ type: UserState.ASSETS_LOADING, payload: false });
   };
 
@@ -359,7 +359,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('SERIES updated (with dynamic data): ');
-    console.table(updatedSeries, ['id', 'displayName', 'baseId', 'poolType', 'seriesIsMature', 'showSeries']);
+    // console.table(updatedSeries, ['id', 'displayName', 'baseId', 'poolType', 'seriesIsMature', 'showSeries']);
     updateState({ type: UserState.SERIES_LOADING, payload: false });
 
     return updatedSeries;
@@ -454,7 +454,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('STRATEGIES updated (with dynamic data): ');
-    console.table(updatedStrategies, ['id', 'currentSeriesId', 'active']);
+    // console.table(updatedStrategies, ['id', 'currentSeriesId', 'active']);
     updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
 
     return updatedStrategies;
@@ -551,7 +551,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('Vaults updated successfully.');
-    console.table(updatedVaults, ['displayName', 'id', 'accruedArt_', 'ink_', 'baseId', 'ilkId', 'hasBeenLiquidated']);
+    // console.table(updatedVaults, ['displayName', 'id', 'accruedArt_', 'ink_', 'baseId', 'ilkId', 'hasBeenLiquidated']);
     updateState({ type: UserState.VAULTS_LOADING, payload: false });
   };
 
@@ -562,12 +562,14 @@ const UserProvider = ({ children }: any) => {
    *
    * */
   useEffect(() => {
-    chainLoaded && updateAssets(Array.from(assetRootMap.values()));
-    chainLoaded &&
+    if (chainLoaded) {
+      updateAssets(Array.from(assetRootMap.values()));
       updateSeries(Array.from(seriesRootMap.values()))
         /*  when series has finished loading,...load/reload strategy data */
         .finally(() => updateStrategies(Array.from(strategyRootMap.values())));
-    chainLoaded && account && updateVaults();
+
+      account && updateVaults();
+    }
   }, [chainLoaded, account]);
 
   /* If the url references a series/vault...set that one as active */
