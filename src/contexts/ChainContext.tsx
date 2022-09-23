@@ -96,7 +96,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* HOOKS */
   const provider = useProvider();
-  const { chain } = useNetwork();
+  const { chain, chains } = useNetwork();
   const { isConnecting } = useAccount();
 
   /* SIMPLE CACHED VARIABLES */
@@ -116,9 +116,9 @@ const ChainProvider = ({ children }: any) => {
       return updateState({ type: ChainState.CHAIN_ID, payload: chainId });
     }
 
-    diagnostics && console.log('There is no connected chain: using default chain from provider...');
-    _getProtocolData(provider.chains![0].id);
-  }, [chain?.id]);
+    diagnostics && console.log('There is no connected chain: using default chain from state or chains config...');
+    _getProtocolData(chainState.chainId || chains[0].id);
+  }, [chain?.id, chainState.chainId, chains, diagnostics]);
 
   /**
    * A bit hacky, but if connecting account, we set 'chainloading'
