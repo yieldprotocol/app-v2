@@ -7,9 +7,8 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { useAccount } from 'wagmi';
 
 const AdvancedSetting = () => {
+  const { connector } = useAccount();
 
-  const {connector} = useAccount();
-  
   const {
     settingsState: { approvalMethod, approveMax, useTenderlyFork },
     settingsActions: { updateSetting },
