@@ -31,10 +31,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
   const { data: ensName } = useEnsName();
 
   const { disconnect } = useDisconnect();
-
-  const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
-  const { openChainModal } = useChainModal();
 
   const handleResetApp = () => {
     clearCachedItems([]);
@@ -93,7 +90,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
               </BoxWrap>
             </Box>
 
-            <Box direction="row" justify="end" onClick={() => null} gap="medium" margin={{ top: 'medium' }}>
+            <Box direction="row" justify="end" onClick={disconnect} gap="medium" margin={{ top: 'medium' }}>
               <BoxWrap direction="row" gap="small">
                 <Text size="xsmall">Logout</Text>
               </BoxWrap>
