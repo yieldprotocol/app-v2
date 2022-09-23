@@ -1,8 +1,9 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { useColorScheme } from '../../hooks/useColorScheme';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 
 const StyledButton: any = styled(Button)`
   -webkit-transition: transform 0.2s ease-in-out;
@@ -46,6 +47,8 @@ const StyledButton: any = styled(Button)`
 function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const theme = useColorScheme();
+  const { openConnectModal } = useConnectModal();
+  const { address } = useAccount();
 
   return mobile ? (
     <Layer position="bottom" background="background" modal={false} responsive={false} full="horizontal" animate={false}>
@@ -61,26 +64,20 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
         alignSelf="end"
       >
-        <ConnectButton.Custom>
-          {({ account, chain, openConnectModal, mounted }) => {
-            const connected = mounted && account && chain;
-
-            return connected ? (
-              children
-            ) : (
-              <StyledButton
-                background={theme === 'dark' ? '#181818' : '#FEFEFE'}
-                secondary
-                label={
-                  <Text size={mobile ? 'small' : undefined} color="text">
-                    Connect Wallet
-                  </Text>
-                }
-                onClick={() => openConnectModal()}
-              />
-            );
-          }}
-        </ConnectButton.Custom>
+        {address ? (
+          children
+        ) : (
+          <StyledButton
+            background={theme === 'dark' ? '#181818' : '#FEFEFE'}
+            secondary
+            label={
+              <Text size={mobile ? 'small' : undefined} color="text">
+                Connect Wallet
+              </Text>
+            }
+            onClick={openConnectModal}
+          />
+        )}
       </Box>
     </>
   );
