@@ -27,6 +27,7 @@ import {
   IStrategyRoot,
   IStrategy,
   IChainContext,
+  ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -140,7 +141,7 @@ const UserProvider = ({ children }: any) => {
   const { contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const useTenderlyFork = false;
 
@@ -151,7 +152,7 @@ const UserProvider = ({ children }: any) => {
   /* HOOKS */
   const { address: account } = useAccount();
   const { chain } = useNetwork();
-  const provider = useProvider();
+  const provider = useProvider({ chainId: chain?.id || chainState.chainId });
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
