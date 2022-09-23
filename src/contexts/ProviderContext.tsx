@@ -17,7 +17,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 const ProviderContext = ({ children }: { children: any }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
   const { settingsState } = useContext(SettingsContext);
-  const { useFork, useTenderlyFork, forkUrl, disclaimerChecked } = settingsState;
+  // const { useFork, useTenderlyFork, forkUrl, disclaimerChecked } = settingsState;
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider } = configureChains(
@@ -55,6 +55,7 @@ const ProviderContext = ({ children }: { children: any }) => {
 
   // Set up client
   const client = createClient({
+    autoConnect: true,
     connectors,
     provider,
   });
