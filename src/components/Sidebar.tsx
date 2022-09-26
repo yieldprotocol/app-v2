@@ -70,6 +70,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           )}
 
           <Box align="end" pad={{ vertical: 'small' }}>
+
             <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
               {mobile && <YieldAvatar address={address} size={4}/>}
               <CopyWrap hash={address}>
@@ -88,7 +89,6 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
             >
               <BoxWrap direction="row" gap="small">
                 <Text size="xsmall">Connected with {connector.name}</Text>
-                {/* {connectionSettingsOpen ? <FiChevronUp /> : <FiChevronDown />} */}
               </BoxWrap>
             </Box>
 
@@ -103,17 +103,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
                 <Text size="xsmall">Logout </Text>
               </BoxWrap>
             </Box>
-            {/* <Collapsible open={connectionSettingsOpen}>
-              <Box gap="xsmall">
-                <GeneralButton action={handleChangeConnectType} background="gradient-transparent">
-                  <Text size="xsmall">Change Connection</Text>
-                </GeneralButton>
 
-                <GeneralButton action={() => disconnect()} background="gradient-transparent">
-                  <Text size="xsmall">Disconnect</Text>
-                </GeneralButton>
-              </Box>
-            </Collapsible> */}
           </Box>
         </Box>
 
