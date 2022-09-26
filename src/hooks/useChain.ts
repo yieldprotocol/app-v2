@@ -118,6 +118,7 @@ export const useChain = () => {
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
     const signer = account ? provider.getSigner(account) : provider.getSigner(0);
+    // const signer = provider.getSigner(0);
 
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
@@ -221,10 +222,10 @@ export const useChain = () => {
               true
             ),
           txCode,
-
-          reqSig.target.tokenType === TokenType.ERC20_DaiPermit ||
+          (reqSig.target.tokenType === TokenType.ERC20_DaiPermit ||
             reqSig.target.tokenType === TokenType.ERC20_Permit ||
-            !reqSig.target.tokenType // handle fyTokens (don't have an explicit tokenType in the asset config)
+            !reqSig.target.tokenType) && // handle fyTokens (don't have an explicit tokenType in the asset config)
+            reqSig.target.tokenType !== TokenType.ERC20_
             ? approvalMethod
             : ApprovalType.TX
         );

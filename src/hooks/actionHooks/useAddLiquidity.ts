@@ -1,6 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { calcPoolRatios, calculateSlippage, fyTokenForMint, splitLiquidity } from '@yield-protocol/ui-math';
+import {
+  calcPoolRatios,
+  calculateSlippage,
+  fyTokenForMint,
+  MAX_256,
+  splitLiquidity,
+  ZERO_BN,
+} from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
@@ -75,8 +82,13 @@ export const useAddLiquidity = () => {
       _series.poolContract.getCache(),
       _series.poolContract.totalSupply(),
     ]);
+
+    const hasZeroRealReserves = cachedFyTokenReserves.eq(totalSupply);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
-    const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance);
+
+    const [minRatio, maxRatio_] = calcPoolRatios(cachedSharesReserves, cachedRealReserves, slippageTolerance);
+    const maxRatio = hasZeroRealReserves ? MAX_256 : maxRatio_;
+    cachedFyTokenReserves.eq(totalSupply) && console.log('EDGE-CASE WARNING: CachedRealReserves are 0.');
 
     /* if approveMax, check if signature is still required */
     const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
@@ -107,9 +119,9 @@ export const useAddLiquidity = () => {
       true
     ) as [BigNumber, BigNumber];
 
-    const fyTokenToBorrowWithSlippage = BigNumber.from(
-      calculateSlippage(fyTokenToBorrow, slippageTolerance.toString(), true)
-    );
+    const fyTokenToBorrowWithSlippage = hasZeroRealReserves
+      ? ethers.constants.Zero
+      : BigNumber.from(calculateSlippage(fyTokenToBorrow, slippageTolerance.toString(), true));
 
     /* convert shares to be pooled (when borrowing and pooling) to base, since we send in base */
     const baseToPool = _series.getBase(sharesToPool);

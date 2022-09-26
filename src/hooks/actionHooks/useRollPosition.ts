@@ -176,11 +176,11 @@ export const useRollPosition = () => {
       },
     ];
 
-    await transact(calls, txCode);
+    const res = (await transact(calls, txCode)) as Promise<ethers.ContractReceipt | null> | void;
     updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
     updateTradeHistory([fromSeries, toSeries]);
-    router.replace(`/lendposition/${toSeries.id}`);
+    res && router.replace(`/lendposition/${toSeries.id}`);
   };
 
   return rollPosition;
