@@ -424,9 +424,9 @@ const UserProvider = ({ children }: any) => {
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
         if (vaultList.length === 0) {
-          const vaults = await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1)
+          const vaults = await _getVaults(useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 1);
           _vaultList = Array.from(vaults.values());
-          }
+        }
         /* Add in the dynamic vault data by mapping the vaults list */
         const vaultListMod = await Promise.all(
           _vaultList.map(async (vault): Promise<IVault> => {
@@ -438,15 +438,13 @@ const UserProvider = ({ children }: any) => {
 
             /* If art 0, check for liquidation event */
             const hasBeenLiquidated =
-              art === ZERO_BN
-                ? (
-                    await Witch.queryFilter(
-                      Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                      useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
-                      'latest'
-                    )
-                  ).length > 0
-                : false;
+              (
+                await Witch.queryFilter(
+                  Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
+                  useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                  'latest'
+                )
+              ).length > 0;
 
             const series = seriesRootMap.get(seriesId);
 
