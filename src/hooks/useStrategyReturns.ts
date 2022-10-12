@@ -1,0 +1,160 @@
+import { ethers, EventFilter } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
+import request from 'graphql-request';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { SettingsContext } from '../contexts/SettingsContext';
+import { ActionType, ISettingsContext, IStrategy } from '../types';
+import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
+import { useApr } from './useApr';
+
+interface IReturns {
+  sharesAPY: string;
+  fyTokenAPY: string;
+  feesAPY: string;
+  totalAPY: string;
+}
+
+/**
+ *
+ * Returns are LP returns per share
+ * Returns are estimated using "forward-looking" and "backward-looking" methodologies:
+ *
+ * Forward-looking:
+ *
+ * a = pool share's estimated current apy
+ * b = number of shares in pool
+ * c = current share price in base
+ * d = lp token total supply
+ * e = fyToken interest rate
+ * f = number of fyTokens in pool
+ * g = total estimated base value of pool b * c + f
+ *
+ * estimated apy =    shares apy       + fyToken apy + fees apy
+ * estimated apy = a * ((b * c) / g)   +   f / g     + fees apy
+ *
+ *
+ * the pool's shares apy *
+ *
+ * @param input amount of base to use when providing liquidity
+ * @param strategy
+ * @returns {IStrategyReturns}
+ */
+const useStrategyReturns = (input: string | undefined, strategy: IStrategy | undefined) => {
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext) as ISettingsContext;
+
+  const series = strategy?.currentSeries!;
+
+  const [returnsForward, setReturnsForward] = useState<IReturns>();
+  const [returnsBackward, setReturnsBackward] = useState<IReturns>();
+
+  const { apr: borrowApr } = useApr(input, ActionType.BORROW, series);
+  const { apr: lendApr } = useApr(input, ActionType.LEND, series);
+
+  const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
+
+  useEffect(() => {
+    const _getEulerPoolAPY = async (sharesTokenAddr: string) => {
+      const query = `
+    query ($address: Bytes!) {
+      eulerMarketStore(id: "euler-market-store") {
+        markets(where:{eTokenAddress:$address}) {
+          supplyAPY
+         } 
+      }
+    }
+  `;
+
+      interface EulerRes {
+        eulerMarketStore: {
+          markets: {
+            supplyAPY: string;
+          }[];
+        };
+      }
+
+      try {
+        const {
+          eulerMarketStore: { markets },
+        } = await request<EulerRes>(EULER_SUPGRAPH_ENDPOINT, query, { address: sharesTokenAddr });
+        return ((+markets[0].supplyAPY * 100) / 1e27).toString();
+      } catch (error) {
+        diagnostics && console.log(`could not get pool apy for pool with shares token: ${sharesTokenAddr}`, error);
+        return undefined;
+      }
+    };
+
+    const _getPoolBaseValue = () => {
+      const sharesBaseVal = series.getBase(series.sharesReserves);
+      const fyTokenBaseVal = series.fyTokenRealReserves;
+      return sharesBaseVal.add(fyTokenBaseVal);
+    };
+
+    /**
+     * @param tokenAddr the shares token address of the pool
+     * Calculates the apy of the shares value in the pool
+     * @returns {Promise<number>} shares apy proportion of LP returns
+     */
+    const _calcSharesAPY = async () => {
+      const apy = Number(await _getEulerPoolAPY(series.sharesAddress));
+
+      if (apy) {
+        const sharesBaseVal = series.getBase(series.sharesReserves);
+        const sharesValRatio = Number(formatUnits(sharesBaseVal.div(_getPoolBaseValue()), series.decimals));
+
+        return apy * sharesValRatio;
+      }
+
+      return 0;
+    };
+
+    const _calcFyTokenAPY = () => {
+      const marketInterestRate = (Number(borrowApr) + Number(lendApr)) / 2;
+      const fyTokenRealReserves = series.fyTokenRealReserves;
+      const fyTokenValRatio = Number(formatUnits(fyTokenRealReserves.div(_getPoolBaseValue()), series.decimals));
+      return marketInterestRate * fyTokenValRatio;
+    };
+
+    const _calcFeesAPY = async () => {
+      // get pool view contract
+
+      // get current invariant
+      // const currentInvariant = await poolViewContract.invariant(series.poolAddress);
+
+      // get init invariant
+      const initInvariant = ethers.utils.parseUnits('1', 18);
+
+      // get pool init timestamp by getting the first event emmitted in pool, getting corresponding block, then timestamp
+      const firstEvent = (await series.poolContract.queryFilter('Sync' as EventFilter))[0];
+      const blockTimestamp = (await firstEvent.getBlock()).timestamp;
+
+      // return Number(calculateAPR(currentInvariant, initInvariant, NOW, blockTimestamp));
+
+      return 0;
+    };
+
+    const _calcTotalAPY = async () => {
+      // forward looking returns
+      const sharesAPYForward = await _calcSharesAPY();
+      const fyTokenAPYForward = await _calcFyTokenAPY();
+      const feesAPYForward = await _calcFeesAPY();
+      const totalAPYForward = sharesAPYForward + fyTokenAPYForward + feesAPYForward;
+
+      setReturnsForward({
+        sharesAPY: sharesAPYForward.toString(),
+        fyTokenAPY: fyTokenAPYForward.toString(),
+        feesAPY: feesAPYForward.toString(),
+        totalAPY: totalAPYForward.toString(),
+      });
+    };
+
+    if (series) {
+      _calcTotalAPY();
+    }
+  }, [borrowApr, diagnostics, lendApr, series]);
+
+  return { returnsForward };
+};
+
+export default useStrategyReturns;
