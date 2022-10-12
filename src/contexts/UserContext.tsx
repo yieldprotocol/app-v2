@@ -14,7 +14,6 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import request from 'graphql-request';
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -33,7 +32,7 @@ import {
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
+import { ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
@@ -289,10 +288,10 @@ const UserProvider = ({ children }: any) => {
           let c: BigNumber | undefined;
           let mu: BigNumber | undefined;
           let currentSharePrice: BigNumber | undefined;
-          let sharesToken: string | undefined;
+          let sharesAddress: string | undefined;
 
           try {
-            [sharesReserves, c, mu, currentSharePrice, sharesToken] = await Promise.all([
+            [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
               series.poolContract.getSharesBalance(),
               series.poolContract.getC(),
               series.poolContract.mu(),
@@ -302,6 +301,7 @@ const UserProvider = ({ children }: any) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
+            sharesAddress = series.baseAddress;
             console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
@@ -340,8 +340,6 @@ const UserProvider = ({ children }: any) => {
           );
 
           const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
-          // fetch the euler eToken supply APY from their subgraph
-          const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
 
           // some logic to decide if the series is shown or not
           // const showSeries = series.maturity !== 1672412400;
@@ -359,10 +357,10 @@ const UserProvider = ({ children }: any) => {
             seriesIsMature: isMature(series.maturity),
             c,
             mu,
-            poolAPY,
             getShares,
             getBase,
             showSeries,
+            sharesAddress,
           };
         })
       );
@@ -718,36 +716,6 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: UserState.SELECTED_SERIES, payload: userState.seriesMap.get(userState.selectedSeries.id) });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
-
-  const getPoolAPY = async (sharesTokenAddr: string) => {
-    const query = `
-    query ($address: Bytes!) {
-      eulerMarketStore(id: "euler-market-store") {
-        markets(where:{eTokenAddress:$address}) {
-          supplyAPY
-         } 
-      }
-    }
-  `;
-
-    interface EulerRes {
-      eulerMarketStore: {
-        markets: {
-          supplyAPY: string;
-        }[];
-      };
-    }
-
-    try {
-      const {
-        eulerMarketStore: { markets },
-      } = await request<EulerRes>(EULER_SUPGRAPH_ENDPOINT, query, { address: sharesTokenAddr });
-      return ((+markets[0].supplyAPY * 100) / 1e27).toString();
-    } catch (error) {
-      diagnostics && console.log(`could not get pool apy for pool with shares token: ${sharesTokenAddr}`, error);
-      return undefined;
-    }
-  };
 
   /* Exposed userActions */
   const userActions = {
