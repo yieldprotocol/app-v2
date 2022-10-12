@@ -58,7 +58,7 @@ SERIES_1.set(USDC_2209_SERIES_ID, {
 SERIES_1.set(USDC_2212_SERIES_ID, {
   fyTokenAddress: '0x38b8BF13c94082001f784A642165517F8760988f',
   poolAddress: '0xB2fff7FEA1D455F0BCdd38DA7DeE98af0872a13a',
-  poolType: PoolType.NONTV,
+  poolType: PoolType.TV,
 });
 
 SERIES_1.set(WETH_2206_SERIES_ID, {
@@ -76,13 +76,13 @@ SERIES_1.set(WETH_2209_SERIES_ID, {
 SERIES_1.set(WETH_2212_SERIES_ID, {
   fyTokenAddress: '0x386a0A72FfEeB773381267D69B61aCd1572e074D',
   poolAddress: '0x9D34dF69958675450ab8E53c8Df5531203398Dc9',
-  poolType: PoolType.NONTV,
+  poolType: PoolType.TV,
 });
 
 SERIES_1.set(DAI_2112_SERIES_ID, {
   fyTokenAddress: '0x0119451f94E98716c3fa17ff31d19C98d134DD6d',
   poolAddress: '0x3771C99c087a81dF4633b50D8B149aFaA83E3c9E',
-  poolType: PoolType.NONTV,
+  poolType: PoolType.TV,
 });
 
 SERIES_1.set(DAI_2203_SERIES_ID, {
