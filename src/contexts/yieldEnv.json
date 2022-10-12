@@ -14,7 +14,8 @@
 
       "transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
       "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA",
-      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6"
+      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6",
+      "PoolView": "0x23cc87fbebdd67cce167fa9ec6ad3b7fe3892e30"
     },
 
     "42161": {
@@ -24,7 +25,8 @@
       "AccumulatorOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
       "AccumulatorMultiOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
       "Witch": "0x08173D0885B00BDD640aaE57D05AbB74cd00d669",
-      "WrapEtherModule": "0x4cd01ed221d6d198e2656c16c32803bf78134568"
+      "WrapEtherModule": "0x4cd01ed221d6d198e2656c16c32803bf78134568",
+      "PoolView": "0x3e9d89a883c00608d932f92bbd8bd948bf1a9cf6"
     }
   },
 
