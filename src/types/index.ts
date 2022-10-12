@@ -293,6 +293,7 @@ export interface ISeries extends ISeriesRoot {
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
   totalSupply_: string;
+  sharesAddress: string;
 
   poolTokens?: BigNumber | undefined;
   poolTokens_?: string | undefined;
