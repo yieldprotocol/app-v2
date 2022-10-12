@@ -205,15 +205,21 @@ function Pool() {
                         value={`${cleanValue(lpReturns.totalAPY, 2)}%`}
                         labelInfo={
                           <Box>
-                            <Text size="small" weight="lighter">
-                              Shares APY: {lpReturns.sharesAPY}%
-                            </Text>
-                            <Text size="small" weight="lighter">
-                              fyToken Interest: {lpReturns.fyTokenAPY}%
-                            </Text>
-                            <Text size="small" weight="lighter">
-                              Fees: {lpReturns.feesAPY}%
-                            </Text>
+                            {+lpReturns.sharesAPY > 0 && (
+                              <Text size="small" weight="lighter">
+                                Shares APY: {lpReturns.sharesAPY}%
+                              </Text>
+                            )}
+                            {+lpReturns.fyTokenAPY > 0 && (
+                              <Text size="small" weight="lighter">
+                                fyToken Interest: {lpReturns.fyTokenAPY}%
+                              </Text>
+                            )}
+                            {+lpReturns.feesAPY > 0 && (
+                              <Text size="small" weight="lighter">
+                                Fees: {lpReturns.feesAPY}%
+                              </Text>
+                            )}
                             <Text size="small" weight="bold">
                               Total: {lpReturns.totalAPY}%
                             </Text>
