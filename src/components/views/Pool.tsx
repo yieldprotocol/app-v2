@@ -33,6 +33,7 @@ import StrategyItem from '../positionItems/StrategyItem';
 
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
+import useStrategyReturns from '../../hooks/useStrategyReturns';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,6 +54,7 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
+  const { returnsForward: lpReturns } = useStrategyReturns(poolInput, selectedStrategy);
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -81,6 +83,7 @@ function Pool() {
   useEffect(() => {
     !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
+    setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
   const resetInputs = useCallback(() => {
@@ -195,12 +198,27 @@ function Pool() {
                       icon={<FiPercent />}
                       value={`${cleanValue(poolPercentPreview, 2)}%`}
                     />
-                    {selectedStrategy.currentSeries.poolAPY && (
+                    {lpReturns && Number(lpReturns.totalAPY) > 0 && (
                       <InfoBite
                         label="Pool APY"
                         icon={<FiZap />}
-                        value={`${cleanValue(selectedStrategy.currentSeries.poolAPY, 2)}%`}
-                        labelInfo="Estimated APY based on the current Euler supply APY"
+                        value={`${cleanValue(lpReturns.totalAPY, 2)}%`}
+                        labelInfo={
+                          <Box>
+                            <Text size="small" weight="lighter">
+                              Shares APY: {lpReturns.sharesAPY}%
+                            </Text>
+                            <Text size="small" weight="lighter">
+                              fyToken Interest: {lpReturns.fyTokenAPY}%
+                            </Text>
+                            <Text size="small" weight="lighter">
+                              Fees: {lpReturns.feesAPY}%
+                            </Text>
+                            <Text size="small" weight="bold">
+                              Total: {lpReturns.totalAPY}%
+                            </Text>
+                          </Box>
+                        }
                       />
                     )}
                   </Box>
