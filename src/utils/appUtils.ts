@@ -247,7 +247,7 @@ export const numberWithCommas = (x: number) => x.toString().replace(/\B(?=(\d{3}
 export const formatValue = (x: string | number, decimals: number) =>
   numberWithCommas(Number(cleanValue(x?.toString(), decimals)));
 
-/* google analytics log event */
+/* Google analytics log event */
 export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number) => {
   if (eventName && chainId === 1) {
     try {
