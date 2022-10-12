@@ -1,13 +1,16 @@
 import Decimal from 'decimal.js';
 import { ethers, EventFilter } from 'ethers';
-import { formatUnits } from 'ethers/lib/utils';
 import request from 'graphql-request';
+import yieldEnv from './../contexts/yieldEnv.json';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { ChainContext } from '../contexts/ChainContext';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { ActionType, ISettingsContext, IStrategy } from '../types';
+import { PoolView__factory } from '../contracts';
+import { ActionType, IChainContext, ISettingsContext, IStrategy } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
+import { calculateAPR } from '@yield-protocol/ui-math';
 
 interface IReturns {
   sharesAPY: string;
@@ -42,6 +45,12 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
+
+  const {
+    chainState: {
+      connection: { chainId, provider },
+    },
+  } = useContext(ChainContext) as IChainContext;
 
   const series = strategy?.currentSeries!;
 
@@ -120,10 +129,10 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     };
 
     const _calcFeesAPY = async () => {
-      // get pool view contract
+      const poolView = PoolView__factory.connect(yieldEnv[chainId]['PoolView'], provider);
 
       // get current invariant
-      // const currentInvariant = await poolViewContract.invariant(series.poolAddress);
+      const currentInvariant = await poolView.invariant(series.poolAddress);
 
       // get init invariant
       const initInvariant = ethers.utils.parseUnits('1', 18);
@@ -132,9 +141,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       const firstEvent = (await series.poolContract.queryFilter('Sync' as EventFilter))[0];
       const blockTimestamp = (await firstEvent.getBlock()).timestamp;
 
-      // return Number(calculateAPR(currentInvariant, initInvariant, NOW, blockTimestamp));
-
-      return 0;
+      return Number(calculateAPR(currentInvariant, initInvariant, NOW, blockTimestamp));
     };
 
     const _calcTotalAPY = async () => {
