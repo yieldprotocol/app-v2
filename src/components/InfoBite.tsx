@@ -8,7 +8,7 @@ interface IInfoBite {
   value: string;
   icon?: any;
   loading?: boolean;
-  labelInfo?: string;
+  labelInfo?: string | ReactNode;
   children?: ReactNode;
 }
 
