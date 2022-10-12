@@ -1,9 +1,11 @@
+import Decimal from 'decimal.js';
 import { ethers, EventFilter } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import request from 'graphql-request';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ActionType, ISettingsContext, IStrategy } from '../types';
+import { cleanValue } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
 
@@ -31,9 +33,6 @@ interface IReturns {
  *
  * estimated apy =    shares apy       + fyToken apy + fees apy
  * estimated apy = a * ((b * c) / g)   +   f / g     + fees apy
- *
- *
- * the pool's shares apy *
  *
  * @param input amount of base to use when providing liquidity
  * @param strategy
@@ -101,7 +100,9 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
 
       if (apy) {
         const sharesBaseVal = series.getBase(series.sharesReserves);
-        const sharesValRatio = Number(formatUnits(sharesBaseVal.div(_getPoolBaseValue()), series.decimals));
+        const sharesValRatio = Number(
+          new Decimal(sharesBaseVal.toString()).div(new Decimal(_getPoolBaseValue().toString()))
+        );
 
         return apy * sharesValRatio;
       }
@@ -110,9 +111,11 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     };
 
     const _calcFyTokenAPY = () => {
-      const marketInterestRate = (Number(borrowApr) + Number(lendApr)) / 2;
+      const marketInterestRate = (+borrowApr + +lendApr) / 2;
       const fyTokenRealReserves = series.fyTokenRealReserves;
-      const fyTokenValRatio = Number(formatUnits(fyTokenRealReserves.div(_getPoolBaseValue()), series.decimals));
+      const fyTokenValRatio = +new Decimal(fyTokenRealReserves.toString()).div(
+        new Decimal(_getPoolBaseValue().toString())
+      );
       return marketInterestRate * fyTokenValRatio;
     };
 
@@ -142,10 +145,10 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       const totalAPYForward = sharesAPYForward + fyTokenAPYForward + feesAPYForward;
 
       setReturnsForward({
-        sharesAPY: sharesAPYForward.toString(),
-        fyTokenAPY: fyTokenAPYForward.toString(),
-        feesAPY: feesAPYForward.toString(),
-        totalAPY: totalAPYForward.toString(),
+        sharesAPY: cleanValue(sharesAPYForward.toString(), 1),
+        fyTokenAPY: cleanValue(fyTokenAPYForward.toString(), 1),
+        feesAPY: cleanValue(feesAPYForward.toString(), 1),
+        totalAPY: cleanValue(totalAPYForward.toString(), 1),
       });
     };
 
