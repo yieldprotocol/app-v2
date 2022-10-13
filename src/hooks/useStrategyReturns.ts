@@ -144,7 +144,9 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       const gmTimestamp = (await gm.getBlock()).timestamp;
 
       if (!gmTimestamp) return 0;
-      const res = +calculateAPR(initInvariant, currentInvariant, NOW + 2, gmTimestamp); // using now + 2 to get through maturity > now logic in calculateAPR func
+
+      // get apy estimate
+      const res = +calculateAPR(initInvariant, currentInvariant, NOW + 5, gmTimestamp); // using now + 5 to get through maturity > now logic in calculateAPR func
 
       return isNaN(res) ? 0 : res;
     };
@@ -152,7 +154,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     const _calcTotalAPY = async () => {
       // forward looking returns
       const sharesAPYForward = await _calcSharesAPY();
-      const fyTokenAPYForward = await _calcFyTokenAPY();
+      const fyTokenAPYForward = _calcFyTokenAPY();
       const feesAPYForward = await _calcFeesAPY();
       const totalAPYForward = sharesAPYForward + fyTokenAPYForward + feesAPYForward;
 
