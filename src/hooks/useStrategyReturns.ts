@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { ethers, EventFilter } from 'ethers';
+import { BigNumber, ethers, EventFilter } from 'ethers';
 import request from 'graphql-request';
 import yieldEnv from './../contexts/yieldEnv.json';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -10,8 +10,29 @@ import { ActionType, IChainContext, ISettingsContext, IStrategy } from '../types
 import { cleanValue } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
-import { calculateAPR, ONE_DEC, SECONDS_PER_YEAR } from '@yield-protocol/ui-math';
-import { formatUnits } from 'ethers/lib/utils';
+import { calculateAPR, ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
+
+// calculateAPR func from yieldMath, but without the maturity greater than now check
+export const _calculateAPR = (
+  tradeValue: BigNumber | string,
+  amount: BigNumber | string,
+  maturity: number,
+  fromDate: number = Math.round(new Date().getTime() / 1000) // if not provided, defaults to current time.
+): string | undefined => {
+  const tradeValue_ = new Decimal(tradeValue.toString());
+  const amount_ = new Decimal(amount.toString());
+
+  const secsToMaturity = maturity - fromDate;
+  const propOfYear = new Decimal(secsToMaturity / SECONDS_PER_YEAR);
+  const priceRatio = amount_.div(tradeValue_);
+  const powRatio = ONE.div(propOfYear);
+  const apr = priceRatio.pow(powRatio).sub(ONE);
+
+  if (apr.gt(ZERO) && apr.lt(100)) {
+    return apr.mul(100).toFixed();
+  }
+  return undefined;
+};
 
 interface IReturns {
   sharesAPY: string;
@@ -146,7 +167,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       if (!gmTimestamp) return 0;
 
       // get apy estimate
-      const res = +calculateAPR(initInvariant, currentInvariant, NOW + 5, gmTimestamp); // using now + 5 to get through maturity > now logic in calculateAPR func
+      const res = +_calculateAPR(initInvariant, currentInvariant, NOW, gmTimestamp);
 
       return isNaN(res) ? 0 : res;
     };
