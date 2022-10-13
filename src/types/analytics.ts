@@ -1,43 +1,67 @@
-
 export enum GA_Event {
+  connect_wallet = 'connect_wallet',
+  autoConnect_wallet = 'auto_connect_wallet',
 
-    connect_wallet='connect_wallet',
-    autoConnect_wallet='auto_connect_wallet',
+  view_changed = 'view_change', // from and to
 
-    view_changed = 'view_change', // from and to
+  asset_selected = 'asset_selected',
+  collateral_selected = 'collateral_selected',
 
-    asset_selected='asset_selected',
-    collateral_selected='collateral_selected',
-    
-    max_clicked='max_clicked',
-    next_step_clicked = 'next_step_clicked', // flow|stepIndex
-    
-    transaction_initiated='transaction_initiated', 
-    
-    transaction_failed='transaction_failed', 
-    transaction_complete='transaction_complete',
-    transaction_rejected='transaction_rejected',
+  max_clicked = 'max_clicked',
+  next_step_clicked = 'next_step_clicked', // flow|stepIndex
 
-    safe_collateralization_clicked = 'safe_collateralization_clicked',
-    follow_on_clicked='follow_on_clicked',
+  transaction_initiated = 'transaction_initiated',
 
-    position_opened='position_opened', // flow | vaultId/seriesId
-    position_action_selected ='position_action_selected',
+  transaction_failed = 'transaction_failed',
+  transaction_complete = 'transaction_complete',
+  transaction_rejected = 'transaction_rejected',
 
+  safe_collateralization_clicked = 'safe_collateralization_clicked',
+  follow_on_clicked = 'follow_on_clicked',
+
+  position_opened = 'position_opened', // flow | vaultId/seriesId
+  position_action_selected = 'position_action_selected',
 }
 
 export enum GA_View {
- 
-    /* Views mostly represent the screens */
-    BORROW = 'borrow_view',
-    LEND = 'lend_view',
-    POOL= 'pool_view',
-    DASHBOARD = 'dashboard_view',
-    
-    /* Non screen views */
-    GENERAL = 'general'
-  }
+  /* Views - mostly represent the screens */
+  BORROW = 'borrow_view',
+  LEND = 'lend_view',
+  POOL = 'pool_view',
+  DASHBOARD = 'dashboard_view',
 
-// export namespace GA_Event_Properties {
-//     export type connect_wallet = { asset: string, view: string, chain_id: number };
-// }
+  /* Non-screen views */
+  GENERAL = 'general',
+}
+
+
+/* Properties on events */
+
+  export type connect_wallet = { view: GA_View};
+  export type autoConnect_wallet = { view: GA_View};
+
+  export type view_changed = { fromView: GA_View; toView: GA_View};
+
+  export type asset_selected = { asset: string; view: GA_View};
+  export type collateral_selected = { asset: string; view: GA_View};
+
+  export type max_clicked = { view: GA_View};
+  export type next_step_clicked = { step_index: number; view: GA_View};
+
+  export type transaction_initiated = {
+    txCode: string;
+    seriesId: string;
+    view: GA_View;
+    supporting_collateral?: string;
+  };
+
+  export type transaction_failed = { view: GA_View; txCode: string };
+  export type transaction_complete = { view: GA_View; txCode: string };
+  export type transaction_rejected = { view: GA_View; txCode: string };
+
+  export type safe_collateralization_clicked = { view: GA_View};
+  export type follow_on_clicked = { view: GA_View};
+
+  export type position_opened = { id: string; view: GA_View };
+  export type position_action_selected = { id: string; action: string; view: GA_View };
+

@@ -40,6 +40,8 @@ import InputInfoWrap from '../wraps/InputInfoWrap';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
+import { GA_Event, GA_View } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -60,6 +62,8 @@ const Lend = () => {
   const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
   const lend = useLend();
 
+  const {logAnalyticsEvent} = useAnalytics();
+
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
 
   /* input validation hooks */
@@ -70,6 +74,10 @@ const Lend = () => {
     if (lendDisabled) return;
     setLendDisabled(true);
     lend(lendInput, selectedSeries!);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.LEND,
+    } );
   };
 
   const resetInputs = useCallback(() => {

@@ -19,7 +19,7 @@ import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
 
-import { analyticsLogEvent, cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
 import YieldInfo from '../YieldInfo';
 import BackButton from '../buttons/BackButton';
@@ -48,11 +48,14 @@ import VaultItem from '../positionItems/VaultItem';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 import useTenderly from '../../hooks/useTenderly';
-import { GA_Event, GA_View } from '../../types/analytics';
+import { GA_Event, GA_View, next_step_clicked } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   useTenderly();
+
+  const {logAnalyticsEvent} = useAnalytics();
 
   /* STATE FROM CONTEXT */
   const {
@@ -133,7 +136,11 @@ const Borrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     setBorrowDisabled(true);
     borrow(_vault, borrowInput, collatInput);
-    analyticsLogEvent(GA_Event.borrow_initiated, { flow: GA_View.BORROW, step_index: _stepPosition, renderId, chainId });
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.BORROW,
+      chain_id: chainId,
+    });
   };
 
   useEffect(() => {
@@ -144,7 +151,11 @@ const Borrow = () => {
     _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
 
-    analyticsLogEvent(GA_Event.next_step_clicked, { flow: GA_View.BORROW, step_index: _stepPosition, renderId, chainId });
+    logAnalyticsEvent(GA_Event.next_step_clicked, {
+      view: GA_View.BORROW,
+      step_index: _stepPosition,
+      chain_id: chainId,
+    } )
   };
 
   const handleGaugeColorChange: any = (val: string) => {
