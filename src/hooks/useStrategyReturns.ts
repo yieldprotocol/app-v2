@@ -180,7 +180,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       return isNaN(res) ? 0 : res;
     };
 
-    const _calcTotalAPY = async () => {
+    const _calcTotalAPYForward = async () => {
       // forward looking returns
       const sharesAPYForward = await _calcSharesAPY();
       const fyTokenAPYForward = _calcFyTokenAPY();
@@ -195,10 +195,51 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       });
     };
 
+    const _calcTotalAPYBackward = async () => {
+      // backward looking returns (looking at since strategy inception)
+      // value =  strategy LP balance to strategy supply ratio * base value of pool / total LP (pool) supply
+      // value =  balance of LP tokens in strategy / strategy total supply * (shares value + fyToken value) / total LP (pool) supply
+      const strategyLpBalance = strategy.strategyPoolBalance;
+      const strategyTotalSupply = strategy.strategyTotalSupply;
+      const poolTotalSupply = new Decimal(series.totalSupply.toString());
+      const poolBaseValue = new Decimal(_getPoolBaseValue().toString());
+
+      const strategyLpBalSupplyRatio = new Decimal(strategyLpBalance.toString()).div(
+        new Decimal(strategyTotalSupply.toString())
+      );
+
+      // get strategy created timestamp using first StartPool event as proxy
+      const filter = strategy.strategyContract.filters.PoolStarted();
+      const timestamp = (await (await strategy.strategyContract.queryFilter(filter))[0].getBlock()).timestamp;
+
+      const value = strategyLpBalSupplyRatio.mul(poolBaseValue.div(poolTotalSupply));
+      const apy = _calculateAPR(ONE.toString(), value.toString(), NOW, timestamp);
+      console.log('🦄 ~ file: useStrategyReturns.ts ~ line 217 ~ const_calcTotalAPYBackward= ~ apy', apy);
+
+      setReturnsBackward({
+        sharesAPY: '0',
+        fyTokenAPY: '0',
+        feesAPY: '0',
+        totalAPY: cleanValue(apy, 1),
+      });
+    };
+
     if (series) {
-      _calcTotalAPY();
+      _calcTotalAPYForward();
+      _calcTotalAPYBackward();
     }
-  }, [NOW, borrowApr, chainId, diagnostics, lendApr, provider, series]);
+  }, [
+    NOW,
+    borrowApr,
+    chainId,
+    diagnostics,
+    lendApr,
+    provider,
+    series,
+    strategy.strategyContract,
+    strategy.strategyPoolBalance,
+    strategy.strategyTotalSupply,
+  ]);
 
   return { returnsForward };
 };
