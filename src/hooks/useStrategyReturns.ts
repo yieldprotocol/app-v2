@@ -10,7 +10,7 @@ import { ActionType, IChainContext, ISettingsContext, IStrategy } from '../types
 import { cleanValue } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
-import { calculateAPR, ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
+import { ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
 
 // calculateAPR func from yieldMath, but without the maturity greater than now check
 export const _calculateAPR = (
@@ -151,13 +151,21 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     };
 
     const _calcFeesAPY = async () => {
-      const poolView = PoolView__factory.connect(yieldEnv.addresses[chainId]['PoolView'], provider);
+      // get current invariant using new tv pool contracat func, else try to get from PoolView contract (old and potentially incorrect methodology)
+      let currentInvariant: BigNumber | undefined;
+      let initInvariant: BigNumber | undefined;
 
-      // get current invariant
-      const currentInvariant = await poolView.invariant(series.poolAddress);
+      try {
+        currentInvariant = await series.poolContract.invariant();
+        initInvariant = ethers.utils.parseUnits('1', series.decimals);
+      } catch (e) {
+        const poolView = PoolView__factory.connect(yieldEnv.addresses[chainId]['PoolView'], provider);
+        currentInvariant = await poolView.invariant(series.poolAddress);
+        // init invariant is always 18 decimals when using old methodology
+        initInvariant = ethers.utils.parseUnits('1', 18);
+      }
 
-      // get init invariant
-      const initInvariant = ethers.utils.parseUnits('1', 18);
+      if (!currentInvariant || !initInvariant) return 0;
 
       // get pool init timestamp
       const gmFilter = series.poolContract.filters.gm();
