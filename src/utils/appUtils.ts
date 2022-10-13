@@ -248,16 +248,15 @@ export const formatValue = (x: string | number, decimals: number) =>
   numberWithCommas(Number(cleanValue(x?.toString(), decimals)));
 
 
-
 /* Google analytics log event */
-export const analyticsLogEvent = (eventName: string, eventParams: any, chainId: number) => {
+export const analyticsLogEvent = (eventName: string, eventParams: any) => {
   if (eventName && process.env.ENV != 'development') {
     try {
+      console.log(eventName, ' event logged');
       window?.gtag('event', eventName, eventParams);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);
     }
   }
-
 };

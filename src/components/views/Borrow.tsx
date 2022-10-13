@@ -48,6 +48,7 @@ import VaultItem from '../positionItems/VaultItem';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 import useTenderly from '../../hooks/useTenderly';
+import { GA_Event, GA_View } from '../../types/analytics';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -132,6 +133,7 @@ const Borrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     setBorrowDisabled(true);
     borrow(_vault, borrowInput, collatInput);
+    analyticsLogEvent(GA_Event.borrow_initiated, { flow: GA_View.BORROW, step_index: _stepPosition, renderId, chainId });
   };
 
   useEffect(() => {
@@ -141,7 +143,8 @@ const Borrow = () => {
   const handleNavAction = (_stepPosition: number) => {
     _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
-    analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chainId);
+
+    analyticsLogEvent(GA_Event.next_step_clicked, { flow: GA_View.BORROW, step_index: _stepPosition, renderId, chainId });
   };
 
   const handleGaugeColorChange: any = (val: string) => {
