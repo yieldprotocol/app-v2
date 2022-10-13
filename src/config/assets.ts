@@ -196,7 +196,7 @@ ASSETS_1.set(yvUSDC, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000', '0x303230380000'],
+  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000', '0x303230380000', '0x303230390000'],
 });
 
 ASSETS_1.set(UNI, {
