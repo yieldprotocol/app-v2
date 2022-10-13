@@ -66,8 +66,8 @@ SERIES_1.set(USDC_2212_SERIES_ID, {
 });
 
 SERIES_1.set(USDC_2303_SERIES_ID, {
-  fyTokenAddress: '',
-  poolAddress: '',
+  fyTokenAddress: '0x22E1e5337C5BA769e98d732518b2128dE14b553C',
+  poolAddress: '0x48b95265749775310B77418Ff6f9675396ABE1e8',
   poolType: PoolType.NONTV,
 });
 
@@ -90,8 +90,8 @@ SERIES_1.set(WETH_2212_SERIES_ID, {
 });
 
 SERIES_1.set(WETH_2303_SERIES_ID, {
-  fyTokenAddress: '',
-  poolAddress: '',
+  fyTokenAddress: '0x0FBd5ca8eE61ec921B3F61B707f1D7D64456d2d1',
+  poolAddress: '0x1b2145139516cB97568B76a2FdbE37D2BCD61e63',
   poolType: PoolType.NONTV,
 });
 
@@ -126,8 +126,8 @@ SERIES_1.set(DAI_2212_SERIES_ID, {
 });
 
 SERIES_1.set(DAI_2303_SERIES_ID, {
-  fyTokenAddress: '',
-  poolAddress: '',
+  fyTokenAddress: '0x79A6Be1Ae54153AA6Fc7e4795272c63F63B2a6DC',
+  poolAddress: '0xBdc7Bdae87dfE602E91FDD019c4C0334C38f6A46',
   poolType: PoolType.NONTV,
 });
 
@@ -150,8 +150,8 @@ SERIES_1.set(FRAX_2212_SERIES_ID, {
 });
 
 SERIES_1.set(FRAX_2303_SERIES_ID, {
-  fyTokenAddress: '',
-  poolAddress: '',
+  fyTokenAddress: '0x2eb907fb4b71390dC5CD00e6b81B7dAAcE358193',
+  poolAddress: '0x1D2eB98042006B1bAFd10f33743CcbB573429daa',
   poolType: PoolType.NONTV,
 });
 
