@@ -124,7 +124,7 @@ SERIES_1.set(FRAX_2209_SERIES_ID, {
 SERIES_1.set(FRAX_2212_SERIES_ID, {
   fyTokenAddress: '0xc20952b2c8bb6689e7ec2f70aeba392c378ec413',
   poolAddress: '0xFa38F3717daD95085FF725aA93608Af3fa1D9e58',
-  poolType: PoolType.NONTV,
+  poolType: PoolType.TV,
 });
 
 /**
