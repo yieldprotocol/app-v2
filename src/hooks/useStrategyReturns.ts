@@ -10,7 +10,8 @@ import { ActionType, IChainContext, ISettingsContext, IStrategy } from '../types
 import { cleanValue } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
-import { calculateAPR } from '@yield-protocol/ui-math';
+import { calculateAPR, ONE_DEC, SECONDS_PER_YEAR } from '@yield-protocol/ui-math';
+import { formatUnits } from 'ethers/lib/utils';
 
 interface IReturns {
   sharesAPY: string;
@@ -129,7 +130,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     };
 
     const _calcFeesAPY = async () => {
-      const poolView = PoolView__factory.connect(yieldEnv[chainId]['PoolView'], provider);
+      const poolView = PoolView__factory.connect(yieldEnv.addresses[chainId]['PoolView'], provider);
 
       // get current invariant
       const currentInvariant = await poolView.invariant(series.poolAddress);
@@ -137,11 +138,15 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       // get init invariant
       const initInvariant = ethers.utils.parseUnits('1', 18);
 
-      // get pool init timestamp by getting the first event emmitted in pool, getting corresponding block, then timestamp
-      const firstEvent = (await series.poolContract.queryFilter('Sync' as EventFilter))[0];
-      const blockTimestamp = (await firstEvent.getBlock()).timestamp;
+      // get pool init timestamp
+      const gmFilter = series.poolContract.filters.gm();
+      const gm = (await series.poolContract.queryFilter(gmFilter))[0];
+      const gmTimestamp = (await gm.getBlock()).timestamp;
 
-      return Number(calculateAPR(currentInvariant, initInvariant, NOW, blockTimestamp));
+      if (!gmTimestamp) return 0;
+      const res = +calculateAPR(initInvariant, currentInvariant, NOW + 2, gmTimestamp); // using now + 2 to get through maturity > now logic in calculateAPR func
+
+      return isNaN(res) ? 0 : res;
     };
 
     const _calcTotalAPY = async () => {
@@ -162,7 +167,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     if (series) {
       _calcTotalAPY();
     }
-  }, [borrowApr, diagnostics, lendApr, series]);
+  }, [NOW, borrowApr, chainId, diagnostics, lendApr, provider, series]);
 
   return { returnsForward };
 };
