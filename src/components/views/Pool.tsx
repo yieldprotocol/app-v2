@@ -200,7 +200,7 @@ function Pool() {
                     />
                     {lpReturns && Number(lpReturns.totalAPY) > 0 && (
                       <InfoBite
-                        label="Pool APY"
+                        label="Variable APY"
                         icon={<FiZap />}
                         value={`${cleanValue(lpReturns.totalAPY, 2)}%`}
                         labelInfo={
