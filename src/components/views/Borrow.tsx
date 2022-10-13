@@ -140,7 +140,8 @@ const Borrow = () => {
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
       seriesId: selectedSeries?.id!,
-      txCode: getTxCode(ActionCodes.BORROW, selectedSeries?.id!)
+      txCode: getTxCode(ActionCodes.BORROW, selectedSeries?.id!),
+      supporting_collateral: selectedIlk.symbol,
     } as GA_Properties.transaction_initiated );
 
   };
@@ -152,7 +153,6 @@ const Borrow = () => {
   const handleNavAction = (_stepPosition: number) => {
     _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
-
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.BORROW,
       step_index: _stepPosition,

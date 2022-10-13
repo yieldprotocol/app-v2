@@ -94,6 +94,15 @@ function Pool() {
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
+
+  const handleNavAction = (_stepPosition: number) => {
+    setStepPosition(_stepPosition);
+    logAnalyticsEvent(GA_Event.next_step_clicked, {
+      view: GA_View.POOL,
+      step_index: _stepPosition,
+    } as GA_Properties.next_step_clicked )
+  };
+
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);
     setStepPosition(0);
@@ -182,7 +191,7 @@ function Pool() {
               >
                 <YieldCardHeader>
                   {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                    <BackButton action={() => setStepPosition(0)} />
+                    <BackButton action={() => handleNavAction(0)} />
                   ) : (
                     <Box pad="1em" />
                   )}
@@ -254,7 +263,7 @@ function Pool() {
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
-              onClick={() => setStepPosition(stepPosition + 1)}
+              onClick={() => handleNavAction(stepPosition + 1)}
               disabled={stepDisabled || !selectedStrategy}
               errorLabel={poolError}
             />

@@ -83,6 +83,14 @@ const Lend = () => {
 
   };
 
+  const handleNavAction = (_stepPosition: number) => {
+    setStepPosition(_stepPosition);
+    logAnalyticsEvent(GA_Event.next_step_clicked, {
+      view: GA_View.LEND,
+      step_index: _stepPosition,
+    } as GA_Properties.next_step_clicked )
+  };
+
   const resetInputs = useCallback(() => {
     setLendInput(undefined);
     setStepPosition(0);
@@ -204,7 +212,7 @@ const Lend = () => {
                 gap="large"
               >
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                  <BackButton action={() => setStepPosition(0)} />
+                  <BackButton action={() => handleNavAction(0)} />
                 ) : (
                   <Box pad="1em" />
                 )}
@@ -262,7 +270,7 @@ const Lend = () => {
               disabled={stepDisabled}
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               key="ONE"
-              onClick={() => setStepPosition(stepPosition + 1)}
+              onClick={() => handleNavAction(stepPosition + 1)}
               errorLabel={lendError}
             />
           )}
