@@ -106,7 +106,7 @@ SERIES_1.set(DAI_2209_SERIES_ID, {
 SERIES_1.set(DAI_2212_SERIES_ID, {
   fyTokenAddress: '0xcDfBf28Db3B1B7fC8efE08f988D955270A5c4752',
   poolAddress: '0x52956Fb3DC3361fd24713981917f2B6ef493DCcC',
-  poolType: PoolType.NONTV,
+  poolType: PoolType.TV,
 });
 
 SERIES_1.set(FRAX_2206_SERIES_ID, {
