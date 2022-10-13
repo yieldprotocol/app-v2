@@ -6,7 +6,7 @@ import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'reac
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
-import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -29,6 +29,8 @@ import { useProcess } from '../../hooks/useProcess';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
 import Logo from '../logos/Logo';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -75,6 +77,8 @@ const LendPosition = () => {
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
 
+  const {logAnalyticsEvent} = useAnalytics();
+
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
@@ -117,12 +121,25 @@ const LendPosition = () => {
     if (closeDisabled) return;
     setCloseDisabled(true);
     closePosition(closeInput, selectedSeries!);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.LEND,
+      seriesId: selectedSeries.id,
+      txCode: getTxCode(ActionCodes.CLOSE_POSITION, selectedSeries?.id!)
+    } as GA_Properties.transaction_initiated );
   };
 
   const handleRollPosition = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
     rollPosition(rollInput, selectedSeries!, rollToSeries);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.LEND,
+      seriesId: selectedSeries.id,
+      txCode: getTxCode(ActionCodes.ROLL_POSITION, selectedSeries?.id!)
+    } as GA_Properties.transaction_initiated );
+
   };
 
   const resetInputs = useCallback(

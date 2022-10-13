@@ -19,7 +19,7 @@ import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
 
-import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getTxCode, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
 import YieldInfo from '../YieldInfo';
 import BackButton from '../buttons/BackButton';
@@ -48,7 +48,7 @@ import VaultItem from '../positionItems/VaultItem';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 import useTenderly from '../../hooks/useTenderly';
-import { GA_Event, GA_View, next_step_clicked } from '../../types/analytics';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 
 const Borrow = () => {
@@ -139,8 +139,10 @@ const Borrow = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
-      chain_id: chainId,
-    });
+      seriesId: selectedSeries?.id!,
+      txCode: getTxCode(ActionCodes.BORROW, selectedSeries?.id!)
+    } as GA_Properties.transaction_initiated );
+
   };
 
   useEffect(() => {
@@ -154,8 +156,7 @@ const Borrow = () => {
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.BORROW,
       step_index: _stepPosition,
-      chain_id: chainId,
-    } )
+    } as GA_Properties.next_step_clicked )
   };
 
   const handleGaugeColorChange: any = (val: string) => {

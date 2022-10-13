@@ -5,7 +5,7 @@ import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiZap } from 
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
-import { abbreviateHash, cleanValue, formatStrategyName, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, formatStrategyName, getTxCode, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -28,6 +28,8 @@ import { useProcess } from '../../hooks/useProcess';
 import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
+import useAnalytics from '../../hooks/useAnalytics';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -68,6 +70,8 @@ const PoolPosition = () => {
     usePoolHelpers(removeInput, true);
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
+  const {logAnalyticsEvent} = useAnalytics();
+  
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
@@ -101,6 +105,13 @@ const PoolPosition = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
     removeLiquidity(removeInput!, selectedSeries, matchingVault);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.POOL,
+      seriesId: selectedStrategy?.currentSeries.id,
+      txCode: getTxCode(ActionCodes.REMOVE_LIQUIDITY, selectedStrategy!.id)
+    } as GA_Properties.transaction_initiated );
+
   };
 
   const resetInputs = useCallback(

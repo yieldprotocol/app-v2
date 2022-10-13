@@ -34,9 +34,8 @@ export enum GA_View {
   GENERAL = 'general',
 }
 
-
 /* Properties on events */
-
+export namespace GA_Properties {
   export type connect_wallet = { view: GA_View};
   export type autoConnect_wallet = { view: GA_View};
 
@@ -64,4 +63,4 @@ export enum GA_View {
 
   export type position_opened = { id: string; view: GA_View };
   export type position_action_selected = { id: string; action: string; view: GA_View };
-
+}

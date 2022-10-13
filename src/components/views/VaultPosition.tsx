@@ -6,7 +6,7 @@ import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'gromm
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity, FiChevronDown } from 'react-icons/fi';
 import { GiMedalSkull } from 'react-icons/gi';
 
-import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
 import InfoBite from '../InfoBite';
@@ -48,6 +48,8 @@ import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
+import useAnalytics from '../../hooks/useAnalytics';
+import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -124,6 +126,8 @@ const VaultPosition = () => {
   /* HOOK FNS */
   const repay = useRepayDebt();
   const rollDebt = useRollDebt();
+  
+  const {logAnalyticsEvent} = useAnalytics();
 
   const { addCollateral } = useAddCollateral();
   const { removeCollateral } = useRemoveCollateral();
@@ -210,12 +214,24 @@ const VaultPosition = () => {
     if (repayDisabled) return;
     setRepayDisabled(true);
     repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.BORROW,
+      seriesId: vaultSeries?.id!,
+      txCode: getTxCode(ActionCodes.REPAY, vaultSeries?.id!)
+    } as GA_Properties.transaction_initiated );
   };
 
   const handleRoll = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
     rollDebt(_selectedVault, rollToSeries);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.BORROW,
+      seriesId: vaultSeries?.id!,
+      txCode: getTxCode(ActionCodes.ROLL_DEBT, vaultSeries?.id!)
+    } as GA_Properties.transaction_initiated );
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
@@ -223,10 +239,23 @@ const VaultPosition = () => {
       if (removeCollateralDisabled) return;
       setRemoveCollateralDisabled(true);
       removeCollateral(_selectedVault, removeCollatInput);
+
+      logAnalyticsEvent(GA_Event.transaction_initiated, {
+        view: GA_View.BORROW,
+        seriesId: vaultSeries?.id!,
+        txCode: getTxCode(ActionCodes.REMOVE_COLLATERAL, vaultSeries?.id!)
+      } as GA_Properties.transaction_initiated );
+
     } else {
       if (addCollateralDisabled) return;
       setAddCollateralDisabled(true);
       addCollateral(_selectedVault, addCollatInput);
+
+      logAnalyticsEvent(GA_Event.transaction_initiated, {
+        view: GA_View.BORROW,
+        seriesId: vaultSeries?.id!,
+        txCode: getTxCode(ActionCodes.ADD_COLLATERAL, vaultSeries?.id!)
+      } as GA_Properties.transaction_initiated );
     }
   };
 

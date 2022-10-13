@@ -8,7 +8,7 @@ import AssetSelector from '../selectors/AssetSelector';
 import InputWrap from '../wraps/InputWrap';
 import MainViewWrap from '../wraps/MainViewWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -40,7 +40,7 @@ import InputInfoWrap from '../wraps/InputInfoWrap';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
-import { GA_Event, GA_View } from '../../types/analytics';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 
 const Lend = () => {
@@ -77,7 +77,10 @@ const Lend = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-    } );
+      seriesId: selectedSeries.id,
+      txCode: getTxCode(ActionCodes.LEND, selectedSeries?.id!)
+    } as GA_Properties.transaction_initiated );
+
   };
 
   const resetInputs = useCallback(() => {

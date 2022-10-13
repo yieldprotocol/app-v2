@@ -3,7 +3,7 @@ import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Ti
 import { FiInfo, FiPercent, FiZap } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import AssetSelector from '../selectors/AssetSelector';
 import MainViewWrap from '../wraps/MainViewWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -33,6 +33,8 @@ import StrategyItem from '../positionItems/StrategyItem';
 
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
+import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,6 +55,8 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
+
+  const {logAnalyticsEvent} = useAnalytics();
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -75,6 +79,13 @@ function Pool() {
       canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
       matchingVault
     );
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.POOL,
+      seriesId: selectedStrategy?.currentSeries.id,
+      txCode: getTxCode(ActionCodes.ADD_LIQUIDITY, selectedStrategy!.id)
+    } as GA_Properties.transaction_initiated );
+
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
