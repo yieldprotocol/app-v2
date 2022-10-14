@@ -140,7 +140,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           name="assetSelect"
           placeholder="Select Asset"
           options={options}
-          value={!selectCollateral ? selectedBase || undefined : selectedIlk || undefined}
+          // value={selectCollateral ? selectedIlk! : selectedBase!}
           labelKey={(x: IAsset | undefined) => optionText(x)}
           valueLabel={
             <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>

@@ -190,13 +190,13 @@ ASSETS_1.set(yvUSDC, {
   joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
 
   version: '1',
-  name: 'curve',
+  name: 'Yearn Vault USDC',
   decimals: 18,
   symbol: 'yvUSDC',
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000'],
+  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000', '0x303230380000', '0x303230390000'],
 });
 
 ASSETS_1.set(UNI, {
