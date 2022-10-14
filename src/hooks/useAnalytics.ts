@@ -12,6 +12,7 @@ const useAnalytics = () => {
   
   /* Google analytics log event */
 const logAnalyticsEvent= (eventName: GA_Event, eventProps: any ) => {
+
   if (eventName && process.env.ENV != 'development') {
     try {
       console.log(eventName, ' event logged');

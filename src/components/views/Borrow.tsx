@@ -140,7 +140,7 @@ const Borrow = () => {
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
       seriesId: selectedSeries?.id!,
-      txCode: getTxCode(ActionCodes.BORROW, selectedSeries?.id!),
+      actionCode: ActionCodes.BORROW,
       supporting_collateral: selectedIlk.symbol,
     } as GA_Properties.transaction_initiated );
 
@@ -150,6 +150,8 @@ const Borrow = () => {
     setRenderId(new Date().getTime().toString(36));
   }, []);
 
+
+  /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
     _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
@@ -158,6 +160,22 @@ const Borrow = () => {
       step_index: _stepPosition,
     } as GA_Properties.next_step_clicked )
   };
+
+  const handleMaxAction = (actionCode: ActionCodes) => {
+    actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral);
+    actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!)
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.BORROW,
+      actionCode
+      } as GA_Properties.max_clicked)
+  }
+
+  const handleUseSafeCollateral = () => {
+    selectedIlk && setCollatInput(cleanValue(minSafeCollateral, selectedIlk.decimals));
+    logAnalyticsEvent(GA_Event.safe_collateralization_clicked, {
+      view: GA_View.BORROW,
+    } as GA_Properties.safe_collateralization_clicked)
+  }
 
   const handleGaugeColorChange: any = (val: string) => {
     setCurrentGaugeColor(val);
@@ -319,7 +337,7 @@ const Borrow = () => {
                 </Box>
 
                 {!borrowInputError && borrowInput && !borrowPossible && selectedSeries && (
-                  <InputInfoWrap action={() => setBorrowInput(selectedSeries?.sharesReserves_!)}>
+                  <InputInfoWrap action={() => handleMaxAction(ActionCodes.BORROW)}>
                     <Text size="xsmall" color="text-weak">
                       Max borrow is{' '}
                       <Text size="small" color="text-weak">
@@ -416,7 +434,7 @@ const Borrow = () => {
                               disabled={!selectedSeries || selectedSeries.seriesIsMature}
                             />
                             <MaxButton
-                              action={() => maxCollateral && setCollatInput(maxCollateral)}
+                              action={() => maxCollateral && handleMaxAction(ActionCodes.ADD_COLLATERAL)}
                               disabled={
                                 !selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature
                               }
@@ -449,7 +467,7 @@ const Borrow = () => {
                     {borrowInput && minSafeCollateral && (
                       <Box margin={{ top: 'small' }}>
                         <InputInfoWrap
-                          action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
+                          action={() => handleUseSafeCollateral()}
                         >
                           <Text size="small" color="text-weak">
                             Use Safe Collateralization{': '}

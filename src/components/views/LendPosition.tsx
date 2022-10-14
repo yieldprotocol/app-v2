@@ -125,7 +125,7 @@ const LendPosition = () => {
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
       seriesId: selectedSeries.id,
-      txCode: getTxCode(ActionCodes.CLOSE_POSITION, selectedSeries?.id!)
+      actionCode: ActionCodes.CLOSE_POSITION,
     } as GA_Properties.transaction_initiated );
   };
 
@@ -137,10 +137,19 @@ const LendPosition = () => {
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
       seriesId: selectedSeries.id,
-      txCode: getTxCode(ActionCodes.ROLL_POSITION, selectedSeries?.id!)
+      actionCode: ActionCodes.ROLL_POSITION,
     } as GA_Properties.transaction_initiated );
 
   };
+
+  const handleMaxAction = (actionCode: ActionCodes) => {
+    actionCode === ActionCodes.ROLL_POSITION && maxRoll_ && setRollInput(maxRoll_)
+    actionCode === ActionCodes.CLOSE_POSITION && maxClose_ && setCloseInput(maxClose_)
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.LEND,
+      actionCode,
+      } as GA_Properties.max_clicked)
+  }
 
   const resetInputs = useCallback(
     (actionCode: ActionCodes) => {
@@ -288,7 +297,7 @@ const LendPosition = () => {
                             icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
-                            action={() => setCloseInput(maxClose_)}
+                            action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}
                             disabled={maxClose_ === '0.0' || !selectedSeries}
                             clearAction={() => setCloseInput('')}
                             showingMax={!!closeInput && closeInput === maxClose_}
@@ -296,7 +305,7 @@ const LendPosition = () => {
                         </InputWrap>
 
                         {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
-                          <InputInfoWrap action={() => setCloseInput(maxClose_)}>
+                          <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
                               {selectedSeries.sharesReserves.eq(maxClose) && ' (limited by protocol)'}
@@ -351,7 +360,7 @@ const LendPosition = () => {
                             icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
-                            action={() => setRollInput(maxRoll_)}
+                            action={() => handleMaxAction(ActionCodes.ROLL_POSITION)}
                             disabled={maxRoll_ === '0.0' || !selectedSeries || !rollToSeries}
                             clearAction={() => setRollInput('')}
                             showingMax={!!rollInput && rollInput === maxRoll_}

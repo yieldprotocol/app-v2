@@ -1,3 +1,5 @@
+import { ActionCodes } from ".";
+
 export enum GA_Event {
   connect_wallet = 'connect_wallet',
   autoConnect_wallet = 'auto_connect_wallet',
@@ -44,21 +46,21 @@ export namespace GA_Properties {
   export type asset_selected = { asset: string; view: GA_View};
   export type collateral_selected = { asset: string; view: GA_View};
 
-  export type max_clicked = { view: GA_View};
+  export type max_clicked = { view: GA_View; actionCode: ActionCodes  };
   export type next_step_clicked = { step_index: number; view: GA_View};
+  export type safe_collateralization_clicked = { view: GA_View};
 
   export type transaction_initiated = {
-    txCode: string;
-    seriesId: string;
     view: GA_View;
+    actionCode: ActionCodes;
+    seriesId: string;
     supporting_collateral?: string;
   };
 
-  export type transaction_failed = { view: GA_View; txCode: string };
-  export type transaction_complete = { view: GA_View; txCode: string };
-  export type transaction_rejected = { view: GA_View; txCode: string };
+  export type transaction_failed = { view: GA_View; actionCode: ActionCodes, seriesId:string };
+  export type transaction_complete = { view: GA_View; actionCode: ActionCodes, seriesId:string };
+  export type transaction_rejected = { view: GA_View; actionCode: ActionCodes, seriesId:string };
 
-  export type safe_collateralization_clicked = { view: GA_View};
   export type follow_on_clicked = { view: GA_View};
 
   export type position_opened = { id: string; view: GA_View };
