@@ -8,6 +8,8 @@ import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
+import useAnalytics from '../hooks/useAnalytics';
+import { GA_Event, GA_Properties } from '../types/analytics';
 
 const StyledLink = styled.div`
   text-decoration: none;
@@ -39,6 +41,8 @@ interface IYieldNavigationProps {
 const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
+  const { logAnalyticsEvent } = useAnalytics();
+
   const [height] = useWindowSize();
   const {
     chainState: {
@@ -65,9 +69,18 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
     { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
   ];
 
+  const handleViewChange = (toView:string) => {
+    console.log(  toView.slice(1) );
+    logAnalyticsEvent(GA_Event.view_changed, {
+      toView: toView.slice(1)
+    } as GA_Properties.view_changed);
+  }
+
   const NavLink = ({ link }: { link: any }) => (
-    <Link href={link.to} passHref>
-      <StyledLink onClick={()=>callbackFn() } style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}>
+    <Link 
+      href={link.to} 
+      passHref >
+      <StyledLink onClick={()=>handleViewChange(link.to) } style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}>
         <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
       </StyledLink>
     </Link>
