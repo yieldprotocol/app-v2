@@ -122,6 +122,13 @@ const PoolPosition = () => {
       } as GA_Properties.max_clicked)
   }
 
+  const handleSetActionActive = (option: { text: string; index: number }) => {
+    setActionActive(option);
+    logAnalyticsEvent(GA_Event.position_action_selected, {
+      action: option.text,
+    } as GA_Properties.position_action_selected);
+  };
+
   const resetInputs = useCallback(
     (actionCode: ActionCodes) => {
       resetStepper(actionCode);
@@ -241,9 +248,9 @@ const PoolPosition = () => {
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
-                      onChange={({ option }) => setActionActive(option)}
+                      onChange={({ option }) => handleSetActionActive(option)}
                     />
-                  </Box>
+                  </Box> 
                 </SectionWrap>
 
                 {actionActive.index === 0 && (
