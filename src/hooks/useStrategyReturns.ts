@@ -144,7 +144,15 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
      */
     const _getFyTokenPrice = async (valuedAtOne = false): Promise<number> => {
       const input = parseUnits(inputToUse, series.decimals);
-      const fyTokenValOfInput = await series.poolContract.sellFYTokenPreview(input);
+
+      let fyTokenValOfInput: BigNumber;
+
+      try {
+        fyTokenValOfInput = await series.poolContract.sellFYTokenPreview(input);
+      } catch (e) {
+        diagnostics && console.log('Could not estimate fyToken price');
+        fyTokenValOfInput = parseUnits('1', series.decimals);
+      }
       return valuedAtOne ? 1 : +fyTokenValOfInput / +input;
     };
 
