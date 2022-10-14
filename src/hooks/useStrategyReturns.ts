@@ -12,8 +12,21 @@ import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
 import { ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
 
+interface IReturns {
+  sharesAPY?: string;
+  fyTokenAPY?: string;
+  feesAPY?: string;
+  totalAPY: string | undefined;
+}
+
+interface IStrategyReturns {
+  returnsForward: IReturns;
+  returnsBackward: IReturns;
+  returns: IReturns;
+}
+
 // calculateAPR func from yieldMath, but without the maturity greater than now check
-export const _calculateAPR = (
+const _calculateAPR = (
   tradeValue: BigNumber | string,
   amount: BigNumber | string,
   maturity: number,
@@ -34,13 +47,6 @@ export const _calculateAPR = (
   return undefined;
 };
 
-interface IReturns {
-  sharesAPY: string;
-  fyTokenAPY: string;
-  feesAPY: string;
-  totalAPY: string;
-}
-
 /**
  *
  * Returns are LP returns per share
@@ -59,9 +65,23 @@ interface IReturns {
  * estimated apy =    shares apy       + fyToken apy + fees apy
  * estimated apy = a * ((b * c) / g)   +   f / g     + fees apy
  *
+ *
+ * Backward-looking:
+ *
+ * value = each strategy token's value in base
+ * a = strategy LP token balance
+ * b = strategy total supply
+ * c = shares value of pool
+ * d = fyToken value of pool
+ * e = total LP token (pool) supply
+ *
+ * value =  a / b * (c + d) / e
+ * estimated apy = value plugged into apy calculation func
+ *
+ *
  * @param input amount of base to use when providing liquidity
  * @param strategy
- * @returns {IStrategyReturns}
+ * @returns {IStrategyReturns} use "returns" property for visualization (the higher apy of the two "returnsForward" and "returnsBackward" properties)
  */
 const useStrategyReturns = (input: string | undefined, strategy: IStrategy | undefined) => {
   const {
@@ -122,11 +142,10 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     };
 
     /**
-     * @param tokenAddr the shares token address of the pool
      * Calculates the apy of the shares value in the pool
      * @returns {Promise<number>} shares apy proportion of LP returns
      */
-    const _calcSharesAPY = async () => {
+    const _calcSharesAPY = async (): Promise<number> => {
       const apy = Number(await _getEulerPoolAPY(series.sharesAddress));
 
       if (apy) {
@@ -196,9 +215,8 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     };
 
     const _calcTotalAPYBackward = async () => {
-      // backward looking returns (looking at since strategy inception)
-      // value =  strategy LP balance to strategy supply ratio * base value of pool / total LP (pool) supply
-      // value =  balance of LP tokens in strategy / strategy total supply * (shares value + fyToken value) / total LP (pool) supply
+      if (!strategy) return;
+
       const strategyLpBalance = strategy.strategyPoolBalance;
       const strategyTotalSupply = strategy.strategyTotalSupply;
       const poolTotalSupply = new Decimal(series.totalSupply.toString());
@@ -214,7 +232,6 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
 
       const value = strategyLpBalSupplyRatio.mul(poolBaseValue.div(poolTotalSupply));
       const apy = _calculateAPR(ONE.toString(), value.toString(), NOW, timestamp);
-      console.log('🦄 ~ file: useStrategyReturns.ts ~ line 217 ~ const_calcTotalAPYBackward= ~ apy', apy);
 
       setReturnsBackward({
         sharesAPY: '0',
@@ -228,20 +245,13 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       _calcTotalAPYForward();
       _calcTotalAPYBackward();
     }
-  }, [
-    NOW,
-    borrowApr,
-    chainId,
-    diagnostics,
-    lendApr,
-    provider,
-    series,
-    strategy.strategyContract,
-    strategy.strategyPoolBalance,
-    strategy.strategyTotalSupply,
-  ]);
+  }, [NOW, borrowApr, chainId, diagnostics, lendApr, provider, series, strategy]);
 
-  return { returnsForward };
+  return {
+    returnsForward,
+    returnsBackward,
+    returns: +returnsForward?.totalAPY > +returnsBackward?.totalAPY ? returnsForward : returnsBackward,
+  } as IStrategyReturns;
 };
 
 export default useStrategyReturns;
