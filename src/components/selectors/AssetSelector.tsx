@@ -46,7 +46,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -64,6 +64,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     if (selectCollateral) {
       diagnostics && console.log('Collateral selected: ', asset.id);
       setSelectedIlk(asset);
+      logAnalyticsEvent(GA_Event.collateral_selected, {
+        asset: asset.symbol,
+      } as GA_Properties.collateral_selected);
 
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
@@ -71,8 +74,8 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       setSelectedSeries(null);
 
       logAnalyticsEvent(GA_Event.asset_selected, {
-        view: GA_View.BORROW,
-        } as GA_Properties.asset_selected)
+        asset: asset.symbol,
+      } as GA_Properties.asset_selected);
     }
   };
 
@@ -137,7 +140,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           name="assetSelect"
           placeholder="Select Asset"
           options={options}
-          value= { !selectCollateral ?  selectedBase || undefined : selectedIlk || undefined }
+          value={!selectCollateral ? selectedBase || undefined : selectedIlk || undefined}
           labelKey={(x: IAsset | undefined) => optionText(x)}
           valueLabel={
             <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>

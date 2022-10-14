@@ -27,17 +27,19 @@ const useAnalytics = () => {
   const logAnalyticsEvent = (eventName: GA_Event, eventProps: any) => {
     if (eventName && process.env.ENV != 'development') {
       try {
-        console.log(eventName, ' event logged');
+        // console.log(eventName, ' event logged');
         window?.gtag('event', eventName, {
           ...eventProps,
           chain_id: chainId,
-          view: eventProps.view || getView(), // if no view is provided, try to get it 
+          view: eventProps.view || getView(), // if no view is provided, try to get it
           view_id: viewArr[1] || 'none',
         });
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log(e);
       }
+    } else {
+      console.log('DEV_MODE:::', eventName, ' event logged: ', eventProps, ' ',  eventProps.view || getView(), ' ', viewArr[1] || 'none');
     }
   };
 

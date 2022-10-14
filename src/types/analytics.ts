@@ -54,7 +54,6 @@ export namespace GA_Properties {
     actionCode: ActionCodes;
     seriesId: string;
     supporting_collateral?: string;
-    
   };
 
   export type transaction_failed = {  actionCode: ActionCodes, seriesId:string, view?: GA_View; };
