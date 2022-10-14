@@ -11,6 +11,8 @@ import { cleanValue } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
 import { ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
+import { WETH } from '../config/assets';
+import { formatUnits, parseUnits } from 'ethers/lib/utils';
 
 interface IReturns {
   sharesAPY?: string;
@@ -59,7 +61,7 @@ const _calculateAPR = (
  * c = current share price in base
  * d = lp token total supply
  * e = fyToken interest rate
- * f = number of fyTokens in pool
+ * f = estimated value of fyTokens in pool in base
  * g = total estimated base value of pool b * c + f
  *
  * estimated apy =    shares apy       + fyToken apy + fees apy
@@ -71,8 +73,8 @@ const _calculateAPR = (
  * value = each strategy token's value in base
  * a = strategy LP token balance
  * b = strategy total supply
- * c = shares value of pool
- * d = fyToken value of pool
+ * c = shares value in base of pool
+ * d = estimated fyToken value of pool
  * e = total LP token (pool) supply
  *
  * value =  a / b * (c + d) / e
@@ -96,11 +98,12 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
 
   const series = strategy?.currentSeries!;
 
+  const [inputToUse, setInputToUse] = useState(input ?? strategy?.baseId === WETH ? '.1' : '100');
   const [returnsForward, setReturnsForward] = useState<IReturns>();
   const [returnsBackward, setReturnsBackward] = useState<IReturns>();
 
-  const { apr: borrowApr } = useApr(input, ActionType.BORROW, series);
-  const { apr: lendApr } = useApr(input, ActionType.LEND, series);
+  const { apr: borrowApr } = useApr(inputToUse, ActionType.BORROW, series);
+  const { apr: lendApr } = useApr(inputToUse, ActionType.LEND, series);
 
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
@@ -135,24 +138,43 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       }
     };
 
-    const _getPoolBaseValue = () => {
-      const sharesBaseVal = series.getBase(series.sharesReserves);
-      const fyTokenBaseVal = series.fyTokenRealReserves;
-      return sharesBaseVal.add(fyTokenBaseVal);
+    /**
+     *
+     * @returns {Promise<number>} fyToken price in base
+     */
+    const _getFyTokenPrice = async (valuedAtOne = false): Promise<number> => {
+      const input = parseUnits(inputToUse, series.decimals);
+      const fyTokenValOfInput = await series.poolContract.sellFYTokenPreview(input);
+      return valuedAtOne ? 1 : +fyTokenValOfInput / +input;
+    };
+
+    /**
+     * Calculate the total base value of the pool
+     * total = shares value in base + fyToken value in base
+     *
+     * @returns {Promise<number>} total base value of pool
+     */
+    const _getPoolBaseValue = async (fyTokenValAtOne = false): Promise<number> => {
+      const sharesBaseVal = +series.getBase(series.sharesReserves);
+      const fyTokenPrice = await _getFyTokenPrice(fyTokenValAtOne);
+      const fyTokenBaseVal = +series.fyTokenRealReserves * fyTokenPrice;
+
+      return sharesBaseVal + fyTokenBaseVal;
     };
 
     /**
      * Calculates the apy of the shares value in the pool
-     * @returns {Promise<number>} shares apy proportion of LP returns
+     * i.e: if shares make up 50% of the pool's total base value
+     * and the shares APY is 10%, then return 5% (10 * .5)
+     * @returns {Promise<number>} shares apy
      */
     const _calcSharesAPY = async (): Promise<number> => {
-      const apy = Number(await _getEulerPoolAPY(series.sharesAddress));
+      const apy = +(await _getEulerPoolAPY(series.sharesAddress));
+      const poolBaseValue = await _getPoolBaseValue();
 
       if (apy) {
-        const sharesBaseVal = series.getBase(series.sharesReserves);
-        const sharesValRatio = Number(
-          new Decimal(sharesBaseVal.toString()).div(new Decimal(_getPoolBaseValue().toString()))
-        );
+        const sharesBaseVal = +series.getBase(series.sharesReserves);
+        const sharesValRatio = sharesBaseVal / poolBaseValue;
 
         return apy * sharesValRatio;
       }
@@ -160,15 +182,29 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       return 0;
     };
 
-    const _calcFyTokenAPY = () => {
+    /**
+     * Calculate (estimate) how much interest would be captured by LP position using market rates and fyToken proportion of the pool
+     * @returns {Promise<number>} estimated fyToken interest from LP position
+     */
+    const _calcFyTokenAPY = async (): Promise<number> => {
+      const poolBaseValue = await _getPoolBaseValue();
+      const fyTokenRealReserves = +series.fyTokenRealReserves;
+
+      // the average of the borrow and lend apr's
       const marketInterestRate = (+borrowApr + +lendApr) / 2;
-      const fyTokenRealReserves = series.fyTokenRealReserves;
-      const fyTokenValRatio = +new Decimal(fyTokenRealReserves.toString()).div(
-        new Decimal(_getPoolBaseValue().toString())
-      );
+
+      const fyTokenPrice = await _getFyTokenPrice();
+
+      // how much fyToken in base the pool is comprised of
+      const fyTokenValRatio = (fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
+
       return marketInterestRate * fyTokenValRatio;
     };
 
+    /**
+     * Caculate (estimate) how much fees are accrued to LP's using invariant func
+     * @returns
+     */
     const _calcFeesAPY = async () => {
       // get current invariant using new tv pool contracat func, else try to get from PoolView contract (old and potentially incorrect methodology)
       let currentInvariant: BigNumber | undefined;
@@ -199,58 +235,57 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       return isNaN(res) ? 0 : res;
     };
 
-    const _calcTotalAPYForward = async () => {
-      // forward looking returns
+    const _calcTotalAPYForward = async (digits: number) => {
       const sharesAPYForward = await _calcSharesAPY();
-      const fyTokenAPYForward = _calcFyTokenAPY();
+      const fyTokenAPYForward = await _calcFyTokenAPY();
       const feesAPYForward = await _calcFeesAPY();
       const totalAPYForward = sharesAPYForward + fyTokenAPYForward + feesAPYForward;
 
       setReturnsForward({
-        sharesAPY: cleanValue(sharesAPYForward.toString(), 1),
-        fyTokenAPY: cleanValue(fyTokenAPYForward.toString(), 1),
-        feesAPY: cleanValue(feesAPYForward.toString(), 1),
-        totalAPY: cleanValue(totalAPYForward.toString(), 1),
+        sharesAPY: cleanValue(sharesAPYForward.toString(), digits),
+        fyTokenAPY: cleanValue(fyTokenAPYForward.toString(), digits),
+        feesAPY: cleanValue(feesAPYForward.toString(), digits),
+        totalAPY: cleanValue(totalAPYForward.toString(), digits),
       });
     };
 
-    const _calcTotalAPYBackward = async () => {
+    const _calcTotalAPYBackward = async (digits: number) => {
       if (!strategy) return;
 
-      const strategyLpBalance = strategy.strategyPoolBalance;
-      const strategyTotalSupply = strategy.strategyTotalSupply;
-      const poolTotalSupply = new Decimal(series.totalSupply.toString());
-      const poolBaseValue = new Decimal(_getPoolBaseValue().toString());
+      const strategyLpBalance = +strategy.strategyPoolBalance;
+      const strategyTotalSupply = +strategy.strategyTotalSupply;
+      const poolTotalSupply = +series.totalSupply;
+      const poolBaseValue = await _getPoolBaseValue(true);
 
-      const strategyLpBalSupplyRatio = new Decimal(strategyLpBalance.toString()).div(
-        new Decimal(strategyTotalSupply.toString())
-      );
+      const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
 
       // get strategy created timestamp using first StartPool event as proxy
       const filter = strategy.strategyContract.filters.PoolStarted();
       const timestamp = (await (await strategy.strategyContract.queryFilter(filter))[0].getBlock()).timestamp;
 
-      const value = strategyLpBalSupplyRatio.mul(poolBaseValue.div(poolTotalSupply));
-      const apy = _calculateAPR(ONE.toString(), value.toString(), NOW, timestamp);
+      const value = strategyLpBalSupplyRatio * (poolBaseValue / poolTotalSupply);
+      const apy = _calculateAPR('1', value.toString(), NOW, timestamp);
 
       setReturnsBackward({
-        sharesAPY: '0',
-        fyTokenAPY: '0',
-        feesAPY: '0',
-        totalAPY: cleanValue(apy, 1),
+        totalAPY: cleanValue(apy, digits),
       });
     };
 
     if (series) {
-      _calcTotalAPYForward();
-      _calcTotalAPYBackward();
+      _calcTotalAPYForward(1);
+      _calcTotalAPYBackward(1);
     }
-  }, [NOW, borrowApr, chainId, diagnostics, lendApr, provider, series, strategy]);
+  }, [NOW, borrowApr, chainId, diagnostics, inputToUse, lendApr, provider, series, strategy]);
+
+  // handle input changes
+  useEffect(() => {
+    input && setInputToUse(input);
+  }, [input]);
 
   return {
     returnsForward,
     returnsBackward,
-    returns: +returnsForward?.totalAPY > +returnsBackward?.totalAPY ? returnsForward : returnsBackward,
+    returns: +returnsForward?.totalAPY >= +returnsBackward?.totalAPY ? returnsForward : returnsBackward,
   } as IStrategyReturns;
 };
 
