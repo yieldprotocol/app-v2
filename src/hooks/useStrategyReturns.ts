@@ -98,7 +98,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
 
   const series = strategy?.currentSeries!;
 
-  const [inputToUse, setInputToUse] = useState(input ?? strategy?.baseId === WETH ? '.1' : '100');
+  const [inputToUse, setInputToUse] = useState(strategy?.baseId === WETH ? '.1' : '100');
   const [returnsForward, setReturnsForward] = useState<IReturns>();
   const [returnsBackward, setReturnsBackward] = useState<IReturns>();
 
@@ -286,9 +286,9 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
   }, [NOW, borrowApr, chainId, diagnostics, inputToUse, lendApr, provider, series, strategy]);
 
   // handle input changes
-  useEffect(() => {
-    input && setInputToUse(input);
-  }, [input]);
+  // useEffect(() => {
+  //   input && setInputToUse(input);
+  // }, [input]);
 
   return {
     returnsForward,
