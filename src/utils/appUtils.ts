@@ -37,7 +37,7 @@ export const toLog = (message: string, type: string = 'info') => {
 };
 
 /* creates internal tracking code of a transaction type */
-export const getTxCode = (txType: ActionCodes, vaultOrSeriesId: string | null) => `${txType}_${vaultOrSeriesId}`;
+export const getTxCode = (txType: ActionCodes, SeriesId: string | null) => `${txType}_${SeriesId}`;
 
 export const generateVaultName = (id: string) => {
   const vaultNameConfig: Config = {

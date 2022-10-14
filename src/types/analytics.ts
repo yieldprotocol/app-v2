@@ -15,6 +15,7 @@ export enum GA_Event {
   transaction_initiated = 'transaction_initiated',
 
   transaction_failed = 'transaction_failed',
+  transaction_will_fail = 'transaction_will_fail',
   transaction_complete = 'transaction_complete',
   transaction_rejected = 'transaction_rejected',
 
@@ -56,9 +57,10 @@ export namespace GA_Properties {
     supporting_collateral?: string;
   };
 
-  export type transaction_failed = {  actionCode: ActionCodes, seriesId:string, view?: GA_View; };
+  export type transaction_failed = {  actionCode: ActionCodes, seriesId:string, error: string, view?: GA_View; };
+  export type transaction_will_fail = {  actionCode: ActionCodes, seriesId:string, error: string, view?: GA_View; };
+  export type transaction_rejected = {  actionCode: ActionCodes, seriesId:string, error: string, view?: GA_View; };
   export type transaction_complete = { actionCode: ActionCodes, seriesId:string, view?: GA_View; };
-  export type transaction_rejected = {  actionCode: ActionCodes, seriesId:string, view?: GA_View; };
 
   export type follow_on_clicked = { view?: GA_View};
 
