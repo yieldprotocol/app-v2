@@ -69,18 +69,19 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
     { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
   ];
 
-  const handleViewChange = (toView:string) => {
-    console.log(  toView.slice(1) );
+  const handleViewChange = (toView: string) => {
+    console.log(toView.slice(1));
     logAnalyticsEvent(GA_Event.view_changed, {
-      toView: toView.slice(1)
+      toView: toView.slice(1),
     } as GA_Properties.view_changed);
-  }
+  };
 
   const NavLink = ({ link }: { link: any }) => (
-    <Link 
-      href={link.to} 
-      passHref >
-      <StyledLink onClick={()=>handleViewChange(link.to) } style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}>
+    <Link href={link.to} passHref>
+      <StyledLink
+        onClick={() => handleViewChange(link.to)}
+        style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}
+      >
         <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
       </StyledLink>
     </Link>
