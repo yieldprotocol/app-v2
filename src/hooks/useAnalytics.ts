@@ -38,9 +38,7 @@ const useAnalytics = () => {
         console.log(e);
       }
     } else {
-      console.log( 
-        ' DEV_ANALYTICS ::: ', [ eventName, eventProps,eventProps.view || getView(), viewArr[1] || '-' ]
-      );
+      console.log(' DEV_ANALYTICS ::: ', [eventName, eventProps, eventProps.view || getView(), viewArr[1] || '-']);
     }
   };
 
