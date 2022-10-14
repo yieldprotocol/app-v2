@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { GA_Event, GA_Properties, GA_View } from '../types/analytics';
 import { useRouter } from 'next/router';
+import { IChainContext } from '../types/index';
 
 const useAnalytics = () => {
   /* get the chainId */
@@ -9,7 +10,7 @@ const useAnalytics = () => {
     chainState: {
       connection: { chainId },
     },
-  } = useContext(ChainContext);
+  } = useContext(ChainContext) as IChainContext;
 
   /* get path from router */
   const { asPath } = useRouter();
