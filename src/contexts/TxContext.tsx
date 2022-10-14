@@ -127,7 +127,7 @@ const TxProvider = ({ children }: any) => {
     connection: { chainId, provider },
   } = chainState;
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const _resetProcess = (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
 
@@ -157,9 +157,8 @@ const TxProvider = ({ children }: any) => {
     logAnalyticsEvent(GA_Event.transaction_rejected, {
       actionCode: txCode.split('_')[0],
       seriesId: txCode.split('_')[1],
-      error: err.code === 4001 ? 'rejected by user': 'rejected by wallet'
-    } as GA_Properties.transaction_rejected );
-
+      error: err.code === 4001 ? 'rejected by user' : 'rejected by wallet',
+    } as GA_Properties.transaction_rejected);
   };
 
   /* handle an error from a tx that was successfully submitted */
@@ -177,7 +176,7 @@ const TxProvider = ({ children }: any) => {
       actionCode: txCode.split('_')[0],
       seriesId: txCode.split('_')[1],
       error: msg,
-    } as GA_Properties.transaction_failed );
+    } as GA_Properties.transaction_failed);
   };
 
   const handleTxWillFail = async (error: any, txCode?: string | undefined, transaction?: any) => {
@@ -195,12 +194,12 @@ const TxProvider = ({ children }: any) => {
       txCode && updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
     } else {
       updateState({ type: TxStateItem.TX_WILL_FAIL, payload: false });
-         
+
       logAnalyticsEvent(GA_Event.transaction_will_fail, {
         actionCode: txCode.split('_')[0],
         seriesId: txCode.split('_')[1],
         error,
-      } as GA_Properties.transaction_will_fail );
+      } as GA_Properties.transaction_will_fail);
     }
   };
 
@@ -251,7 +250,7 @@ const TxProvider = ({ children }: any) => {
         logAnalyticsEvent(GA_Event.transaction_complete, {
           actionCode: txCode.split('_')[0],
           seriesId: txCode.split('_')[1],
-        } as GA_Properties.transaction_complete );
+        } as GA_Properties.transaction_complete);
 
         return res;
       }
