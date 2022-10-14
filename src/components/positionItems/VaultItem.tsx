@@ -11,9 +11,12 @@ import SkeletonWrap from '../wraps/SkeletonWrap';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import { cleanValue } from '../../utils/appUtils';
+import { GA_Event, GA_Properties } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const {
     userState: { seriesMap, vaultsLoading, selectedVault, assetMap },
@@ -24,6 +27,9 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault);
     router.push(`/vaultposition/${_vault.id}`);
+    logAnalyticsEvent(GA_Event.position_opened, {
+      id: _vault.id
+    } as GA_Properties.position_opened);
   };
   const vaultBase = assetMap.get(vault.baseId);
   const vaultIlk = assetMap.get(vault.ilkId);
