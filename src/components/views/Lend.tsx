@@ -62,7 +62,7 @@ const Lend = () => {
   const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
   const lend = useLend();
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
 
@@ -78,26 +78,25 @@ const Lend = () => {
       view: GA_View.LEND,
       seriesId: selectedSeries.id,
       actionCode: ActionCodes.LEND,
-    } as GA_Properties.transaction_initiated );
-
+    } as GA_Properties.transaction_initiated);
   };
 
-  /* Event handlers */ 
+  /* Event handlers */
   const handleNavAction = (_stepPosition: number) => {
     setStepPosition(_stepPosition);
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.LEND,
       step_index: _stepPosition,
-    } as GA_Properties.next_step_clicked )
+    } as GA_Properties.next_step_clicked);
   };
 
-  const handleMaxAction= () => {
+  const handleMaxAction = () => {
     maxLend_ && setLendInput(maxLend_);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.LEND,
-      actionCode: ActionCodes.LEND
-      } as GA_Properties.max_clicked)
-  }
+      actionCode: ActionCodes.LEND,
+    } as GA_Properties.max_clicked);
+  };
 
   const resetInputs = useCallback(() => {
     setLendInput(undefined);

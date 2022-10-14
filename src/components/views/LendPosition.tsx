@@ -77,7 +77,7 @@ const LendPosition = () => {
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
@@ -126,7 +126,7 @@ const LendPosition = () => {
       view: GA_View.LEND,
       seriesId: selectedSeries.id,
       actionCode: ActionCodes.CLOSE_POSITION,
-    } as GA_Properties.transaction_initiated );
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleRollPosition = () => {
@@ -138,18 +138,17 @@ const LendPosition = () => {
       view: GA_View.LEND,
       seriesId: selectedSeries.id,
       actionCode: ActionCodes.ROLL_POSITION,
-    } as GA_Properties.transaction_initiated );
-
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
-    actionCode === ActionCodes.ROLL_POSITION && maxRoll_ && setRollInput(maxRoll_)
-    actionCode === ActionCodes.CLOSE_POSITION && maxClose_ && setCloseInput(maxClose_)
+    actionCode === ActionCodes.ROLL_POSITION && maxRoll_ && setRollInput(maxRoll_);
+    actionCode === ActionCodes.CLOSE_POSITION && maxClose_ && setCloseInput(maxClose_);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.LEND,
       actionCode,
-      } as GA_Properties.max_clicked)
-  }
+    } as GA_Properties.max_clicked);
+  };
 
   const handleSetActionActive = (option: { text: string; index: number }) => {
     setActionActive(option);

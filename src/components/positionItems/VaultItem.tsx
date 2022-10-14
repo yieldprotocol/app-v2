@@ -28,7 +28,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
     setSelectedVault(_vault);
     router.push(`/vaultposition/${_vault.id}`);
     logAnalyticsEvent(GA_Event.position_opened, {
-      id: _vault.id
+      id: _vault.id,
     } as GA_Properties.position_opened);
   };
   const vaultBase = assetMap.get(vault.baseId);

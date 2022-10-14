@@ -55,7 +55,7 @@ const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   useTenderly();
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* STATE FROM CONTEXT */
   const {
@@ -142,14 +142,12 @@ const Borrow = () => {
       seriesId: selectedSeries?.id!,
       actionCode: ActionCodes.BORROW,
       supporting_collateral: selectedIlk.symbol,
-    } as GA_Properties.transaction_initiated );
-
+    } as GA_Properties.transaction_initiated);
   };
 
   useEffect(() => {
     setRenderId(new Date().getTime().toString(36));
   }, []);
-
 
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
@@ -158,24 +156,24 @@ const Borrow = () => {
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.BORROW,
       step_index: _stepPosition,
-    } as GA_Properties.next_step_clicked )
+    } as GA_Properties.next_step_clicked);
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
     actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral);
-    actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!)
+    actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
-      actionCode
-      } as GA_Properties.max_clicked)
-  }
+      actionCode,
+    } as GA_Properties.max_clicked);
+  };
 
   const handleUseSafeCollateral = () => {
     selectedIlk && setCollatInput(cleanValue(minSafeCollateral, selectedIlk.decimals));
     logAnalyticsEvent(GA_Event.safe_collateralization_clicked, {
       view: GA_View.BORROW,
-    } as GA_Properties.safe_collateralization_clicked)
-  }
+    } as GA_Properties.safe_collateralization_clicked);
+  };
 
   const handleGaugeColorChange: any = (val: string) => {
     setCurrentGaugeColor(val);
@@ -466,9 +464,7 @@ const Borrow = () => {
 
                     {borrowInput && minSafeCollateral && (
                       <Box margin={{ top: 'small' }}>
-                        <InputInfoWrap
-                          action={() => handleUseSafeCollateral()}
-                        >
+                        <InputInfoWrap action={() => handleUseSafeCollateral()}>
                           <Text size="small" color="text-weak">
                             Use Safe Collateralization{': '}
                             {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}

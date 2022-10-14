@@ -56,7 +56,7 @@ function Pool() {
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -83,9 +83,8 @@ function Pool() {
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
       seriesId: selectedStrategy?.currentSeries.id,
-      actionCode:ActionCodes.ADD_LIQUIDITY,
-    } as GA_Properties.transaction_initiated );
-
+      actionCode: ActionCodes.ADD_LIQUIDITY,
+    } as GA_Properties.transaction_initiated);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -94,22 +93,21 @@ function Pool() {
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
-
   const handleNavAction = (_stepPosition: number) => {
     setStepPosition(_stepPosition);
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.POOL,
       step_index: _stepPosition,
-    } as GA_Properties.next_step_clicked )
+    } as GA_Properties.next_step_clicked);
   };
 
   const handleMaxAction = () => {
-    maxPool && setPoolInput(maxPool)
+    maxPool && setPoolInput(maxPool);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
       actionCode: ActionCodes.ADD_LIQUIDITY,
-      } as GA_Properties.max_clicked)
-  }
+    } as GA_Properties.max_clicked);
+  };
 
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);

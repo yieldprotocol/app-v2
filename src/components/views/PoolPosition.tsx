@@ -70,8 +70,8 @@ const PoolPosition = () => {
     usePoolHelpers(removeInput, true);
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
-  const {logAnalyticsEvent} = useAnalytics();
-  
+  const { logAnalyticsEvent } = useAnalytics();
+
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
@@ -110,17 +110,16 @@ const PoolPosition = () => {
       view: GA_View.POOL,
       seriesId: selectedStrategy?.currentSeries.id,
       actionCode: ActionCodes.REMOVE_LIQUIDITY,
-    } as GA_Properties.transaction_initiated );
-
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleMaxAction = () => {
-    maxRemove && setRemoveInput(maxRemove)
+    maxRemove && setRemoveInput(maxRemove);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
       actionCode: ActionCodes.REMOVE_LIQUIDITY,
-      } as GA_Properties.max_clicked)
-  }
+    } as GA_Properties.max_clicked);
+  };
 
   const handleSetActionActive = (option: { text: string; index: number }) => {
     setActionActive(option);
@@ -250,7 +249,7 @@ const PoolPosition = () => {
                       value={actionActive}
                       onChange={({ option }) => handleSetActionActive(option)}
                     />
-                  </Box> 
+                  </Box>
                 </SectionWrap>
 
                 {actionActive.index === 0 && (

@@ -38,7 +38,7 @@ function LendItem({
     userActions.setSelectedSeries(_series);
     router.push(`/${actionType.toLowerCase()}position/${_series.id}`);
     logAnalyticsEvent(GA_Event.position_opened, {
-      id: selectedSeries.id
+      id: selectedSeries.id,
     } as GA_Properties.position_opened);
   };
 
