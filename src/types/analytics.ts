@@ -38,31 +38,31 @@ export enum GA_View {
 
 /* Properties on events */
 export namespace GA_Properties {
-  export type connect_wallet = { view: GA_View};
-  export type autoConnect_wallet = { view: GA_View};
+  export type connect_wallet = { view?: GA_View};
+  export type autoConnect_wallet = { view?: GA_View};
 
-  export type view_changed = { fromView: GA_View; toView: GA_View};
+  export type view_changed = {  toView: GA_View,  fromView?: GA_View;};
 
-  export type asset_selected = { asset: string; view: GA_View};
-  export type collateral_selected = { asset: string; view: GA_View};
+  export type asset_selected = { asset: string; view?: GA_View};
+  export type collateral_selected = { asset: string; view?: GA_View};
 
-  export type max_clicked = { view: GA_View; actionCode: ActionCodes  };
-  export type next_step_clicked = { step_index: number; view: GA_View};
-  export type safe_collateralization_clicked = { view: GA_View};
+  export type max_clicked = { actionCode: ActionCodes, view?: GA_View;  };
+  export type next_step_clicked = { step_index: number; view?: GA_View};
+  export type safe_collateralization_clicked = { view?: GA_View};
 
   export type transaction_initiated = {
-    view: GA_View;
     actionCode: ActionCodes;
     seriesId: string;
     supporting_collateral?: string;
+    
   };
 
-  export type transaction_failed = { view: GA_View; actionCode: ActionCodes, seriesId:string };
-  export type transaction_complete = { view: GA_View; actionCode: ActionCodes, seriesId:string };
-  export type transaction_rejected = { view: GA_View; actionCode: ActionCodes, seriesId:string };
+  export type transaction_failed = {  actionCode: ActionCodes, seriesId:string, view?: GA_View; };
+  export type transaction_complete = { actionCode: ActionCodes, seriesId:string, view?: GA_View; };
+  export type transaction_rejected = {  actionCode: ActionCodes, seriesId:string, view?: GA_View; };
 
-  export type follow_on_clicked = { view: GA_View};
+  export type follow_on_clicked = { view?: GA_View};
 
-  export type position_opened = { id: string; view: GA_View };
-  export type position_action_selected = { id: string; action: string; view: GA_View };
+  export type position_opened = { id: string; view?: GA_View };
+  export type position_action_selected = {action: string; id: string; view?: GA_View };
 }
