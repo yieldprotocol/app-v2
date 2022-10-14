@@ -83,7 +83,7 @@ function Pool() {
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
       seriesId: selectedStrategy?.currentSeries.id,
-      txCode: getTxCode(ActionCodes.ADD_LIQUIDITY, selectedStrategy!.id)
+      actionCode:ActionCodes.ADD_LIQUIDITY,
     } as GA_Properties.transaction_initiated );
 
   };
@@ -102,6 +102,14 @@ function Pool() {
       step_index: _stepPosition,
     } as GA_Properties.next_step_clicked )
   };
+
+  const handleMaxAction = () => {
+    maxPool && setPoolInput(maxPool)
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.POOL,
+      actionCode: ActionCodes.ADD_LIQUIDITY,
+      } as GA_Properties.max_clicked)
+  }
 
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);
@@ -152,7 +160,7 @@ function Pool() {
                         onChange={(event: any) => setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))}
                       />
                       <MaxButton
-                        action={() => setPoolInput(maxPool)}
+                        action={() => handleMaxAction()}
                         disabled={maxPool === '0'}
                         clearAction={() => setPoolInput('')}
                         showingMax={!!poolInput && poolInput === maxPool}

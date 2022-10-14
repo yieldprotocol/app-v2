@@ -109,10 +109,18 @@ const PoolPosition = () => {
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
       seriesId: selectedStrategy?.currentSeries.id,
-      txCode: getTxCode(ActionCodes.REMOVE_LIQUIDITY, selectedStrategy!.id)
+      actionCode: ActionCodes.REMOVE_LIQUIDITY,
     } as GA_Properties.transaction_initiated );
 
   };
+
+  const handleMaxAction = () => {
+    maxRemove && setRemoveInput(maxRemove)
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.POOL,
+      actionCode: ActionCodes.REMOVE_LIQUIDITY,
+      } as GA_Properties.max_clicked)
+  }
 
   const resetInputs = useCallback(
     (actionCode: ActionCodes) => {
@@ -255,7 +263,7 @@ const PoolPosition = () => {
                             icon={<YieldMark height="24px" width="24px" colors={[selectedSeries?.startColor!]} />}
                           />
                           <MaxButton
-                            action={() => setRemoveInput(maxRemove)}
+                            action={() => handleMaxAction()}
                             disabled={maxRemove === '0.0'}
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}
