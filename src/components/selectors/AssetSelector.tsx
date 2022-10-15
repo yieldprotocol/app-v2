@@ -12,6 +12,8 @@ import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -44,6 +46,8 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
 
+  const { logAnalyticsEvent } = useAnalytics();
+
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
       <Box direction="row" align="center" gap="small">
@@ -60,10 +64,17 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     if (selectCollateral) {
       diagnostics && console.log('Collateral selected: ', asset.id);
       setSelectedIlk(asset);
+      logAnalyticsEvent(GA_Event.collateral_selected, {
+        asset: asset.symbol,
+      } as GA_Properties.collateral_selected);
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
       setSelectedSeries(null);
+
+      logAnalyticsEvent(GA_Event.asset_selected, {
+        asset: asset.symbol,
+      } as GA_Properties.asset_selected);
     }
   };
 

@@ -8,9 +8,12 @@ import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
+import useAnalytics from '../../hooks/useAnalytics';
+import { GA_Event, GA_Properties } from '../../types/analytics';
 
 function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const router = useRouter();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const {
     userState: { assetMap, seriesMap, strategiesLoading, selectedStrategy },
@@ -26,6 +29,9 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
     userActions.setSelectedSeries(series);
     userActions.setSelectedStrategy(strategy);
     router.push(`/poolposition/${strategy.address}`);
+    logAnalyticsEvent(GA_Event.position_opened, {
+      id: strategy.id,
+    } as GA_Properties.position_opened);
   };
 
   return (

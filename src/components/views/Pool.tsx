@@ -3,7 +3,7 @@ import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Ti
 import { FiInfo, FiPercent, FiZap } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import AssetSelector from '../selectors/AssetSelector';
 import MainViewWrap from '../wraps/MainViewWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -33,6 +33,8 @@ import StrategyItem from '../positionItems/StrategyItem';
 
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
+import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,6 +55,8 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
+
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -75,6 +79,12 @@ function Pool() {
       canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
       matchingVault
     );
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.POOL,
+      seriesId: selectedStrategy?.currentSeries.id,
+      actionCode: ActionCodes.ADD_LIQUIDITY,
+    } as GA_Properties.transaction_initiated);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -82,6 +92,22 @@ function Pool() {
     !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
+
+  const handleNavAction = (_stepPosition: number) => {
+    setStepPosition(_stepPosition);
+    logAnalyticsEvent(GA_Event.next_step_clicked, {
+      view: GA_View.POOL,
+      step_index: _stepPosition,
+    } as GA_Properties.next_step_clicked);
+  };
+
+  const handleMaxAction = () => {
+    maxPool && setPoolInput(maxPool);
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.POOL,
+      actionCode: ActionCodes.ADD_LIQUIDITY,
+    } as GA_Properties.max_clicked);
+  };
 
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);
@@ -132,7 +158,7 @@ function Pool() {
                         onChange={(event: any) => setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))}
                       />
                       <MaxButton
-                        action={() => setPoolInput(maxPool)}
+                        action={() => handleMaxAction()}
                         disabled={maxPool === '0'}
                         clearAction={() => setPoolInput('')}
                         showingMax={!!poolInput && poolInput === maxPool}
@@ -171,7 +197,7 @@ function Pool() {
               >
                 <YieldCardHeader>
                   {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                    <BackButton action={() => setStepPosition(0)} />
+                    <BackButton action={() => handleNavAction(0)} />
                   ) : (
                     <Box pad="1em" />
                   )}
@@ -243,7 +269,7 @@ function Pool() {
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
-              onClick={() => setStepPosition(stepPosition + 1)}
+              onClick={() => handleNavAction(stepPosition + 1)}
               disabled={stepDisabled || !selectedStrategy}
               errorLabel={poolError}
             />
