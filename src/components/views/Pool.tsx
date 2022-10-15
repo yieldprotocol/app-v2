@@ -56,7 +56,7 @@ function Pool() {
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -94,17 +94,16 @@ function Pool() {
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
-
   const handleNavAction = (_stepPosition: number) => {
     setStepPosition(_stepPosition);
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.POOL,
       step_index: _stepPosition,
-    } as GA_Properties.next_step_clicked )
+    } as GA_Properties.next_step_clicked);
   };
 
   const handleMaxAction = () => {
-    maxPool && setPoolInput(maxPool)
+    maxPool && setPoolInput(maxPool);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
       action_code: ActionCodes.ADD_LIQUIDITY,

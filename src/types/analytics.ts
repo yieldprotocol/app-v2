@@ -1,4 +1,4 @@
-import { ActionCodes } from ".";
+import { ActionCodes } from '.';
 
 export enum GA_Event {
   connect_wallet = 'connect_wallet',
@@ -39,8 +39,8 @@ export enum GA_View {
 
 /* Properties on events */
 export namespace GA_Properties {
-  export type connect_wallet = { view?: GA_View};
-  export type autoConnect_wallet = { view?: GA_View};
+  export type connect_wallet = { view?: GA_View };
+  export type autoConnect_wallet = { view?: GA_View };
 
   export type view_changed = {  toView: GA_View };
 
@@ -63,8 +63,8 @@ export namespace GA_Properties {
   export type transaction_rejected = {  action_code: ActionCodes, series_id:string, error: string, view?: GA_View; };
   export type transaction_complete = { action_code: ActionCodes, series_id:string, view?: GA_View; };
 
-  export type follow_on_clicked = { view?: GA_View};
+  export type follow_on_clicked = { view?: GA_View };
 
   export type position_opened = { id: string; view?: GA_View };
-  export type position_action_selected = {action: string; id: string; view?: GA_View };
+  export type position_action_selected = { action: string; id: string; view?: GA_View };
 }

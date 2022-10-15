@@ -79,14 +79,17 @@ const VaultPosition = () => {
     ActionCodes.REPAY,
     _selectedVault?.id!
   );
+
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_DEBT,
     _selectedVault?.id!
   );
+
   const { txProcess: addCollateralProcess, resetProcess: resetAddCollateralProcess } = useProcess(
     ActionCodes.ADD_COLLATERAL,
     _selectedVault?.id!
   );
+
   const { txProcess: removeCollateralProcess, resetProcess: resetRemoveCollateralProcess } = useProcess(
     ActionCodes.REMOVE_COLLATERAL,
     _selectedVault?.id!

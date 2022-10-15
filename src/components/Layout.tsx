@@ -28,15 +28,16 @@ const Layout = ({ children }: ILayout) => {
   return (
     <>
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-QGLQ100R01" strategy="afterInteractive" />
-      { process.env.ENV != 'development' &&
+      {process.env.ENV != 'development' && (
         <Script id="google-analytics" strategy="afterInteractive">
-        {`window.dataLayer = window.dataLayer || [];
+          {`window.dataLayer = window.dataLayer || [];
           function gtag() {
             dataLayer.push(arguments);
           }
           gtag('js', new Date());
           gtag('config', 'G-QGLQ100R01');`}
-      </Script>}
+        </Script>
+      )}
       <Head>
         <title>Yield Protocol App</title>
         <meta charSet="utf-8" />

@@ -127,7 +127,7 @@ const TxProvider = ({ children }: any) => {
     connection: { chainId, provider },
   } = chainState;
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const _resetProcess = (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
 
@@ -177,7 +177,7 @@ const TxProvider = ({ children }: any) => {
       action_code: txCode.split('_')[0],
       series_id: txCode.split('_')[1],
       error: msg,
-    } as GA_Properties.transaction_failed );
+    } as GA_Properties.transaction_failed);
   };
 
   const handleTxWillFail = async (error: any, txCode?: string | undefined, transaction?: any) => {
@@ -195,12 +195,12 @@ const TxProvider = ({ children }: any) => {
       txCode && updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
     } else {
       updateState({ type: TxStateItem.TX_WILL_FAIL, payload: false });
-         
+
       logAnalyticsEvent(GA_Event.transaction_will_fail, {
         action_code: txCode.split('_')[0],
         series_id: txCode.split('_')[1],
         error,
-      } as GA_Properties.transaction_will_fail );
+      } as GA_Properties.transaction_will_fail);
     }
   };
 

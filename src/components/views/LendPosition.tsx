@@ -77,7 +77,7 @@ const LendPosition = () => {
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
 
-  const {logAnalyticsEvent} = useAnalytics();
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
@@ -143,8 +143,8 @@ const LendPosition = () => {
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
-    actionCode === ActionCodes.ROLL_POSITION && maxRoll_ && setRollInput(maxRoll_)
-    actionCode === ActionCodes.CLOSE_POSITION && maxClose_ && setCloseInput(maxClose_)
+    actionCode === ActionCodes.ROLL_POSITION && maxRoll_ && setRollInput(maxRoll_);
+    actionCode === ActionCodes.CLOSE_POSITION && maxClose_ && setCloseInput(maxClose_);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.LEND,
       action_code: actionCode,
