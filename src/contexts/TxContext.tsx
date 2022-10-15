@@ -155,10 +155,11 @@ const TxProvider = ({ children }: any) => {
 
     // analyticsLogEvent('TX_REJECTED', { txCode }, chainId);
     logAnalyticsEvent(GA_Event.transaction_rejected, {
-      actionCode: txCode.split('_')[0],
-      seriesId: txCode.split('_')[1],
-      error: err.code === 4001 ? 'rejected by user' : 'rejected by wallet',
-    } as GA_Properties.transaction_rejected);
+      action_code: txCode.split('_')[0],
+      series_id: txCode.split('_')[1],
+      error: err.code === 4001 ? 'rejected by user': 'rejected by wallet'
+    } as GA_Properties.transaction_rejected );
+
   };
 
   /* handle an error from a tx that was successfully submitted */
@@ -173,8 +174,8 @@ const TxProvider = ({ children }: any) => {
 
     // analyticsLogEvent('TX_FAILED', { txCode }, chainId);
     logAnalyticsEvent(GA_Event.transaction_failed, {
-      actionCode: txCode.split('_')[0],
-      seriesId: txCode.split('_')[1],
+      action_code: txCode.split('_')[0],
+      series_id: txCode.split('_')[1],
       error: msg,
     } as GA_Properties.transaction_failed);
   };
@@ -196,8 +197,8 @@ const TxProvider = ({ children }: any) => {
       updateState({ type: TxStateItem.TX_WILL_FAIL, payload: false });
 
       logAnalyticsEvent(GA_Event.transaction_will_fail, {
-        actionCode: txCode.split('_')[0],
-        seriesId: txCode.split('_')[1],
+        action_code: txCode.split('_')[0],
+        series_id: txCode.split('_')[1],
         error,
       } as GA_Properties.transaction_will_fail);
     }
@@ -248,9 +249,9 @@ const TxProvider = ({ children }: any) => {
 
         // analyticsLogEvent('TX_COMPLETE', { txCode }, chainId);
         logAnalyticsEvent(GA_Event.transaction_complete, {
-          actionCode: txCode.split('_')[0],
-          seriesId: txCode.split('_')[1],
-        } as GA_Properties.transaction_complete);
+          action_code: txCode.split('_')[0],
+          series_id: txCode.split('_')[1],
+        } as GA_Properties.transaction_complete );
 
         return res;
       }
