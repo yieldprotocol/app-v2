@@ -139,8 +139,8 @@ const Borrow = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
-      seriesId: selectedSeries?.id!,
-      actionCode: ActionCodes.BORROW,
+      series_id: selectedSeries?.id!,
+      action_code: ActionCodes.BORROW,
       supporting_collateral: selectedIlk.symbol,
     } as GA_Properties.transaction_initiated );
 
@@ -166,7 +166,7 @@ const Borrow = () => {
     actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!)
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
-      actionCode
+      action_code: actionCode
       } as GA_Properties.max_clicked)
   }
 

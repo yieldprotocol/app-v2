@@ -124,8 +124,8 @@ const LendPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      seriesId: selectedSeries.id,
-      actionCode: ActionCodes.CLOSE_POSITION,
+      series_id: selectedSeries.id,
+      action_code: ActionCodes.CLOSE_POSITION,
     } as GA_Properties.transaction_initiated );
   };
 
@@ -136,8 +136,8 @@ const LendPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      seriesId: selectedSeries.id,
-      actionCode: ActionCodes.ROLL_POSITION,
+      series_id: selectedSeries.id,
+      action_code: ActionCodes.ROLL_POSITION,
     } as GA_Properties.transaction_initiated );
 
   };
@@ -147,7 +147,7 @@ const LendPosition = () => {
     actionCode === ActionCodes.CLOSE_POSITION && maxClose_ && setCloseInput(maxClose_)
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.LEND,
-      actionCode,
+      action_code: actionCode,
       } as GA_Properties.max_clicked)
   }
 

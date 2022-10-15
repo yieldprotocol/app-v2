@@ -42,25 +42,26 @@ export namespace GA_Properties {
   export type connect_wallet = { view?: GA_View};
   export type autoConnect_wallet = { view?: GA_View};
 
-  export type view_changed = {  toView: GA_View,  fromView?: GA_View;};
+  export type view_changed = {  toView: GA_View };
 
   export type asset_selected = { asset: string; view?: GA_View};
   export type collateral_selected = { asset: string; view?: GA_View};
-
-  export type max_clicked = { actionCode: ActionCodes, view?: GA_View;  };
+  
   export type next_step_clicked = { step_index: number; view?: GA_View};
   export type safe_collateralization_clicked = { view?: GA_View};
 
+  export type max_clicked = { action_code: ActionCodes, view?: GA_View;  };
+
   export type transaction_initiated = {
-    actionCode: ActionCodes;
-    seriesId: string;
+    action_code: ActionCodes;
+    series_id: string;
     supporting_collateral?: string;
   };
 
-  export type transaction_failed = {  actionCode: ActionCodes, seriesId:string, error: string, view?: GA_View; };
-  export type transaction_will_fail = {  actionCode: ActionCodes, seriesId:string, error: string, view?: GA_View; };
-  export type transaction_rejected = {  actionCode: ActionCodes, seriesId:string, error: string, view?: GA_View; };
-  export type transaction_complete = { actionCode: ActionCodes, seriesId:string, view?: GA_View; };
+  export type transaction_failed = {  action_code: ActionCodes, series_id:string, error: string, view?: GA_View; };
+  export type transaction_will_fail = {  action_code: ActionCodes, series_id:string, error: string, view?: GA_View; };
+  export type transaction_rejected = {  action_code: ActionCodes, series_id:string, error: string, view?: GA_View; };
+  export type transaction_complete = { action_code: ActionCodes, series_id:string, view?: GA_View; };
 
   export type follow_on_clicked = { view?: GA_View};
 

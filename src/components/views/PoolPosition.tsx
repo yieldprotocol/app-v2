@@ -108,8 +108,8 @@ const PoolPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      seriesId: selectedStrategy?.currentSeries.id,
-      actionCode: ActionCodes.REMOVE_LIQUIDITY,
+      series_id: selectedStrategy?.currentSeries.id,
+      action_code: ActionCodes.REMOVE_LIQUIDITY,
     } as GA_Properties.transaction_initiated );
 
   };
@@ -118,7 +118,7 @@ const PoolPosition = () => {
     maxRemove && setRemoveInput(maxRemove)
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
-      actionCode: ActionCodes.REMOVE_LIQUIDITY,
+      action_code: ActionCodes.REMOVE_LIQUIDITY,
       } as GA_Properties.max_clicked)
   }
 

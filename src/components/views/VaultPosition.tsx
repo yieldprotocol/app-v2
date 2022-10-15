@@ -217,8 +217,8 @@ const VaultPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
-      seriesId: vaultSeries?.id!,
-      actionCode: ActionCodes.REPAY,
+      series_id: vaultSeries?.id!,
+      action_code: ActionCodes.REPAY,
     } as GA_Properties.transaction_initiated);
   };
 
@@ -229,8 +229,8 @@ const VaultPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
-      seriesId: vaultSeries?.id!,
-      actionCode: ActionCodes.ROLL_DEBT,
+      series_id: vaultSeries?.id!,
+      action_code: ActionCodes.ROLL_DEBT,
     } as GA_Properties.transaction_initiated);
   };
 
@@ -242,8 +242,8 @@ const VaultPosition = () => {
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
-        seriesId: vaultSeries?.id!,
-        actionCode: ActionCodes.REMOVE_COLLATERAL,
+        series_id: vaultSeries?.id!,
+        action_code: ActionCodes.REMOVE_COLLATERAL,
       } as GA_Properties.transaction_initiated);
     } else {
       if (addCollateralDisabled) return;
@@ -252,8 +252,8 @@ const VaultPosition = () => {
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
-        seriesId: vaultSeries?.id!,
-        actionCode: ActionCodes.ADD_COLLATERAL,
+        series_id: vaultSeries?.id!,
+        action_code: ActionCodes.ADD_COLLATERAL,
       } as GA_Properties.transaction_initiated);
     }
   };
@@ -263,7 +263,7 @@ const VaultPosition = () => {
     actionCode === ActionCodes.ADD_COLLATERAL && setAddCollatInput(maxCollateral);
     actionCode === ActionCodes.REMOVE_COLLATERAL && setRemoveCollatInput(maxRemovableCollateral);
     logAnalyticsEvent(GA_Event.max_clicked, {
-      actionCode,
+      action_code: actionCode,
     } as GA_Properties.max_clicked);
   };
 

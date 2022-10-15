@@ -82,8 +82,8 @@ function Pool() {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      seriesId: selectedStrategy?.currentSeries.id,
-      actionCode:ActionCodes.ADD_LIQUIDITY,
+      series_id: selectedStrategy?.currentSeries.id,
+      action_code:ActionCodes.ADD_LIQUIDITY,
     } as GA_Properties.transaction_initiated );
 
   };
@@ -107,7 +107,7 @@ function Pool() {
     maxPool && setPoolInput(maxPool)
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
-      actionCode: ActionCodes.ADD_LIQUIDITY,
+      action_code: ActionCodes.ADD_LIQUIDITY,
       } as GA_Properties.max_clicked)
   }
 

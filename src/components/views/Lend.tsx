@@ -76,8 +76,8 @@ const Lend = () => {
     lend(lendInput, selectedSeries!);
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      seriesId: selectedSeries.id,
-      actionCode: ActionCodes.LEND,
+      series_id: selectedSeries.id,
+      action_code: ActionCodes.LEND,
     } as GA_Properties.transaction_initiated );
 
   };
@@ -95,7 +95,7 @@ const Lend = () => {
     maxLend_ && setLendInput(maxLend_);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.LEND,
-      actionCode: ActionCodes.LEND
+      action_code: ActionCodes.LEND
       } as GA_Properties.max_clicked)
   }
 
