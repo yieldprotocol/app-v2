@@ -124,7 +124,7 @@ const LendPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries.id,
+      series_id: selectedSeries.name,
       action_code: ActionCodes.CLOSE_POSITION,
     } as GA_Properties.transaction_initiated );
   };
@@ -136,7 +136,7 @@ const LendPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries.id,
+      series_id: selectedSeries.name,
       action_code: ActionCodes.ROLL_POSITION,
     } as GA_Properties.transaction_initiated );
 

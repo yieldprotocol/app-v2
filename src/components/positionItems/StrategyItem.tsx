@@ -30,7 +30,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
     userActions.setSelectedStrategy(strategy);
     router.push(`/poolposition/${strategy.address}`);
     logAnalyticsEvent(GA_Event.position_opened, {
-      id: strategy.id,
+      id: strategy.name,
     } as GA_Properties.position_opened);
   };
 

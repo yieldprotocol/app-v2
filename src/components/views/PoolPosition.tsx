@@ -108,7 +108,7 @@ const PoolPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries.id,
+      series_id: selectedStrategy?.currentSeries.name,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
     } as GA_Properties.transaction_initiated );
 
