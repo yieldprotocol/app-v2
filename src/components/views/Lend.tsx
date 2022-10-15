@@ -76,7 +76,7 @@ const Lend = () => {
     lend(lendInput, selectedSeries!);
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries.id,
+      series_id: selectedSeries.name,
       action_code: ActionCodes.LEND,
     } as GA_Properties.transaction_initiated );
 

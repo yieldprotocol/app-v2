@@ -220,7 +220,7 @@ const VaultPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
-      series_id: vaultSeries?.id!,
+      series_id: vaultSeries?.name!,
       action_code: ActionCodes.REPAY,
     } as GA_Properties.transaction_initiated);
   };
@@ -232,7 +232,7 @@ const VaultPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
-      series_id: vaultSeries?.id!,
+      series_id: vaultSeries?.name!,
       action_code: ActionCodes.ROLL_DEBT,
     } as GA_Properties.transaction_initiated);
   };
@@ -245,7 +245,7 @@ const VaultPosition = () => {
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
-        series_id: vaultSeries?.id!,
+        series_id: vaultSeries?.name!,
         action_code: ActionCodes.REMOVE_COLLATERAL,
       } as GA_Properties.transaction_initiated);
     } else {
@@ -255,7 +255,7 @@ const VaultPosition = () => {
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
-        series_id: vaultSeries?.id!,
+        series_id: vaultSeries?.name!,
         action_code: ActionCodes.ADD_COLLATERAL,
       } as GA_Properties.transaction_initiated);
     }

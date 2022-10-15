@@ -139,7 +139,7 @@ const Borrow = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
-      series_id: selectedSeries?.id!,
+      series_id: selectedSeries?.name!,
       action_code: ActionCodes.BORROW,
       supporting_collateral: selectedIlk.symbol,
     } as GA_Properties.transaction_initiated);
