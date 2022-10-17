@@ -74,7 +74,7 @@ const ProviderContext = ({ children }: { children: any }) => {
     <WagmiConfig client={client}>
       <RainbowKitProvider
         appInfo={{
-          appName: 'Yield Protocol App',
+          appName: 'Yield Protocol',
           disclaimer: Disclaimer,
         }}
         chains={chains}

@@ -73,6 +73,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           )}
 
           <Box align="end" pad={{ vertical: 'small' }}>
+
             <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
               {mobile && <YieldAvatar address={address} size={4} />}
               {address && (

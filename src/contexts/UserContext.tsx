@@ -313,6 +313,8 @@ const UserProvider = ({ children }: any) => {
           mu
         );
 
+      console.log( series.id, _sellRate.toString() );
+
         const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
         // fetch the euler eToken supply APY from their subgraph
         const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
@@ -436,6 +438,7 @@ const UserProvider = ({ children }: any) => {
             accountPoolBalance,
             accountStrategyPercent,
           };
+
         } else {
           /* else return an 'EMPTY' strategy */
           newStrategy = {
