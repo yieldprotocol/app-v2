@@ -56,7 +56,7 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
-  const { returnsForward: lpReturns } = useStrategyReturns(poolInput, selectedStrategy);
+  const { returnsForward: lpReturns, loading: lpReturnsLoading } = useStrategyReturns(poolInput);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -93,6 +93,7 @@ function Pool() {
   useEffect(() => {
     !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
+    setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
   const handleNavAction = (_stepPosition: number) => {
@@ -223,24 +224,24 @@ function Pool() {
                       icon={<FiPercent />}
                       value={`${cleanValue(poolPercentPreview, 2)}%`}
                     />
-                    {lpReturns && Number(lpReturns.totalAPY) > 0 && (
+                    {lpReturns && +lpReturns.totalAPY! > 0 && (
                       <InfoBite
                         label="Variable APY"
                         icon={<FiZap />}
                         value={`${cleanValue(lpReturns.totalAPY, 2)}%`}
                         labelInfo={
                           <Box>
-                            {+lpReturns.sharesAPY > 0 && (
+                            {+lpReturns.sharesAPY! > 0 && (
                               <Text size="small" weight="lighter">
                                 Shares APY: {lpReturns.sharesAPY}%
                               </Text>
                             )}
-                            {+lpReturns.fyTokenAPY > 0 && (
+                            {+lpReturns.fyTokenAPY! > 0 && (
                               <Text size="small" weight="lighter">
                                 fyToken Interest: {lpReturns.fyTokenAPY}%
                               </Text>
                             )}
-                            {+lpReturns.feesAPY > 0 && (
+                            {+lpReturns.feesAPY! > 0 && (
                               <Text size="small" weight="lighter">
                                 Fees: {lpReturns.feesAPY}%
                               </Text>
@@ -250,6 +251,7 @@ function Pool() {
                             </Text>
                           </Box>
                         }
+                        loading={lpReturnsLoading}
                       />
                     )}
                   </Box>
