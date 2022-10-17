@@ -27,6 +27,7 @@ const InfoBite = ({ label, value, icon, loading, labelInfo, children }: IInfoBit
               elevation="small"
               round="small"
               margin={{ vertical: 'xxsmall' }}
+              flex="grow"
             >
               <Text size="xsmall">{labelInfo}</Text>
             </Box>
