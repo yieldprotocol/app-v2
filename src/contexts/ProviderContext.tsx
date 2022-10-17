@@ -63,7 +63,7 @@ const ProviderContext = ({ children }: { children: any }) => {
   const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
     <Text>
       By connecting my wallet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
-      acknowledge you have read and understand the protocol{' '}
+      acknowledge I have read and understood the protocol{' '}
       <Link href="https://yieldprotocol.com/privacy/">Privacy Policy</Link>.
     </Text>
   );
