@@ -85,7 +85,7 @@ const _calculateAPR = (
  * @param strategy
  * @returns {IStrategyReturns} use "returns" property for visualization (the higher apy of the two "returnsForward" and "returnsBackward" properties)
  */
-const useStrategyReturns = (input: string | undefined, strategy: IStrategy | undefined) => {
+const useStrategyReturns = (input: string | undefined, strategy: IStrategy | undefined): IStrategyReturns => {
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
@@ -102,8 +102,8 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
   const [returnsForward, setReturnsForward] = useState<IReturns>();
   const [returnsBackward, setReturnsBackward] = useState<IReturns>();
 
-  const { apr: borrowApr } = useApr(inputToUse, ActionType.BORROW, series);
-  const { apr: lendApr } = useApr(inputToUse, ActionType.LEND, series);
+  const { apr: borrowApy } = useApr(inputToUse, ActionType.BORROW, series);
+  const { apr: lendApy } = useApr(inputToUse, ActionType.LEND, series);
 
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
@@ -199,7 +199,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       const fyTokenRealReserves = +series.fyTokenRealReserves;
 
       // the average of the borrow and lend apr's
-      const marketInterestRate = (+borrowApr + +lendApr) / 2;
+      const marketInterestRate = (+borrowApy + +lendApy) / 2;
 
       const fyTokenPrice = await _getFyTokenPrice();
 
