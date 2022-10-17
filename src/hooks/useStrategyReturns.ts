@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { BigNumber, ethers, EventFilter } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import request from 'graphql-request';
 import yieldEnv from './../contexts/yieldEnv.json';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -12,7 +12,7 @@ import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
 import { ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
 import { WETH } from '../config/assets';
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { parseUnits } from 'ethers/lib/utils';
 
 interface IReturns {
   sharesAPY?: string;
@@ -211,31 +211,34 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
 
     /**
      * Caculate (estimate) how much fees are accrued to LP's using invariant func
-     * @returns
+     * @returns {Promise<number>}
      */
-    const _calcFeesAPY = async () => {
+    const _calcFeesAPY = async (): Promise<number> => {
+      // get pool init timestamp
+      const gmFilter = series.poolContract.filters.gm();
+      const gm = (await series.poolContract.queryFilter(gmFilter))[0];
+      const gmBlock = await gm.getBlock();
+      const gmTimestamp = gmBlock.timestamp;
+
+      if (!gmTimestamp) return 0;
+
       // get current invariant using new tv pool contracat func, else try to get from PoolView contract (old and potentially incorrect methodology)
       let currentInvariant: BigNumber | undefined;
       let initInvariant: BigNumber | undefined;
 
       try {
         currentInvariant = await series.poolContract.invariant();
-        initInvariant = ethers.utils.parseUnits('1', series.decimals);
+        initInvariant = await series.poolContract.invariant({ blockTag: gmBlock.number });
       } catch (e) {
-        const poolView = PoolView__factory.connect(yieldEnv.addresses[chainId]['PoolView'], provider);
-        currentInvariant = await poolView.invariant(series.poolAddress);
-        // init invariant is always 18 decimals when using old methodology
-        initInvariant = ethers.utils.parseUnits('1', 18);
+        if (chainId) {
+          const poolView = PoolView__factory.connect(yieldEnv.addresses[chainId]['PoolView'], provider);
+          currentInvariant = await poolView.invariant(series.poolAddress);
+          // init invariant is always 18 decimals when using old methodology
+          initInvariant = ethers.utils.parseUnits('1', 18);
+        }
       }
 
       if (!currentInvariant || !initInvariant) return 0;
-
-      // get pool init timestamp
-      const gmFilter = series.poolContract.filters.gm();
-      const gm = (await series.poolContract.queryFilter(gmFilter))[0];
-      const gmTimestamp = (await gm.getBlock()).timestamp;
-
-      if (!gmTimestamp) return 0;
 
       // get apy estimate
       const res = +_calculateAPR(initInvariant, currentInvariant, NOW, gmTimestamp);
@@ -286,9 +289,9 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
   }, [NOW, borrowApr, chainId, diagnostics, inputToUse, lendApr, provider, series, strategy]);
 
   // handle input changes
-  // useEffect(() => {
-  //   input && setInputToUse(input);
-  // }, [input]);
+  useEffect(() => {
+    input && setInputToUse(input);
+  }, [input]);
 
   return {
     returnsForward,
