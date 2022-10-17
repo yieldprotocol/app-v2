@@ -286,7 +286,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       _calcTotalAPYForward(1);
       _calcTotalAPYBackward(1);
     }
-  }, [NOW, borrowApr, chainId, diagnostics, inputToUse, lendApr, provider, series, strategy]);
+  }, [NOW, borrowApy, chainId, diagnostics, inputToUse, lendApy, provider, series, strategy]);
 
   // handle input changes
   useEffect(() => {
