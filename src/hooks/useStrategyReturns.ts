@@ -98,7 +98,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
 
   const series = strategy?.currentSeries!;
 
-  const [inputToUse, setInputToUse] = useState(strategy?.baseId === WETH ? '.1' : '100');
+  const [inputToUse, setInputToUse] = useState(strategy?.baseId! === WETH ? '.1' : '100');
   const [returnsForward, setReturnsForward] = useState<IReturns>();
   const [returnsBackward, setReturnsBackward] = useState<IReturns>();
 
@@ -282,7 +282,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       });
     };
 
-    if (series) {
+    if (strategy && series) {
       _calcTotalAPYForward(1);
       _calcTotalAPYBackward(1);
     }
@@ -290,8 +290,10 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
 
   // handle input changes
   useEffect(() => {
-    input && setInputToUse(input);
-  }, [input]);
+    if (strategy && series && input) {
+      setInputToUse(cleanValue(input, strategy.decimals));
+    }
+  }, [input, series, strategy]);
 
   return {
     returnsForward,
