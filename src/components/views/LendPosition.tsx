@@ -6,7 +6,7 @@ import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'reac
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
-import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -29,6 +29,8 @@ import { useProcess } from '../../hooks/useProcess';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
 import Logo from '../logos/Logo';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -75,6 +77,8 @@ const LendPosition = () => {
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
 
+  const { logAnalyticsEvent } = useAnalytics();
+
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
@@ -117,12 +121,41 @@ const LendPosition = () => {
     if (closeDisabled) return;
     setCloseDisabled(true);
     closePosition(closeInput, selectedSeries!);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.LEND,
+      series_id: selectedSeries.name,
+      action_code: ActionCodes.CLOSE_POSITION,
+    } as GA_Properties.transaction_initiated );
   };
 
   const handleRollPosition = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
     rollPosition(rollInput, selectedSeries!, rollToSeries);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.LEND,
+      series_id: selectedSeries.name,
+      action_code: ActionCodes.ROLL_POSITION,
+    } as GA_Properties.transaction_initiated );
+
+  };
+
+  const handleMaxAction = (actionCode: ActionCodes) => {
+    actionCode === ActionCodes.ROLL_POSITION && maxRoll_ && setRollInput(maxRoll_);
+    actionCode === ActionCodes.CLOSE_POSITION && maxClose_ && setCloseInput(maxClose_);
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.LEND,
+      action_code: actionCode,
+      } as GA_Properties.max_clicked)
+  }
+
+  const handleSetActionActive = (option: { text: string; index: number }) => {
+    setActionActive(option);
+    logAnalyticsEvent(GA_Event.position_action_selected, {
+      action: option.text,
+    } as GA_Properties.position_action_selected);
   };
 
   const resetInputs = useCallback(
@@ -242,7 +275,7 @@ const LendPosition = () => {
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
-                      onChange={({ option }) => setActionActive(option)}
+                      onChange={({ option }) => handleSetActionActive(option)}
                       disabled={[3]}
                     />
                   </Box>
@@ -271,7 +304,7 @@ const LendPosition = () => {
                             icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
-                            action={() => setCloseInput(maxClose_)}
+                            action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}
                             disabled={maxClose_ === '0.0' || !selectedSeries}
                             clearAction={() => setCloseInput('')}
                             showingMax={!!closeInput && closeInput === maxClose_}
@@ -279,7 +312,7 @@ const LendPosition = () => {
                         </InputWrap>
 
                         {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
-                          <InputInfoWrap action={() => setCloseInput(maxClose_)}>
+                          <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
                               {selectedSeries.sharesReserves.eq(maxClose) && ' (limited by protocol)'}
@@ -334,7 +367,7 @@ const LendPosition = () => {
                             icon={<Logo image={selectedBase.image} />}
                           />
                           <MaxButton
-                            action={() => setRollInput(maxRoll_)}
+                            action={() => handleMaxAction(ActionCodes.ROLL_POSITION)}
                             disabled={maxRoll_ === '0.0' || !selectedSeries || !rollToSeries}
                             clearAction={() => setRollInput('')}
                             showingMax={!!rollInput && rollInput === maxRoll_}

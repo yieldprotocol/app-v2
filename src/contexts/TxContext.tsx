@@ -2,8 +2,9 @@ import React, { useReducer, useEffect, useContext } from 'react';
 import { ethers, ContractTransaction, providers } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
-import { analyticsLogEvent } from '../utils/appUtils';
 import { ChainContext } from './ChainContext';
+import useAnalytics from '../hooks/useAnalytics';
+import { GA_Event, GA_Properties } from '../types/analytics';
 
 enum TxStateItem {
   TRANSACTIONS = 'transactions',
@@ -126,6 +127,8 @@ const TxProvider = ({ children }: any) => {
     connection: { chainId, provider },
   } = chainState;
 
+  const { logAnalyticsEvent } = useAnalytics();
+
   const _resetProcess = (txCode: string) => updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
 
   const _startProcessTimer = async (txCode: string) => {
@@ -149,6 +152,14 @@ const TxProvider = ({ children }: any) => {
         console.log('Something went wrong: ', err);
       }
     }
+
+    // analyticsLogEvent('TX_REJECTED', { txCode }, chainId);
+    logAnalyticsEvent(GA_Event.transaction_rejected, {
+      action_code: txCode.split('_')[0],
+      series_id: txCode.split('_')[1],
+      error: err.code === 4001 ? 'rejected by user': 'rejected by wallet'
+    } as GA_Properties.transaction_rejected );
+
   };
 
   /* handle an error from a tx that was successfully submitted */
@@ -161,7 +172,12 @@ const TxProvider = ({ children }: any) => {
     updateState({ type: TxStateItem.TRANSACTIONS, payload: _tx });
     console.log('txHash: ', tx?.hash);
 
-    analyticsLogEvent('TX_FAILED', { txCode }, chainId);
+    // analyticsLogEvent('TX_FAILED', { txCode }, chainId);
+    logAnalyticsEvent(GA_Event.transaction_failed, {
+      action_code: txCode.split('_')[0],
+      series_id: txCode.split('_')[1],
+      error: msg,
+    } as GA_Properties.transaction_failed);
   };
 
   const handleTxWillFail = async (error: any, txCode?: string | undefined, transaction?: any) => {
@@ -179,7 +195,12 @@ const TxProvider = ({ children }: any) => {
       txCode && updateState({ type: TxStateItem.RESET_PROCESS, payload: txCode });
     } else {
       updateState({ type: TxStateItem.TX_WILL_FAIL, payload: false });
-      analyticsLogEvent('TX_WILL_FAIL', { txCode }, chainId);
+
+      logAnalyticsEvent(GA_Event.transaction_will_fail, {
+        action_code: txCode.split('_')[0],
+        series_id: txCode.split('_')[1],
+        error,
+      } as GA_Properties.transaction_will_fail);
     }
   };
 
@@ -208,10 +229,8 @@ const TxProvider = ({ children }: any) => {
           _isfallback ? ProcessStage.SIGNING_TRANSACTION_PENDING : ProcessStage.TRANSACTION_PENDING
         );
       } catch (e) {
-        console.log( 'failed aarg')
         /* this case is when user rejects tx OR wallet rejects tx */
         _handleTxRejection(e, txCode);
-        analyticsLogEvent('TX_REJECTED', { txCode }, chainId);
         return null;
       }
 
@@ -227,7 +246,13 @@ const TxProvider = ({ children }: any) => {
       if (_isfallback === false) {
         /* transaction completion : success OR failure */
         _setProcessStage(txCode, ProcessStage.PROCESS_COMPLETE);
-        analyticsLogEvent('TX_COMPLETE', { txCode }, chainId);
+
+        // analyticsLogEvent('TX_COMPLETE', { txCode }, chainId);
+        logAnalyticsEvent(GA_Event.transaction_complete, {
+          action_code: txCode.split('_')[0],
+          series_id: txCode.split('_')[1],
+        } as GA_Properties.transaction_complete );
+
         return res;
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */

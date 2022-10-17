@@ -8,6 +8,8 @@ import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 import SkeletonWrap from '../wraps/SkeletonWrap';
+import useAnalytics from '../../hooks/useAnalytics';
+import { GA_Event, GA_Properties } from '../../types/analytics';
 
 function LendItem({
   series,
@@ -21,6 +23,7 @@ function LendItem({
   condensed?: boolean;
 }) {
   const router = useRouter();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const {
     userState: { assetMap, seriesLoading, selectedSeries, selectedBase },
@@ -34,6 +37,9 @@ function LendItem({
     userActions.setSelectedBase(selectedBase);
     userActions.setSelectedSeries(_series);
     router.push(`/${actionType.toLowerCase()}position/${_series.id}`);
+    logAnalyticsEvent(GA_Event.position_opened, {
+      id: selectedSeries.name,
+    } as GA_Properties.position_opened);
   };
 
   return (
