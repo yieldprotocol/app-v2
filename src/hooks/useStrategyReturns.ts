@@ -188,7 +188,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   }, [diagnostics, series]);
 
   /**
-   * Calculates estimated apy from shares portion of pool
+   * Calculates estimated blended apy from shares portion of pool
    * @returns shares apy of pool
    */
   const getSharesAPY = useCallback(async () => {
@@ -272,7 +272,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const sharesAPY = getEulerPoolAPY();
+      const sharesAPY = await getEulerPoolAPY();
       const sharesBlendedAPY = await getSharesAPY();
       const feesAPY = await getFeesAPY();
       const fyTokenAPY = await getFyTokenAPY();

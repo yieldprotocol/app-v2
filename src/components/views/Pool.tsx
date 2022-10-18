@@ -222,7 +222,7 @@ function Pool() {
                           <Box>
                             {+lpReturns.sharesAPY! > 0 && (
                               <Text size="small" weight="lighter">
-                                Shares APY: {lpReturns.sharesAPY}%
+                                {`${selectedBase.symbol} APY: ${lpReturns.sharesAPY}%`}
                               </Text>
                             )}
                             {+lpReturns.fyTokenAPY! > 0 && (
