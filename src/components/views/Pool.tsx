@@ -224,11 +224,11 @@ function Pool() {
                       icon={<FiPercent />}
                       value={`${cleanValue(poolPercentPreview, 2)}%`}
                     />
-                    {lpReturns && +lpReturns.totalAPY! > 0 && (
+                    {lpReturns && +lpReturns.blendedAPY! > 0 && (
                       <InfoBite
                         label="Variable APY"
                         icon={<FiZap />}
-                        value={`${cleanValue(lpReturns.totalAPY, 2)}%`}
+                        value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
                         labelInfo={
                           <Box>
                             {+lpReturns.sharesAPY! > 0 && (
@@ -238,7 +238,7 @@ function Pool() {
                             )}
                             {+lpReturns.fyTokenAPY! > 0 && (
                               <Text size="small" weight="lighter">
-                                fyToken Interest: {lpReturns.fyTokenAPY}%
+                                fyToken APY: {lpReturns.fyTokenAPY}%
                               </Text>
                             )}
                             {+lpReturns.feesAPY! > 0 && (
@@ -247,7 +247,7 @@ function Pool() {
                               </Text>
                             )}
                             <Text size="small" weight="bold">
-                              Total: {lpReturns.totalAPY}%
+                              Blended APY: {lpReturns.blendedAPY}%
                             </Text>
                           </Box>
                         }

@@ -8,16 +8,16 @@ import { cleanValue } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
 import { ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
-import { WETH } from '../config/assets';
 import { parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
 import { useDebounce } from './generalHooks';
 
 interface IReturns {
+  sharesBlendedAPY?: string;
   sharesAPY?: string;
   fyTokenAPY?: string;
   feesAPY?: string;
-  totalAPY: string | undefined;
+  blendedAPY: string | undefined; // "blended" because sharesAPY is weighted against pool ratio of shares to fyToken
 }
 
 interface IStrategyReturns {
@@ -72,7 +72,7 @@ const calculateAPR = (
  * f = estimated value of fyTokens in pool in base
  * g = total estimated base value of pool b * c + f
  *
- * estimated apy =    shares apy       + fyToken apy + fees apy
+ * estimated apy =  blended shares apy + fyToken apy + fees apy
  * estimated apy = a * ((b * c) / g)   +   f / g     + fees apy
  *
  *
@@ -104,7 +104,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   const strategy = selectedStrategy;
   const series = selectedStrategy?.currentSeries!;
 
-  const inputToUse = useDebounce(cleanValue(input || '1', series.decimals), 1000);
+  const inputToUse = useDebounce(cleanValue(input || '1', series?.decimals!), 1000);
   const [loading, setLoading] = useState(false);
 
   const [returnsForward, setReturnsForward] = useState<IReturns>();
@@ -272,7 +272,8 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const sharesAPY = await getSharesAPY();
+      const sharesAPY = getEulerPoolAPY();
+      const sharesBlendedAPY = await getSharesAPY();
       const feesAPY = await getFeesAPY();
       const fyTokenAPY = await getFyTokenAPY();
 
@@ -280,12 +281,12 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
         sharesAPY: cleanValue(sharesAPY.toString(), digits),
         fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
         feesAPY: cleanValue(feesAPY.toString(), digits),
-        totalAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY).toString(), digits),
+        blendedAPY: cleanValue((sharesBlendedAPY + feesAPY + fyTokenAPY).toString(), digits),
       });
 
       setLoading(false);
     })();
-  }, [getSharesAPY, getFeesAPY, getFyTokenAPY, digits]);
+  }, [getSharesAPY, getFeesAPY, getFyTokenAPY, digits, getEulerPoolAPY]);
 
   /* Set Returns Backward state */
   useEffect(() => {
@@ -308,21 +309,17 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
       const apy = calculateAPR('1', value.toString(), NOW, timestamp);
 
       setReturnsBackward({
-        totalAPY: cleanValue(apy, digits),
+        blendedAPY: cleanValue(apy, digits),
       });
     };
 
     _calcTotalAPYBackward();
   }, [NOW, getPoolBaseValue, series, strategy, digits]);
 
-  useEffect(() => {
-    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 111 ~ useStrategyReturns ~ returnsBackward', returnsBackward);
-  }, [returnsBackward]);
-
   return {
     returnsForward,
     returnsBackward,
-    returns: +returnsForward?.totalAPY! >= +returnsBackward?.totalAPY! ? returnsForward : returnsBackward,
+    returns: +returnsForward?.blendedAPY! >= +returnsBackward?.blendedAPY! ? returnsForward : returnsBackward,
     loading,
   } as IStrategyReturns;
 };
