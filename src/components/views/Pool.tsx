@@ -232,7 +232,7 @@ function Pool() {
                             )}
                             {+lpReturns.feesAPY! > 0 && (
                               <Text size="small" weight="lighter">
-                                Fees: {lpReturns.feesAPY}%
+                                Fees APY: {lpReturns.feesAPY}%
                               </Text>
                             )}
                             <Text size="small" weight="bold">
