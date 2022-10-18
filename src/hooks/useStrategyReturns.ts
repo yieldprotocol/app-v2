@@ -7,10 +7,11 @@ import { ActionType, ISettingsContext, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
-import { ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
+import { ONE_DEC as ONE, SECONDS_PER_YEAR, sellFYToken, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
 import { parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
 import { useDebounce } from './generalHooks';
+import useTimeTillMaturity from './useTimeTillMaturity';
 
 interface IReturns {
   sharesBlendedAPY?: string;
@@ -112,6 +113,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
   const { apr: borrowApy } = useApr(inputToUse, ActionType.BORROW, series);
   const { apr: lendApy } = useApr(inputToUse, ActionType.LEND, series);
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
@@ -121,23 +123,31 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
    */
   const getFyTokenPrice = useCallback(
     async (valuedAtOne = false) => {
+      if (valuedAtOne) return 1;
+
       if (series) {
         const input = parseUnits(inputToUse, series.decimals);
 
-        let fyTokenValOfInput: BigNumber;
+        const sharesOut = sellFYToken(
+          series.sharesReserves,
+          series.fyTokenReserves,
+          input,
+          getTimeTillMaturity(series.maturity),
+          series.ts,
+          series.g2,
+          series.decimals,
+          series.c,
+          series.mu
+        );
 
-        try {
-          fyTokenValOfInput = await series.poolContract.sellFYTokenPreview(input);
-        } catch (e) {
-          diagnostics && console.log('Could not estimate fyToken price');
-          fyTokenValOfInput = parseUnits('1', series.decimals);
-        }
-        return valuedAtOne ? 1 : +fyTokenValOfInput / +input;
+        const baseValOfInput = series.getBase(sharesOut);
+
+        return +baseValOfInput / +input;
       }
 
       return 1;
     },
-    [diagnostics, inputToUse, series]
+    [getTimeTillMaturity, inputToUse, series]
   );
 
   /**
