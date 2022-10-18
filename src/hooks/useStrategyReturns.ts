@@ -121,6 +121,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
    */
   const getFyTokenPrice = useCallback(
     (valuedAtOne = false) => {
+      console.log('getting fytoken price');
       if (valuedAtOne) return 1;
 
       if (series) {
@@ -190,23 +191,10 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
    * @returns {Promise<number>}
    */
   const getFeesAPY = useCallback(async (): Promise<number> => {
-    if (!series) return 0;
-
-    // get current invariant using new tv pool contract func
-    let currentInvariant: BigNumber | undefined;
-    let initInvariant: BigNumber | undefined;
-
-    try {
-      currentInvariant = await series.poolContract.invariant();
-      initInvariant = await series.poolContract.invariant({ blockTag: series.startBlock.number });
-    } catch (e) {
-      console.log('Could not get current and init invariant');
-    }
-
-    if (!currentInvariant || !initInvariant) return 0;
+    if (!series.initInvariant || !series.currentInvariant) return 0;
 
     // get apy estimate
-    const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
+    const res = calculateAPR(series.initInvariant, series.currentInvariant, NOW, series.startBlock.timestamp);
 
     if (isNaN(+res!)) {
       return 0;
@@ -323,7 +311,10 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     _calcTotalAPYBackward();
   }, [NOW, getPoolBaseValue, series, strategy, digits]);
 
-  console.log('🦄 ~ file: useStrategyReturns.ts ~ line 336 ~ useStrategyReturns ~ returnsForward', returnsForward);
+  useEffect(() => {
+    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 336 ~ useStrategyReturns ~ returnsForward', returnsForward);
+  }, [returnsForward]);
+
   return {
     returnsForward,
     returnsBackward,

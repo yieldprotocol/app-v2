@@ -311,6 +311,8 @@ export interface ISeries extends ISeriesRoot {
   mu: BigNumber | undefined;
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
+  currentInvariant?: BigNumber;
+  initInvariant?: BigNumber;
 }
 
 export interface IAsset extends IAssetRoot {

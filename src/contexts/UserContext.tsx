@@ -347,6 +347,16 @@ const UserProvider = ({ children }: any) => {
           // const showSeries = series.maturity !== 1672412400;
           const showSeries = true;
 
+          let currentInvariant: BigNumber | undefined;
+          let initInvariant: BigNumber | undefined;
+
+          try {
+            currentInvariant = await series.poolContract.invariant();
+            initInvariant = await series.poolContract.invariant({ blockTag: series.startBlock.number });
+          } catch (e) {
+            diagnostics && console.log('could not get current and init invariant for series', series.id);
+          }
+
           return {
             ...series,
             sharesReserves,
@@ -364,6 +374,8 @@ const UserProvider = ({ children }: any) => {
             getBase,
             showSeries,
             sharesAddress,
+            currentInvariant,
+            initInvariant,
           };
         })
       );
