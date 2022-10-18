@@ -56,7 +56,7 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
-  const { returnsForward: lpReturns, loading: lpReturnsLoading } = useStrategyReturns(poolInput);
+  const { returns: lpReturns } = useStrategyReturns(poolInput);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -222,7 +222,7 @@ function Pool() {
                           <Box>
                             {+lpReturns.sharesAPY! > 0 && (
                               <Text size="small" weight="lighter">
-                                {`${selectedBase.symbol} APY: ${lpReturns.sharesAPY}%`}
+                                {`${selectedBase?.symbol} APY: ${lpReturns.sharesAPY}%`}
                               </Text>
                             )}
                             {+lpReturns.fyTokenAPY! > 0 && (
@@ -240,7 +240,6 @@ function Pool() {
                             </Text>
                           </Box>
                         }
-                        loading={lpReturnsLoading}
                       />
                     )}
                     <InfoBite
