@@ -155,7 +155,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
    * @returns {Promise<number>} total base value of pool
    */
   const getPoolBaseValue = useCallback(
-    async (fyTokenValAtOne = false) => {
+    (fyTokenValAtOne = false) => {
       if (!series) return;
 
       const sharesBaseVal = +series.getBase(series.sharesReserves);
@@ -173,7 +173,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   const getSharesAPY = useCallback(async () => {
     if (!series) return 0;
 
-    const poolBaseValue = await getPoolBaseValue();
+    const poolBaseValue = getPoolBaseValue();
 
     if (series.poolAPY && poolBaseValue) {
       const sharesBaseVal = +series.getBase(series.sharesReserves);
@@ -222,7 +222,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   const getFyTokenAPY = useCallback(async (): Promise<number> => {
     if (!series) return 0;
 
-    const poolBaseValue = await getPoolBaseValue();
+    const poolBaseValue = getPoolBaseValue();
     if (!poolBaseValue) return 0;
 
     const fyTokenRealReserves = +series.fyTokenRealReserves;
@@ -303,7 +303,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
       const strategyLpBalance = +strategy?.strategyPoolBalance!;
       const strategyTotalSupply = +strategy?.strategyTotalSupply!;
       const poolTotalSupply = +series.totalSupply;
-      const poolBaseValue = await getPoolBaseValue(true);
+      const poolBaseValue = getPoolBaseValue(true);
       if (!poolBaseValue) return;
 
       const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
