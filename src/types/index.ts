@@ -1,3 +1,4 @@
+import { Block } from '@ethersproject/providers';
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import { ReactNode } from 'react';
 import { PoolType } from '../config/series';
@@ -172,6 +173,7 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
+  startBlock: Block; // pool init block
 
   poolType: PoolType;
 

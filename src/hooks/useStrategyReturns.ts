@@ -192,21 +192,13 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   const getFeesAPY = useCallback(async (): Promise<number> => {
     if (!series) return 0;
 
-    // get pool init timestamp
-    const gmFilter = series.poolContract.filters.gm();
-    const gm = (await series.poolContract.queryFilter(gmFilter))[0];
-    const gmBlock = await gm.getBlock();
-    const gmTimestamp = gmBlock.timestamp;
-
-    if (!gmTimestamp) return 0;
-
     // get current invariant using new tv pool contract func
     let currentInvariant: BigNumber | undefined;
     let initInvariant: BigNumber | undefined;
 
     try {
       currentInvariant = await series.poolContract.invariant();
-      initInvariant = await series.poolContract.invariant({ blockTag: gmBlock.number });
+      initInvariant = await series.poolContract.invariant({ blockTag: series.startBlock.number });
     } catch (e) {
       console.log('Could not get current and init invariant');
     }
@@ -214,7 +206,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     if (!currentInvariant || !initInvariant) return 0;
 
     // get apy estimate
-    const res = calculateAPR(initInvariant, currentInvariant, NOW, gmTimestamp);
+    const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
 
     if (isNaN(+res!)) {
       return 0;

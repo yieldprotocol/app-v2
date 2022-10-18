@@ -437,25 +437,40 @@ const ChainProvider = ({ children }: any) => {
             const poolType = x[1].poolType;
 
             const { maturity, baseId } = await Cauldron.series(id);
-            const poolContract = (
-              poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
-            ).connect(poolAddress, fallbackProvider);
+            const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
             const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
 
-            const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
-              await Promise.all([
-                fyTokenContract.name(),
-                fyTokenContract.symbol(),
-                fyTokenContract.version(),
-                fyTokenContract.decimals(),
-                poolContract.name(),
-                poolContract.version(),
-                poolContract.symbol(),
-                poolContract.ts(),
-                poolContract.g1(),
-                poolContract.g2(),
-                poolContract.base(),
-              ]);
+            // get pool init block
+            const gmFilter = poolContract.filters.gm();
+            const gm = (await poolContract.queryFilter(gmFilter))[0];
+
+            const [
+              name,
+              symbol,
+              version,
+              decimals,
+              poolName,
+              poolVersion,
+              poolSymbol,
+              ts,
+              g1,
+              g2,
+              baseAddress,
+              startBlock,
+            ] = await Promise.all([
+              fyTokenContract.name(),
+              fyTokenContract.symbol(),
+              fyTokenContract.version(),
+              fyTokenContract.decimals(),
+              poolContract.name(),
+              poolContract.version(),
+              poolContract.symbol(),
+              poolContract.ts(),
+              poolContract.g1(),
+              poolContract.g2(),
+              poolContract.base(),
+              gm.getBlock(),
+            ]);
 
             const newSeries = {
               id,
@@ -476,6 +491,7 @@ const ChainProvider = ({ children }: any) => {
               g1,
               g2,
               baseAddress,
+              startBlock,
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
@@ -584,7 +600,7 @@ const ChainProvider = ({ children }: any) => {
    * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
-    console.log( 'changes')
+    console.log('changes');
     updateState({
       type: ChainState.CONNECTION,
       payload: connectionState,
