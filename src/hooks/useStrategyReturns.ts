@@ -17,7 +17,7 @@ interface IReturns {
   sharesAPY?: string;
   fyTokenAPY?: string;
   feesAPY?: string;
-  blendedAPY: string | undefined; // "blended" because sharesAPY is weighted against pool ratio of shares to fyToken
+  blendedAPY?: string; // "blended" because sharesAPY is weighted against pool ratio of shares to fyToken
 }
 
 interface IStrategyReturns {
@@ -268,25 +268,63 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     return marketInterestRate * fyTokenValRatio;
   }, [borrowApy, getFyTokenPrice, getPoolBaseValue, lendApy, series]);
 
-  /* Set Returns Forward state */
+  /* Set blended shares apy */
+  useEffect(() => {
+    (async () => {
+      console.log('getting shares apy');
+      const sharesAPY = await getEulerPoolAPY();
+      const sharesBlendedAPY = await getSharesAPY();
+
+      setReturnsForward((returns) => ({
+        ...returns,
+        sharesAPY: cleanValue(sharesAPY?.toString(), digits),
+        sharesBlendedAPY: cleanValue(sharesBlendedAPY.toString(), digits),
+      }));
+    })();
+  }, [digits, getEulerPoolAPY, getSharesAPY]);
+
+  /* Set fees apy */
+  useEffect(() => {
+    (async () => {
+      console.log('getting fees apy');
+      const feesAPY = await getFeesAPY();
+
+      setReturnsForward((returns) => ({
+        ...returns,
+        feesAPY: cleanValue(feesAPY.toString(), digits),
+      }));
+    })();
+  }, [digits, getFeesAPY]);
+
+  /* Set fyToken apy */
+  useEffect(() => {
+    (async () => {
+      console.log('getting fyToken apy');
+      const fyTokenAPY = await getFyTokenAPY();
+
+      setReturnsForward((returns) => ({
+        ...returns,
+        fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
+      }));
+    })();
+  }, [digits, getFyTokenAPY]);
+
+  /* Set Returns Forward blended apy state */
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const sharesAPY = await getEulerPoolAPY();
-      const sharesBlendedAPY = await getSharesAPY();
-      const feesAPY = await getFeesAPY();
-      const fyTokenAPY = await getFyTokenAPY();
 
-      setReturnsForward({
-        sharesAPY: cleanValue(sharesAPY.toString(), digits),
-        fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
-        feesAPY: cleanValue(feesAPY.toString(), digits),
-        blendedAPY: cleanValue((sharesBlendedAPY + feesAPY + fyTokenAPY).toString(), digits),
-      });
+      setReturnsForward((returns) => ({
+        ...returns,
+        blendedAPY: cleanValue(
+          (+returnsForward?.sharesBlendedAPY! + +returnsForward?.feesAPY! + +returnsForward?.fyTokenAPY!).toString(),
+          digits
+        ),
+      }));
 
       setLoading(false);
     })();
-  }, [getSharesAPY, getFeesAPY, getFyTokenAPY, digits, getEulerPoolAPY]);
+  }, [digits, returnsForward?.feesAPY, returnsForward?.fyTokenAPY, returnsForward?.sharesBlendedAPY]);
 
   /* Set Returns Backward state */
   useEffect(() => {
@@ -316,6 +354,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     _calcTotalAPYBackward();
   }, [NOW, getPoolBaseValue, series, strategy, digits]);
 
+  console.log('🦄 ~ file: useStrategyReturns.ts ~ line 336 ~ useStrategyReturns ~ returnsForward', returnsForward);
   return {
     returnsForward,
     returnsBackward,
@@ -323,5 +362,4 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     loading,
   } as IStrategyReturns;
 };
-
 export default useStrategyReturns;
