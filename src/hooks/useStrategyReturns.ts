@@ -238,7 +238,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     // the average of the borrow and lend apr's
     const marketInterestRate = (+borrowApy! + +lendApy!) / 2;
 
-    const fyTokenPrice = await getFyTokenPrice();
+    const fyTokenPrice = getFyTokenPrice();
 
     // how much fyToken in base the pool is comprised of
     const fyTokenValRatio = (fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
