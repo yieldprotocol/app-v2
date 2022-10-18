@@ -91,7 +91,7 @@ const calculateAPR = (
  * @param input amount of base to use when providing liquidity
  * @returns {IStrategyReturns} use "returns" property for visualization (the higher apy of the two "returnsForward" and "returnsBackward" properties)
  */
-const useStrategyReturns = (input: string | undefined): IStrategyReturns => {
+const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyReturns => {
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
@@ -276,15 +276,15 @@ const useStrategyReturns = (input: string | undefined): IStrategyReturns => {
       const fyTokenAPY = await getFyTokenAPY();
 
       setReturnsForward({
-        sharesAPY: cleanValue(sharesAPY.toString(), 1),
-        fyTokenAPY: cleanValue(fyTokenAPY.toString(), 1),
-        feesAPY: cleanValue(feesAPY.toString(), 1),
-        totalAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY).toString(), 1),
+        sharesAPY: cleanValue(sharesAPY.toString(), digits),
+        fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
+        feesAPY: cleanValue(feesAPY.toString(), digits),
+        totalAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY).toString(), digits),
       });
 
       setLoading(false);
     })();
-  }, [getSharesAPY, getFeesAPY, getFyTokenAPY]);
+  }, [getSharesAPY, getFeesAPY, getFyTokenAPY, digits]);
 
   /* Set Returns Backward state */
   useEffect(() => {
@@ -307,12 +307,12 @@ const useStrategyReturns = (input: string | undefined): IStrategyReturns => {
       const apy = calculateAPR('1', value.toString(), NOW, timestamp);
 
       setReturnsBackward({
-        totalAPY: cleanValue(apy, 1),
+        totalAPY: cleanValue(apy, digits),
       });
     };
 
     _calcTotalAPYBackward();
-  }, [NOW, getPoolBaseValue, series, strategy]);
+  }, [NOW, getPoolBaseValue, series, strategy, digits]);
 
   // handle input changes
   useEffect(() => {
