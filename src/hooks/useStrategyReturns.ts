@@ -276,7 +276,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
   /* Set Returns Backward state */
   useEffect(() => {
-    const _calcTotalAPYBackward = async () => {
+    const _calcTotalAPYBackward = () => {
       if (!series || !strategy) return;
 
       const strategyLpBalance = +strategy?.strategyPoolBalance!;
