@@ -1,11 +1,9 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
-import request from 'graphql-request';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ActionType, ISettingsContext, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
-import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { useApr } from './useApr';
 import { ONE_DEC as ONE, SECONDS_PER_YEAR, sellFYToken, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
 import { parseUnits } from 'ethers/lib/utils';
@@ -168,35 +166,6 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     },
     [getFyTokenPrice, series]
   );
-
-  /**
-   *
-   * @returns euler supply apy from subgraph
-   */
-  const getEulerPoolAPY = useCallback(async () => {
-    if (!series) return;
-
-    const query = `
-    query ($address: Bytes!) {
-      eulerMarketStore(id: "euler-market-store") {
-        markets(where:{eTokenAddress:$address}) {
-          supplyAPY
-         } 
-      }
-    }
-  `;
-
-    try {
-      const {
-        eulerMarketStore: { markets },
-      } = await request<EulerRes>(EULER_SUPGRAPH_ENDPOINT, query, { address: series.sharesAddress });
-      return (+markets[0].supplyAPY * 100) / 1e27;
-    } catch (error) {
-      diagnostics && console.log(`could not get pool apy for pool with shares token: ${series.sharesAddress}`, error);
-      return undefined;
-    }
-  }, [diagnostics, series]);
-
   /**
    * Calculates estimated blended apy from shares portion of pool
    * @returns shares apy of pool
@@ -204,18 +173,17 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   const getSharesAPY = useCallback(async () => {
     if (!series) return 0;
 
-    const apy = await getEulerPoolAPY();
     const poolBaseValue = await getPoolBaseValue();
 
-    if (apy && poolBaseValue) {
+    if (series.poolAPY && poolBaseValue) {
       const sharesBaseVal = +series.getBase(series.sharesReserves);
       const sharesValRatio = sharesBaseVal / poolBaseValue;
 
-      return apy * sharesValRatio;
+      return +series.poolAPY * sharesValRatio;
     }
 
     return 0;
-  }, [getEulerPoolAPY, getPoolBaseValue, series]);
+  }, [getPoolBaseValue, series]);
 
   /**
    * Caculate (estimate) how much fees are accrued to LP's using invariant func
@@ -282,16 +250,15 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   useEffect(() => {
     (async () => {
       console.log('getting shares apy');
-      const sharesAPY = await getEulerPoolAPY();
       const sharesBlendedAPY = await getSharesAPY();
 
       setReturnsForward((returns) => ({
         ...returns,
-        sharesAPY: cleanValue(sharesAPY?.toString(), digits),
+        sharesAPY: cleanValue(series?.poolAPY?.toString(), digits),
         sharesBlendedAPY: cleanValue(sharesBlendedAPY.toString(), digits),
       }));
     })();
-  }, [digits, getEulerPoolAPY, getSharesAPY]);
+  }, [digits, getSharesAPY, series?.poolAPY]);
 
   /* Set fees apy */
   useEffect(() => {

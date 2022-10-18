@@ -32,7 +32,7 @@ import {
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { ZERO_BN } from '../utils/constants';
+import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
@@ -40,6 +40,7 @@ import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
+import request from 'graphql-request';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -340,6 +341,7 @@ const UserProvider = ({ children }: any) => {
           );
 
           const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
+          const poolAPY = sharesAddress ? await getPoolAPY(sharesAddress) : undefined;
 
           // some logic to decide if the series is shown or not
           // const showSeries = series.maturity !== 1672412400;
@@ -357,6 +359,7 @@ const UserProvider = ({ children }: any) => {
             seriesIsMature: isMature(series.maturity),
             c,
             mu,
+            poolAPY,
             getShares,
             getBase,
             showSeries,
@@ -716,6 +719,36 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: UserState.SELECTED_SERIES, payload: userState.seriesMap.get(userState.selectedSeries.id) });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
+
+  const getPoolAPY = async (sharesTokenAddr: string) => {
+    const query = `
+    query ($address: Bytes!) {
+      eulerMarketStore(id: "euler-market-store") {
+        markets(where:{eTokenAddress:$address}) {
+          supplyAPY
+         } 
+      }
+    }
+  `;
+
+    interface EulerRes {
+      eulerMarketStore: {
+        markets: {
+          supplyAPY: string;
+        }[];
+      };
+    }
+
+    try {
+      const {
+        eulerMarketStore: { markets },
+      } = await request<EulerRes>(EULER_SUPGRAPH_ENDPOINT, query, { address: sharesTokenAddr });
+      return ((+markets[0].supplyAPY * 100) / 1e27).toString();
+    } catch (error) {
+      diagnostics && console.log(`could not get pool apy for pool with shares token: ${sharesTokenAddr}`, error);
+      return undefined;
+    }
+  };
 
   /* Exposed userActions */
   const userActions = {
