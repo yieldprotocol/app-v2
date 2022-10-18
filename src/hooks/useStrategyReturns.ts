@@ -91,7 +91,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   const strategy = selectedStrategy;
   const series = selectedStrategy?.currentSeries!;
 
-  const inputToUse = useDebounce(cleanValue(input || '1', series?.decimals!), 1000);
+  const inputToUse = cleanValue(input || '1', series?.decimals!);
   const [loading, setLoading] = useState(false);
 
   const [returnsForward, setReturnsForward] = useState<IReturns>();
