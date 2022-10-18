@@ -16,7 +16,7 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
-import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
+import { SERIES_1, SERIES_42161 } from '../config/series';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -387,13 +387,10 @@ const ChainProvider = ({ children }: any) => {
         maturity: number;
         baseId: string;
         poolAddress: string;
-        poolType: PoolType;
         fyTokenAddress: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
-        const poolContract = (
-          series.poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
-        ).connect(series.poolAddress, fallbackProvider);
+        const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
         const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
 
         const season = getSeason(series.maturity);
@@ -434,12 +431,9 @@ const ChainProvider = ({ children }: any) => {
             const id = x[0];
             const fyTokenAddress = x[1].fyTokenAddress;
             const poolAddress = x[1].poolAddress;
-            const poolType = x[1].poolType;
 
             const { maturity, baseId } = await Cauldron.series(id);
-            const poolContract = (
-              poolType === PoolType.TV ? contracts.Pool__factory : contracts.PoolOld__factory
-            ).connect(poolAddress, fallbackProvider);
+            const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
             const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
 
             const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
@@ -471,7 +465,6 @@ const ChainProvider = ({ children }: any) => {
               poolVersion,
               poolName,
               poolSymbol,
-              poolType,
               ts,
               g1,
               g2,
