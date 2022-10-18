@@ -1,6 +1,5 @@
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import { ReactNode } from 'react';
-import { PoolType } from '../config/series';
 import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
@@ -172,8 +171,6 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
-
-  poolType: PoolType;
 
   decimals: number;
   ts: BigNumber;
