@@ -276,6 +276,7 @@ export interface IStrategyRoot extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
+  startBlock?: Block;
 }
 
 export interface IVaultRoot {

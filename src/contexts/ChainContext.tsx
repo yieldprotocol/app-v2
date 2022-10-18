@@ -17,6 +17,7 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
+import { Block } from '@ethersproject/providers';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -531,6 +532,17 @@ const ChainProvider = ({ children }: any) => {
                 Strategy.version(),
               ]);
 
+              // get strategy created block using first StartPool event as proxy
+              let startBlock: Block | undefined;
+
+              const filter = Strategy.filters.PoolStarted();
+
+              try {
+                startBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
+              } catch (error) {
+                console.log('could not get start block for strategy', symbol);
+              }
+
               const newStrategy = _chargeStrategy({
                 id: strategyAddr,
                 address: strategyAddr,
@@ -539,6 +551,7 @@ const ChainProvider = ({ children }: any) => {
                 version,
                 baseId,
                 decimals,
+                startBlock,
               });
 
               // update state

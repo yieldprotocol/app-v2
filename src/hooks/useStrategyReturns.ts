@@ -26,14 +26,6 @@ interface IStrategyReturns {
   loading: boolean;
 }
 
-interface EulerRes {
-  eulerMarketStore: {
-    markets: {
-      supplyAPY: string;
-    }[];
-  };
-}
-
 // calculateAPR func from yieldMath, but without the maturity greater than now check
 const calculateAPR = (
   tradeValue: BigNumber | string,
@@ -93,10 +85,6 @@ const calculateAPR = (
  */
 const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyReturns => {
   const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
-
-  const {
     userState: { selectedStrategy },
   } = useContext(UserContext) as IUserContext;
 
@@ -117,7 +105,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
   /**
    *
-   * @returns {Promise<number>} fyToken price in base, where 1 is at par with base
+   * @returns {number} fyToken price in base, where 1 is at par with base
    */
   const getFyTokenPrice = useCallback(
     (valuedAtOne = false) => {
@@ -167,11 +155,12 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     },
     [getFyTokenPrice, series]
   );
+
   /**
    * Calculates estimated blended apy from shares portion of pool
-   * @returns shares apy of pool
+   * @returns {number} shares apy of pool
    */
-  const getSharesAPY = useCallback(async () => {
+  const getSharesAPY = useCallback(() => {
     if (!series) return 0;
 
     const poolBaseValue = getPoolBaseValue();
@@ -188,9 +177,10 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
   /**
    * Caculate (estimate) how much fees are accrued to LP's using invariant func
-   * @returns {Promise<number>}
+   * @returns {number}
    */
-  const getFeesAPY = useCallback(async (): Promise<number> => {
+  const getFeesAPY = useCallback(() => {
+    if (!series) return 0;
     if (!series.initInvariant || !series.currentInvariant) return 0;
 
     // get apy estimate
@@ -205,9 +195,9 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
   /**
    * Calculate (estimate) how much interest would be captured by LP position using market rates and fyToken proportion of the pool
-   * @returns {Promise<number>} estimated fyToken interest from LP position
+   * @returns {number} estimated fyToken interest from LP position
    */
-  const getFyTokenAPY = useCallback(async (): Promise<number> => {
+  const getFyTokenAPY = useCallback(() => {
     if (!series) return 0;
 
     const poolBaseValue = getPoolBaseValue();
@@ -230,7 +220,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   useEffect(() => {
     (async () => {
       console.log('getting shares apy');
-      const sharesBlendedAPY = await getSharesAPY();
+      const sharesBlendedAPY = getSharesAPY();
 
       setReturnsForward((returns) => ({
         ...returns,
@@ -242,9 +232,9 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
   /* Set fees apy */
   useEffect(() => {
-    (async () => {
+    (() => {
       console.log('getting fees apy');
-      const feesAPY = await getFeesAPY();
+      const feesAPY = getFeesAPY();
 
       setReturnsForward((returns) => ({
         ...returns,
@@ -255,9 +245,9 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
   /* Set fyToken apy */
   useEffect(() => {
-    (async () => {
+    (() => {
       console.log('getting fyToken apy');
-      const fyTokenAPY = await getFyTokenAPY();
+      const fyTokenAPY = getFyTokenAPY();
 
       setReturnsForward((returns) => ({
         ...returns,
@@ -296,12 +286,8 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
       const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
 
-      // get strategy created timestamp using first StartPool event as proxy
-      const filter = strategy.strategyContract.filters.PoolStarted();
-      const timestamp = (await (await strategy.strategyContract.queryFilter(filter))[0].getBlock()).timestamp;
-
       const value = strategyLpBalSupplyRatio * (poolBaseValue / poolTotalSupply);
-      const apy = calculateAPR('1', value.toString(), NOW, timestamp);
+      const apy = calculateAPR('1', value.toString(), NOW, strategy.startBlock?.timestamp);
 
       setReturnsBackward({
         blendedAPY: cleanValue(apy, digits),
