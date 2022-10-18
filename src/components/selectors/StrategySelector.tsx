@@ -15,6 +15,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import AltText from '../texts/AltText';
 import { ZERO_BN } from '../../utils/constants';
 import Line from '../elements/Line';
+import useStrategyReturns from '../../hooks/useStrategyReturns';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -50,6 +51,7 @@ interface IStrategySelectorProps {
 
 function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const { returns } = useStrategyReturns(inputValue);
 
   const {
     settingsState: { diagnostics },
@@ -87,10 +89,8 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts: IStrategy[] = Array.from(strategyMap.values())
-    .filter((_st) => _st.currentSeries?.showSeries)
-    .filter(
-      (_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature
-    );
+      .filter((_st) => _st.currentSeries?.showSeries)
+      .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
     /* select strategy with existing balance */
     if (strategyWithBalance) {
@@ -100,7 +100,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
       opts.length &&
         userActions.setSelectedStrategy(
           opts
-          .filter((s) => s.currentSeries?.showSeries)
+            .filter((s) => s.currentSeries?.showSeries)
             .filter((s) => s.active)
             .reduce((prev, curr) =>
               parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
@@ -135,7 +135,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 >
                   {selectedStrategy?.currentSeries?.seriesMark || <FiSlash />}
                 </Avatar>
-                <Box>
+                <Box align="center" fill="vertical" justify="center">
                   {(!selectedStrategy || !inputValue) && (
                     <>
                       <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
@@ -147,25 +147,15 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                     </>
                   )}
 
-                  {selectedStrategy && inputValue && (
-                    <>
+                  {selectedStrategy && inputValue && returns && (
+                    <Box align="center" direction="row" gap="xsmall">
                       <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
-                        {cleanValue(
-                          getPoolPercent(
-                            ethers.utils.parseUnits(
-                              cleanValue(inputValue, selectedStrategy?.decimals),
-                              selectedStrategy?.decimals
-                            ),
-                            selectedStrategy?.strategyTotalSupply!
-                          ),
-                          3
-                        )}
-                        %
+                        {returns.blendedAPY}%
                       </Text>
-                      <Text size="xsmall" color={selectedStrategy?.currentSeries?.textColor}>
-                        of strategy
+                      <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
+                        Variable APY
                       </Text>
-                    </>
+                    </Box>
                   )}
                 </Box>
 
