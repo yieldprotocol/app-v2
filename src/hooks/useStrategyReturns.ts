@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import { ActionType, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import { useApr } from './useApr';
