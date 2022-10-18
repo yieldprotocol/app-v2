@@ -1,14 +1,12 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { ActionType, ISettingsContext, IUserContext } from '../types';
+import { ActionType, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import { useApr } from './useApr';
 import { ONE_DEC as ONE, SECONDS_PER_YEAR, sellFYToken, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
 import { parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
-import { useDebounce } from './generalHooks';
 import useTimeTillMaturity from './useTimeTillMaturity';
 
 interface IReturns {
