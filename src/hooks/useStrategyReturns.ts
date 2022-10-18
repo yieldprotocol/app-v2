@@ -120,7 +120,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
    * @returns {Promise<number>} fyToken price in base, where 1 is at par with base
    */
   const getFyTokenPrice = useCallback(
-    async (valuedAtOne = false) => {
+    (valuedAtOne = false) => {
       if (valuedAtOne) return 1;
 
       if (series) {
@@ -159,7 +159,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
       if (!series) return;
 
       const sharesBaseVal = +series.getBase(series.sharesReserves);
-      const fyTokenPrice = await getFyTokenPrice(fyTokenValAtOne);
+      const fyTokenPrice = getFyTokenPrice(fyTokenValAtOne);
       const fyTokenBaseVal = +series.fyTokenRealReserves * fyTokenPrice;
 
       return sharesBaseVal + fyTokenBaseVal;
