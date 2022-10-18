@@ -11,6 +11,7 @@ import { ONE_DEC as ONE, SECONDS_PER_YEAR, ZERO_DEC as ZERO } from '@yield-proto
 import { WETH } from '../config/assets';
 import { parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
+import { useDebounce } from './generalHooks';
 
 interface IReturns {
   sharesAPY?: string;
@@ -103,7 +104,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   const strategy = selectedStrategy;
   const series = selectedStrategy?.currentSeries!;
 
-  const [inputToUse, setInputToUse] = useState(series?.baseId! === WETH ? '.1' : '100');
+  const inputToUse = useDebounce(cleanValue(input || '1', series.decimals), 1000);
   const [loading, setLoading] = useState(false);
 
   const [returnsForward, setReturnsForward] = useState<IReturns>();
@@ -314,12 +315,9 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     _calcTotalAPYBackward();
   }, [NOW, getPoolBaseValue, series, strategy, digits]);
 
-  // handle input changes
   useEffect(() => {
-    if (strategy && input) {
-      setInputToUse(cleanValue(input, strategy.decimals));
-    }
-  }, [input, strategy]);
+    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 111 ~ useStrategyReturns ~ returnsBackward', returnsBackward);
+  }, [returnsBackward]);
 
   return {
     returnsForward,
