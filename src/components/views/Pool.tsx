@@ -212,21 +212,11 @@ function Pool() {
                     animation={{ type: 'zoomIn', size: 'small' }}
                     flex={false}
                   >
-                    <InfoBite
-                      label="Maximum Amount to Pool"
-                      icon={<BiMessageSquareAdd />}
-                      value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
-                    />
-                    <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
-                    <InfoBite
-                      label="Strategy Ownership"
-                      icon={<FiPercent />}
-                      value={`${cleanValue(poolPercentPreview, 2)}%`}
-                    />
                     {lpReturns && +lpReturns.blendedAPY! > 0 && (
                       <InfoBite
+                        textSize="medium"
                         label="Variable APY"
-                        icon={<FiZap />}
+                        icon={<FiZap color="#10B981" />}
                         value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
                         labelInfo={
                           <Box>
@@ -253,6 +243,17 @@ function Pool() {
                         loading={lpReturnsLoading}
                       />
                     )}
+                    <InfoBite
+                      label="Maximum Amount to Pool"
+                      icon={<BiMessageSquareAdd />}
+                      value={`${cleanValue(poolInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
+                    />
+                    <InfoBite label="Strategy" icon={<MdAutorenew />} value={`${selectedStrategy?.name}`} />
+                    <InfoBite
+                      label="Strategy Ownership"
+                      icon={<FiPercent />}
+                      value={`${cleanValue(poolPercentPreview, 2)}%`}
+                    />
                   </Box>
                 </ActiveTransaction>
               </Box>
