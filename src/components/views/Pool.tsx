@@ -271,7 +271,8 @@ function Pool() {
                 <Text size="xsmall" weight="lighter">
                   I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
                   the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
-                  demand.
+                  demand. I also understand that the variable APY shown is a projection and that actual returns may
+                  differ.
                 </Text>
               }
               checked={disclaimerChecked}
