@@ -181,6 +181,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
    */
   const getFeesAPY = useCallback(() => {
     if (!series) return 0;
+
     if (!series.initInvariant || !series.currentInvariant) return 0;
 
     // get apy estimate
@@ -304,7 +305,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   return {
     returnsForward,
     returnsBackward,
-    returns: +returnsForward?.blendedAPY! >= +returnsBackward?.blendedAPY! ? returnsForward : returnsBackward,
+    returns: returnsForward,
     loading,
   } as IStrategyReturns;
 };
