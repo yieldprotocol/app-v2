@@ -1,10 +1,10 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
-import { useContext, useMemo } from 'react';
-import { ActionType, IUserContext } from '../types';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { ActionType, ISeries, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import { useApr } from './useApr';
-import { ONE_DEC as ONE, SECONDS_PER_YEAR, sellFYToken, ZERO_DEC as ZERO } from '@yield-protocol/ui-math';
+import { ONE_DEC as ONE, SECONDS_PER_YEAR, sellFYToken, ZERO_DEC as ZERO, invariant } from '@yield-protocol/ui-math';
 import { parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
 import useTimeTillMaturity from './useTimeTillMaturity';
@@ -86,13 +86,22 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   } = useContext(UserContext) as IUserContext;
 
   const strategy = selectedStrategy;
-  const series = selectedStrategy?.currentSeries!;
+  const series = strategy?.currentSeries as ISeries | null;
 
   const inputToUse = cleanValue(!input || +input === 0 ? '1' : input, series?.decimals!);
 
   const { apr: borrowApy } = useApr(inputToUse, ActionType.BORROW, series);
   const { apr: lendApy } = useApr(inputToUse, ActionType.LEND, series);
   const { getTimeTillMaturity } = useTimeTillMaturity();
+
+  const [initSeries, setInitSeries] = useState<{
+    sharesReserves: BigNumber;
+    fyTokenReserves: BigNumber;
+    totalSupply: BigNumber;
+    ts: BigNumber;
+    g2: BigNumber;
+    c: BigNumber;
+  }>();
 
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
@@ -158,22 +167,49 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
   /**
    * Caculate (estimate) how much fees are accrued to LP's using invariant func
+   * Use the current and init invariant results from global context and fallback to manual calculation if unavailable
    * @returns {number}
    */
   const feesAPY = useMemo(() => {
     if (!series) return 0;
 
-    if (!series.initInvariant || !series.currentInvariant) return 0;
+    let currentInvariant = series.currentInvariant || '0';
+    let initInvariant = series.initInvariant || '0';
 
+    if ((!series.currentInvariant || !series.initInvariant) && initSeries) {
+      currentInvariant = invariant(
+        series.sharesReserves,
+        series.fyTokenReserves,
+        series.totalSupply,
+        getTimeTillMaturity(series.maturity),
+        series.ts,
+        series.g2,
+        series.decimals,
+        series.c,
+        series.mu
+      );
+
+      initInvariant = invariant(
+        initSeries.sharesReserves,
+        initSeries.fyTokenReserves,
+        initSeries.totalSupply,
+        getTimeTillMaturity(series.maturity),
+        initSeries.ts,
+        initSeries.g2,
+        series.decimals,
+        initSeries.c,
+        series.mu
+      );
+    }
     // get apy estimate
-    const res = calculateAPR(series.initInvariant, series.currentInvariant, NOW, series.startBlock.timestamp);
+    const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
 
     if (isNaN(+res!)) {
       return 0;
     }
 
     return +res!;
-  }, [NOW, series]);
+  }, [NOW, getTimeTillMaturity, initSeries, series]);
 
   /**
    * Calculate (estimate) how much interest would be captured by LP position using market rates and fyToken proportion of the pool
@@ -208,6 +244,27 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
 
     return cleanValue(apy, digits);
   }, [NOW, digits, poolBaseValue, series, strategy]);
+
+  // get the init series data to use the invariant function
+  useEffect(() => {
+    (async () => {
+      if (!series) return;
+      const { poolContract, currentInvariant, initInvariant } = series;
+
+      if (!currentInvariant || !initInvariant) {
+        const [sharesReserves, fyTokenReserves, totalSupply, ts, g2, c] = await Promise.all([
+          poolContract.getSharesBalance(),
+          poolContract.getFYTokenBalance(),
+          poolContract.totalSupply(),
+          poolContract.ts(),
+          poolContract.g2(),
+          poolContract.getC(),
+        ]);
+
+        setInitSeries({ sharesReserves, fyTokenReserves, totalSupply, ts, g2, c });
+      }
+    })();
+  }, [series]);
 
   return {
     returns: {
