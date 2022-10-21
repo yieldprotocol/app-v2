@@ -46,14 +46,13 @@ const initState: IChainContextState = {
 };
 
 function chainReducer(state: IChainContextState, action: any) {
-  /* Helper: only change the state if different from existing */
-  const onlyIfChanged = (_action: any): IChainContextState =>
-    state[action.type] === _action.payload ? state[action.type] : _action.payload;
-
   /* Reducer switch */
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
-      return { ...state, chainLoaded: onlyIfChanged(action) };
+      return { ...state, chainLoaded: action.payload };
+
+    case ChainState.CHAIN_ID:
+      return { ...state, chainId: action.payload };
 
     case ChainState.CONTRACT_MAP:
       return { ...state, contractMap: new Map(action.payload) };
@@ -96,7 +95,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* HOOKS */
   const provider = useProvider();
-  const { chain } = useNetwork();
+  const { chain, chains } = useNetwork();
   const { isConnecting } = useAccount();
 
   /* SIMPLE CACHED VARIABLES */
@@ -107,28 +106,27 @@ const ChainProvider = ({ children }: any) => {
    * (defaults to getting the protocol data from the first chain in the provider list)
    * */
   useEffect(() => {
-    if (chain) {
-      console.log('Connected to chainId: ', chain.id);
-      if (chain.id !== chainState.chainId) {
-        diagnostics && console.log('ChainId different to previously used ChainId: ', chainState.chainId);
-        /* update protocol info */
-        _getProtocolData(chain.id);
-      }
-      updateState({ type: ChainState.CHAIN_ID, payload: chain.id });
-    } else {
-      diagnostics && console.log('There is no chainId immediately avaialable. Using default id from provider...');
-      _getProtocolData(provider.chains[0].id);
+    const chainId = chain?.id || chainState.chainId;
+
+    if (chainId) {
+      console.log('Connected to chainId: ', chainId);
+      /* update protocol info */
+      _getProtocolData(chainId);
+      return updateState({ type: ChainState.CHAIN_ID, payload: chainId });
     }
-  }, [chain]);
+
+    diagnostics && console.log('There is no connected chain: using default chain from state or chains config...');
+    _getProtocolData(chains[0].id);
+  }, [chain?.id, chainState.chainId, chains, diagnostics]);
 
   /**
    * A bit hacky, but if connecting account, we set 'chainloading'
    * so that we can safely update on every ACCOUNT change in userContext
    * without re-triggering loading before local memory has been cleared.
    */
-  useEffect(() => {
-    isConnecting && updateState({ type: ChainState.CHAIN_LOADED, payload: false });
-  }, [isConnecting]);
+  // useEffect(() => {
+  //   isConnecting && updateState({ type: ChainState.CHAIN_LOADED, payload: false });
+  // }, [isConnecting]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
@@ -212,7 +210,7 @@ const ChainProvider = ({ children }: any) => {
     }
 
     // if there was an issue loading at this point simply return
-    if (!Cauldron || !Ladle || !RateOracle || !Witch) return;
+    if (!Cauldron! || !Ladle! || !RateOracle! || !Witch!) return;
 
     /* Update the baseContracts state : ( hardcoded based on networkId ) */
     const newContractMap = new Map();
@@ -222,17 +220,17 @@ const ChainProvider = ({ children }: any) => {
     newContractMap.set('Witch', Witch);
 
     newContractMap.set('RateOracle', RateOracle);
-    newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
-    newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-    newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
-    newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
-    newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
-    newContractMap.set('CompoundMultiOracle', CompoundMultiOracle);
-    newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
+    newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle!);
+    newContractMap.set('CompositeMultiOracle', CompositeMultiOracle!);
+    newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle!);
+    newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle!);
+    newContractMap.set('NotionalMultiOracle', NotionalMultiOracle!);
+    newContractMap.set('CompoundMultiOracle', CompoundMultiOracle!);
+    newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle!);
 
     // modules
-    newContractMap.set('WrapEtherModule', WrapEtherModule);
-    newContractMap.set('ConvexLadleModule', ConvexLadleModule);
+    newContractMap.set('WrapEtherModule', WrapEtherModule!);
+    newContractMap.set('ConvexLadleModule', ConvexLadleModule!);
 
     updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
   };
@@ -300,10 +298,10 @@ const ChainProvider = ({ children }: any) => {
      * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     const cacheKey = `assets_${_chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues === null || cachedValues.length === 0) {
-      let newAssetList = [];
+      let newAssetList = [] as any[];
       await Promise.all(
         Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
           const id = x[0];
@@ -425,7 +423,7 @@ const ChainProvider = ({ children }: any) => {
       seriesMark: <YieldMark colors={[startColor, endColor]} />,
 
       // built-in helper functions:
-      getBaseAddress: () => chainState.assetRootMap.get(series.baseId).address, // TODO refactor to get this static - if possible?
+      getBaseAddress: () => chainState.assetRootMap.get(series.baseId)?.address, // TODO refactor to get this static - if possible?
     };
   };
 
@@ -438,10 +436,10 @@ const ChainProvider = ({ children }: any) => {
      * If: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     const cacheKey = `series_${_chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues === null || cachedValues.length === 0) {
-      let newSeriesList = [];
+      let newSeriesList: any[] = [];
       await Promise.all(
         Array.from(seriesMap).map(async (x): Promise<void> => {
           const id = x[0];
@@ -526,7 +524,7 @@ const ChainProvider = ({ children }: any) => {
      * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     const cacheKey = `strategies_${_chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey));
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues === null || cachedValues.length === 0) {
       try {
@@ -622,11 +620,11 @@ const ChainProvider = ({ children }: any) => {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 
-    console.table(contractList);
-    console.table(seriesList);
-    console.table(assetList);
-    console.table(joinList);
-    console.table(strategyList);
+    // console.table(contractList);
+    // console.table(seriesList);
+    // console.table(assetList);
+    // console.table(joinList);
+    // console.table(strategyList);
   };
 
   /* simply Pass on the connection actions */

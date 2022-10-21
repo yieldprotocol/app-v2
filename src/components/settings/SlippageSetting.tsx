@@ -25,10 +25,11 @@ const SlippageSetting = () => {
   );
 
   /* Sets the slippage tolerance on input */
-  useEffect(() => {
-    const _slippageTolerance = validateInput(Number(cleanValue(input, 4)) / 100);
-    updateSetting(Settings.SLIPPAGE_TOLERANCE, _slippageTolerance);
-  }, [input]); // purpose ignore updateSetting
+  // TODO figure out why this is breaking things?
+  // useEffect(() => {
+  //   const _slippageTolerance = validateInput(Number(cleanValue(input, 4)) / 100);
+  //   updateSetting(Settings.SLIPPAGE_TOLERANCE, _slippageTolerance);
+  // }, [input]); // purpose ignore updateSetting
 
   /* handle slection - clear input on slection of preset */
   const handlePresetChange = (slippage: number) => {

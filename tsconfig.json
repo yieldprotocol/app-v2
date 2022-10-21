@@ -16,7 +16,8 @@
     "noEmit": true,
     "jsx": "preserve",
     "downlevelIteration": true,
-    "incremental": true
+    "incremental": true,
+    "strictNullChecks": true
   },
   "include": ["src", "__tests__"],
   "exclude": ["**node_modules", "**/src/contracts**"]

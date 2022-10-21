@@ -27,6 +27,7 @@ import {
   IStrategyRoot,
   IStrategy,
   IChainContext,
+  ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -34,7 +35,7 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ETH_BASED_ASSETS, FRAX } from '../config/assets';
+import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
@@ -140,7 +141,7 @@ const UserProvider = ({ children }: any) => {
   const { contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const useTenderlyFork = false;
 
@@ -151,7 +152,7 @@ const UserProvider = ({ children }: any) => {
   /* HOOKS */
   const { address: account } = useAccount();
   const { chain } = useNetwork();
-  const provider = useProvider();
+  const provider = useProvider({ chainId: chain?.id || chainState.chainId });
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
@@ -159,29 +160,29 @@ const UserProvider = ({ children }: any) => {
 
   /* internal function for getting the users vaults */
   const _getVaults = async () => {
-
     const Cauldron = contractMap.get('Cauldron');
+    if (!Cauldron) return;
 
-    const cacheKey = `vaults_${account}_${chain.id}`;
-    const cachedVaults = JSON.parse(localStorage.getItem(cacheKey));
+    const cacheKey = `vaults_${account}_${chain?.id}`;
+    const cachedVaults = JSON.parse(localStorage.getItem(cacheKey)!);
     const cachedVaultList = cachedVaults ? cachedVaults : [];
 
-    const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chain.id}`;
-    const lastVaultUpdate = JSON.parse(localStorage.getItem(lastVaultUpdateKey)) || 'earliest';
+    const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chain?.id}`;
+    const lastVaultUpdate = JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
-    const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, lastVaultUpdate);
-    const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
+    const vaultsBuiltFilter = Cauldron?.filters.VaultBuilt(null, account, null);
+    const vaultsBuilt = await Cauldron?.queryFilter(vaultsBuiltFilter!, lastVaultUpdate);
+    const buildEventList = vaultsBuilt?.map((x: VaultBuiltEvent): IVaultRoot => {
       const { vaultId: id, ilkId, seriesId } = x.args;
       const series = seriesRootMap.get(seriesId);
       return {
         id,
         seriesId,
-        baseId: series?.baseId,
+        baseId: series?.baseId!,
         ilkId,
         displayName: generateVaultName(id),
-        decimals: series?.decimals,
+        decimals: series?.decimals!,
       };
     });
 
@@ -196,10 +197,10 @@ const UserProvider = ({ children }: any) => {
         return {
           id,
           seriesId,
-          baseId: series.baseId,
+          baseId: series?.baseId!,
           ilkId,
           displayName: generateVaultName(id),
-          decimals: series.decimals,
+          decimals: series?.decimals!,
         };
       })
     );
@@ -210,7 +211,7 @@ const UserProvider = ({ children }: any) => {
     /* Cache results */
     const latestBlock = (await provider.getBlockNumber()).toString();
     allVaultList.length && localStorage.setItem(cacheKey, JSON.stringify(allVaultList));
-    allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock ); 
+    allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
   };
@@ -239,7 +240,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('ASSETS updated (with dynamic data):');
-    console.table(updatedAssets, ['id', 'symbol', 'address', 'balance_']);
+    // console.table(updatedAssets, ['id', 'symbol', 'address', 'balance_']);
     updateState({ type: UserState.ASSETS_LOADING, payload: false });
   };
 
@@ -263,7 +264,7 @@ const UserProvider = ({ children }: any) => {
         let sharesReserves: BigNumber | undefined;
         let c: BigNumber | undefined;
         let mu: BigNumber | undefined;
-        let currentSharePrice: BigNumber | undefined;
+        let currentSharePrice: BigNumber;
         let sharesToken: string | undefined;
 
         if (series.poolType === PoolType.TV) {
@@ -361,7 +362,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('SERIES updated (with dynamic data): ');
-    console.table(updatedSeries, ['id', 'displayName', 'baseId', 'poolType', 'seriesIsMature', 'showSeries']);
+    // console.table(updatedSeries, ['id', 'displayName', 'baseId', 'poolType', 'seriesIsMature', 'showSeries']);
     updateState({ type: UserState.SERIES_LOADING, payload: false });
 
     return updatedSeries;
@@ -457,7 +458,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('STRATEGIES updated (with dynamic data): ');
-    console.table(updatedStrategies, ['id', 'currentSeriesId', 'active']);
+    // console.table(updatedStrategies, ['id', 'currentSeriesId', 'active']);
     updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
 
     return updatedStrategies;
@@ -468,7 +469,7 @@ const UserProvider = ({ children }: any) => {
     console.log('Updating vaults...');
     updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
-    let _vaults: IVaultRoot[] = vaultList;
+    let _vaults: IVaultRoot[] | undefined = vaultList;
     const Cauldron = contractMap.get('Cauldron');
     const Witch = contractMap.get('Witch');
 
@@ -479,6 +480,8 @@ const UserProvider = ({ children }: any) => {
       _vaults = await _getVaults();
     }
 
+    if (!_vaults) return;
+
     const updatedVaults = await Promise.all(
       _vaults.map(async (vault) => {
         const [
@@ -487,18 +490,18 @@ const UserProvider = ({ children }: any) => {
         ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
         const series = seriesRootMap.get(seriesId);
+        if (!series) return;
+
         const isVaultMature = isMature(series.maturity);
 
         /* If art 0, check for liquidation event */
         const hasBeenLiquidated =
           art === ZERO_BN
-            ? (
-                await Witch.queryFilter(
-                  Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                  useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
-                  'latest'
-                )
-              ).length > 0
+            ? (await Witch?.queryFilter(
+                Witch?.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
+                useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                'latest'
+              ))!.length > 0
             : false;
 
         let accruedArt: BigNumber;
@@ -507,11 +510,11 @@ const UserProvider = ({ children }: any) => {
 
         if (isVaultMature) {
           const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-          const oracleName = ORACLE_INFO.get(chain.id)?.get(vault.baseId)?.get(RATE);
+          const oracleName = ORACLE_INFO.get(chain?.id!)?.get(vault.baseId)?.get(RATE);
 
-          const RateOracle = contractMap.get(oracleName);
-          rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-          [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+          const RateOracle = contractMap.get(oracleName!);
+          rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
+          [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
           [accruedArt] = rateAtMaturity.gt(ZERO_BN)
             ? calcAccruedDebt(rate, rateAtMaturity, art)
@@ -528,7 +531,7 @@ const UserProvider = ({ children }: any) => {
         const newVault: IVault = {
           ...vault,
           owner, // refreshed in case owner has been updated
-          isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+          isWitchOwner: Witch?.address === owner, // check if witch is the owner (in liquidation process)
           hasBeenLiquidated,
           isActive: owner === account, // refreshed in case owner has been updated
           seriesId, // refreshed in case seriesId has been updated
@@ -541,9 +544,9 @@ const UserProvider = ({ children }: any) => {
           rate,
 
           rate_: cleanValue(ethers.utils.formatUnits(rate, 18), 2), // always 18 decimals when getting rate from rate oracle,
-          ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat), // for display purposes only
-          art_: cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat), // for display purposes only
-          accruedArt_: cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot.decimals), baseRoot.digitFormat), // display purposes
+          ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
+          art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
+          accruedArt_: cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot?.decimals), baseRoot?.digitFormat), // display purposes
         };
 
         updateState({ type: UserState.UPDATE_VAULT, payload: newVault });
@@ -552,7 +555,7 @@ const UserProvider = ({ children }: any) => {
     );
 
     diagnostics && console.log('Vaults updated successfully.');
-    console.table(updatedVaults, ['displayName', 'id', 'accruedArt_', 'ink_', 'baseId', 'ilkId', 'hasBeenLiquidated']);
+    // console.table(updatedVaults, ['displayName', 'id', 'accruedArt_', 'ink_', 'baseId', 'ilkId', 'hasBeenLiquidated']);
     updateState({ type: UserState.VAULTS_LOADING, payload: false });
   };
 
@@ -563,14 +566,15 @@ const UserProvider = ({ children }: any) => {
    *
    * */
   useEffect(() => {
-    chainLoaded && updateAssets(Array.from(assetRootMap.values()));
-    chainLoaded &&
+    if (chainLoaded) {
+      updateAssets(Array.from(assetRootMap.values()));
       updateSeries(Array.from(seriesRootMap.values()))
         /*  when series has finished loading,...load/reload strategy data */
         .finally(() => updateStrategies(Array.from(strategyRootMap.values())));
-    chainLoaded && account && updateVaults();
-  }, [chainLoaded, account]);
 
+      account && updateVaults();
+    }
+  }, [chainLoaded, account]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {

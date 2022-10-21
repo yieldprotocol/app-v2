@@ -72,7 +72,7 @@ const initState: ISettingsContextState = {
   dashCurrency: 'USDC',
 
   useFork: false,
-  forkUrl: 'https://rpc.tenderly.co/fork/717ceb3b-f9a9-4fa0-b1ea-3eb0dd114ddf'
+  forkUrl: 'https://rpc.tenderly.co/fork/717ceb3b-f9a9-4fa0-b1ea-3eb0dd114ddf',
 };
 
 function settingsReducer(state: ISettingsContextState, action: any) {
@@ -98,7 +98,6 @@ const SettingsProvider = ({ children }: any) => {
     }
   }, [settingsState.approvalMethod]);
 
-
   /* watch & handle connection changes and effect appropriate settings */
   // useEffect(() => {
   //   if ((connector?.id !== 'metaMask') || useTenderlyFork) {
@@ -120,8 +119,8 @@ const SettingsProvider = ({ children }: any) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       Object.values(Settings).forEach((setting) => {
-        if (JSON.parse(localStorage.getItem(setting)) !== null) {
-          updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)) });
+        if (JSON.parse(localStorage.getItem(setting)!) !== null) {
+          updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)!) });
         }
       });
     }

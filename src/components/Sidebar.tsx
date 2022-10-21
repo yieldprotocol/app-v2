@@ -21,20 +21,17 @@ import { TxContext } from '../contexts/TxContext';
 const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const [transactionsOpen, setTransactionsOpen] = useState<boolean>(false);
-  
+
   const {
     txState: { transactions },
   } = useContext(TxContext);
 
   const { chain } = useNetwork();
   const { address, connector } = useAccount();
-  const {data} = useEnsName();
+  const { data: ensName } = useEnsName();
 
   const { disconnect } = useDisconnect();
-
-  const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
-  const { openChainModal } = useChainModal();
 
   const handleResetApp = () => {
     clearCachedItems([]);
@@ -64,46 +61,41 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           {mobile && <BackButton action={() => setSettingsOpen(false)} />}
 
           {!mobile && (
-            <Box onClick={()=> openAccountModal() } gap="small" style={{ position: 'fixed' }} margin={{ left: '-60px', top: '10%' }} animation="slideLeft">
-              <YieldAvatar address={address} size={6}  />
+            <Box
+              onClick={openAccountModal}
+              gap="small"
+              style={{ position: 'fixed' }}
+              margin={{ left: '-60px', top: '10%' }}
+              animation="slideLeft"
+            >
+              <YieldAvatar address={address} size={6} />
             </Box>
           )}
 
           <Box align="end" pad={{ vertical: 'small' }}>
 
             <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-              {mobile && <YieldAvatar address={address} size={4}/>}
-              <CopyWrap hash={address}>
-                <Text size={mobile ? 'medium' : 'xlarge'}>{data || abbreviateHash(address, 6)}</Text>
-              </CopyWrap>
+              {mobile && <YieldAvatar address={address} size={4} />}
+              {address && (
+                <CopyWrap hash={address}>
+                  <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
+                </CopyWrap>
+              )}
             </Box>
           </Box>
 
           <Box gap="small">
-            <Box
-              direction="row"
-              justify="end"
-              // onClick={() => setConnectionSettingsOpen(!connectionSettingsOpen)}
-              gap="medium"
-              margin={{ top: 'medium' }}
-            >
+            <Box direction="row" justify="end" gap="medium" margin={{ top: 'medium' }}>
               <BoxWrap direction="row" gap="small">
-                <Text size="xsmall">Connected with {connector.name}</Text>
+                {connector && <Text size="xsmall">Connected with {connector.name}</Text>}
               </BoxWrap>
             </Box>
 
-            <Box
-              direction="row"
-              justify="end"
-              onClick={() => disconnect()}
-              gap="medium"
-              margin={{ top: 'medium' }}
-            >
+            <Box direction="row" justify="end" onClick={disconnect} gap="medium" margin={{ top: 'medium' }}>
               <BoxWrap direction="row" gap="small">
-                <Text size="xsmall">Logout </Text>
+                <Text size="xsmall">Logout</Text>
               </BoxWrap>
             </Box>
-
           </Box>
         </Box>
 
@@ -173,9 +165,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
         </Box>
       </Box>
     </Layer>
-  ) : (
-    <div />
-  );
+  ) : null;
 };
 
 export default Sidebar;

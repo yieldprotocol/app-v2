@@ -5,7 +5,6 @@ import Sidebar from './Sidebar';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import { useAccount, useEnsName } from 'wagmi';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { FiSettings } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import { abbreviateHash } from '../utils/appUtils';
@@ -13,6 +12,7 @@ import GeneralButton from './buttons/GeneralButton';
 import HeaderBalancesModal from './HeaderBalancesModal';
 import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 const StyledText = styled(Text)`
   svg,
@@ -32,12 +32,12 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const HeaderAccount = (props: any) => {
+const HeaderAccount = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { address } = useAccount();
   const { data: ensName } = useEnsName();
-  // const { data: ensName, isError, isLoading } = useEnsName({ address });
+  const { openConnectModal } = useConnectModal();
 
   const {
     userState: { assetMap, assetsLoading },
@@ -45,67 +45,59 @@ const HeaderAccount = (props: any) => {
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
-  // const {open:connectOpen, setOpen} = useModal();
-
   const ethBalance = assetMap.get(WETH)?.balance_;
 
   return (
     <>
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      {/* <ConnectButton /> */}
+      {address ? (
+        <Box direction="row" gap="xsmall" align="center">
+          {!mobile && <HeaderBalancesModal />}
+          <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
+            {mobile ? (
+              <Box>
+                <FiSettings />
+              </Box>
+            ) : (
+              <Box direction="row" align="center" gap="small">
+                <Box>
+                  <Text color="text" size="small">
+                    {ensName || abbreviateHash(address!, 5)}
+                  </Text>
 
-      <ConnectButton.Custom>
-        {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
-          const connected = mounted && account && chain;
-
-          return connected ? (
-            <Box direction="row" gap="xsmall" align="center">
-              {!mobile && <HeaderBalancesModal />}
-              <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
-                {mobile ? (
-                  <Box>
-                    <FiSettings />
-                  </Box>
-                ) : (
                   <Box direction="row" align="center" gap="small">
-                    <Box>
-                      <Text color="text" size="small">
-                        {ensName || abbreviateHash(address, 5)}
-                      </Text>
-
-                      <Box direction="row" align="center" gap="small">
-                        <Box direction="row" gap="xsmall" align="center">
-                          <StyledText size="small" color="text">
-                            {assetsLoading && <Skeleton circle height={20} width={20} />}
-                            {ethBalance && (
-                              <Box height="20px" width="20px">
-                                <EthMark />
-                              </Box>
-                            )}
-                          </StyledText>
-                          <StyledText size="small" color="text">
-                            {assetsLoading ? <Skeleton width={40} /> : ethBalance}
-                          </StyledText>
-                        </Box>
-                      </Box>
-                    </Box>
-                    <Box>
-                      <YieldAvatar address={address} size={2} />
+                    <Box direction="row" gap="xsmall" align="center">
+                      <StyledText size="small" color="text">
+                        {assetsLoading && <Skeleton circle height={20} width={20} />}
+                        {ethBalance && (
+                          <Box height="20px" width="20px">
+                            <EthMark />
+                          </Box>
+                        )}
+                      </StyledText>
+                      <StyledText size="small" color="text">
+                        {assetsLoading ? <Skeleton width={40} /> : ethBalance}
+                      </StyledText>
                     </Box>
                   </Box>
-                )}
-              </StyledBox>
-            </Box>
-          ) : (
-            <GeneralButton action={() => openConnectModal()} background="gradient-transparent">
-              <Text size="small" color="text">
-                Connect Wallet
-              </Text>
-            </GeneralButton>
-          )
-        }}
-      </ConnectButton.Custom>
+                </Box>
+                <Box>
+                  <YieldAvatar address={address} size={2} />
+                </Box>
+              </Box>
+            )}
+          </StyledBox>
+        </Box>
+      ) : (
+        openConnectModal && (
+          <GeneralButton action={openConnectModal} background="gradient-transparent">
+            <Text size="small" color="text">
+              Connect Wallet
+            </Text>
+          </GeneralButton>
+        )
+      )}
     </>
   );
 };
