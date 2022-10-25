@@ -354,7 +354,7 @@ const UserProvider = ({ children }: any) => {
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: series.startBlock.number });
           } catch (e) {
-            diagnostics && console.log('could not get current and init invariant for series', series.id);
+            diagnostics && console.log('Could not get current and init invariant for series', series.id);
           }
 
           return {

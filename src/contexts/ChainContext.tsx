@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { format } from 'date-fns';
 
@@ -114,12 +114,15 @@ const ChainProvider = ({ children }: any) => {
   const { connectionState, connectionActions } = useConnection();
   const { fallbackProvider, fallbackChainId } = connectionState;
 
+  const [loadingFlag, setLoadingFlag] = useState(false);
+
   /**
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   useEffect(() => {
-    if (fallbackProvider && fallbackChainId) {
+    if (fallbackProvider && fallbackChainId && !loadingFlag) {
       console.log('Fallback ChainId: ', fallbackChainId);
+      setLoadingFlag(true)
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
@@ -441,6 +444,8 @@ const ChainProvider = ({ children }: any) => {
             const gmFilter = poolContract.filters.gm();
             const gm = (await poolContract.queryFilter(gmFilter))[0];
 
+            console.log('gm',  gm )
+
             const [
               name,
               symbol,
@@ -568,9 +573,9 @@ const ChainProvider = ({ children }: any) => {
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
-          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]).then(() => {
-            updateState({ type: ChainState.CHAIN_LOADING, payload: false });
-          });
+          await Promise.all([_getAssets(), _getSeries(), _getStrategies()])
+          setLoadingFlag(false)
+          updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
       } else {
         // get assets, series and strategies from cache and 'charge' them, and add to state:
@@ -584,10 +589,11 @@ const ChainProvider = ({ children }: any) => {
           strategyAddresses.includes(st.address) &&
             updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
+        setLoadingFlag(false)
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
       }
     }
-  }, [fallbackChainId, fallbackProvider]);
+  }, [fallbackProvider, fallbackChainId]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
@@ -608,7 +614,7 @@ const ChainProvider = ({ children }: any) => {
    * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
-    console.log('changes');
+    console.log('Connection changes');
     updateState({
       type: ChainState.CONNECTION,
       payload: connectionState,
