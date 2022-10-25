@@ -457,7 +457,7 @@ const ChainProvider = ({ children }: any) => {
               g1,
               g2,
               baseAddress,
-              // startBlock,
+              startBlock,
             ] = await Promise.all([
               fyTokenContract.name(),
               fyTokenContract.symbol(),
@@ -491,7 +491,7 @@ const ChainProvider = ({ children }: any) => {
               g1,
               g2,
               baseAddress,
-              startBlock: 1,
+              startBlock,
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
