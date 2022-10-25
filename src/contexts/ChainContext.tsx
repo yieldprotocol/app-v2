@@ -470,7 +470,7 @@ const ChainProvider = ({ children }: any) => {
               poolContract.g1(),
               poolContract.g2(),
               poolContract.base(),
-              // gm[0].getBlock(),
+              gm[0] ? gm[0].getBlock() : 1,
             ])
 
             const newSeries = {
