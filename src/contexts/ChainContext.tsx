@@ -120,9 +120,10 @@ const ChainProvider = ({ children }: any) => {
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   useEffect(() => {
-    if (fallbackProvider && fallbackChainId && !loadingFlag) {
+    if (fallbackProvider && fallbackChainId && !loadingFlag ) {
+      
       console.log('Fallback ChainId: ', fallbackChainId);
-      setLoadingFlag(true)
+      setLoadingFlag(true);
 
       /* Get the instances of the Base contracts */
       const addrs = (yieldEnv.addresses as any)[fallbackChainId];
@@ -442,9 +443,7 @@ const ChainProvider = ({ children }: any) => {
 
             // get pool init block
             const gmFilter = poolContract.filters.gm();
-            const gm = (await poolContract.queryFilter(gmFilter))[0];
-
-            console.log('gm',  gm )
+            const gm = await poolContract.queryFilter(gmFilter);
 
             const [
               name,
@@ -458,7 +457,7 @@ const ChainProvider = ({ children }: any) => {
               g1,
               g2,
               baseAddress,
-              startBlock,
+              // startBlock,
             ] = await Promise.all([
               fyTokenContract.name(),
               fyTokenContract.symbol(),
@@ -471,8 +470,8 @@ const ChainProvider = ({ children }: any) => {
               poolContract.g1(),
               poolContract.g2(),
               poolContract.base(),
-              gm.getBlock(),
-            ]);
+              // gm[0].getBlock(),
+            ])
 
             const newSeries = {
               id,
@@ -492,7 +491,7 @@ const ChainProvider = ({ children }: any) => {
               g1,
               g2,
               baseAddress,
-              startBlock,
+              startBlock: 1,
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
@@ -573,8 +572,8 @@ const ChainProvider = ({ children }: any) => {
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
         (async () => {
-          await Promise.all([_getAssets(), _getSeries(), _getStrategies()])
-          setLoadingFlag(false)
+          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
+          setLoadingFlag(false);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
       } else {
@@ -589,7 +588,7 @@ const ChainProvider = ({ children }: any) => {
           strategyAddresses.includes(st.address) &&
             updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
-        setLoadingFlag(false)
+        setLoadingFlag(false);
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
       }
     }
@@ -614,7 +613,6 @@ const ChainProvider = ({ children }: any) => {
    * Update on PRIMARY connection information on specific network changes (likely via metamask/walletConnect)
    */
   useEffect(() => {
-    console.log('Connection changes');
     updateState({
       type: ChainState.CONNECTION,
       payload: connectionState,

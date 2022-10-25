@@ -709,7 +709,7 @@ const UserProvider = ({ children }: any) => {
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
-    if (!chainLoading && account) {
+    if (!chainLoading && account ) {
       /* trigger update of all vaults by passing empty array */
       updateVaults([]);
     }
@@ -719,7 +719,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
   useEffect(() => {
-    if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
+    if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading ) {
       updateVaults([]);
       updateStrategies(Array.from(strategyRootMap.values()));
     }
