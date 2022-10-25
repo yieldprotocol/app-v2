@@ -193,7 +193,7 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
         initSeries.sharesReserves,
         initSeries.fyTokenReserves,
         initSeries.totalSupply,
-        getTimeTillMaturity(series.maturity),
+        (series.maturity - series.startBlock.timestamp).toString(),
         initSeries.ts,
         initSeries.g2,
         series.decimals,
