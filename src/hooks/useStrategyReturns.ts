@@ -175,6 +175,7 @@ const useStrategyReturns = (
    * @returns {number}
    */
   const getFeesAPY = (series: ISeries, initSeries: ISeries | undefined): number => {
+    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 178 ~ getFeesAPY ~ series', series);
     let currentInvariant = series.currentInvariant;
     let initInvariant = series.initInvariant;
 
@@ -209,6 +210,7 @@ const useStrategyReturns = (
     // get apy estimate
     if (initInvariant && currentInvariant && series.startBlock) {
       const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
+      console.log('🦄 ~ file: useStrategyReturns.ts ~ line 212 ~ getFeesAPY ~ res', res);
       return !isNaN(+res!) ? +res! : 0;
     }
 
@@ -285,8 +287,6 @@ const useStrategyReturns = (
     const sharesAPY = getSharesAPY(series, input);
     const feesAPY = getFeesAPY(series, undefined);
     const fyTokenAPY = getFyTokenAPY(series, input);
-    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 283 ~ calcStrategyReturns ~ series', series.symbol);
-    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 283 ~ calcStrategyReturns ~ fyTokenAPY', fyTokenAPY);
 
     return {
       feesAPY: cleanValue(feesAPY.toString(), digits),
@@ -298,7 +298,6 @@ const useStrategyReturns = (
   };
 
   const returns = calcStrategyReturns(selectedStrategy!, inputToUse);
-  console.log('🦄 ~ file: useStrategyReturns.ts ~ line 294 ~ returns', returns);
 
   return {
     returns,
