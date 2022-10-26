@@ -61,9 +61,6 @@ export const FETH2303 = '0x323900000000';
 export const FDAI2303 = '0x323500000000';
 export const FUSDC2303 = '0x323600000000';
 
-
-
-
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
   CVX3CRV,
@@ -329,8 +326,7 @@ ASSETS_1.set(FUSDC2209, {
   limitToSeries: ['0x303230370000'],
 });
 
-
-ASSETS_1.set(FETH2212 , {
+ASSETS_1.set(FETH2212, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0xe888E0403e3e992fDbB473650547428e90F9DDFC',
   version: '1',
@@ -358,7 +354,7 @@ ASSETS_1.set(FETH2303, {
   limitToSeries: ['0x303030390000'],
 });
 
-ASSETS_1.set(FUSDC2212, { 
+ASSETS_1.set(FUSDC2212, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0xA9078E573EC536c4066A5E89F715553Ed67B13E0',
   version: '1',
@@ -368,7 +364,7 @@ ASSETS_1.set(FUSDC2212, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844852921171969 ,
+  tokenIdentifier: 844852921171969,
   limitToSeries: ['0x303230380000'],
 });
 ASSETS_1.set(FUSDC2303, {
@@ -403,14 +399,13 @@ ASSETS_1.set(FDAI2303, {
   version: '1',
   name: 'Notional fCash DAI March 23',
   decimals: 8,
-  symbol: 'fDAI2303,',
+  symbol: 'fDAI2303',
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563379935117313,
   limitToSeries: ['0x303130390000'],
 });
-
 
 // ASSETS_1.set(CVX3CRV, {
 
