@@ -25,7 +25,7 @@ interface IReturns {
 }
 
 interface IStrategyReturns {
-  calcStrategyReturns: (input: string, strategy: IStrategy) => IReturns;
+  calcStrategyReturns: (strategy: IStrategy, input: string) => IReturns;
   // returnsBackward: IReturns;
   returns: IReturns;
 }
@@ -175,12 +175,10 @@ const useStrategyReturns = (
    * @returns {number}
    */
   const getFeesAPY = (series: ISeries, initSeries: ISeries | undefined): number => {
-    if (!series) return 0;
+    let currentInvariant = series.currentInvariant;
+    let initInvariant = series.initInvariant;
 
-    let currentInvariant = series.currentInvariant || '0';
-    let initInvariant = series.initInvariant || '0';
-
-    if (!series.currentInvariant || !series.initInvariant) {
+    if ((!series.currentInvariant || !series.initInvariant) && series.startBlock) {
       if (!initSeries) return 0;
 
       currentInvariant = invariant(
@@ -207,14 +205,14 @@ const useStrategyReturns = (
         series.mu
       );
     }
-    // get apy estimate
-    const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
 
-    if (isNaN(+res!)) {
-      return 0;
+    // get apy estimate
+    if (initInvariant && currentInvariant && series.startBlock) {
+      const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
+      return !isNaN(+res!) ? +res! : 0;
     }
 
-    return +res!;
+    return 0;
   };
 
   /**
@@ -224,11 +222,22 @@ const useStrategyReturns = (
   const getFyTokenAPY = (series: ISeries, input: string): number => {
     if (!series) return 0;
 
-    const marketInterestRate = +calcInterestRate(series.sharesReserves, series.fyTokenReserves, series.ts, series.mu);
+    console.log(
+      '🦄 ~ file: useStrategyReturns.ts ~ line 228 ~ getFyTokenAPY ~ series.sharesReserves',
+      series.sharesReserves
+    );
+    console.log(
+      '🦄 ~ file: useStrategyReturns.ts ~ line 229 ~ getFyTokenAPY ~ series.fyTokenReserves',
+      series.fyTokenReserves
+    );
+    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 230 ~ getFyTokenAPY ~ series.ts', series.ts);
+    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 231 ~ getFyTokenAPY ~ series.mu', series.mu);
+    const marketInterestRate = calcInterestRate(series.sharesReserves, series.fyTokenReserves, series.ts, series.mu);
+    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 228 ~ getFyTokenAPY ~ marketInterestRate', marketInterestRate);
     const fyTokenPrice = getFyTokenPrice(series, input);
     const poolBaseValue = getPoolBaseValue(series, input);
     const fyTokenValRatio = (+series.fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
-    return marketInterestRate * fyTokenValRatio;
+    return +marketInterestRate * fyTokenValRatio;
   };
 
   /* TODO  fix this*/
@@ -240,7 +249,7 @@ const useStrategyReturns = (
     const strategyTotalSupply = +strategy_?.strategyTotalSupply!;
     const poolTotalSupply = +series.totalSupply;
 
-    const poolBaseValue_ = getPoolBaseValue(series, 1);
+    const poolBaseValue_ = getPoolBaseValue(series, '1');
     if (!poolBaseValue_) return;
 
     const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
@@ -273,7 +282,9 @@ const useStrategyReturns = (
     })();
   }, [series]);
 
-  const calcStrategyReturns = (input: string, strategy: IStrategy) => {
+  const calcStrategyReturns = (strategy: IStrategy | null, input: string) => {
+    if (!strategy) return;
+
     const series = strategy.currentSeries;
     if (!series) return;
 
@@ -289,7 +300,7 @@ const useStrategyReturns = (
     };
   };
 
-  const returns = calcStrategyReturns(inputToUse, selectedStrategy!);
+  const returns = calcStrategyReturns(selectedStrategy!, inputToUse);
 
   return {
     returns,

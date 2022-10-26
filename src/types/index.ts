@@ -311,6 +311,7 @@ export interface ISeries extends ISeriesRoot {
   getBase: (sharesAmount: BigNumber) => BigNumber;
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
+  startBlock?: Block;
 }
 
 export interface IAsset extends IAssetRoot {
@@ -353,7 +354,7 @@ export interface IStrategy extends IStrategyRoot {
   initInvariant?: BigNumber;
   currentInvariant?: BigNumber;
 
-  returnRate?: BigNumber| string;
+  returnRate?: BigNumber | string;
   returnRate_?: string;
 
   strategyTotalSupply?: BigNumber;

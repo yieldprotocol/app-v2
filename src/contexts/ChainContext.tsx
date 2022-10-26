@@ -120,8 +120,7 @@ const ChainProvider = ({ children }: any) => {
    * Update on FALLBACK connection/state on network changes (id/library)
    */
   useEffect(() => {
-    if (fallbackProvider && fallbackChainId && !loadingFlag ) {
-      
+    if (fallbackProvider && fallbackChainId && !loadingFlag) {
       console.log('Fallback ChainId: ', fallbackChainId);
       setLoadingFlag(true);
 
@@ -441,37 +440,20 @@ const ChainProvider = ({ children }: any) => {
             const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
             const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
 
-            // get pool init block
-            const gmFilter = poolContract.filters.gm();
-            const gm = await poolContract.queryFilter(gmFilter);
-
-            const [
-              name,
-              symbol,
-              version,
-              decimals,
-              poolName,
-              poolVersion,
-              poolSymbol,
-              ts,
-              g1,
-              g2,
-              baseAddress,
-              startBlock,
-            ] = await Promise.all([
-              fyTokenContract.name(),
-              fyTokenContract.symbol(),
-              fyTokenContract.version(),
-              fyTokenContract.decimals(),
-              poolContract.name(),
-              poolContract.version(),
-              poolContract.symbol(),
-              poolContract.ts(),
-              poolContract.g1(),
-              poolContract.g2(),
-              poolContract.base(),
-              gm[0] ? gm[0].getBlock() : 1,
-            ])
+            const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
+              await Promise.all([
+                fyTokenContract.name(),
+                fyTokenContract.symbol(),
+                fyTokenContract.version(),
+                fyTokenContract.decimals(),
+                poolContract.name(),
+                poolContract.version(),
+                poolContract.symbol(),
+                poolContract.ts(),
+                poolContract.g1(),
+                poolContract.g2(),
+                poolContract.base(),
+              ]);
 
             const newSeries = {
               id,
@@ -491,7 +473,6 @@ const ChainProvider = ({ children }: any) => {
               g1,
               g2,
               baseAddress,
-              startBlock,
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });

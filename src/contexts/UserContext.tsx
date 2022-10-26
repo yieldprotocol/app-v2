@@ -41,6 +41,7 @@ import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
 import request from 'graphql-request';
+import { Block } from '@ethersproject/providers';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -349,10 +350,16 @@ const UserProvider = ({ children }: any) => {
 
           let currentInvariant: BigNumber | undefined;
           let initInvariant: BigNumber | undefined;
+          let startBlock: Block | undefined;
 
           try {
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: series.startBlock.number });
+
+            // get pool init block
+            const gmFilter = series.poolContract.filters.gm();
+            const gm = (await series.poolContract.queryFilter(gmFilter))[0];
+            startBlock = await gm.getBlock();
           } catch (e) {
             diagnostics && console.log('Could not get current and init invariant for series', series.id);
           }
@@ -376,6 +383,7 @@ const UserProvider = ({ children }: any) => {
             sharesAddress,
             currentInvariant,
             initInvariant,
+            startBlock,
           };
         })
       );
@@ -600,8 +608,8 @@ const UserProvider = ({ children }: any) => {
               : [ZERO_BN, ZERO_BN];
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            
-            const returnRate =  currentInvariant && currentInvariant.sub(initInvariant)!;
+
+            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
 
             return {
               ..._strategy,
@@ -710,7 +718,7 @@ const UserProvider = ({ children }: any) => {
 
   /* When the chainContext is finished loading get the users vault data */
   useEffect(() => {
-    if (!chainLoading && account ) {
+    if (!chainLoading && account) {
       /* trigger update of all vaults by passing empty array */
       updateVaults([]);
     }
@@ -720,7 +728,7 @@ const UserProvider = ({ children }: any) => {
 
   /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
   useEffect(() => {
-    if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading ) {
+    if (useTenderlyFork && tenderlyStartBlock && account && !chainLoading) {
       updateVaults([]);
       updateStrategies(Array.from(strategyRootMap.values()));
     }

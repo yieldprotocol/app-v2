@@ -48,7 +48,7 @@ interface IStrategySelectorProps {
 
 function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const { returns, calcStrategyReturns } = useStrategyReturns(inputValue);
+  const { calcStrategyReturns } = useStrategyReturns(inputValue);
 
   const {
     settingsState: { diagnostics },
@@ -181,48 +181,54 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                       <Line />
 
                       <Box pad="large">
-                        {options.map((strategy) => (
-                          <StyledBox
-                            key={strategy.id}
-                            pad="xsmall"
-                            round="large"
-                            onClick={() => handleSelect(strategy)}
-                            background={strategy.currentSeries?.color}
-                            elevation="xsmall"
-                            margin="xsmall"
-                          >
-                            <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
-                              <Avatar
-                                background="background"
-                                style={{
-                                  boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
-                                    .toString()
-                                    .concat('69')}`,
-                                }}
-                              >
-                                {strategy.currentSeries?.seriesMark || <FiSlash />}
-                              </Avatar>
-                              <Box>
-                                <Text size="small" color={strategy.currentSeries?.textColor}>
-                                  {formatStrategyName(selectedStrategy?.name!)}
-                                </Text>
-                                <Text size="xsmall" color={strategy.currentSeries?.textColor}>
-                                  Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
-                                </Text>
+                        {options.map((strategy) => {
+                          const returns = calcStrategyReturns(strategy, inputValue || '1');
+
+                          return (
+                            <StyledBox
+                              key={strategy.id}
+                              pad="xsmall"
+                              round="large"
+                              onClick={() => handleSelect(strategy)}
+                              background={strategy.currentSeries?.color}
+                              elevation="xsmall"
+                              margin="xsmall"
+                            >
+                              <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
+                                <Avatar
+                                  background="background"
+                                  style={{
+                                    boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
+                                      .toString()
+                                      .concat('69')}`,
+                                  }}
+                                >
+                                  {strategy.currentSeries?.seriesMark || <FiSlash />}
+                                </Avatar>
+                                <Box>
+                                  <Text size="small" color={strategy.currentSeries?.textColor}>
+                                    {formatStrategyName(selectedStrategy?.name!)}
+                                  </Text>
+                                  <Text size="xsmall" color={strategy.currentSeries?.textColor}>
+                                    Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
+                                  </Text>
+                                </Box>
+                                {returns && (
+                                  <Avatar
+                                    background="background"
+                                    style={{
+                                      boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
+                                        .toString()
+                                        .concat('69')}`,
+                                    }}
+                                  >
+                                    {returns.blendedAPY}%
+                                  </Avatar>
+                                )}
                               </Box>
-                              <Avatar
-                                background="background"
-                                style={{
-                                  boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
-                                    .toString()
-                                    .concat('69')}`,
-                                }}
-                              >
-                                {calcStrategyReturns(inputValue || '1', strategy).blendedAPY}%
-                              </Avatar>
-                            </Box>
-                          </StyledBox>
-                        ))}
+                            </StyledBox>
+                          );
+                        })}
                       </Box>
                     </Box>
                   </Layer>
