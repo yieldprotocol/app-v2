@@ -48,7 +48,7 @@ interface IStrategySelectorProps {
 
 function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const { calcStrategyReturns } = useStrategyReturns(inputValue);
+  const { returns, calcStrategyReturns } = useStrategyReturns(inputValue);
 
   const {
     settingsState: { diagnostics },
@@ -213,7 +213,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                                     Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
                                   </Text>
                                 </Box>
-                                {returns && (
+                                {returns.blendedAPY && (
                                   <Avatar
                                     background="background"
                                     style={{
@@ -234,20 +234,22 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                   </Layer>
                 )}
 
-                <Box justify="end">
-                  <Avatar
-                    background="background"
-                    style={{
-                      boxShadow: `inset 1px 1px 2px ${selectedStrategy?.currentSeries?.endColor
-                        .toString()
-                        .concat('69')}`,
-                    }}
-                  >
-                    <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
-                      {returns.blendedAPY}%
-                    </Text>
-                  </Avatar>
-                </Box>
+                {returns?.blendedAPY && (
+                  <Box justify="end">
+                    <Avatar
+                      background="background"
+                      style={{
+                        boxShadow: `inset 1px 1px 2px ${selectedStrategy?.currentSeries?.endColor
+                          .toString()
+                          .concat('69')}`,
+                      }}
+                    >
+                      <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
+                        {returns.blendedAPY}%
+                      </Text>
+                    </Avatar>
+                  </Box>
+                )}
               </Box>
             </Box>
           )}
