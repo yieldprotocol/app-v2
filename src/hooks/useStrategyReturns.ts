@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { ActionType, ISeries, IUserContext } from '../types';
+import { ActionType, ISeries, IStrategy, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import { useApr } from './useApr';
 import { ONE_DEC as ONE, SECONDS_PER_YEAR, sellFYToken, ZERO_DEC as ZERO, invariant } from '@yield-protocol/ui-math';
@@ -80,13 +80,13 @@ const calculateAPR = (
  * @param input amount of base to use when providing liquidity
  * @returns {IStrategyReturns} use "returns" property for visualization (the higher apy of the two "returnsForward" and "returnsBackward" properties)
  */
-const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyReturns => {
+const useStrategyReturns = (input: string | undefined, strategy: IStrategy| undefined = undefined, digits = 1): IStrategyReturns => {
   const {
     userState: { selectedStrategy },
   } = useContext(UserContext) as IUserContext;
 
-  const strategy = selectedStrategy;
-  const series = strategy?.currentSeries as ISeries | null;
+  const strategy_ = strategy || selectedStrategy;
+  const series = strategy_?.currentSeries as ISeries | null;
 
   const inputToUse = cleanValue(!input || +input === 0 ? '1' : input, series?.decimals!);
 
@@ -229,21 +229,22 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
     return marketInterestRate * fyTokenValRatio;
   }, [borrowApy, fyTokenPrice, lendApy, poolBaseValue, series]);
 
-  const totalAPYBackward = useMemo(() => {
-    if (!series || !strategy) return;
 
-    const strategyLpBalance = +strategy?.strategyPoolBalance!;
-    const strategyTotalSupply = +strategy?.strategyTotalSupply!;
+  const totalAPYBackward = useMemo(() => {
+    if (!series || !strategy_) return;
+
+    const strategyLpBalance = +strategy_?.strategyPoolBalance!;
+    const strategyTotalSupply = +strategy_?.strategyTotalSupply!;
     const poolTotalSupply = +series.totalSupply;
     if (!poolBaseValue) return;
 
     const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
 
     const value = strategyLpBalSupplyRatio * (poolBaseValue / poolTotalSupply);
-    const apy = calculateAPR('1', value.toString(), NOW, strategy.startBlock?.timestamp);
+    const apy = calculateAPR('1', value.toString(), NOW, strategy_.startBlock?.timestamp);
 
     return cleanValue(apy, digits);
-  }, [NOW, digits, poolBaseValue, series, strategy]);
+  }, [NOW, digits, poolBaseValue, series, strategy_]);
 
   // get the init series data to use the invariant function
   useEffect(() => {
@@ -277,3 +278,5 @@ const useStrategyReturns = (input: string | undefined, digits = 1): IStrategyRet
   } as IStrategyReturns;
 };
 export default useStrategyReturns;
+
+
