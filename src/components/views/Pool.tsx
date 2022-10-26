@@ -45,7 +45,6 @@ function Pool() {
   const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
 
   /* LOCAL STATE */
-  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -93,6 +92,7 @@ function Pool() {
   useEffect(() => {
     !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
+    setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
 
   const handleNavAction = (_stepPosition: number) => {
@@ -173,15 +173,9 @@ function Pool() {
                   </Box>
                 </Box>
 
-                <SectionWrap
-                  title={
-                    strategyMap.size > 0
-                      ? `Recomended ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
-                      : ''
-                  }
-                >
+                <SectionWrap title={''}>
                   <Box flex={false}>
-                    <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
+                    <StrategySelector inputValue={poolInput} />
                   </Box>
                 </SectionWrap>
               </Box>
