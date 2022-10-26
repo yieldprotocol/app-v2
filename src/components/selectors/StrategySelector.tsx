@@ -89,6 +89,10 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
       .filter((_st) => _st.currentSeries?.showSeries)
       .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
+
+    // if strategy already selected, no need to set explicitly again
+    if (selectedStrategy) return;
+
     /* select strategy with existing balance */
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
