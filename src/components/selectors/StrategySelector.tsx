@@ -235,7 +235,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 )}
 
                 {returns?.blendedAPY && (
-                  <Box justify="end">
+                  <Box justify="end" fill align="end">
                     <Avatar
                       background="background"
                       style={{
