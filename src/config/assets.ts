@@ -417,7 +417,7 @@ ASSETS_1.set(FDAI2303, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0xE6A63e2166fcEeB447BFB1c0f4f398083214b7aB',
   version: '1',
-  name: 'fDAI2303,',
+  name: 'fDAI2303',
   decimals: 8,
   symbol: 'FDAI2303,',
   showToken: true,
