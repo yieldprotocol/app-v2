@@ -97,7 +97,7 @@ const useStrategyReturns = (
   } = useContext(UserContext) as IUserContext;
 
   const strategy_ = strategy || selectedStrategy;
-  const series = strategy_?.currentSeries as ISeries | null;
+  const series = strategy_?.currentSeries;
 
   const inputToUse = cleanValue(!input || +input === 0 ? '1' : input, series?.decimals!);
 
@@ -222,7 +222,12 @@ const useStrategyReturns = (
   const getFyTokenAPY = (series: ISeries, input: string): number => {
     if (!series) return 0;
 
-    const marketInterestRate = calcInterestRate(series.sharesReserves, series.fyTokenReserves, series.ts, series.mu);
+    const marketInterestRate = calcInterestRate(
+      series.sharesReserves,
+      series.fyTokenReserves,
+      series.ts,
+      series.mu
+    ).mul(100); // interest rate is formatted in decimal (.1) so multiply by 100 to get percent
     const fyTokenPrice = getFyTokenPrice(series, input);
     const poolBaseValue = getPoolBaseValue(series, input);
     const fyTokenValRatio = (+series.fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
@@ -280,6 +285,8 @@ const useStrategyReturns = (
     const sharesAPY = getSharesAPY(series, input);
     const feesAPY = getFeesAPY(series, undefined);
     const fyTokenAPY = getFyTokenAPY(series, input);
+    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 283 ~ calcStrategyReturns ~ series', series.symbol);
+    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 283 ~ calcStrategyReturns ~ fyTokenAPY', fyTokenAPY);
 
     return {
       feesAPY: cleanValue(feesAPY.toString(), digits),
@@ -291,6 +298,7 @@ const useStrategyReturns = (
   };
 
   const returns = calcStrategyReturns(selectedStrategy!, inputToUse);
+  console.log('🦄 ~ file: useStrategyReturns.ts ~ line 294 ~ returns', returns);
 
   return {
     returns,
