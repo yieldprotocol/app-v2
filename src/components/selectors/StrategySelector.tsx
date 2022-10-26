@@ -194,7 +194,15 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                               elevation="xsmall"
                               margin="xsmall"
                             >
-                              <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
+                              <Box
+                                pad="small"
+                                width="small"
+                                direction="row"
+                                gap="small"
+                                fill
+                                key={strategy.id}
+                                align="center"
+                              >
                                 <Avatar
                                   background="background"
                                   style={{
@@ -205,7 +213,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                                 >
                                   {strategy.currentSeries?.seriesMark || <FiSlash />}
                                 </Avatar>
-                                <Box>
+                                <Box align="center">
                                   <Text size="small" color={strategy.currentSeries?.textColor}>
                                     {formatStrategyName(selectedStrategy?.name!)}
                                   </Text>
@@ -213,18 +221,20 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                                     Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
                                   </Text>
                                 </Box>
-                                {returns.blendedAPY && (
-                                  <Avatar
-                                    background="background"
-                                    style={{
-                                      boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
-                                        .toString()
-                                        .concat('69')}`,
-                                    }}
-                                  >
-                                    {returns.blendedAPY}%
-                                  </Avatar>
-                                )}
+                                <Box margin={{ left: 'auto' }}>
+                                  {returns.blendedAPY && (
+                                    <Avatar
+                                      background="background"
+                                      style={{
+                                        boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
+                                          .toString()
+                                          .concat('69')}`,
+                                      }}
+                                    >
+                                      {returns.blendedAPY}%
+                                    </Avatar>
+                                  )}
+                                </Box>
                               </Box>
                             </StyledBox>
                           );
@@ -235,7 +245,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                 )}
 
                 {returns?.blendedAPY && (
-                  <Box justify="end" fill align="end">
+                  <Box fill align="end">
                     <Avatar
                       background="background"
                       style={{
