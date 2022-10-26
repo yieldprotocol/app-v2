@@ -80,7 +80,11 @@ const calculateAPR = (
  * @param input amount of base to use when providing liquidity
  * @returns {IStrategyReturns} use "returns" property for visualization (the higher apy of the two "returnsForward" and "returnsBackward" properties)
  */
-const useStrategyReturns = (input: string | undefined, strategy: IStrategy | undefined = undefined, digits = 1): IStrategyReturns => {
+const useStrategyReturns = (
+  input: string | undefined,
+  strategy: IStrategy | undefined = undefined,
+  digits = 1
+): IStrategyReturns => {
   const {
     userState: { selectedStrategy },
   } = useContext(UserContext) as IUserContext;
@@ -109,7 +113,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
    *
    * @returns {number} fyToken price in base, where 1 is at par with base
    */
-  const fyTokenPrice = (series: ISeries, input: string ) => {
+  const fyTokenPrice = (series: ISeries, input: string) => {
     if (series) {
       const input_ = parseUnits(input, series.decimals);
 
@@ -128,7 +132,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       return +baseValOfInput / +input_;
     }
     return 1;
-  }
+  };
 
   /**
    * Calculate the total base value of the pool
@@ -136,18 +140,18 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
    *
    * @returns {number} total base value of pool
    */
-  const poolBaseValue = ( series: ISeries, fyTokenPrice: number) => {
+  const poolBaseValue = (series: ISeries, fyTokenPrice: number) => {
     if (!series) return;
     const sharesBaseVal = +series.getBase(series.sharesReserves);
     const fyTokenBaseVal = +series.fyTokenRealReserves * fyTokenPrice;
     return sharesBaseVal + fyTokenBaseVal;
-  }
+  };
 
   /**
    * Calculates estimated blended apy from shares portion of pool
    * @returns {number} shares apy of pool
    */
-  const sharesAPY = ( series:ISeries , poolBaseValue: number) => {
+  const sharesAPY = (series: ISeries, poolBaseValue: number) => {
     if (!series) return 0;
     if (series.poolAPY && poolBaseValue) {
       const sharesBaseVal = +series.getBase(series.sharesReserves);
@@ -162,15 +166,14 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
    * Use the current and init invariant results from global context and fallback to manual calculation if unavailable
    * @returns {number}
    */
-  const feesAPY = (series:ISeries, initSeries:ISeries|undefined) => {
+  const feesAPY = (series: ISeries, initSeries: ISeries | undefined) => {
     if (!series) return 0;
 
     let currentInvariant = series.currentInvariant || '0';
     let initInvariant = series.initInvariant || '0';
 
-    if ((!series.currentInvariant || !series.initInvariant) ) {
-
-      if (!initSeries) return 0; 
+    if (!series.currentInvariant || !series.initInvariant) {
+      if (!initSeries) return 0;
 
       currentInvariant = invariant(
         series.sharesReserves,
@@ -204,13 +207,19 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     }
 
     return +res!;
-  }
+  };
 
   /**
    * Calculate (estimate) how much interest would be captured by LP position using market rates and fyToken proportion of the pool
    * @returns {number} estimated fyToken interest from LP position
    */
-  const fyTokenAPY = (series: ISeries, borrowApy:number, fyTokenPrice:number, lendApy:number , poolBaseValue:number) => {
+  const fyTokenAPY = (
+    series: ISeries,
+    borrowApy: number,
+    fyTokenPrice: number,
+    lendApy: number,
+    poolBaseValue: number
+  ) => {
     if (!series) return 0;
 
     if (!poolBaseValue) return 0;
@@ -224,7 +233,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
   };
 
   /* TODO  fix this*/
-  const totalAPYBackward = ( strategy: IStrategy, digits:number = 2 ) => {
+  const totalAPYBackward = (strategy: IStrategy, digits: number = 2) => {
     const series = strategy.currentSeries;
     if (!series || !strategy_) return;
 
@@ -232,7 +241,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
     const strategyTotalSupply = +strategy_?.strategyTotalSupply!;
     const poolTotalSupply = +series.totalSupply;
 
-    const poolBaseValue_ = poolBaseValue(series, 1) 
+    const poolBaseValue_ = poolBaseValue(series, 1);
     if (!poolBaseValue_) return;
 
     const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
@@ -247,6 +256,7 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
   useEffect(() => {
     (async () => {
       if (!series) return;
+
       const { poolContract, currentInvariant, initInvariant } = series;
 
       if (!currentInvariant || !initInvariant) {
@@ -265,16 +275,15 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
   }, [series]);
 
   const calcStrategyReturns = (input: string, strategy: IStrategy) => {
-
     const series_ = strategy?.currentSeries!;
 
-    const fyTokenPrice_ = fyTokenPrice(series_, '1') // || input
-    const poolBaseValue_ = poolBaseValue(series_, fyTokenPrice_  )
+    const fyTokenPrice_ = fyTokenPrice(series_, '1'); // || input
+    const poolBaseValue_ = poolBaseValue(series_, fyTokenPrice_);
     const borrowApy_ = parseFloat(series_?.apr! || '0');
-    
-    const sharesAPY_ = sharesAPY(series_, poolBaseValue_! );
-    const feesAPY_ = feesAPY(series_, undefined );
-    const fyTokenAPY_ = fyTokenAPY(series_, borrowApy_, fyTokenPrice_, borrowApy_, poolBaseValue_! );
+
+    const sharesAPY_ = sharesAPY(series_, poolBaseValue_!);
+    const feesAPY_ = feesAPY(series_, undefined);
+    const fyTokenAPY_ = fyTokenAPY(series_, borrowApy_, fyTokenPrice_, borrowApy_, poolBaseValue_!);
 
     // return cleanValue((sharesAPY_ + feesAPY_ + fyTokenAPY_).toString(), digits);
     return {
@@ -282,19 +291,16 @@ const useStrategyReturns = (input: string | undefined, strategy: IStrategy | und
       sharesAPY: cleanValue(sharesAPY_.toString(), digits),
       fyTokenAPY: cleanValue(fyTokenAPY_.toString(), digits),
       blendedAPY: cleanValue((sharesAPY_ + feesAPY_ + fyTokenAPY_).toString(), digits),
-    }
-
+    };
   };
 
-  const returns = calcStrategyReturns( inputToUse , selectedStrategy!); 
+  const returns = calcStrategyReturns(inputToUse, selectedStrategy!);
 
   return {
     returns,
     // returnsBackward: { blendedAPY: totalAPYBackward },
-    calcStrategyReturns, 
+    calcStrategyReturns,
   } as IStrategyReturns;
 };
 
 export default useStrategyReturns;
-
-
