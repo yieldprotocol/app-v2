@@ -39,27 +39,30 @@ const CardSkeleton = () => (
 
 const StrategySelectItem = ({
   strategy,
+  selected,
   displayName,
+
   handleClick,
   apy,
 }: {
   strategy: IStrategy;
+  selected: boolean;
   displayName: string;
   handleClick: (strategy: IStrategy) => void;
   apy?: string;
 }) => {
   return (
-    <Box
+    <StyledBox
       key={strategy.address}
       round="large"
-      background={strategy.currentSeries?.color}
+      background={selected ? strategy.currentSeries?.color : undefined}
       elevation="xsmall"
       onClick={handleClick}
     >
       <Box pad="small" width="small" direction="row" gap="small" fill>
         <Box direction="row" gap="small" fill>
           <Avatar
-            background="background"
+            background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
             style={{
               boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
             }}
@@ -79,7 +82,7 @@ const StrategySelectItem = ({
         {apy && (
           <Box fill align="end">
             <Avatar
-              background="background"
+              background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
               style={{
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
@@ -91,7 +94,7 @@ const StrategySelectItem = ({
           </Box>
         )}
       </Box>
-    </Box>
+    </StyledBox>
   );
 };
 
@@ -176,11 +179,13 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
         {options.map((o) => {
           const displayName = seriesMap.get(o.currentSeriesId!)?.displayName!;
           const returns = calcStrategyReturns(o, inputValue || '1');
+          const selected = selectedStrategy?.address === o.address;
           return (
             <StrategySelectItem
               key={o.address}
               strategy={o}
               handleClick={() => handleSelect(o)}
+              selected={selected}
               displayName={displayName}
               apy={returns.blendedAPY}
             />
