@@ -252,6 +252,20 @@ ASSETS_1.set(UNI, {
   tokenType: TokenType.ERC20_Permit,
 });
 
+ASSETS_1.set(FRAX, {
+  assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+  joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
+  version: '1',
+  name: 'frax',
+  decimals: 18,
+  symbol: 'FRAX',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [],
+  isYieldBase: true,
+});
+
 ASSETS_1.set(FDAI2203, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0xb8d37d6Fcbc6882480633aBF3682b1D4ae2aB124',
@@ -427,22 +441,6 @@ ASSETS_1.set(FDAI2303, {
   limitToSeries: ['0x303130390000'],
 });
 
-
-
-ASSETS_1.set(FRAX, {
-  assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
-  joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
-
-  version: '1',
-  name: 'frax',
-  decimals: 18,
-  symbol: 'FRAX',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_,
-  limitToSeries: [],
-  isYieldBase: true,
-});
 
 // ASSETS_1.set(CVX3CRV, {
 
