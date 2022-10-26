@@ -175,7 +175,6 @@ const useStrategyReturns = (
    * @returns {number}
    */
   const getFeesAPY = (series: ISeries, initSeries: ISeries | undefined): number => {
-    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 178 ~ getFeesAPY ~ series', series);
     let currentInvariant = series.currentInvariant;
     let initInvariant = series.initInvariant;
 
