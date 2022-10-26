@@ -353,13 +353,13 @@ const UserProvider = ({ children }: any) => {
           let startBlock: Block | undefined;
 
           try {
-            currentInvariant = await series.poolContract.invariant();
-            initInvariant = await series.poolContract.invariant({ blockTag: series.startBlock.number });
-
             // get pool init block
             const gmFilter = series.poolContract.filters.gm();
             const gm = (await series.poolContract.queryFilter(gmFilter))[0];
             startBlock = await gm.getBlock();
+
+            currentInvariant = await series.poolContract.invariant();
+            initInvariant = await series.poolContract.invariant({ blockTag: startBlock.number });
           } catch (e) {
             diagnostics && console.log('Could not get current and init invariant for series', series.id);
           }
