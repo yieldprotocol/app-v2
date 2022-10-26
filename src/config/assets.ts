@@ -53,6 +53,46 @@ export const FUSDC2209 = '0x313700000000';
 /* Convex Curve LP token assets */
 export const CVX3CRV = '0x313900000000';
 
+export const FETH2212 = '0x323800000000';
+export const FDAI2212 = '0x323300000000';
+export const FUSDC2212 = '0x323400000000';
+
+export const FETH2303 = '0x323900000000';
+export const FDAI2303 = '0x323500000000';
+export const FUSDC2303 = '0x323600000000';
+
+
+// joins
+
+
+// [
+//   "0x323300000000",
+//   "0x83e99A843607CfFFC97A3acA15422aC672a463eF"
+// ],
+// [
+//   "0x323400000000",
+//   "0xA9078E573EC536c4066A5E89F715553Ed67B13E0"
+// ],
+
+//   "0x323500000000",
+//   "0xE6A63e2166fcEeB447BFB1c0f4f398083214b7aB"
+// ],
+// [
+//   "0x323600000000",
+//   "0x3FdDa15EccEE67248048a560ab61Dd2CdBDeA5E6"
+// ]
+
+// [
+//   "0x323800000000",
+//   "0xe888E0403e3e992fDbB473650547428e90F9DDFC"
+// ],
+
+// [
+//   "0x323900000000",
+//   "0xC4cb2489a845384277564613A0906f50dD66e482"
+// ],
+// [
+
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
   CVX3CRV,
@@ -294,7 +334,6 @@ ASSETS_1.set(FDAI2209, {
 ASSETS_1.set(FUSDC2209, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x0Bfd3B8570A4247157c5468861d37dA55AAb9B4b',
-
   version: '1',
   name: 'fUSDC2209',
   decimals: 8,
@@ -305,6 +344,90 @@ ASSETS_1.set(FUSDC2209, {
   tokenIdentifier: 844850930515969,
   limitToSeries: ['0x303230370000'],
 });
+
+
+ASSETS_1.set(FETH2212 , {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xe888E0403e3e992fDbB473650547428e90F9DDFC',
+  version: '1',
+  name: 'fETH2212',
+  decimals: 8,
+  symbol: 'FETH2212',
+  showToken: true,
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 281902967750657,
+  limitToSeries: ['0x303030380000'],
+});
+
+ASSETS_1.set(FETH2303, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xC4cb2489a845384277564613A0906f50dD66e482',
+  version: '1',
+  name: 'fETH2303',
+  decimals: 8,
+  symbol: 'FETH2303',
+  showToken: true,
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 281904958406657,
+  limitToSeries: ['0x303030390000'],
+});
+
+ASSETS_1.set(FUSDC2212, { 
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xA9078E573EC536c4066A5E89F715553Ed67B13E0',
+  version: '1',
+  name: 'fUSDC2212',
+  decimals: 8,
+  symbol: 'FUSDC2212',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844852921171969 ,
+  limitToSeries: ['0x303230380000'],
+});
+ASSETS_1.set(FUSDC2303, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0x3FdDa15EccEE67248048a560ab61Dd2CdBDeA5E6',
+  version: '1',
+  name: 'fUSDC2303',
+  decimals: 8,
+  symbol: 'FUSDC2303',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844854911827969,
+  limitToSeries: ['0x303230390000'],
+});
+ASSETS_1.set(FDAI2212, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0x83e99A843607CfFFC97A3acA15422aC672a463eF',
+  version: '1',
+  name: 'fDAI2212',
+  decimals: 8,
+  symbol: 'FDAI2212',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563377944461313,
+  limitToSeries: ['0x303130380000'],
+});
+ASSETS_1.set(FDAI2303, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xE6A63e2166fcEeB447BFB1c0f4f398083214b7aB',
+  version: '1',
+  name: 'fDAI2303,',
+  decimals: 8,
+  symbol: 'FDAI2303,',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563379935117313,
+  limitToSeries: ['0x303130390000'],
+});
+
+
 
 ASSETS_1.set(FRAX, {
   assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
