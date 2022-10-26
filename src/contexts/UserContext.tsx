@@ -600,7 +600,8 @@ const UserProvider = ({ children }: any) => {
               : [ZERO_BN, ZERO_BN];
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
+            
+            const returnRate =  currentInvariant && currentInvariant.sub(initInvariant)!;
 
             return {
               ..._strategy,

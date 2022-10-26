@@ -48,7 +48,7 @@ interface IStrategySelectorProps {
 
 function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: IStrategySelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const { returns } = useStrategyReturns(inputValue);
+  const { returns, calcStrategyReturns } = useStrategyReturns(inputValue);
 
   const {
     settingsState: { diagnostics },
@@ -218,7 +218,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
                                     .concat('69')}`,
                                 }}
                               >
-                               {`%`}
+                               { calcStrategyReturns( inputValue || '1', strategy).blendedAPY  }%
                               </Avatar>
                             </Box>
                           </StyledBox>
