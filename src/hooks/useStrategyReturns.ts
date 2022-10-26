@@ -209,7 +209,6 @@ const useStrategyReturns = (
     // get apy estimate
     if (initInvariant && currentInvariant && series.startBlock) {
       const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
-      console.log('🦄 ~ file: useStrategyReturns.ts ~ line 212 ~ getFeesAPY ~ res', res);
       return !isNaN(+res!) ? +res! : 0;
     }
 
