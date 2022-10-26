@@ -469,7 +469,7 @@ const ChainProvider = ({ children }: any) => {
               poolVersion,
               poolName,
               poolSymbol,
-              ts,
+              ts: BigNumber.from(ts),
               g1,
               g2,
               baseAddress,

@@ -384,6 +384,7 @@ const UserProvider = ({ children }: any) => {
             currentInvariant,
             initInvariant,
             startBlock,
+            ts: BigNumber.from(series.ts),
           };
         })
       );
