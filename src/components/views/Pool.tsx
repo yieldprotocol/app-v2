@@ -36,6 +36,7 @@ import Line from '../elements/Line';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import { WETH } from '../../config/assets';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -172,7 +173,15 @@ function Pool() {
                   </Box>
                 </Box>
 
-                <SectionWrap title={''}>
+                <SectionWrap
+                  title={
+                    strategyMap.size > 0
+                      ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
+                          selectedBase && '-based'
+                        } strategy:`
+                      : ''
+                  }
+                >
                   <Box flex={false}>
                     <StrategySelector inputValue={poolInput} />
                   </Box>
