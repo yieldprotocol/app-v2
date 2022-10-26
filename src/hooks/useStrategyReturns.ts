@@ -222,18 +222,7 @@ const useStrategyReturns = (
   const getFyTokenAPY = (series: ISeries, input: string): number => {
     if (!series) return 0;
 
-    console.log(
-      '🦄 ~ file: useStrategyReturns.ts ~ line 228 ~ getFyTokenAPY ~ series.sharesReserves',
-      series.sharesReserves
-    );
-    console.log(
-      '🦄 ~ file: useStrategyReturns.ts ~ line 229 ~ getFyTokenAPY ~ series.fyTokenReserves',
-      series.fyTokenReserves
-    );
-    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 230 ~ getFyTokenAPY ~ series.ts', series.ts);
-    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 231 ~ getFyTokenAPY ~ series.mu', series.mu);
     const marketInterestRate = calcInterestRate(series.sharesReserves, series.fyTokenReserves, series.ts, series.mu);
-    console.log('🦄 ~ file: useStrategyReturns.ts ~ line 228 ~ getFyTokenAPY ~ marketInterestRate', marketInterestRate);
     const fyTokenPrice = getFyTokenPrice(series, input);
     const poolBaseValue = getPoolBaseValue(series, input);
     const fyTokenValRatio = (+series.fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
