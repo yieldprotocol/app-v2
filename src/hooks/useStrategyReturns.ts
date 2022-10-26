@@ -283,7 +283,8 @@ const useStrategyReturns = (
 
     return {
       feesAPY: cleanValue(feesAPY.toString(), digits),
-      sharesAPY: cleanValue(sharesAPY.toString(), digits),
+      sharesAPY: cleanValue(series.poolAPY, digits),
+      sharesBlendedAPY: cleanValue(sharesAPY.toString(), digits),
       fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
       blendedAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY).toString(), digits),
     };
