@@ -242,7 +242,6 @@ ASSETS_1.set(yvUSDC, {
 ASSETS_1.set(UNI, {
   assetAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
   joinAddress: '0x41567f6A109f5bdE283Eb5501F21e3A0bEcbB779',
-
   version: '1',
   name: 'Uniswap token',
   decimals: 18,
