@@ -1,9 +1,8 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { ActionType, ISeries, IStrategy, IUserContext } from '../types';
+import { ISeries, IStrategy, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
-import { useApr } from './useApr';
 import {
   ONE_DEC as ONE,
   SECONDS_PER_YEAR,
@@ -26,7 +25,6 @@ interface IReturns {
 
 interface IStrategyReturns {
   calcStrategyReturns: (strategy: IStrategy, input: string) => IReturns;
-  // returnsBackward: IReturns;
   returns: IReturns;
 }
 
@@ -299,7 +297,6 @@ const useStrategyReturns = (
 
   return {
     returns,
-    // returnsBackward: { blendedAPY: totalAPYBackward },
     calcStrategyReturns,
   } as IStrategyReturns;
 };
