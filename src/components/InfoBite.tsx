@@ -38,7 +38,7 @@ const InfoBite = ({ label, value, icon, loading, labelInfo, textSize, children }
           }}
         >
           <Box direction="row" gap="xxsmall">
-            <Text size={textSize || 'xsmall'} color="text" weight="lighter">
+            <Text size={'xsmall'} color="text" weight="lighter">
               {label}
             </Text>
             {labelInfo && <FiInfo size={12} />}
