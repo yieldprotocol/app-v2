@@ -55,7 +55,7 @@ const StrategySelectItem = ({
     <StyledBox
       key={strategy.address}
       round="large"
-      background={selected ? strategy.currentSeries?.color : undefined}
+      background={selected ? strategy.currentSeries?.color : '#00000007'}
       elevation="xsmall"
       onClick={handleClick}
     >
@@ -70,10 +70,10 @@ const StrategySelectItem = ({
             {strategy.currentSeries?.seriesMark || <FiSlash />}
           </Avatar>
           <Box align="center" fill="vertical" justify="center">
-            <Text size="small" color={strategy.currentSeries?.textColor}>
+            <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
               {formatStrategyName(strategy.name!)}
             </Text>
-            <Text size="xsmall" color={strategy.currentSeries?.textColor}>
+            <Text size="xsmall" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
               Rolling {displayName}
             </Text>
           </Box>
@@ -87,9 +87,7 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small" color={strategy.currentSeries?.textColor}>
-                {apy}%
-              </Text>
+              <Text size="small">{apy}%</Text>
             </Avatar>
           </Box>
         )}
