@@ -1,3 +1,4 @@
+import { Block } from '@ethersproject/providers';
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import { ReactNode } from 'react';
 import { FYToken, Pool, Strategy } from '../contracts';
@@ -171,6 +172,7 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
+  startBlock: Block; // pool init block
 
   decimals: number;
   ts: BigNumber;
@@ -271,6 +273,7 @@ export interface IStrategyRoot extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
+  startBlock?: Block;
 }
 
 export interface IVaultRoot {
@@ -290,6 +293,7 @@ export interface ISeries extends ISeriesRoot {
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
   totalSupply_: string;
+  sharesAddress: string;
 
   poolTokens?: BigNumber | undefined;
   poolTokens_?: string | undefined;
@@ -305,6 +309,9 @@ export interface ISeries extends ISeriesRoot {
   mu: BigNumber | undefined;
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
+  currentInvariant?: BigNumber;
+  initInvariant?: BigNumber;
+  startBlock?: Block;
 }
 
 export interface IAsset extends IAssetRoot {
@@ -346,7 +353,8 @@ export interface IStrategy extends IStrategyRoot {
 
   initInvariant?: BigNumber;
   currentInvariant?: BigNumber;
-  returnRate?: BigNumber;
+
+  returnRate?: BigNumber | string;
   returnRate_?: string;
 
   strategyTotalSupply?: BigNumber;

@@ -2200,9 +2200,9 @@
     tiny-invariant "^1.0.6"
 
 "@yield-protocol/ui-math@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@yield-protocol/ui-math/-/ui-math-1.0.3.tgz#adc80bc237bd2c8ca94594845c869746d804f7b3"
-  integrity sha512-by8NRa8YeUK38ab1r96nZfTFJVNcGHrNIB80Cx/piR6iDHMcvSXiZlyn09EK5QYowfsB9DOJD9V4q4CQPx3DPQ==
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@yield-protocol/ui-math/-/ui-math-1.0.13.tgz#06de3255cd915bd9a1c554aae1af3d38dfac21f8"
+  integrity sha512-wPNJRlKLKCpt6SiOrUj37wYFEtjBgfV57oTlUxLAlm6V3+bPzKcskBj6Z7eijh8zjF/p1HxshQXPKyPF5LhYrQ==
   dependencies:
     chai "^4.3.6"
 

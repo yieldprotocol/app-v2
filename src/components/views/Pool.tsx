@@ -33,8 +33,10 @@ import StrategyItem from '../positionItems/StrategyItem';
 
 import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
+import useStrategyReturns from '../../hooks/useStrategyReturns';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import { WETH } from '../../config/assets';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -44,7 +46,6 @@ function Pool() {
   const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
 
   /* LOCAL STATE */
-  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -55,6 +56,7 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
+  const { returns: lpReturns } = useStrategyReturns(poolInput);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -83,9 +85,8 @@ function Pool() {
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
       series_id: selectedStrategy?.currentSeries.name,
-      action_code:ActionCodes.ADD_LIQUIDITY,
-    } as GA_Properties.transaction_initiated );
-
+      action_code: ActionCodes.ADD_LIQUIDITY,
+    } as GA_Properties.transaction_initiated);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -107,8 +108,8 @@ function Pool() {
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
       action_code: ActionCodes.ADD_LIQUIDITY,
-      } as GA_Properties.max_clicked)
-  }
+    } as GA_Properties.max_clicked);
+  };
 
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);
@@ -175,12 +176,14 @@ function Pool() {
                 <SectionWrap
                   title={
                     strategyMap.size > 0
-                      ? `Recomended ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
+                      ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
+                          selectedBase && '-based'
+                        } strategy:`
                       : ''
                   }
                 >
                   <Box flex={false}>
-                    <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
+                    <StrategySelector inputValue={poolInput} />
                   </Box>
                 </SectionWrap>
               </Box>
@@ -211,6 +214,36 @@ function Pool() {
                     animation={{ type: 'zoomIn', size: 'small' }}
                     flex={false}
                   >
+                    {lpReturns && +lpReturns.blendedAPY! > 0 && (
+                      <InfoBite
+                        textSize="large"
+                        label="Variable APY"
+                        icon={<FiZap color="#10B981" />}
+                        value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
+                        labelInfo={
+                          <Box>
+                            {
+                              <Text size="small" weight="lighter">
+                                {`${selectedBase?.symbol} APY: ${lpReturns.sharesAPY}%`}
+                              </Text>
+                            }
+                            {
+                              <Text size="small" weight="lighter">
+                                fyToken APY: {lpReturns.fyTokenAPY}%
+                              </Text>
+                            }
+                            {+lpReturns.feesAPY! > 0 && (
+                              <Text size="small" weight="lighter">
+                                Fees APY: {lpReturns.feesAPY}%
+                              </Text>
+                            )}
+                            <Text size="small" weight="bold">
+                              Blended APY: {lpReturns.blendedAPY}%
+                            </Text>
+                          </Box>
+                        }
+                      />
+                    )}
                     <InfoBite
                       label="Maximum Amount to Pool"
                       icon={<BiMessageSquareAdd />}
@@ -222,14 +255,6 @@ function Pool() {
                       icon={<FiPercent />}
                       value={`${cleanValue(poolPercentPreview, 2)}%`}
                     />
-                    {selectedStrategy.currentSeries.poolAPY && (
-                      <InfoBite
-                        label="Pool APY"
-                        icon={<FiZap />}
-                        value={`${cleanValue(selectedStrategy.currentSeries.poolAPY, 2)}%`}
-                        labelInfo="Estimated APY based on the current Euler supply APY"
-                      />
-                    )}
                   </Box>
                 </ActiveTransaction>
               </Box>
@@ -247,7 +272,8 @@ function Pool() {
                 <Text size="xsmall" weight="lighter">
                   I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
                   the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
-                  demand.
+                  demand. I also understand that the variable APY shown is a projection and that actual returns may
+                  differ.
                 </Text>
               }
               checked={disclaimerChecked}

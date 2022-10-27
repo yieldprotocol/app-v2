@@ -14,7 +14,6 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import request from 'graphql-request';
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -41,6 +40,8 @@ import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
+import request from 'graphql-request';
+import { Block } from '@ethersproject/providers';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -289,10 +290,10 @@ const UserProvider = ({ children }: any) => {
           let c: BigNumber | undefined;
           let mu: BigNumber | undefined;
           let currentSharePrice: BigNumber | undefined;
-          let sharesToken: string | undefined;
+          let sharesAddress: string | undefined;
 
           try {
-            [sharesReserves, c, mu, currentSharePrice, sharesToken] = await Promise.all([
+            [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
               series.poolContract.getSharesBalance(),
               series.poolContract.getC(),
               series.poolContract.mu(),
@@ -302,6 +303,7 @@ const UserProvider = ({ children }: any) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
+            sharesAddress = series.baseAddress;
             console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
@@ -340,12 +342,27 @@ const UserProvider = ({ children }: any) => {
           );
 
           const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
-          // fetch the euler eToken supply APY from their subgraph
-          const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
+          const poolAPY = sharesAddress ? await getPoolAPY(sharesAddress) : undefined;
 
           // some logic to decide if the series is shown or not
           // const showSeries = series.maturity !== 1672412400;
           const showSeries = true;
+
+          let currentInvariant: BigNumber | undefined;
+          let initInvariant: BigNumber | undefined;
+          let startBlock: Block | undefined;
+
+          try {
+            // get pool init block
+            const gmFilter = series.poolContract.filters.gm();
+            const gm = (await series.poolContract.queryFilter(gmFilter))[0];
+            startBlock = await gm.getBlock();
+
+            currentInvariant = await series.poolContract.invariant();
+            initInvariant = await series.poolContract.invariant({ blockTag: startBlock.number });
+          } catch (e) {
+            diagnostics && console.log('Could not get current and init invariant for series', series.id);
+          }
 
           return {
             ...series,
@@ -363,6 +380,11 @@ const UserProvider = ({ children }: any) => {
             getShares,
             getBase,
             showSeries,
+            sharesAddress,
+            currentInvariant,
+            initInvariant,
+            startBlock,
+            ts: BigNumber.from(series.ts),
           };
         })
       );
@@ -587,6 +609,7 @@ const UserProvider = ({ children }: any) => {
               : [ZERO_BN, ZERO_BN];
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
 
             return {

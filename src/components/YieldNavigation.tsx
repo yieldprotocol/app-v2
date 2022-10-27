@@ -70,7 +70,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   ];
 
   const handleViewChange = (toView: string) => {
-    console.log(toView.slice(1));
+    // console.log(toView.slice(1));
     logAnalyticsEvent(GA_Event.view_changed, {
       toView: toView.slice(1),
     } as GA_Properties.view_changed);

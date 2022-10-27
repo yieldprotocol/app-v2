@@ -42,7 +42,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   ) as IUserContext;
   const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
 
-  const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
+  const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
 
@@ -71,6 +71,8 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
       setSelectedSeries(null);
+
+      setSelectedStrategy(null);
 
       logAnalyticsEvent(GA_Event.asset_selected, {
         asset: asset.symbol,
@@ -116,7 +118,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   /* set ilk to be USDC if ETH base */
   useEffect(() => {
     if (selectedBase?.proxyId === WETH || selectedBase?.id === WETH) {
-      setSelectedIlk(assetMap.get(USDC));
+      setSelectedIlk(assetMap.get(USDC)|| null);
     }
   }, [assetMap, selectedBase, setSelectedIlk]);
 

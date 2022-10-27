@@ -25,12 +25,9 @@ import { Cauldron } from '../contracts';
 
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
-import { LiquidityEvent, TradeEvent as NewTradeEvent } from '../contracts/Pool';
-import { TradeEvent as OldTradeEvent } from '../contracts/PoolOld';
+import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 import useTenderly from '../hooks/useTenderly';
-
-type TradeEvent = NewTradeEvent & OldTradeEvent;
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -252,7 +249,7 @@ const HistoryProvider = ({ children }: any) => {
                 const { maturity, fyTokens } = e.args;
 
                 // if we are using the old pool contract, use "bases" nomenclature
-                const bases = e.args.base ?? e.args.bases;
+                const bases = e.args.base;
                 const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
                 const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
                 const tradeApr = !bases ? '0' : calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);

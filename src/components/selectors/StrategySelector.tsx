@@ -1,20 +1,16 @@
 import { useContext, useEffect, useState } from 'react';
-import { ethers } from 'ethers';
-import { Avatar, Box, Layer, ResponsiveContext, Text } from 'grommet';
+import { Avatar, Box, Text } from 'grommet';
 import { toast } from 'react-toastify';
-import { FiSlash, FiX } from 'react-icons/fi';
-
-import { getPoolPercent } from '@yield-protocol/ui-math';
+import { FiSlash } from 'react-icons/fi';
 
 import styled from 'styled-components';
-import { IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ISettingsContext, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { cleanValue, formatStrategyName } from '../../utils/appUtils';
+import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import AltText from '../texts/AltText';
 import { ZERO_BN } from '../../utils/constants';
-import Line from '../elements/Line';
+import useStrategyReturns from '../../hooks/useStrategyReturns';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -41,19 +37,75 @@ const CardSkeleton = () => (
   </StyledBox>
 );
 
+const StrategySelectItem = ({
+  strategy,
+  selected,
+  displayName,
+
+  handleClick,
+  apy,
+}: {
+  strategy: IStrategy;
+  selected: boolean;
+  displayName: string;
+  handleClick: (strategy: IStrategy) => void;
+  apy?: string;
+}) => {
+  return (
+    <StyledBox
+      key={strategy.address}
+      round="large"
+      background={selected ? strategy.currentSeries?.color : '#00000007'}
+      elevation="xsmall"
+      onClick={handleClick}
+    >
+      <Box pad="small" width="small" direction="row" gap="small" fill>
+        <Box direction="row" gap="small" fill>
+          <Avatar
+            background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
+            style={{
+              boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
+            }}
+          >
+            {strategy.currentSeries?.seriesMark || <FiSlash />}
+          </Avatar>
+          <Box align="center" fill="vertical" justify="center">
+            <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
+              {formatStrategyName(strategy.name!)}
+            </Text>
+            <Text size="xsmall" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
+              Rolling {displayName}
+            </Text>
+          </Box>
+        </Box>
+
+        {apy && (
+          <Box fill align="end">
+            <Avatar
+              background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
+              style={{
+                boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
+              }}
+            >
+              <Text size="small">{apy}%</Text>
+            </Avatar>
+          </Box>
+        )}
+      </Box>
+    </StyledBox>
+  );
+};
+
 interface IStrategySelectorProps {
-  inputValue?: string | undefined /* accepts an input value for possible dynamic Return calculations */;
-  cardLayout?: boolean;
-  setOpen?: any /* used with modal */;
-  open?: boolean;
+  inputValue?: string /* accepts an input value for possible dynamic Return calculations */;
 }
 
-function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: IStrategySelectorProps) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
+  const { calcStrategyReturns } = useStrategyReturns(inputValue);
 
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
@@ -68,7 +120,6 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     const filteredOpts = opts
       .filter((_st) => _st.currentSeries?.showSeries)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
-      .filter((_st) => _st.id !== selectedStrategy?.id)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
     setOptions(filteredOpts);
   }, [selectedBase, strategyMap, selectedStrategy]);
@@ -81,17 +132,18 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
     } else {
       toast.info('Strategy coming soon');
     }
-    setOpen(false);
   };
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
     const opts: IStrategy[] = Array.from(strategyMap.values())
-    .filter((_st) => _st.currentSeries?.showSeries)
-    .filter(
-      (_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature
-    );
+      .filter((_st) => _st.currentSeries?.showSeries)
+      .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
+
+    // if strategy already selected, no need to set explicitly again
+    if (selectedStrategy) return;
+
     /* select strategy with existing balance */
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
@@ -100,7 +152,7 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
       opts.length &&
         userActions.setSelectedStrategy(
           opts
-          .filter((s) => s.currentSeries?.showSeries)
+            .filter((s) => s.currentSeries?.showSeries)
             .filter((s) => s.active)
             .reduce((prev, curr) =>
               parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
@@ -112,146 +164,38 @@ function StrategySelector({ inputValue, cardLayout, setOpen, open = false }: ISt
   }, [selectedBase, strategyMap]);
 
   return (
-    <>
-      {cardLayout && (
-        <Box gap="small">
-          {strategiesLoading && <Skeleton width={180} />}
-
-          {strategiesLoading ? (
-            <CardSkeleton />
-          ) : (
-            <Box
-              key={selectedStrategy?.address}
-              round="large"
-              background={selectedStrategy?.currentSeries?.color}
-              elevation="xsmall"
-            >
-              <Box pad="small" width="small" direction="row" gap="small" fill>
-                <Avatar
-                  background="background"
-                  style={{
-                    boxShadow: `inset 1px 1px 2px ${selectedStrategy?.currentSeries?.endColor.toString().concat('69')}`,
-                  }}
-                >
-                  {selectedStrategy?.currentSeries?.seriesMark || <FiSlash />}
-                </Avatar>
-                <Box>
-                  {(!selectedStrategy || !inputValue) && (
-                    <>
-                      <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
-                        {formatStrategyName(selectedStrategy?.name!)}
-                      </Text>
-                      <Text size="xsmall" color={selectedStrategy?.currentSeries?.textColor}>
-                        Rolling {seriesMap.get(selectedStrategy?.currentSeriesId!)?.displayName}
-                      </Text>
-                    </>
-                  )}
-
-                  {selectedStrategy && inputValue && (
-                    <>
-                      <Text size="small" color={selectedStrategy?.currentSeries?.textColor}>
-                        {cleanValue(
-                          getPoolPercent(
-                            ethers.utils.parseUnits(
-                              cleanValue(inputValue, selectedStrategy?.decimals),
-                              selectedStrategy?.decimals
-                            ),
-                            selectedStrategy?.strategyTotalSupply!
-                          ),
-                          3
-                        )}
-                        %
-                      </Text>
-                      <Text size="xsmall" color={selectedStrategy?.currentSeries?.textColor}>
-                        of strategy
-                      </Text>
-                    </>
-                  )}
-                </Box>
-
-                {open && (
-                  <Layer
-                    onClickOutside={() => setOpen(false)}
-                    style={{ minWidth: mobile ? undefined : '500px', borderRadius: '12px' }}
-                  >
-                    <Box background="background" round="12px">
-                      <Box
-                        direction="row"
-                        justify="between"
-                        align="center"
-                        pad="medium"
-                        background="gradient-transparent"
-                        round={{ corner: 'top', size: 'small' }}
-                      >
-                        <Text size="small">Select Strategy</Text>
-                        <Box onClick={() => setOpen(false)}>
-                          <FiX size="1.5rem" />
-                        </Box>
-                      </Box>
-
-                      <Line />
-
-                      <Box pad="large">
-                        {options.map((strategy) => (
-                          <StyledBox
-                            key={strategy.id}
-                            pad="xsmall"
-                            round="large"
-                            onClick={() => handleSelect(strategy)}
-                            background={strategy.currentSeries?.color}
-                            elevation="xsmall"
-                            margin="xsmall"
-                          >
-                            <Box pad="small" width="small" direction="row" gap="small" fill key={strategy.id}>
-                              <Avatar
-                                background="background"
-                                style={{
-                                  boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor
-                                    .toString()
-                                    .concat('69')}`,
-                                }}
-                              >
-                                {strategy.currentSeries?.seriesMark || <FiSlash />}
-                              </Avatar>
-                              <Box>
-                                <Text size="small" color={strategy.currentSeries?.textColor}>
-                                  {formatStrategyName(selectedStrategy?.name!)}
-                                </Text>
-                                <Text size="xsmall" color={strategy.currentSeries?.textColor}>
-                                  Rolling {seriesMap.get(strategy.currentSeriesId)?.displayName}
-                                </Text>
-                              </Box>
-                            </Box>
-                          </StyledBox>
-                        ))}
-                      </Box>
-                    </Box>
-                  </Layer>
-                )}
-              </Box>
-            </Box>
-          )}
-
-          {options.length > 0 && (
-            <Box>
-              <StyledBox align="end" onClick={() => setOpen(true)} pad={{ right: 'xsmall' }}>
-                <AltText size="xsmall" color="text-weak">
-                  Select a different strategy
-                </AltText>
-              </StyledBox>
-            </Box>
-          )}
-        </Box>
+    <Box>
+      {strategiesLoading && (
+        <>
+          <Skeleton width={180} />
+          <CardSkeleton />
+          <CardSkeleton />
+        </>
       )}
-    </>
+
+      <Box gap="small">
+        {options.map((o) => {
+          const displayName = seriesMap.get(o.currentSeriesId!)?.displayName!;
+          const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
+          const selected = selectedStrategy?.address === o.address;
+          return (
+            <StrategySelectItem
+              key={o.address}
+              strategy={o}
+              handleClick={() => handleSelect(o)}
+              selected={selected}
+              displayName={displayName}
+              apy={returns.blendedAPY}
+            />
+          );
+        })}
+      </Box>
+    </Box>
   );
-}
+};
 
 StrategySelector.defaultProps = {
   inputValue: undefined,
-  cardLayout: true,
-  setOpen: () => null,
-  open: false,
 };
 
 export default StrategySelector;

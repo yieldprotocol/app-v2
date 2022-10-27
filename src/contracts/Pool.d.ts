@@ -31,6 +31,7 @@ interface PoolInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "base()": FunctionFragment;
+    "baseDecimals()": FunctionFragment;
     "baseToken()": FunctionFragment;
     "burn(address,address,uint256,uint256)": FunctionFragment;
     "burnForBase(address,uint256,uint256)": FunctionFragment;
@@ -56,9 +57,14 @@ interface PoolInterface extends ethers.utils.Interface {
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
-    "init(address,address,uint256,uint256)": FunctionFragment;
+    "init(address)": FunctionFragment;
+    "invariant()": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "maturity()": FunctionFragment;
+    "maxBaseIn()": FunctionFragment;
+    "maxBaseOut()": FunctionFragment;
+    "maxFYTokenIn()": FunctionFragment;
+    "maxFYTokenOut()": FunctionFragment;
     "mint(address,address,uint256,uint256)": FunctionFragment;
     "mintWithBase(address,address,uint256,uint256,uint256)": FunctionFragment;
     "mu()": FunctionFragment;
@@ -68,6 +74,7 @@ interface PoolInterface extends ethers.utils.Interface {
     "renounceRole(bytes4,address)": FunctionFragment;
     "retrieveBase(address)": FunctionFragment;
     "retrieveFYToken(address)": FunctionFragment;
+    "retrieveShares(address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "revokeRoles(bytes4[],address)": FunctionFragment;
     "scaleFactor()": FunctionFragment;
@@ -118,6 +125,10 @@ interface PoolInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "base", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "baseDecimals",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "baseToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "burn",
@@ -194,12 +205,23 @@ interface PoolInterface extends ethers.utils.Interface {
     functionFragment: "hasRole",
     values: [BytesLike, string]
   ): string;
-  encodeFunctionData(
-    functionFragment: "init",
-    values: [string, string, BigNumberish, BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: "init", values: [string]): string;
+  encodeFunctionData(functionFragment: "invariant", values?: undefined): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "maturity", values?: undefined): string;
+  encodeFunctionData(functionFragment: "maxBaseIn", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "maxBaseOut",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxFYTokenIn",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxFYTokenOut",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "mint",
     values: [string, string, BigNumberish, BigNumberish]
@@ -233,6 +255,10 @@ interface PoolInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "retrieveFYToken",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "retrieveShares",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -323,6 +349,10 @@ interface PoolInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "base", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "baseDecimals",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
@@ -382,8 +412,19 @@ interface PoolInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "invariant", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maturity", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "maxBaseIn", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "maxBaseOut", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "maxFYTokenIn",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "maxFYTokenOut",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mintWithBase",
@@ -403,6 +444,10 @@ interface PoolInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "retrieveFYToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "retrieveShares",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
@@ -618,6 +663,8 @@ export class Pool extends BaseContract {
 
     base(overrides?: CallOverrides): Promise<[string]>;
 
+    baseDecimals(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     baseToken(overrides?: CallOverrides): Promise<[string]>;
 
     burn(
@@ -718,11 +765,12 @@ export class Pool extends BaseContract {
 
     init(
       to: string,
-      remainder: string,
-      minRatio: BigNumberish,
-      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    invariant(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { result: BigNumber }>;
 
     lockRole(
       role: BytesLike,
@@ -730,6 +778,22 @@ export class Pool extends BaseContract {
     ): Promise<ContractTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<[number]>;
+
+    maxBaseIn(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { baseIn: BigNumber }>;
+
+    maxBaseOut(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { baseOut: BigNumber }>;
+
+    maxFYTokenIn(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { fyTokenIn: BigNumber }>;
+
+    maxFYTokenOut(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { fyTokenOut: BigNumber }>;
 
     mint(
       to: string,
@@ -781,6 +845,11 @@ export class Pool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    retrieveShares(
+      to: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     revokeRole(
       role: BytesLike,
       account: string,
@@ -815,7 +884,7 @@ export class Pool extends BaseContract {
     sellFYTokenPreview(
       fyTokenIn: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { baseOut: BigNumber }>;
 
     setFees(
       g1Fee_: BigNumberish,
@@ -899,6 +968,8 @@ export class Pool extends BaseContract {
   balanceOf(guy: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   base(overrides?: CallOverrides): Promise<string>;
+
+  baseDecimals(overrides?: CallOverrides): Promise<BigNumber>;
 
   baseToken(overrides?: CallOverrides): Promise<string>;
 
@@ -1000,11 +1071,10 @@ export class Pool extends BaseContract {
 
   init(
     to: string,
-    remainder: string,
-    minRatio: BigNumberish,
-    maxRatio: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  invariant(overrides?: CallOverrides): Promise<BigNumber>;
 
   lockRole(
     role: BytesLike,
@@ -1012,6 +1082,14 @@ export class Pool extends BaseContract {
   ): Promise<ContractTransaction>;
 
   maturity(overrides?: CallOverrides): Promise<number>;
+
+  maxBaseIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxBaseOut(overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxFYTokenIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxFYTokenOut(overrides?: CallOverrides): Promise<BigNumber>;
 
   mint(
     to: string,
@@ -1059,6 +1137,11 @@ export class Pool extends BaseContract {
   ): Promise<ContractTransaction>;
 
   retrieveFYToken(
+    to: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  retrieveShares(
     to: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1182,6 +1265,8 @@ export class Pool extends BaseContract {
 
     base(overrides?: CallOverrides): Promise<string>;
 
+    baseDecimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     baseToken(overrides?: CallOverrides): Promise<string>;
 
     burn(
@@ -1290,9 +1375,6 @@ export class Pool extends BaseContract {
 
     init(
       to: string,
-      remainder: string,
-      minRatio: BigNumberish,
-      maxRatio: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, BigNumber] & {
@@ -1302,9 +1384,19 @@ export class Pool extends BaseContract {
       }
     >;
 
+    invariant(overrides?: CallOverrides): Promise<BigNumber>;
+
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     maturity(overrides?: CallOverrides): Promise<number>;
+
+    maxBaseIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxBaseOut(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxFYTokenIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxFYTokenOut(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to: string,
@@ -1361,6 +1453,8 @@ export class Pool extends BaseContract {
     retrieveBase(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     retrieveFYToken(to: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    retrieveShares(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     revokeRole(
       role: BytesLike,
@@ -1679,6 +1773,8 @@ export class Pool extends BaseContract {
 
     base(overrides?: CallOverrides): Promise<BigNumber>;
 
+    baseDecimals(overrides?: CallOverrides): Promise<BigNumber>;
+
     baseToken(overrides?: CallOverrides): Promise<BigNumber>;
 
     burn(
@@ -1773,11 +1869,10 @@ export class Pool extends BaseContract {
 
     init(
       to: string,
-      remainder: string,
-      minRatio: BigNumberish,
-      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    invariant(overrides?: CallOverrides): Promise<BigNumber>;
 
     lockRole(
       role: BytesLike,
@@ -1785,6 +1880,14 @@ export class Pool extends BaseContract {
     ): Promise<BigNumber>;
 
     maturity(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxBaseIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxBaseOut(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxFYTokenIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxFYTokenOut(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to: string,
@@ -1832,6 +1935,11 @@ export class Pool extends BaseContract {
     ): Promise<BigNumber>;
 
     retrieveFYToken(
+      to: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    retrieveShares(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1959,6 +2067,8 @@ export class Pool extends BaseContract {
 
     base(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    baseDecimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     baseToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     burn(
@@ -2059,11 +2169,10 @@ export class Pool extends BaseContract {
 
     init(
       to: string,
-      remainder: string,
-      minRatio: BigNumberish,
-      maxRatio: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    invariant(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     lockRole(
       role: BytesLike,
@@ -2071,6 +2180,14 @@ export class Pool extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     maturity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxBaseIn(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxBaseOut(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxFYTokenIn(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxFYTokenOut(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       to: string,
@@ -2121,6 +2238,11 @@ export class Pool extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     retrieveFYToken(
+      to: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    retrieveShares(
       to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

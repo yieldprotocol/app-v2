@@ -11,7 +11,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "sharesToken_",
+        name: "base_",
         type: "address",
       },
       {
@@ -40,23 +40,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "Initialized",
+    name: "FYTokenCachedBadState",
     type: "error",
   },
   {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "newFYTokenBalance",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "newBaseBalance",
-        type: "uint128",
-      },
-    ],
-    name: "InsufficientFYTokenBalance",
+    inputs: [],
+    name: "Initialized",
     type: "error",
   },
   {
@@ -73,6 +62,27 @@ const _abi = [
   {
     inputs: [],
     name: "MaturityOverflow",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "MuCannotBeZero",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint128",
+        name: "newFYTokenBalance",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "newSharesBalanceTimesMu",
+        type: "uint128",
+      },
+    ],
+    name: "NegativeInterestRatesNotAllowed",
     type: "error",
   },
   {
@@ -131,38 +141,6 @@ const _abi = [
       },
     ],
     name: "SlippageDuringBurn",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "fyTokenIn",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "max",
-        type: "uint128",
-      },
-    ],
-    name: "SlippageDuringBuyBase",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint128",
-        name: "baseIn",
-        type: "uint128",
-      },
-      {
-        internalType: "uint128",
-        name: "max",
-        type: "uint128",
-      },
-    ],
-    name: "SlippageDuringBuyFYToken",
     type: "error",
   },
   {
@@ -633,6 +611,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "baseDecimals",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "baseToken",
     outputs: [
       {
@@ -880,7 +871,7 @@ const _abi = [
     name: "fyToken",
     outputs: [
       {
-        internalType: "contract IFYToken",
+        internalType: "contract IMaturingToken",
         name: "",
         type: "address",
       },
@@ -968,14 +959,14 @@ const _abi = [
         type: "uint104",
       },
       {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
-      },
-      {
         internalType: "uint32",
         name: "",
         type: "uint32",
+      },
+      {
+        internalType: "uint16",
+        name: "",
+        type: "uint16",
       },
     ],
     stateMutability: "view",
@@ -1106,21 +1097,6 @@ const _abi = [
         name: "to",
         type: "address",
       },
-      {
-        internalType: "address",
-        name: "remainder",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "minRatio",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maxRatio",
-        type: "uint256",
-      },
     ],
     name: "init",
     outputs: [
@@ -1144,6 +1120,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "invariant",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "result",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes4",
@@ -1164,6 +1153,58 @@ const _abi = [
         internalType: "uint32",
         name: "",
         type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "maxBaseIn",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "baseIn",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "maxBaseOut",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "baseOut",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "maxFYTokenIn",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "fyTokenIn",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "maxFYTokenOut",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "fyTokenOut",
+        type: "uint128",
       },
     ],
     stateMutability: "view",
@@ -1409,6 +1450,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "retrieveShares",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "retrieved",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -1534,7 +1594,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint128",
-        name: "",
+        name: "baseOut",
         type: "uint128",
       },
     ],

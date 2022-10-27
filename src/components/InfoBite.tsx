@@ -8,11 +8,12 @@ interface IInfoBite {
   value: string;
   icon?: any;
   loading?: boolean;
-  labelInfo?: string;
+  labelInfo?: string | ReactNode;
+  textSize?: string;
   children?: ReactNode;
 }
 
-const InfoBite = ({ label, value, icon, loading, labelInfo, children }: IInfoBite) => (
+const InfoBite = ({ label, value, icon, loading, labelInfo, textSize, children }: IInfoBite) => (
   <Box direction="row" align="center" pad={{ left: 'small', vertical: 'none' }} gap="medium">
     {icon && <Box>{icon}</Box>}
     <Box>
@@ -27,6 +28,7 @@ const InfoBite = ({ label, value, icon, loading, labelInfo, children }: IInfoBit
               elevation="small"
               round="small"
               margin={{ vertical: 'xxsmall' }}
+              flex="grow"
             >
               <Text size="xsmall">{labelInfo}</Text>
             </Box>
@@ -36,20 +38,20 @@ const InfoBite = ({ label, value, icon, loading, labelInfo, children }: IInfoBit
           }}
         >
           <Box direction="row" gap="xxsmall">
-            <Text size="xsmall" color="text" weight="lighter">
+            <Text size={'xsmall'} color="text" weight="lighter">
               {label}
             </Text>
             {labelInfo && <FiInfo size={12} />}
           </Box>
         </Tip>
       ) : (
-        <Text size="xsmall" color="text" weight="lighter">
+        <Text size={textSize || 'xsmall'} color="text" weight="lighter">
           {label}
         </Text>
       )}
 
       <Box direction="row" gap="xsmall">
-        <Text size="small">{loading ? <Skeleton width={80} height={20} /> : value}</Text>
+        <Text size={textSize || 'small'}>{loading ? <Skeleton width={80} height={20} /> : value}</Text>
         {children}
       </Box>
     </Box>

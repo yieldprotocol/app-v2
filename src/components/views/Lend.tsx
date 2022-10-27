@@ -42,6 +42,7 @@ import YieldNavigation from '../YieldNavigation';
 import Line from '../elements/Line';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import { WETH } from '../../config/assets';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -78,8 +79,7 @@ const Lend = () => {
       view: GA_View.LEND,
       series_id: selectedSeries.name,
       action_code: ActionCodes.LEND,
-    } as GA_Properties.transaction_initiated );
-
+    } as GA_Properties.transaction_initiated);
   };
 
   /* Event handlers */
@@ -95,9 +95,9 @@ const Lend = () => {
     maxLend_ && setLendInput(maxLend_);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.LEND,
-      action_code: ActionCodes.LEND
-      } as GA_Properties.max_clicked)
-  }
+      action_code: ActionCodes.LEND,
+    } as GA_Properties.max_clicked);
+  };
 
   const resetInputs = useCallback(() => {
     setLendInput(undefined);
@@ -187,7 +187,9 @@ const Lend = () => {
                     <SectionWrap
                       title={
                         seriesMap.size > 0
-                          ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity date:`
+                          ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
+                              selectedBase && '-based'
+                            } maturity date:`
                           : ''
                       }
                     >

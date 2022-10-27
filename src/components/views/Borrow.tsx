@@ -50,6 +50,7 @@ import Line from '../elements/Line';
 import useTenderly from '../../hooks/useTenderly';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import { WETH } from '../../config/assets';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -164,9 +165,9 @@ const Borrow = () => {
     actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
-      action_code: actionCode
-      } as GA_Properties.max_clicked)
-  }
+      action_code: actionCode,
+    } as GA_Properties.max_clicked);
+  };
 
   const handleUseSafeCollateral = () => {
     selectedIlk && setCollatInput(cleanValue(minSafeCollateral, selectedIlk.decimals));
@@ -583,7 +584,9 @@ const Borrow = () => {
                 label={
                   <Text size={mobile ? 'small' : undefined}>
                     {borrowInput && (!selectedSeries || selectedBase?.proxyId !== selectedSeries.baseId)
-                      ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
+                      ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
+                          selectedBase && '-based'
+                        } Maturity`
                       : 'Next Step'}
                   </Text>
                 }
