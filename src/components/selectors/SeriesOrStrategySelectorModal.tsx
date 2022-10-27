@@ -29,7 +29,7 @@ const SeriesOrStrategySelectorModal = ({
           </Box>
           <Box justify="center" fill>
             {actionType === ActionType.POOL ? (
-              <StrategySelector inputValue={inputValue} setOpen={setOpen} />
+              <StrategySelector inputValue={inputValue} />
             ) : (
               <SeriesSelector inputValue={inputValue} actionType={actionType} setOpen={setOpen} />
             )}

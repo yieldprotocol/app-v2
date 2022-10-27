@@ -53,7 +53,7 @@ export const useAddCollateral = () => {
     /* set the ilk based on if a vault has been selected or it's a new vault */
     const ilk: IAsset | null | undefined = vault ? assetMap.get(vault.ilkId) : selectedIlk;
     const base: IAsset | null | undefined = vault ? assetMap.get(vault.baseId) : selectedBase;
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contractMap.get('Ladle')?.address;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
@@ -118,7 +118,7 @@ export const useAddCollateral = () => {
       {
         operation: LadleActions.Fn.MODULE,
         fnName: ModuleActions.Fn.ADD_VAULT,
-        args: [selectedIlk.joinAddress, vaultId] as ModuleActions.Args.ADD_VAULT,
+        args: [selectedIlk?.joinAddress, vaultId] as ModuleActions.Args.ADD_VAULT,
         targetContract: ConvexLadleModuleContract,
         ignoreIf: !!vault || !isConvexCollateral,
       },

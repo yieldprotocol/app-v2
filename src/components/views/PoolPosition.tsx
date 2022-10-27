@@ -104,14 +104,13 @@ const PoolPosition = () => {
   const handleRemove = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
-    removeLiquidity(removeInput!, selectedSeries, matchingVault);
+    removeLiquidity(removeInput!, selectedSeries!, matchingVault);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries.name,
+      series_id: selectedStrategy?.currentSeries?.name,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
-    } as GA_Properties.transaction_initiated );
-
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleMaxAction = () => {
@@ -119,8 +118,8 @@ const PoolPosition = () => {
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
-      } as GA_Properties.max_clicked)
-  }
+    } as GA_Properties.max_clicked);
+  };
 
   const handleSetActionActive = (option: { text: string; index: number }) => {
     setActionActive(option);
@@ -195,7 +194,7 @@ const PoolPosition = () => {
                         _selectedStrategy?.accountBalance_,
                         selectedBase?.digitFormat!
                       )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase.symbol
+                        selectedBase?.symbol
                       })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
@@ -221,7 +220,7 @@ const PoolPosition = () => {
                         loading={seriesLoading}
                       />
                     )}
-                    {_selectedStrategy.currentSeries.poolAPY && (
+                    {_selectedStrategy.currentSeries?.poolAPY && (
                       <InfoBite
                         label="Pool APY"
                         icon={<FiZap />}

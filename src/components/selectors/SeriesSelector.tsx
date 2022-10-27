@@ -79,7 +79,7 @@ const AprText = ({
   inputValue: string | undefined;
   series: ISeries;
   actionType: ActionType;
-  color: string;
+  color: string | undefined;
 }) => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
@@ -190,7 +190,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       filteredOpts = opts
         .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
         .filter((_series) => _series.id !== selectedSeries?.id) // filter out current globally selected series
-        .filter((_series) => _series.maturity > selectedSeries?.maturity); // prevent rolling positions to an earlier maturity
+        .filter((_series) => _series.maturity > selectedSeries?.maturity!); // prevent rolling positions to an earlier maturity
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
@@ -309,7 +309,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                       inputValue={_inputValue}
                       series={series}
                       actionType={actionType}
-                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                      color={series.id === _selectedSeries?.id ? series?.textColor! : undefined}
                     />
                     <Text
                       size="small"

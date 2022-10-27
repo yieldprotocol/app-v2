@@ -59,24 +59,24 @@ const initState: IChainContextState = {
   strategyRootMap: new Map<string, IStrategyRoot>([]),
 };
 
-function chainReducer(state: IChainContextState, action: any) {
+function chainReducer(state: IChainContextState, action: any): IChainContextState {
   /* Helper: only change the state if different from existing */
   const onlyIfChanged = (_action: any): IChainContextState =>
-    state[action.type] === _action.payload ? state[action.type] : _action.payload;
+    (state as any)[action.type] === _action.payload ? (state as any)[action.type] : _action.payload;
 
   /* Reducer switch */
   switch (action.type) {
     case ChainState.CHAIN_LOADING:
-      return { ...state, chainLoading: onlyIfChanged(action) };
+      return { ...state, chainLoading: onlyIfChanged(action) as any };
 
     case ChainState.APP_VERSION:
-      return { ...state, appVersion: onlyIfChanged(action) };
+      return { ...state, appVersion: onlyIfChanged(action) as any };
 
     case ChainState.CONNECTION:
-      return { ...state, connection: onlyIfChanged(action) };
+      return { ...state, connection: onlyIfChanged(action) as any };
 
     case ChainState.CONTRACT_MAP:
-      return { ...state, contractMap: onlyIfChanged(action) };
+      return { ...state, contractMap: onlyIfChanged(action) as any };
 
     case ChainState.ADD_SERIES:
       return {
@@ -220,7 +220,7 @@ const ChainProvider = ({ children }: any) => {
       }
 
       // if there was an issue loading at htis point simply return
-      if (!Cauldron || !Ladle || !RateOracle || !Witch) return;
+      if (!Cauldron! || !Ladle! || !RateOracle! || !Witch!) return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap as Map<string, Contract>;
@@ -229,23 +229,23 @@ const ChainProvider = ({ children }: any) => {
       newContractMap.set('Witch', Witch);
       newContractMap.set('RateOracle', RateOracle);
 
-      newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
-      newContractMap.set('CompositeMultiOracle', CompositeMultiOracle);
-      newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle);
-      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle);
-      newContractMap.set('NotionalMultiOracle', NotionalMultiOracle);
-      newContractMap.set('CompoundMultiOracle', CompoundMultiOracle);
+      newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle!);
+      newContractMap.set('CompositeMultiOracle', CompositeMultiOracle!);
+      newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle!);
+      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle!);
+      newContractMap.set('NotionalMultiOracle', NotionalMultiOracle!);
+      newContractMap.set('CompoundMultiOracle', CompoundMultiOracle!);
 
-      newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle);
+      newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle!);
 
       // modules
-      newContractMap.set('WrapEtherModule', WrapEtherModule);
-      newContractMap.set('ConvexLadleModule', ConvexLadleModule);
+      newContractMap.set('WrapEtherModule', WrapEtherModule!);
+      newContractMap.set('ConvexLadleModule', ConvexLadleModule!);
 
       updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
-      const strategyAddresses = yieldEnv.strategies[fallbackChainId] as string[];
+      const strategyAddresses = (yieldEnv.strategies as any)[fallbackChainId] as string[];
 
       /* get asset map config */
       const ASSET_CONFIG = fallbackChainId === 1 ? ASSETS_1 : ASSETS_42161;

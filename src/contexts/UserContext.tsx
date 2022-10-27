@@ -34,9 +34,8 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { useCachedState } from '../hooks/generalHooks';
 import { ETH_BASED_ASSETS } from '../config/assets';
-import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
+import { VaultBuiltEvent, VaultGivenEvent, Cauldron } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
@@ -87,10 +86,10 @@ const initState: IUserContextState = {
   selectedStrategy: null,
 };
 
-function userReducer(state: IUserContextState, action: any) {
+function userReducer(state: IUserContextState, action: any): IUserContextState {
   /* Helper: only change the state if different from existing */ // TODO if even reqd.?
   const onlyIfChanged = (_action: any) =>
-    state[action.type] === _action.payload ? state[action.type] : _action.payload;
+    (state as any)[action.type] === _action.payload ? (state as any)[action.type] : _action.payload;
 
   /* Reducer switch */
   switch (action.type) {
@@ -168,16 +167,16 @@ const UserProvider = ({ children }: any) => {
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(
     async (fromBlock: number = 1) => {
-      const Cauldron = contractMap.get('Cauldron');
-      if (!Cauldron) return new Map();
+      const CauldronContract = contractMap.get('CauldronContract') as Cauldron;
+      if (!CauldronContract) return new Map();
 
-      const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-      const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-      const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter, fromBlock);
+      const vaultsBuiltFilter = CauldronContract.filters.VaultBuilt(null, account, null);
+      const vaultsReceivedFilter = CauldronContract.filters.VaultGiven(null, account);
+      const vaultsBuilt = await CauldronContract.queryFilter(vaultsBuiltFilter, fromBlock);
 
-      let vaultsReceived = [];
+      let vaultsReceived: VaultGivenEvent[] = [];
       try {
-        vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
+        vaultsReceived = await CauldronContract.queryFilter(vaultsReceivedFilter);
       } catch (error) {
         console.log('could not get vaults received');
       }
@@ -188,25 +187,25 @@ const UserProvider = ({ children }: any) => {
         return {
           id,
           seriesId,
-          baseId: series?.baseId,
+          baseId: series?.baseId!,
           ilkId,
           displayName: generateVaultName(id),
-          decimals: series?.decimals,
+          decimals: series?.decimals!,
         };
       });
 
       const receivedEventsList = await Promise.all(
         vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
           const { vaultId: id } = x.args;
-          const { ilkId, seriesId } = await Cauldron.vaults(id);
+          const { ilkId, seriesId } = await CauldronContract.vaults(id);
           const series = seriesRootMap.get(seriesId);
           return {
             id,
             seriesId,
-            baseId: series.baseId,
+            baseId: series?.baseId!,
             ilkId,
             displayName: generateVaultName(id),
-            decimals: series.decimals,
+            decimals: series?.decimals!,
           };
         })
       );
@@ -312,14 +311,14 @@ const UserProvider = ({ children }: any) => {
             toBn(
               new Decimal(baseAmount.toString())
                 .mul(10 ** series.decimals)
-                .div(new Decimal(currentSharePrice.toString()))
+                .div(new Decimal(currentSharePrice?.toString()!))
             );
 
           // convert shares amounts to base amounts
           const getBase = (sharesAmount: BigNumber) =>
             toBn(
               new Decimal(sharesAmount.toString())
-                .mul(new Decimal(currentSharePrice.toString()))
+                .mul(new Decimal(currentSharePrice?.toString()!))
                 .div(10 ** series.decimals)
             );
 
@@ -439,7 +438,7 @@ const UserProvider = ({ children }: any) => {
       try {
         updateState({ type: UserState.VAULTS_LOADING, payload: true });
         let _vaultList: IVaultRoot[] = vaultList;
-        const Cauldron = contractMap.get('Cauldron');
+        const CauldronContract = contractMap.get('Cauldron');
         const Witch = contractMap.get('Witch');
 
         // const RateOracle = contractMap.get('RateOracle');
@@ -456,16 +455,16 @@ const UserProvider = ({ children }: any) => {
             const [
               { ink, art },
               { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-            ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
+            ] = await Promise.all([CauldronContract?.balances(vault.id), CauldronContract?.vaults(vault.id)]);
 
             /* If art 0, check for liquidation event */
             const hasBeenLiquidated =
               (
-                await Witch.queryFilter(
+                await Witch?.queryFilter(
                   Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
                   useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
                   'latest'
-                )
+                )!
               ).length > 0;
 
             const series = seriesRootMap.get(seriesId);
@@ -475,13 +474,13 @@ const UserProvider = ({ children }: any) => {
             let rate: BigNumber;
             let rate_: string;
 
-            if (isMature(series.maturity)) {
+            if (isMature(series?.maturity!)) {
               const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-              const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
+              const oracleName = ORACLE_INFO.get(chainId!)?.get(vault.baseId)?.get(RATE);
 
-              const RateOracle = contractMap.get(oracleName);
-              rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-              [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+              const RateOracle = contractMap.get(oracleName!);
+              rateAtMaturity = await CauldronContract?.ratesAtMaturity(seriesId);
+              [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
               rate_ = cleanValue(ethers.utils.formatUnits(rate, 18), 2); // always 18 decimals when getting rate from rate oracle
               diagnostics && console.log('mature series : ', seriesId, rate, rateAtMaturity, art);
 
@@ -503,12 +502,12 @@ const UserProvider = ({ children }: any) => {
             const baseRoot = assetRootMap.get(vault.baseId);
             const ilkRoot = assetRootMap.get(ilkId);
 
-            const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot.decimals), ilkRoot.digitFormat);
-            const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot.decimals), baseRoot.digitFormat);
+            const ink_ = cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat);
+            const art_ = cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat);
 
             const accruedArt_ = cleanValue(
-              ethers.utils.formatUnits(accruedArt, baseRoot.decimals),
-              baseRoot.digitFormat
+              ethers.utils.formatUnits(accruedArt, baseRoot?.decimals),
+              baseRoot?.digitFormat
             );
 
             diagnostics && console.log(vault.displayName, ' art: ', art.toString());
@@ -517,7 +516,7 @@ const UserProvider = ({ children }: any) => {
             return {
               ...vault,
               owner, // refreshed in case owner has been updated
-              isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
+              isWitchOwner: Witch?.address === owner, // check if witch is the owner (in liquidation process)
               hasBeenLiquidated,
               isActive: owner === account, // refreshed in case owner has been updated
               seriesId, // refreshed in case seriesId has been updated

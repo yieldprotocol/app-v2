@@ -142,7 +142,7 @@ const Borrow = () => {
       view: GA_View.BORROW,
       series_id: selectedSeries?.name!,
       action_code: ActionCodes.BORROW,
-      supporting_collateral: selectedIlk.symbol,
+      supporting_collateral: selectedIlk?.symbol,
     } as GA_Properties.transaction_initiated);
   };
 
@@ -161,7 +161,7 @@ const Borrow = () => {
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
-    actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral);
+    actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral!);
     actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
@@ -402,7 +402,7 @@ const Borrow = () => {
                             Liquidation when
                           </Text>
                           <Text size={mobile ? 'xsmall' : 'small'}>
-                            1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
+                            1 {selectedIlk?.symbol} = {liquidationPrice_} {selectedBase?.symbol}
                           </Text>
                         </Box>
                       )}

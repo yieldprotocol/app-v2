@@ -127,7 +127,7 @@ const HistoryProvider = ({ children }: any) => {
           const events = await Promise.all([
             ...inEventList.map(async (e: TransferEvent) => {
               const { blockNumber, transactionHash } = e;
-              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+              const date = (await fallbackProvider?.getBlock(blockNumber)!).timestamp;
               const { value } = e.args;
               return {
                 blockNumber,
@@ -144,7 +144,7 @@ const HistoryProvider = ({ children }: any) => {
 
             ...outEventList.map(async (e: TransferEvent) => {
               const { blockNumber, transactionHash } = e;
-              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+              const date = (await fallbackProvider?.getBlock(blockNumber)!).timestamp;
               const { value } = e.args;
               return {
                 id,
@@ -193,7 +193,7 @@ const HistoryProvider = ({ children }: any) => {
             eventList.map(async (e: LiquidityEvent) => {
               const { blockNumber, transactionHash } = e;
               const { maturity, base: bases, fyTokens, poolTokens } = e.args;
-              const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+              const date = (await fallbackProvider?.getBlock(blockNumber)!).timestamp;
               const type_ = poolTokens.gt(ZERO_BN) ? ActionCodes.ADD_LIQUIDITY : ActionCodes.REMOVE_LIQUIDITY;
 
               return {
@@ -243,14 +243,14 @@ const HistoryProvider = ({ children }: any) => {
 
           const tradeLogs = await Promise.all(
             eventList
-              .filter((e: TradeEvent) => e.args.from !== contractMap.get('Ladle').address) // TODO make this for any ladle (Past/future)
+              .filter((e: TradeEvent) => e.args.from !== contractMap.get('Ladle')?.address) // TODO make this for any ladle (Past/future)
               .map(async (e: TradeEvent) => {
                 const { blockNumber, transactionHash } = e;
                 const { maturity, fyTokens } = e.args;
 
                 // if we are using the old pool contract, use "bases" nomenclature
                 const bases = e.args.base;
-                const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+                const date = (await fallbackProvider?.getBlock(blockNumber)!).timestamp;
                 const type_ = fyTokens.gt(ZERO_BN) ? ActionCodes.LEND : ActionCodes.CLOSE_POSITION;
                 const tradeApr = !bases ? '0' : calculateAPR(bases.abs(), fyTokens.abs(), series?.maturity, date);
 
@@ -302,11 +302,11 @@ const HistoryProvider = ({ children }: any) => {
   // event VaultStirred(bytes12 indexed from, bytes12 indexed to, uint128 ink, uint128 art);
   // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
   const _parsePourLogs = useCallback(
-    (eventList: ethers.Event[], contract: Cauldron, series: ISeries) => {
+    (eventList: VaultPouredEvent[], contract: Cauldron, series: ISeries) => {
       const base_ = assetRootMap.get(series?.baseId!);
 
       return Promise.all(
-        eventList.map(async (e: VaultPouredEvent) => {
+        eventList.map(async (e) => {
           const { blockNumber, transactionHash } = e;
           // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art)
           const { ilkId, ink, art } = e.args;
@@ -314,13 +314,14 @@ const HistoryProvider = ({ children }: any) => {
             'event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens)',
           ]);
           const topic = tradeIface.getEventTopic('Trade');
-          const { logs: receiptLogs } = await fallbackProvider.getTransactionReceipt(transactionHash);
+          const receipt = await fallbackProvider?.getTransactionReceipt(transactionHash);
+          const receiptLogs = receipt?.logs!;
           const tradelog = receiptLogs.find((_log: any) => _log.topics.includes(topic));
           const { bases: baseTraded, fyTokens: fyTokenTraded } = tradelog
             ? tradeIface.parseLog(tradelog).args
             : { bases: ZERO_BN, fyTokens: ZERO_BN };
 
-          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+          const date = (await fallbackProvider?.getBlock(blockNumber)!).timestamp;
           const ilk = assetRootMap.get(ilkId);
 
           const actionCode = _inferTransactionType(art, ink);
@@ -330,18 +331,18 @@ const HistoryProvider = ({ children }: any) => {
           if (actionCode === ActionCodes.BORROW)
             primaryInfo = `
           ${cleanValue(
-            ethers.utils.formatUnits(baseTraded, base_.decimals),
-            base_.digitFormat!
+            ethers.utils.formatUnits(baseTraded, base_?.decimals),
+            base_?.digitFormat!
           )} ${base_?.displaySymbol!} @
           ${cleanValue(tradeApr, 2)}%`;
           else if (actionCode === ActionCodes.REPAY)
             primaryInfo = `${cleanValue(
-              ethers.utils.formatUnits(baseTraded.abs(), base_.decimals),
-              base_.digitFormat!
+              ethers.utils.formatUnits(baseTraded.abs(), base_?.decimals),
+              base_?.digitFormat!
             )} ${base_?.displaySymbol!}`;
           else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
-            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${
-              ilk.displaySymbol
+            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk?.decimals), ilk?.digitFormat!)} ${
+              ilk?.displaySymbol
             }`;
 
           return {
@@ -355,8 +356,8 @@ const HistoryProvider = ({ children }: any) => {
             secondaryInfo:
               ink.gt(ethers.constants.Zero) &&
               actionCode === ActionCodes.BORROW &&
-              `added (${cleanValue(ethers.utils.formatUnits(ink, ilk.decimals), ilk.digitFormat!)} ${
-                ilk.displaySymbol
+              `added (${cleanValue(ethers.utils.formatUnits(ink, ilk?.decimals), ilk?.digitFormat!)} ${
+                ilk?.displaySymbol
               } collateral)`,
 
             /* args info */
@@ -368,10 +369,10 @@ const HistoryProvider = ({ children }: any) => {
 
             /* Formatted values:  */
             date_: dateFormat(date),
-            ink_: ethers.utils.formatUnits(ink, ilk.decimals),
-            art_: ethers.utils.formatUnits(art, base_.decimals),
-            baseTraded_: ethers.utils.formatUnits(baseTraded, base_.decimals),
-            fyTokenTraded_: ethers.utils.formatUnits(fyTokenTraded, base_.decimals),
+            ink_: ethers.utils.formatUnits(ink, ilk?.decimals),
+            art_: ethers.utils.formatUnits(art, base_?.decimals),
+            baseTraded_: ethers.utils.formatUnits(baseTraded, base_?.decimals),
+            fyTokenTraded_: ethers.utils.formatUnits(fyTokenTraded, base_?.decimals),
           } as IBaseHistItem;
         })
       );
@@ -380,13 +381,13 @@ const HistoryProvider = ({ children }: any) => {
   );
 
   const _parseGivenLogs = useCallback(
-    (eventList: ethers.Event[], contract: Cauldron, series: ISeries) =>
+    (eventList: VaultGivenEvent[], contract: Cauldron, series: ISeries) =>
       Promise.all(
-        eventList.map(async (e: VaultGivenEvent) => {
+        eventList.map(async (e) => {
           const { blockNumber, transactionHash } = e;
           // event VaultGiven(bytes12 indexed vaultId, address indexed receiver);
           const { receiver } = e.args;
-          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+          const date = (await fallbackProvider?.getBlock(blockNumber)!).timestamp;
           return {
             /* histItem base */
             series,
@@ -406,13 +407,13 @@ const HistoryProvider = ({ children }: any) => {
   );
 
   const _parseRolledLogs = useCallback(
-    (eventList: ethers.Event[], contract: Cauldron, series: ISeries) =>
+    (eventList: VaultRolledEvent[], contract: Cauldron, series: ISeries) =>
       Promise.all(
-        eventList.map(async (e: VaultRolledEvent) => {
+        eventList.map(async (e) => {
           const { blockNumber, transactionHash } = e;
           // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
           const { seriesId: toSeries, art } = e.args;
-          const date = (await fallbackProvider.getBlock(blockNumber)).timestamp;
+          const date = (await fallbackProvider?.getBlock(blockNumber)!).timestamp;
           const toSeries_ = seriesRootMap.get(toSeries) as ISeries;
           return {
             /* histItem base */
@@ -453,7 +454,7 @@ const HistoryProvider = ({ children }: any) => {
           const rolledFilter = cauldronContract.filters.VaultRolled(vaultId32);
 
           /* get all the logs available */
-          const [pourEventList, givenEventList, rolledEventList]: ethers.Event[][] = await Promise.all([
+          const [pourEventList, givenEventList, rolledEventList] = await Promise.all([
             cauldronContract.queryFilter(pourFilter, lastVaultUpdate),
             cauldronContract.queryFilter(givenFilter, lastVaultUpdate),
             cauldronContract.queryFilter(rolledFilter, lastVaultUpdate),

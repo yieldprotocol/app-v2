@@ -71,11 +71,11 @@ const initState: ISettingsContextState = {
   dashCurrency: 'USDC',
 };
 
-function settingsReducer(state: ISettingsContextState, action: any) {
+function settingsReducer(state: ISettingsContextState, action: any): ISettingsContextState {
   /* Helper: if different from existing , update the state and cache */
   const cacheAndUpdate = (_action: any) => {
-    if (state[action.type] === _action.payload) {
-      return state[action.type];
+    if ((state as any)[action.type] === _action.payload) {
+      return (state as any)[action.type];
     }
     localStorage.setItem(_action.type, JSON.stringify(_action.payload));
     return _action.payload;
@@ -123,8 +123,8 @@ const SettingsProvider = ({ children }: any) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       Object.values(Settings).forEach((setting) => {
-        if (JSON.parse(localStorage.getItem(setting)) !== null) {
-          updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)) });
+        if (JSON.parse(localStorage.getItem(setting)!) !== null) {
+          updateState({ type: setting, payload: JSON.parse(localStorage.getItem(setting)!) });
         }
       });
     }
