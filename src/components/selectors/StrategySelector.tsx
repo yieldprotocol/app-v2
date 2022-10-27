@@ -10,7 +10,7 @@ import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
-import useStrategyReturns from '../../hooks/useStrategyReturns';
+import useStrategyReturns, { IReturns } from '../../hooks/useStrategyReturns';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -115,6 +115,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
   const [options, setOptions] = useState<IStrategy[]>([]);
+  const [returns, setReturns] = useState<{ [address: string]: IReturns }>(); // map strategy address to IReturns
+  console.log('🦄 ~ file: StrategySelector.tsx ~ line 119 ~ StrategySelector ~ returns', returns);
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
@@ -165,6 +167,16 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     }
   }, [selectedBase, strategyMap]);
 
+  useEffect(() => {
+    (async () => {
+      setReturns(
+        await options.reduce(async (returns: any, strat) => {
+          return { ...(await returns), [strat.address]: await calcStrategyReturns(strat, inputValue || '1') };
+        }, {})
+      );
+    })();
+  }, [calcStrategyReturns, inputValue, options]);
+
   return (
     <Box>
       {strategiesLoading && (
@@ -178,7 +190,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
       <Box gap="small">
         {options.map((o) => {
           const displayName = seriesMap.get(o.currentSeriesId!)?.displayName!;
-          const returns = calcStrategyReturns(o, inputValue || '1');
+          const ret = returns && returns[o.address];
           const selected = selectedStrategy?.address === o.address;
           return (
             <StrategySelectItem
@@ -187,7 +199,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
               handleClick={() => handleSelect(o)}
               selected={selected}
               displayName={displayName}
-              apy={returns.blendedAPY}
+              apy={ret?.blendedAPY || '0'}
             />
           );
         })}

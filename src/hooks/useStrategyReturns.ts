@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { ISeries, IStrategy, IUserContext } from '../types';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { ISeries, ISettingsContext, IStrategy, IUserContext } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import {
   ONE_DEC as ONE,
@@ -14,8 +14,9 @@ import {
 import { parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
 import useTimeTillMaturity from './useTimeTillMaturity';
+import { SettingsContext } from '../contexts/SettingsContext';
 
-interface IReturns {
+export interface IReturns {
   sharesBlendedAPY?: string;
   sharesAPY?: string;
   fyTokenAPY?: string;
@@ -24,7 +25,7 @@ interface IReturns {
 }
 
 interface IStrategyReturns {
-  calcStrategyReturns: (strategy: IStrategy, input: string) => IReturns;
+  calcStrategyReturns: (strategy: IStrategy, input: string) => Promise<IReturns>;
   returns: IReturns;
 }
 
@@ -94,6 +95,12 @@ const useStrategyReturns = (
     userState: { selectedStrategy },
   } = useContext(UserContext) as IUserContext;
 
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext) as ISettingsContext;
+
+  const [returns, setReturns] = useState<IReturns>();
+
   const strategy_ = strategy || selectedStrategy;
   const series = strategy_?.currentSeries;
 
@@ -101,23 +108,38 @@ const useStrategyReturns = (
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const [initSeries, setInitSeries] = useState<{
-    sharesReserves: BigNumber;
-    fyTokenReserves: BigNumber;
-    totalSupply: BigNumber;
-    ts: BigNumber;
-    g2: BigNumber;
-    c: BigNumber;
-  }>();
-
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
+
+  // get the init series data to use the invariant function
+  const getInitSeries = useCallback(
+    async (series: ISeries, startBlock: number) => {
+      const { poolContract } = series;
+
+      try {
+        const [sharesReserves, fyTokenReserves, totalSupply, ts, g2, c] = await Promise.all([
+          poolContract.getSharesBalance({ blockTag: startBlock }),
+          poolContract.getFYTokenBalance({ blockTag: startBlock }),
+          poolContract.totalSupply({ blockTag: startBlock }),
+          poolContract.ts({ blockTag: startBlock }),
+          poolContract.g2({ blockTag: startBlock }),
+          poolContract.getC({ blockTag: startBlock }),
+        ]);
+
+        return { sharesReserves, fyTokenReserves, totalSupply, ts, g2, c };
+      } catch (e) {
+        diagnostics && console.log('Could not get init series');
+        return undefined;
+      }
+    },
+    [diagnostics]
+  );
 
   /**
    *
    * @returns {number} fyToken price in base, where 1 is at par with base
    */
-  const getFyTokenPrice = (series: ISeries, input: string): number => {
-    if (series) {
+  const getFyTokenPrice = useCallback(
+    (series: ISeries, input: string): number => {
       const input_ = parseUnits(input, series.decimals);
 
       const sharesOut = sellFYToken(
@@ -133,9 +155,9 @@ const useStrategyReturns = (
       );
       const baseValOfInput = series.getBase(sharesOut);
       return +baseValOfInput / +input_;
-    }
-    return 1;
-  };
+    },
+    [getTimeTillMaturity]
+  );
 
   /**
    * Calculate the total base value of the pool
@@ -143,94 +165,105 @@ const useStrategyReturns = (
    *
    * @returns {number} total base value of pool
    */
-  const getPoolBaseValue = (series: ISeries, input: string): number => {
-    if (!series) return 0;
-
-    const fyTokenPrice = getFyTokenPrice(series, input);
-    const sharesBaseVal = +series.getBase(series.sharesReserves);
-    const fyTokenBaseVal = +series.fyTokenRealReserves * fyTokenPrice;
-    return sharesBaseVal + fyTokenBaseVal;
-  };
+  const getPoolBaseValue = useCallback(
+    (series: ISeries, input: string): number => {
+      const fyTokenPrice = getFyTokenPrice(series, input);
+      const sharesBaseVal = +series.getBase(series.sharesReserves);
+      const fyTokenBaseVal = +series.fyTokenRealReserves * fyTokenPrice;
+      return sharesBaseVal + fyTokenBaseVal;
+    },
+    [getFyTokenPrice]
+  );
 
   /**
    * Calculates estimated blended apy from shares portion of pool
    * @returns {number} shares apy of pool
    */
-  const getSharesAPY = (series: ISeries, input: string): number => {
-    const poolBaseValue = getPoolBaseValue(series, input);
+  const getSharesAPY = useCallback(
+    (series: ISeries, input: string): number => {
+      const poolBaseValue = getPoolBaseValue(series, input);
 
-    if (series.poolAPY) {
-      const sharesBaseVal = +series.getBase(series.sharesReserves);
-      const sharesValRatio = sharesBaseVal / poolBaseValue;
-      return +series.poolAPY * sharesValRatio;
-    }
-    return 0;
-  };
+      if (series.poolAPY) {
+        const sharesBaseVal = +series.getBase(series.sharesReserves);
+        const sharesValRatio = sharesBaseVal / poolBaseValue;
+        return +series.poolAPY * sharesValRatio;
+      }
+      return 0;
+    },
+    [getPoolBaseValue]
+  );
 
   /**
    * Caculate (estimate) how much fees are accrued to LP's using invariant func
    * Use the current and init invariant results from global context and fallback to manual calculation if unavailable
    * @returns {number}
    */
-  const getFeesAPY = (series: ISeries, initSeries: ISeries | undefined): number => {
-    let currentInvariant = series.currentInvariant;
-    let initInvariant = series.initInvariant;
+  const getFeesAPY = useCallback(
+    async (series: ISeries) => {
+      let currentInvariant = series.currentInvariant;
+      let initInvariant = series.initInvariant;
 
-    if ((!series.currentInvariant || !series.initInvariant) && series.startBlock) {
-      if (!initSeries) return 0;
+      if ((!series.currentInvariant || !series.initInvariant) && series.startBlock) {
+        // try to get init series data to calculate curr and init invariant
+        const initSeries = await getInitSeries(series, series.startBlock.number);
 
-      currentInvariant = invariant(
-        series.sharesReserves,
-        series.fyTokenReserves,
-        series.totalSupply,
-        getTimeTillMaturity(series.maturity),
-        series.ts,
-        series.g2,
-        series.decimals,
-        series.c,
-        series.mu
-      );
+        if (!initSeries) return 0;
 
-      initInvariant = invariant(
-        initSeries.sharesReserves,
-        initSeries.fyTokenReserves,
-        initSeries.totalSupply,
-        (series.maturity - series.startBlock.timestamp).toString(),
-        initSeries.ts,
-        initSeries.g2,
-        series.decimals,
-        initSeries.c,
-        series.mu
-      );
-    }
+        currentInvariant = invariant(
+          series.sharesReserves,
+          series.fyTokenReserves,
+          series.totalSupply,
+          getTimeTillMaturity(series.maturity),
+          series.ts,
+          series.g2,
+          series.decimals,
+          series.c,
+          series.mu
+        );
 
-    // get apy estimate
-    if (initInvariant && currentInvariant && series.startBlock) {
-      const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
-      return !isNaN(+res!) ? +res! : 0;
-    }
+        initInvariant = invariant(
+          initSeries.sharesReserves,
+          initSeries.fyTokenReserves,
+          initSeries.totalSupply,
+          (series.maturity - series.startBlock.timestamp).toString(),
+          initSeries.ts,
+          initSeries.g2,
+          series.decimals,
+          initSeries.c,
+          series.mu
+        );
+      }
 
-    return 0;
-  };
+      // get apy estimate
+      if (initInvariant && currentInvariant && series.startBlock) {
+        const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
+        return !isNaN(+res!) ? +res! : 0;
+      }
+
+      return 0;
+    },
+    [NOW, getInitSeries, getTimeTillMaturity]
+  );
 
   /**
    * Calculate (estimate) how much interest would be captured by LP position using market rates and fyToken proportion of the pool
    * @returns {number} estimated fyToken interest from LP position
    */
-  const getFyTokenAPY = (series: ISeries, input: string): number => {
-    if (!series) return 0;
-
-    const marketInterestRate = calcInterestRate(
-      series.sharesReserves,
-      series.fyTokenReserves,
-      series.ts,
-      series.mu
-    ).mul(100); // interest rate is formatted in decimal (.1) so multiply by 100 to get percent
-    const fyTokenPrice = getFyTokenPrice(series, input);
-    const poolBaseValue = getPoolBaseValue(series, input);
-    const fyTokenValRatio = (+series.fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
-    return +marketInterestRate * fyTokenValRatio;
-  };
+  const getFyTokenAPY = useCallback(
+    (series: ISeries, input: string) => {
+      const marketInterestRate = calcInterestRate(
+        series.sharesReserves,
+        series.fyTokenReserves,
+        series.ts,
+        series.mu
+      ).mul(100); // interest rate is formatted in decimal (.1) so multiply by 100 to get percent
+      const fyTokenPrice = getFyTokenPrice(series, input);
+      const poolBaseValue = getPoolBaseValue(series, input);
+      const fyTokenValRatio = (+series.fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
+      return +marketInterestRate * fyTokenValRatio;
+    },
+    [getFyTokenPrice, getPoolBaseValue]
+  );
 
   /* TODO  fix this*/
   const totalAPYBackward = (strategy: IStrategy, digits: number = 2) => {
@@ -252,48 +285,33 @@ const useStrategyReturns = (
     return cleanValue(apy, digits);
   };
 
-  // get the init series data to use the invariant function
-  useEffect(() => {
-    (async () => {
+  const calcStrategyReturns = useCallback(
+    async (strategy: IStrategy, input: string) => {
+      const series = strategy.currentSeries;
       if (!series) return;
 
-      const { poolContract, currentInvariant, initInvariant } = series;
+      const sharesAPY = getSharesAPY(series, input);
+      const feesAPY = await getFeesAPY(series);
+      const fyTokenAPY = getFyTokenAPY(series, input);
 
-      if (!currentInvariant || !initInvariant) {
-        const [sharesReserves, fyTokenReserves, totalSupply, ts, g2, c] = await Promise.all([
-          poolContract.getSharesBalance(),
-          poolContract.getFYTokenBalance(),
-          poolContract.totalSupply(),
-          poolContract.ts(),
-          poolContract.g2(),
-          poolContract.getC(),
-        ]);
+      return {
+        feesAPY: cleanValue(feesAPY.toString(), digits),
+        sharesAPY: cleanValue(series.poolAPY, digits),
+        sharesBlendedAPY: cleanValue(sharesAPY.toString(), digits),
+        fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
+        blendedAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY).toString(), digits),
+      };
+    },
+    [digits, getFeesAPY, getFyTokenAPY, getSharesAPY]
+  );
 
-        setInitSeries({ sharesReserves, fyTokenReserves, totalSupply, ts, g2, c });
+  useEffect(() => {
+    (async () => {
+      if (selectedStrategy) {
+        setReturns(await calcStrategyReturns(selectedStrategy, inputToUse));
       }
     })();
-  }, [series]);
-
-  const calcStrategyReturns = (strategy: IStrategy | null, input: string) => {
-    if (!strategy) return;
-
-    const series = strategy.currentSeries;
-    if (!series) return;
-
-    const sharesAPY = getSharesAPY(series, input);
-    const feesAPY = getFeesAPY(series, undefined);
-    const fyTokenAPY = getFyTokenAPY(series, input);
-
-    return {
-      feesAPY: cleanValue(feesAPY.toString(), digits),
-      sharesAPY: cleanValue(series.poolAPY, digits),
-      sharesBlendedAPY: cleanValue(sharesAPY.toString(), digits),
-      fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
-      blendedAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY).toString(), digits),
-    };
-  };
-
-  const returns = calcStrategyReturns(selectedStrategy!, inputToUse);
+  }, [calcStrategyReturns, inputToUse, selectedStrategy]);
 
   return {
     returns,
