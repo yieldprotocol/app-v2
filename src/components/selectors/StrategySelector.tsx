@@ -176,7 +176,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
       <Box gap="small">
         {options.map((o) => {
           const displayName = seriesMap.get(o.currentSeriesId!)?.displayName!;
-          const returns = calcStrategyReturns(o, inputValue || '1');
+          const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
           const selected = selectedStrategy?.address === o.address;
           return (
             <StrategySelectItem
