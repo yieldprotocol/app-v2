@@ -216,22 +216,22 @@ function Pool() {
                   >
                     {lpReturns && +lpReturns.blendedAPY! > 0 && (
                       <InfoBite
-                        textSize="medium"
+                        textSize="large"
                         label="Variable APY"
                         icon={<FiZap color="#10B981" />}
                         value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
                         labelInfo={
                           <Box>
-                            {+lpReturns.sharesAPY! > 0 && (
+                            {
                               <Text size="small" weight="lighter">
                                 {`${selectedBase?.symbol} APY: ${lpReturns.sharesAPY}%`}
                               </Text>
-                            )}
-                            {+lpReturns.fyTokenAPY! > 0 && (
+                            }
+                            {
                               <Text size="small" weight="lighter">
                                 fyToken APY: {lpReturns.fyTokenAPY}%
                               </Text>
-                            )}
+                            }
                             {+lpReturns.feesAPY! > 0 && (
                               <Text size="small" weight="lighter">
                                 Fees APY: {lpReturns.feesAPY}%
