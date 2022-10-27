@@ -172,6 +172,7 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
+  
   startBlock: Block; // pool init block
 
   decimals: number;
@@ -311,7 +312,7 @@ export interface ISeries extends ISeriesRoot {
   getBase: (sharesAmount: BigNumber) => BigNumber;
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
-  startBlock?: Block;
+  // startBlock?: Block;
 }
 
 export interface IAsset extends IAssetRoot {

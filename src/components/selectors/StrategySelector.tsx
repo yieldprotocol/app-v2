@@ -98,6 +98,7 @@ const StrategySelectItem = ({
 
 interface IStrategySelectorProps {
   inputValue?: string /* accepts an input value for possible dynamic Return calculations */;
+  setOpen?: any
 }
 
 const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
