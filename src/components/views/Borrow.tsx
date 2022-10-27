@@ -362,7 +362,7 @@ const Borrow = () => {
                   <BackButton action={() => setStepPosition(0)} />
                 </Box> */}
                 <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
-                  <BackButton action={() => setStepPosition(0)} />
+                  <BackButton action={() => handleNavAction(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">
                     <Box justify="center">
                       <Gauge
