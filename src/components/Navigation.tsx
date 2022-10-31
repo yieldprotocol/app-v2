@@ -7,6 +7,9 @@ import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { ISettingsContext } from '../types';
 import { useAccount } from 'wagmi';
+import useAnalytics from '../hooks/useAnalytics';
+import { GA_Event, GA_Properties } from '../types/analytics';
+import NavText from './texts/NavText';
 
 const StyledLink = styled.div`
   text-decoration: none;
@@ -48,10 +51,12 @@ interface IYieldNavigationProps {
 const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
+  const { logAnalyticsEvent } = useAnalytics();
+
   const [height] = useWindowSize();
 
-  const {isConnected} = useAccount();
- 
+  const { isConnected } = useAccount();
+
   const {
     settingsState: { darkMode },
   } = useContext(SettingsContext) as ISettingsContext;
@@ -69,13 +74,23 @@ const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
     { label: 'BORROW', to: '/borrow' },
     { label: 'LEND', to: '/lend' },
     { label: 'POOL', to: '/pool' },
-    { label: 'DASHBOARD', to: '/dashboard', disabled: !isConnected},
+    { label: 'DASHBOARD', to: '/dashboard', disabled: !isConnected },
   ];
 
+  const handleViewChange = (toView: string) => {
+    // console.log(toView.slice(1));
+    logAnalyticsEvent(GA_Event.view_changed, {
+      toView: toView.slice(1),
+    } as GA_Properties.view_changed);
+  };
+
   const NavLink = ({ link }: { link: any }) => (
-    <Link href={link.to} >  
-      <StyledLink onClick={()=>callbackFn()} style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'grey' }}>
-        <StyledText size={mobile ? 'medium' : 'small'}>{link.label}</StyledText>
+    <Link href={link.to} passHref>
+      <StyledLink
+        onClick={() => handleViewChange(link.to)}
+        style={router.pathname.includes(link.to) ? activelinkStyle : { color: 'gray' }}
+      >
+        <NavText size={mobile ? 'medium' : 'small'}>{link.label}</NavText>
       </StyledLink>
     </Link>
   );

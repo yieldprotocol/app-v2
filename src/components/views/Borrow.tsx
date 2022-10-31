@@ -19,7 +19,7 @@ import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
 
-import { analyticsLogEvent, cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getTxCode, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
 import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
@@ -49,10 +49,15 @@ import { useAssetPair } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 import useTenderly from '../../hooks/useTenderly';
 import { useAccount, useNetwork } from 'wagmi';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
+import { WETH } from '../../config/assets';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   useTenderly();
+
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* STATE FROM CONTEXT */
   const {
@@ -134,16 +139,43 @@ const Borrow = () => {
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     setBorrowDisabled(true);
     borrow(_vault, borrowInput, collatInput);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.BORROW,
+      series_id: selectedSeries?.name!,
+      action_code: ActionCodes.BORROW,
+      supporting_collateral: selectedIlk.symbol,
+    } as GA_Properties.transaction_initiated);
   };
 
   useEffect(() => {
     setRenderId(new Date().getTime().toString(36));
   }, []);
 
+  /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
     _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
     setStepPosition(_stepPosition);
-    analyticsLogEvent('NAVIGATION', { screen: 'BORROW', step: _stepPosition, renderId }, chain.id);
+    logAnalyticsEvent(GA_Event.next_step_clicked, {
+      view: GA_View.BORROW,
+      step_index: _stepPosition,
+    } as GA_Properties.next_step_clicked);
+  };
+
+  const handleMaxAction = (actionCode: ActionCodes) => {
+    actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral);
+    actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.BORROW,
+      action_code: actionCode,
+    } as GA_Properties.max_clicked);
+  };
+
+  const handleUseSafeCollateral = () => {
+    selectedIlk && setCollatInput(cleanValue(minSafeCollateral, selectedIlk.decimals));
+    logAnalyticsEvent(GA_Event.safe_collateralization_clicked, {
+      view: GA_View.BORROW,
+    } as GA_Properties.safe_collateralization_clicked);
   };
 
   const handleGaugeColorChange: any = (val: string) => {
@@ -306,7 +338,7 @@ const Borrow = () => {
                 </Box>
 
                 {!borrowInputError && borrowInput && !borrowPossible && selectedSeries && (
-                  <InputInfoWrap action={() => setBorrowInput(selectedSeries?.sharesReserves_!)}>
+                  <InputInfoWrap action={() => handleMaxAction(ActionCodes.BORROW)}>
                     <Text size="xsmall" color="text-weak">
                       Max borrow is{' '}
                       <Text size="small" color="text-weak">
@@ -333,7 +365,7 @@ const Borrow = () => {
                   <BackButton action={() => setStepPosition(0)} />
                 </Box> */}
                 <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
-                  <BackButton action={() => setStepPosition(0)} />
+                  <BackButton action={() => handleNavAction(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">
                     <Box justify="center">
                       <Gauge
@@ -403,7 +435,7 @@ const Borrow = () => {
                               disabled={!selectedSeries || selectedSeries.seriesIsMature}
                             />
                             <MaxButton
-                              action={() => maxCollateral && setCollatInput(maxCollateral)}
+                              action={() => maxCollateral && handleMaxAction(ActionCodes.ADD_COLLATERAL)}
                               disabled={
                                 !selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature
                               }
@@ -435,9 +467,7 @@ const Borrow = () => {
 
                     {borrowInput && minSafeCollateral && (
                       <Box margin={{ top: 'small' }}>
-                        <InputInfoWrap
-                          action={() => setCollatInput(cleanValue(minSafeCollateral, selectedIlk?.decimals))}
-                        >
+                        <InputInfoWrap action={() => handleUseSafeCollateral()}>
                           <Text size="small" color="text-weak">
                             Use Safe Collateralization{': '}
                             {cleanValue(minSafeCollateral, selectedIlk?.digitFormat)} {selectedIlk?.displaySymbol}
@@ -556,7 +586,9 @@ const Borrow = () => {
                 label={
                   <Text size={mobile ? 'small' : undefined}>
                     {borrowInput && (!selectedSeries || selectedBase?.proxyId !== selectedSeries.baseId)
-                      ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} Maturity`
+                      ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
+                          selectedBase && '-based'
+                        } Maturity`
                       : 'Next Step'}
                   </Text>
                 }

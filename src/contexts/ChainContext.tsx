@@ -17,7 +17,7 @@ import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
 import { useAccount, useNetwork, useProvider } from 'wagmi';
-import { PoolType, SERIES_1, SERIES_42161 } from '../config/series';
+import { SERIES_1, SERIES_42161 } from '../config/series';
 import { SettingsContext } from './SettingsContext';
 import { toast } from 'react-toastify';
 
@@ -100,6 +100,8 @@ const ChainProvider = ({ children }: any) => {
 
   /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
+
+  const [loadingFlag, setLoadingFlag] = useState(false);
 
   /**
    * Track chainId changes.

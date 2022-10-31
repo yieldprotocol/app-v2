@@ -8,7 +8,7 @@ import AssetSelector from '../selectors/AssetSelector';
 import InputWrap from '../wraps/InputWrap';
 import MainViewWrap from '../wraps/MainViewWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -41,6 +41,9 @@ import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelector
 import Navigation from '../Navigation';
 import Line from '../elements/Line';
 import { useAccount } from 'wagmi';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
+import { WETH } from '../../config/assets';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -63,6 +66,8 @@ const Lend = () => {
   const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
   const lend = useLend();
 
+  const { logAnalyticsEvent } = useAnalytics();
+
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
 
   /* input validation hooks */
@@ -73,6 +78,28 @@ const Lend = () => {
     if (lendDisabled) return;
     setLendDisabled(true);
     lend(lendInput, selectedSeries!);
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.LEND,
+      series_id: selectedSeries.name,
+      action_code: ActionCodes.LEND,
+    } as GA_Properties.transaction_initiated);
+  };
+
+  /* Event handlers */
+  const handleNavAction = (_stepPosition: number) => {
+    setStepPosition(_stepPosition);
+    logAnalyticsEvent(GA_Event.next_step_clicked, {
+      view: GA_View.LEND,
+      step_index: _stepPosition,
+    } as GA_Properties.next_step_clicked);
+  };
+
+  const handleMaxAction = () => {
+    maxLend_ && setLendInput(maxLend_);
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.LEND,
+      action_code: ActionCodes.LEND,
+    } as GA_Properties.max_clicked);
   };
 
   const resetInputs = useCallback(() => {
@@ -139,7 +166,7 @@ const Lend = () => {
                             disabled={selectedSeries?.seriesIsMature}
                           />
                           <MaxButton
-                            action={() => setLendInput(maxLend_)}
+                            action={() => handleMaxAction()}
                             disabled={maxLend_ === '0' || selectedSeries?.seriesIsMature}
                             clearAction={() => setLendInput('')}
                             showingMax={!!lendInput && (lendInput === maxLend_ || !!lendError)}
@@ -163,7 +190,9 @@ const Lend = () => {
                     <SectionWrap
                       title={
                         seriesMap.size > 0
-                          ? `Select a ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity date:`
+                          ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
+                              selectedBase && '-based'
+                            } maturity date:`
                           : ''
                       }
                     >
@@ -173,7 +202,7 @@ const Lend = () => {
                 </Box>
 
                 {selectedBase && selectedSeries && protocolLimited && (
-                  <InputInfoWrap action={() => setLendInput(maxLend_)}>
+                  <InputInfoWrap action={() => handleMaxAction()}>
                     <Text size="xsmall" color="text-weak">
                       Max lend is{' '}
                       <Text size="small" color="text-weak">
@@ -196,7 +225,7 @@ const Lend = () => {
                 gap="large"
               >
                 {lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                  <BackButton action={() => setStepPosition(0)} />
+                  <BackButton action={() => handleNavAction(0)} />
                 ) : (
                   <Box pad="1em" />
                 )}
@@ -254,7 +283,7 @@ const Lend = () => {
               disabled={stepDisabled}
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               key="ONE"
-              onClick={() => setStepPosition(stepPosition + 1)}
+              onClick={() => handleNavAction(stepPosition + 1)}
               errorLabel={lendError}
             />
           )}

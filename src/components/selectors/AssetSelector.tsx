@@ -13,6 +13,8 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { useAccount } from 'wagmi';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -43,9 +45,11 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   const { address: activeAccount } = useAccount();
 
-  const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
+  const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
+
+  const { logAnalyticsEvent } = useAnalytics();
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -63,10 +67,19 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     if (selectCollateral) {
       diagnostics && console.log('Collateral selected: ', asset.id);
       setSelectedIlk(asset);
+      logAnalyticsEvent(GA_Event.collateral_selected, {
+        asset: asset.symbol,
+      } as GA_Properties.collateral_selected);
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
       setSelectedSeries(null);
+
+      setSelectedStrategy(null);
+
+      logAnalyticsEvent(GA_Event.asset_selected, {
+        asset: asset.symbol,
+      } as GA_Properties.asset_selected);
     }
   };
 
@@ -108,7 +121,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   /* set ilk to be USDC if ETH base */
   useEffect(() => {
     if (selectedBase?.proxyId === WETH || selectedBase?.id === WETH) {
-      setSelectedIlk(assetMap.get(USDC));
+      setSelectedIlk(assetMap.get(USDC) || null);
     }
   }, [assetMap, selectedBase, setSelectedIlk]);
 
@@ -131,7 +144,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           name="assetSelect"
           placeholder="Select Asset"
           options={options}
-          value= { !selectCollateral ?  selectedBase || undefined : selectedIlk || undefined }
+          // value={selectCollateral ? selectedIlk! : selectedBase!}
           labelKey={(x: IAsset | undefined) => optionText(x)}
           valueLabel={
             <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>

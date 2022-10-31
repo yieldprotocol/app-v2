@@ -3,7 +3,7 @@ import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Ti
 import { FiInfo, FiPercent, FiZap } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
-import { cleanValue, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import AssetSelector from '../selectors/AssetSelector';
 import MainViewWrap from '../wraps/MainViewWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -34,6 +34,10 @@ import StrategyItem from '../positionItems/StrategyItem';
 import Navigation from '../Navigation';
 import Line from '../elements/Line';
 import { useAccount } from 'wagmi';
+import useStrategyReturns from '../../hooks/useStrategyReturns';
+import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
+import { WETH } from '../../config/assets';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -45,7 +49,6 @@ function Pool() {
   const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
-  const [modalOpen, toggleModal] = useState<boolean>(false);
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
   const [poolDisabled, setPoolDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -56,6 +59,9 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
+  const { returns: lpReturns } = useStrategyReturns(poolInput);
+
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* input validation hooks */
   const { inputError: poolError } = useInputValidation(
@@ -78,6 +84,12 @@ function Pool() {
       canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
       matchingVault
     );
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.POOL,
+      series_id: selectedStrategy?.currentSeries.name,
+      action_code: ActionCodes.ADD_LIQUIDITY,
+    } as GA_Properties.transaction_initiated);
   };
 
   /* ACTION DISABLING LOGIC  - if ANY conditions are met: block action */
@@ -85,6 +97,22 @@ function Pool() {
     !activeAccount || !poolInput || poolError || !selectedStrategy ? setPoolDisabled(true) : setPoolDisabled(false);
     !poolInput || poolError || !selectedStrategy ? setStepDisabled(true) : setStepDisabled(false);
   }, [poolInput, activeAccount, poolError, selectedStrategy]);
+
+  const handleNavAction = (_stepPosition: number) => {
+    setStepPosition(_stepPosition);
+    logAnalyticsEvent(GA_Event.next_step_clicked, {
+      view: GA_View.POOL,
+      step_index: _stepPosition,
+    } as GA_Properties.next_step_clicked);
+  };
+
+  const handleMaxAction = () => {
+    maxPool && setPoolInput(maxPool);
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.POOL,
+      action_code: ActionCodes.ADD_LIQUIDITY,
+    } as GA_Properties.max_clicked);
+  };
 
   const resetInputs = useCallback(() => {
     setPoolInput(undefined);
@@ -135,7 +163,7 @@ function Pool() {
                         onChange={(event: any) => setPoolInput(cleanValue(event.target.value, selectedBase?.decimals))}
                       />
                       <MaxButton
-                        action={() => setPoolInput(maxPool)}
+                        action={() => handleMaxAction()}
                         disabled={maxPool === '0'}
                         clearAction={() => setPoolInput('')}
                         showingMax={!!poolInput && poolInput === maxPool}
@@ -151,12 +179,14 @@ function Pool() {
                 <SectionWrap
                   title={
                     strategyMap.size > 0
-                      ? `Recomended ${selectedBase?.displaySymbol}${selectedBase && '-based'} strategy`
+                      ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
+                          selectedBase && '-based'
+                        } strategy:`
                       : ''
                   }
                 >
                   <Box flex={false}>
-                    <StrategySelector inputValue={poolInput} setOpen={toggleModal} open={modalOpen} />
+                    <StrategySelector inputValue={poolInput} />
                   </Box>
                 </SectionWrap>
               </Box>
@@ -174,7 +204,7 @@ function Pool() {
               >
                 <YieldCardHeader>
                   {poolProcess?.stage !== ProcessStage.PROCESS_COMPLETE ? (
-                    <BackButton action={() => setStepPosition(0)} />
+                    <BackButton action={() => handleNavAction(0)} />
                   ) : (
                     <Box pad="1em" />
                   )}
@@ -187,6 +217,36 @@ function Pool() {
                     animation={{ type: 'zoomIn', size: 'small' }}
                     flex={false}
                   >
+                    {lpReturns && +lpReturns.blendedAPY! > 0 && (
+                      <InfoBite
+                        textSize="large"
+                        label="Variable APY"
+                        icon={<FiZap color="#10B981" />}
+                        value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
+                        labelInfo={
+                          <Box>
+                            {
+                              <Text size="small" weight="lighter">
+                                {`${selectedBase?.symbol} APY: ${lpReturns.sharesAPY}%`}
+                              </Text>
+                            }
+                            {
+                              <Text size="small" weight="lighter">
+                                fyToken APY: {lpReturns.fyTokenAPY}%
+                              </Text>
+                            }
+                            {+lpReturns.feesAPY! > 0 && (
+                              <Text size="small" weight="lighter">
+                                Fees APY: {lpReturns.feesAPY}%
+                              </Text>
+                            )}
+                            <Text size="small" weight="bold">
+                              Blended APY: {lpReturns.blendedAPY}%
+                            </Text>
+                          </Box>
+                        }
+                      />
+                    )}
                     <InfoBite
                       label="Maximum Amount to Pool"
                       icon={<BiMessageSquareAdd />}
@@ -198,14 +258,6 @@ function Pool() {
                       icon={<FiPercent />}
                       value={`${cleanValue(poolPercentPreview, 2)}%`}
                     />
-                    {selectedStrategy.currentSeries.poolAPY && (
-                      <InfoBite
-                        label="Pool APY"
-                        icon={<FiZap />}
-                        value={`${cleanValue(selectedStrategy.currentSeries.poolAPY, 2)}%`}
-                        labelInfo="Estimated APY based on the current Euler supply APY"
-                      />
-                    )}
                   </Box>
                 </ActiveTransaction>
               </Box>
@@ -223,7 +275,8 @@ function Pool() {
                 <Text size="xsmall" weight="lighter">
                   I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
                   the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
-                  demand.
+                  demand. I also understand that the variable APY shown is a projection and that actual returns may
+                  differ.
                 </Text>
               }
               checked={disclaimerChecked}
@@ -246,7 +299,7 @@ function Pool() {
             <NextButton
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
-              onClick={() => setStepPosition(stepPosition + 1)}
+              onClick={() => handleNavAction(stepPosition + 1)}
               disabled={stepDisabled || !selectedStrategy}
               errorLabel={poolError}
             />

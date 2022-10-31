@@ -14,7 +14,6 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import request from 'graphql-request';
 import {
   IAssetRoot,
   ISeriesRoot,
@@ -41,7 +40,8 @@ import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
-import { PoolType } from '../config/series';
+import request from 'graphql-request';
+import { Block } from '@ethersproject/providers';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -245,128 +245,169 @@ const UserProvider = ({ children }: any) => {
   };
 
   /* Updates the series with relevant *user* data */
-  const updateSeries = async (seriesList: ISeriesRoot[]) => {
-    console.log('Updating series...');
-    updateState({ type: UserState.SERIES_LOADING, payload: true });
+  const updateSeries = useCallback(
+    async (seriesList: ISeriesRoot[]): Promise<Map<string, ISeries>> => {
+      updateState({ type: UserState.SERIES_LOADING, payload: true });
+      let _publicData: ISeries[] = [];
+      let _accountData: ISeries[] = [];
 
-    const updatedSeries = await Promise.all(
-      seriesList.map(async (series) => {
-        const seriesIsMature = isMature(series.maturity);
-
-        /* Get all the data simultanenously in a promise.all */
-        const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-          series.poolContract.getBaseBalance(),
-          series.poolContract.getFYTokenBalance(),
-          series.poolContract.totalSupply(),
-          series.fyTokenContract.balanceOf(series.poolAddress),
-        ]);
-
-        let sharesReserves: BigNumber | undefined;
-        let c: BigNumber | undefined;
-        let mu: BigNumber | undefined;
-        let currentSharePrice: BigNumber;
-        let sharesToken: string | undefined;
-
-        if (series.poolType === PoolType.TV) {
-          [sharesReserves, c, mu, currentSharePrice, sharesToken] = await Promise.all([
-            series.poolContract.getSharesBalance(),
-            series.poolContract.getC(),
-            series.poolContract.mu(),
-            series.poolContract.getCurrentSharePrice(),
-            series.poolContract.sharesToken(),
+      /* Add in the dynamic series data of the series in the list */
+      _publicData = await Promise.all(
+        seriesList.map(async (series): Promise<ISeries> => {
+          /* Get all the data simultanenously in a promise.all */
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
+            series.poolContract.getBaseBalance(),
+            series.poolContract.getFYTokenBalance(),
+            series.poolContract.totalSupply(),
+            series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
-        } else {
-          sharesReserves = baseReserves;
-          currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-          diagnostics && console.log('Using non-TV pool contract that does not include c, mu, and shares');
-        }
 
-        // convert base amounts to shares amounts (baseAmount is wad)
-        const getShares = (baseAmount: BigNumber) =>
-          toBn(
-            new Decimal(baseAmount.toString()).mul(10 ** series.decimals).div(new Decimal(currentSharePrice.toString()))
+          let sharesReserves: BigNumber | undefined;
+          let c: BigNumber | undefined;
+          let mu: BigNumber | undefined;
+          let currentSharePrice: BigNumber | undefined;
+          let sharesAddress: string | undefined;
+
+          try {
+            [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
+              series.poolContract.getSharesBalance(),
+              series.poolContract.getC(),
+              series.poolContract.mu(),
+              series.poolContract.getCurrentSharePrice(),
+              series.poolContract.sharesToken(),
+            ]);
+          } catch (error) {
+            sharesReserves = baseReserves;
+            currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
+            sharesAddress = series.baseAddress;
+            console.log('Using old pool contract that does not include c, mu, and shares');
+          }
+
+          // convert base amounts to shares amounts (baseAmount is wad)
+          const getShares = (baseAmount: BigNumber) =>
+            toBn(
+              new Decimal(baseAmount.toString())
+                .mul(10 ** series.decimals)
+                .div(new Decimal(currentSharePrice.toString()))
+            );
+
+          // convert shares amounts to base amounts
+          const getBase = (sharesAmount: BigNumber) =>
+            toBn(
+              new Decimal(sharesAmount.toString())
+                .mul(new Decimal(currentSharePrice.toString()))
+                .div(10 ** series.decimals)
+            );
+
+          const rateCheckAmount = ethers.utils.parseUnits(
+            ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
+            series.decimals
           );
 
-        // convert shares amounts to base amounts
-        const getBase = (sharesAmount: BigNumber) =>
-          toBn(
-            new Decimal(sharesAmount.toString())
-              .mul(new Decimal(currentSharePrice.toString()))
-              .div(10 ** series.decimals)
+          /* Calculates the base/fyToken unit selling price */
+          const _sellRate = sellFYToken(
+            sharesReserves,
+            fyTokenReserves,
+            rateCheckAmount,
+            getTimeTillMaturity(series.maturity),
+            series.ts,
+            series.g2,
+            series.decimals,
+            c,
+            mu
           );
 
-        const rateCheckAmount = ethers.utils.parseUnits(
-          ETH_BASED_ASSETS.includes(series.baseId) ? '.001' : '1',
-          series.decimals
+          const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
+          const poolAPY = sharesAddress ? await getPoolAPY(sharesAddress) : undefined;
+
+          // some logic to decide if the series is shown or not
+          // const showSeries = series.maturity !== 1672412400;
+          const showSeries = true;
+
+          let currentInvariant: BigNumber | undefined;
+          let initInvariant: BigNumber | undefined;
+          let startBlock: Block | undefined;
+
+          try {
+            // get pool init block
+            const gmFilter = series.poolContract.filters.gm();
+            const gm = (await series.poolContract.queryFilter(gmFilter))[0];
+            startBlock = await gm.getBlock();
+
+            currentInvariant = await series.poolContract.invariant();
+            initInvariant = await series.poolContract.invariant({ blockTag: startBlock.number });
+          } catch (e) {
+            diagnostics && console.log('Could not get current and init invariant for series', series.id);
+          }
+
+          return {
+            ...series,
+            sharesReserves,
+            sharesReserves_: ethers.utils.formatUnits(sharesReserves, series.decimals),
+            fyTokenReserves,
+            fyTokenRealReserves,
+            totalSupply,
+            totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
+            apr: `${Number(apr).toFixed(2)}`,
+            seriesIsMature: isMature(series.maturity),
+            c,
+            mu,
+            poolAPY,
+            getShares,
+            getBase,
+            showSeries,
+            sharesAddress,
+            currentInvariant,
+            initInvariant,
+            startBlock,
+            ts: BigNumber.from(series.ts),
+          };
+        })
+      );
+
+      if (account) {
+        _accountData = await Promise.all(
+          _publicData.map(async (series): Promise<ISeries> => {
+            /* Get all the data simultanenously in a promise.all */
+            const [poolTokens, fyTokenBalance] = await Promise.all([
+              series.poolContract.balanceOf(account),
+              series.fyTokenContract.balanceOf(account),
+            ]);
+
+            const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
+            return {
+              ...series,
+              poolTokens,
+              fyTokenBalance,
+              poolTokens_: ethers.utils.formatUnits(poolTokens, series.decimals),
+              fyTokenBalance_: ethers.utils.formatUnits(fyTokenBalance, series.decimals),
+              poolPercent,
+            };
+          })
         );
+      }
 
-        /* Calculates the base/fyToken unit selling price */
-        const _sellRate = sellFYToken(
-          sharesReserves,
-          fyTokenReserves,
-          rateCheckAmount,
-          getTimeTillMaturity(series.maturity),
-          series.ts,
-          series.g2,
-          series.decimals,
-          c,
-          mu
-        );
+      const _combinedData = _accountData.length ? _accountData : _publicData;
 
-      console.log( series.id, _sellRate.toString() );
+      /* combined account and public series data reduced into a single Map */
+      const newSeriesMap = new Map(
+        _combinedData.reduce((acc: Map<string, ISeries>, item) => {
+          const _map = acc;
+          // if (item.maturity !== 1672412400) _map.set(item.id, item);
+          _map.set(item.id, item);
+          return _map;
+        }, new Map())
+      ) as Map<string, ISeries>;
 
-        const apr = calculateAPR(floorDecimal(_sellRate), rateCheckAmount, series.maturity) || '0';
-        // fetch the euler eToken supply APY from their subgraph
-        const poolAPY = sharesToken ? await getPoolAPY(sharesToken) : undefined;
+      // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
+      updateState({ type: UserState.SERIES_MAP, payload: newSeriesMap });
+      console.log('SERIES updated (with dynamic data): ', newSeriesMap);
+      updateState({ type: UserState.SERIES_LOADING, payload: false });
 
-        // some logic to decide if the series is shown or not :
-        // const showSeries = chain?.id === 1 && series.baseId !== FRAX ? true : series.maturity !== 1672412400;
-        const showSeries = true; // Show all series
-
-        /* Get all the account data simultanenously in a promise.all */
-        const [poolTokens, fyTokenBalance] = account
-          ? await Promise.all([series.poolContract.balanceOf(account), series.fyTokenContract.balanceOf(account)])
-          : [ZERO_BN, ZERO_BN];
-        const poolPercent = poolTokens.gt(ZERO_BN) ? mulDecimal(divDecimal(poolTokens, totalSupply), '100') : 0;
-
-        /* lay out the new series */
-        const newSeries = {
-          /* public data */
-          ...series,
-          sharesReserves,
-          sharesReserves_: ethers.utils.formatUnits(sharesReserves, series.decimals),
-          fyTokenReserves,
-          fyTokenRealReserves,
-          totalSupply,
-          totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
-          apr: `${Number(apr).toFixed(2)}`,
-          seriesIsMature,
-          c,
-          mu,
-          poolAPY,
-          getShares,
-          getBase,
-          showSeries,
-
-          /* Account data */
-          poolTokens,
-          fyTokenBalance,
-          poolTokens_: ethers.utils.formatUnits(poolTokens, series.decimals),
-          fyTokenBalance_: ethers.utils.formatUnits(fyTokenBalance, series.decimals),
-          poolPercent,
-        };
-
-        updateState({ type: UserState.UPDATE_SERIES, payload: newSeries });
-        return newSeries;
-      })
-    );
-
-    diagnostics && console.log('SERIES updated (with dynamic data): ');
-    // console.table(updatedSeries, ['id', 'displayName', 'baseId', 'poolType', 'seriesIsMature', 'showSeries']);
-    updateState({ type: UserState.SERIES_LOADING, payload: false });
-
-    return updatedSeries;
-  };
+      return newSeriesMap;
+    },
+    [account]
+  );
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = async (strategyList: IStrategyRoot[]) => {
@@ -408,9 +449,9 @@ const UserProvider = ({ children }: any) => {
               ])
             : [ZERO_BN, ZERO_BN];
 
-          const accountStrategyPercent = account
-            ? mulDecimal(divDecimal(accountBalance, strategyTotalSupply || '0'), '100')
-            : '0';
+          const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+
+          const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
 
           newStrategy = {
             ..._strategy,
@@ -438,7 +479,6 @@ const UserProvider = ({ children }: any) => {
             accountPoolBalance,
             accountStrategyPercent,
           };
-
         } else {
           /* else return an 'EMPTY' strategy */
           newStrategy = {
