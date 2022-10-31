@@ -221,9 +221,9 @@ const ChainProvider = ({ children }: any) => {
 
       switch (asset.tokenType) {
         case TokenType.ERC20_:
-          assetContract = contracts.ERC20__factory.connect(asset.address, fallbackProvider);
+          assetContract = contracts.ERC20__factory.connect(asset.address, provider);
           getBalance = async (acc) =>
-            ETH_BASED_ASSETS.includes(asset.proxyId) ? fallbackProvider?.getBalance(acc) : assetContract.balanceOf(acc);
+            ETH_BASED_ASSETS.includes(asset.proxyId) ? provider?.getBalance(acc) : assetContract.balanceOf(acc);
           getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
           break;
 
@@ -283,7 +283,7 @@ const ChainProvider = ({ children }: any) => {
           assetInfo.tokenType === TokenType.ERC20_Permit ||
           assetInfo.tokenType === TokenType.ERC20_DaiPermit
         ) {
-          const contract = contracts.ERC20__factory.connect(assetInfo.assetAddress, fallbackProvider);
+          const contract = contracts.ERC20__factory.connect(assetInfo.assetAddress, provider);
           try {
             [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
           } catch (e) {
@@ -295,7 +295,7 @@ const ChainProvider = ({ children }: any) => {
         }
         /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
         if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
-          const contract = contracts.ERC20Permit__factory.connect(assetInfo.assetAddress, fallbackProvider);
+          const contract = contracts.ERC20Permit__factory.connect(assetInfo.assetAddress, provider);
           try {
             version = await contract.version();
           } catch (e) {
@@ -341,7 +341,7 @@ const ChainProvider = ({ children }: any) => {
     // setCachedAssets(newAssetList);
 
     console.log('Yield Protocol Asset data updated successfully.');
-  }, [ASSET_CONFIG, _chargeAsset, chain.id]);
+  }, [ASSET_CONFIG, _chargeAsset, chain.id, provider]);
 
   /* add on extra/calculated ASYNC series info and contract instances */
   const _chargeSeries = useCallback(
@@ -392,8 +392,8 @@ const ChainProvider = ({ children }: any) => {
         const poolAddress = x[1].poolAddress;
 
         const { maturity, baseId } = await Cauldron.series(id);
-        const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-        const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
+        const poolContract = contracts.Pool__factory.connect(poolAddress, provider);
+        const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, provider);
 
         const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
           await Promise.all([
