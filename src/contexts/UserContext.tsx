@@ -42,6 +42,7 @@ import useTenderly from '../hooks/useTenderly';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
+import useChainId from '../hooks/useChainId';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -151,8 +152,8 @@ const UserProvider = ({ children }: any) => {
 
   /* HOOKS */
   const { address: account } = useAccount();
-  const { chain } = useNetwork();
-  const provider = useProvider({ chainId: chain?.id || chainState.chainId });
+  const chainId = useChainId();
+  const provider = useProvider({ chainId });
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
@@ -163,11 +164,11 @@ const UserProvider = ({ children }: any) => {
     const Cauldron = contractMap.get('Cauldron');
     if (!Cauldron) return;
 
-    const cacheKey = `vaults_${account}_${chain?.id}`;
+    const cacheKey = `vaults_${account}_${chainId}`;
     const cachedVaults = JSON.parse(localStorage.getItem(cacheKey)!);
     const cachedVaultList = cachedVaults ? cachedVaults : [];
 
-    const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chain?.id}`;
+    const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
     const lastVaultUpdate = JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
@@ -575,7 +576,7 @@ const UserProvider = ({ children }: any) => {
 
         if (isVaultMature) {
           const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-          const oracleName = ORACLE_INFO.get(chain?.id!)?.get(vault.baseId)?.get(RATE);
+          const oracleName = ORACLE_INFO.get(chainId!)?.get(vault.baseId)?.get(RATE);
 
           const RateOracle = contractMap.get(oracleName!);
           rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);

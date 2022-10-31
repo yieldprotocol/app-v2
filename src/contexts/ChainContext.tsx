@@ -20,6 +20,7 @@ import { useAccount, useNetwork, useProvider } from 'wagmi';
 import { SERIES_1, SERIES_42161 } from '../config/series';
 import { SettingsContext } from './SettingsContext';
 import { toast } from 'react-toastify';
+import useChainId from '../hooks/useChainId';
 
 enum ChainState {
   CHAIN_ID = 'chainId',
@@ -95,6 +96,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* HOOKS */
   const provider = useProvider();
+  const chainId = useChainId();
   const { chain, chains } = useNetwork();
   const { isConnecting } = useAccount();
 
@@ -104,10 +106,10 @@ const ChainProvider = ({ children }: any) => {
   const [loadingFlag, setLoadingFlag] = useState(false);
 
   /* get asset map config */
-  const ASSET_CONFIG = chain.id === 1 ? ASSETS_1 : ASSETS_42161;
+  const ASSET_CONFIG = chainId === 1 ? ASSETS_1 : ASSETS_42161;
 
   /* get series map config */
-  const SERIES_CONFIG = chain.id === 1 ? SERIES_1 : SERIES_42161;
+  const SERIES_CONFIG = chainId === 1 ? SERIES_1 : SERIES_42161;
 
   const _getContracts = useCallback(
     (_chainId: number) => {
@@ -307,9 +309,9 @@ const ChainProvider = ({ children }: any) => {
         }
 
         /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-        const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chain.id);
+        const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
         /* check if a wrapping handler is provided, if so, wrapping is required */
-        const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chain.id);
+        const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
 
         const newAsset = {
           ...assetInfo,
@@ -341,7 +343,7 @@ const ChainProvider = ({ children }: any) => {
     // setCachedAssets(newAssetList);
 
     console.log('Yield Protocol Asset data updated successfully.');
-  }, [ASSET_CONFIG, _chargeAsset, chain.id, provider]);
+  }, [ASSET_CONFIG, _chargeAsset, chainId, provider]);
 
   /* add on extra/calculated ASYNC series info and contract instances */
   const _chargeSeries = useCallback(
@@ -349,7 +351,7 @@ const ChainProvider = ({ children }: any) => {
       /* contracts need to be added in again in when charging because the cached state only holds strings */
       const poolContract = contracts.Pool__factory.connect(series.poolAddress, provider);
       const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, provider);
-      const seasonColorMap = [1, 4, 5, 42].includes(chain.id as number) ? ethereumColorMap : arbitrumColorMap;
+      const seasonColorMap = [1, 4, 5, 42].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
       const season = getSeason(series.maturity);
       const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
       const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
@@ -377,7 +379,7 @@ const ChainProvider = ({ children }: any) => {
         seriesMark: <YieldMark colors={[startColor, endColor]} />,
       };
     },
-    [chain.id, provider]
+    [chainId, provider]
   );
 
   const _getSeries = useCallback(async () => {
@@ -438,7 +440,7 @@ const ChainProvider = ({ children }: any) => {
     // setCachedSeries(newSeriesList);
 
     console.log('Yield Protocol Series data updated successfully.');
-  }, [_chargeSeries]);
+  }, [SERIES_CONFIG, _chargeSeries, provider]);
 
   /* Attach contract instance */
   const _chargeStrategy = useCallback(
@@ -535,33 +537,6 @@ const ChainProvider = ({ children }: any) => {
     },
     [_getAssets, _getContracts, _getSeries, _getStrategies]
   );
-
-  /**
-   * Track chainId changes.
-   * (defaults to getting the protocol data from the first chain in the provider list)
-   * */
-  useEffect(() => {
-    const chainId = chain?.id || chainState.chainId;
-
-    if (chainId) {
-      console.log('Connected to chainId: ', chainId);
-      /* update protocol info */
-      _getProtocolData(chainId);
-      return updateState({ type: ChainState.CHAIN_ID, payload: chainId });
-    }
-
-    diagnostics && console.log('There is no connected chain: using default chain from state or chains config...');
-    _getProtocolData(chains[0].id);
-  }, [_getProtocolData, chain?.id, chainState.chainId, chains, diagnostics]);
-
-  /**
-   * A bit hacky, but if connecting account, we set 'chainloading'
-   * so that we can safely update on every ACCOUNT change in userContext
-   * without re-triggering loading before local memory has been cleared.
-   */
-  // useEffect(() => {
-  //   isConnecting && updateState({ type: ChainState.CHAIN_LOADED, payload: false });
-  // }, [isConnecting]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
