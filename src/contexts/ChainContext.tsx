@@ -45,7 +45,7 @@ const initState: IChainContextState = {
   strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
-function chainReducer(state: IChainContextState, action: any) {
+function chainReducer(state: IChainContextState, action: any): IChainContextState {
   /* Reducer switch */
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
