@@ -410,78 +410,64 @@ const UserProvider = ({ children }: any) => {
   );
 
   /* Updates the assets with relevant *user* data */
-  const updateStrategies = async (strategyList: IStrategyRoot[]) => {
-    console.log('Updating Strategies...');
-    updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
+  const updateStrategies = useCallback(
+    async (strategyList: IStrategyRoot[]) => {
+      updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
-    const updatedStrategies = await Promise.all(
-      strategyList.map(async (_strategy) => {
-        /* Get all the data simultanenously in a */
-        const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-          _strategy.strategyContract.totalSupply(),
-          _strategy.strategyContract.seriesId(),
-          _strategy.strategyContract.pool(),
-          _strategy.strategyContract.nextSeriesId(),
-        ]);
+      let _publicData: IStrategy[] = [];
+      let _accountData: IStrategy[] = [];
 
-        const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
-        const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
-
-        let newStrategy: IStrategy;
-
-        if (currentSeries) {
-          const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-            currentSeries.poolContract.totalSupply(),
-            currentSeries.poolContract.balanceOf(_strategy.address),
+      _publicData = await Promise.all(
+        strategyList.map(async (_strategy): Promise<IStrategy> => {
+          /* Get all the data simultanenously in a promise.all */
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+            _strategy.strategyContract.totalSupply(),
+            _strategy.strategyContract.seriesId(),
+            _strategy.strategyContract.pool(),
+            _strategy.strategyContract.nextSeriesId(),
           ]);
 
-          const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
-            ? [ZERO_BN, ZERO_BN]
-            : [ZERO_BN, ZERO_BN];
+          const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
+          const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
 
-          const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-          const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
+          if (currentSeries) {
+            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
+              currentSeries.poolContract.totalSupply(),
+              currentSeries.poolContract.balanceOf(_strategy.address),
+            ]);
 
-          const [accountBalance, accountPoolBalance] = account
-            ? await Promise.all([
-                _strategy.strategyContract.balanceOf(account),
-                currentSeries.poolContract.balanceOf(account),
-              ])
-            : [ZERO_BN, ZERO_BN];
+            const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
+              ? [ZERO_BN, ZERO_BN]
+              : [ZERO_BN, ZERO_BN];
 
-          const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
 
-          const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
+            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
 
-          newStrategy = {
-            ..._strategy,
-            strategyTotalSupply,
-            strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
-            poolTotalSupply,
-            poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
-            strategyPoolBalance,
-            strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
-            strategyPoolPercent,
-            currentSeriesId,
-            currentPoolAddr,
-            nextSeriesId,
-            currentSeries,
-            nextSeries,
-            initInvariant: initInvariant || BigNumber.from('0'),
-            currentInvariant: currentInvariant || BigNumber.from('0'),
-            returnRate,
-            returnRate_: returnRate.toString(),
-            active: true,
+            return {
+              ..._strategy,
+              strategyTotalSupply,
+              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
+              poolTotalSupply,
+              poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
+              strategyPoolBalance,
+              strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
+              strategyPoolPercent,
+              currentSeriesId,
+              currentPoolAddr,
+              nextSeriesId,
+              currentSeries,
+              nextSeries,
+              initInvariant: initInvariant || BigNumber.from('0'),
+              currentInvariant: currentInvariant || BigNumber.from('0'),
+              returnRate,
+              returnRate_: returnRate.toString(),
+              active: true,
+            };
+          }
 
-            /* Account info */
-            accountBalance,
-            accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
-            accountPoolBalance,
-            accountStrategyPercent,
-          };
-        } else {
           /* else return an 'EMPTY' strategy */
-          newStrategy = {
+          return {
             ..._strategy,
             currentSeriesId,
             currentPoolAddr,
@@ -490,19 +476,58 @@ const UserProvider = ({ children }: any) => {
             nextSeries: undefined,
             active: false,
           };
-        }
+        })
+      );
 
-        updateState({ type: UserState.UPDATE_STRATEGY, payload: newStrategy });
-        return newStrategy;
-      })
-    );
+      /* add in account specific data */
+      if (account) {
+        _accountData = await Promise.all(
+          _publicData
+            // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
+            .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+              const [accountBalance, accountPoolBalance] = await Promise.all([
+                _strategy.strategyContract.balanceOf(account),
+                _strategy.currentSeries?.poolContract.balanceOf(account),
+              ]);
 
-    diagnostics && console.log('STRATEGIES updated (with dynamic data): ');
-    // console.table(updatedStrategies, ['id', 'currentSeriesId', 'active']);
-    updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
+              const accountStrategyPercent = mulDecimal(
+                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+                '100'
+              );
 
-    return updatedStrategies;
-  };
+              return {
+                ..._strategy,
+                accountBalance,
+                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+                accountPoolBalance,
+                accountStrategyPercent,
+              };
+            })
+        );
+      }
+
+      const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
+
+      /* combined account and public series data reduced into a single Map */
+      const newStrategyMap = new Map(
+        _combinedData.reduce((acc: any, item: any) => {
+          const _map = acc;
+          _map.set(item.address, item);
+          return _map;
+        }, new Map())
+      );
+
+      const combinedMap = newStrategyMap;
+
+      updateState({ type: UserState.STRATEGY_MAP, payload: combinedMap });
+      updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
+
+      console.log('STRATEGIES updated (with dynamic data): ', combinedMap);
+
+      return combinedMap;
+    },
+    [account, userState.seriesMap] // userState.strategyMap excluded on purpose
+  );
 
   /* Updates the vaults with *user* data */
   const updateVaults = async (vaultList: IVaultRoot[] = []) => {
