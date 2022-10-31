@@ -11,11 +11,11 @@ const NetworkSelector = () => {
     <Text size="xsmall" onClick={openChainModal}>
       {chain.name}
     </Text>
-  ) : (
+  ) : chains.length ? (
     <Text size="xsmall" onClick={openConnectModal}>
       {chains[0].name}
     </Text>
-  );
+  ) : null;
 };
 
 export default NetworkSelector;
