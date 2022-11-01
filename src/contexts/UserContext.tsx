@@ -272,7 +272,7 @@ const UserProvider = ({ children }: any) => {
             ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
             : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
         };
-        updateState({ type: UserState.UPDATE_ASSET, payload: newAsset });
+        updateState({ type: UserState.ASSETS, payload: newAsset });
         return newAsset;
       })
     );
