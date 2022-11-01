@@ -281,7 +281,7 @@ const ChainProvider = ({ children }: any) => {
         const id = x[0];
         const fyTokenAddress = x[1].fyTokenAddress;
         const poolAddress = x[1].poolAddress;
-        const Cauldron = chainState.contractMap[CAULDRON] as contractTypes.Cauldron;
+        const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
 
         const { maturity, baseId } = await Cauldron.series(id);
         const poolContract = contractTypes.Pool__factory.connect(poolAddress, provider);
@@ -330,7 +330,7 @@ const ChainProvider = ({ children }: any) => {
     // setCachedSeries(newSeriesList);
 
     console.log('Yield Protocol Series data updated successfully.');
-  }, [SERIES_CONFIG, _chargeSeries, chainState.contractMap, provider]);
+  }, [SERIES_CONFIG, _chargeSeries, contracts, provider]);
 
   /* Attach contract instance */
   const _chargeStrategy = useCallback(
