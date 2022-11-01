@@ -439,8 +439,7 @@ const VaultPosition = () => {
                           value={`Minimum collateralization needed is ${minCollatRatioPct}%`}
                           icon={
                             <Text color="warning">
-                              {' '}
-                              <FiAlertTriangle size="1.5em" />{' '}
+                              <FiAlertTriangle size="1.5em" />
                             </Text>
                           }
                           loading={false}
@@ -453,8 +452,7 @@ const VaultPosition = () => {
                           value="The collateralization ratio dropped below minimum required."
                           icon={
                             <Text color="error">
-                              {' '}
-                              <GiMedalSkull size="1.5em" />{' '}
+                              <GiMedalSkull size="1.5em" />
                             </Text>
                           }
                           loading={false}
@@ -469,17 +467,16 @@ const VaultPosition = () => {
                           loading={false}
                         />
                       )}
-
-                      {_selectedVault?.isWitchOwner && (
-                        <InfoBite
-                          label="Liquidation in progress."
-                          value="This vault is in the process of being liquidated and the account no longer owns this vault"
-                          icon={<FiAlertTriangle size="1.5em" color="red" />}
-                          loading={false}
-                        />
-                      )}
                     </Box>
                   </Box>
+                )}
+                {_selectedVault?.isWitchOwner && (
+                  <InfoBite
+                    label="Liquidation in progress."
+                    value="This vault is in the process of being liquidated and the account no longer owns this vault"
+                    icon={<FiAlertTriangle size="1.5em" color="red" />}
+                    loading={false}
+                  />
                 )}
               </Box>
 
