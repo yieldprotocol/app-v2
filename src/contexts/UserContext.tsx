@@ -50,10 +50,10 @@ import useContracts from '../hooks/useContracts';
 enum UserState {
   USER_LOADING = 'userLoading',
 
-  UPDATE_ASSET = 'updateAsset',
-  UPDATE_SERIES = 'updateSeries',
-  UPDATE_VAULT = 'updateVault',
-  UPDATE_STRATEGY = 'updateStrategy',
+  ASSETS = 'assets',
+  SERIES = 'series',
+  VAULTS = 'vaults',
+  STRATEGIES = 'strategies',
 
   CLEAR_VAULTS = 'clearVaults',
 
@@ -111,14 +111,14 @@ function userReducer(state: IUserContextState, action: any) {
     case UserState.STRATEGIES_LOADING:
       return { ...state, strategiesLoading: onlyIfChanged(action) };
 
-    case UserState.UPDATE_ASSET:
-      return { ...state, assetMap: new Map(state.assetMap.set(action.payload.id, action.payload)) };
-    case UserState.UPDATE_SERIES:
-      return { ...state, seriesMap: new Map(state.seriesMap.set(action.payload.id, action.payload)) };
-    case UserState.UPDATE_VAULT:
-      return { ...state, vaultMap: new Map(state.vaultMap.set(action.payload.id, action.payload)) };
-    case UserState.UPDATE_STRATEGY:
-      return { ...state, strategyMap: new Map(state.strategyMap.set(action.payload.id, action.payload)) };
+    case UserState.ASSETS:
+      return { ...state, assetMap: new Map(action.payload) };
+    case UserState.SERIES:
+      return { ...state, seriesMap: new Map(action.payload) };
+    case UserState.VAULTS:
+      return { ...state, vaultMap: new Map(action.payload) };
+    case UserState.STRATEGIES:
+      return { ...state, strategyMap: new Map(action.payload) };
 
     case UserState.CLEAR_VAULTS:
       return { ...state, vaultMap: new Map() };
@@ -162,6 +162,40 @@ const UserProvider = ({ children }: any) => {
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { tenderlyStartBlock } = useTenderly();
   const contracts = useContracts();
+
+  /* TODO consider moving out of here ? */
+  const getPoolAPY = useCallback(
+    async (sharesTokenAddr: string) => {
+      const query = `
+    query ($address: Bytes!) {
+      eulerMarketStore(id: "euler-market-store") {
+        markets(where:{eTokenAddress:$address}) {
+          supplyAPY
+         } 
+      }
+    }
+  `;
+
+      interface EulerRes {
+        eulerMarketStore: {
+          markets: {
+            supplyAPY: string;
+          }[];
+        };
+      }
+
+      try {
+        const {
+          eulerMarketStore: { markets },
+        } = await request<EulerRes>(EULER_SUPGRAPH_ENDPOINT, query, { address: sharesTokenAddr });
+        return ((+markets[0].supplyAPY * 100) / 1e27).toString();
+      } catch (error) {
+        diagnostics && console.log(`could not get pool apy for pool with shares token: ${sharesTokenAddr}`, error);
+        return undefined;
+      }
+    },
+    [diagnostics]
+  );
 
   /* internal function for getting the users vaults */
   const _getVaults = async () => {
@@ -403,14 +437,13 @@ const UserProvider = ({ children }: any) => {
         }, new Map())
       ) as Map<string, ISeries>;
 
-      // const combinedSeriesMap = new Map([...userState.seriesMap, ...newSeriesMap ])
-      updateState({ type: UserState.SERIES_MAP, payload: newSeriesMap });
+      updateState({ type: UserState.SERIES, payload: newSeriesMap });
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
       updateState({ type: UserState.SERIES_LOADING, payload: false });
 
       return newSeriesMap;
     },
-    [account]
+    [account, diagnostics, getPoolAPY, getTimeTillMaturity, isMature]
   );
 
   /* Updates the assets with relevant *user* data */
@@ -523,7 +556,7 @@ const UserProvider = ({ children }: any) => {
 
       const combinedMap = newStrategyMap;
 
-      updateState({ type: UserState.STRATEGY_MAP, payload: combinedMap });
+      updateState({ type: UserState.STRATEGIES, payload: combinedMap });
       updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
 
       console.log('STRATEGIES updated (with dynamic data): ', combinedMap);
@@ -618,13 +651,13 @@ const UserProvider = ({ children }: any) => {
           accruedArt_: cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot?.decimals), baseRoot?.digitFormat), // display purposes
         };
 
-        updateState({ type: UserState.UPDATE_VAULT, payload: newVault });
         return newVault;
       })
     );
 
+    updateState({ type: UserState.VAULTS, payload: updatedVaults });
+
     diagnostics && console.log('Vaults updated successfully.');
-    // console.table(updatedVaults, ['displayName', 'id', 'accruedArt_', 'ink_', 'baseId', 'ilkId', 'hasBeenLiquidated']);
     updateState({ type: UserState.VAULTS_LOADING, payload: false });
   };
 
@@ -662,37 +695,6 @@ const UserProvider = ({ children }: any) => {
       });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
-
-  /* TODO consider moving out of here ? */
-  const getPoolAPY = async (sharesTokenAddr: string) => {
-    const query = `
-    query ($address: Bytes!) {
-      eulerMarketStore(id: "euler-market-store") {
-        markets(where:{eTokenAddress:$address}) {
-          supplyAPY
-         } 
-      }
-    }
-  `;
-
-    interface EulerRes {
-      eulerMarketStore: {
-        markets: {
-          supplyAPY: string;
-        }[];
-      };
-    }
-
-    try {
-      const {
-        eulerMarketStore: { markets },
-      } = await request<EulerRes>(EULER_SUPGRAPH_ENDPOINT, query, { address: sharesTokenAddr });
-      return ((+markets[0].supplyAPY * 100) / 1e27).toString();
-    } catch (error) {
-      diagnostics && console.log(`could not get pool apy for pool with shares token: ${sharesTokenAddr}`, error);
-      return undefined;
-    }
-  };
 
   /* Exposed userActions */
   const userActions = {
