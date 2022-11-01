@@ -11,7 +11,6 @@ export interface IChainContext {
 }
 
 export interface IChainContextState {
-  chainId: number | undefined;
   chainLoaded: boolean;
   contractMap: Map<string, Contract>;
   assetRootMap: Map<string, IAssetRoot>;

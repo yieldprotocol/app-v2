@@ -38,7 +38,6 @@ const ChainContext = React.createContext<any>({});
 
 const initState: IChainContextState = {
   /* flags */
-  chainId: undefined,
   chainLoaded: false,
   /* Connected Contract Maps */
   contractMap: new Map<string, Contract>(),
@@ -52,9 +51,6 @@ function chainReducer(state: IChainContextState, action: any): IChainContextStat
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: action.payload };
-
-    case ChainState.CHAIN_ID:
-      return { ...state, chainId: action.payload };
 
     case ChainState.CONTRACT_MAP:
       return { ...state, contractMap: new Map(action.payload) };
@@ -166,7 +162,7 @@ const ChainProvider = ({ children }: any) => {
     const newAssetList: any[] = [];
 
     await Promise.all(
-      Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
+      Array.from(assetMap).map(async (x) => {
         const id = x[0];
         const assetInfo = x[1];
 
@@ -281,7 +277,7 @@ const ChainProvider = ({ children }: any) => {
     const newSeriesList: any[] = [];
 
     await Promise.all(
-      Array.from(seriesMap).map(async (x): Promise<void> => {
+      Array.from(seriesMap).map(async (x) => {
         const id = x[0];
         const fyTokenAddress = x[1].fyTokenAddress;
         const poolAddress = x[1].poolAddress;

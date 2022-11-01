@@ -13,7 +13,6 @@ const useContracts = () => {
 
   return useMemo(() => {
     return Object.keys(chainAddrs).reduce((contracts, name: string) => {
-      console.log('🦄 ~ file: useContracts.ts ~ line 16 ~ returnObject.keys ~ name', name);
       const contract = contractTypes[`${name}__factory`].connect(chainAddrs[name], provider) as Contract;
       return contracts.set(name, contract);
     }, new Map() as Map<string, Contract>);
