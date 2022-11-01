@@ -165,7 +165,7 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     /* calc total debt */
     const _debts = vaultPositions.map((position) =>
-      pairMap.has(currencySettingAssetId + position.baseId)
+      pairMap.has(currencySettingAssetId + position.baseId) && position.isActive
         ? convertValue(currencySettingAssetId, position.baseId, position.accruedArt_)
         : 0
     );
@@ -173,7 +173,7 @@ export const useDashboardHelpers = () => {
 
     /* calc total collateral */
     const _collateral = vaultPositions.map((position) =>
-      pairMap.has(currencySettingAssetId + position.ilkId)
+      pairMap.has(currencySettingAssetId + position.ilkId) && position.isActive
         ? convertValue(currencySettingAssetId, position.ilkId, position.ink_)
         : 0
     );
