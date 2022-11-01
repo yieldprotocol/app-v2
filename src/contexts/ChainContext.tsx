@@ -16,11 +16,12 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
-import { useAccount, useNetwork, useProvider } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import { SERIES_1, SERIES_42161 } from '../config/series';
 import { SettingsContext } from './SettingsContext';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
+import useDefaulProvider from '../hooks/useDefaultProvider';
 
 enum ChainState {
   CHAIN_ID = 'chainId',
@@ -95,10 +96,8 @@ const ChainProvider = ({ children }: any) => {
   } = useContext(SettingsContext);
 
   /* HOOKS */
-  const provider = useProvider();
+  const provider = useDefaulProvider();
   const chainId = useChainId();
-  const { chain, chains } = useNetwork();
-  const { isConnecting } = useAccount();
 
   /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
@@ -111,105 +110,99 @@ const ChainProvider = ({ children }: any) => {
   /* get series map config */
   const SERIES_CONFIG = chainId === 1 ? SERIES_1 : SERIES_42161;
 
-  const _getContracts = useCallback(
-    (_chainId: number) => {
-      /* Get the instances of the Base contracts */
-      const addrs = (yieldEnv.addresses as any)[_chainId];
+  const _getContracts = useCallback(() => {
+    /* Get the instances of the Base contracts */
+    const addrs = (yieldEnv.addresses as any)[chainId];
 
-      let Cauldron: contracts.Cauldron;
-      let Ladle: contracts.Ladle;
-      let RateOracle: contracts.CompoundMultiOracle | contracts.AccumulatorOracle;
-      let ChainlinkMultiOracle: contracts.ChainlinkMultiOracle;
-      let CompositeMultiOracle: contracts.CompositeMultiOracle;
-      let CompoundMultiOracle: contracts.CompoundMultiOracle;
-      let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
-      let Witch: contracts.Witch;
+    let Cauldron: contracts.Cauldron;
+    let Ladle: contracts.Ladle;
+    let RateOracle: contracts.CompoundMultiOracle | contracts.AccumulatorOracle;
+    let ChainlinkMultiOracle: contracts.ChainlinkMultiOracle;
+    let CompositeMultiOracle: contracts.CompositeMultiOracle;
+    let CompoundMultiOracle: contracts.CompoundMultiOracle;
+    let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
+    let Witch: contracts.Witch;
 
-      // modules
-      let WrapEtherModule: contracts.WrapEtherModule;
+    // modules
+    let WrapEtherModule: contracts.WrapEtherModule;
 
-      // Notional
-      let NotionalMultiOracle: contracts.NotionalMultiOracle;
+    // Notional
+    let NotionalMultiOracle: contracts.NotionalMultiOracle;
 
-      // Convex
-      let ConvexLadleModule: contracts.ConvexLadleModule;
+    // Convex
+    let ConvexLadleModule: contracts.ConvexLadleModule;
 
-      // arbitrum specific
-      let ChainlinkUSDOracle: contracts.ChainlinkUSDOracle;
-      let AccumulatorMultiOracle: contracts.AccumulatorOracle;
+    // arbitrum specific
+    let ChainlinkUSDOracle: contracts.ChainlinkUSDOracle;
+    let AccumulatorMultiOracle: contracts.AccumulatorOracle;
 
-      try {
-        Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, provider);
-        Ladle = contracts.Ladle__factory.connect(addrs.Ladle, provider);
-        Witch = contracts.Witch__factory.connect(addrs.Witch, provider);
+    try {
+      Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, provider);
+      Ladle = contracts.Ladle__factory.connect(addrs.Ladle, provider);
+      Witch = contracts.Witch__factory.connect(addrs.Witch, provider);
 
-        // module access
+      // module access
+      WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
+
+      if ([1, 4, 5, 42].includes(chainId)) {
+        // Modules
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
+        ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, provider);
 
-        if ([1, 4, 5, 42].includes(_chainId)) {
-          // Modules
-          WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
-          ConvexLadleModule = contracts.ConvexLadleModule__factory.connect(addrs.ConvexLadleModule, provider);
+        // Oracles
+        AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, provider);
+        // RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, provider);
+        RateOracle = AccumulatorMultiOracle;
 
-          // Oracles
-          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, provider);
-          // RateOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, provider);
-          RateOracle = AccumulatorMultiOracle;
+        ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkMultiOracle, provider);
+        CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(addrs.CompositeMultiOracle, provider);
 
-          ChainlinkMultiOracle = contracts.ChainlinkMultiOracle__factory.connect(addrs.ChainlinkMultiOracle, provider);
-          CompositeMultiOracle = contracts.CompositeMultiOracle__factory.connect(addrs.CompositeMultiOracle, provider);
+        CompoundMultiOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, provider);
 
-          CompoundMultiOracle = contracts.CompoundMultiOracle__factory.connect(addrs.CompoundMultiOracle, provider);
-
-          YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(
-            addrs.YearnVaultMultiOracle,
-            provider
-          );
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(addrs.NotionalMultiOracle, provider);
-          NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(addrs.NotionalMultiOracle, provider);
-        }
-
-        // arbitrum
-        if ([42161, 421611].includes(_chainId)) {
-          // Modules
-          WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
-
-          // Oracles
-          AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, provider);
-          RateOracle = AccumulatorMultiOracle;
-          ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(addrs.ChainlinkUSDOracle, provider);
-        }
-      } catch (e) {
-        console.log('Could not connect to contracts: ', e);
+        YearnVaultMultiOracle = contracts.YearnVaultMultiOracle__factory.connect(addrs.YearnVaultMultiOracle, provider);
+        NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(addrs.NotionalMultiOracle, provider);
+        NotionalMultiOracle = contracts.NotionalMultiOracle__factory.connect(addrs.NotionalMultiOracle, provider);
       }
 
-      // if there was an issue loading at this point simply return
-      if (!Cauldron! || !Ladle! || !RateOracle! || !Witch!) return;
+      // arbitrum
+      if ([42161, 421611].includes(chainId)) {
+        // Modules
+        WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, provider);
 
-      /* Update the baseContracts state : ( hardcoded based on networkId ) */
-      const newContractMap = new Map();
+        // Oracles
+        AccumulatorMultiOracle = contracts.AccumulatorOracle__factory.connect(addrs.AccumulatorMultiOracle, provider);
+        RateOracle = AccumulatorMultiOracle;
+        ChainlinkUSDOracle = contracts.ChainlinkUSDOracle__factory.connect(addrs.ChainlinkUSDOracle, provider);
+      }
+    } catch (e) {
+      console.log('Could not connect to contracts: ', e);
+    }
 
-      newContractMap.set('Cauldron', Cauldron);
-      newContractMap.set('Ladle', Ladle);
-      newContractMap.set('Witch', Witch);
+    // if there was an issue loading at this point simply return
+    if (!Cauldron! || !Ladle! || !RateOracle! || !Witch!) return;
 
-      newContractMap.set('RateOracle', RateOracle);
-      newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle!);
-      newContractMap.set('CompositeMultiOracle', CompositeMultiOracle!);
-      newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle!);
-      newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle!);
-      newContractMap.set('NotionalMultiOracle', NotionalMultiOracle!);
-      newContractMap.set('CompoundMultiOracle', CompoundMultiOracle!);
-      newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle!);
+    /* Update the baseContracts state : ( hardcoded based on networkId ) */
+    const newContractMap = new Map();
 
-      // modules
-      newContractMap.set('WrapEtherModule', WrapEtherModule!);
-      newContractMap.set('ConvexLadleModule', ConvexLadleModule!);
+    newContractMap.set('Cauldron', Cauldron);
+    newContractMap.set('Ladle', Ladle);
+    newContractMap.set('Witch', Witch);
 
-      updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
-    },
-    [provider]
-  );
+    newContractMap.set('RateOracle', RateOracle);
+    newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle!);
+    newContractMap.set('CompositeMultiOracle', CompositeMultiOracle!);
+    newContractMap.set('YearnVaultMultiOracle', YearnVaultMultiOracle!);
+    newContractMap.set('ChainlinkUSDOracle', ChainlinkUSDOracle!);
+    newContractMap.set('NotionalMultiOracle', NotionalMultiOracle!);
+    newContractMap.set('CompoundMultiOracle', CompoundMultiOracle!);
+    newContractMap.set('AccumulatorMultiOracle', AccumulatorMultiOracle!);
+
+    // modules
+    newContractMap.set('WrapEtherModule', WrapEtherModule!);
+    newContractMap.set('ConvexLadleModule', ConvexLadleModule!);
+
+    updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
+  }, [chainId, provider]);
 
   /* add on extra/calculated ASSET info and contract instances  (no async) */
   const _chargeAsset = useCallback(
@@ -455,88 +448,82 @@ const ChainProvider = ({ children }: any) => {
   );
 
   /* Iterate through the strategies list and update accordingly */
-  const _getStrategies = useCallback(
-    async (_chainId: number) => {
-      const newStrategyList: any[] = [];
-      const strategyList = yieldEnv.strategies[_chainId];
-      /**
-       * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
-       * */
-      const cacheKey = `strategies_${_chainId}`;
-      const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
+  const _getStrategies = useCallback(async () => {
+    const newStrategyList: any[] = [];
+    const strategyList = yieldEnv.strategies[chainId];
+    /**
+     * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
+     * */
+    const cacheKey = `strategies_${chainId}`;
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
-      if (cachedValues === null || cachedValues.length === 0) {
-        try {
-          await Promise.all(
-            strategyList.map(async (strategyAddr) => {
-              /* if the strategy is NOT already in the cache : */
-              // console.log('Updating Strategy contract ', strategyAddr);
-              const Strategy = contracts.Strategy__factory.connect(strategyAddr, provider);
-              const [name, symbol, baseId, decimals, version] = await Promise.all([
-                Strategy.name(),
-                Strategy.symbol(),
-                Strategy.baseId(),
-                Strategy.decimals(),
-                Strategy.version(),
-              ]);
+    if (cachedValues === null || cachedValues.length === 0) {
+      try {
+        await Promise.all(
+          strategyList.map(async (strategyAddr) => {
+            /* if the strategy is NOT already in the cache : */
+            // console.log('Updating Strategy contract ', strategyAddr);
+            const Strategy = contracts.Strategy__factory.connect(strategyAddr, provider);
+            const [name, symbol, baseId, decimals, version] = await Promise.all([
+              Strategy.name(),
+              Strategy.symbol(),
+              Strategy.baseId(),
+              Strategy.decimals(),
+              Strategy.version(),
+            ]);
 
-              const newStrategy = {
-                id: strategyAddr,
-                address: strategyAddr,
-                symbol,
-                name,
-                version,
-                baseId,
-                decimals,
-              };
-              // update state and cache
-              updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
-              newStrategyList.push(newStrategy);
-            })
-          );
-        } catch (e) {
-          console.log('Error fetching strategies', e);
-        }
-
-        /* cache results */
-        newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
-        newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
-      } else {
-        /**
-         * ELSE: else charge the strategies from the cache
-         * */
-        cachedValues.forEach((st: IStrategyRoot) => {
-          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
-        });
-        console.log('Yield Protocol Strategy data retrieved successfully ::: CACHE :::');
+            const newStrategy = {
+              id: strategyAddr,
+              address: strategyAddr,
+              symbol,
+              name,
+              version,
+              baseId,
+              decimals,
+            };
+            // update state and cache
+            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
+            newStrategyList.push(newStrategy);
+          })
+        );
+      } catch (e) {
+        console.log('Error fetching strategies', e);
       }
-    },
-    [_chargeStrategy, provider]
-  );
 
-  const _getProtocolData = useCallback(
-    async (_chainId: number) => {
-      /* set loading flag */
-      updateState({ type: ChainState.CHAIN_LOADED, payload: false });
+      /* cache results */
+      newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
+      newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
+    } else {
+      /**
+       * ELSE: else charge the strategies from the cache
+       * */
+      cachedValues.forEach((st: IStrategyRoot) => {
+        updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
+      });
+      console.log('Yield Protocol Strategy data retrieved successfully ::: CACHE :::');
+    }
+  }, [_chargeStrategy, chainId, provider]);
 
-      /* Clear maps in local memory */
-      updateState({ type: ChainState.CLEAR_MAPS, payload: undefined });
+  const _getProtocolData = useCallback(async () => {
+    /* set loading flag */
+    updateState({ type: ChainState.CHAIN_LOADED, payload: false });
 
-      console.log('Fetching Protocol contract addresses for chain Id: ', _chainId);
-      _getContracts(_chainId);
+    /* Clear maps in local memory */
+    updateState({ type: ChainState.CLEAR_MAPS, payload: undefined });
 
-      console.log('Checking for new Assets and Series, and Strategies : ', _chainId);
-      await Promise.all([_getAssets(_chainId), _getSeries(_chainId), _getStrategies(_chainId)])
-        .catch(() => {
-          toast.error('Error getting Yield Protocol data.');
-          console.log('Error getting Yield Protocol data.');
-        })
-        .finally(() => {
-          updateState({ type: ChainState.CHAIN_LOADED, payload: true });
-        });
-    },
-    [_getAssets, _getContracts, _getSeries, _getStrategies]
-  );
+    console.log('Fetching Protocol contract addresses for chain Id: ', chainId);
+    _getContracts();
+
+    console.log('Checking for new Assets and Series, and Strategies : ', chainId);
+    await Promise.all([_getAssets(), _getSeries(), _getStrategies()])
+      .catch(() => {
+        toast.error('Error getting Yield Protocol data.');
+        console.log('Error getting Yield Protocol data.');
+      })
+      .finally(() => {
+        updateState({ type: ChainState.CHAIN_LOADED, payload: true });
+      });
+  }, [_getAssets, _getContracts, _getSeries, _getStrategies, chainId]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
