@@ -577,7 +577,7 @@ const UserProvider = ({ children }: any) => {
 
         if (isVaultMature) {
           const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-          const oracleName = ORACLE_INFO.get(chainId!)?.get(vault.baseId)?.get(RATE);
+          const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
 
           const RateOracle = contractMap.get(oracleName!);
           rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);

@@ -160,7 +160,7 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
-  
+
   startBlock: Block; // pool init block
 
   decimals: number;
