@@ -7,7 +7,7 @@ import { useCachedState } from '../hooks/generalHooks';
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
 import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { AssetInfo, ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
+import { ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 

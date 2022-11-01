@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
+import * as contractTypes from '../contracts';
 
 import {
   calculateAPR,
@@ -32,7 +33,7 @@ import {
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
+import { CAULDRON, EULER_SUPGRAPH_ENDPOINT, WITCH, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
@@ -44,6 +45,7 @@ import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
+import useContracts from '../hooks/useContracts';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -140,7 +142,7 @@ function userReducer(state: IUserContextState, action: any) {
 const UserProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const { contractMap, chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
@@ -159,23 +161,23 @@ const UserProvider = ({ children }: any) => {
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { tenderlyStartBlock } = useTenderly();
+  const contracts = useContracts();
 
   /* internal function for getting the users vaults */
   const _getVaults = async () => {
-    const Cauldron = contractMap.get('Cauldron');
-    if (!Cauldron) return;
+    const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
 
     const cacheKey = `vaults_${account}_${chainId}`;
     const cachedVaults = JSON.parse(localStorage.getItem(cacheKey)!);
-    const cachedVaultList = cachedVaults ? cachedVaults : [];
+    const cachedVaultList = (cachedVaults ?? []) as IVaultRoot[];
 
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
     const lastVaultUpdate = JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
-    const vaultsBuiltFilter = Cauldron?.filters.VaultBuilt(null, account, null);
-    const vaultsBuilt = await Cauldron?.queryFilter(vaultsBuiltFilter!, lastVaultUpdate);
-    const buildEventList = vaultsBuilt?.map((x: VaultBuiltEvent): IVaultRoot => {
+    const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
+    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate);
+    const buildEventList = vaultsBuilt.map((x): IVaultRoot => {
       const { vaultId: id, ilkId, seriesId } = x.args;
       const series = seriesRootMap.get(seriesId);
       return {
@@ -192,7 +194,7 @@ const UserProvider = ({ children }: any) => {
     const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
     const vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate);
     const receivedEventsList = await Promise.all(
-      vaultsReceived.map(async (x: VaultGivenEvent): Promise<IVaultRoot> => {
+      vaultsReceived.map(async (x): Promise<IVaultRoot> => {
         const { vaultId: id } = x.args;
         const { ilkId, seriesId } = await Cauldron.vaults(id);
         const series = seriesRootMap.get(seriesId);
@@ -537,8 +539,8 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
     let _vaults: IVaultRoot[] | undefined = vaultList;
-    const Cauldron = contractMap.get('Cauldron');
-    const Witch = contractMap.get('Witch');
+    const Cauldron = contracts.get(CAULDRON);
+    const Witch = contracts.get(WITCH);
 
     /**
      * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
@@ -579,7 +581,7 @@ const UserProvider = ({ children }: any) => {
           const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
           const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
 
-          const RateOracle = contractMap.get(oracleName!);
+          const RateOracle = contracts.get(oracleName!);
           rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
           [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 

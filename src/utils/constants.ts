@@ -26,3 +26,4 @@ export const BLANK_SERIES = '0x000000000000';
 export const EULER_SUPGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/euler-xyz/euler-mainnet';
 
 export const CAULDRON = 'Cauldron';
+export const WITCH = 'Witch';
