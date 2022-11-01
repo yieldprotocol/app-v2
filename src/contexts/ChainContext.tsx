@@ -90,19 +90,12 @@ function chainReducer(state: IChainContextState, action: any): IChainContextStat
 const ChainProvider = ({ children }: any) => {
   const [chainState, updateState] = React.useReducer(chainReducer, initState);
 
-  /* STATE FROM CONTEXT */
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext);
-
   /* HOOKS */
   const provider = useDefaulProvider();
   const chainId = useChainId();
 
   /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
-
-  const [loadingFlag, setLoadingFlag] = useState(false);
 
   /* get asset map config */
   const ASSET_CONFIG = chainId === 1 ? ASSETS_1 : ASSETS_42161;

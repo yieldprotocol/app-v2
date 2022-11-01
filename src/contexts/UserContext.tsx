@@ -39,10 +39,11 @@ import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount, useNetwork, useProvider } from 'wagmi';
+import { useAccount } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
+import useDefaulProvider from '../hooks/useDefaultProvider';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -153,7 +154,7 @@ const UserProvider = ({ children }: any) => {
   /* HOOKS */
   const { address: account } = useAccount();
   const chainId = useChainId();
-  const provider = useProvider({ chainId });
+  const provider = useDefaulProvider();
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
