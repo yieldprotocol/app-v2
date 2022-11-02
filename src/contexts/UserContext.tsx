@@ -653,7 +653,13 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
-      updateState({ type: UserState.VAULTS, payload: updatedVaults });
+      const newVaultMap = updatedVaults.reduce((acc, item) => {
+        if (item) {
+          return acc.set(item.id, item);
+        }
+        return acc;
+      }, new Map() as Map<string, IVault>);
+      updateState({ type: UserState.VAULTS, payload: newVaultMap });
 
       diagnostics && console.log('Vaults updated successfully.');
       updateState({ type: UserState.VAULTS_LOADING, payload: false });
