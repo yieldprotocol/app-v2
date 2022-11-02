@@ -11,11 +11,12 @@ import {
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IVault, ISeries, IAsset, IAssetPair } from '../../types';
+import { IVault, ISeries, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
+import { WETH } from '../../config/assets';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -34,12 +35,16 @@ export const useBorrowHelpers = (
     userState: { assetMap, seriesMap, selectedSeries },
   } = useContext(UserContext);
 
-  const {address:account} = useAccount();
+  const vaultBase = assetMap.get(vault?.baseId!);
+  const vaultIlk = assetMap.get(vault?.ilkId!);
+
+  const { address: account } = useAccount();
+  const { data: baseBalance } = useBalance({
+    addressOrName: account,
+    token: vaultBase?.proxyId === WETH ? '' : vaultBase?.address,
+  });
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-
-  const vaultBase: IAsset | undefined = assetMap.get(vault?.baseId!);
-  const vaultIlk: IAsset | undefined = assetMap.get(vault?.ilkId!);
 
   /* LOCAL STATE */
   const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
@@ -198,13 +203,12 @@ export const useBorrowHelpers = (
   /* Update the Min Max repayable amounts */
   useEffect(() => {
     if (account && vault && vaultBase && minDebt) {
-      const vaultSeries: ISeries = seriesMap.get(vault?.seriesId!);
+      const vaultSeries = seriesMap.get(vault?.seriesId!);
       if (!vaultSeries) return;
 
       (async () => {
-        const _userBalance = await vaultBase.getBalance(account);
-        setUserBaseBalance(_userBalance);
-        setUserBaseBalance_(ethers.utils.formatUnits(_userBalance, vaultBase.decimals));
+        setUserBaseBalance(baseBalance?.value);
+        setUserBaseBalance_(baseBalance?.formatted);
 
         /* estimate max fyToken out to assess protocol limits */
         const _maxFyTokenOut = maxFyTokenOut(
@@ -253,7 +257,9 @@ export const useBorrowHelpers = (
 
           /* maxRepayable is either the max tokens they have or max debt */
           const _maxRepayable =
-            _userBalance && _debtInBaseWithBuffer.gt(_userBalance) ? _userBalance : _debtInBaseWithBuffer;
+            baseBalance?.value && _debtInBaseWithBuffer.gt(baseBalance.value)
+              ? baseBalance.value
+              : _debtInBaseWithBuffer;
 
           /* set the min repayable up to the dust limit */
           const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
@@ -262,7 +268,7 @@ export const useBorrowHelpers = (
 
           /* if the series is mature re-set max as all debt (if balance allows) */
           if (vaultSeries.seriesIsMature) {
-            const _accruedArt = vault.accruedArt.gt(_userBalance) ? _userBalance : vault.accruedArt;
+            const _accruedArt = vault.accruedArt.gt(baseBalance?.value!) ? baseBalance?.value! : vault.accruedArt;
             setMaxRepay(_accruedArt);
             setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
           } else {
@@ -272,7 +278,17 @@ export const useBorrowHelpers = (
         }
       })();
     }
-  }, [account, getTimeTillMaturity, isMature, minDebt, seriesMap, vault, vaultBase]);
+  }, [
+    account,
+    baseBalance?.formatted,
+    baseBalance?.value,
+    getTimeTillMaturity,
+    isMature,
+    minDebt,
+    seriesMap,
+    vault,
+    vaultBase,
+  ]);
 
   return {
     borrowPossible,
