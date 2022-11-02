@@ -38,9 +38,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { address: activeAccount } = useAccount();
