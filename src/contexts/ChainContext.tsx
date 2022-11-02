@@ -6,7 +6,7 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAsset, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -106,21 +106,17 @@ const ChainProvider = ({ children }: any) => {
       /* attach either contract, (or contract of the wrappedToken ) */
 
       let assetContract: Contract;
-      let getBalance: (acc: string, asset?: string) => Promise<BigNumber>;
       let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
       let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
 
       switch (asset.tokenType) {
         case TokenType.ERC20_:
           assetContract = contractTypes.ERC20__factory.connect(asset.address, provider);
-          getBalance = async (acc) =>
-            ETH_BASED_ASSETS.includes(asset.proxyId) ? provider?.getBalance(acc) : assetContract.balanceOf(acc);
           getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
           break;
 
         case TokenType.ERC1155_:
           assetContract = contractTypes.ERC1155__factory.connect(asset.address, provider);
-          getBalance = async (acc) => assetContract.balanceOf(acc, asset.tokenIdentifier);
           getAllowance = async (acc: string, spender: string) => assetContract.isApprovedForAll(acc, spender);
           setAllowance = async (spender: string) => {
             console.log(spender);
@@ -132,8 +128,6 @@ const ChainProvider = ({ children }: any) => {
         default:
           // Default is ERC20Permit;
           assetContract = contractTypes.ERC20Permit__factory.connect(asset.address, provider);
-          getBalance = async (acc) =>
-            ETH_BASED_ASSETS.includes(asset.id) ? provider?.getBalance(acc) : assetContract.balanceOf(acc);
           getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
           break;
       }
@@ -149,7 +143,6 @@ const ChainProvider = ({ children }: any) => {
         wrapHandlerAddresses: ASSET_CONFIG.get(asset.id)?.wrapHandlerAddresses,
         unwrapHandlerAddresses: ASSET_CONFIG.get(asset.id)?.unwrapHandlerAddresses,
 
-        getBalance,
         getAllowance,
         setAllowance,
       };

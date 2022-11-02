@@ -236,16 +236,10 @@ const UserProvider = ({ children }: any) => {
 
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
-          const balance = account ? await asset.getBalance(account) : ZERO_BN;
           const newAsset = {
             /* public data */
             ...asset,
             displaySymbol: asset?.displaySymbol,
-            /* account data */
-            balance: balance || ethers.constants.Zero,
-            balance_: balance
-              ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
-              : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
           };
           return newAsset as IAsset;
         })

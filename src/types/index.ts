@@ -197,10 +197,10 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
 
   // baked in token fns
-  getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
   setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
+export interface IAsset extends IAssetRoot {}
 
 export interface IAssetPair {
   baseId: string;
@@ -263,11 +263,6 @@ export interface ISeries extends ISeriesRoot {
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
   // startBlock?: Block;
-}
-
-export interface IAsset extends IAssetRoot {
-  balance: BigNumber;
-  balance_: string;
 }
 
 export interface IDummyVault extends IVaultRoot {}
