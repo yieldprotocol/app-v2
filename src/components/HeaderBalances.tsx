@@ -7,7 +7,7 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
 import Logo from './logos/Logo';
-import { IUserContext } from '../types';
+import { useBalance } from 'wagmi';
 
 const StyledText = styled(Text)`
   svg,
@@ -30,17 +30,17 @@ const Balance = ({ image, balance, loading }: { image: any; balance: string; loa
 
 const YieldBalances = () => {
   const {
-    userState: { selectedBase, selectedIlk, assetsLoading, assetMap },
-  } = useContext(UserContext) as IUserContext;
+    userState: { selectedBase, selectedIlk, assetsLoading },
+  } = useContext(UserContext);
 
-  const [baseBalance, setBaseBalance] = useState<string>(selectedBase?.balance_!);
-  const [ilkBalance, setIlkBalance] = useState<string>(selectedIlk?.balance_!);
-
-  /* If the url references a series/vault...set that one as active */
-  useEffect(() => {
-    selectedBase && setBaseBalance(assetMap?.get(selectedBase.id)?.balance_!);
-    selectedIlk && setIlkBalance(assetMap?.get(selectedIlk.id)?.balance_!);
-  }, [assetMap, selectedBase, selectedIlk]);
+  const { data: baseBalance, isLoading: baseBalLoading } = useBalance({
+    addressOrName: selectedBase?.address,
+    enabled: !!selectedBase,
+  });
+  const { data: ilkBalance, isLoading: ilkBalLoading } = useBalance({
+    addressOrName: selectedIlk?.address,
+    enabled: !!selectedIlk,
+  });
 
   const { pathname } = useRouter();
   const [path, setPath] = useState<string>();
@@ -52,9 +52,9 @@ const YieldBalances = () => {
 
   return (
     <Box pad="small" justify="center" align="start" gap="xsmall">
-      <Balance image={selectedBase?.image} balance={baseBalance} loading={assetsLoading} />
+      <Balance image={selectedBase?.image} balance={baseBalance?.formatted!} loading={baseBalLoading} />
       {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.proxyId !== WETH && (
-        <Balance image={selectedIlk?.image} balance={ilkBalance} loading={assetsLoading} />
+        <Balance image={selectedIlk?.image} balance={ilkBalance?.formatted!} loading={ilkBalLoading} />
       )}
     </Box>
   );
