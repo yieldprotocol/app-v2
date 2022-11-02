@@ -78,10 +78,10 @@ const initState: IUserContextState = {
   vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
 
-  vaultsLoading: true as boolean,
-  seriesLoading: true as boolean,
-  assetsLoading: true as boolean,
-  strategiesLoading: true as boolean,
+  vaultsLoading: true,
+  seriesLoading: true,
+  assetsLoading: true,
+  strategiesLoading: true,
 
   /* Current User selections */
   selectedSeries: null,
