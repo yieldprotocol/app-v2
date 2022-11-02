@@ -60,7 +60,7 @@ export const useDashboardHelpers = () => {
 
   /* set vault positions */
   useEffect(() => {
-    const _vaultPositions = Array.from(vaultMap.values())
+    const _vaultPositions = Array.from(vaultMap?.values()!)
       .filter((vault) => (dashHideInactiveVaults ? vault.isActive : true))
       .filter((vault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.accruedArt.gt(ZERO_BN) : true))
       .filter((vault) => vault.baseId !== vault.ilkId)
@@ -70,7 +70,7 @@ export const useDashboardHelpers = () => {
 
   /* set lend positions */
   useEffect(() => {
-    const _lendPositions: ILendPosition[] = Array.from(seriesMap.values())
+    const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
       .map((_series) => {
         const currentValue = sellFYToken(
           _series.sharesReserves,
@@ -98,11 +98,11 @@ export const useDashboardHelpers = () => {
 
   /* set strategy positions */
   useEffect(() => {
-    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
+    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap?.values()!)
       .map((_strategy) => {
         if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
 
-        const currentStrategySeries = seriesMap.get(_strategy.currentSeriesId);
+        const currentStrategySeries = seriesMap?.get(_strategy.currentSeriesId);
         const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,
@@ -110,18 +110,18 @@ export const useDashboardHelpers = () => {
           currentStrategySeries?.sharesReserves!,
           currentStrategySeries?.fyTokenReserves!,
           currentStrategySeries?.totalSupply!,
-          getTimeTillMaturity(currentStrategySeries.maturity)!,
+          getTimeTillMaturity(currentStrategySeries?.maturity!),
           currentStrategySeries?.ts!,
           currentStrategySeries?.g2!,
           currentStrategySeries?.decimals!,
-          currentStrategySeries.c,
-          currentStrategySeries.mu
+          currentStrategySeries?.c,
+          currentStrategySeries?.mu
         );
 
         const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
           ? ethers.utils.formatUnits(
-              currentStrategySeries.getBase(fyTokenToShares).add(currentStrategySeries.getBase(sharesReceived)), // add shares received to fyTokenToShares (in base)
-              currentStrategySeries.decimals
+              currentStrategySeries?.getBase(fyTokenToShares).add(currentStrategySeries?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
+              currentStrategySeries?.decimals
             )
           : _strategy.accountBalance_; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
 

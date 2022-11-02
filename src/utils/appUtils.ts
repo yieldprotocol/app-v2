@@ -226,14 +226,14 @@ export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
 
 export const getSeriesAfterRollPosition = (receipt: ContractReceipt | undefined, seriesMap: Map<string, ISeries>) => {
   if (!receipt) return '';
-  const poolAddress = receipt.events[10]?.address!;
+  const poolAddress = receipt.events![10].address;
   const series = [...seriesMap.values()].find((s) => s.poolAddress === poolAddress);
   return series?.id! || '';
 };
 
 export const getStrategyAddrFromReceipt = (receipt: ContractReceipt | undefined, action: ActionCodes) => {
   if (!receipt) return '';
-  return action === ActionCodes.ADD_LIQUIDITY ? receipt.events[15]?.address! : receipt.events[0]?.address!;
+  return action === ActionCodes.ADD_LIQUIDITY ? receipt.events![15].address : receipt.events![0].address;
 };
 
 export const formatStrategyName = (name: string) => {

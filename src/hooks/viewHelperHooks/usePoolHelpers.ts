@@ -31,12 +31,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },
   } = useContext(UserContext) as IUserContext;
 
-  const strategy: IStrategy | undefined = selectedStrategy;
-  const strategySeries: ISeries | undefined = seriesMap?.get(
-    selectedStrategy ? strategy?.currentSeriesId : selectedSeries?.id
-  );
+  const strategy = selectedStrategy;
+  const strategySeries = seriesMap?.get(selectedStrategy ? strategy?.currentSeriesId! : selectedSeries?.id!);
 
-  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.proxyId);
+  const strategyBase = assetMap?.get(strategy ? strategy.baseId : selectedBase?.proxyId!);
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
@@ -69,7 +67,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
     if (strategySeries && strategyBase) {
-      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const arr = Array.from(vaultMap?.values()!);
       const _matchingVault = arr
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.id > vaultB.id ? 1 : -1))
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
@@ -177,7 +175,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* Remove liquidity flow decision tree */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView && strategy) {
-      const lpReceived = burnFromStrategy(strategy.strategyPoolBalance, strategy.strategyTotalSupply, _input);
+      const lpReceived = burnFromStrategy(strategy.strategyPoolBalance!, strategy.strategyTotalSupply!, _input);
       const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
         strategySeries.sharesReserves,
         strategySeries.fyTokenRealReserves,
@@ -274,8 +272,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         /* Calculate the token Value */
         const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _input,
-          strategy.strategyTotalSupply,
-          strategy.strategyPoolBalance,
+          strategy.strategyTotalSupply!,
+          strategy.strategyPoolBalance!,
           strategySeries.sharesReserves,
           strategySeries.fyTokenReserves,
           strategySeries.totalSupply,
