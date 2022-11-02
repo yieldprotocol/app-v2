@@ -4,10 +4,12 @@ import { bytesToBytes32, decimal18ToDecimalN } from '@yield-protocol/ui-math';
 import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
 import { ChainContext } from './ChainContext';
 
-import { WAD_BN } from '../utils/constants';
+import { CAULDRON, WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
 import useChainId from '../hooks/useChainId';
+import { Cauldron } from '../contracts';
+import useContracts from '../hooks/useContracts';
 
 enum PriceState {
   UPDATE_PAIR = 'updatePair',
@@ -48,12 +50,13 @@ const priceReducer = (state: IPriceContextState, action: any) => {
 const PriceProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
-  const { contractMap, assetRootMap } = chainState;
+  const { assetRootMap } = chainState;
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
   const chainId = useChainId();
+  const contracts = useContracts();
 
   /* LOCAL STATE */
   const [priceState, updateState] = useReducer(priceReducer, initState);
@@ -62,9 +65,11 @@ const PriceProvider = ({ children }: any) => {
     async (baseId: string, ilkId: string): Promise<IAssetPair | null> => {
       diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading);
       const pairId = `${baseId}${ilkId}`;
-      const Cauldron = contractMap.get('Cauldron');
+      const Cauldron = contracts.get(CAULDRON) as Cauldron;
       const oracleName = ORACLE_INFO.get(chainId)?.get(baseId)?.get(ilkId);
-      const PriceOracle = contractMap.get(oracleName!);
+      const PriceOracle = contracts.get(oracleName!);
+      console.log('🦄 ~ file: PriceContext.tsx ~ line 69 ~ contractMap', contracts);
+      console.log('🦄 ~ file: PriceContext.tsx ~ line 69 ~ PriceOracle', PriceOracle);
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
 
@@ -125,7 +130,7 @@ const PriceProvider = ({ children }: any) => {
       }
       return null;
     },
-    [assetRootMap, chainId, contractMap, diagnostics, priceState.pairLoading]
+    [assetRootMap, chainId, contracts, diagnostics, priceState.pairLoading]
   );
 
   const priceActions = { updateAssetPair };
