@@ -54,7 +54,7 @@ export const useLendHelpers = (
     addressOrName: selectedBase?.address,
     enabled: !!activeAccount && !!selectedBase,
   });
-  const userBaseBalance = data?.value!;
+  const userBaseBalance = data?.value || ethers.constants.Zero;
   const userBaseBalance_ = data?.formatted;
 
   /* set maxLend based on either max user or max protocol */
