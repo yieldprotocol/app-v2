@@ -6,7 +6,7 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { IAsset, IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -158,6 +158,16 @@ const ChainProvider = ({ children }: any) => {
   );
 
   const _getAssets = useCallback(async () => {
+    // handle cache
+    const cacheKey = `assets_${chainId}`;
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
+
+    if (cachedValues !== null && cachedValues.length) {
+      return cachedValues.forEach((a: IAssetRoot) => {
+        updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
+      });
+    }
+
     let assetMap = ASSET_CONFIG;
     const newAssetList: any[] = [];
 
@@ -228,10 +238,10 @@ const ChainProvider = ({ children }: any) => {
       })
     ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.'));
 
-    // log the new assets in the cache
-    // setCachedAssets(newAssetList);
-
     console.log('Yield Protocol Asset data updated successfully.');
+    /* cache results */
+    newAssetList.length && localStorage.setItem(cacheKey, JSON.stringify(newAssetList));
+    newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
   }, [ASSET_CONFIG, _chargeAsset, chainId, provider]);
 
   /* add on extra/calculated ASYNC series info and contract instances */
@@ -272,8 +282,17 @@ const ChainProvider = ({ children }: any) => {
   );
 
   const _getSeries = useCallback(async () => {
-    let seriesMap = SERIES_CONFIG;
+    // handle cache
+    const cacheKey = `series_${chainId}`;
+    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
+    if (cachedValues !== null && cachedValues.length) {
+      return cachedValues.forEach((s: ISeriesRoot) => {
+        updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
+      });
+    }
+
+    let seriesMap = SERIES_CONFIG;
     const newSeriesList: any[] = [];
 
     await Promise.all(
@@ -327,10 +346,11 @@ const ChainProvider = ({ children }: any) => {
       })
     ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
 
-    // setCachedSeries(newSeriesList);
-
     console.log('Yield Protocol Series data updated successfully.');
-  }, [SERIES_CONFIG, _chargeSeries, contracts, provider]);
+    /* cache results */
+    newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
+    newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
+  }, [SERIES_CONFIG, _chargeSeries, chainId, contracts, provider]);
 
   /* Attach contract instance */
   const _chargeStrategy = useCallback(
@@ -346,59 +366,57 @@ const ChainProvider = ({ children }: any) => {
 
   /* Iterate through the strategies list and update accordingly */
   const _getStrategies = useCallback(async () => {
-    const newStrategyList: any[] = [];
-    const strategyList = yieldEnv.strategies[chainId];
     /**
      * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
      * */
     const cacheKey = `strategies_${chainId}`;
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
-    if (cachedValues === null || cachedValues.length === 0) {
-      try {
-        await Promise.all(
-          strategyList.map(async (strategyAddr) => {
-            /* if the strategy is NOT already in the cache : */
-            // console.log('Updating Strategy contract ', strategyAddr);
-            const Strategy = contractTypes.Strategy__factory.connect(strategyAddr, provider);
-            const [name, symbol, baseId, decimals, version] = await Promise.all([
-              Strategy.name(),
-              Strategy.symbol(),
-              Strategy.baseId(),
-              Strategy.decimals(),
-              Strategy.version(),
-            ]);
+    const newStrategyList: any[] = [];
+    const strategyList = yieldEnv.strategies[chainId];
 
-            const newStrategy = {
-              id: strategyAddr,
-              address: strategyAddr,
-              symbol,
-              name,
-              version,
-              baseId,
-              decimals,
-            };
-            // update state and cache
-            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
-            newStrategyList.push(newStrategy);
-          })
-        );
-      } catch (e) {
-        console.log('Error fetching strategies', e);
-      }
-
-      /* cache results */
-      newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
-      newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
-    } else {
-      /**
-       * ELSE: else charge the strategies from the cache
-       * */
-      cachedValues.forEach((st: IStrategyRoot) => {
+    if (cachedValues !== null && cachedValues.length) {
+      console.log('Yield Protocol Strategy data retrieved successfully ::: CACHE :::');
+      return cachedValues.forEach((st: IStrategyRoot) => {
         updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
       });
-      console.log('Yield Protocol Strategy data retrieved successfully ::: CACHE :::');
     }
+
+    try {
+      await Promise.all(
+        strategyList.map(async (strategyAddr) => {
+          /* if the strategy is NOT already in the cache : */
+          // console.log('Updating Strategy contract ', strategyAddr);
+          const Strategy = contractTypes.Strategy__factory.connect(strategyAddr, provider);
+          const [name, symbol, baseId, decimals, version] = await Promise.all([
+            Strategy.name(),
+            Strategy.symbol(),
+            Strategy.baseId(),
+            Strategy.decimals(),
+            Strategy.version(),
+          ]);
+
+          const newStrategy = {
+            id: strategyAddr,
+            address: strategyAddr,
+            symbol,
+            name,
+            version,
+            baseId,
+            decimals,
+          };
+          // update state and cache
+          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
+          newStrategyList.push(newStrategy);
+        })
+      );
+    } catch (e) {
+      console.log('Error fetching strategies', e);
+    }
+
+    /* cache results */
+    newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
+    newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
   }, [_chargeStrategy, chainId, provider]);
 
   const _getProtocolData = useCallback(async () => {
