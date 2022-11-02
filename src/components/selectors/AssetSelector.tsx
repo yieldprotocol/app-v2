@@ -6,14 +6,14 @@ import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
-import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { IAsset, IUserContext } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { useAccount } from 'wagmi';
-import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 
 interface IAssetSelectorProps {
@@ -83,7 +83,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = Array.from(assetMap.values())
+    const opts = Array.from(assetMap?.values()!)
       .filter((a) => a?.showToken) // filter based on whether wrapped tokens are shown or not
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
@@ -102,9 +102,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
-    if (Array.from(assetMap.values()).length) {
-      !selectedBase && setSelectedBase(assetMap.get(USDC)!);
-      !selectedIlk && setSelectedIlk(assetMap.get(WETH)!);
+    if (Array.from(assetMap?.values()!).length) {
+      !selectedBase && setSelectedBase(assetMap?.get(USDC)!);
+      !selectedIlk && setSelectedIlk(assetMap?.get(WETH)!);
     }
   }, [assetMap, selectedBase, selectedIlk, setSelectedBase, setSelectedIlk]);
 
@@ -119,7 +119,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   /* set ilk to be USDC if ETH base */
   useEffect(() => {
     if (selectedBase?.proxyId === WETH || selectedBase?.id === WETH) {
-      setSelectedIlk(assetMap.get(USDC) || null);
+      setSelectedIlk(assetMap?.get(USDC) || null);
     }
   }, [assetMap, selectedBase, setSelectedIlk]);
 

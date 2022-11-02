@@ -31,8 +31,8 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
       id: _vault.id.slice(2),
     } as GA_Properties.position_opened);
   };
-  const vaultBase = assetMap.get(vault.baseId);
-  const vaultIlk = assetMap.get(vault.ilkId);
+  const vaultBase = assetMap?.get(vault.baseId);
+  const vaultIlk = assetMap?.get(vault.ilkId);
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
   const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPairInfo, undefined);
 
@@ -57,7 +57,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
           {vault.isActive ? (
             <Box direction="column" width={condensed ? '6rem' : undefined}>
               <Text weight={450} size="xsmall">
-                {seriesMap.get(vault.seriesId)?.displayName}
+                {seriesMap?.get(vault.seriesId)?.displayName}
               </Text>
               <Box direction="row" gap="xsmall">
                 <Text weight={450} size="xsmall">

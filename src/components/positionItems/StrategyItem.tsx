@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 
-import { ActionType, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, IStrategy, IUserContext } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -18,10 +18,10 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   const {
     userState: { assetMap, seriesMap, strategiesLoading, selectedStrategy },
     userActions,
-  }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext) as IUserContext;
 
-  const base = assetMap.get(strategy.baseId) || null;
-  const series = seriesMap.get(strategy.currentSeriesId) || null;
+  const base = assetMap?.get(strategy.baseId) || null;
+  const series = seriesMap?.get(strategy.currentSeriesId) || null;
   const isSelectedStrategy = strategy.id === selectedStrategy?.id;
 
   const handleSelect = (_series: IStrategy) => {
@@ -56,7 +56,6 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
                 Tokens:
               </Text>
               <Text weight={450} size="xsmall">
-                {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
                 {strategiesLoading && isSelectedStrategy ? (
                   <SkeletonWrap width={30} />
                 ) : (
@@ -64,18 +63,6 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
                 )}
               </Text>
             </Box>
-            {/* <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
-                <Text weight={450} size="xsmall">
-                  Strategy %:
-                </Text>
-                <Text weight={450} size="xsmall">
-                  {strategiesLoading && isSelectedStrategy ? (
-                    <SkeletonWrap width={30} />
-                  ) : (
-                    cleanValue(strategy.accountStrategyPercent, 2)
-                  )}
-                </Text>
-              </Box> */}
           </Box>
         </Box>
       </Box>

@@ -14,16 +14,15 @@ const StyledBox = styled(Box)`
 `;
 
 function EtherscanButton({ txHash }: { txHash: string }) {
-
   const [hover, setHover] = useState<boolean>();
-  const { chain } = useNetwork()
+  const { chain } = useNetwork();
 
   return (
     <StyledBox
       direction="row"
       onClick={(e: any) => {
         e.stopPropagation();
-        window.open(`${chain.blockExplorers.etherscan.url}/tx/${txHash}`, '_blank');
+        window.open(`${chain?.blockExplorers?.etherscan?.url}/tx/${txHash}`, '_blank');
       }}
       gap="xsmall"
       align="center"

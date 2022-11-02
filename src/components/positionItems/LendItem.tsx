@@ -30,7 +30,7 @@ function LendItem({
     userActions,
   }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
-  const seriesBase: IAsset = assetMap.get(series.baseId)!;
+  const seriesBase = assetMap?.get(series.baseId)!;
   const isSelectedBaseAndSeries = series.baseId === seriesBase.proxyId && series.id === selectedSeries?.id;
 
   const handleSelect = (_series: ISeries) => {
@@ -38,7 +38,7 @@ function LendItem({
     userActions.setSelectedSeries(_series);
     router.push(`/${actionType.toLowerCase()}position/${_series.id}`);
     logAnalyticsEvent(GA_Event.position_opened, {
-      id: selectedSeries.name,
+      id: selectedSeries?.name,
     } as GA_Properties.position_opened);
   };
 

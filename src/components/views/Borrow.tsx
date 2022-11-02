@@ -141,7 +141,7 @@ const Borrow = () => {
       view: GA_View.BORROW,
       series_id: selectedSeries?.name!,
       action_code: ActionCodes.BORROW,
-      supporting_collateral: selectedIlk.symbol,
+      supporting_collateral: selectedIlk?.symbol,
     } as GA_Properties.transaction_initiated);
   };
 
@@ -151,7 +151,7 @@ const Borrow = () => {
 
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
-    _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
+    _stepPosition === 0 && setSelectedIlk(assetMap?.get('0x303000000000')!);
     setStepPosition(_stepPosition);
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.BORROW,
@@ -160,7 +160,7 @@ const Borrow = () => {
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
-    actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral);
+    actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral!);
     actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
@@ -239,7 +239,7 @@ const Borrow = () => {
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
     if (selectedBase && selectedSeries && selectedIlk) {
-      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const arr: IVault[] = Array.from(vaultMap?.values()!) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
           v.ilkId === selectedIlk.proxyId &&
@@ -324,7 +324,7 @@ const Borrow = () => {
                   ) : (
                     <SectionWrap
                       title={
-                        seriesMap.size > 0
+                        seriesMap?.size! > 0
                           ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
                           : ''
                       }
@@ -401,7 +401,7 @@ const Borrow = () => {
                             Liquidation when
                           </Text>
                           <Text size={mobile ? 'xsmall' : 'small'}>
-                            1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
+                            1 {selectedIlk?.symbol} = {liquidationPrice_} {selectedBase?.symbol}
                           </Text>
                         </Box>
                       )}
@@ -547,7 +547,7 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
-                  {vaultToUse && <VaultItem vault={vaultMap.get(vaultToUse.id)!} condensed index={1} />}
+                  {vaultToUse && <VaultItem vault={vaultMap?.get(vaultToUse.id)!} condensed index={1} />}
                   {!vaultToUse && newVaultId && (
                     <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
                   )}

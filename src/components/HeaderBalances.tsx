@@ -38,8 +38,8 @@ const YieldBalances = () => {
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
-    selectedBase && setBaseBalance(assetMap.get(selectedBase.id)?.balance_!);
-    selectedIlk && setIlkBalance(assetMap.get(selectedIlk.id)?.balance_!);
+    selectedBase && setBaseBalance(assetMap?.get(selectedBase.id)?.balance_!);
+    selectedIlk && setIlkBalance(assetMap?.get(selectedIlk.id)?.balance_!);
   }, [assetMap, selectedBase, selectedIlk]);
 
   const { pathname } = useRouter();

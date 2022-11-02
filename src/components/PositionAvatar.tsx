@@ -41,11 +41,11 @@ function PositionAvatar({
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { assetMap, seriesMap } = userState;
 
-  const base: IAsset | undefined = assetMap.get(position?.baseId!); // same for both series and vaults
+  const base: IAsset | undefined = assetMap?.get(position?.baseId!); // same for both series and vaults
   const vault: IVault | undefined = isVault ? (position as IVault) : undefined;
-  const series: ISeries | undefined = vault ? seriesMap.get(vault.seriesId!) : (position as ISeries);
+  const series: ISeries | undefined = vault ? seriesMap?.get(vault.seriesId!) : (position as ISeries);
 
-  const ilk: IAsset | undefined = vault && assetMap.get(vault.ilkId); // doesn't exist on series
+  const ilk: IAsset | undefined = vault && assetMap?.get(vault.ilkId); // doesn't exist on series
   const baseImageSize = condensed ? '20px' : '24px';
   const ilkImageSize = condensed ? '16px' : '20px';
 

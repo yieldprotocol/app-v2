@@ -80,7 +80,7 @@ const Lend = () => {
     lend(lendInput, selectedSeries!);
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries.name,
+      series_id: selectedSeries?.name,
       action_code: ActionCodes.LEND,
     } as GA_Properties.transaction_initiated);
   };
@@ -189,7 +189,7 @@ const Lend = () => {
                   ) : (
                     <SectionWrap
                       title={
-                        seriesMap.size > 0
+                        seriesMap?.size! > 0
                           ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                               selectedBase && '-based'
                             } maturity date:`
@@ -267,7 +267,7 @@ const Lend = () => {
               <Box pad="large" gap="small">
                 <Text size="small"> View position: </Text>
                 <LendItem
-                  series={seriesMap.get(selectedSeries?.id!)!}
+                  series={seriesMap?.get(selectedSeries?.id!)!}
                   index={0}
                   actionType={ActionType.LEND}
                   condensed

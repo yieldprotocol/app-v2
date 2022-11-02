@@ -21,7 +21,7 @@ const StyledBox = styled(Box)`
 `;
 
 const NetworkBanner = () => {
-  const {chain} = useNetwork();
+  const { chain } = useNetwork();
 
   const {
     userState: { assetMap },
@@ -30,42 +30,24 @@ const NetworkBanner = () => {
   const [show, setShow] = useState<boolean>(true);
   const currentChainInfo = chain;
 
-  const ethBalance = assetMap.get(WETH)?.balance;
+  const ethBalance = assetMap?.get(WETH)?.balance;
 
   if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.gt(ZERO_BN))) return null;
 
   return SHOWABLE_CHAINS.includes(chain.id) && show ? (
-    <StyledBox pad="small" background={{  opacity: 0.9 }} round gap="small">
+    <StyledBox pad="small" background={{ opacity: 0.9 }} round gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {chain.name}</Box>
         <Button onClick={() => setShow(false)}>
           <FiX color="white" />
         </Button>
       </Box>
-      <Box gap="xsmall" background={{  opacity: 0.5 }} color="black" round pad="small">
+      <Box gap="xsmall" background={{ opacity: 0.5 }} color="black" round pad="small">
         <Text size="xsmall">This is a beta release of Yield on the {chain.name} network</Text>
         <Text size="xsmall" weight="bold">
-          You must bridge assets from Ethereum Mainnet to {chain.name} before using Yield on{' '}
-          {chain.name}
+          You must bridge assets from Ethereum Mainnet to {chain.name} before using Yield on {chain.name}
         </Text>
       </Box>
-      {/* {currentChainInfo.bridge && (
-        <Box pad="small" background="gradient" round>
-          <Anchor
-            style={{ textDecorationColor: 'white' }}
-            href={currentChainInfo.bridge}
-            label={
-              <Box align="center">
-                <Text size="medium" weight="bold" color="white">
-                  Deposit to {chain.name}
-                  <FiArrowUpRight />
-                </Text>
-              </Box>
-            }
-            target="_blank"
-          />
-        </Box>
-      )} */}
     </StyledBox>
   ) : null;
 };
