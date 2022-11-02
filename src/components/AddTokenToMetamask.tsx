@@ -40,11 +40,11 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
 
   useEffect(() => {
     if (provider) {
-      if (connector.name === 'MetaMask') {
+      if (connector?.name === 'MetaMask') {
         setMetamask(provider);
       }
     }
-  }, [provider]);
+  }, [connector?.name, provider]);
 
   return metamask ? (
     <Box align="center">
