@@ -10,6 +10,7 @@ import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useBalance } from 'wagmi';
 import { cleanValue } from '../../utils/appUtils';
+import { WETH } from '../../config/assets';
 
 export const useLendHelpers = (
   series: ISeries | null,
@@ -52,7 +53,7 @@ export const useLendHelpers = (
   const { address: account } = useAccount();
   const { data } = useBalance({
     addressOrName: account,
-    token: selectedBase?.address,
+    token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
     enabled: !!activeAccount && !!selectedBase,
   });
   const userBaseBalance = data?.value || ethers.constants.Zero;
