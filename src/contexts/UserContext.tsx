@@ -36,7 +36,6 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 import { CAULDRON, EULER_SUPGRAPH_ENDPOINT, WITCH, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
-import { VaultBuiltEvent, VaultGivenEvent } from '../contracts/Cauldron';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
@@ -432,14 +431,9 @@ const UserProvider = ({ children }: any) => {
       const _combinedData = _accountData.length ? _accountData : _publicData;
 
       /* combined account and public series data reduced into a single Map */
-      const newSeriesMap = new Map(
-        _combinedData.reduce((acc: Map<string, ISeries>, item) => {
-          const _map = acc;
-          // if (item.maturity !== 1672412400) _map.set(item.id, item);
-          _map.set(item.id, item);
-          return _map;
-        }, new Map())
-      ) as Map<string, ISeries>;
+      const newSeriesMap = _combinedData.reduce((acc, item) => {
+        return acc.set(item.id, item);
+      }, new Map() as Map<string, ISeries>);
 
       updateState({ type: UserState.SERIES, payload: newSeriesMap });
       console.log('SERIES updated (with dynamic data): ', newSeriesMap);
@@ -453,6 +447,8 @@ const UserProvider = ({ children }: any) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
+      if (!userState.seriesMap) return;
+
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
       let _publicData: IStrategy[] = [];
@@ -550,13 +546,9 @@ const UserProvider = ({ children }: any) => {
       const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
 
       /* combined account and public series data reduced into a single Map */
-      const newStrategyMap = new Map(
-        _combinedData.reduce((acc: any, item: any) => {
-          const _map = acc;
-          _map.set(item.address, item);
-          return _map;
-        }, new Map())
-      );
+      const newStrategyMap = _combinedData.reduce((acc, item) => {
+        return acc.set(item.address, item);
+      }, new Map() as Map<string, IStrategy>);
 
       const combinedMap = newStrategyMap;
 

@@ -64,13 +64,10 @@ const Borrow = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
 
-  const { chain } = useNetwork();
   const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
