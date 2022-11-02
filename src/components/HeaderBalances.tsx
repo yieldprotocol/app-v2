@@ -52,7 +52,9 @@ const YieldBalances = () => {
 
   return (
     <Box pad="small" justify="center" align="start" gap="xsmall">
-      <Balance image={selectedBase?.image} balance={baseBalance?.formatted!} loading={baseBalLoading} />
+      {selectedBase?.proxyId !== WETH && (
+        <Balance image={selectedBase?.image} balance={baseBalance?.formatted!} loading={baseBalLoading} />
+      )}
       {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.proxyId !== WETH && (
         <Balance image={selectedIlk?.image} balance={ilkBalance?.formatted!} loading={ilkBalLoading} />
       )}
