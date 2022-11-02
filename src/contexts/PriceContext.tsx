@@ -68,8 +68,6 @@ const PriceProvider = ({ children }: any) => {
       const Cauldron = contracts.get(CAULDRON) as Cauldron;
       const oracleName = ORACLE_INFO.get(chainId)?.get(baseId)?.get(ilkId);
       const PriceOracle = contracts.get(oracleName!);
-      console.log('🦄 ~ file: PriceContext.tsx ~ line 69 ~ contractMap', contracts);
-      console.log('🦄 ~ file: PriceContext.tsx ~ line 69 ~ PriceOracle', PriceOracle);
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
 
