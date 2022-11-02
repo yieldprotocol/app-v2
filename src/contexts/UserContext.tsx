@@ -197,7 +197,7 @@ const UserProvider = ({ children }: any) => {
   );
 
   /* internal function for getting the users vaults */
-  const _getVaults = async () => {
+  const _getVaults = useCallback(async () => {
     const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
 
     const cacheKey = `vaults_${account}_${chainId}`;
@@ -251,39 +251,42 @@ const UserProvider = ({ children }: any) => {
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
-  };
+  }, [account, chainId, contracts, provider, seriesRootMap]);
 
   /* Updates the assets with relevant *user* data */
-  const updateAssets = async (assetList: IAssetRoot[]) => {
-    console.log('Updating assets...');
-    updateState({ type: UserState.ASSETS_LOADING, payload: true });
+  const updateAssets = useCallback(
+    async (assetList: IAssetRoot[]) => {
+      console.log('Updating assets...');
+      updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
-    const updatedAssets = await Promise.all(
-      assetList.map(async (asset) => {
-        const balance = account ? await asset.getBalance(account) : ZERO_BN;
-        const newAsset = {
-          /* public data */
-          ...asset,
-          displaySymbol: asset?.displaySymbol,
-          /* account data */
-          balance: balance || ethers.constants.Zero,
-          balance_: balance
-            ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
-            : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
-        };
-        return newAsset as IAsset;
-      })
-    );
+      const updatedAssets = await Promise.all(
+        assetList.map(async (asset) => {
+          const balance = account ? await asset.getBalance(account) : ZERO_BN;
+          const newAsset = {
+            /* public data */
+            ...asset,
+            displaySymbol: asset?.displaySymbol,
+            /* account data */
+            balance: balance || ethers.constants.Zero,
+            balance_: balance
+              ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
+              : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
+          };
+          return newAsset as IAsset;
+        })
+      );
 
-    const newAssetsMap = updatedAssets.reduce((acc, item) => {
-      return acc.set(item.address, item);
-    }, new Map() as Map<string, IAsset>);
+      const newAssetsMap = updatedAssets.reduce((acc, item) => {
+        return acc.set(item.address, item);
+      }, new Map() as Map<string, IAsset>);
 
-    updateState({ type: UserState.ASSETS, payload: newAssetsMap });
+      updateState({ type: UserState.ASSETS, payload: newAssetsMap });
 
-    diagnostics && console.log('ASSETS updated (with dynamic data):');
-    updateState({ type: UserState.ASSETS_LOADING, payload: false });
-  };
+      diagnostics && console.log('ASSETS updated (with dynamic data):');
+      updateState({ type: UserState.ASSETS_LOADING, payload: false });
+    },
+    [account, diagnostics]
+  );
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
@@ -563,99 +566,113 @@ const UserProvider = ({ children }: any) => {
   );
 
   /* Updates the vaults with *user* data */
-  const updateVaults = async (vaultList: IVaultRoot[] = []) => {
-    console.log('Updating vaults...');
-    updateState({ type: UserState.VAULTS_LOADING, payload: true });
+  const updateVaults = useCallback(
+    async (vaultList: IVaultRoot[] = []) => {
+      console.log('Updating vaults...');
+      updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
-    let _vaults: IVaultRoot[] | undefined = vaultList;
-    const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
-    const Witch = contracts.get(WITCH) as contractTypes.Witch;
+      let _vaults: IVaultRoot[] | undefined = vaultList;
+      const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
+      const Witch = contracts.get(WITCH) as contractTypes.Witch;
 
-    /**
-     * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
-    if (vaultList.length === 0) {
-      updateState({ type: UserState.CLEAR_VAULTS });
-      _vaults = await _getVaults();
-    }
+      /**
+       * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
+      if (vaultList.length === 0) {
+        updateState({ type: UserState.CLEAR_VAULTS });
+        _vaults = await _getVaults();
+      }
 
-    if (!_vaults) return;
+      if (!_vaults) return;
 
-    const updatedVaults = await Promise.all(
-      _vaults.map(async (vault) => {
-        const [
-          { ink, art },
-          { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-        ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
+      const updatedVaults = await Promise.all(
+        _vaults.map(async (vault) => {
+          const [
+            { ink, art },
+            { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
+          ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
-        const series = seriesRootMap.get(seriesId);
-        if (!series) return;
+          const series = seriesRootMap.get(seriesId);
+          if (!series) return;
 
-        const isVaultMature = isMature(series.maturity);
+          const isVaultMature = isMature(series.maturity);
 
-        /* If art 0, check for liquidation event */
-        const hasBeenLiquidated =
-          art === ZERO_BN
-            ? (await Witch?.queryFilter(
-                Witch?.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
-                'latest'
-              ))!.length > 0
-            : false;
+          /* If art 0, check for liquidation event */
+          const hasBeenLiquidated =
+            art === ZERO_BN
+              ? (await Witch?.queryFilter(
+                  Witch?.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
+                  useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                  'latest'
+                ))!.length > 0
+              : false;
 
-        let accruedArt: BigNumber;
-        let rateAtMaturity: BigNumber;
-        let rate: BigNumber;
+          let accruedArt: BigNumber;
+          let rateAtMaturity: BigNumber;
+          let rate: BigNumber;
 
-        if (isVaultMature) {
-          const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-          const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
+          if (isVaultMature) {
+            const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
+            const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
 
-          const RateOracle = contracts.get(oracleName!);
-          rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
-          [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+            const RateOracle = contracts.get(oracleName!);
+            rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
+            [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
-          [accruedArt] = rateAtMaturity.gt(ZERO_BN)
-            ? calcAccruedDebt(rate, rateAtMaturity, art)
-            : calcAccruedDebt(rate, rate, art);
-        } else {
-          rate = BigNumber.from('1');
-          rateAtMaturity = BigNumber.from('1');
-          accruedArt = art;
-        }
+            [accruedArt] = rateAtMaturity.gt(ZERO_BN)
+              ? calcAccruedDebt(rate, rateAtMaturity, art)
+              : calcAccruedDebt(rate, rate, art);
+          } else {
+            rate = BigNumber.from('1');
+            rateAtMaturity = BigNumber.from('1');
+            accruedArt = art;
+          }
 
-        const baseRoot = assetRootMap.get(vault.baseId);
-        const ilkRoot = assetRootMap.get(ilkId);
+          const baseRoot = assetRootMap.get(vault.baseId);
+          const ilkRoot = assetRootMap.get(ilkId);
 
-        const newVault: IVault = {
-          ...vault,
-          owner, // refreshed in case owner has been updated
-          isWitchOwner: Witch?.address === owner, // check if witch is the owner (in liquidation process)
-          hasBeenLiquidated,
-          isActive: owner === account, // refreshed in case owner has been updated
-          seriesId, // refreshed in case seriesId has been updated
-          ilkId, // refreshed in case ilkId has been updated
-          ink,
-          art,
-          accruedArt,
-          isVaultMature,
-          rateAtMaturity,
-          rate,
+          const newVault: IVault = {
+            ...vault,
+            owner, // refreshed in case owner has been updated
+            isWitchOwner: Witch?.address === owner, // check if witch is the owner (in liquidation process)
+            hasBeenLiquidated,
+            isActive: owner === account, // refreshed in case owner has been updated
+            seriesId, // refreshed in case seriesId has been updated
+            ilkId, // refreshed in case ilkId has been updated
+            ink,
+            art,
+            accruedArt,
+            isVaultMature,
+            rateAtMaturity,
+            rate,
 
-          rate_: cleanValue(ethers.utils.formatUnits(rate, 18), 2), // always 18 decimals when getting rate from rate oracle,
-          ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
-          art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
-          accruedArt_: cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot?.decimals), baseRoot?.digitFormat), // display purposes
-        };
+            rate_: cleanValue(ethers.utils.formatUnits(rate, 18), 2), // always 18 decimals when getting rate from rate oracle,
+            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
+            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
+            accruedArt_: cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot?.decimals), baseRoot?.digitFormat), // display purposes
+          };
 
-        return newVault;
-      })
-    );
+          return newVault;
+        })
+      );
 
-    updateState({ type: UserState.VAULTS, payload: updatedVaults });
+      updateState({ type: UserState.VAULTS, payload: updatedVaults });
 
-    diagnostics && console.log('Vaults updated successfully.');
-    updateState({ type: UserState.VAULTS_LOADING, payload: false });
-  };
+      diagnostics && console.log('Vaults updated successfully.');
+      updateState({ type: UserState.VAULTS_LOADING, payload: false });
+    },
+    [
+      _getVaults,
+      account,
+      assetRootMap,
+      chainId,
+      contracts,
+      diagnostics,
+      isMature,
+      seriesRootMap,
+      tenderlyStartBlock,
+      useTenderlyFork,
+    ]
+  );
 
   /**
    *
@@ -672,7 +689,7 @@ const UserProvider = ({ children }: any) => {
 
       account && updateVaults();
     }
-  }, [chainLoaded, account]);
+  }, [chainLoaded, account, assetRootMap, seriesRootMap, strategyRootMap]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
