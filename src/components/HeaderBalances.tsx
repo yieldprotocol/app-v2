@@ -30,7 +30,7 @@ const Balance = ({ image, balance, loading }: { image: any; balance: string; loa
 
 const YieldBalances = () => {
   const {
-    userState: { selectedBase, selectedIlk, assetsLoading },
+    userState: { selectedBase, selectedIlk },
   } = useContext(UserContext);
 
   const { data: baseBalance, isLoading: baseBalLoading } = useBalance({
