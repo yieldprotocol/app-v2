@@ -38,7 +38,12 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { data: baseBalance } = useBalance({ addressOrName: selectedBase?.address, enabled: !!selectedBase });
+  const { address: account } = useAccount();
+  const { data: baseBalance } = useBalance({
+    addressOrName: account,
+    token: selectedBase?.address,
+    enabled: !!selectedBase,
+  });
 
   /* LOCAL STATE */
 

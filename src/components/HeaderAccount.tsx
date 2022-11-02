@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import Sidebar from './Sidebar';
 import { UserContext } from '../contexts/UserContext';
-import { WETH } from '../config/assets';
-import { useAccount, useEnsName } from 'wagmi';
+import { useAccount, useBalance, useEnsName } from 'wagmi';
 import { FiSettings } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
-import { abbreviateHash } from '../utils/appUtils';
+import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import GeneralButton from './buttons/GeneralButton';
 import HeaderBalancesModal from './HeaderBalancesModal';
 import EthMark from './logos/EthMark';
@@ -38,14 +37,14 @@ const HeaderAccount = () => {
   const { address } = useAccount();
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
+  const { address: account } = useAccount();
+  const { data: ethBalance } = useBalance({ addressOrName: account });
 
   const {
-    userState: { assetMap, assetsLoading },
+    userState: { assetsLoading },
   } = useContext(UserContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-
-  const ethBalance = assetMap.get(WETH)?.balance_;
 
   return (
     <>
@@ -77,7 +76,7 @@ const HeaderAccount = () => {
                         )}
                       </StyledText>
                       <StyledText size="small" color="text">
-                        {assetsLoading ? <Skeleton width={40} /> : ethBalance}
+                        {cleanValue(ethBalance?.formatted, 2) || <Skeleton width={40} />}
                       </StyledText>
                     </Box>
                   </Box>

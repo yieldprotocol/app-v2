@@ -7,7 +7,7 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
 import Logo from './logos/Logo';
-import { useBalance } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 
 const StyledText = styled(Text)`
   svg,
@@ -33,13 +33,16 @@ const YieldBalances = () => {
     userState: { selectedBase, selectedIlk },
   } = useContext(UserContext);
 
+  const { address: account } = useAccount();
   const { data: baseBalance, isLoading: baseBalLoading } = useBalance({
-    addressOrName: selectedBase?.address,
-    enabled: !!selectedBase,
+    addressOrName: account,
+    token: selectedBase?.address,
+    enabled: !!selectedBase && !!account,
   });
   const { data: ilkBalance, isLoading: ilkBalLoading } = useBalance({
-    addressOrName: selectedIlk?.address,
-    enabled: !!selectedIlk,
+    addressOrName: account,
+    token: selectedIlk?.address,
+    enabled: !!selectedBase && !!account,
   });
 
   const { pathname } = useRouter();

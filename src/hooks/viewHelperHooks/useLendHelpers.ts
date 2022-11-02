@@ -49,9 +49,10 @@ export const useLendHelpers = (
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
-
+  const { address: account } = useAccount();
   const { data } = useBalance({
-    addressOrName: selectedBase?.address,
+    addressOrName: account,
+    token: selectedBase?.address,
     enabled: !!activeAccount && !!selectedBase,
   });
   const userBaseBalance = data?.value || ethers.constants.Zero;
