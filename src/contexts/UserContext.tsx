@@ -35,7 +35,7 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { CAULDRON, EULER_SUPGRAPH_ENDPOINT, WITCH, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ETH_BASED_ASSETS } from '../config/assets';
+import { DEFAULT_SELECTED_BASE, ETH_BASED_ASSETS, USDC } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
@@ -277,10 +277,12 @@ const UserProvider = ({ children }: any) => {
       );
 
       const newAssetsMap = updatedAssets.reduce((acc, item) => {
-        return acc.set(item.address, item);
+        return acc.set(item.id, item);
       }, new Map() as Map<string, IAsset>);
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
+      // default selected base
+      updateState({ type: UserState.SELECTED_BASE, payload: newAssetsMap.get(DEFAULT_SELECTED_BASE) });
 
       diagnostics && console.log('ASSETS updated (with dynamic data):');
       updateState({ type: UserState.ASSETS_LOADING, payload: false });

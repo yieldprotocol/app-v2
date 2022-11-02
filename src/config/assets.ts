@@ -11,7 +11,7 @@ export interface AssetInfo {
   version: string;
   symbol: string;
   decimals: number;
-  showToken: boolean; // Display/hide the token on the UI DEFAULTS 
+  showToken: boolean; // Display/hide the token on the UI DEFAULTS
 
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
   displaySymbol?: string; // override for symbol display
@@ -72,6 +72,8 @@ export const IGNORE_BASE_ASSETS = ['ENS'];
 export const ASSETS_42161 = new Map<string, AssetInfo>();
 
 export const ASSETS_1 = new Map<string, AssetInfo>();
+
+export const DEFAULT_SELECTED_BASE = USDC;
 
 ASSETS_1.set(DAI, {
   assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
