@@ -194,8 +194,8 @@ const TxProvider = ({ children }: any) => {
       updateState({ type: TxStateItem.TX_WILL_FAIL, payload: false });
 
       logAnalyticsEvent(GA_Event.transaction_will_fail, {
-        action_code: txCode.split('_')[0],
-        series_id: txCode.split('_')[1],
+        action_code: txCode?.split('_')[0],
+        series_id: txCode?.split('_')[1],
         error,
       } as GA_Properties.transaction_will_fail);
     }

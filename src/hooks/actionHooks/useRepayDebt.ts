@@ -62,9 +62,9 @@ export const useRepayDebt = () => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contractMap.get('Ladle').address;
-    const series: ISeries = seriesMap.get(vault.seriesId)!;
-    const base: IAsset = assetMap.get(vault.baseId)!;
-    const ilk: IAsset = assetMap.get(vault.ilkId)!;
+    const series: ISeries = seriesMap?.get(vault.seriesId)!;
+    const base: IAsset = assetMap?.get(vault.baseId)!;
+    const ilk: IAsset = assetMap?.get(vault.ilkId)!;
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
@@ -155,8 +155,8 @@ export const useRepayDebt = () => {
     /* Address to send the funds to either ladle (if eth is used as collateral) or account */
     const reclaimToAddress = () => {
       if (isEthCollateral) return ladleAddress;
-      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chain.id))
-        return ilk.unwrapHandlerAddresses?.get(chain.id); // if there is somethign to unwrap
+      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chain?.id!))
+        return ilk.unwrapHandlerAddresses?.get(chain?.id!); // if there is somethign to unwrap
       return account;
     };
 

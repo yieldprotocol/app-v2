@@ -91,10 +91,10 @@ const initState: IUserContextState = {
   selectedStrategy: null,
 };
 
-function userReducer(state: IUserContextState, action: any) {
+function userReducer(state: IUserContextState, action: any): IUserContextState {
   /* Helper: only change the state if different from existing */ // TODO if even reqd.?
   const onlyIfChanged = (_action: any) =>
-    state[action.type] === _action.payload ? state[action.type] : _action.payload;
+    (state as any)[action.type] === _action.payload ? (state as any)[action.type] : _action.payload;
 
   /* Reducer switch */
   switch (action.type) {
@@ -334,14 +334,14 @@ const UserProvider = ({ children }: any) => {
             toBn(
               new Decimal(baseAmount.toString())
                 .mul(10 ** series.decimals)
-                .div(new Decimal(currentSharePrice.toString()))
+                .div(new Decimal(currentSharePrice?.toString()!))
             );
 
           // convert shares amounts to base amounts
           const getBase = (sharesAmount: BigNumber) =>
             toBn(
               new Decimal(sharesAmount.toString())
-                .mul(new Decimal(currentSharePrice.toString()))
+                .mul(new Decimal(currentSharePrice?.toString()!))
                 .div(10 ** series.decimals)
             );
 
@@ -405,7 +405,7 @@ const UserProvider = ({ children }: any) => {
             sharesAddress,
             currentInvariant,
             initInvariant,
-            startBlock,
+            startBlock: startBlock!,
             ts: BigNumber.from(series.ts),
           };
         })
@@ -467,8 +467,8 @@ const UserProvider = ({ children }: any) => {
             _strategy.strategyContract.nextSeriesId(),
           ]);
 
-          const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
-          const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
+          const currentSeries = userState.seriesMap?.get(currentSeriesId) as ISeries;
+          const nextSeries = userState.seriesMap?.get(nextSeriesId) as ISeries;
 
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
@@ -689,7 +689,7 @@ const UserProvider = ({ children }: any) => {
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
-    if (chainLoaded && Array.from(userState.seriesMap.values()).length) {
+    if (chainLoaded && Array.from(userState.seriesMap?.values()!).length) {
       /*  when series has finished loading,...load/reload strategy data */
       updateStrategies(Array.from(strategyRootMap.values()));
     }
@@ -698,14 +698,14 @@ const UserProvider = ({ children }: any) => {
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
     const vaultId = pathname.split('/')[2];
-    pathname && userState.vaultMap.has(vaultId) && setVaultFromUrl(vaultId);
+    pathname && userState.vaultMap?.has(vaultId) && setVaultFromUrl(vaultId);
   }, [pathname, userState.vaultMap]);
 
   /**
    * Explicitly update selected series on series map changes
    * */
   useEffect(() => {
-    if (userState.selectedSeries) {
+    if (userState.selectedSeries && userState.seriesMap) {
       updateState({
         type: UserState.SELECTED_SERIES,
         payload: userState.seriesMap.get(userState.selectedSeries.id),

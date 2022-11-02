@@ -78,8 +78,8 @@ const initState: ISettingsContextState = {
 function settingsReducer(state: ISettingsContextState, action: any) {
   /* Helper: if different from existing , update the state and cache */
   const cacheAndUpdate = (_action: any) => {
-    if (state[action.type] === _action.payload) {
-      return state[action.type];
+    if ((state as any)[action.type] === _action.payload) {
+      return (state as any)[action.type];
     }
     localStorage.setItem(_action.type, JSON.stringify(_action.payload));
     return _action.payload;
@@ -97,18 +97,6 @@ const SettingsProvider = ({ children }: any) => {
       updateState({ type: Settings.APPROVAL_MAX, payload: false });
     }
   }, [settingsState.approvalMethod]);
-
-  /* watch & handle connection changes and effect appropriate settings */
-  // useEffect(() => {
-  //   if ((connector?.id !== 'metaMask') || useTenderlyFork) {
-  //     console.log('Using manual ERC20 approval transactions');
-  //     updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
-  //   } else if (connector?.id === 'metaMask') {
-  //     /* On metamask default to SIG */
-  //     console.log('Using ERC20Permit signing (EIP-2612) ');
-  //     updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.SIG });
-  //   }
-  // }, [connector]);
 
   /* Exposed userActions */
   const settingsActions = {

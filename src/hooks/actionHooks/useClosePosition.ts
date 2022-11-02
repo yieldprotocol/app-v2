@@ -55,7 +55,7 @@ export const useClosePosition = () => {
     getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
-    const base = assetMap.get(series.baseId)!;
+    const base = assetMap?.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
