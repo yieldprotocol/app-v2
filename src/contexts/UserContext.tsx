@@ -211,7 +211,7 @@ const UserProvider = ({ children }: any) => {
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
     const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate);
-    const buildEventList = vaultsBuilt.map((x): IVaultRoot => {
+    const buildEventList = vaultsBuilt.map((x) => {
       const { vaultId: id, ilkId, seriesId } = x.args;
       const series = seriesRootMap.get(seriesId);
       return {
@@ -576,8 +576,8 @@ const UserProvider = ({ children }: any) => {
     updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
     let _vaults: IVaultRoot[] | undefined = vaultList;
-    const Cauldron = contracts.get(CAULDRON);
-    const Witch = contracts.get(WITCH);
+    const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
+    const Witch = contracts.get(WITCH) as contractTypes.Witch;
 
     /**
      * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */

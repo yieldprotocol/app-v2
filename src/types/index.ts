@@ -73,10 +73,10 @@ export interface IUserContext {
 export interface IUserContextState {
   userLoading: boolean;
 
-  assetMap: Map<string, IAsset>;
-  seriesMap: Map<string, ISeries>;
-  vaultMap: Map<string, IVault>;
-  strategyMap: Map<string, IStrategy>;
+  assetMap: Map<string, IAsset> | undefined;
+  seriesMap: Map<string, ISeries> | undefined;
+  vaultMap: Map<string, IVault> | undefined;
+  strategyMap: Map<string, IStrategy> | undefined;
 
   vaultsLoading: boolean;
   seriesLoading: boolean;
