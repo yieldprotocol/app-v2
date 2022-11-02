@@ -701,10 +701,6 @@ const UserProvider = ({ children }: any) => {
     pathname && userState.vaultMap.has(vaultId) && setVaultFromUrl(vaultId);
   }, [pathname, userState.vaultMap]);
 
-  useEffect(() => {
-    console.log('series map', userState.seriesMap);
-  }, [userState.seriesMap]);
-
   /**
    * Explicitly update selected series on series map changes
    * */
