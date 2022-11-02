@@ -272,14 +272,17 @@ const UserProvider = ({ children }: any) => {
             ? cleanValue(ethers.utils.formatUnits(balance, asset.decimals), 2)
             : cleanValue(ethers.utils.formatUnits(ethers.constants.Zero, asset.decimals)), // for display purposes only
         };
-        return newAsset;
+        return newAsset as IAsset;
       })
     );
 
-    updateState({ type: UserState.ASSETS, payload: updatedAssets });
+    const newAssetsMap = updatedAssets.reduce((acc, item) => {
+      return acc.set(item.address, item);
+    }, new Map() as Map<string, IAsset>);
+
+    updateState({ type: UserState.ASSETS, payload: newAssetsMap });
 
     diagnostics && console.log('ASSETS updated (with dynamic data):');
-    // console.table(updatedAssets, ['id', 'symbol', 'address', 'balance_']);
     updateState({ type: UserState.ASSETS_LOADING, payload: false });
   };
 
