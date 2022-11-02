@@ -79,15 +79,15 @@ function Pool() {
 
     setPoolDisabled(true);
     addLiquidity(
-      poolInput,
-      selectedStrategy,
+      poolInput!,
+      selectedStrategy!,
       canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
       matchingVault
     );
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries.name,
+      series_id: selectedStrategy?.currentSeries?.name,
       action_code: ActionCodes.ADD_LIQUIDITY,
     } as GA_Properties.transaction_initiated);
   };
@@ -178,7 +178,7 @@ function Pool() {
 
                 <SectionWrap
                   title={
-                    strategyMap.size > 0
+                    strategyMap?.size! > 0
                       ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                           selectedBase && '-based'
                         } strategy:`
@@ -289,7 +289,7 @@ function Pool() {
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View strategy Position: </Text>
-                <StrategyItem strategy={strategyMap.get(selectedStrategy?.id!)!} index={0} condensed />
+                <StrategyItem strategy={strategyMap?.get(selectedStrategy?.id!)!} index={0} condensed />
               </Box>
             )}
         </Box>

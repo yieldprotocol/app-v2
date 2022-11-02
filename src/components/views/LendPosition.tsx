@@ -44,7 +44,7 @@ const LendPosition = () => {
   } = useContext(UserContext) as IUserContext;
   const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
 
-  const selectedBase = assetMap.get(selectedSeries?.baseId!);
+  const selectedBase = assetMap?.get(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
