@@ -69,7 +69,7 @@ const DropContent = ({ assetMap }: { assetMap: Map<string, IAsset> }) => (
 const HeaderBalancesModal = () => {
   const {
     userState: { assetMap },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   const [open, setOpen] = useState<boolean>(false);
   const hasBalance = [...assetMap?.values()!].find((a) => +a?.balance_ > 0);

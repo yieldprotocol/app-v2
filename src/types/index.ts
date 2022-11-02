@@ -65,48 +65,11 @@ export interface IPriceContext {
   priceActions: IPriceContextActions;
 }
 
-export interface IUserContext {
-  userState: IUserContextState;
-  userActions: IUserContextActions;
-}
-
-export interface IUserContextState {
-  userLoading: boolean;
-
-  assetMap: Map<string, IAsset> | undefined;
-  seriesMap: Map<string, ISeries> | undefined;
-  vaultMap: Map<string, IVault> | undefined;
-  strategyMap: Map<string, IStrategy> | undefined;
-
-  vaultsLoading: boolean;
-  seriesLoading: boolean;
-  assetsLoading: boolean;
-  strategiesLoading: boolean;
-
-  selectedSeries: ISeries | null;
-  selectedIlk: IAsset | null;
-  selectedBase: IAsset | null;
-  selectedVault: IVault | null;
-  selectedStrategy: IStrategy | null;
-}
-
-export interface IUserContextActions {
-  updateVaults: (vaultList?: IVault[]) => void;
-  updateSeries: (seriesList: ISeries[]) => void;
-  updateAssets: (assetList: IAsset[]) => void;
-  updateStrategies: (strategyList: IStrategy[]) => void;
-
-  setSelectedSeries: (series: ISeries | null) => void;
-  setSelectedIlk: (ilk: IAsset | null) => void;
-  setSelectedBase: (base: IAsset | null) => void;
-  setSelectedVault: (vault: IVault | IDummyVault | null) => void;
-  setSelectedStrategy: (strategy: IStrategy | null) => void;
-}
-
 export interface ISettingsContext {
   settingsState: ISettingsContextState;
   settingsActions: { updateSetting: (setting: string, value: string | number | boolean) => void };
 }
+
 export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */
   slippageTolerance: number;

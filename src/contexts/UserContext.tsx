@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import React, { useContext, useEffect, useReducer, useCallback, useState } from 'react';
+import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import * as contractTypes from '../contracts';
 
@@ -22,8 +22,6 @@ import {
   ISeries,
   IAsset,
   IVault,
-  IUserContextState,
-  IUserContext,
   IStrategyRoot,
   IStrategy,
   IChainContext,
@@ -45,30 +43,7 @@ import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts from '../hooks/useContracts';
-
-enum UserState {
-  USER_LOADING = 'userLoading',
-
-  ASSETS = 'assets',
-  SERIES = 'series',
-  VAULTS = 'vaults',
-  STRATEGIES = 'strategies',
-
-  CLEAR_VAULTS = 'clearVaults',
-
-  VAULTS_LOADING = 'vaultsLoading',
-  SERIES_LOADING = 'seriesLoading',
-  ASSETS_LOADING = 'assetsLoading',
-  STRATEGIES_LOADING = 'strategiesLoading',
-
-  SELECTED_VAULT = 'selectedVault',
-  SELECTED_SERIES = 'selectedSeries',
-  SELECTED_ILK = 'selectedIlk',
-  SELECTED_BASE = 'selectedBase',
-  SELECTED_STRATEGY = 'selectedStrategy',
-}
-
-const UserContext = React.createContext<any>({});
+import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -91,24 +66,24 @@ const initState: IUserContextState = {
   selectedStrategy: null,
 };
 
-function userReducer(state: IUserContextState, action: any): IUserContextState {
-  /* Helper: only change the state if different from existing */ // TODO if even reqd.?
-  const onlyIfChanged = (_action: any) =>
-    (state as any)[action.type] === _action.payload ? (state as any)[action.type] : _action.payload;
+const UserContext = createContext<{ userState: IUserContextState; userActions: Dispatch<IUserContextActions> }>({
+  userState: initState,
+  userActions: () => undefined,
+});
 
-  /* Reducer switch */
+function userReducer(state: IUserContextState, action: UserContextAction) {
   switch (action.type) {
     case UserState.USER_LOADING:
-      return { ...state, userLoading: onlyIfChanged(action) };
+      return { ...state, userLoading: action.payload };
 
     case UserState.VAULTS_LOADING:
-      return { ...state, vaultsLoading: onlyIfChanged(action) };
+      return { ...state, vaultsLoading: action.payload };
     case UserState.SERIES_LOADING:
-      return { ...state, seriesLoading: onlyIfChanged(action) };
+      return { ...state, seriesLoading: action.payload };
     case UserState.ASSETS_LOADING:
-      return { ...state, assetsLoading: onlyIfChanged(action) };
+      return { ...state, assetsLoading: action.payload };
     case UserState.STRATEGIES_LOADING:
-      return { ...state, strategiesLoading: onlyIfChanged(action) };
+      return { ...state, strategiesLoading: action.payload };
 
     case UserState.ASSETS:
       return { ...state, assetMap: new Map(action.payload) };
@@ -282,7 +257,7 @@ const UserProvider = ({ children }: any) => {
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
       // default selected base
-      updateState({ type: UserState.SELECTED_BASE, payload: newAssetsMap.get(DEFAULT_SELECTED_BASE) });
+      updateState({ type: UserState.SELECTED_BASE, payload: newAssetsMap.get(DEFAULT_SELECTED_BASE)! });
 
       diagnostics && console.log('ASSETS updated (with dynamic data):');
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
@@ -741,7 +716,7 @@ const UserProvider = ({ children }: any) => {
       []
     ),
   };
-  return <UserContext.Provider value={{ userState, userActions } as IUserContext}>{children}</UserContext.Provider>;
+  return <UserContext.Provider value={{ userState, userActions }}>{children}</UserContext.Provider>;
 };
 
 export { UserContext };
