@@ -7,6 +7,7 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
 import Logo from './logos/Logo';
+import { IUserContext } from '../types';
 
 const StyledText = styled(Text)`
   svg,
@@ -30,15 +31,15 @@ const Balance = ({ image, balance, loading }: { image: any; balance: string; loa
 const YieldBalances = () => {
   const {
     userState: { selectedBase, selectedIlk, assetsLoading, assetMap },
-  } = useContext(UserContext);
+  } = useContext(UserContext) as IUserContext;
 
-  const [baseBalance, setBaseBalance] = useState<string>(selectedBase?.balance_);
-  const [ilkBalance, setIlkBalance] = useState<string>(selectedIlk?.balance_);
+  const [baseBalance, setBaseBalance] = useState<string>(selectedBase?.balance_!);
+  const [ilkBalance, setIlkBalance] = useState<string>(selectedIlk?.balance_!);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
-    selectedBase && setBaseBalance(assetMap.get(selectedBase.id).balance_);
-    selectedIlk && setIlkBalance(assetMap.get(selectedIlk.id).balance_);
+    selectedBase && setBaseBalance(assetMap.get(selectedBase.id)?.balance_!);
+    selectedIlk && setIlkBalance(assetMap.get(selectedIlk.id)?.balance_!);
   }, [assetMap, selectedBase, selectedIlk]);
 
   const { pathname } = useRouter();
