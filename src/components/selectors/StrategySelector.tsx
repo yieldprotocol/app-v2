@@ -98,7 +98,7 @@ const StrategySelectItem = ({
 
 interface IStrategySelectorProps {
   inputValue?: string /* accepts an input value for possible dynamic Return calculations */;
-  setOpen?: any
+  setOpen?: any;
 }
 
 const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
@@ -108,16 +108,14 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext) as IUserContext;
 
   const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(strategyMap.values()) as IStrategy[];
+    const opts = Array.from(strategyMap.values());
     const filteredOpts = opts
       .filter((_st) => _st.currentSeries?.showSeries)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)

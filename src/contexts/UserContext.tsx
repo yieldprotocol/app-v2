@@ -35,7 +35,7 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { CAULDRON, EULER_SUPGRAPH_ENDPOINT, WITCH, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { DEFAULT_SELECTED_BASE, ETH_BASED_ASSETS, USDC } from '../config/assets';
+import { DEFAULT_SELECTED_BASE, ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
@@ -452,8 +452,6 @@ const UserProvider = ({ children }: any) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
-      if (!userState.seriesMap) return;
-
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
       let _publicData: IStrategy[] = [];
@@ -555,14 +553,12 @@ const UserProvider = ({ children }: any) => {
         return acc.set(item.address, item);
       }, new Map() as Map<string, IStrategy>);
 
-      const combinedMap = newStrategyMap;
-
-      updateState({ type: UserState.STRATEGIES, payload: combinedMap });
+      updateState({ type: UserState.STRATEGIES, payload: newStrategyMap });
       updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
 
-      console.log('STRATEGIES updated (with dynamic data): ', combinedMap);
+      console.log('STRATEGIES updated (with dynamic data): ', newStrategyMap);
 
-      return combinedMap;
+      return newStrategyMap;
     },
     [account, userState.seriesMap] // userState.strategyMap excluded on purpose
   );
@@ -678,26 +674,36 @@ const UserProvider = ({ children }: any) => {
 
   /**
    *
-   * When the chainContext is finished loading get the dynamic series, asset and strategies data (after series).
-   * (also on account change )
+   * When the chainContext is finished loading get the dynamic series and asset.
+   * (also on account change)
    *
    * */
   useEffect(() => {
     if (chainLoaded) {
       updateAssets(Array.from(assetRootMap.values()));
-      updateSeries(Array.from(seriesRootMap.values()))
-        /*  when series has finished loading,...load/reload strategy data */
-        .finally(() => updateStrategies(Array.from(strategyRootMap.values())));
+      updateSeries(Array.from(seriesRootMap.values()));
 
       account && updateVaults();
     }
-  }, [chainLoaded, account, assetRootMap, seriesRootMap, strategyRootMap]);
+  }, [chainLoaded, account, assetRootMap, seriesRootMap, strategyRootMap, updateAssets, updateSeries, updateVaults]);
+
+  /* update strategy map when series map is fetched */
+  useEffect(() => {
+    if (chainLoaded && Array.from(userState.seriesMap.values()).length) {
+      /*  when series has finished loading,...load/reload strategy data */
+      updateStrategies(Array.from(strategyRootMap.values()));
+    }
+  }, [chainLoaded, strategyRootMap, userState.seriesMap]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
     const vaultId = pathname.split('/')[2];
     pathname && userState.vaultMap.has(vaultId) && setVaultFromUrl(vaultId);
   }, [pathname, userState.vaultMap]);
+
+  useEffect(() => {
+    console.log('series map', userState.seriesMap);
+  }, [userState.seriesMap]);
 
   /**
    * Explicitly update selected series on series map changes
