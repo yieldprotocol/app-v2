@@ -55,7 +55,7 @@ const YieldBalances = () => {
   }, [pathname]);
 
   return (
-    <Box pad="medium" justify="center" align="start" gap="xsmall">
+    <Box pad="small" justify="center" align="start" gap="xsmall">
       {selectedBase?.proxyId !== WETH && (
         <Balance
           image={selectedBase?.image}

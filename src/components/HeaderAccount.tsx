@@ -46,7 +46,7 @@ const HeaderAccount = () => {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   return (
-    <>
+    <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
       <YieldBalances />
@@ -96,7 +96,7 @@ const HeaderAccount = () => {
           </GeneralButton>
         )
       )}
-    </>
+    </Box>
   );
 };
 
