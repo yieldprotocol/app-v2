@@ -15,17 +15,7 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import {
-  IAssetRoot,
-  ISeriesRoot,
-  IVaultRoot,
-  ISeries,
-  IAsset,
-  IVault,
-  IStrategyRoot,
-  IStrategy,
-  IChainContext,
-} from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
@@ -131,7 +121,7 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext) as IChainContext;
+  const { chainState } = useContext(ChainContext);
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
     settingsState: { diagnostics },
