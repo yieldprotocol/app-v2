@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Box } from 'grommet';
-import { ActionType, IUserContext } from '../types';
+import { ActionType } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import VaultItem from './positionItems/VaultItem';
 import LendItem from './positionItems/LendItem';
@@ -9,7 +9,7 @@ import StrategyItem from './positionItems/StrategyItem';
 function DashboardPositionListItem({ item, index, actionType }: { item: any; index: number; actionType: ActionType }) {
   const {
     userState: { vaultMap, seriesMap, strategyMap },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   return (
     <Box>
