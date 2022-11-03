@@ -29,3 +29,4 @@ export const CAULDRON = 'Cauldron';
 export const WITCH = 'Witch';
 export const LADLE = 'Ladle';
 export const WRAP_ETHER_MODULE = 'WrapEtherModule';
+export const CONVEX_LADLE_MODULE = 'ConvexLadleModule';
