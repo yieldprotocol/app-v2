@@ -68,24 +68,21 @@ export interface ISeriesRootRoot extends ISignable {
 }
 
 export interface ISeriesRoot extends ISeriesRootRoot {
+  poolContract: Pool;
+  fyTokenContract: FYToken;
+  fullDate: string;
   displayName: string;
   displayNameMobile: string;
 
-  fullDate: string;
-  fyTokenContract: FYToken;
-  poolContract: Pool;
-
   season: string;
-  color: string;
-  textColor: string;
-  oppTextColor: string;
   startColor: string;
   endColor: string;
+  color: string;
+  textColor: string;
 
-  oppositeColor: string;
   oppStartColor: string;
   oppEndColor: string;
-
+  oppTextColor: string;
   seriesMark: ReactNode;
 }
 

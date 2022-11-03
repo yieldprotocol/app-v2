@@ -238,7 +238,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   /* add on extra/calculated ASYNC series info and contract instances */
   const _chargeSeries = useCallback(
-    (series: { maturity: number; baseId: string; poolAddress: string; fyTokenAddress: string }): ISeriesRoot => {
+    (series: ISeriesRootRoot): ISeriesRoot => {
       /* contracts need to be added in again in when charging because the cached state only holds strings */
       const poolContract = contractTypes.Pool__factory.connect(series.poolAddress, provider);
       const fyTokenContract = contractTypes.FYToken__factory.connect(series.fyTokenAddress, provider);
@@ -285,7 +285,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     }
 
     let seriesMap = SERIES_CONFIG;
-    const newSeriesList: any[] = [];
+    const newSeriesList: ISeriesRootRoot[] = [];
 
     await Promise.all(
       Array.from(seriesMap).map(async (x) => {
@@ -313,7 +313,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             poolContract.base(),
           ]);
 
-        const newSeries: ISeriesRootRoot = {
+        const newSeries = {
           id,
           baseId,
           maturity,
@@ -331,7 +331,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
           g1,
           g2,
           baseAddress,
-        };
+        } as ISeriesRootRoot;
 
         updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
         newSeriesList.push(newSeries);
