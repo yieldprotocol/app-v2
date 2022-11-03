@@ -235,6 +235,7 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
+  currentSeries: ISeries | undefined;
   currentSeriesId: string;
   currentPoolAddr: string;
   nextSeriesId: string;
