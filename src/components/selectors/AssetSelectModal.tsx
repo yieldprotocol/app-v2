@@ -1,6 +1,4 @@
-import { BigNumber } from 'ethers';
 import { ethers } from 'ethers';
-import { formatUnits } from 'ethers/lib/utils';
 import { Box, Button, Layer, ResponsiveContext, Text } from 'grommet';
 import { useContext } from 'react';
 import { FiX } from 'react-icons/fi';
