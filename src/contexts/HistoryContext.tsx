@@ -11,7 +11,6 @@ import {
   IBaseHistItem,
   IAsset,
   IStrategy,
-  IChainContext,
   IHistoryContextActions,
 } from '../types';
 
@@ -88,7 +87,7 @@ function historyReducer(state: any, action: any) {
 
 const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext) as IChainContext;
+  const { chainState } = useContext(ChainContext);
   const { contractMap, seriesRootMap, assetRootMap } = chainState;
 
   const useTenderlyFork = false;

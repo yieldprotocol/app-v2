@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 
-import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IChainContext, IHistoryContext } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
@@ -19,7 +19,7 @@ import { useAccount } from 'wagmi';
 export const useAddCollateral = () => {
   const {
     chainState: { contractMap },
-  } = useContext(ChainContext) as IChainContext;
+  } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
