@@ -27,3 +27,4 @@ export const EULER_SUPGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/
 
 export const CAULDRON = 'Cauldron';
 export const WITCH = 'Witch';
+export const LADLE = 'Ladle';
