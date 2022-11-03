@@ -65,40 +65,6 @@ export interface IPriceContext {
   priceActions: IPriceContextActions;
 }
 
-export interface ISettingsContext {
-  settingsState: ISettingsContextState;
-  settingsActions: { updateSetting: (setting: string, value: string | number | boolean) => void };
-}
-
-export interface ISettingsContextState {
-  /* User Settings ( getting from the cache first ) */
-  slippageTolerance: number;
-  darkMode: boolean;
-  autoTheme: boolean;
-  forceTransactions: boolean;
-  approvalMethod: ApprovalType;
-  approveMax: boolean;
-  disclaimerChecked: boolean;
-  powerUser: boolean;
-  diagnostics: boolean;
-  /* Token wrapping */
-  showWrappedTokens: boolean;
-  unwrapTokens: boolean;
-
-  useTenderlyFork: boolean;
-
-  /* DashSettings */
-  dashHideEmptyVaults: boolean;
-  dashHideInactiveVaults: boolean;
-  dashHideVaults: boolean;
-  dashHideLendPositions: boolean;
-  dashHidePoolPositions: boolean;
-  dashCurrency: string;
-
-  useFork: boolean;
-  forkUrl: string;
-}
-
 export interface ISignable {
   name: string;
   version: string;

@@ -25,7 +25,6 @@ import {
   IStrategyRoot,
   IStrategy,
   IChainContext,
-  ISettingsContext,
 } from '../types';
 
 import { ChainContext } from './ChainContext';
@@ -136,7 +135,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const useTenderlyFork = false;
 
