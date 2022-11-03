@@ -4,9 +4,9 @@ import { useNetwork, useSigner } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ICallData, LadleActions, IAsset, RoutedActions, IAssetRoot } from '../../types';
-import { LADLE, ZERO_BN } from '../../utils/constants';
+import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
-import useContracts from '../useContracts';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useWrapUnwrapAsset = () => {
   const {
@@ -30,7 +30,7 @@ export const useWrapUnwrapAsset = () => {
     txCode: string,
     to?: string | undefined // optional send destination : DEFAULT is assetJoin address
   ): Promise<ICallData[]> => {
-    const ladleAddress = contracts.get(LADLE)?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     /* SET the destination address DEFAULTs to the assetJoin Address */
     const toAddress = to || asset.joinAddress;
     const wrapHandlerAddress =

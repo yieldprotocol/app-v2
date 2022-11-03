@@ -12,8 +12,7 @@ import { useChain } from '../useChain';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
-import useContracts from '../useContracts';
-import { LADLE } from '../../utils/constants';
+import useContracts, { ContractNames } from '../useContracts';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
@@ -49,7 +48,7 @@ export const useRollPosition = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const ladleAddress = contracts.get(LADLE)?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     // estimate how much fyToken you could sell given the input (base), using the from series
     const _fyTokenValueOfInputIn = fromSeries.seriesIsMature

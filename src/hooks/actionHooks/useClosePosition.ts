@@ -3,19 +3,18 @@ import { useContext } from 'react';
 import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
 import { ETH_BASED_ASSETS } from '../../config/assets';
-import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { LADLE, ONE_BN } from '../../utils/constants';
+import { ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
-import useContracts from '../useContracts';
+import useContracts, { ContractNames } from '../useContracts';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -47,7 +46,7 @@ export const useClosePosition = () => {
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
-    const ladleAddress = contracts.get(LADLE)?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     /* assess how much fyToken is needed to buy base amount (input) */
     /* after maturity, fytoken === base (input) value */

@@ -2,13 +2,13 @@ import { BigNumber } from 'ethers';
 import { useAccount } from 'wagmi';
 import { ICallData, LadleActions } from '../../types';
 import { ModuleActions } from '../../types/operations';
-import { WRAP_ETHER_MODULE, ZERO_BN } from '../../utils/constants';
-import useContracts from '../useContracts';
+import { ZERO_BN } from '../../utils/constants';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddRemoveEth = () => {
   const { address: account } = useAccount();
   const contracts = useContracts();
-  const WrapEtherModuleContract = contracts.get(WRAP_ETHER_MODULE);
+  const WrapEtherModuleContract = contracts.get(ContractNames.WRAP_ETHER_MODULE);
 
   const addEth = (
     value: BigNumber,

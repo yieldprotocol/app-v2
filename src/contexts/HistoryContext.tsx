@@ -16,7 +16,7 @@ import {
 
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
-import { CAULDRON, LADLE, ZERO_BN } from '../utils/constants';
+import { ZERO_BN } from '../utils/constants';
 import { Cauldron } from '../contracts';
 
 import { SettingsContext } from './SettingsContext';
@@ -25,7 +25,7 @@ import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 import useTenderly from '../hooks/useTenderly';
 import { useAccount, useProvider } from 'wagmi';
-import useContracts from '../hooks/useContracts';
+import useContracts, { ContractNames } from '../hooks/useContracts';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -242,7 +242,7 @@ const HistoryProvider = ({ children }: any) => {
 
           const tradeLogs = await Promise.all(
             eventList
-              .filter((e: TradeEvent) => e.args.from !== contracts.get(LADLE)?.address) // TODO make this for any ladle (Past/future)
+              .filter((e: TradeEvent) => e.args.from !== contracts.get(ContractNames.LADLE)?.address) // TODO make this for any ladle (Past/future)
               .map(async (e: TradeEvent) => {
                 const { blockNumber, transactionHash } = e;
                 const { maturity, fyTokens } = e.args;
@@ -438,7 +438,7 @@ const HistoryProvider = ({ children }: any) => {
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
       const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
-      const cauldronContract = contracts.get(CAULDRON) as Cauldron;
+      const cauldronContract = contracts.get(ContractNames.CAULDRON) as Cauldron;
       /* Get all the Vault historical Pour transactions */
       await Promise.all(
         vaultList.map(async (vault) => {

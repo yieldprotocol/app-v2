@@ -16,7 +16,7 @@ import {
   IVault,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, LADLE, ONE_BN } from '../../utils/constants';
+import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 
@@ -26,7 +26,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
-import useContracts from '../useContracts';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddLiquidity = () => {
   const {
@@ -58,7 +58,7 @@ export const useAddLiquidity = () => {
     const _series: ISeries = seriesMap?.get(strategy.currentSeriesId)!;
     const _base: IAsset = assetMap?.get(_series?.baseId!)!;
 
-    const ladleAddress = contracts.get(LADLE)?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
     const cleanInput = cleanValue(input, _base?.decimals!);

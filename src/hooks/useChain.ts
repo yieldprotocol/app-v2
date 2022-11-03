@@ -4,13 +4,13 @@ import { useContext } from 'react';
 import { TxContext } from '../contexts/TxContext';
 
 import { ApprovalType, ICallData, ISignData, LadleActions, TokenType } from '../types';
-import { LADLE, MAX_256, ZERO_BN } from '../utils/constants';
+import { MAX_256, ZERO_BN } from '../utils/constants';
 
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { useAccount, useNetwork, useSigner } from 'wagmi';
-import useContracts from './useContracts';
+import useContracts, { ContractNames } from './useContracts';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -46,7 +46,7 @@ export const useChain = () => {
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     /* Set the router contract instance, ladle by default */
-    const _contract: Contract = contracts.get(LADLE)?.connect(signer!) as Ladle;
+    const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call: ICallData) => !call.ignoreIf);
@@ -117,7 +117,7 @@ export const useChain = () => {
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
-      const _ladleAddr = contracts.get(LADLE)?.address;
+      const _ladleAddr = contracts.get(ContractNames.LADLE)?.address;
       if (ethers.utils.isAddress(spender)) {
         return spender;
       }

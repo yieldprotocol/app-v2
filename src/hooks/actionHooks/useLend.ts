@@ -12,8 +12,7 @@ import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
-import useContracts from '../useContracts';
-import { LADLE } from '../../utils/constants';
+import useContracts, { ContractNames } from '../useContracts';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -43,7 +42,7 @@ export const useLend = () => {
     const cleanedInput = cleanValue(input, base?.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base?.decimals) : ethers.constants.Zero;
 
-    const ladleAddress = contracts.get(LADLE)?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const _inputAsFyToken = sellBase(
       series.sharesReserves,

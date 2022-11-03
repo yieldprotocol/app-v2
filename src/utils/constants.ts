@@ -24,9 +24,3 @@ export const BLANK_VAULT = '0x000000000000000000000000';
 export const BLANK_SERIES = '0x000000000000';
 
 export const EULER_SUPGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/euler-xyz/euler-mainnet';
-
-export const CAULDRON = 'Cauldron';
-export const WITCH = 'Witch';
-export const LADLE = 'Ladle';
-export const WRAP_ETHER_MODULE = 'WrapEtherModule';
-export const CONVEX_LADLE_MODULE = 'ConvexLadleModule';

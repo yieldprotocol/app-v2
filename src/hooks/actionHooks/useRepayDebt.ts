@@ -6,16 +6,15 @@ import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { ChainContext } from '../../contexts/ChainContext';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { LADLE, ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
-import { ConvexJoin__factory, Ladle } from '../../contracts';
+import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
-import useContracts from '../useContracts';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useRepayDebt = () => {
   const {
@@ -44,7 +43,7 @@ export const useRepayDebt = () => {
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
-    const ladleAddress = contracts.get(LADLE)?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     const series: ISeries = seriesMap?.get(vault.seriesId)!;
     const base: IAsset = assetMap?.get(vault.baseId)!;
     const ilk: IAsset = assetMap?.get(vault.ilkId)!;

@@ -20,8 +20,7 @@ import { SERIES_1, SERIES_42161 } from '../config/series';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
-import { CAULDRON } from '../utils/constants';
-import useContracts from '../hooks/useContracts';
+import useContracts, { ContractNames } from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 
 const initState: IChainContextState = {
@@ -290,7 +289,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
         const id = x[0];
         const fyTokenAddress = x[1].fyTokenAddress;
         const poolAddress = x[1].poolAddress;
-        const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
+        const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
 
         const { maturity, baseId } = await Cauldron.series(id);
         const poolContract = contractTypes.Pool__factory.connect(poolAddress, provider);

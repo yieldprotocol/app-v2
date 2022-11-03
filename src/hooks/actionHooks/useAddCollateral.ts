@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, CONVEX_LADLE_MODULE, LADLE, ZERO_BN } from '../../utils/constants';
+import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
@@ -14,7 +14,7 @@ import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { useAccount } from 'wagmi';
-import useContracts from '../useContracts';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -38,7 +38,7 @@ export const useAddCollateral = () => {
     /* set the ilk based on if a vault has been selected or it's a new vault */
     const ilk: IAsset | null | undefined = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
     const base: IAsset | null | undefined = vault ? assetMap?.get(vault.baseId) : selectedBase;
-    const ladleAddress = contracts.get(LADLE)?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
@@ -52,7 +52,7 @@ export const useAddCollateral = () => {
 
     /* is convex-type collateral */
     const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
-    const ConvexLadleModuleContract = contracts.get(CONVEX_LADLE_MODULE) as ConvexLadleModule;
+    const ConvexLadleModuleContract = contracts.get(ContractNames.CONVEX_LADLE_MODULE) as ConvexLadleModule;
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);

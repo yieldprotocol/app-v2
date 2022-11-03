@@ -20,7 +20,7 @@ import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategy
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { CAULDRON, EULER_SUPGRAPH_ENDPOINT, WITCH, ZERO_BN } from '../utils/constants';
+import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { DEFAULT_SELECTED_BASE, ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
@@ -31,7 +31,7 @@ import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
-import useContracts from '../hooks/useContracts';
+import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 
 const initState: IUserContextState = {
@@ -179,7 +179,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(async () => {
-    const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
+    const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
 
     const cacheKey = `vaults_${account}_${chainId}`;
     const cachedVaults = JSON.parse(localStorage.getItem(cacheKey)!);
@@ -545,8 +545,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
       let _vaults: IVaultRoot[] | undefined = vaultList;
-      const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
-      const Witch = contracts.get(WITCH) as contractTypes.Witch;
+      const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
+      const Witch = contracts.get(ContractNames.WITCH) as contractTypes.Witch;
 
       /**
        * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */

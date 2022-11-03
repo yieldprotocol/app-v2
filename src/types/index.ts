@@ -375,8 +375,6 @@ export enum AddLiquidityType {
   BORROW = 'BORROW',
 }
 
-export enum ContractNames {}
-
 export enum YieldColors {
   SUCCESS = 'success',
   FAILED = 'error',
