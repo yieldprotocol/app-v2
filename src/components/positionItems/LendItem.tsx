@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { ActionType, IAsset, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -28,7 +28,7 @@ function LendItem({
   const {
     userState: { assetMap, seriesLoading, selectedSeries, selectedBase },
     userActions,
-  }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
   const seriesBase = assetMap?.get(series.baseId)!;
   const isSelectedBaseAndSeries = series.baseId === seriesBase.proxyId && series.id === selectedSeries?.id;

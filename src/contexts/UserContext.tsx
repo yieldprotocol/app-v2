@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext } from 'react';
+import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext, ReactNode } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import * as contractTypes from '../contracts';
 
@@ -66,12 +66,17 @@ const initState: IUserContextState = {
   selectedStrategy: null,
 };
 
-const UserContext = createContext<{ userState: IUserContextState; userActions: Dispatch<IUserContextActions> }>({
+const UserContext = createContext<{
+  userState: IUserContextState;
+  updateState: Dispatch<UserContextAction>;
+  userActions: IUserContextActions | undefined;
+}>({
   userState: initState,
-  userActions: () => undefined,
+  userActions: undefined,
+  updateState: () => undefined,
 });
 
-function userReducer(state: IUserContextState, action: UserContextAction) {
+function userReducer(state: IUserContextState, action: UserContextAction): IUserContextState {
   switch (action.type) {
     case UserState.USER_LOADING:
       return { ...state, userLoading: action.payload };
@@ -113,7 +118,7 @@ function userReducer(state: IUserContextState, action: UserContextAction) {
   }
 }
 
-const UserProvider = ({ children }: any) => {
+const UserProvider = ({ children }: { children: ReactNode }) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext) as IChainContext;
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
@@ -683,7 +688,7 @@ const UserProvider = ({ children }: any) => {
     if (userState.selectedSeries && userState.seriesMap) {
       updateState({
         type: UserState.SELECTED_SERIES,
-        payload: userState.seriesMap.get(userState.selectedSeries.id),
+        payload: userState.seriesMap.get(userState.selectedSeries.id)!,
       });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
@@ -696,27 +701,28 @@ const UserProvider = ({ children }: any) => {
     updateStrategies,
 
     setSelectedVault: useCallback(
-      (vault: IVault | null) => updateState({ type: UserState.SELECTED_VAULT, payload: vault }),
+      (vault: IVault | null) => updateState({ type: UserState.SELECTED_VAULT, payload: vault! }),
       []
     ),
     setSelectedIlk: useCallback(
-      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_ILK, payload: asset }),
+      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_ILK, payload: asset! }),
       []
     ),
     setSelectedSeries: useCallback(
-      (series: ISeries | null) => updateState({ type: UserState.SELECTED_SERIES, payload: series }),
+      (series: ISeries | null) => updateState({ type: UserState.SELECTED_SERIES, payload: series! }),
       []
     ),
     setSelectedBase: useCallback(
-      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_BASE, payload: asset }),
+      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_BASE, payload: asset! }),
       []
     ),
     setSelectedStrategy: useCallback(
-      (strategy: IStrategy | null) => updateState({ type: UserState.SELECTED_STRATEGY, payload: strategy }),
+      (strategy: IStrategy | null) => updateState({ type: UserState.SELECTED_STRATEGY, payload: strategy! }),
       []
     ),
-  };
-  return <UserContext.Provider value={{ userState, userActions }}>{children}</UserContext.Provider>;
+  } as IUserContextActions;
+
+  return <UserContext.Provider value={{ userState, userActions, updateState }}>{children}</UserContext.Provider>;
 };
 
 export { UserContext };
