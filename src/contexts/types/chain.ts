@@ -1,4 +1,3 @@
-import { Contract } from 'ethers';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../../types';
 
 export enum ChainState {
@@ -16,7 +15,6 @@ export interface IChainContext {
 
 export interface IChainContextState {
   chainLoaded: boolean;
-  contractMap: Map<string, Contract>;
   assetRootMap: Map<string, IAssetRoot>;
   seriesRootMap: Map<string, ISeriesRoot>;
   strategyRootMap: Map<string, IStrategyRoot>;

@@ -27,8 +27,6 @@ import { ChainContextActions, ChainState, IChainContextActions, IChainContextSta
 const initState: IChainContextState = {
   /* flags */
   chainLoaded: false,
-  /* Connected Contract Maps */
-  contractMap: new Map<string, Contract>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
