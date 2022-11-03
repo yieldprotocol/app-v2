@@ -99,7 +99,7 @@ export interface IAssetInfo {
   assetAddress: string;
   joinAddress: string;
 
-  tokenType: TokenType;
+  tokenType?: TokenType;
   tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
   name: string;
