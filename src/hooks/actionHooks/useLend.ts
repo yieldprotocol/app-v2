@@ -13,6 +13,8 @@ import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
+import useContracts from '../useContracts';
+import { LADLE } from '../../utils/constants';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -36,6 +38,7 @@ export const useLend = () => {
   const { sign, transact } = useChain();
   const { addEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const contracts = useContracts();
 
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -45,7 +48,7 @@ export const useLend = () => {
     const cleanedInput = cleanValue(input, base?.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base?.decimals) : ethers.constants.Zero;
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(LADLE)?.address;
 
     const _inputAsFyToken = sellBase(
       series.sharesReserves,
@@ -62,7 +65,7 @@ export const useLend = () => {
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(_input);
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress!)).gte(_input);
 
     /* ETH is used as a base */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);

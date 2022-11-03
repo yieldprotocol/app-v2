@@ -6,7 +6,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
+import { BLANK_VAULT, LADLE, ONE_BN, ZERO_BN } from '../../utils/constants';
 
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 
@@ -18,6 +18,7 @@ import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
+import useContracts from '../useContracts';
 
 export const useBorrow = () => {
   const {
@@ -32,6 +33,7 @@ export const useBorrow = () => {
   const { selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccount();
+  const contracts = useContracts();
 
   const { addEth, removeEth } = useAddRemoveEth();
 
@@ -45,7 +47,7 @@ export const useBorrow = () => {
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(LADLE)?.address;
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series: ISeries = vault ? seriesMap?.get(vault.seriesId)! : selectedSeries!;

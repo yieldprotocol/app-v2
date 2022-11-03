@@ -1,18 +1,14 @@
 import { BigNumber } from 'ethers';
-import { useContext } from 'react';
 import { useAccount } from 'wagmi';
-import { ChainContext } from '../../contexts/ChainContext';
 import { ICallData, LadleActions } from '../../types';
 import { ModuleActions } from '../../types/operations';
-import { ZERO_BN } from '../../utils/constants';
+import { WRAP_ETHER_MODULE, ZERO_BN } from '../../utils/constants';
+import useContracts from '../useContracts';
 
 export const useAddRemoveEth = () => {
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
   const { address: account } = useAccount();
-  const WrapEtherModuleContract = contractMap.get('WrapEtherModule');
+  const contracts = useContracts();
+  const WrapEtherModuleContract = contracts.get(WRAP_ETHER_MODULE);
 
   const addEth = (
     value: BigNumber,

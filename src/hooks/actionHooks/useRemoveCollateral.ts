@@ -8,10 +8,11 @@ import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { LADLE, ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
+import useContracts from '../useContracts';
 
 export const useRemoveCollateral = () => {
   const {
@@ -23,6 +24,7 @@ export const useRemoveCollateral = () => {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
+  const contracts = useContracts();
 
   const {
     historyActions: { updateVaultHistory },
@@ -39,7 +41,7 @@ export const useRemoveCollateral = () => {
 
     /* get associated series and ilk */
     const ilk = assetMap?.get(vault.ilkId)!;
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(LADLE)?.address;
     /* get unwrap handler if required */
     const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chain?.id!);
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
