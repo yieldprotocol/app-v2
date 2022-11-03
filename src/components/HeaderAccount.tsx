@@ -8,10 +8,10 @@ import { FiSettings } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import GeneralButton from './buttons/GeneralButton';
-import HeaderBalancesModal from './HeaderBalancesModal';
 import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import YieldBalances from './HeaderBalances';
 
 const StyledText = styled(Text)`
   svg,
@@ -34,7 +34,6 @@ const StyledBox = styled(Box)`
 const HeaderAccount = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  const { address } = useAccount();
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
   const { address: account } = useAccount();
@@ -50,9 +49,9 @@ const HeaderAccount = () => {
     <>
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      {address ? (
+      <YieldBalances />
+      {account ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <HeaderBalancesModal />}
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
               <Box>
@@ -62,7 +61,7 @@ const HeaderAccount = () => {
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
-                    {ensName || abbreviateHash(address!, 5)}
+                    {ensName || abbreviateHash(account!, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
@@ -82,7 +81,7 @@ const HeaderAccount = () => {
                   </Box>
                 </Box>
                 <Box>
-                  <YieldAvatar address={address} size={2} />
+                  <YieldAvatar address={account} size={2} />
                 </Box>
               </Box>
             )}
