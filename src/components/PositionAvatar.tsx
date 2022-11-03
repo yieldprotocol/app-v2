@@ -4,7 +4,7 @@ import { FiClock } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { IVault, ISeries, IAsset, IUserContext, IStrategy, ActionType, IUserContextState } from '../types';
+import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
 
 const Outer = styled(Box)`
@@ -38,7 +38,7 @@ function PositionAvatar({
   const isVault = position?.id.length > 15;
 
   /* STATE FROM CONTEXT */
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState } = useContext(UserContext);
   const { assetMap, seriesMap } = userState;
 
   const base: IAsset | undefined = assetMap?.get(position?.baseId!); // same for both series and vaults
