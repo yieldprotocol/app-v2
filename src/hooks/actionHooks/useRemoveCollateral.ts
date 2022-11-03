@@ -15,10 +15,6 @@ import { useAccount, useNetwork, useProvider } from 'wagmi';
 import useContracts from '../useContracts';
 
 export const useRemoveCollateral = () => {
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, assetMap } = userState;
   const { address: account } = useAccount();

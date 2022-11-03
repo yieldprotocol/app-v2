@@ -3,7 +3,6 @@ import { useContext } from 'react';
 import { calculateSlippage, sellBase } from '@yield-protocol/ui-math';
 
 import { ETH_BASED_ASSETS } from '../../config/assets';
-import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -21,10 +20,6 @@ export const useLend = () => {
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
-
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap } = userState;

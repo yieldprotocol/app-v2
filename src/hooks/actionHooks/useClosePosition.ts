@@ -23,10 +23,6 @@ export const useClosePosition = () => {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
   const { userState, userActions } = useContext(UserContext);
   const { assetMap } = userState;
   const { address: account } = useAccount();

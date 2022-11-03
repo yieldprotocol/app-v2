@@ -1,16 +1,16 @@
 import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
-import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
 import { ApprovalType, ICallData, ISignData, LadleActions, TokenType } from '../types';
-import { MAX_256, ZERO_BN } from '../utils/constants';
+import { LADLE, MAX_256, ZERO_BN } from '../utils/constants';
 
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useAccount, useNetwork, useProvider, useSigner } from 'wagmi';
+import { useAccount, useNetwork, useSigner } from 'wagmi';
+import useContracts from './useContracts';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -26,10 +26,6 @@ export const useChain = () => {
   } = useContext(SettingsContext);
 
   const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
-  const {
     txActions: { handleTx, handleSign, handleTxWillFail },
   } = useContext(TxContext);
 
@@ -37,6 +33,7 @@ export const useChain = () => {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const { data: signer, isError, isLoading } = useSigner();
+  const contracts = useContracts();
 
   const approvalMethod = useApprovalMethod();
 
@@ -49,7 +46,7 @@ export const useChain = () => {
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     /* Set the router contract instance, ladle by default */
-    const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
+    const _contract: Contract = contracts.get(LADLE)?.connect(signer!) as Ladle;
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call: ICallData) => !call.ignoreIf);
@@ -120,7 +117,7 @@ export const useChain = () => {
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
-      const _ladleAddr = contractMap.get('Ladle').address;
+      const _ladleAddr = contracts.get(LADLE)?.address;
       if (ethers.utils.isAddress(spender)) {
         return spender;
       }
@@ -158,13 +155,14 @@ export const useChain = () => {
                   verifyingContract: reqSig.target.address,
                 },
                 account!,
-                _spender
+                _spender!
               ),
             /* This is the function  to call if using fallback Dai approvals */
             () =>
               handleTx(
                 /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-                () => ERC20Permit__factory.connect(reqSig.target.address, signer!).approve(_spender, _amount as string),
+                () =>
+                  ERC20Permit__factory.connect(reqSig.target.address, signer!).approve(_spender!, _amount as string),
                 txCode,
                 true
               ),
@@ -208,7 +206,7 @@ export const useChain = () => {
                 verifyingContract: reqSig.target.address,
               },
               account!,
-              _spender,
+              _spender!,
               _amount
             ),
           /* this is the function for if using fallback approvals */
@@ -216,9 +214,9 @@ export const useChain = () => {
             handleTx(
               /* get an ERC20 or ERC1155 contract instance. Used in the case of fallback tx (when signing is not available) or token is ERC1155 */
               (reqSig.target as any).setAllowance
-                ? () => ERC1155__factory.connect(reqSig.target.address, signer!).setApprovalForAll(_spender, true)
+                ? () => ERC1155__factory.connect(reqSig.target.address, signer!).setApprovalForAll(_spender!, true)
                 : () =>
-                    ERC20Permit__factory.connect(reqSig.target.address, signer!).approve(_spender, _amount as string),
+                    ERC20Permit__factory.connect(reqSig.target.address, signer!).approve(_spender!, _amount as string),
               txCode,
               true
             ),
