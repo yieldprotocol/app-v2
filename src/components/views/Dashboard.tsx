@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import Skeleton from '../wraps/SkeletonWrap';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ActionType, ISettingsContext, IUserContextState } from '../../types';
+import { ActionType, ISettingsContext } from '../../types';
 import YieldInfo from '../FooterInfo';
 import DashboardBalanceSummary from '../DashboardBalanceSummary';
 import MainViewWrap from '../wraps/MainViewWrap';
@@ -37,7 +37,7 @@ const Dashboard = () => {
 
   const {
     userState: { vaultsLoading, seriesLoading, strategiesLoading },
-  }: { userState: IUserContextState } = useContext(UserContext);
+  } = useContext(UserContext);
 
   const {
     chainState: { chainLoaded },

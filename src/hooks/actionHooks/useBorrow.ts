@@ -4,17 +4,7 @@ import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  IVault,
-  ActionCodes,
-  LadleActions,
-  ISeries,
-  IAsset,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-} from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, ISeries, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
 
@@ -38,10 +28,7 @@ export const useBorrow = () => {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
+  const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccount();

@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 
 import { Box, Text } from 'grommet';
-import { ActionType, IUserContext, IVault } from '../../types';
+import { ActionType, IVault } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 import PositionAvatar from '../PositionAvatar';
@@ -21,7 +21,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   const {
     userState: { seriesMap, vaultsLoading, selectedVault, assetMap },
     userActions,
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
   const { setSelectedVault } = userActions;
 
   const handleSelect = (_vault: IVault) => {

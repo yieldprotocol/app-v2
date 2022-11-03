@@ -20,9 +20,6 @@ import {
   RoutedActions,
   IVault,
   IAsset,
-  IUserContext,
-  IUserContextState,
-  IUserContextActions,
   IChainContext,
   ISettingsContext,
 } from '../../types';
@@ -70,9 +67,7 @@ export const useRemoveLiquidity = () => {
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedStrategy } = userState;
   const { address: account } = useAccount();
 

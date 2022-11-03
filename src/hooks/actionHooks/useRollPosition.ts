@@ -13,9 +13,6 @@ import {
   ActionCodes,
   LadleActions,
   RoutedActions,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
   IAsset,
   IChainContext,
   ISettingsContext,
@@ -37,9 +34,7 @@ export const useRollPosition = () => {
     chainState: { contractMap },
   } = useContext(ChainContext) as IChainContext;
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 

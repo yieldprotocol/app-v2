@@ -7,16 +7,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-} from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -33,9 +24,7 @@ export const useLend = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { address: account } = useAccount();

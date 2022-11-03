@@ -3,18 +3,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 
-import {
-  ICallData,
-  IVault,
-  ActionCodes,
-  LadleActions,
-  IUserContext,
-  IAsset,
-  IUserContextState,
-  IUserContextActions,
-  IChainContext,
-  IHistoryContext,
-} from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IChainContext, IHistoryContext } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
@@ -32,10 +21,7 @@ export const useAddCollateral = () => {
     chainState: { contractMap },
   } = useContext(ChainContext) as IChainContext;
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
+  const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
   const { address: account } = useAccount();

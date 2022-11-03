@@ -6,7 +6,7 @@ import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
-import { IAsset, IUserContext } from '../../types';
+import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -39,7 +39,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { address: activeAccount } = useAccount();

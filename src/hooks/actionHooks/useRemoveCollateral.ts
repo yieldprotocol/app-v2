@@ -2,17 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  IVault,
-  ActionCodes,
-  LadleActions,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  RoutedActions,
-  IHistoryContext,
-} from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
@@ -28,10 +18,7 @@ export const useRemoveCollateral = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
+  const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, assetMap } = userState;
   const { address: account } = useAccount();
   const { chain } = useNetwork();

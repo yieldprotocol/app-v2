@@ -2,8 +2,7 @@ import { BigNumber } from 'ethers';
 import { useContext } from 'react';
 import { useAccount } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
-import { UserContext } from '../../contexts/UserContext';
-import { ICallData, LadleActions, IUserContext, IUserContextState, IUserContextActions } from '../../types';
+import { ICallData, LadleActions } from '../../types';
 import { ModuleActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
 

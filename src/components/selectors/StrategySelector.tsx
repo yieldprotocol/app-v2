@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { FiSlash } from 'react-icons/fi';
 
 import styled from 'styled-components';
-import { ISettingsContext, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ISettingsContext, IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -108,7 +108,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
 
   const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
   const [options, setOptions] = useState<IStrategy[]>([]);

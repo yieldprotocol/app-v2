@@ -21,9 +21,6 @@ import {
   IStrategy,
   AddLiquidityType,
   IVault,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
   ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
@@ -47,9 +44,7 @@ export const useAddLiquidity = () => {
   const {
     chainState: { contractMap },
   } = useContext(ChainContext);
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, seriesMap } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
 

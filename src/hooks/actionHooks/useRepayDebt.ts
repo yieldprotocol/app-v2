@@ -2,20 +2,8 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
 
-import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  IVault,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  IAsset,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  RoutedActions,
-} from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { ChainContext } from '../../contexts/ChainContext';
@@ -37,10 +25,7 @@ export const useRepayDebt = () => {
     chainState: { contractMap },
   } = useContext(ChainContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
+  const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccount();

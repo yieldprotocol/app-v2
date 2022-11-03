@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import { maxBaseIn } from '@yield-protocol/ui-math';
 
-import { ActionType, ISeries, ISettingsContext, IUserContext } from '../../types';
+import { ActionType, ISeries, ISettingsContext } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
@@ -131,7 +131,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
