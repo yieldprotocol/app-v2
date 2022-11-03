@@ -14,7 +14,7 @@ import {
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import { ISettingsContext, IVault } from '../../types';
+import { IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
@@ -26,7 +26,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* STATE FROM CONTEXT */
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },

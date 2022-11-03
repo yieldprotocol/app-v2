@@ -12,7 +12,6 @@ import {
   IAsset,
   IStrategy,
   IChainContext,
-  ISettingsContext,
   IHistoryContextActions,
 } from '../types';
 
@@ -106,7 +105,7 @@ const HistoryProvider = ({ children }: any) => {
 
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   /* update Pool Historical data */
   const updateStrategyHistory = useCallback(

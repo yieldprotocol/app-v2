@@ -4,7 +4,7 @@ import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IPriceContext, ISeries, ISettingsContext, IStrategy, IVault } from '../../types';
+import { IPriceContext, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
@@ -23,7 +23,7 @@ export const useDashboardHelpers = () => {
   /* STATE FROM CONTEXT */
   const {
     settingsState: { dashHideEmptyVaults, dashHideInactiveVaults, dashCurrency },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     userState: { vaultMap, seriesMap, strategyMap },

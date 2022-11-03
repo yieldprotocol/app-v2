@@ -7,16 +7,7 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IAsset,
-  IChainContext,
-  ISettingsContext,
-} from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset, IChainContext } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import useTimeTillMaturity from '../useTimeTillMaturity';
@@ -28,7 +19,7 @@ export const useRollPosition = () => {
   const router = useRouter();
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     chainState: { contractMap },

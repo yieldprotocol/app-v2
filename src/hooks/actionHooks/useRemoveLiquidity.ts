@@ -21,7 +21,6 @@ import {
   IVault,
   IAsset,
   IChainContext,
-  ISettingsContext,
 } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
@@ -82,7 +81,7 @@ export const useRemoveLiquidity = () => {
 
   const {
     settingsState: { diagnostics, slippageTolerance },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */

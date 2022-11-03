@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useReducer } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { bytesToBytes32, decimal18ToDecimalN } from '@yield-protocol/ui-math';
-import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
+import { IAssetPair, IChainContext, IPriceContextState } from '../types';
 import { ChainContext } from './ChainContext';
 
 import { CAULDRON, WAD_BN } from '../utils/constants';
@@ -53,7 +53,7 @@ const PriceProvider = ({ children }: any) => {
   const { assetRootMap } = chainState;
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const chainId = useChainId();
   const contracts = useContracts();

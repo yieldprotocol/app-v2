@@ -21,7 +21,6 @@ import {
   IStrategy,
   AddLiquidityType,
   IVault,
-  ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
@@ -39,7 +38,7 @@ import { useAccount } from 'wagmi';
 export const useAddLiquidity = () => {
   const {
     settingsState: { slippageTolerance },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     chainState: { contractMap },

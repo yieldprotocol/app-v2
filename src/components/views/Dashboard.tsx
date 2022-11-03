@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import Skeleton from '../wraps/SkeletonWrap';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ActionType, ISettingsContext } from '../../types';
+import { ActionType } from '../../types';
 import YieldInfo from '../FooterInfo';
 import DashboardBalanceSummary from '../DashboardBalanceSummary';
 import MainViewWrap from '../wraps/MainViewWrap';
@@ -11,11 +11,12 @@ import PanelWrap from '../wraps/PanelWrap';
 
 import DashboardPositionList from '../DashboardPositionList';
 import CurrencyToggle from '../CurrencyToggle';
-import { Settings, SettingsContext } from '../../contexts/SettingsContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
 import { useAccount } from 'wagmi';
+import { Settings } from '../../contexts/types/settings';
 
 const StyledBox = styled(Box)`
   * {
@@ -33,7 +34,7 @@ const Dashboard = () => {
   const {
     settingsState: { dashHideVaults, dashHideLendPositions, dashHidePoolPositions },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     userState: { vaultsLoading, seriesLoading, strategiesLoading },

@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
-import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions, TokenType } from '../types';
+import { ApprovalType, ICallData, ISignData, LadleActions, TokenType } from '../types';
 import { MAX_256, ZERO_BN } from '../utils/constants';
 
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
@@ -23,7 +23,7 @@ const _getCallValue = (calls: ICallData[]): BigNumber =>
 export const useChain = () => {
   const {
     settingsState: { approveMax, forceTransactions, diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     chainState: { contractMap },

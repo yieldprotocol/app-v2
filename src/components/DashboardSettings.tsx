@@ -2,7 +2,8 @@ import { useState, useContext } from 'react';
 import { Button, DropButton, Text, Box } from 'grommet';
 import { FiMoreVertical } from 'react-icons/fi';
 import { ActionType } from '../types';
-import { Settings, SettingsContext } from '../contexts/SettingsContext';
+import { SettingsContext } from '../contexts/SettingsContext';
+import { Settings } from '../contexts/types/settings';
 
 const DashboardSettings = ({ actionType }: { actionType: string }) => {
   const {

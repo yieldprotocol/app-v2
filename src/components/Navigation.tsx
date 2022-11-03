@@ -5,7 +5,6 @@ import styled, { CSSProperties } from 'styled-components';
 import { Box, ThemeContext, ResponsiveContext, Text } from 'grommet';
 import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { ISettingsContext } from '../types';
 import { useAccount } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
@@ -59,7 +58,7 @@ const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
 
   const {
     settingsState: { darkMode },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text;

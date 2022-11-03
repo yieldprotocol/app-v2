@@ -79,7 +79,7 @@ export const useBorrow = () => {
       series.c,
       series.mu
     );
-    const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
+    const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance.toString());
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilkToUse.getAllowance(account!, ilkToUse.joinAddress);

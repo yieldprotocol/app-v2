@@ -3,15 +3,7 @@ import { useContext } from 'react';
 import { useNetwork, useSigner } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import {
-  ICallData,
-  LadleActions,
-  IAsset,
-  RoutedActions,
-  IChainContext,
-  ISettingsContext,
-  IAssetRoot,
-} from '../../types';
+import { ICallData, LadleActions, IAsset, RoutedActions, IChainContext, IAssetRoot } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 
@@ -22,7 +14,7 @@ export const useWrapUnwrapAsset = () => {
 
   const {
     settingsState: { unwrapTokens, diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const { chain } = useNetwork();
   const { data: signer } = useSigner();
