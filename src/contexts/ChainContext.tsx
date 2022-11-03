@@ -6,7 +6,7 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { IAssetRoot, ISeriesRoot, ISeriesRootRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -238,7 +238,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   /* add on extra/calculated ASYNC series info and contract instances */
   const _chargeSeries = useCallback(
-    (series: { maturity: number; baseId: string; poolAddress: string; fyTokenAddress: string }) => {
+    (series: { maturity: number; baseId: string; poolAddress: string; fyTokenAddress: string }): ISeriesRoot => {
       /* contracts need to be added in again in when charging because the cached state only holds strings */
       const poolContract = contractTypes.Pool__factory.connect(series.poolAddress, provider);
       const fyTokenContract = contractTypes.FYToken__factory.connect(series.fyTokenAddress, provider);
@@ -313,7 +313,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             poolContract.base(),
           ]);
 
-        const newSeries = {
+        const newSeries: ISeriesRootRoot = {
           id,
           baseId,
           maturity,

@@ -48,34 +48,37 @@ export interface ISignable {
   version: string;
   address: string;
   symbol: string;
-  tokenType: TokenType;
+  tokenType?: TokenType;
 }
 
-export interface ISeriesRoot extends ISignable {
+export interface ISeriesRootRoot extends ISignable {
   id: string;
-  displayName: string;
-  displayNameMobile: string;
+  baseId: string;
   maturity: number;
-  showSeries: boolean;
-
-  fullDate: string;
-  fyTokenContract: FYToken;
   fyTokenAddress: string;
-  poolContract: Pool;
-  poolAddress: string;
-  poolName: string;
-  poolVersion: string; // for signing
-  poolSymbol: string; // for signing
-
   decimals: number;
+  poolAddress: string;
+  poolVersion: string; // for signing
+  poolName: string;
+  poolSymbol: string; // for signing
   ts: BigNumber;
   g1: BigNumber;
   g2: BigNumber;
+  baseAddress: string;
+}
 
-  baseId: string;
+export interface ISeriesRoot extends ISeriesRootRoot {
+  displayName: string;
+  displayNameMobile: string;
 
+  fullDate: string;
+  fyTokenContract: FYToken;
+  poolContract: Pool;
+
+  season: string;
   color: string;
   textColor: string;
+  oppTextColor: string;
   startColor: string;
   endColor: string;
 
@@ -84,7 +87,6 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-  baseAddress: string;
 }
 
 export enum TokenType {
@@ -208,6 +210,8 @@ export interface ISeries extends ISeriesRoot {
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
   startBlock?: Block;
+
+  showSeries: boolean;
 }
 
 export interface IDummyVault extends IVaultRoot {}
@@ -238,7 +242,6 @@ export interface IStrategy extends IStrategyRoot {
   currentPoolAddr: string;
   nextSeriesId: string;
 
-  currentSeries: ISeries | undefined;
   nextSeries: ISeries | undefined;
   active: boolean;
 
