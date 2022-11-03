@@ -66,13 +66,25 @@ const initState: IUserContextState = {
   selectedStrategy: null,
 };
 
+const initActions: IUserContextActions = {
+  updateSeries: () => null,
+  updateAssets: () => null,
+  updateVaults: () => null,
+  updateStrategies: () => null,
+  setSelectedVault: () => null,
+  setSelectedIlk: () => null,
+  setSelectedSeries: () => null,
+  setSelectedBase: () => null,
+  setSelectedStrategy: () => null,
+};
+
 const UserContext = createContext<{
   userState: IUserContextState;
   updateState: Dispatch<UserContextAction>;
-  userActions: IUserContextActions | undefined;
+  userActions: IUserContextActions;
 }>({
   userState: initState,
-  userActions: undefined,
+  userActions: initActions,
   updateState: () => undefined,
 });
 
