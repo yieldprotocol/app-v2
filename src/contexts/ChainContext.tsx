@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer } from 'react';
 import { BigNumber, Contract } from 'ethers';
 import { format } from 'date-fns';
 
@@ -6,8 +6,8 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
+import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
@@ -22,19 +22,7 @@ import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
 import { CAULDRON } from '../utils/constants';
 import useContracts from '../hooks/useContracts';
-
-enum ChainState {
-  CHAIN_ID = 'chainId',
-  CHAIN_LOADED = 'chainLoaded',
-  CONTRACT_MAP = 'contractMap',
-  ADD_SERIES = 'addSeries',
-  ADD_ASSET = 'addAsset',
-  ADD_STRATEGY = 'addStrategy',
-  CLEAR_MAPS = 'clearMaps',
-}
-
-/* Build the context */
-const ChainContext = React.createContext<any>({});
+import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 
 const initState: IChainContextState = {
   /* flags */
@@ -46,14 +34,26 @@ const initState: IChainContextState = {
   strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
-function chainReducer(state: IChainContextState, action: any): IChainContextState {
+const initActions: IChainContextActions = {
+  exportContractAddresses: () => null,
+};
+
+/* Build the context */
+const ChainContext = createContext<{
+  chainState: IChainContextState;
+  updateState: Dispatch<ChainContextActions>;
+  chainActions: IChainContextActions;
+}>({
+  chainState: initState,
+  chainActions: initActions,
+  updateState: () => undefined,
+});
+
+function chainReducer(state: IChainContextState, action: ChainContextActions): IChainContextState {
   /* Reducer switch */
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: action.payload };
-
-    case ChainState.CONTRACT_MAP:
-      return { ...state, contractMap: new Map(action.payload) };
 
     case ChainState.ADD_SERIES:
       return {
@@ -73,9 +73,8 @@ function chainReducer(state: IChainContextState, action: any): IChainContextStat
         strategyRootMap: new Map(state.strategyRootMap.set(action.payload.address, action.payload)),
       };
 
-    case ChainState.CLEAR_MAPS: {
+    case ChainState.CLEAR_MAPS:
       return initState;
-    }
 
     default: {
       return state;
@@ -83,8 +82,8 @@ function chainReducer(state: IChainContextState, action: any): IChainContextStat
   }
 }
 
-const ChainProvider = ({ children }: any) => {
-  const [chainState, updateState] = React.useReducer(chainReducer, initState);
+const ChainProvider = ({ children }: { children: ReactNode }) => {
+  const [chainState, updateState] = useReducer(chainReducer, initState);
 
   /* HOOKS */
   const provider = useDefaulProvider();
@@ -472,18 +471,11 @@ const ChainProvider = ({ children }: any) => {
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
-
-    // console.table(contractList);
-    // console.table(seriesList);
-    // console.table(assetList);
-    // console.table(joinList);
-    // console.table(strategyList);
   };
 
-  /* simply Pass on the connection actions */
   const chainActions = { exportContractAddresses };
 
-  return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;
+  return <ChainContext.Provider value={{ chainState, chainActions, updateState }}>{children}</ChainContext.Provider>;
 };
 
 export { ChainContext };

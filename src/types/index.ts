@@ -5,19 +5,6 @@ import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
-export interface IChainContext {
-  chainState: IChainContextState;
-  chainActions: IChainContextActions;
-}
-
-export interface IChainContextState {
-  chainLoaded: boolean;
-  contractMap: Map<string, Contract>;
-  assetRootMap: Map<string, IAssetRoot>;
-  seriesRootMap: Map<string, ISeriesRoot>;
-  strategyRootMap: Map<string, IStrategyRoot>;
-}
-
 export interface IHistoryList {
   lastBlock: number;
   items: any[];
@@ -40,15 +27,6 @@ export interface IHistoryContextActions {
   updateStrategyHistory: (strategyList: IStrategy[]) => Promise<void>;
   updateVaultHistory: (vaultList: IVault[]) => Promise<void>;
   updateTradeHistory: (seriesList: ISeries[]) => Promise<void>;
-}
-
-export interface IChainContextActions {
-  connect: (connection: string) => void;
-  disconnect: () => void;
-  isConnected: (connection: string) => void;
-  useTenderly: (shouldUse: boolean) => void;
-
-  exportContractAddresses: () => void;
 }
 
 export interface IPriceContextState {
@@ -88,8 +66,6 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
-
-  startBlock: Block; // pool init block
 
   decimals: number;
   ts: BigNumber;
@@ -231,7 +207,7 @@ export interface ISeries extends ISeriesRoot {
   getBase: (sharesAmount: BigNumber) => BigNumber;
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
-  // startBlock?: Block;
+  startBlock?: Block;
 }
 
 export interface IDummyVault extends IVaultRoot {}
