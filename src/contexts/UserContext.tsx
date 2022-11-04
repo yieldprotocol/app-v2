@@ -1,5 +1,15 @@
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext, ReactNode } from 'react';
+import {
+  useContext,
+  useEffect,
+  useReducer,
+  useCallback,
+  useState,
+  Dispatch,
+  createContext,
+  ReactNode,
+  useMemo,
+} from 'react';
 import { BigNumber, ethers } from 'ethers';
 import * as contractTypes from '../contracts';
 
@@ -26,13 +36,14 @@ import { DEFAULT_SELECTED_BASE, ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount } from 'wagmi';
+import { useAccount, useContractReads } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
+import { ReadContractsContract } from '@wagmi/core/dist/declarations/src/actions/contracts/readContracts';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -424,6 +435,54 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     [account, diagnostics, getPoolAPY, getTimeTillMaturity, isMature]
   );
 
+  /**
+   * Fetch all strategy data using wagmi read contracts
+   */
+  const strategiesContracts = useMemo(
+    () =>
+      [...strategyRootMap.values()]
+        .map((s) => [
+          {
+            addressOrName: s.address,
+            contractInterface: s.strategyContract.interface,
+            functionName: 'totalSupply',
+          },
+          {
+            addressOrName: s.address,
+            contractInterface: s.strategyContract.interface,
+            functionName: 'seriesId',
+          },
+          {
+            addressOrName: s.address,
+            contractInterface: s.strategyContract.interface,
+            functionName: 'pool',
+          },
+          {
+            addressOrName: s.address,
+            contractInterface: s.strategyContract.interface,
+            functionName: 'nextSeriesId',
+          },
+        ])
+        .flat(),
+    [strategyRootMap]
+  ) as ReadContractsContract[];
+
+  const {
+    data: strategiesData,
+    isLoading: strategiesLoading,
+    refetch,
+  } = useContractReads({
+    contracts: strategiesContracts,
+    enabled: !!userState.seriesMap,
+  });
+
+  // parse through data from wagmi
+  const strategyMap = useMemo(() => {
+    return strategiesData?.reduce((acc, curr) => {
+      return acc;
+    }, [] as Map<string, IStrategy>);
+  }, []);
+
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
@@ -435,12 +494,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-            _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.seriesId(),
-            _strategy.strategyContract.pool(),
-            _strategy.strategyContract.nextSeriesId(),
-          ]);
+          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([]);
 
           const currentSeries = userState.seriesMap?.get(currentSeriesId) as ISeries;
           const nextSeries = userState.seriesMap?.get(nextSeriesId) as ISeries;
@@ -455,8 +509,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ? [ZERO_BN, ZERO_BN]
               : [ZERO_BN, ZERO_BN];
 
-            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
 
             return {
@@ -467,7 +519,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
               strategyPoolBalance,
               strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
-              strategyPoolPercent,
               currentSeriesId,
               currentPoolAddr,
               nextSeriesId,
@@ -667,14 +718,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       account && updateVaults();
     }
   }, [chainLoaded, account, assetRootMap, seriesRootMap, strategyRootMap, updateAssets, updateSeries, updateVaults]);
-
-  /* update strategy map when series map is fetched */
-  useEffect(() => {
-    if (chainLoaded && Array.from(userState.seriesMap?.values()!).length) {
-      /*  when series has finished loading,...load/reload strategy data */
-      updateStrategies(Array.from(strategyRootMap.values()));
-    }
-  }, [chainLoaded, strategyRootMap, userState.seriesMap]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
