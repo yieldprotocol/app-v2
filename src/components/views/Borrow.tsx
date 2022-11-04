@@ -13,7 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../../types';
+import { ActionCodes, ActionType, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -52,6 +52,7 @@ import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
+import useContracts from '../../hooks/useContracts';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -60,15 +61,13 @@ const Borrow = () => {
   const { logAnalyticsEvent } = useAnalytics();
 
   /* STATE FROM CONTEXT */
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccount();
+  const contracts = useContracts();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -262,10 +261,10 @@ const Borrow = () => {
       borrowProcess?.tx.status === TxState.SUCCESSFUL &&
       !vaultToUse
     ) {
-      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contractMap)!);
+      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contracts)!);
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
-  }, [borrowProcess, contractMap, resetInputs, vaultToUse]);
+  }, [borrowProcess, contracts, resetInputs, vaultToUse]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">

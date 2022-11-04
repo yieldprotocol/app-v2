@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 
-import { ActionType, IStrategy, IUserContext } from '../../types';
+import { ActionType, IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -18,7 +18,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   const {
     userState: { assetMap, seriesMap, strategiesLoading, selectedStrategy },
     userActions,
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   const base = assetMap?.get(strategy.baseId) || null;
   const series = seriesMap?.get(strategy.currentSeriesId) || null;

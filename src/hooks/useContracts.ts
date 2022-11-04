@@ -5,6 +5,14 @@ import * as contractTypes from '../contracts';
 import useChainId from './useChainId';
 import useDefaultProvider from './useDefaultProvider';
 
+export enum ContractNames {
+  CAULDRON = 'Cauldron',
+  WITCH = 'Witch',
+  LADLE = 'Ladle',
+  WRAP_ETHER_MODULE = 'WrapEtherModule',
+  CONVEX_LADLE_MODULE = 'ConvexLadleModule',
+}
+
 const useContracts = () => {
   const { addresses } = yieldEnv;
   const chainId = useChainId();

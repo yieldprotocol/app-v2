@@ -10,15 +10,7 @@ import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/a
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
 import InfoBite from '../InfoBite';
-import {
-  ActionCodes,
-  ActionType,
-  ISeries,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  ProcessStage,
-} from '../../types';
+import { ActionCodes, ActionType, ISeries, ProcessStage } from '../../types';
 
 import ActionButtonWrap from '../wraps/ActionButtonWrap';
 import SectionWrap from '../wraps/SectionWrap';
@@ -60,10 +52,7 @@ const VaultPosition = () => {
   const { id: idFromUrl } = router.query;
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 

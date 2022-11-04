@@ -9,7 +9,7 @@ import { abbreviateHash, cleanValue, formatStrategyName, getTxCode, nFormatter }
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../../types';
+import { ActionCodes, ActionType, ProcessStage } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import InfoBite from '../InfoBite';
 import ActiveTransaction from '../ActiveTransaction';
@@ -41,7 +41,7 @@ const PoolPosition = () => {
   const {
     userState,
     userActions: { setSelectedStrategy },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
   const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
   const { address: activeAccount } = useAccount();

@@ -12,23 +12,9 @@ import {
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IVault,
-  IAsset,
-  IUserContext,
-  IUserContextState,
-  IUserContextActions,
-  IChainContext,
-  ISettingsContext,
-} from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault, IAsset } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { ChainContext } from '../../contexts/ChainContext';
 import { TxContext } from '../../contexts/TxContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
@@ -37,6 +23,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAccount } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -63,18 +50,13 @@ is Mature?        N     +--------+
  */
 
 export const useRemoveLiquidity = () => {
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext) as IChainContext;
-
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedStrategy } = userState;
   const { address: account } = useAccount();
+  const contracts = useContracts();
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -87,7 +69,7 @@ export const useRemoveLiquidity = () => {
 
   const {
     settingsState: { diagnostics, slippageTolerance },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -97,7 +79,7 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    const ladleAddress = contractMap.get('Ladle')?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
       series.poolContract.getCache(),
       series.poolContract.totalSupply(),

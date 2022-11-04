@@ -1,20 +1,8 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 
-import {
-  ICallData,
-  IVault,
-  ActionCodes,
-  LadleActions,
-  IUserContext,
-  IAsset,
-  IUserContextState,
-  IUserContextActions,
-  IChainContext,
-  IHistoryContext,
-} from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
@@ -26,19 +14,14 @@ import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { useAccount } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddCollateral = () => {
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext) as IChainContext;
-
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
+  const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
   const { address: account } = useAccount();
+  const contracts = useContracts();
 
   const {
     historyActions: { updateVaultHistory },
@@ -55,7 +38,7 @@ export const useAddCollateral = () => {
     /* set the ilk based on if a vault has been selected or it's a new vault */
     const ilk: IAsset | null | undefined = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
     const base: IAsset | null | undefined = vault ? assetMap?.get(vault.baseId) : selectedBase;
-    const ladleAddress = contractMap.get('Ladle')?.address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
@@ -69,7 +52,7 @@ export const useAddCollateral = () => {
 
     /* is convex-type collateral */
     const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
-    const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
+    const ConvexLadleModuleContract = contracts.get(ContractNames.CONVEX_LADLE_MODULE) as ConvexLadleModule;
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilk?.getAllowance(account!, ilk.joinAddress);

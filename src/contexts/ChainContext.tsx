@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer } from 'react';
 import { BigNumber, Contract } from 'ethers';
 import { format } from 'date-fns';
 
@@ -6,8 +6,8 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
+import { IAssetRoot, ISeriesRoot, ISeriesRootRoot, IStrategyRoot, TokenType } from '../types';
+import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
@@ -20,40 +20,37 @@ import { SERIES_1, SERIES_42161 } from '../config/series';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
-import { CAULDRON } from '../utils/constants';
-import useContracts from '../hooks/useContracts';
-
-enum ChainState {
-  CHAIN_ID = 'chainId',
-  CHAIN_LOADED = 'chainLoaded',
-  CONTRACT_MAP = 'contractMap',
-  ADD_SERIES = 'addSeries',
-  ADD_ASSET = 'addAsset',
-  ADD_STRATEGY = 'addStrategy',
-  CLEAR_MAPS = 'clearMaps',
-}
-
-/* Build the context */
-const ChainContext = React.createContext<any>({});
+import useContracts, { ContractNames } from '../hooks/useContracts';
+import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 
 const initState: IChainContextState = {
   /* flags */
   chainLoaded: false,
-  /* Connected Contract Maps */
-  contractMap: new Map<string, Contract>(),
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
-function chainReducer(state: IChainContextState, action: any): IChainContextState {
+const initActions: IChainContextActions = {
+  exportContractAddresses: () => null,
+};
+
+/* Build the context */
+const ChainContext = createContext<{
+  chainState: IChainContextState;
+  updateState: Dispatch<ChainContextActions>;
+  chainActions: IChainContextActions;
+}>({
+  chainState: initState,
+  chainActions: initActions,
+  updateState: () => undefined,
+});
+
+function chainReducer(state: IChainContextState, action: ChainContextActions): IChainContextState {
   /* Reducer switch */
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: action.payload };
-
-    case ChainState.CONTRACT_MAP:
-      return { ...state, contractMap: new Map(action.payload) };
 
     case ChainState.ADD_SERIES:
       return {
@@ -73,9 +70,8 @@ function chainReducer(state: IChainContextState, action: any): IChainContextStat
         strategyRootMap: new Map(state.strategyRootMap.set(action.payload.address, action.payload)),
       };
 
-    case ChainState.CLEAR_MAPS: {
+    case ChainState.CLEAR_MAPS:
       return initState;
-    }
 
     default: {
       return state;
@@ -83,8 +79,8 @@ function chainReducer(state: IChainContextState, action: any): IChainContextStat
   }
 }
 
-const ChainProvider = ({ children }: any) => {
-  const [chainState, updateState] = React.useReducer(chainReducer, initState);
+const ChainProvider = ({ children }: { children: ReactNode }) => {
+  const [chainState, updateState] = useReducer(chainReducer, initState);
 
   /* HOOKS */
   const provider = useDefaulProvider();
@@ -239,7 +235,7 @@ const ChainProvider = ({ children }: any) => {
 
   /* add on extra/calculated ASYNC series info and contract instances */
   const _chargeSeries = useCallback(
-    (series: { maturity: number; baseId: string; poolAddress: string; fyTokenAddress: string }) => {
+    (series: ISeriesRootRoot): ISeriesRoot => {
       /* contracts need to be added in again in when charging because the cached state only holds strings */
       const poolContract = contractTypes.Pool__factory.connect(series.poolAddress, provider);
       const fyTokenContract = contractTypes.FYToken__factory.connect(series.fyTokenAddress, provider);
@@ -286,14 +282,14 @@ const ChainProvider = ({ children }: any) => {
     }
 
     let seriesMap = SERIES_CONFIG;
-    const newSeriesList: any[] = [];
+    const newSeriesList: ISeriesRootRoot[] = [];
 
     await Promise.all(
       Array.from(seriesMap).map(async (x) => {
         const id = x[0];
         const fyTokenAddress = x[1].fyTokenAddress;
         const poolAddress = x[1].poolAddress;
-        const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
+        const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
 
         const { maturity, baseId } = await Cauldron.series(id);
         const poolContract = contractTypes.Pool__factory.connect(poolAddress, provider);
@@ -332,7 +328,7 @@ const ChainProvider = ({ children }: any) => {
           g1,
           g2,
           baseAddress,
-        };
+        } as ISeriesRootRoot;
 
         updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
         newSeriesList.push(newSeries);
@@ -451,11 +447,11 @@ const ChainProvider = ({ children }: any) => {
    * functionality to export protocol addresses
    */
   const exportContractAddresses = () => {
-    const contractList = [...(chainState.contractMap as any)].map(([v, k]) => [v, k?.address]);
-    const seriesList = [...(chainState.seriesRootMap as any)].map(([v, k]) => [v, k?.address]);
-    const assetList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.address]);
-    const strategyList = [...(chainState.strategyRootMap as any)].map(([v, k]) => [k?.symbol, v]);
-    const joinList = [...(chainState.assetRootMap as any)].map(([v, k]) => [v, k?.joinAddress]);
+    const contractList = [...contracts].map(([v, k]) => [v, k.address]);
+    const seriesList = [...chainState.seriesRootMap].map(([v, k]) => [v, k.address]);
+    const assetList = [...chainState.assetRootMap].map(([v, k]) => [v, k.address]);
+    const strategyList = [...chainState.strategyRootMap].map(([v, k]) => [k.symbol, v]);
+    const joinList = [...chainState.assetRootMap].map(([v, k]) => [v, k.joinAddress]);
 
     const res = JSON.stringify({
       contracts: contractList,
@@ -472,18 +468,11 @@ const ChainProvider = ({ children }: any) => {
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
-
-    // console.table(contractList);
-    // console.table(seriesList);
-    // console.table(assetList);
-    // console.table(joinList);
-    // console.table(strategyList);
   };
 
-  /* simply Pass on the connection actions */
   const chainActions = { exportContractAddresses };
 
-  return <ChainContext.Provider value={{ chainState, chainActions }}>{children}</ChainContext.Provider>;
+  return <ChainContext.Provider value={{ chainState, chainActions, updateState }}>{children}</ChainContext.Provider>;
 };
 
 export { ChainContext };

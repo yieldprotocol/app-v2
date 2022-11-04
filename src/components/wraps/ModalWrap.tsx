@@ -6,7 +6,7 @@ import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ISeries, IUserContext } from '../../types';
+import { ISeries } from '../../types';
 import Header from '../Header';
 import YieldMobileMenu from '../YieldMobileMenu';
 
@@ -21,7 +21,7 @@ function ModalWrap({ children, series }: IModalWrap) {
 
   const {
     userState: { selectedSeries, seriesMap },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   const _series = series! || seriesMap?.get(selectedSeries?.id!);
 

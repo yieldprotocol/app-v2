@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { ISeries, IStrategy, IUserContext } from '../types';
+import { ISeries, IStrategy } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import {
   ONE_DEC as ONE,
@@ -92,7 +92,7 @@ const useStrategyReturns = (
 ): IStrategyReturns => {
   const {
     userState: { selectedStrategy },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   const strategy_ = strategy || selectedStrategy;
   const series = strategy_?.currentSeries;

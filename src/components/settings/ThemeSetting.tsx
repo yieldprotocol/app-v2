@@ -3,14 +3,14 @@ import Switch from 'react-switch';
 
 import { Box, Text } from 'grommet';
 import { FiMoon, FiSun } from 'react-icons/fi';
-import { Settings, SettingsContext } from '../../contexts/SettingsContext';
-import { ISettingsContext } from '../../types';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { Settings } from '../../contexts/types/settings';
 
 const ThemeSettings = () => {
   const {
     settingsState: { darkMode, autoTheme },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>

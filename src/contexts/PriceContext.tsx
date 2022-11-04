@@ -1,15 +1,15 @@
 import React, { useCallback, useContext, useReducer } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { bytesToBytes32, decimal18ToDecimalN } from '@yield-protocol/ui-math';
-import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from '../types';
+import { IAssetPair, IPriceContextState } from '../types';
 import { ChainContext } from './ChainContext';
 
-import { CAULDRON, WAD_BN } from '../utils/constants';
+import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
 import useChainId from '../hooks/useChainId';
 import { Cauldron } from '../contracts';
-import useContracts from '../hooks/useContracts';
+import useContracts, { ContractNames } from '../hooks/useContracts';
 
 enum PriceState {
   UPDATE_PAIR = 'updatePair',
@@ -49,11 +49,11 @@ const priceReducer = (state: IPriceContextState, action: any) => {
 
 const PriceProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext) as IChainContext;
+  const { chainState } = useContext(ChainContext);
   const { assetRootMap } = chainState;
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const chainId = useChainId();
   const contracts = useContracts();
@@ -65,7 +65,7 @@ const PriceProvider = ({ children }: any) => {
     async (baseId: string, ilkId: string): Promise<IAssetPair | null> => {
       diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading);
       const pairId = `${baseId}${ilkId}`;
-      const Cauldron = contracts.get(CAULDRON) as Cauldron;
+      const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
       const oracleName = ORACLE_INFO.get(chainId)?.get(baseId)?.get(ilkId);
       const PriceOracle = contracts.get(oracleName!);
       const base = assetRootMap.get(baseId);

@@ -3,7 +3,7 @@ import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IStrategy, IUserContext } from '../../types';
+import { IStrategy } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
@@ -13,7 +13,7 @@ import { useAccount } from 'wagmi';
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
 
-  const { userState } = useContext(UserContext) as IUserContext;
+  const { userState } = useContext(UserContext);
   const { strategyMap, selectedBase } = userState;
 
   const { address: activeAccount } = useAccount();

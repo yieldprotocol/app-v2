@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext } from 'react';
+import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext, ReactNode } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import * as contractTypes from '../contracts';
 
@@ -15,23 +15,12 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import {
-  IAssetRoot,
-  ISeriesRoot,
-  IVaultRoot,
-  ISeries,
-  IAsset,
-  IVault,
-  IStrategyRoot,
-  IStrategy,
-  IChainContext,
-  ISettingsContext,
-} from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { CAULDRON, EULER_SUPGRAPH_ENDPOINT, WITCH, ZERO_BN } from '../utils/constants';
+import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { DEFAULT_SELECTED_BASE, ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
@@ -42,7 +31,7 @@ import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
-import useContracts from '../hooks/useContracts';
+import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 
 const initState: IUserContextState = {
@@ -66,12 +55,29 @@ const initState: IUserContextState = {
   selectedStrategy: null,
 };
 
-const UserContext = createContext<{ userState: IUserContextState; userActions: Dispatch<IUserContextActions> }>({
+const initActions: IUserContextActions = {
+  updateSeries: () => null,
+  updateAssets: () => null,
+  updateVaults: () => null,
+  updateStrategies: () => null,
+  setSelectedVault: () => null,
+  setSelectedIlk: () => null,
+  setSelectedSeries: () => null,
+  setSelectedBase: () => null,
+  setSelectedStrategy: () => null,
+};
+
+const UserContext = createContext<{
+  userState: IUserContextState;
+  updateState: Dispatch<UserContextAction>;
+  userActions: IUserContextActions;
+}>({
   userState: initState,
-  userActions: () => undefined,
+  userActions: initActions,
+  updateState: () => undefined,
 });
 
-function userReducer(state: IUserContextState, action: UserContextAction) {
+function userReducer(state: IUserContextState, action: UserContextAction): IUserContextState {
   switch (action.type) {
     case UserState.USER_LOADING:
       return { ...state, userLoading: action.payload };
@@ -113,13 +119,13 @@ function userReducer(state: IUserContextState, action: UserContextAction) {
   }
 }
 
-const UserProvider = ({ children }: any) => {
+const UserProvider = ({ children }: { children: ReactNode }) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext) as IChainContext;
+  const { chainState } = useContext(ChainContext);
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const useTenderlyFork = false;
 
@@ -173,7 +179,7 @@ const UserProvider = ({ children }: any) => {
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(async () => {
-    const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
+    const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
 
     const cacheKey = `vaults_${account}_${chainId}`;
     const cachedVaults = JSON.parse(localStorage.getItem(cacheKey)!);
@@ -539,8 +545,8 @@ const UserProvider = ({ children }: any) => {
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
       let _vaults: IVaultRoot[] | undefined = vaultList;
-      const Cauldron = contracts.get(CAULDRON) as contractTypes.Cauldron;
-      const Witch = contracts.get(WITCH) as contractTypes.Witch;
+      const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
+      const Witch = contracts.get(ContractNames.WITCH) as contractTypes.Witch;
 
       /**
        * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
@@ -683,7 +689,7 @@ const UserProvider = ({ children }: any) => {
     if (userState.selectedSeries && userState.seriesMap) {
       updateState({
         type: UserState.SELECTED_SERIES,
-        payload: userState.seriesMap.get(userState.selectedSeries.id),
+        payload: userState.seriesMap.get(userState.selectedSeries.id)!,
       });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
@@ -696,27 +702,28 @@ const UserProvider = ({ children }: any) => {
     updateStrategies,
 
     setSelectedVault: useCallback(
-      (vault: IVault | null) => updateState({ type: UserState.SELECTED_VAULT, payload: vault }),
+      (vault: IVault | null) => updateState({ type: UserState.SELECTED_VAULT, payload: vault! }),
       []
     ),
     setSelectedIlk: useCallback(
-      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_ILK, payload: asset }),
+      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_ILK, payload: asset! }),
       []
     ),
     setSelectedSeries: useCallback(
-      (series: ISeries | null) => updateState({ type: UserState.SELECTED_SERIES, payload: series }),
+      (series: ISeries | null) => updateState({ type: UserState.SELECTED_SERIES, payload: series! }),
       []
     ),
     setSelectedBase: useCallback(
-      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_BASE, payload: asset }),
+      (asset: IAsset | null) => updateState({ type: UserState.SELECTED_BASE, payload: asset! }),
       []
     ),
     setSelectedStrategy: useCallback(
-      (strategy: IStrategy | null) => updateState({ type: UserState.SELECTED_STRATEGY, payload: strategy }),
+      (strategy: IStrategy | null) => updateState({ type: UserState.SELECTED_STRATEGY, payload: strategy! }),
       []
     ),
-  };
-  return <UserContext.Provider value={{ userState, userActions }}>{children}</UserContext.Provider>;
+  } as IUserContextActions;
+
+  return <UserContext.Provider value={{ userState, userActions, updateState }}>{children}</UserContext.Provider>;
 };
 
 export { UserContext };
