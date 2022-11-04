@@ -43,8 +43,8 @@ const useBalances = () => {
         (a, i) =>
           ({
             ...a,
-            balance: data ? (data[i] as unknown as BigNumber) : ethers.constants.Zero,
-            balance_: data ? formatUnits(data[i], a.decimals) : '0',
+            balance: data ? (data[i] as BigNumber[]) : ethers.constants.Zero,
+            balance_: data && data[i] ? formatUnits(data[i], a.decimals) : '0',
           } as IAssetWithBal)
       ),
     [assetMap, data]
