@@ -238,9 +238,7 @@ export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
   currentSeriesId: string;
   currentPoolAddr: string;
-  nextSeriesId: string;
 
-  nextSeries: ISeries | undefined;
   active: boolean;
 
   strategyTotalSupply?: BigNumber;
