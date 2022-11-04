@@ -15,6 +15,7 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
+import usePrice from '../usePrice';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -40,14 +41,14 @@ export const useCollateralHelpers = (
     token: _selectedIlk?.proxyId === WETH ? '' : _selectedIlk?.address,
     enabled: !!_selectedIlk && !!activeAccount,
   });
+  const { data } = usePrice(_selectedBase?.id!, _selectedIlk?.id!);
+  const price = decimalNToDecimal18(data!, _selectedBase?.decimals!);
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
   const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [unhealthyCollatRatio, setUnhealthyCollatRatio] = useState<boolean>(false);
-
-  const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
   const [liquidationPrice_, setLiquidationPrice_] = useState<string | undefined>();
 
@@ -71,9 +72,6 @@ export const useCollateralHelpers = (
   /* update the prices/limits if anything changes with the asset pair */
   useEffect(() => {
     if (assetPairInfo) {
-      /* set the pertinent oracle price */
-      setOraclePrice(decimalNToDecimal18(assetPairInfo.pairPrice, assetPairInfo.baseDecimals));
-
       /* set min collaterateralisation ratio */
       setMinCollatRatio(assetPairInfo.minRatio);
       setMinCollatRatioPct(Math.round(assetPairInfo.minRatio * 100).toString());
@@ -144,9 +142,9 @@ export const useCollateralHelpers = (
     setTotalDebt_(ethers.utils.formatUnits(_totalDebt, 18));
 
     /* set the collateral ratio when collateral is entered */
-    if (oraclePrice.gt(ethers.constants.Zero) && _totalCollateral.gt(ethers.constants.Zero)) {
-      const ratio = calculateCollateralizationRatio(_totalCollateral, oraclePrice, _totalDebt, false);
-      const percent = calculateCollateralizationRatio(_totalCollateral, oraclePrice, _totalDebt, true);
+    if (price.gt(ethers.constants.Zero) && _totalCollateral.gt(ethers.constants.Zero)) {
+      const ratio = calculateCollateralizationRatio(_totalCollateral, price, _totalDebt, false);
+      const percent = calculateCollateralizationRatio(_totalCollateral, price, _totalDebt, true);
       setCollateralizationRatio(ratio?.toString() || '0');
       setCollateralizationPercent(parseFloat(percent?.toString()! || '0').toFixed(2));
     } else {
@@ -155,10 +153,10 @@ export const useCollateralHelpers = (
     }
 
     /* check minimum collateral required base on debt */
-    if (oraclePrice.gt(ethers.constants.Zero)) {
-      const min = calculateMinCollateral(oraclePrice, _totalDebt, minCollatRatio!.toString(), existingCollateralAsWei);
+    if (price.gt(ethers.constants.Zero) && minCollatRatio) {
+      const min = calculateMinCollateral(price, _totalDebt, minCollatRatio.toString(), existingCollateralAsWei);
       const minSafeCalc = calculateMinCollateral(
-        oraclePrice,
+        price,
         _totalDebt,
         (minSafeCollatRatio || 2.5).toString(),
         existingCollateralAsWei
@@ -194,7 +192,6 @@ export const useCollateralHelpers = (
     collInput,
     debtInput,
     _selectedIlk,
-    oraclePrice,
     vault,
     collateralizationRatio,
     _selectedBase,
@@ -202,6 +199,7 @@ export const useCollateralHelpers = (
     minSafeCollatRatio,
     _selectedSeries,
     getTimeTillMaturity,
+    price,
   ]);
 
   /* Monitor for undercollaterization/ danger-collateralisation, and set flags if reqd. */

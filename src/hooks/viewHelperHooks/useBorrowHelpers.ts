@@ -17,6 +17,7 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
+import usePrice from '../usePrice';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -43,6 +44,7 @@ export const useBorrowHelpers = (
     addressOrName: account,
     token: vaultBase?.proxyId === WETH ? '' : vaultBase?.address,
   });
+  const { data: price } = usePrice(vault?.baseId!, vault?.ilkId!);
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
 
@@ -162,12 +164,7 @@ export const useBorrowHelpers = (
         futureSeries.mu
       );
 
-      const _minCollat = calculateMinCollateral(
-        assetPairInfo!.pairPrice,
-        newDebt,
-        assetPairInfo!.minRatio.toString(),
-        undefined
-      );
+      const _minCollat = calculateMinCollateral(price!, newDebt, assetPairInfo!.minRatio.toString(), undefined);
       diagnostics && console.log('min Collat of roll to series', _minCollat.toString());
 
       /* SET MAX ROLL */
