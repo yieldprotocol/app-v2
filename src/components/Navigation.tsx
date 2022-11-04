@@ -97,7 +97,7 @@ const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
 
   return (
     <>
-      {!mobile && !sideNavigation && height > 800 && (
+      {!mobile && !sideNavigation && height! > 800 && (
         <Box
           direction={mobile ? 'column' : 'row'}
           gap="2em"
@@ -116,7 +116,7 @@ const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
         </Box>
       )}
 
-      {!mobile && sideNavigation && height < 800 ? (
+      {!mobile && sideNavigation && height! < 800 ? (
         <Box pad={{ vertical: '3em' }} direction="column" gap="small">
           {linksArr.map((x) => (!x.disabled ? <NavLink link={x} key={x.label} /> : null))}
         </Box>

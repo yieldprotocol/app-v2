@@ -51,10 +51,10 @@ export const useRemoveCollateral = () => {
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
     /* get associated series and ilk */
-    const ilk = assetMap.get(vault.ilkId)!;
+    const ilk = assetMap?.get(vault.ilkId)!;
     const ladleAddress = contractMap.get('Ladle').address;
     /* get unwrap handler if required */
-    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chain.id);
+    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chain?.id!);
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
 
@@ -63,7 +63,7 @@ export const useRemoveCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
 
     /* handle wrapped tokens:  */
-    const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account) : [];
+    const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account!) : [];
     const removeEthCallData: ICallData[] = isEthCollateral ? removeEth(ONE_BN) : []; // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
 
     /* is convex-type collateral */

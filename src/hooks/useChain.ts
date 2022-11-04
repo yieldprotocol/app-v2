@@ -143,7 +143,7 @@ export const useChain = () => {
         console.log(signer);
 
         /* Request the signature if using DaiType permit style */
-        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chain.id !== 42161) {
+        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chain?.id !== 42161) {
           // dai in arbitrum uses regular permits
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
@@ -154,17 +154,17 @@ export const useChain = () => {
                 {
                   name: reqSig.target.name,
                   version: reqSig.target.version,
-                  chainId: chain.id,
+                  chainId: chain?.id!,
                   verifyingContract: reqSig.target.address,
                 },
-                account,
+                account!,
                 _spender
               ),
             /* This is the function  to call if using fallback Dai approvals */
             () =>
               handleTx(
                 /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-                () => ERC20Permit__factory.connect(reqSig.target.address, signer).approve(_spender, _amount as string),
+                () => ERC20Permit__factory.connect(reqSig.target.address, signer!).approve(_spender, _amount as string),
                 txCode,
                 true
               ),
@@ -204,10 +204,10 @@ export const useChain = () => {
                 // uses custom domain if provided, else use created Domain
                 name: reqSig.target.name,
                 version: reqSig.target.version,
-                chainId: chain.id,
+                chainId: chain?.id!,
                 verifyingContract: reqSig.target.address,
               },
-              account,
+              account!,
               _spender,
               _amount
             ),
@@ -216,9 +216,9 @@ export const useChain = () => {
             handleTx(
               /* get an ERC20 or ERC1155 contract instance. Used in the case of fallback tx (when signing is not available) or token is ERC1155 */
               (reqSig.target as any).setAllowance
-                ? () => ERC1155__factory.connect(reqSig.target.address, signer).setApprovalForAll(_spender, true)
+                ? () => ERC1155__factory.connect(reqSig.target.address, signer!).setApprovalForAll(_spender, true)
                 : () =>
-                    ERC20Permit__factory.connect(reqSig.target.address, signer).approve(_spender, _amount as string),
+                    ERC20Permit__factory.connect(reqSig.target.address, signer!).approve(_spender, _amount as string),
               txCode,
               true
             ),

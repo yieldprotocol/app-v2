@@ -72,7 +72,7 @@ const AprText = ({
   inputValue: string | undefined;
   series: ISeries;
   actionType: ActionType;
-  color: string;
+  color: string | undefined;
 }) => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
 

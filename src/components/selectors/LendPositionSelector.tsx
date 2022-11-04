@@ -33,7 +33,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   const handleFilter = useCallback(
     ({ base, series }: IPositionFilter) => {
       /* filter all positions by base if base is selected */
-      const _filteredSeries: ISeries[] = Array.from(seriesMap.values())
+      const _filteredSeries: ISeries[] = Array.from(seriesMap?.values()!)
         /* filter by positive balances on either pool tokens or fyTokens */
         .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
         .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
@@ -50,7 +50,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   useEffect(() => {
     /* only if veiwing the main screen (not when modal is showing) */
     // if (!showPositionModal) {
-    const _allPositions: ISeries[] = Array.from(seriesMap.values())
+    const _allPositions: ISeries[] = Array.from(seriesMap?.values()!)
       /* filter by positive balances on either pool tokens or fyTokens */
       .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
       .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))

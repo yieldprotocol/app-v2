@@ -16,7 +16,7 @@ export const useInputValidation = (
   const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
   const { assetMap, selectedSeries, selectedBase } = userState;
   const _selectedSeries = series || selectedSeries;
-  const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;
+  const _selectedBase = assetMap?.get(series?.baseId!) || selectedBase;
 
   const { address: activeAccount } = useAccount();
 

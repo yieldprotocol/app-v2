@@ -115,7 +115,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(strategyMap.values());
+    const opts = Array.from(strategyMap?.values()!);
     const filteredOpts = opts
       .filter((_st) => _st.currentSeries?.showSeries)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
@@ -135,7 +135,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts: IStrategy[] = Array.from(strategyMap.values())
+    const opts: IStrategy[] = Array.from(strategyMap?.values()!)
       .filter((_st) => _st.currentSeries?.showSeries)
       .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
@@ -174,7 +174,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
       <Box gap="small">
         {options.map((o) => {
-          const displayName = seriesMap.get(o.currentSeriesId!)?.displayName!;
+          const displayName = seriesMap?.get(o.currentSeriesId!)?.displayName!;
           const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
           const selected = selectedStrategy?.address === o.address;
           return (

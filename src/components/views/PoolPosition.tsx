@@ -46,10 +46,10 @@ const PoolPosition = () => {
 
   const { address: activeAccount } = useAccount();
 
-  const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl as string);
+  const _selectedStrategy = selectedStrategy || strategyMap?.get(idFromUrl as string);
 
   const selectedSeries = _selectedStrategy?.currentSeries;
-  const selectedBase = assetMap.get(_selectedStrategy?.baseId!);
+  const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
@@ -107,11 +107,11 @@ const PoolPosition = () => {
   const handleRemove = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
-    removeLiquidity(removeInput!, selectedSeries, matchingVault);
+    removeLiquidity(removeInput!, selectedSeries!, matchingVault);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries.name,
+      series_id: selectedStrategy?.currentSeries?.name,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
     } as GA_Properties.transaction_initiated);
   };
@@ -148,7 +148,7 @@ const PoolPosition = () => {
   }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
-    const _strategy = strategyMap.get(idFromUrl as string) || null;
+    const _strategy = strategyMap?.get(idFromUrl as string) || null;
     idFromUrl && setSelectedStrategy(_strategy);
   }, [idFromUrl, setSelectedStrategy, strategyMap]);
 
@@ -197,7 +197,7 @@ const PoolPosition = () => {
                         _selectedStrategy?.accountBalance_,
                         selectedBase?.digitFormat!
                       )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase.symbol
+                        selectedBase?.symbol
                       })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
@@ -223,7 +223,7 @@ const PoolPosition = () => {
                         loading={seriesLoading}
                       />
                     )}
-                    {_selectedStrategy.currentSeries.poolAPY && (
+                    {_selectedStrategy?.currentSeries?.poolAPY && (
                       <InfoBite
                         label="Pool APY"
                         icon={<FiZap />}

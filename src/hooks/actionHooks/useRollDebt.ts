@@ -33,9 +33,9 @@ export const useRollDebt = () => {
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
-    const base = assetMap.get(vault.baseId);
+    const base = assetMap?.get(vault.baseId);
     const hasDebt = vault.accruedArt.gt(ZERO_BN);
-    const fromSeries = seriesMap.get(vault.seriesId);
+    const fromSeries = seriesMap?.get(vault.seriesId);
 
     const calls: ICallData[] = [
       {
@@ -54,7 +54,7 @@ export const useRollDebt = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base!]);
-    updateSeries([fromSeries, toSeries]);
+    updateSeries([fromSeries!, toSeries]);
     updateVaultHistory([vault]);
   };
 

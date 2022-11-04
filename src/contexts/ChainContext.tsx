@@ -373,7 +373,7 @@ const ChainProvider = ({ children }: any) => {
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     const newStrategyList: any[] = [];
-    const strategyList = yieldEnv.strategies[chainId];
+    const strategyList: string[] = (yieldEnv.strategies as any)[chainId];
 
     if (cachedValues !== null && cachedValues.length) {
       console.log('Yield Protocol Strategy data retrieved successfully ::: CACHE :::');

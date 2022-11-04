@@ -72,7 +72,7 @@ const HeaderBalancesModal = () => {
   } = useContext(UserContext) as IUserContext;
 
   const [open, setOpen] = useState<boolean>(false);
-  const hasBalance = [...assetMap.values()].find((a) => +a?.balance_ > 0);
+  const hasBalance = [...assetMap?.values()!].find((a) => +a?.balance_ > 0);
   return (
     <Box pad="medium">
       <BoxWrap>
@@ -80,7 +80,7 @@ const HeaderBalancesModal = () => {
           open={open}
           onOpen={() => setOpen(true)}
           onClose={() => setOpen(false)}
-          dropContent={hasBalance ? <DropContent assetMap={assetMap} /> : <></>}
+          dropContent={hasBalance ? <DropContent assetMap={assetMap!} /> : <></>}
           dropProps={{ align: { top: 'bottom', right: 'right' }, round: 'small' }}
         >
           <YieldBalances />

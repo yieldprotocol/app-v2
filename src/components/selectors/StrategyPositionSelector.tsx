@@ -3,7 +3,7 @@ import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IStrategy, IUserContext, IUserContextState } from '../../types';
+import { IStrategy, IUserContext } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
@@ -13,7 +13,7 @@ import { useAccount } from 'wagmi';
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
 
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState } = useContext(UserContext) as IUserContext;
   const { strategyMap, selectedBase } = userState;
 
   const { address: activeAccount } = useAccount();
@@ -27,7 +27,7 @@ function StrategyPositionSelector() {
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
     /* only if veiwing the main screen (not when modal is showing) */
-    const _allPositions: IStrategy[] = Array.from(strategyMap.values())
+    const _allPositions: IStrategy[] = Array.from(strategyMap?.values()!)
       /* filter by positive strategy balances */
       .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>

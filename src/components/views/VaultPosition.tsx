@@ -69,11 +69,11 @@ const VaultPosition = () => {
 
   const { address: account } = useAccount();
 
-  const _selectedVault = vaultMap.get(idFromUrl as string);
+  const _selectedVault = vaultMap?.get(idFromUrl as string);
 
-  const vaultBase = assetMap.get(_selectedVault?.baseId!);
-  const vaultIlk = assetMap.get(_selectedVault?.ilkId!);
-  const vaultSeries = seriesMap.get(_selectedVault?.seriesId!);
+  const vaultBase = assetMap?.get(_selectedVault?.baseId!);
+  const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
+  const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
@@ -219,7 +219,7 @@ const VaultPosition = () => {
   const handleRepay = () => {
     if (repayDisabled) return;
     setRepayDisabled(true);
-    repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
+    repay(_selectedVault!, repayInput?.toString(), reclaimCollateral);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
@@ -231,7 +231,7 @@ const VaultPosition = () => {
   const handleRoll = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollDebt(_selectedVault, rollToSeries);
+    rollDebt(_selectedVault!, rollToSeries!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
@@ -244,7 +244,7 @@ const VaultPosition = () => {
     if (action === 'REMOVE') {
       if (removeCollateralDisabled) return;
       setRemoveCollateralDisabled(true);
-      removeCollateral(_selectedVault, removeCollatInput);
+      removeCollateral(_selectedVault!, removeCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
@@ -331,9 +331,9 @@ const VaultPosition = () => {
 
   useEffect(() => {
     /* set global series, base and ilk */
-    const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
-    const _base = assetMap.get(_selectedVault?.baseId!) || null;
-    const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
+    const _series = seriesMap?.get(_selectedVault?.seriesId!) || null;
+    const _base = assetMap?.get(_selectedVault?.baseId!) || null;
+    const _ilk = assetMap?.get(_selectedVault?.ilkId!) || null;
 
     // handle using ilk
     const _ilkToUse = _ilk; // use the unwrapped token if applicable
@@ -525,7 +525,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRepayInput(cleanValue(event.target.value, vaultBase?.decimals))
                             }
-                            icon={<Logo image={vaultBase.image} />}
+                            icon={<Logo image={vaultBase?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.REPAY)}
@@ -536,7 +536,7 @@ const VaultPosition = () => {
 
                         {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
-                            {maxRepay.eq(userBaseBalance) ? (
+                            {maxRepay.eq(userBaseBalance!) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
                                 Use {vaultBase?.displaySymbol!} balance ({cleanValue(userBaseBalance_, 2)})
                               </Text>
@@ -683,7 +683,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setAddCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                            icon={<Logo image={vaultIlk.image} />}
+                            icon={<Logo image={vaultIlk?.image} />}
                           />
                           <MaxButton
                             // disabled={removeCollatInput}
@@ -740,7 +740,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRemoveCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                            icon={<Logo image={vaultIlk.image} />}
+                            icon={<Logo image={vaultIlk?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.REMOVE_COLLATERAL)}

@@ -31,9 +31,9 @@ export const useCollateralHelpers = (
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { address: activeAccount } = useAccount();
 
-  const _selectedBase = vault ? assetMap.get(vault.baseId) : selectedBase;
-  const _selectedIlk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
-  const _selectedSeries = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
+  const _selectedBase = vault ? assetMap?.get(vault.baseId) : selectedBase;
+  const _selectedIlk = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
+  const _selectedSeries = vault ? seriesMap?.get(vault.seriesId) : selectedSeries;
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -89,7 +89,7 @@ export const useCollateralHelpers = (
             _selectedBase?.digitFormat
           )
         : cleanValue(
-            calcLiquidationPrice(totalCollateral_, totalDebt_, assetPairInfo.minRatio),
+            calcLiquidationPrice(totalCollateral_!, totalDebt_!, assetPairInfo.minRatio),
             _selectedBase?.digitFormat
           );
 
@@ -102,7 +102,7 @@ export const useCollateralHelpers = (
     activeAccount &&
       (async () => {
         const _max = await _selectedIlk?.getBalance(activeAccount);
-        _max && setMaxCollateral(ethers.utils.formatUnits(_max, _selectedIlk.decimals)?.toString());
+        _max && setMaxCollateral(ethers.utils.formatUnits(_max, _selectedIlk?.decimals)?.toString());
       })();
   }, [activeAccount, _selectedIlk, setMaxCollateral]);
 
@@ -126,7 +126,7 @@ export const useCollateralHelpers = (
         ? buyBase(
             _selectedSeries.sharesReserves,
             _selectedSeries.fyTokenReserves,
-            _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase.decimals)),
+            _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase?.decimals)),
             getTimeTillMaturity(_selectedSeries.maturity),
             _selectedSeries.ts,
             _selectedSeries.g2,

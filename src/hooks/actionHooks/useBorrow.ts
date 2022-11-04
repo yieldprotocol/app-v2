@@ -61,18 +61,18 @@ export const useBorrow = () => {
     const ladleAddress = contractMap.get('Ladle').address;
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
-    const series: ISeries = vault ? seriesMap.get(vault.seriesId)! : selectedSeries!;
-    const base: IAsset = assetMap.get(series.baseId)!;
+    const series: ISeries = vault ? seriesMap?.get(vault.seriesId)! : selectedSeries!;
+    const base: IAsset = assetMap?.get(series.baseId)!;
 
-    const ilkToUse: IAsset = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk?.proxyId)!; // note: we use the wrapped version if required
+    const ilkToUse: IAsset = vault ? assetMap?.get(vault.ilkId)! : assetMap?.get(selectedIlk?.proxyId!)!; // note: we use the wrapped version if required
 
     /* is ETH  used as collateral */
-    const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.proxyId);
+    const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!);
     /* is ETH being Borrowed   */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* is convex-type collateral */
-    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId);
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
     const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
 
     /* parse inputs  (clean down to base/ilk decimals so that there is never an underlow)  */

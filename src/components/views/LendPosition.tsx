@@ -44,7 +44,7 @@ const LendPosition = () => {
   } = useContext(UserContext) as IUserContext;
   const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
 
-  const selectedBase = assetMap.get(selectedSeries?.baseId!);
+  const selectedBase = assetMap?.get(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
@@ -124,22 +124,21 @@ const LendPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries.name,
+      series_id: selectedSeries?.name,
       action_code: ActionCodes.CLOSE_POSITION,
-    } as GA_Properties.transaction_initiated );
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleRollPosition = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollPosition(rollInput, selectedSeries!, rollToSeries);
+    rollPosition(rollInput, selectedSeries!, rollToSeries!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries.name,
+      series_id: selectedSeries?.name,
       action_code: ActionCodes.ROLL_POSITION,
-    } as GA_Properties.transaction_initiated );
-
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
@@ -148,8 +147,8 @@ const LendPosition = () => {
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.LEND,
       action_code: actionCode,
-      } as GA_Properties.max_clicked)
-  }
+    } as GA_Properties.max_clicked);
+  };
 
   const handleSetActionActive = (option: { text: string; index: number }) => {
     setActionActive(option);
@@ -187,8 +186,8 @@ const LendPosition = () => {
   }, [closeProcess?.stage, resetInputs, rollProcess?.stage]);
 
   useEffect(() => {
-    const _series = seriesMap.get(idFromUrl as string) || null;
-    const _base = assetMap.get(_series?.baseId!);
+    const _series = seriesMap?.get(idFromUrl as string) || null;
+    const _base = assetMap?.get(_series?.baseId!);
     if (idFromUrl) {
       setSelectedSeries(_series);
       setSelectedBase(_base!);
@@ -250,7 +249,7 @@ const LendPosition = () => {
                       }
                       icon={
                         <Box height="1em" width="1em">
-                          <Logo image={selectedBase.image} />
+                          <Logo image={selectedBase?.image} />
                         </Box>
                       }
                       loading={seriesLoading}
@@ -301,7 +300,7 @@ const LendPosition = () => {
                               setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries}
-                            icon={<Logo image={selectedBase.image} />}
+                            icon={<Logo image={selectedBase?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}
@@ -364,7 +363,7 @@ const LendPosition = () => {
                               setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
                             }
                             disabled={!selectedSeries || !rollToSeries}
-                            icon={<Logo image={selectedBase.image} />}
+                            icon={<Logo image={selectedBase?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.ROLL_POSITION)}
@@ -391,7 +390,7 @@ const LendPosition = () => {
                           )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}, receiving ~${cleanValue(
                             rollEstimate_,
                             2
-                          )} fy${selectedBase.displaySymbol}`}
+                          )} fy${selectedBase?.displaySymbol}`}
                         />
                       </ActiveTransaction>
                     )}

@@ -61,11 +61,11 @@ export const useRollPosition = () => {
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
-    const base: IAsset = assetMap.get(fromSeries.baseId)!;
+    const base: IAsset = assetMap?.get(fromSeries.baseId)!;
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contractMap.get('Ladle')?.address;
 
     // estimate how much fyToken you could sell given the input (base), using the from series
     const _fyTokenValueOfInputIn = fromSeries.seriesIsMature
@@ -117,7 +117,7 @@ export const useRollPosition = () => {
         formatUnits(_minimumFYTokenReceived, toSeries.decimals)
       );
 
-    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress)).gte(_input);
+    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress!)).gte(_input);
 
     const permitCallData: ICallData[] = await sign(
       [
