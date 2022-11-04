@@ -28,9 +28,10 @@ import { useProcess } from '../../hooks/useProcess';
 import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance, useToken } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import { divDecimal, mulDecimal } from '@yield-protocol/ui-math';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -74,6 +75,21 @@ const PoolPosition = () => {
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   const { logAnalyticsEvent } = useAnalytics();
+
+  const { data: userStrategyBalance } = useBalance({
+    addressOrName: activeAccount,
+    token: _selectedStrategy?.address,
+    enabled: !!_selectedStrategy?.address && !!activeAccount,
+  });
+  const { data: strategyTokenData } = useToken({
+    address: _selectedStrategy?.address,
+    enabled: !!_selectedStrategy?.address,
+  });
+
+  const accountStrategyPercent = mulDecimal(
+    divDecimal(userStrategyBalance?.value!, strategyTokenData?.totalSupply.value || '0'),
+    '100'
+  );
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -215,7 +231,7 @@ const PoolPosition = () => {
                     {_selectedStrategy.currentSeries && (
                       <InfoBite
                         label="Strategy Token Ownership"
-                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)}% of ${nFormatter(
+                        value={`${cleanValue(accountStrategyPercent, 2)}% of ${nFormatter(
                           parseFloat(_selectedStrategy?.strategyTotalSupply_!),
                           2
                         )}`}
