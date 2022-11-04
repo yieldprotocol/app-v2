@@ -19,7 +19,7 @@ import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, useToken } from 'wagmi';
 import { WETH } from '../../config/assets';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
@@ -33,11 +33,20 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(UserContext);
 
   const strategy = selectedStrategy;
-  const strategySeries = seriesMap?.get(selectedStrategy ? strategy?.currentSeriesId! : selectedSeries?.id!);
+
+  const strategySeries = strategy?.currentSeries;
 
   const strategyBase = assetMap?.get(strategy ? strategy.baseId : selectedBase?.proxyId!);
 
   /* HOOKS */
+  // strategy data
+  const { data: strategyTokenData } = useToken({ address: strategy?.address, enabled: !!strategy?.address });
+  const { data: strategyPoolBalance } = useBalance({
+    addressOrName: strategy?.address,
+    token: strategy?.currentPoolAddr,
+    enabled: !!strategy,
+  });
+
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { address: account } = useAccount();
   const { data: baseBalance } = useBalance({
@@ -110,9 +119,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* Pool percentage preview */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategy && strategySeries && !removeLiquidityView) {
-      setPoolPercentPreview(cleanValue(getPoolPercent(_input, strategy?.strategyTotalSupply!), 3));
+      setPoolPercentPreview(cleanValue(getPoolPercent(_input, strategyTokenData?.totalSupply.value!), 3));
     }
-  }, [_input, removeLiquidityView, strategy, strategySeries]);
+  }, [_input, removeLiquidityView, strategy, strategySeries, strategyTokenData?.totalSupply.value]);
 
   /* Check if can use 'buy and pool' method to get liquidity */
   useEffect(() => {
@@ -178,7 +187,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* Remove liquidity flow decision tree */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView && strategy) {
-      const lpReceived = burnFromStrategy(strategy.strategyPoolBalance!, strategy.strategyTotalSupply!, _input);
+      const lpReceived = burnFromStrategy(strategyPoolBalance?.value!, strategyTokenData?.totalSupply.value!, _input);
       const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
         strategySeries.sharesReserves,
         strategySeries.fyTokenRealReserves,
@@ -275,8 +284,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         /* Calculate the token Value */
         const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _input,
-          strategy.strategyTotalSupply!,
-          strategy.strategyPoolBalance!,
+          strategyTokenData?.totalSupply.value!,
+          strategyPoolBalance?.value!,
           strategySeries.sharesReserves,
           strategySeries.fyTokenReserves,
           strategySeries.totalSupply,
@@ -309,7 +318,17 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         }
       }
     }
-  }, [strategy, _input, strategySeries, matchingVault, removeLiquidityView, diagnostics, getTimeTillMaturity]);
+  }, [
+    strategy,
+    _input,
+    strategySeries,
+    matchingVault,
+    removeLiquidityView,
+    diagnostics,
+    getTimeTillMaturity,
+    strategyTokenData?.totalSupply.value,
+    strategyPoolBalance?.value,
+  ]);
 
   return {
     maxPool,
