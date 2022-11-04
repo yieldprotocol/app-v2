@@ -252,12 +252,8 @@ export interface IStrategy extends IStrategyRoot {
   strategyTotalSupply?: BigNumber;
   strategyTotalSupply_?: string;
 
-  poolTotalSupply?: BigNumber;
-  poolTotalSupply_?: string;
-
   strategyPoolBalance?: BigNumber;
   strategyPoolBalance_?: string;
-  strategyPoolPercent?: string;
 
   accountBalance?: BigNumber;
   accountBalance_?: string;
