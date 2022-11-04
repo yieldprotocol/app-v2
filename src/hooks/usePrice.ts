@@ -1,6 +1,6 @@
-import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
+import { bytesToBytes32, decimal18ToDecimalN, decimalNToDecimal18, WAD_BN } from '@yield-protocol/ui-math';
 import { BigNumber } from 'ethers';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { useContractRead } from 'wagmi';
 import { ORACLE_INFO } from '../config/oracles';
 import { UserContext } from '../contexts/UserContext';
@@ -30,7 +30,13 @@ const usePrice = (baseId: string, ilkId: string) => {
     enabled: !!oracle && !!base && !!ilk,
   });
 
-  return { data: data ? (data[0] as BigNumber) : undefined, isLoading };
+  // first item in data is the price
+  const price = useMemo(
+    () => (data ? decimalNToDecimal18(data[0] as BigNumber, base?.decimals!) : undefined),
+    [base?.decimals, data]
+  );
+
+  return { data: price, isLoading };
 };
 
 export default usePrice;
