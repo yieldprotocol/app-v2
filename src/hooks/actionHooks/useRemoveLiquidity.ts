@@ -22,7 +22,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount } from 'wagmi';
+import { useAccount, useToken } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 /*
@@ -54,49 +54,63 @@ export const useRemoveLiquidity = () => {
   const { resetProcess } = txActions;
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, selectedStrategy } = userState;
-  const { address: account } = useAccount();
-  const contracts = useContracts();
-
   const { updateSeries, updateAssets, updateStrategies } = userActions;
+  const { assetMap, selectedStrategy } = userState;
+  const {
+    historyActions: { updateStrategyHistory },
+  } = useContext(HistoryContext);
+  const {
+    settingsState: { diagnostics, slippageTolerance },
+  } = useContext(SettingsContext);
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const {
-    historyActions: { updateStrategyHistory },
-  } = useContext(HistoryContext);
+  const { address: account } = useAccount();
+  const contracts = useContracts();
 
-  const {
-    settingsState: { diagnostics, slippageTolerance },
-  } = useContext(SettingsContext);
+  const { data: poolTokenData } = useToken({
+    address: selectedStrategy?.currentPoolAddr,
+  });
+
+  const { data: strategyTokenData } = useToken({
+    address: selectedStrategy?.address,
+  });
+
+  if (!poolTokenData) throw new Error('Could not get pool token data');
+  const poolTotalSupply = poolTokenData.totalSupply.value;
+
+  if (!strategyTokenData) throw new Error('Could not get strategy token data');
+  const strategyTotalSupply = strategyTokenData.totalSupply.value;
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
     const _base: IAsset = assetMap?.get(series.baseId)!;
-    const _strategy: any = selectedStrategy!;
+    const _strategy = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
-    const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
-      series.poolContract.getCache(),
-      series.poolContract.totalSupply(),
-    ]);
-    const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
+    const [[cachedSharesReserves, cachedFyTokenReserves]] = await Promise.all([series.poolContract.getCache()]);
+    const cachedRealReserves = cachedFyTokenReserves.sub(poolTotalSupply.sub(ONE_BN));
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
 
-    const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
+    const lpReceived = burnFromStrategy(poolTotalSupply, strategyTotalSupply, _input);
 
-    const [_sharesReceived, _fyTokenReceived] = burn(cachedSharesReserves, cachedRealReserves, totalSupply, lpReceived);
+    const [_sharesReceived, _fyTokenReceived] = burn(
+      cachedSharesReserves,
+      cachedRealReserves,
+      poolTotalSupply,
+      lpReceived
+    );
 
     const _newPool = newPoolState(
       _sharesReceived.mul(-1),
       _fyTokenReceived.mul(-1),
       cachedSharesReserves,
       cachedFyTokenReserves,
-      totalSupply
+      poolTotalSupply
     );
 
     /**
