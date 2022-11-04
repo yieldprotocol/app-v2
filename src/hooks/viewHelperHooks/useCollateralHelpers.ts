@@ -41,8 +41,7 @@ export const useCollateralHelpers = (
     token: _selectedIlk?.proxyId === WETH ? '' : _selectedIlk?.address,
     enabled: !!_selectedIlk && !!activeAccount,
   });
-  const { data } = usePrice(_selectedBase?.id!, _selectedIlk?.id!);
-  const price = decimalNToDecimal18(data!, _selectedBase?.decimals!);
+  const { data: price } = usePrice(_selectedBase?.id!, _selectedIlk?.id!);
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -142,7 +141,7 @@ export const useCollateralHelpers = (
     setTotalDebt_(ethers.utils.formatUnits(_totalDebt, 18));
 
     /* set the collateral ratio when collateral is entered */
-    if (price.gt(ethers.constants.Zero) && _totalCollateral.gt(ethers.constants.Zero)) {
+    if (price && price.gt(ethers.constants.Zero) && _totalCollateral.gt(ethers.constants.Zero)) {
       const ratio = calculateCollateralizationRatio(_totalCollateral, price, _totalDebt, false);
       const percent = calculateCollateralizationRatio(_totalCollateral, price, _totalDebt, true);
       setCollateralizationRatio(ratio?.toString() || '0');
@@ -153,7 +152,7 @@ export const useCollateralHelpers = (
     }
 
     /* check minimum collateral required base on debt */
-    if (price.gt(ethers.constants.Zero) && minCollatRatio) {
+    if (price && price.gt(ethers.constants.Zero) && minCollatRatio) {
       const min = calculateMinCollateral(price, _totalDebt, minCollatRatio.toString(), existingCollateralAsWei);
       const minSafeCalc = calculateMinCollateral(
         price,

@@ -192,7 +192,7 @@ export const useBorrowHelpers = (
       diagnostics && console.log('Roll possible: ', rollable);
       setRollPossible(rollable);
     }
-  }, [futureSeries, vault, diagnostics, assetPairInfo, minDebt, vaultIlk?.decimals, getTimeTillMaturity]);
+  }, [futureSeries, vault, diagnostics, assetPairInfo, minDebt, vaultIlk?.decimals, getTimeTillMaturity, price]);
 
   /* Update the Min Max repayable amounts */
   useEffect(() => {
