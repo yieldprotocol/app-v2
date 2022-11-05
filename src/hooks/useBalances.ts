@@ -34,7 +34,7 @@ const useBalances = () => {
     [account, assetMap]
   );
 
-  const { data, isLoading, refetch } = useContractReads({ contracts });
+  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account });
 
   // copy of asset map with bal
   const _data = useMemo(
