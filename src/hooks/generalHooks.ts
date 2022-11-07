@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 
 /* Simple Hook for caching & retrieved data */
 export const useCachedState = (key: string, initialValue: any, append?: string) => {
-
   const getValue = () => {
     try {
       if (typeof window !== 'undefined') {
@@ -17,8 +16,8 @@ export const useCachedState = (key: string, initialValue: any, append?: string) 
     return initialValue;
   };
 
-  const _key =  append ? `${key}_${append}` : key ;
-  const [storedValue, setStoredValue] = useState( () => getValue() );
+  const _key = append ? `${key}_${append}` : key;
+  const [storedValue, setStoredValue] = useState(() => getValue());
 
   const setValue = useCallback(
     (value: any) => {
@@ -27,7 +26,7 @@ export const useCachedState = (key: string, initialValue: any, append?: string) 
           // For same API as useState
           const valueToStore = value instanceof Function ? value(storedValue) : value;
           setStoredValue(valueToStore);
-          localStorage.setItem( _key, JSON.stringify(valueToStore));
+          localStorage.setItem(_key, JSON.stringify(valueToStore));
         }
       } catch (error) {
         // TODO: handle the error cases needs work
@@ -93,8 +92,10 @@ export const useTimeout = (
 };
 
 export const useWindowSize = () => {
-  const [width, setWidth] = useState<number>(typeof window !== 'undefined' && window.innerWidth);
-  const [height, setHeight] = useState<number>(typeof window !== 'undefined' && window.innerHeight);
+  const [width, setWidth] = useState<number | undefined>(typeof window !== 'undefined' ? window.innerWidth : undefined);
+  const [height, setHeight] = useState<number | undefined>(
+    typeof window !== 'undefined' ? window.innerHeight : undefined
+  );
 
   if (typeof window !== 'undefined') {
     window.addEventListener(

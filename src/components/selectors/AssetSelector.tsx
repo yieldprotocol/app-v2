@@ -6,13 +6,16 @@ import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
-import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { useAccount } from 'wagmi';
+import { GA_Event, GA_Properties } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
+import useBalances from '../../hooks/useBalances';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -36,16 +39,17 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { address: activeAccount } = useAccount();
+  const { data: balances, isLoading } = useBalances();
 
-  const { setSelectedIlk, setSelectedBase, setSelectedSeries } = userActions;
+  const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
+
+  const { logAnalyticsEvent } = useAnalytics();
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -63,17 +67,26 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     if (selectCollateral) {
       diagnostics && console.log('Collateral selected: ', asset.id);
       setSelectedIlk(asset);
+      logAnalyticsEvent(GA_Event.collateral_selected, {
+        asset: asset.symbol,
+      } as GA_Properties.collateral_selected);
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
       setSelectedSeries(null);
+
+      setSelectedStrategy(null);
+
+      logAnalyticsEvent(GA_Event.asset_selected, {
+        asset: asset.symbol,
+      } as GA_Properties.asset_selected);
     }
   };
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = Array.from(assetMap.values())
-      .filter((a) => a.showToken) // filter based on whether wrapped tokens are shown or not
+    const opts = Array.from(balances)
+      .filter((a) => a?.showToken) // filter based on whether wrapped tokens are shown or not
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
     const filteredOptions = selectCollateral
@@ -87,13 +100,13 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       : filteredOptions;
 
     setOptions(sortedOptions);
-  }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
+  }, [balances, selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
-    if (Array.from(assetMap.values()).length) {
-      !selectedBase && setSelectedBase(assetMap.get(USDC)!);
-      !selectedIlk && setSelectedIlk(assetMap.get(WETH)!);
+    if (Array.from(assetMap?.values()!).length) {
+      !selectedBase && setSelectedBase(assetMap?.get(USDC)!);
+      !selectedIlk && setSelectedIlk(assetMap?.get(WETH)!);
     }
   }, [assetMap, selectedBase, selectedIlk, setSelectedBase, setSelectedIlk]);
 
@@ -108,7 +121,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   /* set ilk to be USDC if ETH base */
   useEffect(() => {
     if (selectedBase?.proxyId === WETH || selectedBase?.id === WETH) {
-      setSelectedIlk(assetMap.get(USDC));
+      setSelectedIlk(assetMap?.get(USDC) || null);
     }
   }, [assetMap, selectedBase, setSelectedIlk]);
 
@@ -131,7 +144,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           name="assetSelect"
           placeholder="Select Asset"
           options={options}
-          value= { !selectCollateral ?  selectedBase || undefined : selectedIlk || undefined }
+          // value={selectCollateral ? selectedIlk! : selectedBase!}
           labelKey={(x: IAsset | undefined) => optionText(x)}
           valueLabel={
             <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>

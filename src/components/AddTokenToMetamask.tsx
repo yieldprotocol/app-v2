@@ -11,9 +11,8 @@ interface ITokenData {
 }
 
 const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => {
-
   const provider = useProvider();
-  const {connector} = useAccount(); 
+  const { connector } = useAccount();
 
   const [metamask, setMetamask] = useState<any>(null);
   const [, setSuccess] = useState<boolean>(false);
@@ -41,11 +40,11 @@ const AddTokenToMetamsk = ({ address, symbol, decimals, image }: ITokenData) => 
 
   useEffect(() => {
     if (provider) {
-      if (connector.name === 'MetaMask') {
+      if (connector?.name === 'MetaMask') {
         setMetamask(provider);
       }
     }
-  }, [provider]);
+  }, [connector?.name, provider]);
 
   return metamask ? (
     <Box align="center">

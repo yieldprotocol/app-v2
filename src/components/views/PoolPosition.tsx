@@ -5,11 +5,11 @@ import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiZap } from 
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
-import { abbreviateHash, cleanValue, formatStrategyName, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, formatStrategyName, getTxCode, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../../types';
+import { ActionCodes, ActionType, ProcessStage } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import InfoBite from '../InfoBite';
 import ActiveTransaction from '../ActiveTransaction';
@@ -29,6 +29,8 @@ import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
 import { useAccount } from 'wagmi';
+import useAnalytics from '../../hooks/useAnalytics';
+import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -39,15 +41,15 @@ const PoolPosition = () => {
   const {
     userState,
     userActions: { setSelectedStrategy },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
   const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
   const { address: activeAccount } = useAccount();
 
-  const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl as string);
+  const _selectedStrategy = selectedStrategy || strategyMap?.get(idFromUrl as string);
 
   const selectedSeries = _selectedStrategy?.currentSeries;
-  const selectedBase = assetMap.get(_selectedStrategy?.baseId!);
+  const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
@@ -70,6 +72,8 @@ const PoolPosition = () => {
   const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired, removeFyTokenReceived_ } =
     usePoolHelpers(removeInput, true);
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
+
+  const { logAnalyticsEvent } = useAnalytics();
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -103,7 +107,28 @@ const PoolPosition = () => {
   const handleRemove = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
-    removeLiquidity(removeInput!, selectedSeries, matchingVault);
+    removeLiquidity(removeInput!, selectedSeries!, matchingVault);
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.POOL,
+      series_id: selectedStrategy?.currentSeries?.name,
+      action_code: ActionCodes.REMOVE_LIQUIDITY,
+    } as GA_Properties.transaction_initiated);
+  };
+
+  const handleMaxAction = () => {
+    maxRemove && setRemoveInput(maxRemove);
+    logAnalyticsEvent(GA_Event.max_clicked, {
+      view: GA_View.POOL,
+      action_code: ActionCodes.REMOVE_LIQUIDITY,
+    } as GA_Properties.max_clicked);
+  };
+
+  const handleSetActionActive = (option: { text: string; index: number }) => {
+    setActionActive(option);
+    logAnalyticsEvent(GA_Event.position_action_selected, {
+      action: option.text,
+    } as GA_Properties.position_action_selected);
   };
 
   const resetInputs = useCallback(
@@ -123,7 +148,7 @@ const PoolPosition = () => {
   }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
-    const _strategy = strategyMap.get(idFromUrl as string) || null;
+    const _strategy = strategyMap?.get(idFromUrl as string) || null;
     idFromUrl && setSelectedStrategy(_strategy);
   }, [idFromUrl, setSelectedStrategy, strategyMap]);
 
@@ -172,7 +197,7 @@ const PoolPosition = () => {
                         _selectedStrategy?.accountBalance_,
                         selectedBase?.digitFormat!
                       )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase.symbol
+                        selectedBase?.symbol
                       })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
@@ -198,7 +223,7 @@ const PoolPosition = () => {
                         loading={seriesLoading}
                       />
                     )}
-                    {_selectedStrategy.currentSeries.poolAPY && (
+                    {_selectedStrategy?.currentSeries?.poolAPY && (
                       <InfoBite
                         label="Pool APY"
                         icon={<FiZap />}
@@ -225,7 +250,7 @@ const PoolPosition = () => {
                       labelKey="text"
                       valueKey="index"
                       value={actionActive}
-                      onChange={({ option }) => setActionActive(option)}
+                      onChange={({ option }) => handleSetActionActive(option)}
                     />
                   </Box>
                 </SectionWrap>
@@ -247,7 +272,7 @@ const PoolPosition = () => {
                             icon={<YieldMark height="24px" width="24px" colors={[selectedSeries?.startColor!]} />}
                           />
                           <MaxButton
-                            action={() => setRemoveInput(maxRemove)}
+                            action={() => handleMaxAction()}
                             disabled={maxRemove === '0.0'}
                             clearAction={() => setRemoveInput('')}
                             showingMax={!!removeInput && removeInput === maxRemove}

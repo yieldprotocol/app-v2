@@ -12,9 +12,15 @@ import {
   MKR,
   FUSDC2203,
   FDAI2203,
+  FDAI2303,
   FUSDC2206,
   FDAI2206,
+  FDAI2212,
   FUSDC2209,
+  FUSDC2212,
+  FUSDC2303,
+  FETH2212,
+  FETH2303,
   FDAI2209,
   FRAX,
   CVX3CRV,
@@ -29,7 +35,7 @@ const YEARNVAULT_MULTI_ORACLE = 'YearnVaultMultiOracle';
 const CHAINLINK_USD_ORACLE = 'ChainlinkUSDOracle';
 const NOTIONAL_MULTI_ORACLE = 'NotionalMultiOracle';
 
-const ACCUMULATOR_MULTI_ORACLE = 'AccumulatorMultiOracle';
+const ACCUMULATOR_ORACLE = 'AccumulatorOracle';
 
 // map chain id to oracle info
 export const ORACLE_INFO = new Map<number, Map<string, Map<string, string>>>();
@@ -61,6 +67,8 @@ usdcIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2203, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2206, NOTIONAL_MULTI_ORACLE);
 usdcIlkOracle1.set(FUSDC2209, NOTIONAL_MULTI_ORACLE);
+usdcIlkOracle1.set(FUSDC2212, NOTIONAL_MULTI_ORACLE);
+usdcIlkOracle1.set(FUSDC2303, NOTIONAL_MULTI_ORACLE);
 /* convex */
 usdcIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
 
@@ -83,16 +91,19 @@ daiIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 daiIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 daiIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
+
 /* notional additions */
 daiIlkOracle1.set(FDAI2203, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2206, NOTIONAL_MULTI_ORACLE);
 daiIlkOracle1.set(FDAI2209, NOTIONAL_MULTI_ORACLE);
+daiIlkOracle1.set(FDAI2212, NOTIONAL_MULTI_ORACLE);
+daiIlkOracle1.set(FDAI2303, NOTIONAL_MULTI_ORACLE);
+
 /* convex */
 daiIlkOracle1.set(CVX3CRV, COMPOSITE_MULTI_ORACLE);
 
-/* rate oracle */ 
+/* rate oracle */
 daiIlkOracle1.set(RATE, COMPOUND_MULTI_ORACLE);
-
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle1);
 
@@ -110,6 +121,10 @@ wethIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 wethIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
+
+/* notional additions */
+wethIlkOracle1.set(FETH2212, NOTIONAL_MULTI_ORACLE);
+wethIlkOracle1.set(FETH2303, NOTIONAL_MULTI_ORACLE);
 
 /* rate */
 wethIlkOracle1.set(RATE, COMPOUND_MULTI_ORACLE);
@@ -130,7 +145,7 @@ fraxIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 fraxIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 
 /* rate */
-fraxIlkOracle1.set(RATE, ACCUMULATOR_MULTI_ORACLE);
+fraxIlkOracle1.set(RATE, ACCUMULATOR_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(FRAX, fraxIlkOracle1);
 
@@ -150,7 +165,7 @@ usdcIlkOracle421611.set(UNI, CHAINLINK_USD_ORACLE);
 usdcIlkOracle421611.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 usdcIlkOracle421611.set(MKR, CHAINLINK_USD_ORACLE);
 
-usdcIlkOracle421611.set(RATE, ACCUMULATOR_MULTI_ORACLE);
+usdcIlkOracle421611.set(RATE, ACCUMULATOR_ORACLE);
 
 // usdcIlkOracle421611.set(RATE, ACCUMLATOR_ORACLE);
 CHAIN_ID_421611_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle421611);
@@ -169,11 +184,11 @@ daiIlkOracle421611.set(UNI, CHAINLINK_USD_ORACLE);
 daiIlkOracle421611.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 daiIlkOracle421611.set(MKR, CHAINLINK_USD_ORACLE);
 
-daiIlkOracle421611.set(RATE, ACCUMULATOR_MULTI_ORACLE);
+daiIlkOracle421611.set(RATE, ACCUMULATOR_ORACLE);
 
 CHAIN_ID_421611_ASSET_ORACLE_INFO.set(DAI, daiIlkOracle421611);
 
-// wETH BASE 
+// wETH BASE
 const ethIlkOracle421611 = new Map<string, string>();
 ethIlkOracle421611.set(WETH, CHAINLINK_USD_ORACLE);
 ethIlkOracle421611.set(DAI, CHAINLINK_USD_ORACLE);
@@ -182,10 +197,9 @@ ethIlkOracle421611.set(WBTC, CHAINLINK_USD_ORACLE);
 ethIlkOracle421611.set(stETH, CHAINLINK_USD_ORACLE);
 ethIlkOracle421611.set(wstETH, CHAINLINK_USD_ORACLE);
 
-ethIlkOracle421611.set(RATE, ACCUMULATOR_MULTI_ORACLE);
+ethIlkOracle421611.set(RATE, ACCUMULATOR_ORACLE);
 
 CHAIN_ID_421611_ASSET_ORACLE_INFO.set(WETH, ethIlkOracle421611);
-
 
 ORACLE_INFO.set(1, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(4, CHAIN_ID_1_ASSET_ORACLE_INFO);

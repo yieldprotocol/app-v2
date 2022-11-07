@@ -1,13 +1,15 @@
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { ActionType, IAsset, ISeries, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 import SkeletonWrap from '../wraps/SkeletonWrap';
+import useAnalytics from '../../hooks/useAnalytics';
+import { GA_Event, GA_Properties } from '../../types/analytics';
 
 function LendItem({
   series,
@@ -21,19 +23,23 @@ function LendItem({
   condensed?: boolean;
 }) {
   const router = useRouter();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const {
     userState: { assetMap, seriesLoading, selectedSeries, selectedBase },
     userActions,
-  }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
-  const seriesBase: IAsset = assetMap.get(series.baseId)!;
+  const seriesBase = assetMap?.get(series.baseId)!;
   const isSelectedBaseAndSeries = series.baseId === seriesBase.proxyId && series.id === selectedSeries?.id;
 
   const handleSelect = (_series: ISeries) => {
     userActions.setSelectedBase(selectedBase);
     userActions.setSelectedSeries(_series);
     router.push(`/${actionType.toLowerCase()}position/${_series.id}`);
+    logAnalyticsEvent(GA_Event.position_opened, {
+      id: selectedSeries?.name,
+    } as GA_Properties.position_opened);
   };
 
   return (

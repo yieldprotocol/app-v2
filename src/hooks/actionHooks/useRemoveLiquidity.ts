@@ -12,23 +12,9 @@ import {
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IVault,
-  IAsset,
-  IUserContext,
-  IUserContextState,
-  IUserContextActions,
-  IChainContext,
-  ISettingsContext,
-} from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault, IAsset } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { ChainContext } from '../../contexts/ChainContext';
 import { TxContext } from '../../contexts/TxContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
@@ -37,6 +23,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAccount } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -63,18 +50,13 @@ is Mature?        N     +--------+
  */
 
 export const useRemoveLiquidity = () => {
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext) as IChainContext;
-
   const { txActions } = useContext(TxContext);
-  const {resetProcess} = txActions;
+  const { resetProcess } = txActions;
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedStrategy } = userState;
   const { address: account } = useAccount();
+  const contracts = useContracts();
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -87,17 +69,17 @@ export const useRemoveLiquidity = () => {
 
   const {
     settingsState: { diagnostics, slippageTolerance },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
-    const _base: IAsset = assetMap.get(series.baseId)!;
+    const _base: IAsset = assetMap?.get(series.baseId)!;
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
       series.poolContract.getCache(),
       series.poolContract.totalSupply(),
@@ -248,7 +230,7 @@ export const useRemoveLiquidity = () => {
       ? (await _strategy.strategyContract.allowance(account!, ladleAddress)).gte(_input)
       : false;
     const alreadyApprovedPool = !_strategy
-      ? (await series.poolContract.allowance(account!, ladleAddress)).gte(_input)
+      ? (await series.poolContract.allowance(account!, ladleAddress!)).gte(_input)
       : false;
 
     const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
@@ -292,7 +274,6 @@ export const useRemoveLiquidity = () => {
 
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
     const calls: ICallData[] = [
-      
       ...permitCallData,
 
       /* FOR ALL REMOVES (when using a strategy) > move tokens from strategy to pool tokens  */
@@ -361,7 +342,7 @@ export const useRemoveLiquidity = () => {
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
-      
+
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
         args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
@@ -381,7 +362,6 @@ export const useRemoveLiquidity = () => {
         args: [series.fyTokenAddress, account] as LadleActions.Args.RETRIEVE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !isEthBase,
       },
-
 
       /* OPTION 4. Remove Liquidity and sell - BEFORE MATURITY + NO VAULT */
 

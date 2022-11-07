@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
-import { ActionCodes, ISeries, IUserContext, IUserContextState, IVault } from '../types';
+import { ActionCodes, ISeries, IVault } from '../types';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -13,10 +13,10 @@ export const useInputValidation = (
   vault?: IVault | undefined
 ) => {
   /* STATE FROM CONTEXT */
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
   const _selectedSeries = series || selectedSeries;
-  const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;
+  const _selectedBase = assetMap?.get(series?.baseId!) || selectedBase;
 
   const { address: activeAccount } = useAccount();
 

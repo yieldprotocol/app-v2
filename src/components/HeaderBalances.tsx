@@ -7,6 +7,8 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
 import Logo from './logos/Logo';
+import { useAccount, useBalance } from 'wagmi';
+import { cleanValue } from '../utils/appUtils';
 
 const StyledText = styled(Text)`
   svg,
@@ -29,17 +31,20 @@ const Balance = ({ image, balance, loading }: { image: any; balance: string; loa
 
 const YieldBalances = () => {
   const {
-    userState: { selectedBase, selectedIlk, assetsLoading, assetMap },
+    userState: { selectedBase, selectedIlk },
   } = useContext(UserContext);
 
-  const [baseBalance, setBaseBalance] = useState<string>(selectedBase?.balance_);
-  const [ilkBalance, setIlkBalance] = useState<string>(selectedIlk?.balance_);
-
-  /* If the url references a series/vault...set that one as active */
-  useEffect(() => {
-    selectedBase && setBaseBalance(assetMap.get(selectedBase.id).balance_);
-    selectedIlk && setIlkBalance(assetMap.get(selectedIlk.id).balance_);
-  }, [assetMap, selectedBase, selectedIlk]);
+  const { address: account } = useAccount();
+  const { data: baseBalance, isLoading: baseBalLoading } = useBalance({
+    addressOrName: account,
+    token: selectedBase?.address,
+    enabled: !!selectedBase && !!account,
+  });
+  const { data: ilkBalance, isLoading: ilkBalLoading } = useBalance({
+    addressOrName: account,
+    token: selectedIlk?.address,
+    enabled: !!selectedBase && !!account,
+  });
 
   const { pathname } = useRouter();
   const [path, setPath] = useState<string>();
@@ -51,9 +56,15 @@ const YieldBalances = () => {
 
   return (
     <Box pad="small" justify="center" align="start" gap="xsmall">
-      <Balance image={selectedBase?.image} balance={baseBalance} loading={assetsLoading} />
+      {selectedBase?.proxyId !== WETH && (
+        <Balance
+          image={selectedBase?.image}
+          balance={cleanValue(baseBalance?.formatted!, 2)}
+          loading={baseBalLoading}
+        />
+      )}
       {path === 'borrow' && selectedBase?.id !== selectedIlk?.id && selectedIlk?.proxyId !== WETH && (
-        <Balance image={selectedIlk?.image} balance={ilkBalance} loading={assetsLoading} />
+        <Balance image={selectedIlk?.image} balance={cleanValue(ilkBalance?.formatted!, 2)} loading={ilkBalLoading} />
       )}
     </Box>
   );

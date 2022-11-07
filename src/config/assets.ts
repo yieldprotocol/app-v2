@@ -11,7 +11,7 @@ export interface AssetInfo {
   version: string;
   symbol: string;
   decimals: number;
-  showToken: boolean; // Display/hide the token on the UI DEFAULTS 
+  showToken: boolean; // Display/hide the token on the UI DEFAULTS
 
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
   displaySymbol?: string; // override for symbol display
@@ -51,6 +51,14 @@ export const FUSDC2209 = '0x313700000000';
 /* Convex Curve LP token assets */
 export const CVX3CRV = '0x313900000000';
 
+export const FETH2212 = '0x323800000000';
+export const FDAI2212 = '0x323300000000';
+export const FUSDC2212 = '0x323400000000';
+
+export const FETH2303 = '0x323900000000';
+export const FDAI2303 = '0x323500000000';
+export const FUSDC2303 = '0x323600000000';
+
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
   CVX3CRV,
@@ -64,6 +72,8 @@ export const IGNORE_BASE_ASSETS = ['ENS'];
 export const ASSETS_42161 = new Map<string, AssetInfo>();
 
 export const ASSETS_1 = new Map<string, AssetInfo>();
+
+export const DEFAULT_SELECTED_BASE = USDC;
 
 ASSETS_1.set(DAI, {
   assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -188,19 +198,18 @@ ASSETS_1.set(yvUSDC, {
   joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
 
   version: '1',
-  name: 'curve',
+  name: 'Yearn Vault USDC',
   decimals: 18,
   symbol: 'yvUSDC',
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000'],
+  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000', '0x303230380000', '0x303230390000'],
 });
 
 ASSETS_1.set(UNI, {
   assetAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
   joinAddress: '0x41567f6A109f5bdE283Eb5501F21e3A0bEcbB779',
-
   version: '1',
   name: 'Uniswap token',
   decimals: 18,
@@ -208,6 +217,20 @@ ASSETS_1.set(UNI, {
   showToken: true,
   digitFormat: 4,
   tokenType: TokenType.ERC20_Permit,
+});
+
+ASSETS_1.set(FRAX, {
+  assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+  joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
+  version: '1',
+  name: 'frax',
+  decimals: 18,
+  symbol: 'FRAX',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: [],
+  isYieldBase: true,
 });
 
 ASSETS_1.set(FDAI2203, {
@@ -292,7 +315,6 @@ ASSETS_1.set(FDAI2209, {
 ASSETS_1.set(FUSDC2209, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x0Bfd3B8570A4247157c5468861d37dA55AAb9B4b',
-
   version: '1',
   name: 'fUSDC2209',
   decimals: 8,
@@ -304,19 +326,85 @@ ASSETS_1.set(FUSDC2209, {
   limitToSeries: ['0x303230370000'],
 });
 
-ASSETS_1.set(FRAX, {
-  assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
-  joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
-
+ASSETS_1.set(FETH2212, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xe888E0403e3e992fDbB473650547428e90F9DDFC',
   version: '1',
-  name: 'frax',
-  decimals: 18,
-  symbol: 'FRAX',
+  name: 'Notional fCash ETH Dec 22',
+  decimals: 8,
+  symbol: 'fETH2212',
+  showToken: true,
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 281902967750657,
+  limitToSeries: ['0x303030380000'],
+});
+
+ASSETS_1.set(FETH2303, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xC4cb2489a845384277564613A0906f50dD66e482',
+  version: '1',
+  name: 'Notional fCash ETH March 23',
+  decimals: 8,
+  symbol: 'fETH2303',
+  showToken: true,
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 281904958406657,
+  limitToSeries: ['0x303030390000'],
+});
+
+ASSETS_1.set(FUSDC2212, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xA9078E573EC536c4066A5E89F715553Ed67B13E0',
+  version: '1',
+  name: 'Notional fCash USDC Dec 22',
+  decimals: 8,
+  symbol: 'fUSDC2212',
   showToken: true,
   digitFormat: 2,
-  tokenType: TokenType.ERC20_,
-  limitToSeries: [],
-  isYieldBase: true,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844852921171969,
+  limitToSeries: ['0x303230380000'],
+});
+ASSETS_1.set(FUSDC2303, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0x3FdDa15EccEE67248048a560ab61Dd2CdBDeA5E6',
+  version: '1',
+  name: 'Notional fCash USDC March 23',
+  decimals: 8,
+  symbol: 'fUSDC2303',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844854911827969,
+  limitToSeries: ['0x303230390000'],
+});
+ASSETS_1.set(FDAI2212, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0x83e99A843607CfFFC97A3acA15422aC672a463eF',
+  version: '1',
+  name: 'Notional fCash DAI Dec 22',
+  decimals: 8,
+  symbol: 'fDAI2212',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563377944461313,
+  limitToSeries: ['0x303130380000'],
+});
+ASSETS_1.set(FDAI2303, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xE6A63e2166fcEeB447BFB1c0f4f398083214b7aB',
+  version: '1',
+  name: 'Notional fCash DAI March 23',
+  decimals: 8,
+  symbol: 'fDAI2303',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563379935117313,
+  limitToSeries: ['0x303130390000'],
 });
 
 // ASSETS_1.set(CVX3CRV, {

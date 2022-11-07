@@ -14,33 +14,37 @@ import {
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IStrategy, IUserContext, IVault } from '../../types';
+import { IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
+import { WETH } from '../../config/assets';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
-  const strategy: IStrategy | undefined = selectedStrategy;
-  const strategySeries: ISeries | undefined = seriesMap?.get(
-    selectedStrategy ? strategy?.currentSeriesId : selectedSeries?.id
-  );
+  const strategy = selectedStrategy;
+  const strategySeries = seriesMap?.get(selectedStrategy ? strategy?.currentSeriesId! : selectedSeries?.id!);
 
-  const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.proxyId);
+  const strategyBase = assetMap?.get(strategy ? strategy.baseId : selectedBase?.proxyId!);
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: activeAccount } = useAccount();
+  const { address: account } = useAccount();
+  const { data: baseBalance } = useBalance({
+    addressOrName: account,
+    token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
+    enabled: !!selectedBase,
+  });
 
   /* LOCAL STATE */
 
@@ -69,7 +73,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
     if (strategySeries && strategyBase) {
-      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const arr = Array.from(vaultMap?.values()!);
       const _matchingVault = arr
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.id > vaultB.id ? 1 : -1))
         .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
@@ -156,14 +160,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Set Max Pool > effectively user balance */
   useEffect(() => {
-    if (activeAccount && !removeLiquidityView) {
+    if (!removeLiquidityView) {
       /* Checks asset selection and sets the max available value */
-      (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
-      })();
+      setMaxPool(baseBalance?.formatted);
     }
-  }, [input, activeAccount, removeLiquidityView, selectedBase]);
+  }, [baseBalance?.formatted, removeLiquidityView]);
 
   /**
    * Remove Liquidity specific section
@@ -177,7 +178,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* Remove liquidity flow decision tree */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView && strategy) {
-      const lpReceived = burnFromStrategy(strategy.strategyPoolBalance, strategy.strategyTotalSupply, _input);
+      const lpReceived = burnFromStrategy(strategy.strategyPoolBalance!, strategy.strategyTotalSupply!, _input);
       const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
         strategySeries.sharesReserves,
         strategySeries.fyTokenRealReserves,
@@ -274,8 +275,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         /* Calculate the token Value */
         const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _input,
-          strategy.strategyTotalSupply,
-          strategy.strategyPoolBalance,
+          strategy.strategyTotalSupply!,
+          strategy.strategyPoolBalance!,
           strategySeries.sharesReserves,
           strategySeries.fyTokenReserves,
           strategySeries.totalSupply,

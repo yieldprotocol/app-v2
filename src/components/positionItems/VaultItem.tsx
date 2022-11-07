@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 
 import { Box, Text } from 'grommet';
-import { ActionType, IUserContext, IVault } from '../../types';
+import { ActionType, IVault } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 
 import PositionAvatar from '../PositionAvatar';
@@ -11,22 +11,28 @@ import SkeletonWrap from '../wraps/SkeletonWrap';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import { cleanValue } from '../../utils/appUtils';
+import { GA_Event, GA_Properties } from '../../types/analytics';
+import useAnalytics from '../../hooks/useAnalytics';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const {
     userState: { seriesMap, vaultsLoading, selectedVault, assetMap },
     userActions,
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
   const { setSelectedVault } = userActions;
 
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault);
     router.push(`/vaultposition/${_vault.id}`);
+    logAnalyticsEvent(GA_Event.position_opened, {
+      id: _vault.id.slice(2),
+    } as GA_Properties.position_opened);
   };
-  const vaultBase = assetMap.get(vault.baseId);
-  const vaultIlk = assetMap.get(vault.ilkId);
+  const vaultBase = assetMap?.get(vault.baseId);
+  const vaultIlk = assetMap?.get(vault.ilkId);
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
   const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPairInfo, undefined);
 
@@ -51,7 +57,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
           {vault.isActive ? (
             <Box direction="column" width={condensed ? '6rem' : undefined}>
               <Text weight={450} size="xsmall">
-                {seriesMap.get(vault.seriesId)?.displayName}
+                {seriesMap?.get(vault.seriesId)?.displayName}
               </Text>
               <Box direction="row" gap="xsmall">
                 <Text weight={450} size="xsmall">

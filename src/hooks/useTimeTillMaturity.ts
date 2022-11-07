@@ -1,11 +1,7 @@
 import { ethers } from 'ethers';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { ChainContext } from '../contexts/ChainContext';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { IChainContext } from '../types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const useTimeTillMaturity = (useBlockchainTime = false) => {
-
   // const {
   //   settingState: {useTenderlyFork},
   // } = useContext(SettingsContext)
