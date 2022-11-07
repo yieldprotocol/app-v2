@@ -92,13 +92,13 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
       return { ...state, strategiesLoading: action.payload };
 
     case UserState.ASSETS:
-      return { ...state, assetMap: new Map(action.payload) };
+      return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
     case UserState.SERIES:
-      return { ...state, seriesMap: new Map(action.payload) };
+      return { ...state, seriesMap: new Map([...state.seriesMap, ...action.payload]) };
     case UserState.VAULTS:
-      return { ...state, vaultMap: new Map(action.payload) };
+      return { ...state, vaultMap: new Map([...state.vaultMap, ...action.payload]) };
     case UserState.STRATEGIES:
-      return { ...state, strategyMap: new Map(action.payload) };
+      return { ...state, strategyMap: new Map([...state.strategyMap, ...action.payload]) };
 
     case UserState.CLEAR_VAULTS:
       return { ...state, vaultMap: new Map() };
