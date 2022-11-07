@@ -123,7 +123,6 @@ const TxProvider = ({ children }: any) => {
   };
 
   const provider = useProvider();
-  const { chain } = useNetwork();
   const { address: account } = useAccount();
   const { refetch: refetchETHBal } = useBalance({ addressOrName: account });
 
