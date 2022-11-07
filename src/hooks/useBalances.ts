@@ -4,16 +4,12 @@ import { formatUnits, Result } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
 import { useAccount, useContractReads } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
-import { IAsset } from '../types';
+import { IAsset, IAssetInfo } from '../types';
 
 /**
  * Gets all asset balances
  * @returns assetMap values with balance added
  */
-interface IAssetWithBal extends IAsset {
-  balance: BigNumber;
-  balance_: string;
-}
 
 const useBalances = () => {
   const {
@@ -22,7 +18,7 @@ const useBalances = () => {
 
   const { address: account } = useAccount();
 
-  // data to fetch
+  // data to read
   const contracts = useMemo(
     () =>
       [...assetMap.values()].map((a) => ({
@@ -31,10 +27,18 @@ const useBalances = () => {
         functionName: 'balanceOf',
         contractInterface: a.assetContract.interface,
       })) as ReadContractsContract[],
+
     [account, assetMap]
   );
 
-  const { data, isLoading, refetch } = useContractReads({ contracts });
+  /**
+   * Note:
+   * wagmi sends back null values if no wallet connected.
+   * So in that case, we send in an empty array from 'contracts' above ^ to avoid multiple failed wagmi calls.
+   *
+   * (its done above becasue we cant use hooks 'conditionally' )
+   * */
+  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account });
 
   // copy of asset map with bal
   const _data = useMemo(
@@ -43,13 +47,12 @@ const useBalances = () => {
         (a, i) =>
           ({
             ...a,
-            balance: data ? (data[i] as unknown as BigNumber) : ethers.constants.Zero,
-            balance_: data ? formatUnits(data[i], a.decimals) : '0',
-          } as IAssetWithBal)
+            balance: data && !!data[i] ? (data[i] as BigNumber[]) : ethers.constants.Zero,
+            balance_: data && !!data[i] ? formatUnits(data[i], a.decimals) : '0',
+          } as IAsset)
       ),
     [assetMap, data]
   );
-
   return { data: _data, isLoading, refetch };
 };
 

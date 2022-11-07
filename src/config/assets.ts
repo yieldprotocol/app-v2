@@ -73,8 +73,6 @@ export const ASSETS_42161 = new Map<string, AssetInfo>();
 
 export const ASSETS_1 = new Map<string, AssetInfo>();
 
-export const DEFAULT_SELECTED_BASE = USDC;
-
 ASSETS_1.set(DAI, {
   assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   joinAddress: '0x4fE92119CDf873Cf8826F4E6EcfD4E578E3D44Dc',
