@@ -22,7 +22,7 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { DEFAULT_SELECTED_BASE, ETH_BASED_ASSETS } from '../config/assets';
+import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
@@ -256,8 +256,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       }, new Map() as Map<string, IAsset>);
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
-      // default selected base
-      updateState({ type: UserState.SELECTED_BASE, payload: newAssetsMap.get(DEFAULT_SELECTED_BASE)! });
 
       diagnostics && console.log('ASSETS updated (with dynamic data):');
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
