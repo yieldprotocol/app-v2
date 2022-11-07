@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { Box, Collapsible, Layer, ResponsiveContext, Tip, Text } from 'grommet';
 import { useAccountModal, useChainModal, useConnectModal } from '@rainbow-me/rainbowkit';
-import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import { FiChevronUp, FiChevronDown, FiEye, FiLogOut } from 'react-icons/fi';
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import BackButton from './buttons/BackButton';
 import GeneralButton from './buttons/GeneralButton';
@@ -57,45 +57,41 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
         justify="between"
         style={{ overflow: 'auto' }}
       >
-        <Box gap="small" pad="medium" background="gradient-transparent" flex={false}>
+        <Box pad={{ top: 'large', horizontal: 'medium' }} background="gradient-transparent" gap="medium" flex={false}>
           {mobile && <BackButton action={() => setSettingsOpen(false)} />}
-
           {!mobile && (
             <Box
               onClick={openAccountModal}
-              gap="small"
               style={{ position: 'fixed' }}
-              margin={{ left: '-60px', top: '10%' }}
+              margin={{ left: '-60px', top: '5%' }}
               animation="slideLeft"
+              flex={false}
             >
-              <YieldAvatar address={address} size={6} />
+              <YieldAvatar address={address} size={5} />
             </Box>
           )}
 
-          <Box align="end" pad={{ vertical: 'small' }}>
-
-            <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-              {mobile && <YieldAvatar address={address} size={4} />}
-              {address && (
-                <CopyWrap hash={address}>
-                  <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
-                </CopyWrap>
-              )}
-            </Box>
+          <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
+            {mobile && <YieldAvatar address={address} size={4} />}
+            {address && (
+              <CopyWrap hash={address}>
+                <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
+              </CopyWrap>
+            )}
           </Box>
 
-          <Box gap="small">
-            <Box direction="row" justify="end" gap="medium" margin={{ top: 'medium' }}>
-              <BoxWrap direction="row" gap="small">
-                {connector && <Text size="xsmall">Connected with {connector.name}</Text>}
-              </BoxWrap>
-            </Box>
+          <Box direction="row" justify="end">
+            <BoxWrap direction="row" gap="small" onClick={openAccountModal}>
+              {connector && <Text size="xsmall">Connected with {connector.name}</Text>}
+              <FiEye />
+            </BoxWrap>
+          </Box>
 
-            <Box direction="row" justify="end" onClick={disconnect} gap="medium" margin={{ top: 'medium' }}>
-              <BoxWrap direction="row" gap="small">
-                <Text size="xsmall">Logout</Text>
-              </BoxWrap>
-            </Box>
+          <Box direction="row" justify="end" onClick={disconnect} gap="medium">
+            <BoxWrap direction="row" gap="small">
+              <Text size="xsmall">Logout</Text>
+              <FiLogOut />
+            </BoxWrap>
           </Box>
         </Box>
 
@@ -142,7 +138,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           </GeneralButton>
         </Box>
 
-        <Box
+        {/* <Box
           margin={{ top: 'auto' }}
           pad="medium"
           gap="small"
@@ -162,7 +158,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
               ))}
             </Box>
           </Collapsible>
-        </Box>
+        </Box> */}
       </Box>
     </Layer>
   ) : null;
