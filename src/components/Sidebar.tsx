@@ -57,6 +57,31 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
         justify="between"
         style={{ overflow: 'auto' }}
       >
+        {mobile && 
+        <Box pad={{ top: 'large', horizontal: 'medium' }} background="gradient-transparent" gap="medium" flex={false}>
+          <Box direction='row' gap='small' justify='between'>
+            <BackButton action={() => setSettingsOpen(false)} />
+            {address && (
+              <CopyWrap hash={address}>
+                <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
+              </CopyWrap>
+            )}
+            <YieldAvatar address={address} size={2} />
+          </Box>
+          <Box direction="row"  pad={{top:"large", horizontal:'small'}} justify='between' >
+            <BoxWrap direction="row" gap="small" onClick={openAccountModal}>
+              {connector && <Text size="small">Connected with {connector.name}</Text>}     
+            </BoxWrap>
+            <FiEye onClick={openAccountModal} />
+          </Box>  
+             <Box pad={{bottom:"large", top:'medium', horizontal:'small'}}>
+              <NetworkSetting />
+            </Box>    
+        </Box>       
+        }
+
+
+        {!mobile &&
         <Box pad={{ top: 'large', horizontal: 'medium' }} background="gradient-transparent" gap="medium" flex={false}>
           {mobile && <BackButton action={() => setSettingsOpen(false)} />}
           {!mobile && (
@@ -72,7 +97,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           )}
 
           <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-            {mobile && <YieldAvatar address={address} size={4} />}
+            {mobile && <YieldAvatar address={address} size={3} />}
             {address && (
               <CopyWrap hash={address}>
                 <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
@@ -93,15 +118,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
               <FiLogOut />
             </BoxWrap>
           </Box>
-        </Box>
-
-        {!mobile && (
-          <Box background="gradient-transparent" flex={false}>
-            <Box pad="medium" background="gradient-transparent">
-              <NetworkSetting />
-            </Box>
-          </Box>
-        )}
+        </Box> }
 
         <Box pad="medium" gap="medium" flex={false}>
           <ThemeSetting />
