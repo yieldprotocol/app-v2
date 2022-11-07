@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
-import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
+import { ETH_BASED_ASSETS } from '../../config/assets';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -25,7 +25,7 @@ export const useClosePosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedSeries } = userState;
   const { address: account } = useAccount();
-  const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.address });
+  const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.fyTokenAddress });
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
     token: selectedSeries?.baseAddress,
@@ -136,7 +136,7 @@ export const useClosePosition = () => {
       ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
-    if (selectedSeries?.baseId !== WETH) refetchBaseBal();
+    refetchBaseBal();
     refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);
