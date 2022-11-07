@@ -13,7 +13,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddCollateral = () => {
@@ -30,6 +30,10 @@ export const useAddCollateral = () => {
   const { sign, transact } = useChain();
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
+  const { refetch: refetchIlkBal } = useBalance({
+    addressOrName: account,
+    token: selectedIlk?.address,
+  });
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
     /* use the vault id provided OR 0 if new/ not provided */
@@ -128,6 +132,7 @@ export const useAddCollateral = () => {
     await transact(calls, txCode);
 
     /* then update UI */
+    refetchIlkBal();
     updateVaults([vault!]);
     updateAssets([base!, ilk!]);
     updateVaultHistory([vault!]);
