@@ -36,6 +36,8 @@ const useBalances = () => {
 
   const { data, isLoading, refetch } = useContractReads({ contracts });
 
+  console.log( )
+
   // copy of asset map with bal
   const _data = useMemo(
     () =>
@@ -43,8 +45,8 @@ const useBalances = () => {
         (a, i) =>
           ({
             ...a,
-            balance: data ? (data[i] as unknown as BigNumber) : ethers.constants.Zero,
-            balance_: data ? formatUnits(data[i], a.decimals) : '0',
+            balance: data ? (data[i] as BigNumber[]) : ethers.constants.Zero,
+            balance_: data  ? formatUnits(data[i], a.decimals) : '0',
           } as IAssetWithBal)
       ),
     [assetMap, data]
