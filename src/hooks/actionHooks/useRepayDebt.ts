@@ -6,14 +6,14 @@ import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useNetwork, useProvider } from 'wagmi';
+import { useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useRepayDebt = () => {
@@ -22,12 +22,20 @@ export const useRepayDebt = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, assetMap } = userState;
+  const { seriesMap, assetMap, selectedIlk, selectedBase } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
+  const { refetch: refetchIlkBal } = useBalance({
+    addressOrName: account,
+    token: selectedIlk?.proxyId === WETH ? '' : selectedIlk?.address,
+  });
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedBase?.id === WETH ? '' : selectedBase?.address,
+  });
 
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
@@ -200,6 +208,8 @@ export const useRepayDebt = () => {
       ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
+    refetchBaseBal();
+    refetchIlkBal();
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
     updateSeries([series]);
