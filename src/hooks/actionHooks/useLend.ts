@@ -27,7 +27,7 @@ export const useLend = () => {
   const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.address });
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
-    token: selectedSeries?.baseId === WETH ? '' : selectedSeries?.baseAddress,
+    token: selectedSeries?.baseAddress,
   });
 
   const {
@@ -104,7 +104,7 @@ export const useLend = () => {
     ];
 
     await transact(calls, txCode);
-    refetchBaseBal();
+    selectedSeries?.baseId !== WETH && refetchBaseBal();
     refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);

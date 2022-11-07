@@ -30,7 +30,7 @@ export const useRepayDebt = () => {
   const contracts = useContracts();
   const { refetch: refetchIlkBal } = useBalance({
     addressOrName: account,
-    token: selectedIlk?.proxyId === WETH ? '' : selectedIlk?.address,
+    token: selectedIlk?.address,
   });
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
@@ -208,8 +208,8 @@ export const useRepayDebt = () => {
       ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
-    refetchBaseBal();
-    refetchIlkBal();
+    selectedBase?.proxyId !== WETH && refetchBaseBal();
+    selectedIlk?.proxyId !== WETH && refetchIlkBal();
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
     updateSeries([series]);

@@ -28,7 +28,7 @@ export const useClosePosition = () => {
   const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.address });
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
-    token: selectedSeries?.baseId === WETH ? '' : selectedSeries?.baseAddress,
+    token: selectedSeries?.baseAddress,
   });
   const contracts = useContracts();
   const { updateSeries, updateAssets } = userActions;
@@ -136,7 +136,7 @@ export const useClosePosition = () => {
       ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
-    refetchBaseBal();
+    selectedSeries?.baseId !== WETH && refetchBaseBal();
     refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);

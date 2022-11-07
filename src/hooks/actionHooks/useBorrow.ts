@@ -32,11 +32,11 @@ export const useBorrow = () => {
 
   const { refetch: refetchIlkBal } = useBalance({
     addressOrName: account,
-    token: selectedIlk?.proxyId === WETH ? '' : selectedIlk?.address,
+    token: selectedIlk?.address,
   });
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
-    token: selectedSeries?.baseId === WETH ? '' : selectedSeries?.baseAddress,
+    token: selectedSeries?.baseAddress,
   });
 
   const { addEth, removeEth } = useAddRemoveEth();
@@ -170,8 +170,8 @@ export const useBorrow = () => {
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)
     */
-    refetchBaseBal();
-    refetchIlkBal();
+    selectedSeries?.baseId !== WETH && refetchBaseBal();
+    selectedIlk?.proxyId !== WETH && refetchIlkBal();
     updateVaults();
     updateAssets([base, ilkToUse, selectedIlk!]);
     updateSeries([series]);

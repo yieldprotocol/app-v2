@@ -59,7 +59,7 @@ export const useRemoveLiquidity = () => {
   const contracts = useContracts();
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
-    token: selectedBase?.id === WETH ? '' : selectedBase?.address,
+    token: selectedBase?.address,
   });
   const { refetch: refetchStrategyBal } = useBalance({
     addressOrName: account,
@@ -432,7 +432,7 @@ export const useRemoveLiquidity = () => {
     //   await transact(calls, txCode);
     // }
 
-    refetchBaseBal();
+    selectedBase?.proxyId !== WETH && refetchBaseBal();
     refetchStrategyBal();
     updateSeries([series]);
     updateAssets([_base]);

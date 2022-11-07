@@ -33,7 +33,7 @@ export const useAddCollateral = () => {
 
   const { refetch: refetchIlkBal } = useBalance({
     addressOrName: account,
-    token: selectedIlk?.proxyId === WETH ? '' : selectedIlk?.address,
+    token: selectedIlk?.address,
   });
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
@@ -133,7 +133,7 @@ export const useAddCollateral = () => {
     await transact(calls, txCode);
 
     /* then update UI */
-    refetchIlkBal();
+    selectedIlk?.proxyId !== WETH && refetchIlkBal();
     updateVaults([vault!]);
     updateAssets([base!, ilk!]);
     updateVaultHistory([vault!]);

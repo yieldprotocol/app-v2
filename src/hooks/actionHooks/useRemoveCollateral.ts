@@ -22,7 +22,7 @@ export const useRemoveCollateral = () => {
   const contracts = useContracts();
   const { refetch: refetchIlkBal } = useBalance({
     addressOrName: account,
-    token: selectedIlk?.id === WETH ? '' : selectedIlk?.address,
+    token: selectedIlk?.address,
   });
 
   const {
@@ -90,7 +90,7 @@ export const useRemoveCollateral = () => {
     ];
 
     await transact(calls, txCode);
-    refetchIlkBal();
+    selectedIlk?.proxyId !== WETH && refetchIlkBal();
     updateVaults([vault]);
     updateAssets([ilk, selectedIlk!]);
     updateVaultHistory([vault]);
