@@ -90,7 +90,7 @@ export const useRemoveCollateral = () => {
     ];
 
     await transact(calls, txCode);
-    selectedIlk?.proxyId !== WETH && refetchIlkBal();
+    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateVaults([vault]);
     updateAssets([ilk, selectedIlk!]);
     updateVaultHistory([vault]);

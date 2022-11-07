@@ -300,7 +300,7 @@ export const useAddLiquidity = () => {
     ];
 
     await transact(calls, txCode);
-    selectedBase?.proxyId !== WETH && refetchBaseBal();
+    if (selectedBase?.proxyId !== WETH) refetchBaseBal();
     refetchStrategyBal();
     updateSeries([_series]);
     updateAssets([_base]);

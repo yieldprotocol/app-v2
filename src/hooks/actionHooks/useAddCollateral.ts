@@ -133,7 +133,7 @@ export const useAddCollateral = () => {
     await transact(calls, txCode);
 
     /* then update UI */
-    selectedIlk?.proxyId !== WETH && refetchIlkBal();
+    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateVaults([vault!]);
     updateAssets([base!, ilk!]);
     updateVaultHistory([vault!]);

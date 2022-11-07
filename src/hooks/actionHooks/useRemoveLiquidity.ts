@@ -432,7 +432,7 @@ export const useRemoveLiquidity = () => {
     //   await transact(calls, txCode);
     // }
 
-    selectedBase?.proxyId !== WETH && refetchBaseBal();
+    if (selectedBase?.proxyId !== WETH) refetchBaseBal();
     refetchStrategyBal();
     updateSeries([series]);
     updateAssets([_base]);

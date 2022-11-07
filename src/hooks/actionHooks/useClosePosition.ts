@@ -136,7 +136,7 @@ export const useClosePosition = () => {
       ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
-    selectedSeries?.baseId !== WETH && refetchBaseBal();
+    if (selectedSeries?.baseId !== WETH) refetchBaseBal();
     refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);

@@ -104,7 +104,7 @@ export const useLend = () => {
     ];
 
     await transact(calls, txCode);
-    selectedSeries?.baseId !== WETH && refetchBaseBal();
+    if (selectedSeries?.baseId !== WETH) refetchBaseBal();
     refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);

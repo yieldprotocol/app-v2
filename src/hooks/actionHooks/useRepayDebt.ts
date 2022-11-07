@@ -208,8 +208,8 @@ export const useRepayDebt = () => {
       ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
-    selectedBase?.proxyId !== WETH && refetchBaseBal();
-    selectedIlk?.proxyId !== WETH && refetchIlkBal();
+    if (selectedBase?.proxyId !== WETH) refetchBaseBal();
+    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
     updateSeries([series]);
