@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { calculateSlippage, sellBase } from '@yield-protocol/ui-math';
 
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -11,7 +11,7 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 /* Lend Actions Hook */
@@ -21,9 +21,14 @@ export const useLend = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap } = userState;
+  const { assetMap, selectedSeries } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { address: account } = useAccount();
+  const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.address });
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedSeries?.baseId === WETH ? '' : selectedSeries?.baseAddress,
+  });
 
   const {
     historyActions: { updateTradeHistory },
@@ -99,6 +104,8 @@ export const useLend = () => {
     ];
 
     await transact(calls, txCode);
+    refetchBaseBal();
+    refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);
     updateTradeHistory([series]);
