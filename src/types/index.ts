@@ -141,10 +141,7 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
   setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
-export interface IAsset extends IAssetRoot {
-  balance: BigNumber;
-  balance_: string;
-}
+export interface IAsset extends IAssetRoot {}
 
 export interface IAssetPair {
   baseId: string;
@@ -243,9 +240,6 @@ export interface IStrategy extends IStrategyRoot {
   currentPoolAddr?: string;
 
   active: boolean;
-
-  accountBalance?: BigNumber;
-  accountBalance_?: string;
 
   strategyPoolBalance?: BigNumber;
   strategyPoolBalance_?: string;
