@@ -11,6 +11,7 @@ import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
+import useStrategies from '../../hooks/useStrategies';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -110,7 +111,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   const { userState, userActions } = useContext(UserContext);
 
-  const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
+  const { selectedStrategy, selectedBase, strategiesLoading, seriesMap } = userState;
+  const { data: strategyMap } = useStrategies();
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
@@ -146,21 +148,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     /* select strategy with existing balance */
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
-    } else {
-      /* select strategy with the lowest totalSupply and is active */
-      opts.length &&
-        userActions.setSelectedStrategy(
-          opts
-            .filter((s) => s.currentSeries?.showSeries)
-            .filter((s) => s.active)
-            .reduce((prev, curr) =>
-              parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
-            )
-        );
-      /* or select random strategy from opts */
-      // userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
     }
-  }, [selectedBase, strategyMap]);
+  }, [selectedBase, selectedStrategy, strategyMap, userActions]);
 
   return (
     <Box>

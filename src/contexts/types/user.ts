@@ -1,15 +1,9 @@
 import { IAsset, IDummyVault, ISeries, IStrategy, IVault } from '../../types';
 
-export interface IUserContext {
-  userState: IUserContextState;
-  userActions: IUserContextActions;
-}
-
 export interface IUserContextActions {
   updateVaults: (vaultList?: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
   updateAssets: (assetList: IAsset[]) => void;
-  updateStrategies: (strategyList: IStrategy[]) => void;
 
   setSelectedSeries: (series: ISeries | null) => void;
   setSelectedIlk: (ilk: IAsset | null) => void;
@@ -24,7 +18,6 @@ export interface IUserContextState {
   assetMap: Map<string, IAsset>;
   seriesMap: Map<string, ISeries>;
   vaultMap: Map<string, IVault>;
-  strategyMap: Map<string, IStrategy>;
 
   vaultsLoading: boolean;
   seriesLoading: boolean;

@@ -9,12 +9,14 @@ import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
 import { useAccount } from 'wagmi';
+import useStrategies from '../../hooks/useStrategies';
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
 
   const { userState } = useContext(UserContext);
-  const { strategyMap, selectedBase } = userState;
+  const { selectedBase } = userState;
+  const { data: strategyMap } = useStrategies();
 
   const { address: activeAccount } = useAccount();
 
@@ -27,16 +29,11 @@ function StrategyPositionSelector() {
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
     /* only if veiwing the main screen (not when modal is showing) */
-    const _allPositions: IStrategy[] = Array.from(strategyMap?.values()!)
+    const _allPositions = Array.from(strategyMap.values())
       /* filter by positive strategy balances */
-      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
-      .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
-        _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
-      );
-
+      .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
+      .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
     setAllPositions(_allPositions);
-    // if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
-    // if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
   }, [strategyMap]);
 
   useEffect(() => {

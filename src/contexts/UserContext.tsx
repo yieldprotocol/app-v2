@@ -1,15 +1,5 @@
 import { useRouter } from 'next/router';
-import {
-  useContext,
-  useEffect,
-  useReducer,
-  useCallback,
-  useState,
-  Dispatch,
-  createContext,
-  ReactNode,
-  useMemo,
-} from 'react';
+import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext, ReactNode } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import * as contractTypes from '../contracts';
 
@@ -25,7 +15,7 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategy } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
@@ -36,14 +26,14 @@ import { DEFAULT_SELECTED_BASE, ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount, useContractReads } from 'wagmi';
+import { useAccount } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
-import { ReadContractsContract } from '@wagmi/core/dist/declarations/src/actions/contracts/readContracts';
+import useStrategies from '../hooks/useStrategies';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -51,7 +41,6 @@ const initState: IUserContextState = {
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
-  strategyMap: new Map<string, IStrategy>(),
 
   vaultsLoading: true,
   seriesLoading: true,
@@ -70,7 +59,6 @@ const initActions: IUserContextActions = {
   updateSeries: () => null,
   updateAssets: () => null,
   updateVaults: () => null,
-  updateStrategies: () => null,
   setSelectedVault: () => null,
   setSelectedIlk: () => null,
   setSelectedSeries: () => null,
@@ -108,8 +96,6 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
       return { ...state, seriesMap: new Map(action.payload) };
     case UserState.VAULTS:
       return { ...state, vaultMap: new Map(action.payload) };
-    case UserState.STRATEGIES:
-      return { ...state, strategyMap: new Map(action.payload) };
 
     case UserState.CLEAR_VAULTS:
       return { ...state, vaultMap: new Map() };
@@ -133,7 +119,7 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
 const UserProvider = ({ children }: { children: ReactNode }) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext);
-  const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const { chainLoaded, seriesRootMap, assetRootMap } = chainState;
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
@@ -435,160 +421,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     [account, diagnostics, getPoolAPY, getTimeTillMaturity, isMature]
   );
 
-  /**
-   * Fetch all strategy data using wagmi read contracts
-   */
-  const strategiesContracts = useMemo(
-    () =>
-      [...strategyRootMap.values()]
-        .map((s) => [
-          {
-            addressOrName: s.address,
-            contractInterface: s.strategyContract.interface,
-            functionName: 'totalSupply',
-          },
-          {
-            addressOrName: s.address,
-            contractInterface: s.strategyContract.interface,
-            functionName: 'seriesId',
-          },
-          {
-            addressOrName: s.address,
-            contractInterface: s.strategyContract.interface,
-            functionName: 'pool',
-          },
-          {
-            addressOrName: s.address,
-            contractInterface: s.strategyContract.interface,
-            functionName: 'nextSeriesId',
-          },
-        ])
-        .flat(),
-    [strategyRootMap]
-  ) as ReadContractsContract[];
-
-  const {
-    data: strategiesData,
-    isLoading: strategiesLoading,
-    refetch,
-  } = useContractReads({
-    contracts: strategiesContracts,
-    enabled: !!userState.seriesMap,
-  });
-
-  // parse through data from wagmi
-  const strategyMap = useMemo(() => {
-    return strategiesData?.reduce((acc, curr) => {
-      return acc;
-    }, [] as Map<string, IStrategy>);
-  }, []);
-
-  /* Updates the assets with relevant *user* data */
-  const updateStrategies = useCallback(
-    async (strategyList: IStrategyRoot[]) => {
-      updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
-
-      let _publicData: IStrategy[] = [];
-      let _accountData: IStrategy[] = [];
-
-      _publicData = await Promise.all(
-        strategyList.map(async (_strategy): Promise<IStrategy> => {
-          /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([]);
-
-          const currentSeries = userState.seriesMap?.get(currentSeriesId) as ISeries;
-          const nextSeries = userState.seriesMap?.get(nextSeriesId) as ISeries;
-
-          if (currentSeries) {
-            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-              currentSeries.poolContract.totalSupply(),
-              currentSeries.poolContract.balanceOf(_strategy.address),
-            ]);
-
-            const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
-              ? [ZERO_BN, ZERO_BN]
-              : [ZERO_BN, ZERO_BN];
-
-            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
-
-            return {
-              ..._strategy,
-              strategyTotalSupply,
-              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
-              poolTotalSupply,
-              poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
-              strategyPoolBalance,
-              strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
-              currentSeriesId,
-              currentPoolAddr,
-              nextSeriesId,
-              currentSeries,
-              nextSeries,
-              initInvariant: initInvariant || BigNumber.from('0'),
-              currentInvariant: currentInvariant || BigNumber.from('0'),
-              returnRate,
-              returnRate_: returnRate.toString(),
-              active: true,
-            };
-          }
-
-          /* else return an 'EMPTY' strategy */
-          return {
-            ..._strategy,
-            currentSeriesId,
-            currentPoolAddr,
-            nextSeriesId,
-            currentSeries: undefined,
-            nextSeries: undefined,
-            active: false,
-          };
-        })
-      );
-
-      /* add in account specific data */
-      if (account) {
-        _accountData = await Promise.all(
-          _publicData
-            // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
-            .map(async (_strategy: IStrategy): Promise<IStrategy> => {
-              const [accountBalance, accountPoolBalance] = await Promise.all([
-                _strategy.strategyContract.balanceOf(account),
-                _strategy.currentSeries?.poolContract.balanceOf(account),
-              ]);
-
-              const accountStrategyPercent = mulDecimal(
-                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
-                '100'
-              );
-
-              return {
-                ..._strategy,
-                accountBalance,
-                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
-                accountPoolBalance,
-                accountStrategyPercent,
-              };
-            })
-        );
-      }
-
-      const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
-
-      /* combined account and public series data reduced into a single Map */
-      const newStrategyMap = _combinedData.reduce((acc, item) => {
-        return acc.set(item.address, item);
-      }, new Map() as Map<string, IStrategy>);
-
-      updateState({ type: UserState.STRATEGIES, payload: newStrategyMap });
-      updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
-
-      console.log('STRATEGIES updated (with dynamic data): ', newStrategyMap);
-
-      return newStrategyMap;
-    },
-    [account, userState.seriesMap] // userState.strategyMap excluded on purpose
-  );
-
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[] = []) => {
@@ -717,7 +549,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       account && updateVaults();
     }
-  }, [chainLoaded, account, assetRootMap, seriesRootMap, strategyRootMap, updateAssets, updateSeries, updateVaults]);
+  }, [account, assetRootMap, chainLoaded, seriesRootMap, updateAssets, updateSeries, updateVaults]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -742,7 +574,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     updateSeries,
     updateAssets,
     updateVaults,
-    updateStrategies,
 
     setSelectedVault: useCallback(
       (vault: IVault | null) => updateState({ type: UserState.SELECTED_VAULT, payload: vault! }),
