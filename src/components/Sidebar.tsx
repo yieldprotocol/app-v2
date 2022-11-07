@@ -57,9 +57,8 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
         justify="between"
         style={{ overflow: 'auto' }}
       >
-      <Box 
-        flex={ mobile ? false: undefined}
-        >
+      <Box flex={false} >
+
         {mobile && (
           <Box pad={{ top: 'large', horizontal: 'medium' }} background="gradient-transparent" gap="medium" flex={false}>
             <Box direction="row" gap="small" justify="between">
@@ -85,10 +84,10 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
 
         {!mobile && (
           <Box
-            pad={{ horizontal: 'medium', bottom: 'large' }}
+            pad={{ horizontal: 'medium', vertical:'medium'}}
             background="gradient-transparent"
             gap="medium"
-            height={{min: '200px'}}
+            // height={{min: '200px'}}
 
           >
             <Box
