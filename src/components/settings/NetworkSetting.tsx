@@ -8,11 +8,11 @@ const AdvancedSetting = () => {
   return (
     <Box direction="row" justify="between">
       <Box alignSelf="center">
-        <Text size="small" color={connector?.name === 'MetaMask' ? undefined : 'text-xweak'}>
-          Network
+        <Text size="small" >
+          Connected Network 
         </Text>
       </Box>
-      <Box pad="xsmall" round background="lightblue" fill="vertical">
+      <Box pad={{ vertical: "xsmall", horizontal: "small" }} round background="#BFDBFE" fill="vertical">
         <NetworkSelector />
       </Box>
     </Box>

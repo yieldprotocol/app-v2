@@ -49,7 +49,7 @@ const HeaderAccount = () => {
     <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      <YieldBalances />
+      { !mobile && <YieldBalances /> }
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
