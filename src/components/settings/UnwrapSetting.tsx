@@ -1,7 +1,8 @@
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
-import { Settings, SettingsContext } from '../../contexts/SettingsContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { Settings } from '../../contexts/types/settings';
 
 const UnwrapSetting = () => {
   const {

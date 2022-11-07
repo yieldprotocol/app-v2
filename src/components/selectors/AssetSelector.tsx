@@ -6,7 +6,7 @@ import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
-import { IAsset, IUserContext } from '../../types';
+import { IAsset } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -15,6 +15,7 @@ import Logo from '../logos/Logo';
 import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useBalances from '../../hooks/useBalances';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -38,10 +39,11 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { address: activeAccount } = useAccount();
+  const { data: balances, isLoading } = useBalances();
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
@@ -83,7 +85,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = Array.from(assetMap?.values()!)
+    const opts = Array.from(balances)
       .filter((a) => a?.showToken) // filter based on whether wrapped tokens are shown or not
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
@@ -98,7 +100,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       : filteredOptions;
 
     setOptions(sortedOptions);
-  }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
+  }, [balances, selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {

@@ -2,17 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  IVault,
-  ActionCodes,
-  LadleActions,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  RoutedActions,
-  IHistoryContext,
-} from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
@@ -22,20 +12,15 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useRemoveCollateral = () => {
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
+  const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, assetMap } = userState;
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
+  const contracts = useContracts();
 
   const {
     historyActions: { updateVaultHistory },
@@ -52,7 +37,7 @@ export const useRemoveCollateral = () => {
 
     /* get associated series and ilk */
     const ilk = assetMap?.get(vault.ilkId)!;
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     /* get unwrap handler if required */
     const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chain?.id!);
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */

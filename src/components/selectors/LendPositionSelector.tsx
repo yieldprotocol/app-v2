@@ -4,7 +4,7 @@ import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
 
-import { ActionType, IAsset, ISeries, IUserContext, IUserContextState } from '../../types';
+import { ActionType, IAsset, ISeries } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
@@ -18,7 +18,7 @@ interface IPositionFilter {
 
 function PositionSelector({ actionType }: { actionType: ActionType }) {
   /* STATE FROM CONTEXT */
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState } = useContext(UserContext);
   const { seriesMap, selectedSeries, selectedBase } = userState;
 
   const { address: activeAccount } = useAccount();

@@ -10,7 +10,7 @@ import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/a
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, IUserContext, ProcessStage } from '../../types';
+import { ActionCodes, ActionType, ISeries, ProcessStage } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import InfoBite from '../InfoBite';
 import ActiveTransaction from '../ActiveTransaction';
@@ -41,7 +41,7 @@ const LendPosition = () => {
   const {
     userState,
     userActions: { setSelectedSeries, setSelectedBase },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
   const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
 
   const selectedBase = assetMap?.get(selectedSeries?.baseId!);

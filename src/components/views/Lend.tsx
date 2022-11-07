@@ -12,7 +12,7 @@ import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, ProcessStage, TxState } from '../../types';
+import { ActionCodes, ActionType, ProcessStage, TxState } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
@@ -49,7 +49,7 @@ const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
+  const { userState } = useContext(UserContext);
   const { selectedSeries, selectedBase, seriesMap } = userState;
 
   const { address: activeAccount } = useAccount();

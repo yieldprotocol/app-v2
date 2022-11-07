@@ -14,22 +14,23 @@ import {
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IStrategy, IUserContext, IVault } from '../../types';
+import { IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
+import { WETH } from '../../config/assets';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   const strategy = selectedStrategy;
   const strategySeries = seriesMap?.get(selectedStrategy ? strategy?.currentSeriesId! : selectedSeries?.id!);
@@ -38,7 +39,12 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: activeAccount } = useAccount();
+  const { address: account } = useAccount();
+  const { data: baseBalance } = useBalance({
+    addressOrName: account,
+    token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
+    enabled: !!selectedBase,
+  });
 
   /* LOCAL STATE */
 
@@ -154,14 +160,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Set Max Pool > effectively user balance */
   useEffect(() => {
-    if (activeAccount && !removeLiquidityView) {
+    if (!removeLiquidityView) {
       /* Checks asset selection and sets the max available value */
-      (async () => {
-        const max = await selectedBase?.getBalance(activeAccount);
-        if (max) setMaxPool(ethers.utils.formatUnits(max, selectedBase?.decimals).toString());
-      })();
+      setMaxPool(baseBalance?.formatted);
     }
-  }, [input, activeAccount, removeLiquidityView, selectedBase]);
+  }, [baseBalance?.formatted, removeLiquidityView]);
 
   /**
    * Remove Liquidity specific section

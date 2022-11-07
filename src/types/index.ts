@@ -5,19 +5,6 @@ import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
-export interface IChainContext {
-  chainState: IChainContextState;
-  chainActions: IChainContextActions;
-}
-
-export interface IChainContextState {
-  chainLoaded: boolean;
-  contractMap: Map<string, Contract>;
-  assetRootMap: Map<string, IAssetRoot>;
-  seriesRootMap: Map<string, ISeriesRoot>;
-  strategyRootMap: Map<string, IStrategyRoot>;
-}
-
 export interface IHistoryList {
   lastBlock: number;
   items: any[];
@@ -42,15 +29,6 @@ export interface IHistoryContextActions {
   updateTradeHistory: (seriesList: ISeries[]) => Promise<void>;
 }
 
-export interface IChainContextActions {
-  connect: (connection: string) => void;
-  disconnect: () => void;
-  isConnected: (connection: string) => void;
-  useTenderly: (shouldUse: boolean) => void;
-
-  exportContractAddresses: () => void;
-}
-
 export interface IPriceContextState {
   pairMap: Map<string, IAssetPair>;
   pairLoading: string[];
@@ -65,121 +43,47 @@ export interface IPriceContext {
   priceActions: IPriceContextActions;
 }
 
-export interface IUserContext {
-  userState: IUserContextState;
-  userActions: IUserContextActions;
-}
-
-export interface IUserContextState {
-  userLoading: boolean;
-
-  assetMap: Map<string, IAsset> | undefined;
-  seriesMap: Map<string, ISeries> | undefined;
-  vaultMap: Map<string, IVault> | undefined;
-  strategyMap: Map<string, IStrategy> | undefined;
-
-  vaultsLoading: boolean;
-  seriesLoading: boolean;
-  assetsLoading: boolean;
-  strategiesLoading: boolean;
-
-  selectedSeries: ISeries | null;
-  selectedIlk: IAsset | null;
-  selectedBase: IAsset | null;
-  selectedVault: IVault | null;
-  selectedStrategy: IStrategy | null;
-}
-
-export interface IUserContextActions {
-  updateVaults: (vaultList?: IVault[]) => void;
-  updateSeries: (seriesList: ISeries[]) => void;
-  updateAssets: (assetList: IAsset[]) => void;
-  updateStrategies: (strategyList: IStrategy[]) => void;
-
-  setSelectedSeries: (series: ISeries | null) => void;
-  setSelectedIlk: (ilk: IAsset | null) => void;
-  setSelectedBase: (base: IAsset | null) => void;
-  setSelectedVault: (vault: IVault | IDummyVault | null) => void;
-  setSelectedStrategy: (strategy: IStrategy | null) => void;
-}
-
-export interface ISettingsContext {
-  settingsState: ISettingsContextState;
-  settingsActions: { updateSetting: (setting: string, value: string | number | boolean) => void };
-}
-export interface ISettingsContextState {
-  /* User Settings ( getting from the cache first ) */
-  slippageTolerance: number;
-  darkMode: boolean;
-  autoTheme: boolean;
-  forceTransactions: boolean;
-  approvalMethod: ApprovalType;
-  approveMax: boolean;
-  disclaimerChecked: boolean;
-  powerUser: boolean;
-  diagnostics: boolean;
-  /* Token wrapping */
-  showWrappedTokens: boolean;
-  unwrapTokens: boolean;
-
-  useTenderlyFork: boolean;
-
-  /* DashSettings */
-  dashHideEmptyVaults: boolean;
-  dashHideInactiveVaults: boolean;
-  dashHideVaults: boolean;
-  dashHideLendPositions: boolean;
-  dashHidePoolPositions: boolean;
-  dashCurrency: string;
-
-  useFork: boolean;
-  forkUrl: string;
-}
-
 export interface ISignable {
   name: string;
   version: string;
   address: string;
   symbol: string;
-  tokenType: TokenType;
+  tokenType?: TokenType;
 }
 
-export interface ISeriesRoot extends ISignable {
+export interface ISeriesRootRoot extends ISignable {
   id: string;
-  displayName: string;
-  displayNameMobile: string;
+  baseId: string;
   maturity: number;
-  showSeries: boolean;
-
-  fullDate: string;
-  fyTokenContract: FYToken;
   fyTokenAddress: string;
-  poolContract: Pool;
-  poolAddress: string;
-  poolName: string;
-  poolVersion: string; // for signing
-  poolSymbol: string; // for signing
-
-  startBlock: Block; // pool init block
-
   decimals: number;
+  poolAddress: string;
+  poolVersion: string; // for signing
+  poolName: string;
+  poolSymbol: string; // for signing
   ts: BigNumber;
   g1: BigNumber;
   g2: BigNumber;
+  baseAddress: string;
+}
 
-  baseId: string;
+export interface ISeriesRoot extends ISeriesRootRoot {
+  poolContract: Pool;
+  fyTokenContract: FYToken;
+  fullDate: string;
+  displayName: string;
+  displayNameMobile: string;
 
-  color: string;
-  textColor: string;
+  season: string;
   startColor: string;
   endColor: string;
+  color: string;
+  textColor: string;
 
-  oppositeColor: string;
   oppStartColor: string;
   oppEndColor: string;
-
+  oppTextColor: string;
   seriesMark: ReactNode;
-  baseAddress: string;
 }
 
 export enum TokenType {
@@ -195,7 +99,7 @@ export interface IAssetInfo {
   assetAddress: string;
   joinAddress: string;
 
-  tokenType: TokenType;
+  tokenType?: TokenType;
   tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
   name: string;
@@ -234,9 +138,12 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
 
   // baked in token fns
-  getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
   setAllowance?: (spender: string) => Promise<BigNumber | void>;
+}
+export interface IAsset extends IAssetRoot {
+  balance?: BigNumber;
+  balance_?: string;
 }
 
 export interface IAssetPair {
@@ -299,12 +206,9 @@ export interface ISeries extends ISeriesRoot {
   getBase: (sharesAmount: BigNumber) => BigNumber;
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
-  // startBlock?: Block;
-}
+  startBlock?: Block;
 
-export interface IAsset extends IAssetRoot {
-  balance: BigNumber;
-  balance_: string;
+  showSeries: boolean;
 }
 
 export interface IDummyVault extends IVaultRoot {}
@@ -331,11 +235,11 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
+  currentSeries: ISeries | undefined;
   currentSeriesId: string;
   currentPoolAddr: string;
   nextSeriesId: string;
 
-  currentSeries: ISeries | undefined;
   nextSeries: ISeries | undefined;
   active: boolean;
 
@@ -470,8 +374,6 @@ export enum AddLiquidityType {
   BUY = 'BUY',
   BORROW = 'BORROW',
 }
-
-export enum ContractNames {}
 
 export enum YieldColors {
   SUCCESS = 'success',

@@ -1,30 +1,6 @@
-import React, { useEffect, useReducer } from 'react';
-import { ApprovalType, ISettingsContextState } from '../types';
-
-export enum Settings {
-  APPROVAL_METHOD = 'approvalMethod',
-  APPROVAL_MAX = 'approveMax',
-  SLIPPAGE_TOLERANCE = 'slippageTolerance',
-  DIAGNOSTICS = 'diagnostics',
-  DARK_MODE = 'darkMode',
-  AUTO_THEME = 'autoTheme',
-  DISCLAIMER_CHECKED = 'disclaimerChecked',
-  POWER_USER = 'powerUser',
-  FORCE_TRANSACTIONS = 'forceTransactions',
-  SHOW_WRAPPED_TOKENS = 'showWrappedTokens',
-  UNWRAP_TOKENS = 'unwrapTokens',
-  DASH_HIDE_EMPTY_VAULTS = 'dashHideEmptyVaults',
-  DASH_HIDE_INACTIVE_VAULTS = 'dashHideInactiveVaults',
-  DASH_HIDE_VAULTS = 'dashHideVaults',
-  DASH_HIDE_LEND_POSITIONS = 'dashHideLendPositions',
-  DASH_HIDE_POOL_POSITIONS = 'dashHidePoolPositions',
-  DASH_CURRENCY = 'dashCurrency',
-  USE_TENDERLY_FORK = 'useTenderlyFork',
-  USE_FORK = 'useFork',
-  FORK_RPC = 'forkUrl',
-}
-
-const SettingsContext = React.createContext<any>({});
+import { createContext, Dispatch, ReactNode, useEffect, useReducer } from 'react';
+import { ApprovalType } from '../types';
+import { ISettingsContextActions, ISettingsContextState, Settings, SettingsContextAction } from './types/settings';
 
 const initState: ISettingsContextState = {
   /* Use token approval by individual tranasaction */
@@ -75,11 +51,25 @@ const initState: ISettingsContextState = {
   forkUrl: 'https://rpc.tenderly.co/fork/717ceb3b-f9a9-4fa0-b1ea-3eb0dd114ddf',
 };
 
-function settingsReducer(state: ISettingsContextState, action: any) {
+const initActions: ISettingsContextActions = {
+  updateSetting: () => null,
+};
+
+const SettingsContext = createContext<{
+  settingsState: ISettingsContextState;
+  updateState: Dispatch<SettingsContextAction>;
+  settingsActions: ISettingsContextActions;
+}>({
+  settingsState: initState,
+  settingsActions: initActions,
+  updateState: () => undefined,
+});
+
+function settingsReducer(state: ISettingsContextState, action: SettingsContextAction): ISettingsContextState {
   /* Helper: if different from existing , update the state and cache */
-  const cacheAndUpdate = (_action: any) => {
-    if ((state as any)[action.type] === _action.payload) {
-      return (state as any)[action.type];
+  const cacheAndUpdate = (_action: SettingsContextAction) => {
+    if (state[action.type] === _action.payload) {
+      return state[action.type];
     }
     localStorage.setItem(_action.type, JSON.stringify(_action.payload));
     return _action.payload;
@@ -87,7 +77,7 @@ function settingsReducer(state: ISettingsContextState, action: any) {
   return { ...state, [action.type]: cacheAndUpdate(action) };
 }
 
-const SettingsProvider = ({ children }: any) => {
+const SettingsProvider = ({ children }: { children: ReactNode }) => {
   /* LOCAL STATE */
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
@@ -97,11 +87,6 @@ const SettingsProvider = ({ children }: any) => {
       updateState({ type: Settings.APPROVAL_MAX, payload: false });
     }
   }, [settingsState.approvalMethod]);
-
-  /* Exposed userActions */
-  const settingsActions = {
-    updateSetting: (setting: string, value: string) => updateState({ type: setting, payload: value }),
-  };
 
   /* Update all settings in state based on localStorage */
   useEffect(() => {
@@ -121,7 +106,17 @@ const SettingsProvider = ({ children }: any) => {
     }
   }, [settingsState.useTenderlyFork]);
 
-  return <SettingsContext.Provider value={{ settingsState, settingsActions }}>{children}</SettingsContext.Provider>;
+  /* Exposed userActions */
+  const settingsActions: ISettingsContextActions = {
+    updateSetting: (setting: Settings, value: string | number | boolean) =>
+      updateState({ type: setting, payload: value }),
+  };
+
+  return (
+    <SettingsContext.Provider value={{ settingsState, settingsActions, updateState }}>
+      {children}
+    </SettingsContext.Provider>
+  );
 };
 
 export { SettingsContext };

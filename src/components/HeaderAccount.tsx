@@ -3,16 +3,15 @@ import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import Sidebar from './Sidebar';
 import { UserContext } from '../contexts/UserContext';
-import { WETH } from '../config/assets';
-import { useAccount, useEnsName } from 'wagmi';
+import { useAccount, useBalance, useEnsName } from 'wagmi';
 import { FiSettings } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
-import { abbreviateHash } from '../utils/appUtils';
+import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import GeneralButton from './buttons/GeneralButton';
-import HeaderBalancesModal from './HeaderBalancesModal';
 import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import YieldBalances from './HeaderBalances';
 
 const StyledText = styled(Text)`
   svg,
@@ -35,25 +34,24 @@ const StyledBox = styled(Box)`
 const HeaderAccount = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
-  const { address } = useAccount();
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
+  const { address: account } = useAccount();
+  const { data: ethBalance } = useBalance({ addressOrName: account });
 
   const {
-    userState: { assetMap, assetsLoading },
+    userState: { assetsLoading },
   } = useContext(UserContext);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
-  const ethBalance = assetMap.get(WETH)?.balance_;
-
   return (
-    <>
+    <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      {address ? (
+      <YieldBalances />
+      {account ? (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <HeaderBalancesModal />}
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
               <Box>
@@ -63,7 +61,7 @@ const HeaderAccount = () => {
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
-                    {ensName || abbreviateHash(address!, 5)}
+                    {ensName || abbreviateHash(account!, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
@@ -77,13 +75,13 @@ const HeaderAccount = () => {
                         )}
                       </StyledText>
                       <StyledText size="small" color="text">
-                        {assetsLoading ? <Skeleton width={40} /> : ethBalance}
+                        {cleanValue(ethBalance?.formatted, 2) || <Skeleton width={40} />}
                       </StyledText>
                     </Box>
                   </Box>
                 </Box>
                 <Box>
-                  <YieldAvatar address={address} size={2} />
+                  <YieldAvatar address={account} size={2} />
                 </Box>
               </Box>
             )}
@@ -98,7 +96,7 @@ const HeaderAccount = () => {
           </GeneralButton>
         )
       )}
-    </>
+    </Box>
   );
 };
 

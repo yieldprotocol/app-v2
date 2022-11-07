@@ -1,6 +1,6 @@
 import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { useContext } from 'react';
+import { ReactNode, useContext } from 'react';
 import { SettingsContext } from './SettingsContext';
 import {
   darkTheme,
@@ -14,7 +14,7 @@ import {
 import YieldAvatar from '../components/YieldAvatar';
 import '@rainbow-me/rainbowkit/styles.css';
 
-const ProviderContext = ({ children }: { children: any }) => {
+const ProviderContext = ({ children }: { children: ReactNode }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
   const { settingsState } = useContext(SettingsContext);
   // const { useFork, useTenderlyFork, forkUrl, disclaimerChecked } = settingsState;

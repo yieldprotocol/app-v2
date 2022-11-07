@@ -1,9 +1,7 @@
 import { useContext, useState } from 'react';
-import { Anchor, Box, Button, Text } from 'grommet';
+import { Box, Button, Text } from 'grommet';
 import styled from 'styled-components';
-import { FiArrowUpRight, FiX } from 'react-icons/fi';
-import { ChainContext } from '../contexts/ChainContext';
-import { IChainContext, IUserContext } from '../types';
+import { FiX } from 'react-icons/fi';
 import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import { ZERO_BN } from '../utils/constants';
@@ -25,7 +23,7 @@ const NetworkBanner = () => {
 
   const {
     userState: { assetMap },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   const [show, setShow] = useState<boolean>(true);
   const currentChainInfo = chain;

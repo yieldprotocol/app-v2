@@ -2,23 +2,10 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
 
-import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  IVault,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  IAsset,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  RoutedActions,
-} from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { ChainContext } from '../../contexts/ChainContext';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -27,25 +14,20 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useRepayDebt = () => {
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
+  const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
+  const contracts = useContracts();
 
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
@@ -61,7 +43,7 @@ export const useRepayDebt = () => {
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     const series: ISeries = seriesMap?.get(vault.seriesId)!;
     const base: IAsset = assetMap?.get(vault.baseId)!;
     const ilk: IAsset = assetMap?.get(vault.ilkId)!;
@@ -131,7 +113,7 @@ export const useRepayDebt = () => {
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
     /* Check if already approved */
-    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer);
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress!)).gte(amountToTransfer);
 
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
     const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];

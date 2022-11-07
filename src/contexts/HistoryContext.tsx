@@ -11,8 +11,6 @@ import {
   IBaseHistItem,
   IAsset,
   IStrategy,
-  IChainContext,
-  ISettingsContext,
   IHistoryContextActions,
 } from '../types';
 
@@ -27,6 +25,7 @@ import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 import useTenderly from '../hooks/useTenderly';
 import { useAccount, useProvider } from 'wagmi';
+import useContracts, { ContractNames } from '../hooks/useContracts';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -89,12 +88,13 @@ function historyReducer(state: any, action: any) {
 
 const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext) as IChainContext;
-  const { contractMap, seriesRootMap, assetRootMap } = chainState;
+  const { chainState } = useContext(ChainContext);
+  const { seriesRootMap, assetRootMap } = chainState;
 
   const useTenderlyFork = false;
 
   const provider = useProvider();
+  const contracts = useContracts();
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const { tenderlyStartBlock } = useTenderly();
@@ -106,7 +106,7 @@ const HistoryProvider = ({ children }: any) => {
 
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   /* update Pool Historical data */
   const updateStrategyHistory = useCallback(
@@ -242,7 +242,7 @@ const HistoryProvider = ({ children }: any) => {
 
           const tradeLogs = await Promise.all(
             eventList
-              .filter((e: TradeEvent) => e.args.from !== contractMap.get('Ladle')?.address) // TODO make this for any ladle (Past/future)
+              .filter((e: TradeEvent) => e.args.from !== contracts.get(ContractNames.LADLE)?.address) // TODO make this for any ladle (Past/future)
               .map(async (e: TradeEvent) => {
                 const { blockNumber, transactionHash } = e;
                 const { maturity, fyTokens } = e.args;
@@ -289,7 +289,7 @@ const HistoryProvider = ({ children }: any) => {
           seriesList.map((s) => s.id)
         );
     },
-    [account, assetRootMap, contractMap, diagnostics, provider, lastSeriesUpdate]
+    [account, assetRootMap, contracts, diagnostics, provider, lastSeriesUpdate]
   );
 
   /*  Updates VAULT history */
@@ -438,7 +438,7 @@ const HistoryProvider = ({ children }: any) => {
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
       const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
-      const cauldronContract = contractMap.get('Cauldron') as Cauldron;
+      const cauldronContract = contracts.get(ContractNames.CAULDRON) as Cauldron;
       /* Get all the Vault historical Pour transactions */
       await Promise.all(
         vaultList.map(async (vault) => {
@@ -476,7 +476,7 @@ const HistoryProvider = ({ children }: any) => {
           vaultList.map((v) => v.id)
         );
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contractMap, diagnostics, lastVaultUpdate, seriesRootMap]
+    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, lastVaultUpdate, seriesRootMap]
   );
 
   /* Exposed userActions */
