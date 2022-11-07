@@ -142,8 +142,8 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
 export interface IAsset extends IAssetRoot {
-  balance?: BigNumber;
-  balance_?: string;
+  balance: BigNumber;
+  balance_: string;
 }
 
 export interface IAssetPair {
