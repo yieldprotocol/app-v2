@@ -6,7 +6,7 @@ import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext }
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -30,9 +30,10 @@ export const useAddCollateral = () => {
   const { sign, transact } = useChain();
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
+
   const { refetch: refetchIlkBal } = useBalance({
     addressOrName: account,
-    token: selectedIlk?.address,
+    token: selectedIlk?.proxyId === WETH ? '' : selectedIlk?.address,
   });
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {

@@ -23,7 +23,7 @@ import { useChain } from '../useChain';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
@@ -49,7 +49,7 @@ export const useAddLiquidity = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
-    token: selectedBase?.address,
+    token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
   });
   const { refetch: refetchStrategyBal } = useBalance({
     addressOrName: account,
