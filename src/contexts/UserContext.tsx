@@ -262,7 +262,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics && console.log('ASSETS updated (with dynamic data):');
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
-    [account, diagnostics]
+    [diagnostics]
   );
 
   /* Updates the series with relevant *user* data */
