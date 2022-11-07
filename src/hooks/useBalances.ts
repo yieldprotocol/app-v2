@@ -17,30 +17,28 @@ const useBalances = () => {
   } = useContext(UserContext);
 
   const { address: account } = useAccount();
-  
-  
+
   // data to read
   const contracts = useMemo(
-    () => 
-    account ? 
+    () =>
       [...assetMap.values()].map((a) => ({
         addressOrName: a.address,
         args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
         functionName: 'balanceOf',
         contractInterface: a.assetContract.interface,
-      })) as ReadContractsContract[]
-    : [],
+      })) as ReadContractsContract[],
+
     [account, assetMap]
   );
 
   /**
-   * Note:  
-   * wagmi sends back null values if no wallet connected. 
-   * So in that case, we send in an empty array from 'contracts' above ^ to avoid multiple failed wagmi calls. 
-   * 
+   * Note:
+   * wagmi sends back null values if no wallet connected.
+   * So in that case, we send in an empty array from 'contracts' above ^ to avoid multiple failed wagmi calls.
+   *
    * (its done above becasue we cant use hooks 'conditionally' )
    * */
-  const { data, isLoading, refetch } = useContractReads({ contracts })
+  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account });
 
   // copy of asset map with bal
   const _data = useMemo(
