@@ -31,6 +31,10 @@ export const useAddCollateral = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedBase?.address,
+  });
   const { refetch: refetchIlkBal } = useBalance({
     addressOrName: account,
     token: selectedIlk?.address,
@@ -133,7 +137,8 @@ export const useAddCollateral = () => {
     await transact(calls, txCode);
 
     /* then update UI */
-    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
+    refetchBaseBal();
+    refetchIlkBal();
     updateVaults([vault!]);
     updateAssets([base!, ilk!]);
     updateVaultHistory([vault!]);
