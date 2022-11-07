@@ -57,70 +57,85 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
         justify="between"
         style={{ overflow: 'auto' }}
       >
-        {mobile && 
-        <Box pad={{ top: 'large', horizontal: 'medium' }} background="gradient-transparent" gap="medium" flex={false}>
-          <Box direction='row' gap='small' justify='between'>
-            <BackButton action={() => setSettingsOpen(false)} />
-            {address && (
-              <CopyWrap hash={address}>
-                <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
-              </CopyWrap>
-            )}
-            <YieldAvatar address={address} size={2} />
-          </Box>
-          <Box direction="row"  pad={{top:"large", horizontal:'small'}} justify='between' >
-            <BoxWrap direction="row" gap="small" onClick={openAccountModal}>
-              {connector && <Text size="small">Connected with {connector.name}</Text>}     
-            </BoxWrap>
-            <FiEye onClick={openAccountModal} />
-          </Box>  
-             <Box pad={{bottom:"large", top:'medium', horizontal:'small'}}>
+      <Box 
+        flex={ mobile ? false: undefined}
+        >
+        {mobile && (
+          <Box pad={{ top: 'large', horizontal: 'medium' }} background="gradient-transparent" gap="medium" flex={false}>
+            <Box direction="row" gap="small" justify="between">
+              <BackButton action={() => setSettingsOpen(false)} />
+              {address && (
+                <CopyWrap hash={address}>
+                  <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
+                </CopyWrap>
+              )}
+              <YieldAvatar address={address} size={2} />
+            </Box>
+            <Box direction="row" pad={{ top: 'large', horizontal: 'small' }} justify="between">
+              <BoxWrap direction="row" gap="small" onClick={openAccountModal}>
+                {connector && <Text size="small">Connected with {connector.name}</Text>}
+              </BoxWrap>
+               <FiEye onClick={openAccountModal} />
+            </Box>
+            <Box pad={{ bottom: 'large', top: 'medium', horizontal: 'small' }}>
               <NetworkSetting />
-            </Box>    
-        </Box>       
-        }
+            </Box>
+          </Box>
+        )}
 
+        {!mobile && (
+          <Box
+            pad={{ horizontal: 'medium', bottom: 'large' }}
+            background="gradient-transparent"
+            gap="medium"
+            height={{min: '200px'}}
 
-        {!mobile &&
-        <Box pad={{ top: 'large', horizontal: 'medium' }} background="gradient-transparent" gap="medium" flex={false}>
-          {mobile && <BackButton action={() => setSettingsOpen(false)} />}
-          {!mobile && (
+          >
             <Box
               onClick={openAccountModal}
               style={{ position: 'fixed' }}
-              margin={{ left: '-60px', top: '5%' }}
+              margin={{ left: '-60px', top: '10%' }}
               animation="slideLeft"
               flex={false}
             >
               <YieldAvatar address={address} size={5} />
             </Box>
-          )}
 
-          <Box direction="row" gap="small" fill align="center" justify={mobile ? 'between' : 'end'}>
-            {mobile && <YieldAvatar address={address} size={3} />}
-            {address && (
-              <CopyWrap hash={address}>
-                <Text size={mobile ? 'medium' : 'xlarge'}>{ensName || abbreviateHash(address, 6)}</Text>
-              </CopyWrap>
-            )}
+            <Box direction="row" justify="end" onClick={disconnect} gap="medium">
+              <BoxWrap direction="row" gap="small">
+                <Text size="xsmall">Logout</Text>
+                <FiLogOut />
+              </BoxWrap>
+            </Box>
+
+            <Box direction="row" justify="end">
+              {address && (
+                <CopyWrap hash={address}>
+                  <Text size="xlarge">{ensName || abbreviateHash(address, 6)}</Text>
+                </CopyWrap>
+              )}
+            </Box>
+
+            <Box direction="row" justify="end">
+              <BoxWrap direction="row" gap="small" onClick={openAccountModal}>
+                {connector && <Text size="xsmall">Connected with {connector.name}</Text>}
+               <FiEye />
+              </BoxWrap>
+            </Box>
+          
           </Box>
+        )}
 
-          <Box direction="row" justify="end">
-            <BoxWrap direction="row" gap="small" onClick={openAccountModal}>
-              {connector && <Text size="xsmall">Connected with {connector.name}</Text>}
-              <FiEye />
-            </BoxWrap>
+        {!mobile && (
+          <Box background="gradient-transparent" flex={false}>
+            <Box pad="medium" background="gradient-transparent">
+              <NetworkSetting />
+            </Box>
           </Box>
+        )}
+        </Box>
 
-          <Box direction="row" justify="end" onClick={disconnect} gap="medium">
-            <BoxWrap direction="row" gap="small">
-              <Text size="xsmall">Logout</Text>
-              <FiLogOut />
-            </BoxWrap>
-          </Box>
-        </Box> }
-
-        <Box pad="medium" gap="medium" flex={false}>
+        <Box pad="medium" gap="medium" flex={false} style={{ overflow: 'auto' }}>
           <ThemeSetting />
           <ApprovalSetting />
           <UnwrapSetting />
