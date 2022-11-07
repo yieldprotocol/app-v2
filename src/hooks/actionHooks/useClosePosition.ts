@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -26,7 +26,10 @@ export const useClosePosition = () => {
   const { assetMap, selectedSeries } = userState;
   const { address: account } = useAccount();
   const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.address });
-  const { refetch: refetchBaseBal } = useBalance({ addressOrName: account, token: selectedSeries?.baseAddress });
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedSeries?.baseId === WETH ? '' : selectedSeries?.baseAddress,
+  });
   const contracts = useContracts();
   const { updateSeries, updateAssets } = userActions;
   const {
