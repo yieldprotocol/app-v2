@@ -1,7 +1,10 @@
 import { useContext, useState } from 'react';
 import { Box, Collapsible, Layer, ResponsiveContext, Tip, Text } from 'grommet';
-import { useAccountModal, useChainModal, useConnectModal } from '@rainbow-me/rainbowkit';
-import { FiChevronUp, FiChevronDown, FiEye, FiLogOut } from 'react-icons/fi';
+
+import { FiEye, FiLogOut } from 'react-icons/fi';
+import { useAccountModal } from '@rainbow-me/rainbowkit';
+
+
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import BackButton from './buttons/BackButton';
 import GeneralButton from './buttons/GeneralButton';
