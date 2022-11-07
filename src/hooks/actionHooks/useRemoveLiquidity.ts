@@ -18,11 +18,11 @@ import { useChain } from '../useChain';
 import { TxContext } from '../../contexts/TxContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 /*
@@ -54,9 +54,17 @@ export const useRemoveLiquidity = () => {
   const { resetProcess } = txActions;
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, selectedStrategy } = userState;
+  const { assetMap, selectedStrategy, selectedBase } = userState;
   const { address: account } = useAccount();
   const contracts = useContracts();
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedBase?.id === WETH ? '' : selectedBase?.address,
+  });
+  const { refetch: refetchStrategyBal } = useBalance({
+    addressOrName: account,
+    token: selectedStrategy?.address,
+  });
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -424,6 +432,8 @@ export const useRemoveLiquidity = () => {
     //   await transact(calls, txCode);
     // }
 
+    refetchBaseBal();
+    refetchStrategyBal();
     updateSeries([series]);
     updateAssets([_base]);
     updateStrategies([_strategy]);
