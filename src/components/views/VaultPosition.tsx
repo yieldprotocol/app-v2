@@ -40,7 +40,7 @@ import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 
@@ -63,6 +63,8 @@ const VaultPosition = () => {
   const vaultBase = assetMap?.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
+
+  const { data: ilkBal } = useBalance({ addressOrName: account, token: vaultIlk?.address });
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
@@ -685,7 +687,7 @@ const VaultPosition = () => {
                         {!addCollatInput ? (
                           <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                             <Text size="xsmall" color="text-weak">
-                              Use {vaultIlk?.displaySymbol!} balance ({vaultIlk?.balance_!} {vaultIlk?.displaySymbol!})
+                              Use {vaultIlk?.displaySymbol!} balance ({ilkBal?.formatted!} {vaultIlk?.displaySymbol!})
                             </Text>
                           </InputInfoWrap>
                         ) : (
