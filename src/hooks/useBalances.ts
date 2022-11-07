@@ -1,3 +1,4 @@
+import { ReadContractsContract } from '@wagmi/core/dist/declarations/src/actions/contracts/readContracts';
 import { BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
@@ -25,7 +26,7 @@ const useBalances = () => {
         args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
         functionName: 'balanceOf',
         contractInterface: a.assetContract.interface,
-      })),
+      })) as ReadContractsContract[],
 
     [account, assetMap]
   );
@@ -35,7 +36,7 @@ const useBalances = () => {
    * wagmi sends back null values if no wallet connected.
    * So in that case, we send in an empty array from 'contracts' above ^ to avoid multiple failed wagmi calls.
    *
-   * (its done above becasue we cant use hooks 'conditionally' )
+   * (its done above because we cant use hooks 'conditionally' )
    * */
   const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account });
 
