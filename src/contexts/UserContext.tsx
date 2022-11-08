@@ -33,7 +33,6 @@ import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
-import useStrategies from '../hooks/useStrategies';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -45,7 +44,6 @@ const initState: IUserContextState = {
   vaultsLoading: true,
   seriesLoading: true,
   assetsLoading: true,
-  strategiesLoading: true,
 
   /* Current User selections */
   selectedSeries: null,
@@ -87,8 +85,6 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
       return { ...state, seriesLoading: action.payload };
     case UserState.ASSETS_LOADING:
       return { ...state, assetsLoading: action.payload };
-    case UserState.STRATEGIES_LOADING:
-      return { ...state, strategiesLoading: action.payload };
 
     case UserState.ASSETS:
       return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
