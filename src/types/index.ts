@@ -232,20 +232,9 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
-  strategyTotalSupply?: BigNumber;
-  strategyTotalSupply_?: string;
-
   currentSeries: ISeries | undefined;
   currentSeriesId: string;
   currentPoolAddr?: string;
-
-  active: boolean;
-
-  strategyPoolBalance?: BigNumber;
-  strategyPoolBalance_?: string;
-
-  accountPoolBalance?: BigNumber;
-  accountPoolBalance_?: string;
 }
 
 export interface ICallData {
