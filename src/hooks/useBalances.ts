@@ -1,7 +1,9 @@
+import { fetchBalance } from '@wagmi/core';
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import useSWR from 'swr';
 import { useAccount } from 'wagmi';
+import { WETH } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
 import { IAsset } from '../types';
 import useChainId from './useChainId';
@@ -20,9 +22,14 @@ const useBalances = () => {
   const { address: account } = useAccount();
 
   const getBalances = async () => {
+    if (!account) return assetMap;
+
     return await [...assetMap.values()].reduce(async (acc, asset) => {
       const args = asset.tokenIdentifier ? [account, asset.tokenIdentifier] : [account]; // handle erc1155 tokens with tokenIdentifier
-      const balance = (await asset.assetContract.balanceOf(...args)) as BigNumber;
+      const balance =
+        asset.proxyId === WETH
+          ? (await fetchBalance({ addressOrName: account })).value
+          : ((await asset.assetContract.balanceOf(...args)) as BigNumber);
       const balance_ = ethers.utils.formatUnits(balance, asset.decimals);
       const _asset = assetMap.get(asset.id);
 
