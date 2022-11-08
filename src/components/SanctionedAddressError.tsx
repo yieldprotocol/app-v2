@@ -24,11 +24,11 @@ const SanctionedAddressError = () => {
   const { address: account } = useAccount({
     onConnect: async ({ address, isReconnected }) => {
       if (address && approvedAddresses.includes(address)) {
-        console.log('Approved Addresses ', approvedAddresses);
+        // console.log('Approved Addresses ', approvedAddresses);
       }
       if (address && !approvedAddresses.includes(address)) {
         try {
-          console.log('Checking the account for any sanctions.');
+          console.log('Checking the account address for any sanctions.');
           // const isSanctioned = await chainalysisContract.isSanctioned('0x7F367cC41522cE07553e823bf3be79A889DEbe1B'); // for testing
           const isSanctioned = await chainalysisContract.isSanctioned(address)
           if (isSanctioned) {
