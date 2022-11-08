@@ -173,7 +173,11 @@ export const useCollateralHelpers = (
       const _maxRemove = vault?.accruedArt?.gt(ethers.constants.Zero)
         ? existingCollateralAsWei.sub(min).mul(95).div(100)
         : existingCollateralAsWei;
-      setMaxRemovableCollateral(ethers.utils.formatUnits(_maxRemove, 18).toString());
+      setMaxRemovableCollateral(
+        ethers.utils
+          .formatUnits(_maxRemove.gt(ethers.constants.Zero) ? _maxRemove : ethers.constants.Zero, 18)
+          .toString()
+      );
 
       // factor in the current collateral input if there is a valid chosen vault
       const minSafeWithCollat = BigNumber.from(minSafeCalc).sub(existingCollateralAsWei);
