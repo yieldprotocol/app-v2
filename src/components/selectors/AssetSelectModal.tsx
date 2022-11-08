@@ -2,6 +2,8 @@ import { ethers } from 'ethers';
 import { Box, Button, Layer, ResponsiveContext, Text } from 'grommet';
 import { useContext } from 'react';
 import { FiX } from 'react-icons/fi';
+import { UserContext } from '../../contexts/UserContext';
+import useBalances from '../../hooks/useBalances';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
@@ -10,15 +12,15 @@ import Logo from '../logos/Logo';
 import BoxWrap from '../wraps/BoxWrap';
 
 interface IAssetSelectModalProps {
-  assets: IAsset[];
   handleSelect: (asset: IAsset) => void;
   open: boolean;
   setOpen: any;
 }
 
-const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectModalProps) => {
+const AssetSelectModal = ({ handleSelect, open, setOpen }: IAssetSelectModalProps) => {
   const theme = useColorScheme();
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const { data: balances } = useBalances();
 
   return open ? (
     <Layer
@@ -45,7 +47,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
 
         <Box width="550px">
           <Box overflow="auto" height={{ max: '600px' }} pad={{ vertical: 'small', horizontal: 'large' }} gap="small">
-            {assets
+            {Array.from(balances ? balances.values() : [])
               .sort((a, b) => (a.balance?.lt(b.balance!) ? 1 : -1))
               .map((a) => (
                 <Button

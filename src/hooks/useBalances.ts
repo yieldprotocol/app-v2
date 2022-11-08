@@ -1,10 +1,10 @@
-import { ReadContractsContract } from '@wagmi/core/dist/declarations/src/actions/contracts/readContracts';
 import { BigNumber, ethers } from 'ethers';
-import { formatUnits, Result } from 'ethers/lib/utils';
-import { useContext, useMemo } from 'react';
-import { useAccount, useContractReads } from 'wagmi';
+import { useContext } from 'react';
+import useSWR from 'swr';
+import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
-import { IAsset, IAssetInfo } from '../types';
+import { IAsset } from '../types';
+import useChainId from './useChainId';
 
 /**
  * Gets all asset balances
@@ -16,44 +16,36 @@ const useBalances = () => {
     userState: { assetMap },
   } = useContext(UserContext);
 
+  const chainId = useChainId();
   const { address: account } = useAccount();
 
-  // data to read
-  const contracts = useMemo(
-    () =>
-      [...assetMap.values()].map((a) => ({
-        addressOrName: a.address,
-        args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
-        functionName: 'balanceOf',
-        contractInterface: a.assetContract.interface,
-      })) as ReadContractsContract[],
+  const getBalances = async () => {
+    return await [...assetMap.values()].reduce(async (acc, asset) => {
+      const args = asset.tokenIdentifier ? [account, asset.tokenIdentifier] : [account]; // handle erc1155 tokens with tokenIdentifier
+      const balance = (await asset.assetContract.balanceOf(...args)) as BigNumber;
+      const balance_ = ethers.utils.formatUnits(balance, asset.decimals);
+      const _asset = assetMap.get(asset.id);
 
-    [account, assetMap]
-  );
+      if (!_asset) return await acc;
+
+      return (await acc).set(_asset.address, { ..._asset, balance, balance_ });
+    }, Promise.resolve(new Map<string, IAsset>()));
+  };
 
   /**
-   * Note:
-   * wagmi sends back null values if no wallet connected.
-   * So in that case, we send in an empty array from 'contracts' above ^ to avoid multiple failed wagmi calls.
-   *
-   * (its done above becasue we cant use hooks 'conditionally' )
+   * Fetch all account's balances based on chainId
+   * Don't fetch if no account
    * */
-  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account });
-
-  // copy of asset map with bal
-  const _data = useMemo(
-    () =>
-      [...assetMap.values()].map(
-        (a, i) =>
-          ({
-            ...a,
-            balance: data && !!data[i] ? (data[i] as BigNumber[]) : ethers.constants.Zero,
-            balance_: data && !!data[i] ? formatUnits(data[i], a.decimals) : '0',
-          } as IAsset)
-      ),
-    [assetMap, data]
+  const { data, error } = useSWR(
+    account && chainId && assetMap.size ? `/balances?chainId=${chainId}&account=${account}` : null,
+    getBalances,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 3_600_000, // don't refetch for an hour
+    }
   );
-  return { data: _data, isLoading, refetch };
+
+  return { data, error, isLoading: !data && !error };
 };
 
 export default useBalances;
