@@ -22,7 +22,6 @@ export interface IUserContextState {
   vaultsLoading: boolean;
   seriesLoading: boolean;
   assetsLoading: boolean;
-  strategiesLoading: boolean;
 
   selectedSeries: ISeries | null;
   selectedIlk: IAsset | null;
@@ -37,14 +36,12 @@ export enum UserState {
   ASSETS = 'assets',
   SERIES = 'series',
   VAULTS = 'vaults',
-  STRATEGIES = 'strategies',
 
   CLEAR_VAULTS = 'clearVaults',
 
   VAULTS_LOADING = 'vaultsLoading',
   SERIES_LOADING = 'seriesLoading',
   ASSETS_LOADING = 'assetsLoading',
-  STRATEGIES_LOADING = 'strategiesLoading',
 
   SELECTED_VAULT = 'selectedVault',
   SELECTED_SERIES = 'selectedSeries',
@@ -73,11 +70,6 @@ export type AssetsLoadingAction = {
   payload: boolean;
 };
 
-export type StrategiesLoadingAction = {
-  type: UserState.STRATEGIES_LOADING;
-  payload: boolean;
-};
-
 export type AssetsAction = {
   type: UserState.ASSETS;
   payload: Map<string, IAsset>;
@@ -88,10 +80,6 @@ export type SeriesAction = {
   payload: Map<string, ISeries>;
 };
 
-export type StrategiesAction = {
-  type: UserState.STRATEGIES;
-  payload: Map<string, IStrategy>;
-};
 export type VaultsAction = {
   type: UserState.VAULTS;
   payload: Map<string, IVault>;
@@ -131,10 +119,8 @@ export type UserContextAction =
   | VaultsLoadingAction
   | SeriesLoadingAction
   | AssetsLoadingAction
-  | StrategiesLoadingAction
   | AssetsAction
   | SeriesAction
-  | StrategiesAction
   | VaultsAction
   | ClearVaultsAction
   | SelectedVaultAction
