@@ -20,6 +20,9 @@ interface IAssetSelectModalProps {
 const AssetSelectModal = ({ handleSelect, open, setOpen }: IAssetSelectModalProps) => {
   const theme = useColorScheme();
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const {
+    userState: { assetMap },
+  } = useContext(UserContext);
   const { data: balances } = useBalances();
 
   return open ? (
@@ -47,7 +50,7 @@ const AssetSelectModal = ({ handleSelect, open, setOpen }: IAssetSelectModalProp
 
         <Box width="550px">
           <Box overflow="auto" height={{ max: '600px' }} pad={{ vertical: 'small', horizontal: 'large' }} gap="small">
-            {Array.from(balances ? balances.values() : [])
+            {Array.from(balances ? balances.values() : assetMap.values())
               .sort((a, b) => (a.balance?.lt(b.balance!) ? 1 : -1))
               .map((a) => (
                 <Button
