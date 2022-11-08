@@ -9,7 +9,6 @@ import { UserContext } from '../../contexts/UserContext';
 import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { ZERO_BN } from '../../utils/constants';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
 import useStrategies from '../../hooks/useStrategies';
 
@@ -111,73 +110,51 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   const { userState, userActions } = useContext(UserContext);
 
-  const { selectedStrategy, selectedBase, strategiesLoading, seriesMap } = userState;
-  const { data: strategyMap } = useStrategies();
+  const { selectedStrategy, selectedBase, seriesMap } = userState;
+  const { data: strategyMap, isLoading: strategiesLoading } = useStrategies();
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(strategyMap?.values()!);
-    const filteredOpts = opts
-      .filter((_st) => _st.currentSeries?.showSeries)
-      .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
+    const filteredOpts = [...strategyMap.values()]
+      .filter((_st) => _st.currentSeries?.baseId === selectedBase?.proxyId)
+      .filter((_st) => !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
     setOptions(filteredOpts);
-  }, [selectedBase, strategyMap, selectedStrategy]);
+  }, [selectedBase?.proxyId, strategyMap]);
 
   const handleSelect = (_strategy: IStrategy) => {
-    if (_strategy.active) {
-      diagnostics && console.log('Strategy selected: ', _strategy.address);
-      userActions.setSelectedStrategy(_strategy);
-      userActions.setSelectedSeries(_strategy.currentSeries!);
-    } else {
-      toast.info('Strategy coming soon');
-    }
+    diagnostics && console.log('Strategy selected: ', _strategy.address);
+    userActions.setSelectedStrategy(_strategy);
+    userActions.setSelectedSeries(_strategy.currentSeries!);
   };
-
-  /* Keeping options/selection fresh and valid: */
-  useEffect(() => {
-    const opts: IStrategy[] = Array.from(strategyMap?.values()!)
-      .filter((_st) => _st.currentSeries?.showSeries)
-      .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
-    const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
-
-    // if strategy already selected, no need to set explicitly again
-    if (selectedStrategy) return;
-
-    /* select strategy with existing balance */
-    if (strategyWithBalance) {
-      userActions.setSelectedStrategy(strategyWithBalance);
-    }
-  }, [selectedBase, selectedStrategy, strategyMap, userActions]);
 
   return (
     <Box>
-      {strategiesLoading && (
+      {!options.length ? (
         <>
-          <Skeleton width={180} />
           <CardSkeleton />
           <CardSkeleton />
         </>
+      ) : (
+        <Box gap="small">
+          {options.map((o) => {
+            const displayName = seriesMap?.get(o.currentSeriesId!)?.displayName!;
+            const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
+            const selected = selectedStrategy?.address === o.address;
+            return (
+              <StrategySelectItem
+                key={o.address}
+                strategy={o}
+                handleClick={() => handleSelect(o)}
+                selected={selected}
+                displayName={displayName}
+                apy={returns?.blendedAPY}
+              />
+            );
+          })}
+        </Box>
       )}
-
-      <Box gap="small">
-        {options.map((o) => {
-          const displayName = seriesMap?.get(o.currentSeriesId!)?.displayName!;
-          const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
-          const selected = selectedStrategy?.address === o.address;
-          return (
-            <StrategySelectItem
-              key={o.address}
-              strategy={o}
-              handleClick={() => handleSelect(o)}
-              selected={selected}
-              displayName={displayName}
-              apy={returns.blendedAPY}
-            />
-          );
-        })}
-      </Box>
     </Box>
   );
 };
