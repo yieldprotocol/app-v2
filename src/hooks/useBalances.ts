@@ -38,7 +38,7 @@ const useBalances = () => {
    *
    * (its done above becasue we cant use hooks 'conditionally' )
    * */
-  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account });
+  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account, staleTime: 3_600_000 }); // considered stale after 1 hour
 
   // copy of asset map with bal
   const _data = useMemo(
