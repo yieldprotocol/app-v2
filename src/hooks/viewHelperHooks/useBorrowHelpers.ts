@@ -42,6 +42,7 @@ export const useBorrowHelpers = (
   const { data: baseBalance } = useBalance({
     addressOrName: account,
     token: vaultBase?.proxyId === WETH ? '' : vaultBase?.address,
+    staleTime: Infinity,
   });
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();

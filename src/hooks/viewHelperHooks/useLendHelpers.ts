@@ -55,6 +55,7 @@ export const useLendHelpers = (
     addressOrName: account,
     token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
     enabled: !!activeAccount && !!selectedBase,
+    staleTime: Infinity,
   });
   const userBaseBalance = data?.value || ethers.constants.Zero;
   const userBaseBalance_ = data?.formatted;

@@ -39,6 +39,7 @@ export const useCollateralHelpers = (
     addressOrName: activeAccount,
     token: _selectedIlk?.proxyId === WETH ? '' : _selectedIlk?.address,
     enabled: !!_selectedIlk && !!activeAccount,
+    staleTime: Infinity,
   });
 
   /* LOCAL STATE */

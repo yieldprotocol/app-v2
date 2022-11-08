@@ -39,11 +39,13 @@ const YieldBalances = () => {
     addressOrName: account,
     token: selectedBase?.address,
     enabled: !!selectedBase && !!account,
+    staleTime: Infinity,
   });
   const { data: ilkBalance, isLoading: ilkBalLoading } = useBalance({
     addressOrName: account,
     token: selectedIlk?.address,
     enabled: !!selectedBase && !!account,
+    staleTime: Infinity,
   });
 
   const { pathname } = useRouter();
@@ -65,10 +67,7 @@ const YieldBalances = () => {
               loading={baseBalLoading}
             />
           )}
-          {
-          path === 'borrow' && 
-          selectedIlk?.proxyId !== WETH && 
-          selectedBase?.id !== selectedIlk?.id && (
+          {path === 'borrow' && selectedIlk?.proxyId !== WETH && selectedBase?.id !== selectedIlk?.id && (
             <Balance
               image={selectedIlk?.image}
               balance={cleanValue(ilkBalance?.formatted!, 2)}

@@ -44,6 +44,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     addressOrName: account,
     token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
     enabled: !!selectedBase,
+    staleTime: Infinity,
   });
 
   /* LOCAL STATE */
