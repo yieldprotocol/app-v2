@@ -8,6 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import { deepMerge } from 'grommet/utils';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { yieldTheme } from '../themes';
+import { useAccount } from 'wagmi';
 
 // get dynaimc imports for applicable components (to account for non-ssr)
 const DynamicYieldHeader = dynamic(() => import('./Header'), { ssr: false });
@@ -16,6 +17,9 @@ const DynamicNetworkBanner = dynamic(() => import('./NetworkBanner'), { ssr: fal
 const DynamicNetworkError = dynamic(() => import('./NetworkError'), { ssr: false });
 const DynamicTransactionWidget = dynamic(() => import('./TransactionWidget'), { ssr: false });
 const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ssr: false });
+
+const DynamicSanctionedAddressError = dynamic(() => import('./SanctionedAddressError'), { ssr: false });
+
 
 interface ILayout {
   children?: ReactNode;
@@ -55,6 +59,7 @@ const Layout = ({ children }: ILayout) => {
           <DynamicTransactionWidget />
           <DynamicNetworkError />
           <DynamicTransactionError />
+          <DynamicSanctionedAddressError />
           <ToastContainer position="top-right" />
           <Box overflow="hidden">
             {menuLayerOpen && <DynamicYieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
