@@ -1,10 +1,10 @@
 import { ReadContractsContract } from '@wagmi/core/dist/declarations/src/actions/contracts/readContracts';
 import { BigNumber, ethers } from 'ethers';
-import { formatUnits, Result } from 'ethers/lib/utils';
+import { formatUnits } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
 import { useAccount, useContractReads } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
-import { IAsset, IAssetInfo } from '../types';
+import { IAsset } from '../types';
 
 /**
  * Gets all asset balances
@@ -38,7 +38,7 @@ const useBalances = () => {
    *
    * (its done above becasue we cant use hooks 'conditionally' )
    * */
-  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account, staleTime: 3_600_000 }); // considered stale after 1 hour
+  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account, staleTime: Infinity }); // considered stale after 1 hour
 
   // copy of asset map with bal
   const _data = useMemo(
