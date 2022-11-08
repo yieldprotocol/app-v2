@@ -27,6 +27,7 @@ const SanctionedAddressError = () => {
               headers: {
                 'X-API-Key': process.env.CHAIN_ANALYSIS_KEY || '',
                 Accept: 'application/json',
+                'Access-Control-Allow-Origin' : '*',
               },
             }
           )
