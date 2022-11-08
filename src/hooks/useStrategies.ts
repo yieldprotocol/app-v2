@@ -1,13 +1,9 @@
 import { ReadContractsContract } from '@wagmi/core/dist/declarations/src/actions/contracts/readContracts';
-import { BigNumber, ethers } from 'ethers';
-import { formatUnits } from 'ethers/lib/utils';
-import { useContext, useEffect, useMemo } from 'react';
-import { useAccount, useContractReads } from 'wagmi';
+import { useContext, useMemo } from 'react';
+import { useContractReads } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
-import { Pool__factory } from '../contracts';
-import { IStrategy, IStrategyRoot } from '../types';
-import useDefaultProvider from './useDefaultProvider';
+import { IStrategy } from '../types';
 
 const chunk = <T>(items: T[], chunkLength: number) =>
   items.reduce((chunks: T[][], item: T, index) => {
@@ -26,21 +22,14 @@ const useStrategies = () => {
   const {
     userState: { seriesMap },
   } = useContext(UserContext);
-  const { address: account } = useAccount();
-  const provider = useDefaultProvider();
 
-  const strategyFuncs = ['totalSupply', 'seriesId', 'pool', 'balanceOf'];
-  const strategiesContractCalls = useMemo(
+  const strategyFuncs = ['seriesId', 'pool'];
+  const strategiesContractCalls: ReadContractsContract[] = useMemo(
     () =>
       [...strategyRootMap.values()]
         .map((strategy) => {
           const { strategyContract } = strategy;
           return [
-            {
-              addressOrName: strategyContract.address,
-              contractInterface: strategyContract.interface,
-              functionName: 'totalSupply',
-            },
             {
               addressOrName: strategyContract.address,
               contractInterface: strategyContract.interface,
@@ -51,23 +40,13 @@ const useStrategies = () => {
               contractInterface: strategyContract.interface,
               functionName: 'pool',
             },
-            {
-              addressOrName: strategyContract.address,
-              contractInterface: strategyContract.interface,
-              functionName: 'balanceOf',
-              args: [account ?? undefined],
-            },
           ];
         })
         .flat(),
-    [account, strategyRootMap]
+    [strategyRootMap]
   );
 
-  const {
-    data: strategiesData,
-    isLoading: strategiesDataLoading,
-    refetch: refetchStrategies,
-  } = useContractReads({
+  const { data, isLoading, refetch } = useContractReads({
     contracts: strategiesContractCalls,
     enabled: !!strategyRootMap.size,
   });
@@ -75,15 +54,11 @@ const useStrategies = () => {
   // chunk it for parsing
   // looks like:
   // [[strategy1Data], [strategy2Data], etc.]
-  const chunked =
-    strategiesData && strategiesData.length
-      ? (chunk(strategiesData, strategyFuncs.length) as unknown as [
-          totalSupply: BigNumber,
-          seriesId: string,
-          pool: string,
-          balance: BigNumber
-        ][])
+  const chunked = useMemo(() => {
+    return data && data.length
+      ? (chunk(data, strategyFuncs.length) as unknown as [seriesId: string, pool: string][])
       : undefined;
+  }, [data, strategyFuncs.length]);
 
   // parse through data from wagmi
   const strategyMap = useMemo(() => {
@@ -91,101 +66,22 @@ const useStrategies = () => {
       if (!chunked) return acc;
 
       const strategyData = chunked[i];
-      const [totalSupply, seriesId, pool] = strategyData;
-      const balance = account && strategiesData ? strategiesData[3] : ethers.constants.Zero;
+      const [seriesId, pool] = strategyData;
       const currentSeries = seriesMap.get(seriesId);
 
       return acc.set(strategy.address, {
-        strategyTotalSupply: totalSupply,
-        strategyTotalSupply_: formatUnits(totalSupply, strategy.decimals),
-
+        ...strategyRootMap.get(strategy.address),
         currentSeries,
         currentSeriesId: seriesId,
         currentPoolAddr: pool,
-
-        accountBalance: balance,
-        accountBalance_: formatUnits(balance, strategy.decimals),
-
-        active: true,
       } as IStrategy);
     }, new Map() as Map<string, IStrategy>);
-  }, [account, chunked, seriesMap, strategiesData, strategyRootMap]);
-
-  /* Get the data dependent upon series */
-  // strategy's pool contract calls
-  const seriesFuncs = ['balanceOf', 'balanceOf'];
-  const seriesContractCalls: ReadContractsContract[] = useMemo(
-    () =>
-      [...strategyMap.values()]
-        .map((strategy) => {
-          if (!strategy.currentPoolAddr) return [];
-
-          const poolContract = Pool__factory.connect(strategy.currentPoolAddr, provider);
-          return [
-            {
-              addressOrName: poolContract.address,
-              contractInterface: poolContract.interface,
-              functionName: 'balanceOf',
-              args: [strategy.address],
-            },
-            {
-              addressOrName: poolContract.address,
-              contractInterface: poolContract.interface,
-              functionName: 'balanceOf',
-              args: [account ?? undefined],
-            },
-          ];
-        })
-        .flat(),
-    [account, provider, strategyMap]
-  );
-
-  const {
-    data: seriesData,
-    isLoading: seriesDataLoading,
-    refetch: refetchStrategySeries,
-  } = useContractReads({
-    contracts: seriesContractCalls,
-    enabled: !!strategyMap.size && !!strategiesData && !!seriesMap.size,
-  });
-
-  const chunkedSeriesCalls =
-    seriesData && seriesData.length
-      ? (chunk(seriesData, seriesFuncs.length) as unknown as [
-          strategyPoolBalance: BigNumber,
-          accountPoolBalance: BigNumber
-        ][])
-      : undefined;
-
-  // parse through data again (with associated pool data) from wagmi
-  const strategyMapWithPool = useMemo(() => {
-    return [...strategyMap.values()].reduce((acc, strategy, i) => {
-      if (!chunkedSeriesCalls) return acc;
-      const data = chunkedSeriesCalls[i];
-      const [strategyPoolBalance, accountPoolBalance] = data;
-
-      return acc.set(strategy.address, {
-        ...strategy,
-        strategyPoolBalance,
-        strategyPoolBalance_: formatUnits(strategyPoolBalance || ethers.constants.Zero, strategy.decimals),
-
-        accountPoolBalance,
-        accountPoolBalance_: formatUnits(accountPoolBalance || ethers.constants.Zero, strategy.decimals),
-      } as IStrategy);
-    }, new Map() as Map<string, IStrategy>);
-  }, [chunkedSeriesCalls, strategyMap]);
-
-  useEffect(() => {}, []);
-
-  useEffect(() => {}, []);
+  }, [chunked, seriesMap, strategyRootMap]);
 
   return {
-    data: strategyMapWithPool,
-    isLoading: strategiesDataLoading || seriesDataLoading,
-    refetch: () => {
-      refetchStrategies();
-      refetchStrategySeries();
-    },
+    data: strategyMap,
+    isLoading,
+    refetch,
   };
 };
 
