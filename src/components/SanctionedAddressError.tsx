@@ -29,8 +29,8 @@ const SanctionedAddressError = () => {
       if (address && !approvedAddresses.includes(address)) {
         try {
           console.log('Checking the account for any sanctions.');
-          const isSanctioned = await chainalysisContract.isSanctioned('0x7F367cC41522cE07553e823bf3be79A889DEbe1B'); // for testing
-          // const isSanctioned = await chainalysisContract.isSanctioned(address)
+          // const isSanctioned = await chainalysisContract.isSanctioned('0x7F367cC41522cE07553e823bf3be79A889DEbe1B'); // for testing
+          const isSanctioned = await chainalysisContract.isSanctioned(address)
           if (isSanctioned) {
             setShowError(true);
             console.log('Account ', address, 'is sanctioned.');
@@ -94,7 +94,7 @@ const SanctionedAddressError = () => {
               the Specially Designated Nationals (SDN) list† of the US Department of the Treasury’s Office of Foreign
               Assets Control (OFAC).
             </Text>
-            
+
             {sanctionInfo && (
               <>
                 <Box onClick={() => setShowMore(!showMore)}>{!showMore ? <FiChevronDown /> : <FiChevronUp />}</Box>
