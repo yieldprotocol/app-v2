@@ -20,14 +20,15 @@ const SanctionedAddressError = () => {
       if (address && !approvedAddresses.includes(address)) {
         try {
           console.log('Checking the account for any sanctions.');
-          fetch(
+          await fetch(
             // `https://public.chainalysis.com/api/v1/address/0xLNwgtMxcKUQ51dw7bQL1yPQjBVZh6QEqsd`, // sanction test account
             `https://public.chainalysis.com/api/v1/address/${account}`,
             {
               headers: {
+                'Access-Control-Request-Method':"*",
+                'Access-Control-Allow-Origin':"*",
                 'X-API-Key': process.env.CHAIN_ANALYSIS_KEY || '',
                 Accept: 'application/json',
-                'Access-Control-Allow-Origin' : '*',
               },
             }
           )
