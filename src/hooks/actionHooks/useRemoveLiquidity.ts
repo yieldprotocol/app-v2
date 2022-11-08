@@ -22,7 +22,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount, useToken } from 'wagmi';
+import { useAccount, useBalance, useToken } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 /*
@@ -54,7 +54,7 @@ export const useRemoveLiquidity = () => {
   const { resetProcess } = txActions;
 
   const { userState, userActions } = useContext(UserContext);
-  const { updateSeries, updateAssets, updateStrategies } = userActions;
+  const { updateSeries, updateAssets } = userActions;
   const { assetMap, selectedStrategy } = userState;
   const {
     historyActions: { updateStrategyHistory },
@@ -67,13 +67,18 @@ export const useRemoveLiquidity = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const { address: account } = useAccount();
+  const { refetch: refetchStrategyBal } = useBalance({ addressOrName: account, token: selectedStrategy?.address });
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedStrategy?.currentSeries?.baseAddress,
+  });
   const contracts = useContracts();
 
-  const { data: poolTokenData } = useToken({
+  const { data: poolTokenData, refetch: refetchPoolToken } = useToken({
     address: selectedStrategy?.currentPoolAddr,
   });
 
-  const { data: strategyTokenData } = useToken({
+  const { data: strategyTokenData, refetch: refetchStrategyToken } = useToken({
     address: selectedStrategy?.address,
   });
 
@@ -438,9 +443,13 @@ export const useRemoveLiquidity = () => {
     //   await transact(calls, txCode);
     // }
 
+    refetchStrategyBal();
+    refetchBaseBal();
+    refetchPoolToken();
+    refetchStrategyToken();
+
     updateSeries([series]);
     updateAssets([_base]);
-    updateStrategies([_strategy]);
     updateStrategyHistory([_strategy]);
   };
 

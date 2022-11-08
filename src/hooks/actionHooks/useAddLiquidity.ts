@@ -25,7 +25,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance, useToken } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddLiquidity = () => {
@@ -34,11 +34,17 @@ export const useAddLiquidity = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap } = userState;
-  const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
+  const { assetMap, seriesMap, selectedStrategy } = userState;
+  const { updateVaults, updateSeries, updateAssets } = userActions;
 
   const { address: account } = useAccount();
   const contracts = useContracts();
+  const { refetch: refetchStrategyBal } = useBalance({ addressOrName: account, token: selectedStrategy?.address });
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedStrategy?.currentSeries?.baseAddress,
+  });
+  const { refetch: refetchStrategyToken } = useToken({ address: selectedStrategy?.address });
 
   const { sign, transact } = useChain();
   const {
@@ -292,9 +298,13 @@ export const useAddLiquidity = () => {
     ];
 
     await transact(calls, txCode);
+
+    refetchStrategyBal();
+    refetchBaseBal();
+    refetchStrategyToken();
+
     updateSeries([_series]);
     updateAssets([_base]);
-    updateStrategies([strategy]);
     updateStrategyHistory([strategy]);
     updateVaults();
   };
