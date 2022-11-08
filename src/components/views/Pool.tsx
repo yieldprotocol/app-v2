@@ -1,9 +1,9 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, RadioButtonGroup, ResponsiveContext, Text, TextInput, CheckBox, Tip } from 'grommet';
-import { FiInfo, FiPercent, FiZap } from 'react-icons/fi';
+import { Box, ResponsiveContext, Text, TextInput, CheckBox } from 'grommet';
+import { FiPercent, FiZap } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
 import { MdAutorenew } from 'react-icons/md';
-import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
+import { cleanValue, nFormatter } from '../../utils/appUtils';
 import AssetSelector from '../selectors/AssetSelector';
 import MainViewWrap from '../wraps/MainViewWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -38,13 +38,15 @@ import useStrategyReturns from '../../hooks/useStrategyReturns';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
+import useStrategies from '../../hooks/useStrategies';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { selectedBase, selectedStrategy, strategyMap } = userState;
+  const { selectedBase, selectedStrategy } = userState;
+  const { data: strategyMap } = useStrategies();
 
   const { address: activeAccount } = useAccount();
 
@@ -178,7 +180,7 @@ function Pool() {
 
                 <SectionWrap
                   title={
-                    strategyMap?.size! > 0
+                    selectedBase
                       ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                           selectedBase && '-based'
                         } strategy:`
