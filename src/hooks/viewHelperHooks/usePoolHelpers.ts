@@ -19,9 +19,10 @@ import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { WETH } from '../../config/assets';
 import useStrategy from '../useStrategy';
+import useAsset from '../useAsset';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -30,23 +31,15 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(SettingsContext);
 
   const {
-    userState: { selectedBase, selectedStrategy, vaultMap, assetMap },
+    userState: { selectedStrategy, vaultMap },
   } = useContext(UserContext);
-
-  const { data: strategy } = useStrategy(selectedStrategy?.address!);
-
-  const strategySeries = strategy?.currentSeries;
-  const strategyBase = assetMap?.get(strategy ? strategy.baseId : selectedBase?.proxyId!);
 
   /* HOOKS */
 
+  const { data: strategy } = useStrategy(selectedStrategy?.address!);
+  const strategySeries = strategy?.currentSeries;
+  const { data: strategyBase } = useAsset(strategy?.baseId!);
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: account } = useAccount();
-  const { data: baseBalance } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
-    enabled: !!selectedBase,
-  });
 
   /* LOCAL STATE */
 
@@ -77,8 +70,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     if (strategySeries && strategyBase) {
       const arr = Array.from(vaultMap?.values()!);
       const _matchingVault = arr
-        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.id > vaultB.id ? 1 : -1))
-        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+        .sort((vaultA, vaultB) => (vaultA.id > vaultB.id ? 1 : -1))
+        .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
         .find(
           (v: IVault) =>
             v.ilkId === strategyBase.proxyId && v.baseId === strategyBase.proxyId && v.seriesId === strategySeries.id
@@ -164,9 +157,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   useEffect(() => {
     if (!removeLiquidityView) {
       /* Checks asset selection and sets the max available value */
-      setMaxPool(baseBalance?.formatted);
+      setMaxPool(strategyBase?.balance.formatted);
     }
-  }, [baseBalance?.formatted, removeLiquidityView]);
+  }, [removeLiquidityView, strategyBase?.balance.formatted]);
 
   /**
    * Remove Liquidity specific section
@@ -174,7 +167,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* set max removal (always strategy token balance)  */
   useEffect(() => {
-    console.log('🦄 ~ file: usePoolHelpers.ts ~ line 178 ~ useEffect ~ strategy', strategy);
     if (strategy) setMaxRemove(strategy.accountBalance.formatted);
   }, [strategy]);
 
