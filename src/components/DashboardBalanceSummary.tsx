@@ -5,6 +5,7 @@ import { FiPlus, FiMinus } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
+import useStrategies from '../hooks/useStrategies';
 
 interface IDashboardBalance {
   debt: string;
@@ -19,9 +20,10 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   const theme = useContext(ThemeContext);
   const { green, red } = theme.global.colors;
   const {
-    userState: { vaultsLoading, seriesLoading, strategiesLoading },
+    userState: { vaultsLoading, seriesLoading },
   } = useContext(UserContext);
 
+  const { isLoading: strategiesLoading } = useStrategies();
   const [totalBalance, setTotalBalance] = useState<number>();
 
   useEffect(() => {
