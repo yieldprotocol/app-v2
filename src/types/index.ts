@@ -235,6 +235,7 @@ export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
   currentSeriesId: string;
   currentPoolAddr?: string;
+  accountBalance?: BigNumber;
 }
 
 export interface ICallData {

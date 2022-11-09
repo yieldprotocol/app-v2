@@ -16,7 +16,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { assetMap, seriesMap, strategiesLoading, selectedStrategy },
+    userState: { assetMap, seriesMap, selectedStrategy },
     userActions,
   } = useContext(UserContext);
 

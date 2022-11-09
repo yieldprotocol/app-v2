@@ -116,6 +116,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
+    if (!strategyMap) return;
+
     const filteredOpts = [...strategyMap.values()]
       .filter((_st) => _st.currentSeries?.baseId === selectedBase?.proxyId)
       .filter((_st) => !_st.currentSeries?.seriesIsMature)

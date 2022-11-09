@@ -28,6 +28,8 @@ function StrategyPositionSelector() {
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
+    if (!strategyMap) return;
+
     /* only if veiwing the main screen (not when modal is showing) */
     const _allPositions = Array.from(strategyMap.values())
       /* filter by positive strategy balances */
