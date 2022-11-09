@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Text } from 'grommet';
 import { FiSlash } from 'react-icons/fi';
 
@@ -108,15 +108,22 @@ const StrategySelector = ({ strategies, inputValue }: IStrategySelectorProps) =>
 
   const { userState, userActions } = useContext(UserContext);
 
-  const filterStrategies = (strategies: IStrategy[]) => {
-    return strategies
-      .filter((_st) => _st.currentSeries?.baseId === selectedBase?.proxyId)
-      .filter((_st) => !_st.currentSeries?.seriesIsMature)
-      .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
-  };
-
   const { selectedStrategy, selectedBase, seriesMap } = userState;
-  const [options, setOptions] = useState<IStrategy[]>(() => filterStrategies(strategies));
+  const [options, setOptions] = useState<IStrategy[]>();
+
+  const filterStrategies = useCallback(
+    (strategies: IStrategy[]) => {
+      return strategies
+        .filter((_st) => _st.currentSeries?.baseId === selectedBase?.proxyId)
+        .filter((_st) => !_st.currentSeries?.seriesIsMature)
+        .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
+    },
+    [selectedBase?.proxyId]
+  );
+
+  useEffect(() => {
+    setOptions(filterStrategies(strategies));
+  }, [filterStrategies, strategies]);
 
   const handleSelect = (_strategy: IStrategy) => {
     diagnostics && console.log('Strategy selected: ', _strategy.address);
@@ -126,14 +133,14 @@ const StrategySelector = ({ strategies, inputValue }: IStrategySelectorProps) =>
 
   /* Set the selected strategy to the first option if there is none selected */
   useEffect(() => {
-    if (!selectedStrategy) {
+    if (!selectedStrategy && options) {
       userActions.setSelectedStrategy(options[0]);
     }
   }, [options, selectedStrategy]);
 
   return (
     <Box>
-      {!options.length ? (
+      {!options ? (
         <>
           <CardSkeleton />
           <CardSkeleton />
