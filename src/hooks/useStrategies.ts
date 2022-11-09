@@ -1,11 +1,11 @@
 import { ethers } from 'ethers';
-import { useContext, useMemo } from 'react';
-import useSWR from 'swr';
+import { formatUnits } from 'ethers/lib/utils';
+import { useContext, useEffect, useMemo } from 'react';
+import useSWRImmutable from 'swr/immutable';
 import { useAccount } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { IStrategy } from '../types';
-import useChainId from './useChainId';
 
 /**
  * Fetch all strategy data
@@ -18,7 +18,6 @@ const useStrategies = () => {
     userState: { seriesMap },
   } = useContext(UserContext);
 
-  const chainId = useChainId();
   const { address: account } = useAccount();
 
   const getStrategies = async () =>
@@ -29,17 +28,22 @@ const useStrategies = () => {
         account ? s.strategyContract.balanceOf(account) : ethers.constants.Zero,
       ]);
       const currentSeries = seriesMap.get(currentSeriesId);
-      return (await acc).set(s.address, { ...s, currentSeriesId, currentPoolAddr, currentSeries, accountBalance });
+      if (!currentSeries) return await acc;
+
+      return (await acc).set(s.address, {
+        ...s,
+        currentSeriesId,
+        currentPoolAddr,
+        currentSeries,
+        accountBalance: { value: accountBalance, formatted: formatUnits(accountBalance, s.decimals) },
+      });
     }, Promise.resolve(new Map<string, IStrategy>()));
 
-  const key = useMemo(
-    () => (chainId && account ? `/strategies?chainId=${chainId}${account ? `&account=${account}` : ''}` : null),
-    [account, chainId]
-  );
+  const key = useMemo(() => {
+    return seriesMap.size ? ['strategies', seriesMap, account] : null;
+  }, [account, seriesMap]);
 
-  const { data, error } = useSWR(key, getStrategies, {
-    revalidateOnFocus: false,
-  });
+  const { data, error, isValidating } = useSWRImmutable(key, getStrategies);
 
   return {
     data,

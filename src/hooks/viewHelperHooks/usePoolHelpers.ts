@@ -19,8 +19,9 @@ import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance, useToken } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
+import useStrategy from '../useStrategy';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -29,23 +30,15 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(SettingsContext);
 
   const {
-    userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },
+    userState: { selectedBase, selectedStrategy, vaultMap, assetMap },
   } = useContext(UserContext);
 
-  const strategy = selectedStrategy;
+  const { data: strategy } = useStrategy(selectedStrategy?.address!);
 
   const strategySeries = strategy?.currentSeries;
-
   const strategyBase = assetMap?.get(strategy ? strategy.baseId : selectedBase?.proxyId!);
 
   /* HOOKS */
-  // strategy data
-  const { data: strategyTokenData } = useToken({ address: strategy?.address, enabled: !!strategy?.address });
-  const { data: strategyPoolBalance } = useBalance({
-    addressOrName: strategy?.address,
-    token: strategy?.currentPoolAddr,
-    enabled: !!strategy,
-  });
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { address: account } = useAccount();
@@ -119,9 +112,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* Pool percentage preview */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategy && strategySeries && !removeLiquidityView) {
-      setPoolPercentPreview(cleanValue(getPoolPercent(_input, strategyTokenData?.totalSupply.value!), 3));
+      setPoolPercentPreview(cleanValue(getPoolPercent(_input, strategy.totalSupply.value), 3));
     }
-  }, [_input, removeLiquidityView, strategy, strategySeries, strategyTokenData?.totalSupply.value]);
+  }, [_input, removeLiquidityView, strategy, strategySeries, strategy?.totalSupply.value]);
 
   /* Check if can use 'buy and pool' method to get liquidity */
   useEffect(() => {
@@ -181,13 +174,14 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* set max removal (always strategy token balance)  */
   useEffect(() => {
-    setMaxRemove(ethers.utils.formatUnits(strategy?.accountBalance! || ethers.constants.Zero, strategy?.decimals));
-  }, [strategy?.accountBalance, strategy?.decimals]);
+    console.log('🦄 ~ file: usePoolHelpers.ts ~ line 178 ~ useEffect ~ strategy', strategy);
+    if (strategy) setMaxRemove(strategy.accountBalance.formatted);
+  }, [strategy]);
 
   /* Remove liquidity flow decision tree */
   useEffect(() => {
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView && strategy) {
-      const lpReceived = burnFromStrategy(strategyPoolBalance?.value!, strategyTokenData?.totalSupply.value!, _input);
+      const lpReceived = burnFromStrategy(strategy.strategyPoolBalance.value, strategy.totalSupply.value, _input);
       const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
         strategySeries.sharesReserves,
         strategySeries.fyTokenRealReserves,
@@ -284,8 +278,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         /* Calculate the token Value */
         const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _input,
-          strategyTokenData?.totalSupply.value!,
-          strategyPoolBalance?.value!,
+          strategy.totalSupply.value,
+          strategy.strategyPoolBalance.value,
           strategySeries.sharesReserves,
           strategySeries.fyTokenReserves,
           strategySeries.totalSupply,
@@ -318,17 +312,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
         }
       }
     }
-  }, [
-    strategy,
-    _input,
-    strategySeries,
-    matchingVault,
-    removeLiquidityView,
-    diagnostics,
-    getTimeTillMaturity,
-    strategyTokenData?.totalSupply.value,
-    strategyPoolBalance?.value,
-  ]);
+  }, [_input, diagnostics, getTimeTillMaturity, matchingVault, removeLiquidityView, strategy, strategySeries]);
 
   return {
     maxPool,

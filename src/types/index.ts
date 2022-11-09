@@ -5,6 +5,11 @@ import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
 
+export type Value = {
+  value: BigNumber;
+  formatted: string;
+};
+
 export interface IHistoryList {
   lastBlock: number;
   items: any[];
@@ -165,7 +170,20 @@ export interface IStrategyRoot extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
-  startBlock?: Block;
+}
+
+export interface IStrategy extends IStrategyRoot {
+  currentSeries: ISeries;
+  currentSeriesId: string;
+  currentPoolAddr: string;
+  accountBalance?: Value;
+}
+
+export interface IStrategyDynamic extends IStrategy {
+  accountBalance: Value;
+  totalSupply: Value;
+  poolTotalSupply: Value;
+  strategyPoolBalance: Value;
 }
 
 export interface IVaultRoot {
@@ -229,13 +247,6 @@ export interface IVault extends IVaultRoot {
   rate_: string;
 
   accruedArt_: string;
-}
-
-export interface IStrategy extends IStrategyRoot {
-  currentSeries: ISeries | undefined;
-  currentSeriesId: string;
-  currentPoolAddr?: string;
-  accountBalance?: BigNumber;
 }
 
 export interface ICallData {

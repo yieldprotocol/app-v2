@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Text } from 'grommet';
-import { toast } from 'react-toastify';
 import { FiSlash } from 'react-icons/fi';
 
 import styled from 'styled-components';
@@ -10,7 +9,6 @@ import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
-import useStrategies from '../../hooks/useStrategies';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -97,11 +95,11 @@ const StrategySelectItem = ({
 };
 
 interface IStrategySelectorProps {
+  strategies: IStrategy[];
   inputValue?: string /* accepts an input value for possible dynamic Return calculations */;
-  setOpen?: any;
 }
 
-const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
+const StrategySelector = ({ strategies, inputValue }: IStrategySelectorProps) => {
   const { calcStrategyReturns } = useStrategyReturns(inputValue);
 
   const {
@@ -110,26 +108,28 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   const { userState, userActions } = useContext(UserContext);
 
-  const { selectedStrategy, selectedBase, seriesMap } = userState;
-  const { data: strategyMap, isLoading: strategiesLoading } = useStrategies();
-  const [options, setOptions] = useState<IStrategy[]>([]);
-
-  /* Keeping options/selection fresh and valid: */
-  useEffect(() => {
-    if (!strategyMap) return;
-
-    const filteredOpts = [...strategyMap.values()]
+  const filterStrategies = (strategies: IStrategy[]) => {
+    return strategies
       .filter((_st) => _st.currentSeries?.baseId === selectedBase?.proxyId)
       .filter((_st) => !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
-    setOptions(filteredOpts);
-  }, [selectedBase?.proxyId, strategyMap]);
+  };
+
+  const { selectedStrategy, selectedBase, seriesMap } = userState;
+  const [options, setOptions] = useState<IStrategy[]>(() => filterStrategies(strategies));
 
   const handleSelect = (_strategy: IStrategy) => {
     diagnostics && console.log('Strategy selected: ', _strategy.address);
     userActions.setSelectedStrategy(_strategy);
     userActions.setSelectedSeries(_strategy.currentSeries!);
   };
+
+  /* Set the selected strategy to the first option if there is none selected */
+  useEffect(() => {
+    if (!selectedStrategy) {
+      userActions.setSelectedStrategy(options[0]);
+    }
+  }, [options, selectedStrategy]);
 
   return (
     <Box>

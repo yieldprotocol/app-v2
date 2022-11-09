@@ -10,6 +10,7 @@ import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
+import useStrategies from '../../hooks/useStrategies';
 
 function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const router = useRouter();
@@ -56,10 +57,10 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
                 Tokens:
               </Text>
               <Text weight={450} size="xsmall">
-                {strategiesLoading && isSelectedStrategy ? (
+                {isSelectedStrategy ? (
                   <SkeletonWrap width={30} />
                 ) : (
-                  nFormatter(parseFloat(strategy.accountBalance_!), 2)
+                  nFormatter(parseFloat(strategy.accountBalance?.formatted!), 2)
                 )}
               </Text>
             </Box>

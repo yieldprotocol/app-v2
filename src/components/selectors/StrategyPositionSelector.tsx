@@ -33,8 +33,10 @@ function StrategyPositionSelector() {
     /* only if veiwing the main screen (not when modal is showing) */
     const _allPositions = Array.from(strategyMap.values())
       /* filter by positive strategy balances */
-      .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
-      .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
+      .filter((_strategy) => _strategy.accountBalance?.value.gt(ZERO_BN))
+      .sort((_strategyA, _strategyB) =>
+        _strategyA.accountBalance?.value.lt(_strategyB.accountBalance?.value!) ? 1 : -1
+      );
     setAllPositions(_allPositions);
   }, [strategyMap]);
 
