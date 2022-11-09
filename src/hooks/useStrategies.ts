@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import useSWR from 'swr';
 import { useAccount } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
@@ -32,16 +32,19 @@ const useStrategies = () => {
       return (await acc).set(s.address, { ...s, currentSeriesId, currentPoolAddr, currentSeries, accountBalance });
     }, Promise.resolve(new Map<string, IStrategy>()));
 
-  const genKey = () => `/strategies?chainId=${chainId}${account ? `&account=${account}` : ''}`;
+  const key = useMemo(
+    () => (chainId && account ? `/strategies?chainId=${chainId}${account ? `&account=${account}` : ''}` : null),
+    [account, chainId]
+  );
 
-  const { data, error } = useSWR(genKey(), getStrategies, {
+  const { data, error } = useSWR(key, getStrategies, {
     revalidateOnFocus: false,
   });
 
   return {
     data,
     isLoading: !data && !error,
-    key: genKey(),
+    key,
   };
 };
 
