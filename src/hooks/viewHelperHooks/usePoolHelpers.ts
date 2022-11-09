@@ -19,8 +19,6 @@ import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
-import { WETH } from '../../config/assets';
 import useStrategy from '../useStrategy';
 import useAsset from '../useAsset';
 
