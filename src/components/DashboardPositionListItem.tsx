@@ -5,11 +5,14 @@ import { UserContext } from '../contexts/UserContext';
 import VaultItem from './positionItems/VaultItem';
 import LendItem from './positionItems/LendItem';
 import StrategyItem from './positionItems/StrategyItem';
+import useStrategies from '../hooks/useStrategies';
 
 function DashboardPositionListItem({ item, index, actionType }: { item: any; index: number; actionType: ActionType }) {
   const {
-    userState: { vaultMap, seriesMap, strategyMap },
+    userState: { vaultMap, seriesMap },
   } = useContext(UserContext);
+
+  const { data: strategyMap } = useStrategies();
 
   return (
     <Box>

@@ -146,7 +146,9 @@ export interface IAssetRoot extends IAssetInfo, ISignable {
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
   setAllowance?: (spender: string) => Promise<BigNumber | void>;
 }
-export interface IAsset extends IAssetRoot {}
+export interface IAsset extends IAssetRoot {
+  balance: Value;
+}
 
 export interface IAssetPair {
   baseId: string;

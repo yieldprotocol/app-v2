@@ -43,7 +43,7 @@ const useStrategies = () => {
     return seriesMap.size ? ['strategies', seriesMap, account] : null;
   }, [account, seriesMap]);
 
-  const { data, error, isValidating } = useSWRImmutable(key, getStrategies);
+  const { data, error } = useSWRImmutable(key, getStrategies);
 
   return {
     data,

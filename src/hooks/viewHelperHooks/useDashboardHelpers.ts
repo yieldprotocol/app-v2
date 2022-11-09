@@ -10,6 +10,8 @@ import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import { PriceContext } from '../../contexts/PriceContext';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import useStrategies from '../useStrategies';
+import useStrategy from '../useStrategy';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -26,12 +28,13 @@ export const useDashboardHelpers = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { vaultMap, seriesMap, strategyMap },
+    userState: { vaultMap, seriesMap },
   } = useContext(UserContext);
 
   const { priceState, priceActions } = useContext(PriceContext) as IPriceContext;
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { data: strategyMap } = useStrategies();
 
   const { pairMap } = priceState;
   const { updateAssetPair } = priceActions;
@@ -89,7 +92,9 @@ export const useDashboardHelpers = () => {
 
   /* set strategy positions */
   useEffect(() => {
-    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap?.values()!)
+    if (!strategyMap) return;
+
+    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
       .map((_strategy) => {
         if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
 

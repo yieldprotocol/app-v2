@@ -30,7 +30,7 @@ const NetworkBanner = () => {
 
   const ethBalance = assetMap?.get(WETH)?.balance;
 
-  if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.gt(ZERO_BN))) return null;
+  if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.value.gt(ZERO_BN))) return null;
 
   return SHOWABLE_CHAINS.includes(chain.id) && show ? (
     <StyledBox pad="small" background={{ opacity: 0.9 }} round gap="small">

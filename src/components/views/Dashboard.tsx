@@ -17,6 +17,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
 import { useAccount } from 'wagmi';
 import { Settings } from '../../contexts/types/settings';
+import useStrategies from '../../hooks/useStrategies';
 
 const StyledBox = styled(Box)`
   * {
@@ -37,7 +38,7 @@ const Dashboard = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { vaultsLoading, seriesLoading, strategiesLoading },
+    userState: { vaultsLoading, seriesLoading },
   } = useContext(UserContext);
 
   const {
@@ -45,6 +46,7 @@ const Dashboard = () => {
   } = useContext(ChainContext);
 
   const { isConnected } = useAccount();
+  const { isLoading: strategiesLoading } = useStrategies();
 
   const {
     vaultPositions,
