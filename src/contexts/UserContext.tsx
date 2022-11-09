@@ -15,7 +15,7 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategy } from '../types';
+import { ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategy } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
@@ -37,7 +37,6 @@ import { IUserContextActions, IUserContextState, UserContextAction, UserState } 
 const initState: IUserContextState = {
   userLoading: false,
   /* Item maps */
-  assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
 
@@ -55,7 +54,6 @@ const initState: IUserContextState = {
 
 const initActions: IUserContextActions = {
   updateSeries: () => null,
-  updateAssets: () => null,
   updateVaults: () => null,
   setSelectedVault: () => null,
   setSelectedIlk: () => null,
@@ -83,11 +81,7 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
       return { ...state, vaultsLoading: action.payload };
     case UserState.SERIES_LOADING:
       return { ...state, seriesLoading: action.payload };
-    case UserState.ASSETS_LOADING:
-      return { ...state, assetsLoading: action.payload };
 
-    case UserState.ASSETS:
-      return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
     case UserState.SERIES:
       return { ...state, seriesMap: new Map([...state.seriesMap, ...action.payload]) };
     case UserState.VAULTS:
@@ -226,35 +220,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     return allVaultList;
   }, [account, chainId, contracts, provider, seriesRootMap]);
-
-  /* Updates the assets with relevant *user* data */
-  const updateAssets = useCallback(
-    async (assetList: IAssetRoot[]) => {
-      console.log('Updating assets...');
-      updateState({ type: UserState.ASSETS_LOADING, payload: true });
-
-      const updatedAssets = await Promise.all(
-        assetList.map(async (asset) => {
-          const newAsset = {
-            /* public data */
-            ...asset,
-            displaySymbol: asset?.displaySymbol,
-          };
-          return newAsset as IAsset;
-        })
-      );
-
-      const newAssetsMap = updatedAssets.reduce((acc, item) => {
-        return acc.set(item.id, item);
-      }, new Map() as Map<string, IAsset>);
-
-      updateState({ type: UserState.ASSETS, payload: newAssetsMap });
-
-      diagnostics && console.log('ASSETS updated (with dynamic data):');
-      updateState({ type: UserState.ASSETS_LOADING, payload: false });
-    },
-    [diagnostics]
-  );
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
@@ -538,12 +503,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    * */
   useEffect(() => {
     if (chainLoaded) {
-      updateAssets(Array.from(assetRootMap.values()));
       updateSeries(Array.from(seriesRootMap.values()));
 
       account && updateVaults();
     }
-  }, [account, assetRootMap, chainLoaded, seriesRootMap, updateAssets, updateSeries, updateVaults]);
+  }, [account, assetRootMap, chainLoaded, seriesRootMap, updateSeries, updateVaults]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -566,7 +530,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Exposed userActions */
   const userActions = {
     updateSeries,
-    updateAssets,
     updateVaults,
 
     setSelectedVault: useCallback(

@@ -44,6 +44,7 @@ const useAsset = (id: string) => {
     data,
     isLoading: !data && !error,
     key,
+    getAsset,
   };
 };
 
