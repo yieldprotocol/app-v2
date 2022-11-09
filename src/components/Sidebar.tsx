@@ -100,8 +100,8 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
               <YieldAvatar address={address} size={5} />
             </Box>
 
-            <Box direction="row" justify="end" onClick={disconnect} gap="medium">
-              <BoxWrap direction="row" gap="small">
+            <Box direction="row" justify="end"  gap="medium">
+              <BoxWrap direction="row" gap="small" onClick={disconnect}>
                 <Text size="xsmall">Logout</Text>
                 <FiLogOut />
               </BoxWrap>
