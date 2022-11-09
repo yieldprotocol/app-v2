@@ -2,8 +2,7 @@ import { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import Sidebar from './Sidebar';
-import { UserContext } from '../contexts/UserContext';
-import { useAccount, useBalance, useEnsName } from 'wagmi';
+import { useAccount, useEnsName } from 'wagmi';
 import { FiSettings } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
@@ -12,6 +11,8 @@ import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import YieldBalances from './HeaderBalances';
+import useAsset from '../hooks/useAsset';
+import { WETH } from '../config/assets';
 
 const StyledText = styled(Text)`
   svg,
@@ -37,11 +38,7 @@ const HeaderAccount = () => {
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
   const { address: account } = useAccount();
-  const { data: ethBalance } = useBalance({ addressOrName: account });
-
-  const {
-    userState: { assetsLoading },
-  } = useContext(UserContext);
+  const { data: eth } = useAsset(WETH);
 
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
@@ -49,7 +46,7 @@ const HeaderAccount = () => {
     <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      { !mobile && <YieldBalances /> }
+      {!mobile && <YieldBalances />}
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
@@ -67,15 +64,15 @@ const HeaderAccount = () => {
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        {assetsLoading && <Skeleton circle height={20} width={20} />}
-                        {ethBalance && (
+                        {!eth?.balance && <Skeleton circle height={20} width={20} />}
+                        {eth?.balance && (
                           <Box height="20px" width="20px">
                             <EthMark />
                           </Box>
                         )}
                       </StyledText>
                       <StyledText size="small" color="text">
-                        {cleanValue(ethBalance?.formatted, 2) || <Skeleton width={40} />}
+                        {cleanValue(eth?.balance.formatted, 2) || <Skeleton width={40} />}
                       </StyledText>
                     </Box>
                   </Box>

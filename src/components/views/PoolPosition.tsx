@@ -5,7 +5,7 @@ import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiZap } from 
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
-import { abbreviateHash, cleanValue, formatStrategyName, getTxCode, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, formatStrategyName, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -28,10 +28,12 @@ import { useProcess } from '../../hooks/useProcess';
 import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
-import { useAccount, useBalance, useToken } from 'wagmi';
+import { useAccount } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import { divDecimal, mulDecimal } from '@yield-protocol/ui-math';
+import useStrategy from '../../hooks/useStrategy';
+import useStrategies from '../../hooks/useStrategies';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -43,11 +45,13 @@ const PoolPosition = () => {
     userState,
     userActions: { setSelectedStrategy },
   } = useContext(UserContext);
-  const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
+  const { selectedStrategy, assetMap, seriesLoading } = userState;
 
   const { address: activeAccount } = useAccount();
-
-  const _selectedStrategy = selectedStrategy || strategyMap?.get(idFromUrl as string);
+  const { data: strategyMap } = useStrategies();
+  const { data: _selectedStrategy, isLoading: strategyLoading } = useStrategy(
+    selectedStrategy?.address || (idFromUrl as string)
+  );
 
   const selectedSeries = _selectedStrategy?.currentSeries;
   const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
@@ -72,22 +76,17 @@ const PoolPosition = () => {
   const removeLiquidity = useRemoveLiquidity();
   const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired, removeFyTokenReceived_ } =
     usePoolHelpers(removeInput, true);
-  const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
+  const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(
+    _selectedStrategy?.accountBalance.formatted,
+    true
+  );
 
   const { logAnalyticsEvent } = useAnalytics();
 
-  const { data: userStrategyBalance } = useBalance({
-    addressOrName: activeAccount,
-    token: _selectedStrategy?.address,
-    enabled: !!_selectedStrategy?.address && !!activeAccount,
-  });
-  const { data: strategyTokenData } = useToken({
-    address: _selectedStrategy?.address,
-    enabled: !!_selectedStrategy?.address,
-  });
+  const userStrategyBalance = selectedStrategy?.accountBalance;
 
   const accountStrategyPercent = mulDecimal(
-    divDecimal(userStrategyBalance?.value!, strategyTokenData?.totalSupply.value || '0'),
+    divDecimal(userStrategyBalance?.value!, _selectedStrategy?.totalSupply.value || '0'),
     '100'
   );
 
@@ -210,7 +209,7 @@ const PoolPosition = () => {
                     <InfoBite
                       label="Strategy Token Balance"
                       value={`${cleanValue(
-                        _selectedStrategy?.accountBalance_,
+                        _selectedStrategy?.accountBalance.formatted,
                         selectedBase?.digitFormat!
                       )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
                         selectedBase?.symbol
@@ -232,7 +231,7 @@ const PoolPosition = () => {
                       <InfoBite
                         label="Strategy Token Ownership"
                         value={`${cleanValue(accountStrategyPercent, 2)}% of ${nFormatter(
-                          parseFloat(_selectedStrategy?.strategyTotalSupply_!),
+                          parseFloat(_selectedStrategy?.totalSupply.formatted),
                           2
                         )}`}
                         icon={<FiPercent />}

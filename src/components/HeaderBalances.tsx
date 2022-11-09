@@ -7,8 +7,9 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
 import Logo from './logos/Logo';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { cleanValue } from '../utils/appUtils';
+import useAsset from '../hooks/useAsset';
 
 const StyledText = styled(Text)`
   svg,
@@ -35,16 +36,8 @@ const YieldBalances = () => {
   } = useContext(UserContext);
 
   const { address: account } = useAccount();
-  const { data: baseBalance, isLoading: baseBalLoading } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.address,
-    enabled: !!selectedBase && !!account,
-  });
-  const { data: ilkBalance, isLoading: ilkBalLoading } = useBalance({
-    addressOrName: account,
-    token: selectedIlk?.address,
-    enabled: !!selectedBase && !!account,
-  });
+  const { data: base, isLoading: baseLoading } = useAsset(selectedBase?.id!);
+  const { data: ilk, isLoading: ilkLoading } = useAsset(selectedIlk?.id!);
 
   const { pathname } = useRouter();
   const [path, setPath] = useState<string>();
@@ -61,19 +54,12 @@ const YieldBalances = () => {
           {selectedBase?.proxyId !== WETH && (
             <Balance
               image={selectedBase?.image}
-              balance={cleanValue(baseBalance?.formatted!, 2)}
-              loading={baseBalLoading}
+              balance={cleanValue(base?.balance.formatted, 2)}
+              loading={baseLoading}
             />
           )}
-          {
-          path === 'borrow' && 
-          selectedIlk?.proxyId !== WETH && 
-          selectedBase?.id !== selectedIlk?.id && (
-            <Balance
-              image={selectedIlk?.image}
-              balance={cleanValue(ilkBalance?.formatted!, 2)}
-              loading={ilkBalLoading}
-            />
+          {path === 'borrow' && selectedIlk?.proxyId !== WETH && selectedBase?.id !== selectedIlk?.id && (
+            <Balance image={selectedIlk?.image} balance={cleanValue(ilk?.balance.formatted, 2)} loading={ilkLoading} />
           )}
         </Box>
       )}
