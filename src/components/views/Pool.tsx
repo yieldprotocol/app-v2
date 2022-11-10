@@ -80,12 +80,7 @@ function Pool() {
     if (poolDisabled) return;
 
     setPoolDisabled(true);
-    addLiquidity(
-      poolInput!,
-      selectedStrategy!,
-      canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
-      matchingVault
-    );
+    addLiquidity(poolInput!, canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW, matchingVault);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,

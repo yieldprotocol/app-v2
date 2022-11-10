@@ -20,13 +20,14 @@ const useStrategies = () => {
 
   const { address: account } = useAccount();
 
-  const getStrategies = async () =>
-    [...strategyRootMap.values()].reduce(async (acc, s) => {
+  const getStrategies = async () => {
+    return [...strategyRootMap.values()].reduce(async (acc, s) => {
       const [currentSeriesId, currentPoolAddr, accountBalance] = await Promise.all([
         s.strategyContract.seriesId(),
         s.strategyContract.pool(),
         account ? s.strategyContract.balanceOf(account) : ethers.constants.Zero,
       ]);
+
       const currentSeries = seriesMap.get(currentSeriesId);
       if (!currentSeries) return await acc;
 
@@ -38,6 +39,7 @@ const useStrategies = () => {
         accountBalance: { value: accountBalance, formatted: formatUnits(accountBalance, s.decimals) },
       });
     }, Promise.resolve(new Map<string, IStrategy>()));
+  };
 
   const key = useMemo(() => {
     return seriesMap.size ? ['strategies', seriesMap, account] : null;

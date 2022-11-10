@@ -54,7 +54,6 @@ const StrategySelectItem = ({
   const { calcStrategyReturns } = useStrategyReturns(input);
   const { data: strategy } = useStrategy(address);
   const returns = calcStrategyReturns(strategy!, input && +input !== 0 ? input : '1');
-  console.log('🦄 ~ file: StrategySelector.tsx ~ line 58 ~ returns', returns);
 
   if (!strategy) return <CardSkeleton />;
 
@@ -140,14 +139,13 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     userActions.setSelectedSeries(_strategy.currentSeries!);
   };
 
-  /* Set the selected strategy to the first option if there is none selected */
-  useEffect(() => {
-    if (!selectedStrategy && options) {
-      userActions.setSelectedStrategy(options[0]);
-    }
-  }, [options, selectedStrategy]);
-
-  if (!options) return null;
+  if (!options)
+    return (
+      <Box gap="small">
+        <CardSkeleton />
+        <CardSkeleton />
+      </Box>
+    );
 
   return (
     <Box gap="small">
