@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries, IVault } from '../types';
+import useAsset from './useAsset';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -14,9 +15,9 @@ export const useInputValidation = (
 ) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { assetMap, selectedSeries, selectedBase } = userState;
+  const { selectedSeries, selectedBase } = userState;
   const _selectedSeries = series || selectedSeries;
-  const _selectedBase = assetMap?.get(series?.baseId!) || selectedBase;
+  const { data: _selectedBase } = useAsset(series?.baseId! || selectedBase?.id!);
 
   const { address: activeAccount } = useAccount();
 
