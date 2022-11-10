@@ -1,3 +1,4 @@
+import { useSWRConfig } from 'swr';
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
@@ -18,13 +19,14 @@ import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 
 export const useAddCollateral = (vault?: IVault) => {
+  const { mutate } = useSWRConfig();
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, seriesMap, selectedVault } = userState;
   const { updateVaults } = userActions;
   const { address: account } = useAccount();
   const contracts = useContracts();
   /* set the ilk based on if a vault has been selected or it's a new vault */
-  const { data: ilk } = useAsset(vault ? selectedVault?.baseId! : selectedIlk?.id!);
+  const { data: ilk, key: ilkKey } = useAsset(vault ? selectedVault?.baseId! : selectedIlk?.id!);
   const vaultSeries = seriesMap.get(vault?.seriesId!);
 
   const {
@@ -130,7 +132,7 @@ export const useAddCollateral = (vault?: IVault) => {
     await transact(calls, txCode);
 
     /* then update UI */
-
+    mutate(ilkKey);
     updateVaults([vault!]);
     updateVaultHistory([vault!]);
   };
