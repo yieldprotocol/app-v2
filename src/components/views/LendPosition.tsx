@@ -132,7 +132,7 @@ const LendPosition = () => {
   const handleRollPosition = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollPosition(rollInput, selectedSeries!, rollToSeries!);
+    rollPosition(rollInput, rollToSeries!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
