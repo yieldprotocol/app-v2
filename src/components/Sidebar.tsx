@@ -97,19 +97,19 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
               <Box
                 onClick={openAccountModal}
                 style={{ position: 'fixed' }}
-                margin={{ left: '-60px', top: '10%' }}
+                margin={{ left: '-60px', top: '5%' }}
                 animation="slideLeft"
                 flex={false}
               >
                 <YieldAvatar address={address} size={5} />
               </Box>
 
-              <Box direction="row" justify="end" gap="medium">
+              {/* <Box direction="row" justify="end" gap="medium">
                 <BoxWrap direction="row" gap="small" onClick={disconnect}>
                   <Text size="xsmall">Logout</Text>
                   <FiLogOut />
                 </BoxWrap>
-              </Box>
+              </Box> */}
 
               <Box direction="row" justify="end">
                 {address && (
