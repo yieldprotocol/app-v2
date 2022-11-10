@@ -44,7 +44,7 @@ const initState: ISettingsContextState = {
   dashHidePoolPositions: false,
   dashCurrency: 'USDC',
 
-  useForkedEnv: false,
+  useForkedEnv: true,
   forkRpcUrl:
     process.env.REACT_APP_DEFAULT_FORK_RPC_URL || process.env.REACT_APP_LOCALHOST_RPC_URL || 'http://127.0.0.1:8545', //  'https://rpc.tenderly.co/fork/4dd2a1bc-1745-49a7-ba5f-8912eb7a04a0',
 };

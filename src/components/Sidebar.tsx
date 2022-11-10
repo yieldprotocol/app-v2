@@ -8,7 +8,7 @@ import GeneralButton from './buttons/GeneralButton';
 import ApprovalSetting from './settings/ApprovalSetting';
 import NetworkSetting from './settings/NetworkSetting';
 import SlippageSetting from './settings/SlippageSetting';
-import TenderlyForkSetting from './settings/TenderlyForkSetting';
+import ForkedEnvSetting from './settings/ForkedEnvSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import UnwrapSetting from './settings/UnwrapSetting';
 import TransactionItem from './TransactionItem';
@@ -139,7 +139,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           <ApprovalSetting />
           <UnwrapSetting />
           <SlippageSetting />
-          {process.env.ENV === 'development' && <TenderlyForkSetting />}
+          {process.env.ENV === 'development' && <ForkedEnvSetting />}
         </Box>
 
         <Box pad="medium" gap="small" flex={false}>

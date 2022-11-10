@@ -6,7 +6,7 @@ import { Settings } from '../../contexts/types/settings';
 import useTenderly from '../../hooks/useTenderly';
 import GeneralButton from '../buttons/GeneralButton';
 
-const TenderlyForkSetting = () => {
+const ForkedEnvSetting = () => {
 
   const {
     settingsState: { useForkedEnv },
@@ -46,4 +46,4 @@ const TenderlyForkSetting = () => {
   );
 };
 
-export default TenderlyForkSetting;
+export default ForkedEnvSetting;
