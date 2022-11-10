@@ -42,8 +42,8 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
 
-  const { address: activeAccount } = useAccount();
-  const { data: balances, isLoading } = useBalances();
+  // const { address: activeAccount } = useAccount();
+  // const { data: balances, isLoading } = useBalances();
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
@@ -85,7 +85,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = Array.from(balances)
+    const opts = Array.from(assetMap.values())
       .filter((a) => a?.showToken) // filter based on whether wrapped tokens are shown or not
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
@@ -95,12 +95,11 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
-    const sortedOptions = selectCollateral
-      ? filteredOptions.sort((a, b) => (a.balance && a.balance.lt(b.balance) ? 1 : -1))
-      : filteredOptions;
-
-    setOptions(sortedOptions);
-  }, [balances, selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens]);
+    // const sortedOptions = selectCollateral
+    //   ? filteredOptions.sort((a, b) => (a.balance && a.balance.lt(b.balance) ? 1 : -1))
+    //   : filteredOptions;
+    setOptions(filteredOptions);
+  }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
