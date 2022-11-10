@@ -6,6 +6,7 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import { ZERO_BN } from '../utils/constants';
 import { useNetwork } from 'wagmi';
+import useAsset from '../hooks/useAsset';
 
 // list of chain id's in which the banner should show
 const SHOWABLE_CHAINS = [421611, 42161];
@@ -20,15 +21,12 @@ const StyledBox = styled(Box)`
 
 const NetworkBanner = () => {
   const { chain } = useNetwork();
-
-  const {
-    userState: { assetMap },
-  } = useContext(UserContext);
+  const { data: weth } = useAsset(WETH);
 
   const [show, setShow] = useState<boolean>(true);
   const currentChainInfo = chain;
 
-  const ethBalance = assetMap?.get(WETH)?.balance;
+  const ethBalance = weth?.balance;
 
   if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.value.gt(ZERO_BN))) return null;
 
