@@ -135,7 +135,7 @@ const Borrow = () => {
 
     const _vault = vaultToUse?.id ? vaultToUse : undefined; // if vaultToUse has id property, use it
     setBorrowDisabled(true);
-    borrow(_vault, borrowInput, collatInput);
+    borrow(borrowInput, collatInput);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
