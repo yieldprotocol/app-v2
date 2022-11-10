@@ -1,12 +1,11 @@
 import { ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { useAccount } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { IStrategy } from '../types';
-import useChainId from './useChainId';
 
 /**
  * Fetch all strategy data
@@ -20,7 +19,6 @@ const useStrategies = () => {
   } = useContext(UserContext);
 
   const { address: account } = useAccount();
-  const chainId = useChainId();
 
   const getStrategies = async () => {
     return [...strategyRootMap.values()].reduce(async (acc, s) => {
@@ -44,9 +42,8 @@ const useStrategies = () => {
   };
 
   const key = useMemo(() => {
-    return seriesMap.size ? ['strategies', seriesMap, account, chainId] : null;
-  }, [account, chainId, seriesMap]);
-  console.log('🦄 ~ file: useStrategies.ts ~ line 48 ~ key ~ seriesMap', seriesMap);
+    return seriesMap.size ? ['strategies', seriesMap, account] : null;
+  }, [account, seriesMap]);
 
   const { data, error } = useSWRImmutable(key, getStrategies);
 

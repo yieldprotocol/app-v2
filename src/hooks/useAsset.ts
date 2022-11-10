@@ -6,7 +6,6 @@ import { useAccount } from 'wagmi';
 import { WETH } from '../config/assets';
 import { ChainContext } from '../contexts/ChainContext';
 import { IAsset } from '../types';
-import useChainId from './useChainId';
 import useDefaultProvider from './useDefaultProvider';
 
 /**
