@@ -34,14 +34,11 @@ export const useAddLiquidity = () => {
   const { data: strategy, key: strategyKey } = useStrategy(selectedStrategy?.address!);
 
   const series = strategy?.currentSeries;
-  if (!series) throw new Error('no series detected in add liq');
 
   const { address: account } = useAccount();
-  if (!account) throw new Error('no account detected in add liq');
   const contracts = useContracts();
 
   const { data: base, key: baseKey } = useAsset(selectedStrategy?.baseId!);
-  if (!base) throw new Error('no base detected in add liq');
 
   const { sign, transact } = useChain();
   const {
@@ -56,6 +53,10 @@ export const useAddLiquidity = () => {
     method: AddLiquidityType = AddLiquidityType.BUY,
     matchingVault: IVault | undefined = undefined
   ) => {
+    if (!series) throw new Error('no series detected in add liq');
+    if (!account) throw new Error('no account detected in add liq');
+    if (!base) throw new Error('no base detected in add liq');
+
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
