@@ -10,6 +10,7 @@ import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
+import useAsset from '../../hooks/useAsset';
 
 function LendItem({
   series,
@@ -26,12 +27,12 @@ function LendItem({
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { assetMap, seriesLoading, selectedSeries, selectedBase },
+    userState: { seriesLoading, selectedSeries, selectedBase },
     userActions,
   } = useContext(UserContext);
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
-  const seriesBase = assetMap?.get(series.baseId)!;
-  const isSelectedBaseAndSeries = series.baseId === seriesBase.proxyId && series.id === selectedSeries?.id;
+  const { data: seriesBase } = useAsset(series.baseId);
+  const isSelectedBaseAndSeries = series.baseId === seriesBase?.proxyId && series.id === selectedSeries?.id;
 
   const handleSelect = (_series: ISeries) => {
     userActions.setSelectedBase(selectedBase);
