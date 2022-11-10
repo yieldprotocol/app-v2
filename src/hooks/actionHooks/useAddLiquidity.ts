@@ -1,20 +1,11 @@
+import { useSWRConfig } from 'swr';
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { calcPoolRatios, calculateSlippage, fyTokenForMint, MAX_256, splitLiquidity } from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IAsset,
-  IStrategy,
-  AddLiquidityType,
-  IVault,
-} from '../../types';
+import { ICallData, ActionCodes, LadleActions, RoutedActions, AddLiquidityType, IVault } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
 
@@ -25,26 +16,32 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance, useToken } from 'wagmi';
+import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAsset from '../useAsset';
+import useStrategy from '../useStrategy';
 
 export const useAddLiquidity = () => {
+  const { mutate } = useSWRConfig();
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap, selectedStrategy } = userState;
-  const { updateVaults, updateSeries, updateAssets } = userActions;
+  const { seriesMap, selectedStrategy } = userState;
+  const { updateVaults, updateSeries } = userActions;
+
+  const { data: strategy, key: strategyKey } = useStrategy(selectedStrategy?.address!);
+
+  const series = strategy?.currentSeries;
+  if (!series) throw new Error('no series detected in add liq');
 
   const { address: account } = useAccount();
+  if (!account) throw new Error('no account detected in add liq');
   const contracts = useContracts();
-  const { refetch: refetchStrategyBal } = useBalance({ addressOrName: account, token: selectedStrategy?.address });
-  const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedStrategy?.currentSeries?.baseAddress,
-  });
-  const { refetch: refetchStrategyToken } = useToken({ address: selectedStrategy?.address });
+
+  const { data: base, key: baseKey } = useAsset(selectedStrategy?.baseId!);
+  if (!base) throw new Error('no base detected in add liq');
 
   const { sign, transact } = useChain();
   const {
@@ -56,25 +53,22 @@ export const useAddLiquidity = () => {
 
   const addLiquidity = async (
     input: string,
-    strategy: IStrategy,
     method: AddLiquidityType = AddLiquidityType.BUY,
     matchingVault: IVault | undefined = undefined
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
-    const _series: ISeries = seriesMap?.get(strategy.currentSeriesId)!;
-    const _base: IAsset = assetMap?.get(_series?.baseId!)!;
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
-    const cleanInput = cleanValue(input, _base?.decimals!);
+    const cleanInput = cleanValue(input, base.decimals);
 
-    const _input = ethers.utils.parseUnits(cleanInput, _base?.decimals);
-    const inputToShares = _series.getShares(_input);
+    const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
+    const inputToShares = series.getShares(_input);
 
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
-      _series.poolContract.getCache(),
-      _series.poolContract.totalSupply(),
+      series.poolContract.getCache(),
+      series.poolContract.totalSupply(),
     ]);
 
     const hasZeroRealReserves = cachedFyTokenReserves.eq(totalSupply);
@@ -85,10 +79,10 @@ export const useAddLiquidity = () => {
     cachedFyTokenReserves.eq(totalSupply) && console.log('EDGE-CASE WARNING: CachedRealReserves are 0.');
 
     /* if approveMax, check if signature is still required */
-    const alreadyApproved = (await _base.getAllowance(account!, ladleAddress!)).gte(_input);
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress!)).gte(_input);
 
     /* if ethBase */
-    const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
+    const isEthBase = ETH_BASED_ASSETS.includes(base.proxyId);
 
     /* Add liquidity by buying */
     const [fyTokenToBuy] = fyTokenForMint(
@@ -96,13 +90,13 @@ export const useAddLiquidity = () => {
       cachedRealReserves,
       cachedFyTokenReserves,
       inputToShares,
-      getTimeTillMaturity(_series.maturity),
-      _series.ts,
-      _series.g1,
-      _series.decimals,
+      getTimeTillMaturity(series.maturity),
+      series.ts,
+      series.g1,
+      series.decimals,
       slippageTolerance,
-      _series.c,
-      _series.mu
+      series.c,
+      series.mu
     );
 
     /* Add liquidity by borrowing */
@@ -118,7 +112,7 @@ export const useAddLiquidity = () => {
       : BigNumber.from(calculateSlippage(fyTokenToBorrow, slippageTolerance.toString(), true));
 
     /* convert shares to be pooled (when borrowing and pooling) to base, since we send in base */
-    const baseToPool = _series.getBase(sharesToPool);
+    const baseToPool = series.getBase(sharesToPool);
 
     /* DIAGNOSITCS */
     method === AddLiquidityType.BUY &&
@@ -189,7 +183,7 @@ export const useAddLiquidity = () => {
     const permitCallData: ICallData[] = await sign(
       [
         {
-          target: _base,
+          target: base,
           spender: 'LADLE',
           amount: _input,
           ignoreIf: alreadyApproved === true,
@@ -201,10 +195,10 @@ export const useAddLiquidity = () => {
     /* if  Eth base, build the correct add ethCalls */
     const addEthCallData = () => {
       /* BUY send WETH to  poolAddress */
-      if (isEthBase && method === AddLiquidityType.BUY) return addEth(_input, _series.poolAddress);
+      if (isEthBase && method === AddLiquidityType.BUY) return addEth(_input, series.poolAddress);
       /* BORROW send WETH to both basejoin and poolAddress */
       if (isEthBase && method === AddLiquidityType.BORROW)
-        return [...addEth(fyTokenToBorrowWithSlippage, _base.joinAddress), ...addEth(baseToPool, _series.poolAddress)];
+        return [...addEth(fyTokenToBorrowWithSlippage, base.joinAddress), ...addEth(baseToPool, series.poolAddress)];
       return []; // sends back an empty array [] if not eth base
     };
 
@@ -224,7 +218,7 @@ export const useAddLiquidity = () => {
 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _series.poolAddress, _input] as LadleActions.Args.TRANSFER,
+        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BUY || isEthBase, // ignore if not BUY and POOL or isETHbase
       },
       {
@@ -237,7 +231,7 @@ export const useAddLiquidity = () => {
           maxRatio,
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
-        targetContract: _series.poolContract,
+        targetContract: series.poolContract,
         ignoreIf: method !== AddLiquidityType.BUY, // ignore if not BUY and POOL
       },
 
@@ -246,20 +240,20 @@ export const useAddLiquidity = () => {
        * */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [_series.id, _base.proxyId, '0'] as LadleActions.Args.BUILD,
+        args: [series.id, base.proxyId, '0'] as LadleActions.Args.BUILD,
         ignoreIf: method !== AddLiquidityType.BORROW ? true : !!matchingVaultId, // ignore if not BORROW and POOL
       },
 
       /* First transfer: sends base asset corresponding to the fyToken portion (with slippage) of the split liquidity to the respective join to mint fyToken directly to the pool */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _base.joinAddress, fyTokenToBorrowWithSlippage] as LadleActions.Args.TRANSFER,
+        args: [base.address, base.joinAddress, fyTokenToBorrowWithSlippage] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
       /* Second transfer: sends the shares portion (converted to base) of the split liquidity directly to the pool */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_base.address, _series.poolAddress, baseToPool] as LadleActions.Args.TRANSFER,
+        args: [base.address, series.poolAddress, baseToPool] as LadleActions.Args.TRANSFER,
         ignoreIf: method !== AddLiquidityType.BORROW || isEthBase,
       },
 
@@ -267,7 +261,7 @@ export const useAddLiquidity = () => {
         operation: LadleActions.Fn.POUR,
         args: [
           matchingVaultId || BLANK_VAULT,
-          _series.poolAddress,
+          series.poolAddress,
           fyTokenToBorrowWithSlippage,
           fyTokenToBorrowWithSlippage,
         ] as LadleActions.Args.POUR,
@@ -277,7 +271,7 @@ export const useAddLiquidity = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [strategy.id || account, account, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS,
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
-        targetContract: _series.poolContract,
+        targetContract: series.poolContract,
         ignoreIf: method !== AddLiquidityType.BORROW,
       },
 
@@ -299,12 +293,10 @@ export const useAddLiquidity = () => {
 
     await transact(calls, txCode);
 
-    refetchStrategyBal();
-    refetchBaseBal();
-    refetchStrategyToken();
+    mutate(strategyKey);
+    mutate(baseKey);
 
-    updateSeries([_series]);
-    updateAssets([_base]);
+    updateSeries([series]);
     updateStrategyHistory([strategy]);
     updateVaults();
   };
