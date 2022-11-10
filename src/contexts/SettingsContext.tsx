@@ -36,9 +36,6 @@ const initState: ISettingsContextState = {
   /* Always Unwrap tokens when removing them */
   unwrapTokens: false,
 
-  /* If using tenderly fork environment */
-  useTenderlyFork: false,
-
   /* Dashboard settings */
   dashHideEmptyVaults: false,
   dashHideInactiveVaults: false,
@@ -47,8 +44,9 @@ const initState: ISettingsContextState = {
   dashHidePoolPositions: false,
   dashCurrency: 'USDC',
 
-  useFork: false,
-  forkUrl: 'https://rpc.tenderly.co/fork/717ceb3b-f9a9-4fa0-b1ea-3eb0dd114ddf',
+  useForkedEnv: true,
+  forkRpcUrl:
+    process.env.REACT_APP_DEFAULT_FORK_RPC_URL || process.env.REACT_APP_LOCALHOST_RPC_URL || 'http://127.0.0.1:8545', //  'https://rpc.tenderly.co/fork/4dd2a1bc-1745-49a7-ba5f-8912eb7a04a0',
 };
 
 const initActions: ISettingsContextActions = {
@@ -99,12 +97,12 @@ const SettingsProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  /* switch to ALWAYS use approval by tx if using tenderly fork */
+  /* ALWAYS use approval by tx if using forked env */
   useEffect(() => {
-    if (settingsState.useTenderlyFork) {
+    if (settingsState.useForkedEnv) {
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
     }
-  }, [settingsState.useTenderlyFork]);
+  }, [settingsState.useForkedEnv]);
 
   /* Exposed userActions */
   const settingsActions: ISettingsContextActions = {

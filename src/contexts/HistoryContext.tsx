@@ -91,16 +91,14 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const { seriesRootMap, assetRootMap } = chainState;
 
-  const useTenderlyFork = false;
-
   const provider = useProvider();
   const contracts = useContracts();
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const { tenderlyStartBlock } = useTenderly();
 
-  const lastSeriesUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
-  const lastVaultUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
+  const lastSeriesUpdate = 'earliest';
+  const lastVaultUpdate = 'earliest';
 
   const { address: account } = useAccount();
 

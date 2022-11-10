@@ -22,6 +22,7 @@ import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
+import { useProvider } from 'wagmi';
 
 const initState: IChainContextState = {
   /* flags */
@@ -83,9 +84,12 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   const [chainState, updateState] = useReducer(chainReducer, initState);
 
   /* HOOKS */
-  const provider = useDefaulProvider();
+  // const provider = useDefaulProvider();
+  const provider = useProvider();
   const chainId = useChainId();
   const contracts = useContracts();
+
+  console.log(provider)
 
   /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');

@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi';
 const useTenderly = () => {
 
   const {address: account} = useAccount();
-  const useTenderlyFork = false;
+  const useForkedEnv = false;
 
   const [startBlock, setStartBlock] = useState<number>();
 
@@ -31,9 +31,9 @@ const useTenderly = () => {
       }
     };
 
-    if (useTenderlyFork) getStartBlock();
+    if (useForkedEnv) getStartBlock();
     
-  }, [useTenderlyFork]);
+  }, [useForkedEnv]);
 
   return { tenderlyStartBlock: startBlock, fillEther };
 };

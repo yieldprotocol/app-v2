@@ -4,6 +4,7 @@ import yieldEnv from './../contexts/yieldEnv.json';
 import * as contractTypes from '../contracts';
 import useChainId from './useChainId';
 import useDefaultProvider from './useDefaultProvider';
+import { useProvider } from 'wagmi';
 
 export enum ContractNames {
   CAULDRON = 'Cauldron',
@@ -16,7 +17,8 @@ export enum ContractNames {
 const useContracts = () => {
   const { addresses } = yieldEnv;
   const chainId = useChainId();
-  const provider = useDefaultProvider();
+  // const provider = useDefaultProvider();
+  const provider = useProvider();
   const chainAddrs = (addresses as any)[chainId];
 
   return useMemo(() => {

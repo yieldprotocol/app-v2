@@ -26,7 +26,7 @@ import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount } from 'wagmi';
+import { useAccount, useProvider } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
@@ -124,10 +124,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { chainState } = useContext(ChainContext);
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
   const {
-    settingsState: { diagnostics },
+    settingsState: { diagnostics , useForkedEnv },
   } = useContext(SettingsContext);
-
-  const useTenderlyFork = false;
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
@@ -136,11 +134,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const { address: account } = useAccount();
   const chainId = useChainId();
-  const provider = useDefaulProvider();
+  // const provider = useDefaulProvider();
+  const provider = useProvider();
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  
   const { tenderlyStartBlock } = useTenderly();
+
   const contracts = useContracts();
 
   /* TODO consider moving out of here ? */
@@ -572,7 +573,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             art === ZERO_BN
               ? (await Witch?.queryFilter(
                   Witch?.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                  useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                  useForkedEnv && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
                   'latest'
                 ))!.length > 0
               : false;
@@ -647,7 +648,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       isMature,
       seriesRootMap,
       tenderlyStartBlock,
-      useTenderlyFork,
+      useForkedEnv,
     ]
   );
 

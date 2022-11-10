@@ -10,14 +10,14 @@ const AdvancedSetting = () => {
   const { connector } = useAccount();
 
   const {
-    settingsState: { approvalMethod, approveMax, useTenderlyFork },
+    settingsState: { approvalMethod, approveMax, useForkedEnv },
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={connector?.name === 'MetaMask' && !useTenderlyFork ? undefined : 'text-xweak'}>
+        <Text size="small" color={connector?.name === 'MetaMask' && !useForkedEnv ? undefined : 'text-xweak'}>
           Use Approval by Transactions
         </Text>
         <Switch
@@ -34,12 +34,12 @@ const AdvancedSetting = () => {
           }
           handleDiameter={20}
           borderRadius={20}
-          disabled={connector?.name === 'MetaMask' || useTenderlyFork}
+          disabled={connector?.name === 'MetaMask' || useForkedEnv}
         />
       </Box>
 
       <Box direction="row" justify="between">
-        <Text size="small" color={approvalMethod === ApprovalType.TX && !useTenderlyFork ? undefined : 'text-xweak'}>
+        <Text size="small" color={approvalMethod === ApprovalType.TX && !useForkedEnv ? undefined : 'text-xweak'}>
           Approve Max
         </Text>
         <Switch
@@ -52,7 +52,7 @@ const AdvancedSetting = () => {
           checkedIcon={false}
           handleDiameter={20}
           borderRadius={20}
-          disabled={!(approvalMethod === ApprovalType.TX) || useTenderlyFork}
+          disabled={!(approvalMethod === ApprovalType.TX) || useForkedEnv}
         />
       </Box>
     </Box>
