@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import Switch from 'react-switch';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { Settings } from '../../contexts/types/settings';
-import useTenderly from '../../hooks/useTenderly';
+import useFork from '../../hooks/useFork';
 import GeneralButton from '../buttons/GeneralButton';
 
 const ForkedEnvSetting = () => {
@@ -13,7 +13,7 @@ const ForkedEnvSetting = () => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
-  const { fillEther } = useTenderly();
+  const { fillEther} = useFork(); 
 
   return (
     <>
