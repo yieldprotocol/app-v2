@@ -28,7 +28,7 @@ export const useAddLiquidity = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, selectedStrategy } = userState;
+  const { selectedStrategy } = userState;
   const { updateVaults, updateSeries } = userActions;
 
   const { data: strategy, key: strategyKey } = useStrategy(selectedStrategy?.address!);
