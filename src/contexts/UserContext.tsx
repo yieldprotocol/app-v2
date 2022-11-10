@@ -264,8 +264,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
       
       /* refetch the selected base ilk balances */
-      refetchBase();
-      refetchIlk(); 
+      account && refetchBase();
+      account && refetchIlk(); 
 
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
