@@ -155,14 +155,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { data: baseBalance, isLoading: baseLoading, status: baseStatus, refetch:refetchBase } = useBalance({
     addressOrName: account,
     token: userState.selectedBase?.address,
-    enabled: userState.selectedBase !== null,
+    enabled: !!account && userState.selectedBase !== null,
     cacheTime: 10_000,
   });
 
   const { data: ilkBalance, isLoading: ilkLoading, status: ilkStatus, refetch:refetchIlk } = useBalance({
     addressOrName: account,
     token: userState.selectedIlk?.address,
-    enabled: userState.selectedIlk !== null,
+    enabled: !!account && userState.selectedIlk !== null,
     cacheTime: 10_000,
   });
 
@@ -721,16 +721,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* update selected asset balances */
   useEffect(() => {
-    console.log( 'Selected Base Balance updated', baseBalance?.formatted )
-      updateState({
+    account && console.log( 'Selected Base Balance updated', baseBalance?.formatted )
+    account && updateState({
         type: UserState.SELECTED_BASE_BALANCE,
         payload: baseBalance,
       });
   }, [baseBalance]);
 
   useEffect(() => {
-    console.log( 'Selected Ilk Balance updated', ilkBalance?.formatted  )
-      updateState({
+    account && console.log( 'Selected Ilk Balance updated', ilkBalance?.formatted  )
+      account && updateState({
         type: UserState.SELECTED_ILK_BALANCE,
         payload: ilkBalance,
       });
