@@ -20,6 +20,7 @@ import useAsset from '../useAsset';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
+  const { mutate } = useSWRConfig();
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
@@ -28,7 +29,6 @@ export const useClosePosition = () => {
     userActions,
     userState: { selectedSeries: series },
   } = useContext(UserContext);
-  const { mutate } = useSWRConfig();
   const { address: account } = useAccount();
   const contracts = useContracts();
   const { updateSeries } = userActions;
