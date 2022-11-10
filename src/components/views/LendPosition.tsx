@@ -31,6 +31,7 @@ import ExitButton from '../buttons/ExitButton';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useAsset from '../../hooks/useAsset';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -42,9 +43,8 @@ const LendPosition = () => {
     userState,
     userActions: { setSelectedSeries, setSelectedBase },
   } = useContext(UserContext);
-  const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
-
-  const selectedBase = assetMap?.get(selectedSeries?.baseId!);
+  const { selectedSeries, seriesMap, seriesLoading } = userState;
+  const { data: selectedBase } = useAsset(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
@@ -187,12 +187,10 @@ const LendPosition = () => {
 
   useEffect(() => {
     const _series = seriesMap?.get(idFromUrl as string) || null;
-    const _base = assetMap?.get(_series?.baseId!);
     if (idFromUrl) {
       setSelectedSeries(_series);
-      setSelectedBase(_base!);
     }
-  }, [idFromUrl, seriesMap, setSelectedSeries, assetMap, setSelectedBase]);
+  }, [idFromUrl, seriesMap, setSelectedSeries]);
 
   return (
     <>
