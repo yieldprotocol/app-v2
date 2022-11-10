@@ -155,13 +155,15 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { data: baseBalance, isLoading: baseLoading, status: baseStatus, refetch:refetchBase } = useBalance({
     addressOrName: account,
     token: userState.selectedBase?.address,
-    enabled: userState.selectedBase !== null
+    enabled: userState.selectedBase !== null,
+    cacheTime: 10_000,
   });
 
   const { data: ilkBalance, isLoading: ilkLoading, status: ilkStatus, refetch:refetchIlk } = useBalance({
     addressOrName: account,
     token: userState.selectedIlk?.address,
     enabled: userState.selectedIlk !== null,
+    cacheTime: 10_000,
   });
 
   /* TODO consider moving out of here ? */
