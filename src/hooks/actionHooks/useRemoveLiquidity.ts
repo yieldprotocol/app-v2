@@ -1,6 +1,6 @@
+import { useSWRConfig } from 'swr';
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { toast } from 'react-toastify';
 import {
   burn,
   burnFromStrategy,
@@ -12,18 +12,19 @@ import {
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IVault, IAsset } from '../../types';
+import { ICallData, ActionCodes, LadleActions, RoutedActions, IVault, IAsset } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { TxContext } from '../../contexts/TxContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount, useBalance, useToken } from 'wagmi';
+import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useStrategy from '../useStrategy';
+import useAsset from '../useAsset';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -50,51 +51,39 @@ is Mature?        N     +--------+
  */
 
 export const useRemoveLiquidity = () => {
-  const { txActions } = useContext(TxContext);
-  const { resetProcess } = txActions;
-
+  const { mutate } = useSWRConfig();
   const { userState, userActions } = useContext(UserContext);
-  const { updateSeries, updateAssets } = userActions;
-  const { assetMap, selectedStrategy } = userState;
+  const { updateSeries } = userActions;
+  const { selectedStrategy } = userState;
   const {
     historyActions: { updateStrategyHistory },
   } = useContext(HistoryContext);
   const {
     settingsState: { diagnostics, slippageTolerance },
   } = useContext(SettingsContext);
+
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
+  const { data: strategy, key: strategyKey } = useStrategy(selectedStrategy?.address!);
+  const { data: base, key: baseKey } = useAsset(selectedStrategy?.baseId!);
   const { address: account } = useAccount();
-  const { refetch: refetchStrategyBal } = useBalance({ addressOrName: account, token: selectedStrategy?.address });
-  const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedStrategy?.currentSeries?.baseAddress,
-  });
   const contracts = useContracts();
 
-  const { data: poolTokenData, refetch: refetchPoolToken } = useToken({
-    address: selectedStrategy?.currentPoolAddr,
-  });
+  const removeLiquidity = async (input: string, matchingVault: IVault | undefined) => {
+    if (!strategy) throw new Error('no strategy detected in remove liq');
+    if (!account) throw new Error('no account detected in remove liq');
+    if (!base) throw new Error('no base detected in remove liq');
 
-  const { data: strategyTokenData, refetch: refetchStrategyToken } = useToken({
-    address: selectedStrategy?.address,
-  });
+    const series = strategy.currentSeries;
+    const poolTotalSupply = strategy.currentSeries.totalSupply;
+    const strategyTotalSupply = strategy.totalSupply.value;
 
-  if (!poolTokenData) throw new Error('Could not get pool token data');
-  const poolTotalSupply = poolTokenData.totalSupply.value;
-
-  if (!strategyTokenData) throw new Error('Could not get strategy token data');
-  const strategyTotalSupply = strategyTokenData.totalSupply.value;
-
-  const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
-    const _base: IAsset = assetMap?.get(series.baseId)!;
-    const _strategy = selectedStrategy!;
-    const _input = ethers.utils.parseUnits(input, _base.decimals);
+    const _input = ethers.utils.parseUnits(input, base.decimals);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     const [[cachedSharesReserves, cachedFyTokenReserves]] = await Promise.all([series.poolContract.getCache()]);
@@ -139,12 +128,12 @@ export const useRemoveLiquidity = () => {
     /**
      * With vault
      */
-    const matchingVaultId: string | undefined = matchingVault?.id;
-    const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
+    const matchingVaultId = matchingVault?.id;
+    const matchingVaultDebt = matchingVault?.accruedArt || ZERO_BN;
     // Choose use matching vault:
-    const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
+    const useMatchingVault = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
 
-    const fyTokenReceivedGreaterThanDebt: boolean = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
+    const fyTokenReceivedGreaterThanDebt = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
     // if user has matching vault debt
     // estimate if we can sell fyToken after repaying vault debt
@@ -174,7 +163,7 @@ export const useRemoveLiquidity = () => {
       console.log(
         '\n',
         'Strategy: ',
-        _strategy,
+        strategy,
         '\n',
         '\n',
         'fyTokenTrade estimated value...',
@@ -203,7 +192,7 @@ export const useRemoveLiquidity = () => {
       console.log(
         '\n',
         'Strategy: ',
-        _strategy,
+        strategy,
         '\n',
         '\n',
         'extraFyTokenTrade (fyTokenReceived minus debt) estimated value...',
@@ -245,14 +234,16 @@ export const useRemoveLiquidity = () => {
         formatUnits(series.getBase(extrafyTokenTrade), series.decimals)
       );
 
-    const alreadyApprovedStrategy = _strategy
-      ? (await _strategy.strategyContract.allowance(account!, ladleAddress)).gte(_input)
+    if (!ladleAddress) throw new Error('no ladle address detected in remove liq');
+
+    const alreadyApprovedStrategy = strategy
+      ? (await strategy.strategyContract.allowance(account, ladleAddress)).gte(_input)
       : false;
-    const alreadyApprovedPool = !_strategy
-      ? (await series.poolContract.allowance(account!, ladleAddress!)).gte(_input)
+    const alreadyApprovedPool = !strategy
+      ? (await series.poolContract.allowance(account, ladleAddress)).gte(_input)
       : false;
 
-    const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
+    const isEthBase = ETH_BASED_ASSETS.includes(base.proxyId);
     const toAddress = isEthBase ? ladleAddress : account;
 
     // when the user has a vault and the fyToken received from burn is greater than debt,
@@ -269,10 +260,10 @@ export const useRemoveLiquidity = () => {
       [
         /* give strategy permission to sell tokens to pool */
         {
-          target: _strategy,
+          target: strategy,
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !_strategy || alreadyApprovedStrategy === true,
+          ignoreIf: !strategy || alreadyApprovedStrategy === true,
         },
 
         /* give pool permission to sell tokens */
@@ -285,35 +276,35 @@ export const useRemoveLiquidity = () => {
           },
           spender: 'LADLE',
           amount: _input,
-          ignoreIf: !!_strategy || alreadyApprovedPool === true,
+          ignoreIf: !!strategy || alreadyApprovedPool === true,
         },
       ],
       txCode
     );
 
-    // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
+    // const unwrapping: ICallData[] = await unwrapAsset(base, account)
     const calls: ICallData[] = [
       ...permitCallData,
 
       /* FOR ALL REMOVES (when using a strategy) > move tokens from strategy to pool tokens  */
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [_strategy.address, _strategy.address, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: !_strategy,
+        args: [strategy.address, strategy.address, _input] as LadleActions.Args.TRANSFER,
+        ignoreIf: !strategy,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy ? _strategy.strategyContract : undefined,
-        ignoreIf: !_strategy,
+        targetContract: strategy ? strategy.strategyContract : undefined,
+        ignoreIf: !strategy,
       },
 
       /* FOR ALL REMOVES NOT USING STRATEGY >  move tokens to poolAddress  : */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [series.poolAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: _strategy || series.seriesIsMature,
+        ignoreIf: !!strategy || series.seriesIsMature,
       },
 
       /**
@@ -435,22 +426,11 @@ export const useRemoveLiquidity = () => {
 
     await transact(calls, txCode);
 
-    /* Isolate a particular user case if required */
-    // if (!series.seriesIsMature && useMatchingVault && fyTokenReceivedGreaterThanDebt) {
-    //   toast.warn('Liquidity withdrawal temporarily disabled')
-    //   resetProcess(txCode);
-    // } else {
-    //   await transact(calls, txCode);
-    // }
-
-    refetchStrategyBal();
-    refetchBaseBal();
-    refetchPoolToken();
-    refetchStrategyToken();
+    mutate(strategyKey);
+    mutate(baseKey);
 
     updateSeries([series]);
-    updateAssets([_base]);
-    updateStrategyHistory([_strategy]);
+    updateStrategyHistory([strategy]);
   };
 
   return removeLiquidity;
