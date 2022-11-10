@@ -1,3 +1,4 @@
+import { useSWRConfig } from 'swr';
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { buyBase, calculateSlippage, sellBase } from '@yield-protocol/ui-math';
@@ -13,18 +14,23 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAsset from '../useAsset';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
+  const { mutate } = useSWRConfig();
   const router = useRouter();
   const {
     settingsState: { slippageTolerance, diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
-  const { assetMap } = userState;
-  const { updateSeries, updateAssets } = userActions;
+  const {
+    userState: { selectedSeries: fromSeries },
+    userActions,
+  } = useContext(UserContext);
+  const { updateSeries } = userActions;
 
+  const { data: base, key: baseKey } = useAsset(fromSeries?.baseId!);
   const { address: account } = useAccount();
   const contracts = useContracts();
 
@@ -38,17 +44,20 @@ export const useRollPosition = () => {
   /**
    * Transfer fyToken to the "from" pool to sell for base, then send base to "to" pool and sell base for fyToken
    * @param input in base (i.e.: 100 USDC)
-   * @param fromSeries the series fyToken is rolled from
    * @param toSeries the series fyToken is rolled to
    */
-  const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
+  const rollPosition = async (input: string | undefined, toSeries: ISeries) => {
+    if (!account) throw new Error('no account detected in roll position');
+    if (!fromSeries) throw new Error('no from series detected in roll position');
+    if (!base) throw new Error('no base detected in roll position');
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
-    const base: IAsset = assetMap?.get(fromSeries.baseId)!;
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
+    if (!ladleAddress) throw new Error('no ladle address detected in roll position');
 
     // estimate how much fyToken you could sell given the input (base), using the from series
     const _fyTokenValueOfInputIn = fromSeries.seriesIsMature
@@ -100,9 +109,9 @@ export const useRollPosition = () => {
         formatUnits(_minimumFYTokenReceived, toSeries.decimals)
       );
 
-    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress!)).gte(_input);
+    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account, ladleAddress)).gte(_input);
 
-    const permitCallData: ICallData[] = await sign(
+    const permitCallData = await sign(
       [
         {
           target: fromSeries,
@@ -163,9 +172,11 @@ export const useRollPosition = () => {
     ];
 
     const res = (await transact(calls, txCode)) as Promise<ethers.ContractReceipt | null> | void;
+
+    mutate(baseKey);
     updateSeries([fromSeries, toSeries]);
-    updateAssets([base]);
     updateTradeHistory([fromSeries, toSeries]);
+
     res && router.replace(`/lendposition/${toSeries.id}`);
   };
 
