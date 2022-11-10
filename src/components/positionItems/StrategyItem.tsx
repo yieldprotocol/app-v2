@@ -10,23 +10,23 @@ import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
-import useStrategies from '../../hooks/useStrategies';
+import useAsset from '../../hooks/useAsset';
 
 function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { assetMap, seriesMap, selectedStrategy },
+    userState: { seriesMap, selectedStrategy },
     userActions,
   } = useContext(UserContext);
 
-  const base = assetMap?.get(strategy.baseId) || null;
+  const { data: base } = useAsset(strategy.baseId);
   const series = seriesMap?.get(strategy.currentSeriesId) || null;
   const isSelectedStrategy = strategy.id === selectedStrategy?.id;
 
   const handleSelect = (_series: IStrategy) => {
-    userActions.setSelectedBase(base);
+    userActions.setSelectedBase(base!);
     userActions.setSelectedSeries(series);
     userActions.setSelectedStrategy(strategy);
     router.push(`/poolposition/${strategy.address}`);
