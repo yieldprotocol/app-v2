@@ -6,7 +6,6 @@ import { useAccount } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 import { UserContext } from '../contexts/UserContext';
 import { IStrategyDynamic } from '../types';
-import useChainId from './useChainId';
 
 /**
  * Fetch a single strategy's data
@@ -19,7 +18,6 @@ const useStrategy = (address: string) => {
     userState: { seriesMap },
   } = useContext(UserContext);
 
-  const chainId = useChainId();
   const { address: account } = useAccount();
 
   const getStrategy = async (): Promise<IStrategyDynamic> => {
@@ -67,8 +65,8 @@ const useStrategy = (address: string) => {
   };
 
   const key = useMemo(
-    () => (chainId ? `/strategy?id=${address}chainId=${chainId}${account ? `&account=${account}` : ''}` : null),
-    [account, address, chainId]
+    () => (strategyRootMap.size ? ['strategy', address, strategyRootMap, account] : null),
+    [account, address, strategyRootMap]
   );
 
   const { data, error } = useSWRImmutable(key, getStrategy);
@@ -77,7 +75,6 @@ const useStrategy = (address: string) => {
     data,
     isLoading: !data && !error,
     key,
-    getStrategy,
   };
 };
 

@@ -9,6 +9,8 @@ import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
+import useStrategy from '../../hooks/useStrategy';
+import useStrategies from '../../hooks/useStrategies';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -36,19 +38,26 @@ const CardSkeleton = () => (
 );
 
 const StrategySelectItem = ({
-  strategy,
+  input,
+  address,
   selected,
   displayName,
-
   handleClick,
-  apy,
 }: {
-  strategy: IStrategy;
+  input: string;
+  address: string;
   selected: boolean;
   displayName: string;
   handleClick: (strategy: IStrategy) => void;
   apy?: string;
 }) => {
+  const { calcStrategyReturns } = useStrategyReturns(input);
+  const { data: strategy } = useStrategy(address);
+  const returns = calcStrategyReturns(strategy!, input && +input !== 0 ? input : '1');
+  console.log('🦄 ~ file: StrategySelector.tsx ~ line 58 ~ returns', returns);
+
+  if (!strategy) return <CardSkeleton />;
+
   return (
     <StyledBox
       key={strategy.address}
@@ -77,7 +86,7 @@ const StrategySelectItem = ({
           </Box>
         </Box>
 
-        {apy && (
+        {returns && (
           <Box fill align="end">
             <Avatar
               background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
@@ -85,7 +94,7 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small">{apy}%</Text>
+              <Text size="small">{returns.blendedAPY}%</Text>
             </Avatar>
           </Box>
         )}
@@ -95,12 +104,11 @@ const StrategySelectItem = ({
 };
 
 interface IStrategySelectorProps {
-  strategies: IStrategy[];
   inputValue?: string /* accepts an input value for possible dynamic Return calculations */;
 }
 
-const StrategySelector = ({ strategies, inputValue }: IStrategySelectorProps) => {
-  const { calcStrategyReturns } = useStrategyReturns(inputValue);
+const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
+  const { data: strategyMap } = useStrategies();
 
   const {
     settingsState: { diagnostics },
@@ -122,8 +130,9 @@ const StrategySelector = ({ strategies, inputValue }: IStrategySelectorProps) =>
   );
 
   useEffect(() => {
-    setOptions(filterStrategies(strategies));
-  }, [filterStrategies, strategies]);
+    if (!strategyMap) return;
+    setOptions(filterStrategies(Array.from(strategyMap.values())));
+  }, [filterStrategies, strategyMap]);
 
   const handleSelect = (_strategy: IStrategy) => {
     diagnostics && console.log('Strategy selected: ', _strategy.address);
@@ -138,32 +147,24 @@ const StrategySelector = ({ strategies, inputValue }: IStrategySelectorProps) =>
     }
   }, [options, selectedStrategy]);
 
+  if (!options) return null;
+
   return (
-    <Box>
-      {!options ? (
-        <>
-          <CardSkeleton />
-          <CardSkeleton />
-        </>
-      ) : (
-        <Box gap="small">
-          {options.map((o) => {
-            const displayName = seriesMap?.get(o.currentSeriesId!)?.displayName!;
-            const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
-            const selected = selectedStrategy?.address === o.address;
-            return (
-              <StrategySelectItem
-                key={o.address}
-                strategy={o}
-                handleClick={() => handleSelect(o)}
-                selected={selected}
-                displayName={displayName}
-                apy={returns?.blendedAPY}
-              />
-            );
-          })}
-        </Box>
-      )}
+    <Box gap="small">
+      {options.map((o) => {
+        const displayName = seriesMap?.get(o.currentSeriesId!)?.displayName!;
+        const selected = selectedStrategy?.address === o.address;
+        return (
+          <StrategySelectItem
+            key={o.address}
+            input={inputValue!}
+            address={o.address}
+            handleClick={() => handleSelect(o)}
+            selected={selected}
+            displayName={displayName}
+          />
+        );
+      })}
     </Box>
   );
 };
