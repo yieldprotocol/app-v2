@@ -57,11 +57,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
                 Tokens:
               </Text>
               <Text weight={450} size="xsmall">
-                {isSelectedStrategy ? (
-                  <SkeletonWrap width={30} />
-                ) : (
-                  nFormatter(parseFloat(strategy.accountBalance?.formatted!), 2)
-                )}
+                {nFormatter(parseFloat(strategy.accountBalance?.formatted!), 2)}
               </Text>
             </Box>
           </Box>
