@@ -244,7 +244,7 @@ const VaultPosition = () => {
     } else {
       if (addCollateralDisabled) return;
       setAddCollateralDisabled(true);
-      addCollateral(_selectedVault, addCollatInput);
+      addCollateral(addCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
