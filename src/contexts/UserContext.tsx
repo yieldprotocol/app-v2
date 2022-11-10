@@ -25,14 +25,13 @@ import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import useTenderly from '../hooks/useTenderly';
 import { useAccount, useProvider } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
-import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
+import useFork from '../hooks/useFork';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -140,7 +139,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   
-  const { tenderlyStartBlock } = useTenderly();
+  const { startBlock } = useFork();
 
   const contracts = useContracts();
 
@@ -573,7 +572,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             art === ZERO_BN
               ? (await Witch?.queryFilter(
                   Witch?.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                  useForkedEnv && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                  useForkedEnv && startBlock ? startBlock : 'earliest',
                   'latest'
                 ))!.length > 0
               : false;
@@ -647,7 +646,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics,
       isMature,
       seriesRootMap,
-      tenderlyStartBlock,
+      startBlock,
       useForkedEnv,
     ]
   );

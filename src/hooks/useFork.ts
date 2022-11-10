@@ -5,14 +5,16 @@ import { SettingsContext } from '../contexts/SettingsContext';
 
 const useFork = () => {
   const {
-    settingsState: { useForkedEnv },
+    settingsState: { useForkedEnv, forkRpcUrl },
   } = useContext(SettingsContext);
   const { address: account } = useAccount();
-  const provider = useProvider();
+  const provider = new ethers.providers.JsonRpcProvider(forkRpcUrl);
 
   const [startBlock, setStartBlock] = useState<number>();
 
-  // const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+  useEffect(()=>{
+    startBlock && console.log('fork start block: ',  startBlock)
+  }, [startBlock])
 
   const fillEther = useCallback(async () => {
     try {
