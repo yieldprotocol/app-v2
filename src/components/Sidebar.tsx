@@ -17,6 +17,7 @@ import CopyWrap from './wraps/CopyWrap';
 import YieldAvatar from './YieldAvatar';
 import { useAccount, useDisconnect, useEnsName, useNetwork } from 'wagmi';
 import { TxContext } from '../contexts/TxContext';
+import { FaWallet } from 'react-icons/fa';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -101,7 +102,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
             </Box>
 
             <Box direction="row" justify="end"  gap="medium">
-              <BoxWrap direction="row" gap="small" onClick={disconnect}>
+              <BoxWrap direction="row" gap="small" onClick={disconnect} >
                 <Text size="xsmall">Logout</Text>
                 <FiLogOut />
               </BoxWrap>
@@ -116,9 +117,9 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
             </Box>
 
             <Box direction="row" justify="end">
-              <BoxWrap direction="row" gap="small" onClick={openAccountModal}>
+              <BoxWrap direction="row" gap="small" pad='xsmall' onClick={openAccountModal} round >
                 {connector && <Text size="xsmall">Connected with {connector.name}</Text>}
-               <FiEye />
+               <FaWallet />
               </BoxWrap>
             </Box>
           
