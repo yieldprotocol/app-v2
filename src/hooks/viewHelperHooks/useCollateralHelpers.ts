@@ -15,6 +15,7 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
+import useAsset from '../useAsset';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -25,11 +26,11 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
+    userState: { selectedBase, selectedIlk, selectedSeries, seriesMap },
   } = useContext(UserContext);
 
-  const _selectedBase = vault ? assetMap?.get(vault.baseId) : selectedBase;
-  const _selectedIlk = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
+  const { data: _selectedBase } = useAsset(vault ? vault.baseId : selectedBase?.id!);
+  const { data: _selectedIlk } = useAsset(vault ? vault.ilkId : selectedIlk?.id!);
   const _selectedSeries = vault ? seriesMap?.get(vault.seriesId) : selectedSeries;
 
   /* HOOKS */
