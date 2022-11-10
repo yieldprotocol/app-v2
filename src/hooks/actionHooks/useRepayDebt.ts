@@ -1,3 +1,4 @@
+import { useSWRConfig } from 'swr';
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
@@ -15,19 +16,27 @@ import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAsset from '../useAsset';
 
 export const useRepayDebt = () => {
+  const { mutate } = useSWRConfig();
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, assetMap } = userState;
-  const { updateVaults, updateAssets, updateSeries } = userActions;
+  const {
+    userState: { seriesMap, selectedVault: vault },
+    userActions,
+  } = useContext(UserContext);
+  const { updateVaults, updateSeries } = userActions;
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
+
+  const { data: base, key: baseKey } = useAsset(vault?.baseId!);
+  const { data: ilk, key: ilkKey } = useAsset(vault?.ilkId!);
+  const series = seriesMap.get(vault?.seriesId!);
 
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
@@ -36,17 +45,21 @@ export const useRepayDebt = () => {
 
   /**
    * REPAY FN
-   * @param vault
    * @param input
    * @param reclaimCollateral
    */
-  const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
+  const repay = async (input: string | undefined, reclaimCollateral: boolean) => {
+    if (!account) throw new Error('no account detected in repay debt');
+    if (!chain) throw new Error('no chain detected in repay debt');
+    if (!vault) throw new Error('no vault detected in repay debt');
+    if (!series) throw new Error('no series detected in repay debt');
+    if (!ilk) throw new Error('no ilk detected in repay debt');
+    if (!base) throw new Error('no base detected in repay debt');
+
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
-    const series: ISeries = seriesMap?.get(vault.seriesId)!;
-    const base: IAsset = assetMap?.get(vault.baseId)!;
-    const ilk: IAsset = assetMap?.get(vault.ilkId)!;
+    if (!ladleAddress) throw new Error('no ladle address detected in repay debt');
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
@@ -97,7 +110,7 @@ export const useRepayDebt = () => {
     );
 
     /* Check if input is more than the debt */
-    const inputGreaterThanEqualDebt: boolean = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
+    const inputGreaterThanEqualDebt = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
 
     /* If requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove =
@@ -113,12 +126,12 @@ export const useRepayDebt = () => {
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
     /* Check if already approved */
-    const alreadyApproved = (await base.getAllowance(account!, ladleAddress!)).gte(amountToTransfer);
+    const alreadyApproved = (await base.getAllowance(account, ladleAddress)).gte(amountToTransfer);
 
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
-    const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];
+    const unwrapAssetCallData = reclaimCollateral ? await unwrapAsset(ilk, account) : [];
 
-    const permitCallData: ICallData[] = await sign(
+    const permitCallData = await sign(
       [
         {
           // before maturity
@@ -137,8 +150,8 @@ export const useRepayDebt = () => {
     /* Address to send the funds to either ladle (if eth is used as collateral) or account */
     const reclaimToAddress = () => {
       if (isEthCollateral) return ladleAddress;
-      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chain?.id!))
-        return ilk.unwrapHandlerAddresses?.get(chain?.id!); // if there is somethign to unwrap
+      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chain.id))
+        return ilk.unwrapHandlerAddresses?.get(chain.id); // if there is something to unwrap
       return account;
     };
 
@@ -200,8 +213,9 @@ export const useRepayDebt = () => {
       ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
+    mutate(baseKey);
+    mutate(ilkKey);
     updateVaults([vault]);
-    updateAssets([base, ilk, userState.selectedIlk!]);
     updateSeries([series]);
   };
 
