@@ -34,6 +34,7 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import { divDecimal, mulDecimal } from '@yield-protocol/ui-math';
 import useStrategy from '../../hooks/useStrategy';
 import useStrategies from '../../hooks/useStrategies';
+import useAsset from '../../hooks/useAsset';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -45,7 +46,7 @@ const PoolPosition = () => {
     userState,
     userActions: { setSelectedStrategy },
   } = useContext(UserContext);
-  const { selectedStrategy, assetMap, seriesLoading } = userState;
+  const { selectedStrategy, seriesLoading } = userState;
 
   const { address: activeAccount } = useAccount();
   const { data: strategyMap } = useStrategies();
@@ -54,7 +55,7 @@ const PoolPosition = () => {
   );
 
   const selectedSeries = _selectedStrategy?.currentSeries;
-  const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
+  const { data: selectedBase } = useAsset(selectedStrategy?.baseId!);
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
@@ -122,7 +123,7 @@ const PoolPosition = () => {
   const handleRemove = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
-    removeLiquidity(removeInput!, selectedSeries!, matchingVault);
+    removeLiquidity(removeInput!, matchingVault);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
