@@ -31,7 +31,7 @@ const TenderlyForkSetting = () => {
           checkedIcon={false}
           onChange={(val: boolean) => { 
             updateSetting(Settings.USE_FORKED_ENV, val)
-            val && window.location.reload();
+            window.location.reload();
           }}
           handleDiameter={20}
           borderRadius={20}

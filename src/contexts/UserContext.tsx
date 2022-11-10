@@ -662,7 +662,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     if (chainLoaded) {
       updateAssets(Array.from(assetRootMap.values()));
       updateSeries(Array.from(seriesRootMap.values()));
-
       account && updateVaults();
     }
   }, [chainLoaded, account, assetRootMap, seriesRootMap, strategyRootMap, updateAssets, updateSeries, updateVaults]);

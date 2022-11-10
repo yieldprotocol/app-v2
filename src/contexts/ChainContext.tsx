@@ -89,8 +89,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   const chainId = useChainId();
   const contracts = useContracts();
 
-  console.log(provider)
-
   /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
 
