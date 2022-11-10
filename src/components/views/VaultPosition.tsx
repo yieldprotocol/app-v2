@@ -234,7 +234,7 @@ const VaultPosition = () => {
     if (action === 'REMOVE') {
       if (removeCollateralDisabled) return;
       setRemoveCollateralDisabled(true);
-      removeCollateral(_selectedVault!, removeCollatInput);
+      removeCollateral(removeCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
