@@ -113,7 +113,7 @@ const myLightTheme: Theme = {
   ...lightTheme(),
   colors : {
     ...lightTheme().colors,
-    modalBackdrop: 'rgb(1, 1, 1, .85)'
+    modalBackdrop: 'rgb(1, 1, 1, .50)'
   },
   radii: {
     actionButton: '...',
