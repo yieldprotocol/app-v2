@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
@@ -27,7 +27,8 @@ const useAsset = (id: string) => {
     if (!asset) throw new Error('no asset');
 
     const args = asset.tokenIdentifier ? [account, asset.tokenIdentifier] : [account]; // handle erc1155
-    const balance = id === WETH ? await provider.getBalance(account!) : await asset.assetContract.balanceOf(...args);
+    const balance: BigNumber =
+      id === WETH ? await provider.getBalance(account!) : await asset.assetContract.balanceOf(...args);
 
     return {
       ...asset,
