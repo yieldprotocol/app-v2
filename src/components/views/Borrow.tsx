@@ -53,6 +53,7 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
+import useAsset from '../../hooks/useAsset';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -63,10 +64,11 @@ const Borrow = () => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccount();
+  const { data: weth } = useAsset(WETH);
   const contracts = useContracts();
 
   /* LOCAL STATE */
@@ -150,7 +152,7 @@ const Borrow = () => {
 
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
-    _stepPosition === 0 && setSelectedIlk(assetMap?.get('0x303000000000')!);
+    _stepPosition === 0 && setSelectedIlk(weth);
     setStepPosition(_stepPosition);
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.BORROW,

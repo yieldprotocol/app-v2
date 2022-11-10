@@ -6,7 +6,7 @@ import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'gromm
 import { FiClock, FiTrendingUp, FiAlertTriangle, FiArrowRight, FiActivity, FiChevronDown } from 'react-icons/fi';
 import { GiMedalSkull } from 'react-icons/gi';
 
-import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
 import InfoBite from '../InfoBite';
@@ -43,6 +43,7 @@ import Logo from '../logos/Logo';
 import { useAccount } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
+import useAsset from '../../hooks/useAsset';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -53,15 +54,15 @@ const VaultPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
+  const { seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const { address: account } = useAccount();
 
   const _selectedVault = vaultMap?.get(idFromUrl as string);
 
-  const vaultBase = assetMap?.get(_selectedVault?.baseId!);
-  const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
+  const { data: vaultBase } = useAsset(_selectedVault?.baseId!);
+  const { data: vaultIlk } = useAsset(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);

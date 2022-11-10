@@ -13,16 +13,23 @@ import { useAssetPair } from '../../hooks/useAssetPair';
 import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useAsset from '../../hooks/useAsset';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { seriesMap, vaultsLoading, selectedVault, assetMap },
+    userState: { seriesMap, vaultsLoading, selectedVault },
     userActions,
   } = useContext(UserContext);
   const { setSelectedVault } = userActions;
+
+  const { data: vaultBase } = useAsset(vault.baseId);
+  const { data: vaultIlk } = useAsset(vault.ilkId);
+
+  const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
+  const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPairInfo, undefined);
 
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault);
@@ -31,10 +38,6 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
       id: _vault.id.slice(2),
     } as GA_Properties.position_opened);
   };
-  const vaultBase = assetMap?.get(vault.baseId);
-  const vaultIlk = assetMap?.get(vault.ilkId);
-  const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
-  const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPairInfo, undefined);
 
   return (
     <ItemWrap

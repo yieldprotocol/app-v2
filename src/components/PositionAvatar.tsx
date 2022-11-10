@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
+import useAsset from '../hooks/useAsset';
 
 const Outer = styled(Box)`
   position: relative;
@@ -36,16 +37,16 @@ function PositionAvatar({
   condensed?: boolean;
 }) {
   const isVault = position?.id.length > 15;
+  const vault: IVault | undefined = isVault ? (position as IVault) : undefined;
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { assetMap, seriesMap } = userState;
+  const { seriesMap } = userState;
 
-  const base: IAsset | undefined = assetMap?.get(position?.baseId!); // same for both series and vaults
-  const vault: IVault | undefined = isVault ? (position as IVault) : undefined;
-  const series: ISeries | undefined = vault ? seriesMap?.get(vault.seriesId!) : (position as ISeries);
+  const { data: base } = useAsset(position.baseId);
+  const { data: ilk } = useAsset(vault?.ilkId!);
+  const series = vault ? seriesMap?.get(vault.seriesId!) : (position as ISeries);
 
-  const ilk: IAsset | undefined = vault && assetMap?.get(vault.ilkId); // doesn't exist on series
   const baseImageSize = condensed ? '20px' : '24px';
   const ilkImageSize = condensed ? '16px' : '20px';
 
