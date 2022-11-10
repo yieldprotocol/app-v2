@@ -318,29 +318,24 @@ const VaultPosition = () => {
   ]);
 
   /* EXTRA INITIATIONS */
-
   useEffect(() => {
-    /* set global series, base and ilk */
-    const _series = seriesMap?.get(_selectedVault?.seriesId!) || null;
-    const _base = assetMap?.get(_selectedVault?.baseId!) || null;
-    const _ilk = assetMap?.get(_selectedVault?.ilkId!) || null;
-
-    // handle using ilk
-    const _ilkToUse = _ilk; // use the unwrapped token if applicable
-
-    _selectedVault && setSelectedSeries(_series);
-    _selectedVault && setSelectedBase(_base);
-    _selectedVault && setSelectedIlk(_ilkToUse!);
-    _selectedVault && setSelectedVault(_selectedVault);
+    if (_selectedVault) {
+      setSelectedSeries(vaultSeries!);
+      setSelectedBase(vaultBase!);
+      setSelectedIlk(vaultIlk!);
+      setSelectedVault(_selectedVault);
+    }
   }, [
     vaultMap,
     _selectedVault,
     seriesMap,
-    assetMap,
     setSelectedSeries,
     setSelectedBase,
     setSelectedIlk,
     setSelectedVault,
+    vaultSeries,
+    vaultBase,
+    vaultIlk,
   ]);
 
   useEffect(() => {
@@ -686,7 +681,8 @@ const VaultPosition = () => {
                         {!addCollatInput ? (
                           <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                             <Text size="xsmall" color="text-weak">
-                              Use {vaultIlk?.displaySymbol!} balance ({vaultIlk?.balance_!} {vaultIlk?.displaySymbol!})
+                              Use {vaultIlk?.displaySymbol!} balance ({vaultIlk?.balance.formatted}{' '}
+                              {vaultIlk?.displaySymbol!})
                             </Text>
                           </InputInfoWrap>
                         ) : (
