@@ -87,7 +87,7 @@ const PoolPosition = () => {
   const userStrategyBalance = selectedStrategy?.accountBalance;
 
   const accountStrategyPercent = mulDecimal(
-    divDecimal(userStrategyBalance?.value!, _selectedStrategy?.totalSupply.value || '0'),
+    divDecimal(userStrategyBalance?.value! || '0', _selectedStrategy?.totalSupply.value || '0'),
     '100'
   );
 
