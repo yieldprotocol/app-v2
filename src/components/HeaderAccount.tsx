@@ -88,7 +88,7 @@ const HeaderAccount = () => {
           </StyledBox>
         </Box>
       ) : (
-        openConnectModal && (
+        !!openConnectModal && (
           <GeneralButton action={openConnectModal} background="gradient-transparent">
             <Text size="small" color="text">
               Connect Wallet
