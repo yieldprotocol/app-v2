@@ -26,7 +26,7 @@ import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
@@ -53,6 +53,9 @@ const initState: IUserContextState = {
   selectedBase: null, // initial base
   selectedVault: null,
   selectedStrategy: null,
+
+  selectedIlkBalance: null,
+  selectedBaseBalance: null,
 };
 
 const initActions: IUserContextActions = {
@@ -111,9 +114,14 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
       return { ...state, selectedIlk: action.payload };
     case UserState.SELECTED_BASE:
       return { ...state, selectedBase: action.payload };
+
+      case UserState.SELECTED_ILK_BALANCE:
+        return { ...state, selectedIlkBalance: action.payload };
+      case UserState.SELECTED_BASE_BALANCE:
+        return { ...state, selectedBaseBalance: action.payload };
+
     case UserState.SELECTED_STRATEGY:
       return { ...state, selectedStrategy: action.payload };
-
     default:
       return state;
   }
@@ -142,6 +150,19 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { tenderlyStartBlock } = useTenderly();
   const contracts = useContracts();
+
+  /* watch the selectedBase and selectedIlk */
+  const { data: baseBalance, isLoading: baseLoading, status: baseStatus, refetch:refetchBase } = useBalance({
+    addressOrName: account,
+    token: userState.selectedBase?.address,
+    enabled: userState.selectedBase !== null
+  });
+
+  const { data: ilkBalance, isLoading: ilkLoading, status: ilkStatus, refetch:refetchIlk } = useBalance({
+    addressOrName: account,
+    token: userState.selectedIlk?.address,
+    enabled: userState.selectedIlk !== null,
+  });
 
   /* TODO consider moving out of here ? */
   const getPoolAPY = useCallback(
@@ -239,6 +260,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     async (assetList: IAssetRoot[]) => {
       console.log('Updating assets...');
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
+      
+      /* refetch the selected base ilk balances */
+      refetchBase();
+      refetchIlk(); 
 
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
@@ -691,6 +716,23 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
+
+  /* update selected asset balances */
+  useEffect(() => {
+    console.log( 'Selected Base Balance updated', baseBalance?.formatted )
+      updateState({
+        type: UserState.SELECTED_BASE_BALANCE,
+        payload: baseBalance,
+      });
+  }, [baseBalance]);
+
+  useEffect(() => {
+    console.log( 'Selected Ilk Balance updated', ilkBalance?.formatted  )
+      updateState({
+        type: UserState.SELECTED_ILK_BALANCE,
+        payload: ilkBalance,
+      });
+  }, [ilkBalance]);
 
   /* Exposed userActions */
   const userActions = {
