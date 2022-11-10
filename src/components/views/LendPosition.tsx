@@ -120,7 +120,7 @@ const LendPosition = () => {
   const handleClosePosition = () => {
     if (closeDisabled) return;
     setCloseDisabled(true);
-    closePosition(closeInput, selectedSeries!);
+    closePosition(closeInput);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
