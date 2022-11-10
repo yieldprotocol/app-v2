@@ -29,10 +29,9 @@ const TenderlyForkSetting = () => {
           onColor="#60A5FA"
           uncheckedIcon={false}
           checkedIcon={false}
-          onChange={(val: boolean) => {
+          onChange={(val: boolean) => { 
             updateSetting(Settings.USE_FORKED_ENV, val)
-            // connectionActions.useTenderly(val);
-            // val && window.location.reload();
+            val && window.location.reload();
           }}
           handleDiameter={20}
           borderRadius={20}

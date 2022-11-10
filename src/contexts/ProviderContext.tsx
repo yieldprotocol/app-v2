@@ -21,6 +21,8 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
 
   const { useForkedEnv, forkRpcUrl } = settingsState;
 
+  console.log( useForkedEnv, forkRpcUrl )
+
   const chainConfig = !useForkedEnv
     ? // Production environment >
       [
