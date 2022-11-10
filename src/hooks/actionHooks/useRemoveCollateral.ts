@@ -1,8 +1,7 @@
+import { useSWRConfig } from 'swr';
 import { ethers } from 'ethers';
-import { useContext } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../types';
+import { ICallData, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
@@ -13,10 +12,15 @@ import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAsset from '../useAsset';
+import { useContext } from 'react';
 
 export const useRemoveCollateral = () => {
-  const { userState, userActions } = useContext(UserContext);
-  const { selectedIlk, assetMap } = userState;
+  const { mutate } = useSWRConfig();
+  const {
+    userState: { selectedVault: vault },
+    userActions,
+  } = useContext(UserContext);
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
@@ -26,20 +30,26 @@ export const useRemoveCollateral = () => {
     historyActions: { updateVaultHistory },
   } = useContext(HistoryContext) as IHistoryContext;
 
-  const { updateAssets, updateVaults } = userActions;
+  const { updateVaults } = userActions;
   const { transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
+  const { data: ilk, key: ilkKey } = useAsset(vault?.ilkId!);
 
-  const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
+  const removeCollateral = async (input: string, unwrapOnRemove: boolean = true) => {
+    if (!account) throw new Error('no account detected in remove collat');
+    if (!vault) throw new Error('no vault detected in remove collat');
+    if (!ilk) throw new Error('no ilk detected in remove collat');
+    if (!chain) throw new Error('no chain detected in remove collat');
+
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
-    /* get associated series and ilk */
-    const ilk = assetMap?.get(vault.ilkId)!;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
+    if (!ladleAddress) throw new Error('no ladle address detected in remove collat');
+
     /* get unwrap handler if required */
-    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chain?.id!);
+    const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chain.id);
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk.proxyId);
 
@@ -48,11 +58,11 @@ export const useRemoveCollateral = () => {
     const _input = ethers.utils.parseUnits(cleanedInput, ilk.decimals);
 
     /* handle wrapped tokens:  */
-    const unwrapCallData: ICallData[] = unwrapOnRemove ? await unwrapAsset(ilk, account!) : [];
-    const removeEthCallData: ICallData[] = isEthCollateral ? removeEth(ONE_BN) : []; // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+    const unwrapCallData = unwrapOnRemove ? await unwrapAsset(ilk, account) : [];
+    const removeEthCallData = isEthCollateral ? removeEth(ONE_BN) : []; // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
 
     /* is convex-type collateral */
-    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(ilk.proxyId);
     const convexJoinContract = ConvexJoin__factory.connect(ilk.joinAddress, provider);
 
     /* pour destination based on ilk/asset is an eth asset variety ( or unwrapHadnler address if unwrapping) */
@@ -87,8 +97,8 @@ export const useRemoveCollateral = () => {
     ];
 
     await transact(calls, txCode);
+    mutate(ilkKey);
     updateVaults([vault]);
-    updateAssets([ilk, selectedIlk!]);
     updateVaultHistory([vault]);
   };
 
