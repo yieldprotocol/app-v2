@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useProvider } from 'wagmi';
 import { SettingsContext } from '../contexts/SettingsContext';
@@ -31,9 +30,11 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
       try {
         // const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
         const { timestamp } = await provider.getBlock('latest');
+
+        useForkedEnv && console.log( 'Forked Blockchain time: ', new Date(timestamp*1000).toLocaleDateString())
         setBlockTimestamp(timestamp);
       } catch (e) {
-        console.log('error getting latest timestamp', e);
+        console.log('Error getting latest timestamp', e);
       }
     };
     if (useForkedEnv || useBlockchainTime) getBlockTimestamp();
