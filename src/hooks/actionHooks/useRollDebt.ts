@@ -1,16 +1,22 @@
+import { useSWRConfig } from 'swr';
 import { useContext } from 'react';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IHistoryContext } from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, IHistoryContext } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { MAX_128, ZERO_BN } from '../../utils/constants';
+import useAsset from '../useAsset';
 import { useChain } from '../useChain';
 
 /* Generic hook for chain transactions */
 export const useRollDebt = () => {
-  const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap } = userState;
-  const { updateVaults, updateAssets, updateSeries } = userActions;
+  const { mutate } = useSWRConfig();
+  const {
+    userState: { selectedVault: vault, seriesMap },
+    userActions,
+  } = useContext(UserContext);
+  const { updateVaults, updateSeries } = userActions;
+  const { data: base, key: baseKey } = useAsset(vault?.baseId!);
 
   const {
     historyActions: { updateVaultHistory },
@@ -18,11 +24,13 @@ export const useRollDebt = () => {
 
   const { transact } = useChain();
 
-  const rollDebt = async (vault: IVault, toSeries: ISeries) => {
+  const rollDebt = async (toSeries: ISeries) => {
+    if (!vault) throw new Error('no vault detected in roll debt');
+    if (!base) throw new Error('no base detected in roll debt');
+
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
-    const base = assetMap?.get(vault.baseId);
     const hasDebt = vault.accruedArt.gt(ZERO_BN);
-    const fromSeries = seriesMap?.get(vault.seriesId);
+    const fromSeries = seriesMap.get(vault.seriesId);
 
     const calls: ICallData[] = [
       {
@@ -39,8 +47,9 @@ export const useRollDebt = () => {
       },
     ];
     await transact(calls, txCode);
+
+    mutate(baseKey);
     updateVaults([vault]);
-    updateAssets([base!]);
     updateSeries([fromSeries!, toSeries]);
     updateVaultHistory([vault]);
   };
