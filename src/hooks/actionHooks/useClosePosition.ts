@@ -1,3 +1,4 @@
+import { useSWRConfig } from 'swr';
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
@@ -15,6 +16,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAsset from '../useAsset';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -22,31 +24,36 @@ export const useClosePosition = () => {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
-  const { assetMap } = userState;
+  const {
+    userActions,
+    userState: { selectedSeries: series },
+  } = useContext(UserContext);
+  const { mutate } = useSWRConfig();
   const { address: account } = useAccount();
   const contracts = useContracts();
-  const { updateSeries, updateAssets } = userActions;
+  const { updateSeries } = userActions;
   const {
     historyActions: { updateTradeHistory },
   } = useContext(HistoryContext);
+
+  const { data: base, key: baseKey } = useAsset(series?.baseId!);
 
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const closePosition = async (
-    input: string | undefined,
-    series: ISeries,
-    getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
-  ) => {
+  const closePosition = async (input: string | undefined) => {
+    if (!account) throw new Error('no account detected in close position');
+    if (!series) throw new Error('no series detected in close position');
+    if (!base) throw new Error('no base detected in close position');
+
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
-    const base = assetMap?.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
     const { fyTokenAddress, poolAddress, seriesIsMature } = series;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
+    if (!ladleAddress) throw new Error('no ladle address detected in close position');
 
     /* assess how much fyToken is needed to buy base amount (input) */
     /* after maturity, fytoken === base (input) value */
@@ -71,9 +78,9 @@ export const useClosePosition = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress!)).gte(_fyTokenValueOfInput);
+    const alreadyApproved = (await series.fyTokenContract.allowance(account, ladleAddress)).gte(_fyTokenValueOfInput);
 
-    const permitCallData: ICallData[] = await sign(
+    const permitCallData = await sign(
       [
         {
           target: series,
@@ -131,8 +138,9 @@ export const useClosePosition = () => {
       ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
+
+    mutate(baseKey);
     updateSeries([series]);
-    updateAssets([base]);
     updateTradeHistory([series]);
   };
 
