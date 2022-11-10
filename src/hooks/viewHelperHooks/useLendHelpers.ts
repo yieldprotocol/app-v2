@@ -8,9 +8,8 @@ import { ActionType, ISeries } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
 import { cleanValue } from '../../utils/appUtils';
-import { WETH } from '../../config/assets';
+import useAsset from '../useAsset';
 
 export const useLendHelpers = (
   series: ISeries | null,
@@ -22,10 +21,10 @@ export const useLendHelpers = (
   } = useContext(SettingsContext);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: activeAccount } = useAccount();
 
   const { userState } = useContext(UserContext);
   const { selectedBase } = userState;
+  const { data: base } = useAsset(selectedBase?.id!);
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
@@ -50,20 +49,12 @@ export const useLendHelpers = (
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
-  const { address: account } = useAccount();
-  const { data } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
-    enabled: !!activeAccount && !!selectedBase,
-  });
-  const userBaseBalance = data?.value || ethers.constants.Zero;
-  const userBaseBalance_ = data?.formatted;
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
-    if (!series && selectedBase) {
-      setMaxLend(userBaseBalance);
-      setMaxLend_(userBaseBalance_);
+    if (!series && base) {
+      setMaxLend(base?.balance.value!);
+      setMaxLend_(base?.balance.formatted);
     }
 
     if (series) {
@@ -84,9 +75,9 @@ export const useLendHelpers = (
       const _maxBaseIn = _maxSharesIn.lte(ethers.constants.Zero) ? ethers.constants.Zero : series.getBase(_maxSharesIn);
       diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
 
-      if (userBaseBalance.lt(_maxBaseIn)) {
-        setMaxLend(userBaseBalance);
-        setMaxLend_(ethers.utils.formatUnits(userBaseBalance, series.decimals).toString());
+      if (base && base.balance.value.lt(_maxBaseIn)) {
+        setMaxLend(base.balance.value);
+        setMaxLend_(base.balance.formatted);
         setProtocolLimited(false);
       } else {
         setMaxLend(_maxBaseIn);
@@ -94,7 +85,7 @@ export const useLendHelpers = (
         setProtocolLimited(true);
       }
     }
-  }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity, userBaseBalance_]);
+  }, [series, diagnostics, getTimeTillMaturity, base]);
 
   /* Sets max close and current market value of fyTokens held in base tokens */
   useEffect(() => {
@@ -261,7 +252,7 @@ export const useLendHelpers = (
     valueAtMaturity_,
 
     fyTokenMarketValue,
-    userBaseBalance,
+    userBaseBalance: base?.balance.value,
 
     protocolLimited, // userBaseBalance.gt(protocolBaseIn)
   };
