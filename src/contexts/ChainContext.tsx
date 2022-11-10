@@ -441,7 +441,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     _getProtocolData();
-  }, []);
+  }, [_getProtocolData]);
 
   /**
    * functionality to export protocol addresses
