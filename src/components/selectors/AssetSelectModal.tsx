@@ -46,7 +46,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
         <Box width="550px">
           <Box overflow="auto" height={{ max: '600px' }} pad={{ vertical: 'small', horizontal: 'large' }} gap="small">
             {assets
-              .sort((a, b) => (a.balance?.lt(b.balance!) ? 1 : -1))
+              .sort((a, b) => (a.balance.value.lt(b.balance.value) ? 1 : -1))
               .map((a) => (
                 <Button
                   key={a.id}
@@ -54,7 +54,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
                     handleSelect(a);
                     setOpen(false);
                   }}
-                  disabled={a.balance && a.balance.eq(ethers.constants.Zero)}
+                  disabled={a.balance.value.eq(ethers.constants.Zero)}
                 >
                   <BoxWrap
                     justify="between"
@@ -74,7 +74,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
                         </Text>
                       </Box>
                     </Box>
-                    <Text size="small">{cleanValue(a.balance_, a.digitFormat)}</Text>
+                    <Text size="small">{cleanValue(a.balance.formatted, a.digitFormat)}</Text>
                   </BoxWrap>
                 </Button>
               ))}
