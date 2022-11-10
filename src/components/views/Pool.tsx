@@ -183,10 +183,7 @@ function Pool() {
                   }
                 >
                   <Box flex={false}>
-                    <StrategySelector
-                      strategies={strategyMap ? [...strategyMap.values()] : []}
-                      inputValue={poolInput}
-                    />
+                    <StrategySelector inputValue={poolInput} />
                   </Box>
                 </SectionWrap>
               </Box>
