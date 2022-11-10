@@ -19,9 +19,9 @@ import YieldMark from '../components/logos/YieldMark';
 import { SERIES_1, SERIES_42161 } from '../config/series';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
-import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
+import useDefaultProvider from '../hooks/useDefaultProvider';
 
 const initState: IChainContextState = {
   /* flags */
@@ -83,7 +83,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   const [chainState, updateState] = useReducer(chainReducer, initState);
 
   /* HOOKS */
-  const provider = useDefaulProvider();
+  const provider = useDefaultProvider();
   const chainId = useChainId();
   const contracts = useContracts();
 
