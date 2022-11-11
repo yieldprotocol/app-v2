@@ -176,7 +176,7 @@ export const useDashboardHelpers = () => {
         ? convertValue(currencySettingAssetId, position.baseId, position.accruedArt_)
         : 0
     );
-    setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits));
+    setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toFixed(), currencySettingDigits));
 
     /* calc total collateral */
     const _collateral = vaultPositions.map((position) =>
@@ -185,7 +185,7 @@ export const useDashboardHelpers = () => {
         : 0
     );
     setTotalCollateral(
-      cleanValue(_collateral.reduce((sum, collateral) => sum + collateral, 0).toString(), currencySettingDigits)
+      cleanValue(_collateral.reduce((sum, collateral) => sum + collateral, 0).toFixed(), currencySettingDigits)
     );
 
     /* calc total collateral */
@@ -195,7 +195,8 @@ export const useDashboardHelpers = () => {
         : 0
     );
     setTotalLendBalance(
-      cleanValue(_lendBalances.reduce((sum, lent) => sum + lent, 0).toString(), currencySettingDigits)
+
+      cleanValue(_lendBalances.reduce((sum, lent) => sum + lent, 0).toFixed(), currencySettingDigits)
     );
 
     /* calc total collateral */
