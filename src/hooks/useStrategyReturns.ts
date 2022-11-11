@@ -118,7 +118,8 @@ const useStrategyReturns = (
    */
   const getFyTokenPrice = (series: ISeries, input: string): number => {
     if (series) {
-      const input_ = parseUnits(input, series.decimals);
+      const cleaned = cleanValue(input, series.decimals);
+      const input_ = parseUnits(cleaned, series.decimals);
 
       const sharesOut = sellFYToken(
         series.sharesReserves,
