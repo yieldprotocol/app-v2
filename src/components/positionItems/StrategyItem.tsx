@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { Box, Text } from 'grommet';
 
-import { ActionType, } from '../../types';
+import { ActionType } from '../../types';
 import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
@@ -27,7 +27,7 @@ function StrategyItem({
     userActions: { setSelectedSeries, setSelectedBase, setSelectedStrategy },
   } = useContext(UserContext);
   const { logAnalyticsEvent } = useAnalytics();
-  const { data: strategy } = useStrategy(strategyAddress);
+  const { data: strategy, error } = useStrategy(strategyAddress);
   const { data: base } = useAsset(strategy?.baseId!);
 
   const handleSelect = () => {
@@ -42,17 +42,19 @@ function StrategyItem({
     }
   };
 
+  if (error) return null;
+
   if (!strategy)
     return (
       <ItemWrap action={handleSelect} index={index}>
-        <CardSkeleton />;
+        <CardSkeleton />
       </ItemWrap>
     );
 
   return (
     <ItemWrap action={handleSelect} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={strategy.currentSeries!} condensed={condensed} actionType={ActionType.POOL} />
+        <PositionAvatar position={strategy.currentSeries} condensed={condensed} actionType={ActionType.POOL} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}

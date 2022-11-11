@@ -74,6 +74,7 @@ const useStrategy = (address: string) => {
   return {
     data,
     isLoading: !data && !error,
+    error,
     key,
   };
 };
