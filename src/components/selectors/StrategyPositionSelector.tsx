@@ -13,7 +13,6 @@ import useStrategies from '../../hooks/useStrategies';
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
-
   const { userState } = useContext(UserContext);
   const { selectedBase } = userState;
   const { data: strategyMap } = useStrategies();
@@ -68,7 +67,7 @@ function StrategyPositionSelector() {
             )}
 
             {(!showAllPositions ? filteredSeries : allPositions).map((x: IStrategy, i: number) => (
-              <StrategyItem strategy={x} index={i} key={x.address} />
+              <StrategyItem strategyAddress={x.address} index={i} key={x.address} />
             ))}
           </ListWrap>
 

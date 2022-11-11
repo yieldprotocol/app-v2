@@ -1,42 +1,56 @@
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 
-import { ActionType, IStrategy } from '../../types';
-import { UserContext } from '../../contexts/UserContext';
+import { ActionType, } from '../../types';
 import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
-import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAsset from '../../hooks/useAsset';
+import useStrategy from '../../hooks/useStrategy';
+import { useContext } from 'react';
+import { UserContext } from '../../contexts/UserContext';
+import { CardSkeleton } from '../selectors/StrategySelector';
 
-function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
+function StrategyItem({
+  strategyAddress,
+  index,
+  condensed,
+}: {
+  strategyAddress: string;
+  index: number;
+  condensed?: boolean;
+}) {
   const router = useRouter();
-  const { logAnalyticsEvent } = useAnalytics();
-
   const {
-    userState: { seriesMap, selectedStrategy },
-    userActions,
+    userActions: { setSelectedSeries, setSelectedBase, setSelectedStrategy },
   } = useContext(UserContext);
+  const { logAnalyticsEvent } = useAnalytics();
+  const { data: strategy } = useStrategy(strategyAddress);
+  const { data: base } = useAsset(strategy?.baseId!);
 
-  const { data: base } = useAsset(strategy.baseId);
-  const series = seriesMap?.get(strategy.currentSeriesId) || null;
-  const isSelectedStrategy = strategy.id === selectedStrategy?.id;
-
-  const handleSelect = (_series: IStrategy) => {
-    userActions.setSelectedBase(base!);
-    userActions.setSelectedSeries(series);
-    userActions.setSelectedStrategy(strategy);
-    router.push(`/poolposition/${strategy.address}`);
-    logAnalyticsEvent(GA_Event.position_opened, {
-      id: strategy.name,
-    } as GA_Properties.position_opened);
+  const handleSelect = () => {
+    if (strategy) {
+      setSelectedStrategy(strategy);
+      setSelectedSeries(strategy?.currentSeries);
+      setSelectedBase(base!);
+      router.push(`/poolposition/${strategy.address}`);
+      logAnalyticsEvent(GA_Event.position_opened, {
+        id: strategy.name,
+      } as GA_Properties.position_opened);
+    }
   };
 
+  if (!strategy)
+    return (
+      <ItemWrap action={handleSelect} index={index}>
+        <CardSkeleton />;
+      </ItemWrap>
+    );
+
   return (
-    <ItemWrap action={() => handleSelect(strategy)} index={index}>
+    <ItemWrap action={handleSelect} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
         <PositionAvatar position={strategy.currentSeries!} condensed={condensed} actionType={ActionType.POOL} />
         <Box
