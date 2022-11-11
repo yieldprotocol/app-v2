@@ -286,7 +286,7 @@ function Pool() {
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View strategy Position: </Text>
-                <StrategyItem strategy={strategyMap?.get(selectedStrategy?.id!)!} index={0} condensed />
+                <StrategyItem strategyAddress={selectedStrategy?.address!} index={0} condensed />
               </Box>
             )}
         </Box>
