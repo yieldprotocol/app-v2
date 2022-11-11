@@ -72,8 +72,6 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     const _lendPositions: ILendPosition[] = Array.from(seriesMap.values())
       .map((_series) => {
-
-        console.log( _series.displayName )
         const currentValue = _series.seriesIsMature
         ? _series.fyTokenBalance
         : sellFYToken(
