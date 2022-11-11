@@ -45,9 +45,9 @@ export const useDashboardHelpers = () => {
   const { pairMap } = priceState;
   const { updateAssetPair } = priceActions;
 
-  const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : USDC;
+  const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;
   const currencySettingDigits = 2;
-  const currencySettingSymbol = dashCurrency === 'ETH' ? 'Ξ' : '$';
+  const currencySettingSymbol = dashCurrency === WETH ? 'Ξ' : '$';
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ILendPosition[]>([]);
@@ -73,26 +73,25 @@ export const useDashboardHelpers = () => {
     const _lendPositions: ILendPosition[] = Array.from(seriesMap.values())
       .map((_series) => {
         const currentValue = _series.seriesIsMature
-        ? _series.fyTokenBalance
-        : sellFYToken(
-          _series.sharesReserves,
-          _series.fyTokenReserves,
-          _series.fyTokenBalance || ethers.constants.Zero,
-          getTimeTillMaturity(_series.maturity),
-          _series.ts,
-          _series.g2,
-          _series.decimals,
-          _series.c,
-          _series.mu
-        );
+          ? _series.fyTokenBalance
+          : sellFYToken(
+              _series.sharesReserves,
+              _series.fyTokenReserves,
+              _series.fyTokenBalance || ethers.constants.Zero,
+              getTimeTillMaturity(_series.maturity),
+              _series.ts,
+              _series.g2,
+              _series.decimals,
+              _series.c,
+              _series.mu
+            );
 
         const currentValue_ =
           currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
             ? _series.fyTokenBalance_
             : ethers.utils.formatUnits(currentValue, _series.decimals);
 
-        return { ..._series, currentValue_};
-
+        return { ..._series, currentValue_ };
       })
       .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
       .sort((_seriesA: ILendPosition, _seriesB: ILendPosition) =>
@@ -193,7 +192,6 @@ export const useDashboardHelpers = () => {
         : 0
     );
     setTotalLendBalance(
-
       cleanValue(_lendBalances.reduce((sum, lent) => sum + lent, 0).toFixed(), currencySettingDigits)
     );
 
