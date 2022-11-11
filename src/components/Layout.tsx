@@ -8,7 +8,6 @@ import { ToastContainer } from 'react-toastify';
 import { deepMerge } from 'grommet/utils';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { yieldTheme } from '../themes';
-import { useAccount } from 'wagmi';
 
 // get dynaimc imports for applicable components (to account for non-ssr)
 const DynamicYieldHeader = dynamic(() => import('./Header'), { ssr: false });
@@ -19,7 +18,6 @@ const DynamicTransactionWidget = dynamic(() => import('./TransactionWidget'), { 
 const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ssr: false });
 
 const DynamicSanctionedAddressError = dynamic(() => import('./SanctionedAddressError'), { ssr: false });
-
 
 interface ILayout {
   children?: ReactNode;
