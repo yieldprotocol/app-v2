@@ -29,14 +29,14 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(SettingsContext);
 
   const {
-    userState: { selectedStrategy, vaultMap },
+    userState: { selectedStrategy, selectedBase, vaultMap },
   } = useContext(UserContext);
 
   /* HOOKS */
 
   const { data: strategy } = useStrategy(selectedStrategy?.address!);
   const strategySeries = strategy?.currentSeries;
-  const { data: strategyBase } = useAsset(strategy?.baseId!);
+  const { data: base } = useAsset(selectedBase?.id!);
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
   /* LOCAL STATE */
@@ -65,28 +65,25 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
-    if (strategySeries && strategyBase) {
+    if (strategySeries && base) {
       const arr = Array.from(vaultMap?.values()!);
       const _matchingVault = arr
         .sort((vaultA, vaultB) => (vaultA.id > vaultB.id ? 1 : -1))
         .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
-        .find(
-          (v: IVault) =>
-            v.ilkId === strategyBase.proxyId && v.baseId === strategyBase.proxyId && v.seriesId === strategySeries.id
-        );
+        .find((v: IVault) => v.ilkId === base.proxyId && v.baseId === base.proxyId && v.seriesId === strategySeries.id);
       setMatchingVault(_matchingVault);
       diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategy, strategyBase, strategySeries, removeLiquidityView, diagnostics]);
+  }, [vaultMap, strategy, base, strategySeries, removeLiquidityView, diagnostics]);
 
   /* Set input (need to make sure we can parse the input value) */
   useEffect(() => {
-    if (input) {
+    if (input && base) {
       try {
-        const cleanedInput = cleanValue(input, strategy?.decimals);
-        const parsedInput = ethers.utils.parseUnits(cleanedInput, strategyBase?.decimals);
+        const cleanedInput = cleanValue(input, base.decimals);
+        const parsedInput = ethers.utils.parseUnits(cleanedInput, base.decimals);
         setInput(parsedInput);
       } catch (e) {
         console.log(e);
@@ -94,7 +91,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     } else {
       setInput(ethers.constants.Zero);
     }
-  }, [input, strategy?.decimals, strategyBase]);
+  }, [input, base]);
 
   /**
    * ADD LIQUIDITY SPECIFIC  SECTION
@@ -153,11 +150,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Set Max Pool > effectively user balance */
   useEffect(() => {
-    if (!removeLiquidityView) {
+    if (!removeLiquidityView && base) {
       /* Checks asset selection and sets the max available value */
-      setMaxPool(strategyBase?.balance.formatted);
+      setMaxPool(base.balance.formatted);
     }
-  }, [removeLiquidityView, strategyBase?.balance.formatted]);
+  }, [removeLiquidityView, base]);
 
   /**
    * Remove Liquidity specific section
