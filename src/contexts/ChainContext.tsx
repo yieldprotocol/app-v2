@@ -152,6 +152,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues !== null && cachedValues.length) {
+      console.log('Yield Protocol ASSET data retrieved ::: CACHE :::');
       return cachedValues.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
       });
@@ -228,9 +229,11 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.'));
 
     console.log('Yield Protocol Asset data updated successfully.');
+    
     /* cache results */
     newAssetList.length && localStorage.setItem(cacheKey, JSON.stringify(newAssetList));
     newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
+
   }, [ASSET_CONFIG, _chargeAsset, chainId, provider]);
 
   /* add on extra/calculated ASYNC series info and contract instances */
@@ -276,6 +279,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues !== null && cachedValues.length) {
+      console.log('Yield Protocol SERIES data retrieved ::: CACHE :::');
       return cachedValues.forEach((s: ISeriesRoot) => {
         updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
       });
@@ -365,7 +369,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     const strategyList: string[] = (yieldEnv.strategies as any)[chainId];
 
     if (cachedValues !== null && cachedValues.length) {
-      console.log('Yield Protocol Strategy data retrieved successfully ::: CACHE :::');
+      console.log('Yield Protocol STRATEGY data retrieved ::: CACHE :::');
       return cachedValues.forEach((st: IStrategyRoot) => {
         updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
       });
@@ -409,9 +413,12 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   }, [_chargeStrategy, chainId, provider]);
 
   const _getProtocolData = useCallback(async () => {
-    /* Clear maps in local memory */
-    updateState({ type: ChainState.CLEAR_MAPS, payload: undefined });
 
+    updateState({ type: ChainState.CHAIN_LOADED, payload: false });
+
+    /* Clear maps in local app memory  ( note: this is not the cache )*/
+    updateState({ type: ChainState.CLEAR_MAPS, payload: undefined });
+    
     console.log('Fetching Protocol contract addresses for chain Id: ', chainId);
 
     console.log('Checking for new Assets and Series, and Strategies : ', chainId);
@@ -435,13 +442,26 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
-
     setLastAppVersion(process.env.REACT_APP_VERSION);
   }, [lastAppVersion, setLastAppVersion]);
 
+  /* Hande getting protocol data on first load */
   useEffect(() => {
-    _getProtocolData();
-  }, []);
+    chainId && _getProtocolData();
+  }, [chainId]);
+
+  // /**
+  //  * Handle updating assets/ series and strat
+  //  */
+  //    useEffect(() => {
+  //     console.log('APP VERSION: ', process.env.REACT_APP_VERSION);
+  //     if (lastAppVersion && process.env.REACT_APP_VERSION !== lastAppVersion) {
+  //       window.localStorage.clear();
+  //       // eslint-disable-next-line no-restricted-globals
+  //       location.reload();
+  //     }
+  //     setLastAppVersion(process.env.REACT_APP_VERSION);
+  //   }, [lastAppVersion, setLastAppVersion]);
 
   /**
    * functionality to export protocol addresses

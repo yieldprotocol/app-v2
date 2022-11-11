@@ -259,6 +259,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
+    
     async (assetList: IAssetRoot[]) => {
       console.log('Updating assets...');
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
@@ -267,12 +268,15 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       account && refetchBase();
       account && refetchIlk(); 
 
+      /**
+       * NOTE! this lock Below is just a place holder for if EVER async updates of assets are required. 
+       * Those async fetches would go here. 
+       * */ 
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
           const newAsset = {
             /* public data */
             ...asset,
-            displaySymbol: asset?.displaySymbol,
           };
           return newAsset as IAsset;
         })
@@ -283,8 +287,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       }, new Map() as Map<string, IAsset>);
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
-
-      diagnostics && console.log('ASSETS updated (with dynamic data):');
+      console.log('ASSETS updated (with dynamic data):', newAssetsMap );
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
     [diagnostics]
@@ -326,7 +329,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
             sharesAddress = series.baseAddress;
-            console.log('Using old pool contract that does not include c, mu, and shares');
+            diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
           // convert base amounts to shares amounts (baseAmount is wad)
@@ -452,6 +455,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
+      console.log('Updating strategies...');
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
       let _publicData: IStrategy[] = [];
@@ -691,7 +695,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       account && updateVaults();
     }
-  }, [chainLoaded, account, assetRootMap, seriesRootMap, strategyRootMap, updateAssets, updateSeries, updateVaults]);
+  }, [chainLoaded, account, assetRootMap, seriesRootMap, updateAssets, updateSeries, updateVaults]);
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
@@ -721,7 +725,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* update selected asset balances */
   useEffect(() => {
-    account && console.log( 'Selected Base Balance updated', baseBalance?.formatted )
+    // account && console.log( 'Selected Base Balance updated', baseBalance?.formatted )
     account && updateState({
         type: UserState.SELECTED_BASE_BALANCE,
         payload: baseBalance,
@@ -729,7 +733,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [baseBalance]);
 
   useEffect(() => {
-    account && console.log( 'Selected Ilk Balance updated', ilkBalance?.formatted  )
+    // account && console.log( 'Selected Ilk Balance updated', ilkBalance?.formatted  )
       account && updateState({
         type: UserState.SELECTED_ILK_BALANCE,
         payload: ilkBalance,
