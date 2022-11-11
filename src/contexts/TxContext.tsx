@@ -1,3 +1,4 @@
+import { useSWRConfig } from 'swr';
 import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
@@ -5,6 +6,8 @@ import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '.
 import { useNetwork, useProvider } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
+import useAsset from '../hooks/useAsset';
+import { WETH } from '../config/assets';
 
 enum TxStateItem {
   TRANSACTIONS = 'transactions',
@@ -113,6 +116,7 @@ function txReducer(_state: any, action: any) {
 }
 
 const TxProvider = ({ children }: any) => {
+  const { mutate } = useSWRConfig();
   const [txState, updateState] = useReducer(txReducer, initState);
 
   const _setProcessStage = (txCode: string, stage: ProcessStage) => {
@@ -124,6 +128,7 @@ const TxProvider = ({ children }: any) => {
 
   const provider = useProvider();
   const { chain } = useNetwork();
+  const { data: eth, key: ethKey } = useAsset(WETH);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -232,6 +237,10 @@ const TxProvider = ({ children }: any) => {
       }
 
       res = await tx.wait();
+
+      // update eth balance
+      mutate(ethKey);
+
       const txSuccess: boolean = res.status === 1 || false;
       const _tx = { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED };
       updateState({
