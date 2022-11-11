@@ -12,7 +12,6 @@ import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import YieldBalances from './HeaderBalances';
-import { GiConsoleController } from 'react-icons/gi';
 
 const StyledText = styled(Text)`
   svg,
@@ -37,7 +36,7 @@ const HeaderAccount = () => {
 
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
-  const { address: account } = useAccount()
+  const { address: account } = useAccount();
 
   const { data: ethBalance } = useBalance({ addressOrName: account });
 
@@ -51,7 +50,7 @@ const HeaderAccount = () => {
     <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      { !mobile && <YieldBalances /> }
+      {!mobile && <YieldBalances />}
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
