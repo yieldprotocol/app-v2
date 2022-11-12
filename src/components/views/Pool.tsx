@@ -38,7 +38,6 @@ import useStrategyReturns from '../../hooks/useStrategyReturns';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
-import useStrategies from '../../hooks/useStrategies';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
