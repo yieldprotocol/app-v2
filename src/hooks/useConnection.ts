@@ -173,7 +173,6 @@ export const useConnection = () => {
 
     setProviderToUse(getProviders().provider);
     setFallbackProviderToUse(getProviders().fallbackProvider);
-
   }, [chainId, fallbackProvider, provider, useTenderlyFork, useLocalhost]);
 
   const useTenderly = (shouldUse: boolean) => {

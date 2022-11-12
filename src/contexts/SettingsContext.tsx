@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
+import { USDC } from '../config/assets';
 import { useConnection } from '../hooks/useConnection';
 import { ApprovalType, ISettingsContextState } from '../types';
 
@@ -68,7 +69,7 @@ const initState: ISettingsContextState = {
   dashHideVaults: false,
   dashHideLendPositions: false,
   dashHidePoolPositions: false,
-  dashCurrency: 'USDC',
+  dashCurrency: USDC,
 };
 
 function settingsReducer(state: ISettingsContextState, action: any) {
