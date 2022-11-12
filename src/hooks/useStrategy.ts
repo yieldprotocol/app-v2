@@ -69,12 +69,13 @@ const useStrategy = (address: string) => {
     [account, address, strategyRootMap]
   );
 
-  const { data, error } = useSWRImmutable(key, getStrategy);
+  const { data, error, isValidating } = useSWRImmutable(key, getStrategy);
 
   return {
     data,
     isLoading: !data && !error,
     error,
+    isValidating,
     key,
   };
 };

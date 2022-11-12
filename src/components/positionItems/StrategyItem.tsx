@@ -12,6 +12,7 @@ import useStrategy from '../../hooks/useStrategy';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { CardSkeleton } from '../selectors/StrategySelector';
+import SkeletonWrap from '../wraps/SkeletonWrap';
 
 function StrategyItem({
   strategyAddress,
@@ -27,7 +28,7 @@ function StrategyItem({
     userActions: { setSelectedSeries, setSelectedBase, setSelectedStrategy },
   } = useContext(UserContext);
   const { logAnalyticsEvent } = useAnalytics();
-  const { data: strategy, error } = useStrategy(strategyAddress);
+  const { data: strategy, isValidating, error } = useStrategy(strategyAddress);
   const { data: base } = useAsset(strategy?.baseId!);
 
   const handleSelect = () => {
@@ -73,7 +74,11 @@ function StrategyItem({
                 Tokens:
               </Text>
               <Text weight={450} size="xsmall">
-                {nFormatter(parseFloat(strategy.accountBalance?.formatted!), 2)}
+                {isValidating ? (
+                  <SkeletonWrap width={20} />
+                ) : (
+                  nFormatter(parseFloat(strategy.accountBalance?.formatted!), 2)
+                )}
               </Text>
             </Box>
           </Box>
