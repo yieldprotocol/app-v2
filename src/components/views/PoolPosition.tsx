@@ -49,10 +49,7 @@ const PoolPosition = () => {
   const { selectedStrategy, seriesLoading } = userState;
 
   const { address: activeAccount } = useAccount();
-  const { data: strategyMap } = useStrategies();
-  const { data: _selectedStrategy, isLoading: strategyLoading } = useStrategy(
-    selectedStrategy?.address || (idFromUrl as string)
-  );
+  const { data: _selectedStrategy } = useStrategy(selectedStrategy?.address || (idFromUrl as string));
 
   const selectedSeries = _selectedStrategy?.currentSeries;
   const { data: selectedBase } = useAsset(selectedStrategy?.baseId!);
@@ -164,9 +161,8 @@ const PoolPosition = () => {
   }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
-    const _strategy = strategyMap?.get(idFromUrl as string) || null;
-    idFromUrl && setSelectedStrategy(_strategy);
-  }, [idFromUrl, setSelectedStrategy, strategyMap]);
+    if (idFromUrl && _selectedStrategy) setSelectedStrategy(_selectedStrategy);
+  }, [idFromUrl, setSelectedStrategy, _selectedStrategy]);
 
   /* watch process timeouts */
   useEffect(() => {

@@ -46,7 +46,6 @@ function Pool() {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { selectedBase, selectedStrategy } = userState;
-  const { data: strategyMap } = useStrategies();
 
   const { address: activeAccount } = useAccount();
 
