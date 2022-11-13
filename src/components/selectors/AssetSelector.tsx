@@ -99,7 +99,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     //   ? filteredOptions.sort((a, b) => (a.balance && a.balance.lt(b.balance) ? 1 : -1))
     //   : filteredOptions;
     setOptions(filteredOptions);
-  }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens]);
+  }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {

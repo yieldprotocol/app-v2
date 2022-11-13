@@ -14,7 +14,7 @@ export interface IChainContext {
 }
 
 export interface IChainContextState {
-  chainLoaded: boolean;
+  chainLoaded: number;
   assetRootMap: Map<string, IAssetRoot>;
   seriesRootMap: Map<string, ISeriesRoot>;
   strategyRootMap: Map<string, IStrategyRoot>;
@@ -26,7 +26,7 @@ export interface IChainContextActions {
 
 type ChainLoadedAction = {
   type: ChainState.CHAIN_LOADED;
-  payload: boolean;
+  payload: number;
 };
 
 type AddAssetAction = {

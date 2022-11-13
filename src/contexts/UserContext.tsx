@@ -115,10 +115,10 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
     case UserState.SELECTED_BASE:
       return { ...state, selectedBase: action.payload };
 
-      case UserState.SELECTED_ILK_BALANCE:
-        return { ...state, selectedIlkBalance: action.payload };
-      case UserState.SELECTED_BASE_BALANCE:
-        return { ...state, selectedBaseBalance: action.payload };
+    case UserState.SELECTED_ILK_BALANCE:
+      return { ...state, selectedIlkBalance: action.payload };
+    case UserState.SELECTED_BASE_BALANCE:
+      return { ...state, selectedBaseBalance: action.payload };
 
     case UserState.SELECTED_STRATEGY:
       return { ...state, selectedStrategy: action.payload };
@@ -131,6 +131,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext);
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
@@ -152,17 +153,27 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const contracts = useContracts();
 
   /* watch the selectedBase and selectedIlk */
-  const { data: baseBalance, isLoading: baseLoading, status: baseStatus, refetch:refetchBase } = useBalance({
+  const {
+    data: baseBalance,
+    isLoading: baseLoading,
+    status: baseStatus,
+    refetch: refetchBase,
+  } = useBalance({
     addressOrName: account,
     token: userState.selectedBase?.address,
-    enabled: !!account && userState.selectedBase !== null,
+    enabled: !!account && userState.selectedBase !== null && chainId === chainLoaded,
     cacheTime: 10_000,
   });
 
-  const { data: ilkBalance, isLoading: ilkLoading, status: ilkStatus, refetch:refetchIlk } = useBalance({
+  const {
+    data: ilkBalance,
+    isLoading: ilkLoading,
+    status: ilkStatus,
+    refetch: refetchIlk,
+  } = useBalance({
     addressOrName: account,
     token: userState.selectedIlk?.address,
-    enabled: !!account && userState.selectedIlk !== null,
+    enabled: !!account && userState.selectedIlk !== null && chainId === chainLoaded,
     cacheTime: 10_000,
   });
 
@@ -259,19 +270,18 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
-    
     async (assetList: IAssetRoot[]) => {
       console.log('Updating assets...');
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
-      
+
       /* refetch the selected base ilk balances */
       account && refetchBase();
-      account && refetchIlk(); 
+      account && refetchIlk();
 
       /**
-       * NOTE! this lock Below is just a place holder for if EVER async updates of assets are required. 
-       * Those async fetches would go here. 
-       * */ 
+       * NOTE! this lock Below is just a place holder for if EVER async updates of assets are required.
+       * Those async fetches would go here.
+       * */
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
           const newAsset = {
@@ -287,10 +297,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       }, new Map() as Map<string, IAsset>);
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
-      console.log('ASSETS updated (with dynamic data):', newAssetsMap );
+      console.log('ASSETS updated (with dynamic data):', newAssetsMap);
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
-    [diagnostics]
+    [diagnostics, account]
   );
 
   /* Updates the series with relevant *user* data */
@@ -689,21 +699,20 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    *
    * */
   useEffect(() => {
-    if (chainLoaded) {
+    if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
       updateAssets(Array.from(assetRootMap.values()));
       updateSeries(Array.from(seriesRootMap.values()));
-
       account && updateVaults();
     }
-  }, [chainLoaded, account, assetRootMap, seriesRootMap, updateAssets, updateSeries, updateVaults]);
+  }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateSeries, updateVaults]);
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
-    if (chainLoaded && Array.from(userState.seriesMap?.values()!).length) {
+    if (chainLoaded === chainId && Array.from(userState.seriesMap?.values()!).length) {
       /*  when series has finished loading,...load/reload strategy data */
-      updateStrategies(Array.from(strategyRootMap.values()));
+      strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [chainLoaded, strategyRootMap, userState.seriesMap]);
+  }, [strategyRootMap, userState.seriesMap, chainLoaded, chainId, updateStrategies]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -725,20 +734,18 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* update selected asset balances */
   useEffect(() => {
-    // account && console.log( 'Selected Base Balance updated', baseBalance?.formatted )
-    account && updateState({
+    if (account ) {
+      updateState({
         type: UserState.SELECTED_BASE_BALANCE,
         payload: baseBalance,
       });
-  }, [baseBalance]);
-
-  useEffect(() => {
-    // account && console.log( 'Selected Ilk Balance updated', ilkBalance?.formatted  )
-      account && updateState({
+      updateState({
         type: UserState.SELECTED_ILK_BALANCE,
         payload: ilkBalance,
       });
-  }, [ilkBalance]);
+    }
+  }, [baseBalance, ilkBalance, account]);
+
 
   /* Exposed userActions */
   const userActions = {
