@@ -43,9 +43,9 @@ export const useDashboardHelpers = () => {
   const { pairMap } = priceState;
   const { updateAssetPair } = priceActions;
 
-  const currencySettingAssetId = dashCurrency === 'ETH' ? WETH : USDC;
+  const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;
   const currencySettingDigits = 2;
-  const currencySettingSymbol = dashCurrency === 'ETH' ? 'Ξ' : '$';
+  const currencySettingSymbol = dashCurrency === WETH ? 'Ξ' : '$';
 
   const [vaultPositions, setVaultPositions] = useState<IVault[]>([]);
   const [lendPositions, setLendPositions] = useState<ILendPosition[]>([]);
@@ -70,21 +70,25 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
       .map((_series) => {
-        const currentValue = sellFYToken(
-          _series.sharesReserves,
-          _series.fyTokenReserves,
-          _series.fyTokenBalance || ethers.constants.Zero,
-          getTimeTillMaturity(_series.maturity),
-          _series.ts,
-          _series.g2,
-          _series.decimals,
-          _series.c,
-          _series.mu
-        );
+        const currentValue = _series.seriesIsMature
+          ? _series.fyTokenBalance || ZERO_BN
+          : sellFYToken(
+              _series.sharesReserves,
+              _series.fyTokenReserves,
+              _series.fyTokenBalance || ethers.constants.Zero,
+              getTimeTillMaturity(_series.maturity),
+              _series.ts,
+              _series.g2,
+              _series.decimals,
+              _series.c,
+              _series.mu
+            );
+
         const currentValue_ =
           currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
             ? _series.fyTokenBalance_
             : ethers.utils.formatUnits(currentValue, _series.decimals);
+
         return { ..._series, currentValue_ };
       })
       .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
@@ -189,7 +193,7 @@ export const useDashboardHelpers = () => {
         ? convertValue(currencySettingAssetId, position.baseId, position.accruedArt_)
         : 0
     );
-    setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toString(), currencySettingDigits));
+    setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toFixed(), currencySettingDigits));
 
     /* calc total collateral */
     const _collateral = vaultPositions.map((position) =>
@@ -198,7 +202,7 @@ export const useDashboardHelpers = () => {
         : 0
     );
     setTotalCollateral(
-      cleanValue(_collateral.reduce((sum, collateral) => sum + collateral, 0).toString(), currencySettingDigits)
+      cleanValue(_collateral.reduce((sum, collateral) => sum + collateral, 0).toFixed(), currencySettingDigits)
     );
 
     /* calc total collateral */
@@ -208,7 +212,7 @@ export const useDashboardHelpers = () => {
         : 0
     );
     setTotalLendBalance(
-      cleanValue(_lendBalances.reduce((sum, lent) => sum + lent, 0).toString(), currencySettingDigits)
+      cleanValue(_lendBalances.reduce((sum, lent) => sum + lent, 0).toFixed(), currencySettingDigits)
     );
 
     /* calc total collateral */

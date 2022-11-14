@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';

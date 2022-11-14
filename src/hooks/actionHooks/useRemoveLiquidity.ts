@@ -1,5 +1,5 @@
 import { useSWRConfig } from 'swr';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext } from 'react';
 import {
   burn,
@@ -12,7 +12,7 @@ import {
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ActionCodes, LadleActions, RoutedActions, IVault, IAsset } from '../../types';
+import { ICallData, ActionCodes, LadleActions, RoutedActions, IVault } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { HistoryContext } from '../../contexts/HistoryContext';

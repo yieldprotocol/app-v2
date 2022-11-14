@@ -10,7 +10,7 @@ import GeneralButton from './buttons/GeneralButton';
 import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import YieldBalances from './HeaderBalances';
+import HeaderBalances from './HeaderBalances';
 import useAsset from '../hooks/useAsset';
 import { WETH } from '../config/assets';
 
@@ -46,8 +46,8 @@ const HeaderAccount = () => {
     <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      {!mobile && <YieldBalances />}
-      {account ? (
+      {!mobile && <HeaderBalances />}
+      {account && (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
@@ -84,14 +84,14 @@ const HeaderAccount = () => {
             )}
           </StyledBox>
         </Box>
-      ) : (
-        openConnectModal && (
-          <GeneralButton action={openConnectModal} background="gradient-transparent">
-            <Text size="small" color="text">
-              Connect Wallet
-            </Text>
-          </GeneralButton>
-        )
+      )}
+
+      {!account && (
+        <GeneralButton action={() => !!openConnectModal && openConnectModal()} background="gradient-transparent">
+          <Text size="small" color="text">
+            Connect Wallet
+          </Text>
+        </GeneralButton>
       )}
     </Box>
   );

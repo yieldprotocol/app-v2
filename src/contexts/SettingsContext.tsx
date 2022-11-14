@@ -48,7 +48,7 @@ const initState: ISettingsContextState = {
   dashCurrency: 'USDC',
 
   useFork: false,
-  forkUrl: 'https://rpc.tenderly.co/fork/717ceb3b-f9a9-4fa0-b1ea-3eb0dd114ddf',
+  forkUrl: '',
 };
 
 const initActions: ISettingsContextActions = {

@@ -3,7 +3,7 @@ import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
-import { useNetwork, useProvider } from 'wagmi';
+import { useProvider } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
 import useAsset from '../hooks/useAsset';
@@ -127,8 +127,7 @@ const TxProvider = ({ children }: any) => {
   };
 
   const provider = useProvider();
-  const { chain } = useNetwork();
-  const { data: eth, key: ethKey } = useAsset(WETH);
+  const { key: ethKey } = useAsset(WETH);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -263,6 +262,7 @@ const TxProvider = ({ children }: any) => {
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */
       _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
+
       return res;
     } catch (e: any) {
       /* catch tx errors */

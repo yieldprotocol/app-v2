@@ -14,7 +14,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 

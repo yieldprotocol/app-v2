@@ -51,7 +51,7 @@ const YieldBalances = () => {
     <>
       {account && (
         <Box pad="small" justify="center" align="start" gap="xsmall">
-          {selectedBase?.proxyId !== WETH && (
+          {selectedBase && selectedBase?.proxyId !== WETH && (
             <Balance
               image={selectedBase?.image}
               balance={cleanValue(base?.balance.formatted, 2)}

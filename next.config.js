@@ -23,6 +23,7 @@ const nextConfig = {
     ALCHEMY_ARBITRUM_RINKEBY_KEY: process.env.ALCHEMY_ARBITRUM_RINKEBY_KEY,
     ALCHEMY_MAINNET_KEY: process.env.ALCHEMY_MAINNET_KEY,
     ENV: process.env.NODE_ENV,
+
   },
   async redirects() {
     return [

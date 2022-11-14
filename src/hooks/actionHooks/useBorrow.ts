@@ -9,7 +9,7 @@ import { ICallData, IVault, ActionCodes, LadleActions, ISeries, IAsset } from '.
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
 
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
@@ -17,7 +17,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 

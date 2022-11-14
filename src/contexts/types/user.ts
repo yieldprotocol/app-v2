@@ -26,6 +26,9 @@ export interface IUserContextState {
   selectedBase: IAsset | null;
   selectedVault: IVault | null;
   selectedStrategy: IStrategy | null;
+
+  selectedBaseBalance: any,
+  selectedIlkBalance: any,
 }
 
 export enum UserState {
@@ -44,6 +47,9 @@ export enum UserState {
   SELECTED_ILK = 'selectedIlk',
   SELECTED_BASE = 'selectedBase',
   SELECTED_STRATEGY = 'selectedStrategy',
+
+  SELECTED_ILK_BALANCE = 'selectedIlkBalance',
+  SELECTED_BASE_BALANCE = 'selectedBaseBalance',
 }
 
 export type UserLoadingAction = {
@@ -89,10 +95,19 @@ export type SelectedIlkAction = {
   type: UserState.SELECTED_ILK;
   payload: IAsset;
 };
+export type SelectedIlkBalanceAction = {
+  type: UserState.SELECTED_ILK_BALANCE;
+  payload: any; // TODO type this
+};
 
 export type SelectedBaseAction = {
   type: UserState.SELECTED_BASE;
   payload: IAsset;
+};
+
+export type SelectedBaseBalanceAction = {
+  type: UserState.SELECTED_BASE_BALANCE;
+  payload: any; // TODO type this
 };
 
 export type SelectedStrategyAction = {
@@ -111,4 +126,6 @@ export type UserContextAction =
   | SelectedSeriesAction
   | SelectedIlkAction
   | SelectedBaseAction
+  | SelectedBaseBalanceAction
+  | SelectedIlkBalanceAction
   | SelectedStrategyAction;

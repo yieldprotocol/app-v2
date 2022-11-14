@@ -260,7 +260,9 @@ export const useBorrowHelpers = (
 
         /* if the series is mature re-set max as all debt (if balance allows) */
         if (vaultSeries.seriesIsMature) {
-          const _accruedArt = vault.accruedArt?.gt(baseBalance?.value!) ? baseBalance?.value! : vault.accruedArt;
+          const _accruedArt = vault.accruedArt?.gt(baseBalance?.value! || ethers.constants.Zero)
+            ? baseBalance?.value!
+            : vault.accruedArt;
           setMaxRepay(_accruedArt);
           setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
         } else {

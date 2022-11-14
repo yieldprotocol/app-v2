@@ -1,7 +1,6 @@
 import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { ReactNode, useContext } from 'react';
-import { SettingsContext } from './SettingsContext';
+import { ReactNode} from 'react';
 import {
   darkTheme,
   RainbowKitProvider,
@@ -10,14 +9,16 @@ import {
   connectorsForWallets,
   Theme,
   AvatarComponent,
+  lightTheme,
 } from '@rainbow-me/rainbowkit';
 import YieldAvatar from '../components/YieldAvatar';
 import '@rainbow-me/rainbowkit/styles.css';
+import { useColorScheme } from '../hooks/useColorScheme';
 
 const ProviderContext = ({ children }: { children: ReactNode }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
-  const { settingsState } = useContext(SettingsContext);
-  // const { useFork, useTenderlyFork, forkUrl, disclaimerChecked } = settingsState;
+  // const { settingsState } = useContext(SettingsContext);
+  const colorTheme = useColorScheme();
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider } = configureChains(
@@ -78,11 +79,10 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
           disclaimer: Disclaimer,
         }}
         chains={chains}
-        // theme={darkTheme()}
         showRecentTransactions={true}
         modalSize="compact"
         avatar={CustomAvatar}
-        theme={myCustomTheme}
+        theme={ colorTheme === 'dark' ? myDarkTheme : myLightTheme }
       >
         {children}
       </RainbowKitProvider>
@@ -92,8 +92,27 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
 
 export default ProviderContext;
 
-const myCustomTheme: Theme = {
+const myDarkTheme: Theme = {
   ...darkTheme(),
+  colors : {
+    ...darkTheme().colors,
+    modalBackdrop: 'rgb(1, 1, 1, .85)'
+  },
+  radii: {
+    actionButton: '...',
+    connectButton: '...',
+    menuButton: '...',
+    modal: '8px',
+    modalMobile: '...',
+  },
+};
+
+const myLightTheme: Theme = {
+  ...lightTheme(),
+  colors : {
+    ...lightTheme().colors,
+    modalBackdrop: 'rgb(1, 1, 1, .50)'
+  },
   radii: {
     actionButton: '...',
     connectButton: '...',

@@ -1,4 +1,4 @@
-import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer } from 'react';
+import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer, useContext } from 'react';
 import { BigNumber, Contract } from 'ethers';
 import { format } from 'date-fns';
 
@@ -6,7 +6,7 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, ISeriesRoot, ISeriesRootRoot, IStrategyRoot, TokenType } from '../types';
+import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -22,10 +22,11 @@ import useChainId from '../hooks/useChainId';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 import useDefaultProvider from '../hooks/useDefaultProvider';
+import { SettingsContext } from './SettingsContext';
 
 const initState: IChainContextState = {
   /* flags */
-  chainLoaded: false,
+  chainLoaded: 0,
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
@@ -82,6 +83,10 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
 const ChainProvider = ({ children }: { children: ReactNode }) => {
   const [chainState, updateState] = useReducer(chainReducer, initState);
 
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   /* HOOKS */
   const provider = useDefaultProvider();
   const chainId = useChainId();
@@ -89,12 +94,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
-
-  /* get asset map config */
-  const ASSET_CONFIG = chainId === 1 ? ASSETS_1 : ASSETS_42161;
-
-  /* get series map config */
-  const SERIES_CONFIG = chainId === 1 ? SERIES_1 : SERIES_42161;
 
   /* add on extra/calculated ASSET info and contract instances  (no async) */
   const _chargeAsset = useCallback(
@@ -104,6 +103,8 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       let assetContract: Contract;
       let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
       let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
+
+      const assetMap = chainId === 1 ? ASSETS_1 : ASSETS_42161;
 
       switch (asset.tokenType) {
         case TokenType.ERC20_:
@@ -130,20 +131,20 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
       return {
         ...asset,
-        digitFormat: ASSET_CONFIG.get(asset.id)?.digitFormat || 6,
+        digitFormat: assetMap.get(asset.id)?.digitFormat || 6,
         image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
 
         assetContract,
 
         /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
-        wrapHandlerAddresses: ASSET_CONFIG.get(asset.id)?.wrapHandlerAddresses,
-        unwrapHandlerAddresses: ASSET_CONFIG.get(asset.id)?.unwrapHandlerAddresses,
+        wrapHandlerAddresses: assetMap.get(asset.id)?.wrapHandlerAddresses,
+        unwrapHandlerAddresses: assetMap.get(asset.id)?.unwrapHandlerAddresses,
 
         getAllowance,
         setAllowance,
       };
     },
-    [ASSET_CONFIG, provider]
+    [chainId, provider]
   );
 
   const _getAssets = useCallback(async () => {
@@ -152,12 +153,13 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues !== null && cachedValues.length) {
+      console.log('Yield Protocol ASSET data retrieved ::: CACHE :::');
       return cachedValues.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
       });
     }
 
-    let assetMap = ASSET_CONFIG;
+    const assetMap = chainId === 1 ? ASSETS_1 : ASSETS_42161;
     const newAssetList: any[] = [];
 
     await Promise.all(
@@ -177,10 +179,11 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
           try {
             [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
           } catch (e) {
-            console.log(
-              id,
-              ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
-            );
+            diagnostics &&
+              console.log(
+                id,
+                ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
+              );
           }
         }
         /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
@@ -189,10 +192,11 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
           try {
             version = await contract.version();
           } catch (e) {
-            console.log(
-              id,
-              ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
-            );
+            diagnostics &&
+              console.log(
+                id,
+                ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
+              );
           }
         }
 
@@ -228,14 +232,15 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.'));
 
     console.log('Yield Protocol Asset data updated successfully.');
+
     /* cache results */
     newAssetList.length && localStorage.setItem(cacheKey, JSON.stringify(newAssetList));
     newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
-  }, [ASSET_CONFIG, _chargeAsset, chainId, provider]);
+  }, [_chargeAsset, chainId, diagnostics, provider]);
 
   /* add on extra/calculated ASYNC series info and contract instances */
   const _chargeSeries = useCallback(
-    (series: ISeriesRootRoot): ISeriesRoot => {
+    (series: ISeriesRoot): ISeriesRoot => {
       /* contracts need to be added in again in when charging because the cached state only holds strings */
       const poolContract = contractTypes.Pool__factory.connect(series.poolAddress, provider);
       const fyTokenContract = contractTypes.FYToken__factory.connect(series.fyTokenAddress, provider);
@@ -276,13 +281,14 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
     if (cachedValues !== null && cachedValues.length) {
+      console.log('Yield Protocol SERIES data retrieved ::: CACHE :::');
       return cachedValues.forEach((s: ISeriesRoot) => {
         updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
       });
     }
 
-    let seriesMap = SERIES_CONFIG;
-    const newSeriesList: ISeriesRootRoot[] = [];
+    const seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
+    const newSeriesList: ISeriesRoot[] = [];
 
     await Promise.all(
       Array.from(seriesMap).map(async (x) => {
@@ -328,7 +334,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
           g1,
           g2,
           baseAddress,
-        } as ISeriesRootRoot;
+        } as ISeriesRoot;
 
         updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
         newSeriesList.push(newSeries);
@@ -339,7 +345,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     /* cache results */
     newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
     newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
-  }, [SERIES_CONFIG, _chargeSeries, chainId, contracts, provider]);
+  }, [_chargeSeries, chainId, contracts, provider]);
 
   /* Attach contract instance */
   const _chargeStrategy = useCallback(
@@ -365,7 +371,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     const strategyList: string[] = (yieldEnv.strategies as any)[chainId];
 
     if (cachedValues !== null && cachedValues.length) {
-      console.log('Yield Protocol Strategy data retrieved successfully ::: CACHE :::');
+      console.log('Yield Protocol STRATEGY data retrieved ::: CACHE :::');
       return cachedValues.forEach((st: IStrategyRoot) => {
         updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
       });
@@ -375,7 +381,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       await Promise.all(
         strategyList.map(async (strategyAddr) => {
           /* if the strategy is NOT already in the cache : */
-          // console.log('Updating Strategy contract ', strategyAddr);
           const Strategy = contractTypes.Strategy__factory.connect(strategyAddr, provider);
           const [name, symbol, baseId, decimals, version] = await Promise.all([
             Strategy.name(),
@@ -409,19 +414,21 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   }, [_chargeStrategy, chainId, provider]);
 
   const _getProtocolData = useCallback(async () => {
-    /* Clear maps in local memory */
-    updateState({ type: ChainState.CLEAR_MAPS, payload: undefined });
+    /* Clear maps in local app memory  ( note: this is not the cache ) and set chainLoaded false */
+    updateState({ type: ChainState.CLEAR_MAPS });
 
-    console.log('Fetching Protocol contract addresses for chain Id: ', chainId);
+    console.log(
+      'Fetching Protocol contract addresses and checking for new Assets and Series, and Strategies : ',
+      chainId
+    );
 
-    console.log('Checking for new Assets and Series, and Strategies : ', chainId);
     await Promise.all([_getAssets(), _getSeries(), _getStrategies()])
       .catch(() => {
         toast.error('Error getting Yield Protocol data.');
         console.log('Error getting Yield Protocol data.');
       })
       .finally(() => {
-        updateState({ type: ChainState.CHAIN_LOADED, payload: true });
+        updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
       });
   }, [_getAssets, _getSeries, _getStrategies, chainId]);
 
@@ -435,10 +442,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       // eslint-disable-next-line no-restricted-globals
       location.reload();
     }
-
     setLastAppVersion(process.env.REACT_APP_VERSION);
   }, [lastAppVersion, setLastAppVersion]);
 
+  /* Hande getting protocol data on first load */
   useEffect(() => {
     _getProtocolData();
   }, [_getProtocolData]);

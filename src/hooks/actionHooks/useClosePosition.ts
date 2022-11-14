@@ -7,7 +7,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
+import { ICallData, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ONE_BN } from '../../utils/constants';
 

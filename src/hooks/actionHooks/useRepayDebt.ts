@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
+import { ICallData, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
