@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Anchor, Box, Button, Collapsible, Layer, Text } from 'grommet';
 import { FiAlertCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { useAccount, useConnect, useDisconnect, useProvider } from 'wagmi';
+import { useAccount, useDisconnect, useProvider } from 'wagmi';
 import { ethers } from 'ethers';
 
 const SanctionedAddressError = () => {
@@ -23,8 +23,9 @@ const SanctionedAddressError = () => {
 
   const { address: account } = useAccount({
     onConnect: async ({ address, isReconnected }) => {
+      
       if (address && approvedAddresses.includes(address)) {
-        // console.log('Approved Addresses ', approvedAddresses);
+        console.log('Pre-approved address: ', approvedAddresses); // or remove this  
       }
       if (address && !approvedAddresses.includes(address)) {
         try {
