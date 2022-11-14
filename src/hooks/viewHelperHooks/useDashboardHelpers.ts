@@ -4,7 +4,7 @@ import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IPriceContext, ISeries, IStrategy, IVault } from '../../types';
+import { IPriceContext, ISeries, IStrategy, IStrategyDynamic, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
@@ -12,6 +12,7 @@ import { PriceContext } from '../../contexts/PriceContext';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import useStrategies from '../useStrategies';
 import useStrategy from '../useStrategy';
+import { useSWRConfig } from 'swr';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -22,6 +23,8 @@ interface IStrategyPosition extends IStrategy {
 }
 
 export const useDashboardHelpers = () => {
+  const { cache, mutate } = useSWRConfig();
+
   /* STATE FROM CONTEXT */
   const {
     settingsState: { dashHideEmptyVaults, dashHideInactiveVaults, dashCurrency },
@@ -98,7 +101,19 @@ export const useDashboardHelpers = () => {
 
       const _strategyPositions: IStrategyPosition[] = await Promise.all(
         Array.from(strategyMap.values()).map(async (s) => {
-          const strategy = await getStrategy(s.address);
+          let strategy: IStrategyDynamic | undefined;
+
+          // check if swr has strategy
+          const swrKey = genKey(s.address);
+          const cachedStrategy = cache.get(swrKey) as IStrategyDynamic | undefined;
+
+          if (cachedStrategy) {
+            strategy = cachedStrategy;
+          } else {
+            strategy = await getStrategy(s.address);
+            // mutate (update) swr with the strategy if not in cache
+            mutate(swrKey, strategy);
+          }
 
           const { currentSeries: series } = strategy;
 
