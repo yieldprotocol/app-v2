@@ -1,12 +1,12 @@
 import { useContext } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { FiChevronDown, FiPlusCircle } from 'react-icons/fi';
-import { ActionType, IVault, IVaultRoot } from '../../types';
+import { ActionType, IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
 import { UserContext } from '../../contexts/UserContext';
 
 interface IVaultDropSelectorProps {
-  vaults: IVaultRoot[];
+  vaults: IVault[];
   handleSelect: any;
   itemSelected: any;
   displayName: string;
@@ -65,10 +65,10 @@ function VaultDropSelector({
                   <Text size="xsmall">{x.displayName}</Text>
                   <Box direction="row" gap="small">
                     <Text size="xsmall" weight="lighter">
-                      {x.art_} Debt
+                      {x.art.formatted} Debt
                     </Text>
                     <Text size="xsmall" weight="lighter">
-                      {x.ink_} {selectedIlk?.displaySymbol} posted
+                      {x.ink.formatted} {selectedIlk?.displaySymbol} posted
                     </Text>
                   </Box>
                 </Box>

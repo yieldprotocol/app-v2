@@ -16,12 +16,13 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
 import { WETH } from '../../config/assets';
 import useAsset from '../useAsset';
+import useVault from '../useVault';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
   debtInput: string | undefined,
   collInput: string | undefined,
-  vault: IVault | undefined,
+  vaultId: string | undefined,
   assetPairInfo: IAssetPair | undefined
 ) => {
   /* STATE FROM CONTEXT */
@@ -29,6 +30,7 @@ export const useCollateralHelpers = (
     userState: { selectedBase, selectedIlk, selectedSeries, seriesMap },
   } = useContext(UserContext);
 
+  const { data: vault } = useVault(vaultId!);
   const { data: _selectedBase } = useAsset(vault ? vault.baseId : selectedBase?.id!);
   const { data: _selectedIlk } = useAsset(vault ? vault.ilkId : selectedIlk?.id!);
   const _selectedSeries = vault ? seriesMap?.get(vault.seriesId) : selectedSeries;
@@ -86,7 +88,7 @@ export const useCollateralHelpers = (
 
       const liqPrice = vault
         ? cleanValue(
-            calcLiquidationPrice(vault.ink_, vault.accruedArt_, assetPairInfo.minRatio),
+            calcLiquidationPrice(vault.ink.formatted, vault.accruedArt.formatted, assetPairInfo.minRatio),
             _selectedBase?.digitFormat
           )
         : cleanValue(
@@ -108,7 +110,7 @@ export const useCollateralHelpers = (
   /* handle changes to input values */
   useEffect(() => {
     /* NOTE: this whole function ONLY deals with decimal18, existing values are converted to decimal18 */
-    const _existingCollateral = vault?.ink ? vault.ink : ethers.constants.Zero;
+    const _existingCollateral = vault?.ink.value ?? ethers.constants.Zero;
     const existingCollateralAsWei = decimalNToDecimal18(_existingCollateral, _selectedIlk?.decimals || 18);
 
     const newCollateralAsWei =
@@ -118,7 +120,7 @@ export const useCollateralHelpers = (
     setTotalCollateral(_totalCollateral);
     setTotalCollateral_(ethers.utils.formatUnits(_totalCollateral, 18));
 
-    const existingDebt_ = vault?.accruedArt ? vault.accruedArt : ethers.constants.Zero;
+    const existingDebt_ = vault?.accruedArt.value ?? ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, _selectedBase?.decimals || 18);
     const newDebt =
       debtInput && Math.abs(parseFloat(debtInput)) > 0 && _selectedSeries
@@ -167,7 +169,7 @@ export const useCollateralHelpers = (
          else use the existing collateral 
          UPDATE: not required anymore
       */
-      const _maxRemove = vault?.accruedArt?.gt(ethers.constants.Zero)
+      const _maxRemove = vault?.accruedArt.value.gt(ethers.constants.Zero)
         ? existingCollateralAsWei.sub(min).mul(95).div(100)
         : existingCollateralAsWei;
       setMaxRemovableCollateral(
@@ -213,7 +215,7 @@ export const useCollateralHelpers = (
 
     collateralizationRatio &&
     vault &&
-    vault.accruedArt?.gt(ethers.constants.Zero) &&
+    vault.accruedArt.value.gt(ethers.constants.Zero) &&
     assetPairInfo?.minRatio! > 1.2 &&
     parseFloat(collateralizationRatio) > 0 &&
     parseFloat(collateralizationRatio) < assetPairInfo?.minRatio! + 0.2

@@ -90,7 +90,7 @@ const Borrow = () => {
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
 
-  const [matchingVaults, setMatchingVaults] = useState<IVaultRoot[]>([]);
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
@@ -107,7 +107,7 @@ const Borrow = () => {
     minCollatRatioPct,
     totalCollateral_,
     liquidationPrice_,
-  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPairInfo);
+  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse?.id, assetPairInfo);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,

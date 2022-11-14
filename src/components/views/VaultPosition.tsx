@@ -44,6 +44,7 @@ import { useAccount } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAsset from '../../hooks/useAsset';
+import useVault from '../../hooks/useVault';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -54,13 +55,12 @@ const VaultPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, vaultsLoading } = userState;
+  const { seriesMap } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const { address: account } = useAccount();
 
-  const _selectedVault = vaultMap?.get(idFromUrl as string);
-
+  const { data: _selectedVault, isLoading: vaultLoading } = useVault(idFromUrl as string);
   const { data: vaultBase } = useAsset(_selectedVault?.baseId!);
   const { data: vaultIlk } = useAsset(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
@@ -393,28 +393,28 @@ const VaultPosition = () => {
                         label="Vault debt + interest"
                         value={`${cleanValue(ethers.utils.formatUnits(debtInBase, _selectedVault?.decimals), 10)} ${
                           vaultBase?.displaySymbol
-                        }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
+                        }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate.formatted}%)` : ''}`}
                         icon={<FiTrendingUp />}
-                        loading={vaultsLoading || !debtInBase_}
+                        loading={vaultLoading || !debtInBase_}
                       />
 
-                      {_selectedVault?.ink.gt(ZERO_BN) && (
+                      {_selectedVault?.ink.value.gt(ZERO_BN) && (
                         <InfoBite
                           label="Collateral posted"
-                          value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
+                          value={`${cleanValue(_selectedVault?.ink.formatted, vaultIlk?.decimals!)} ${
                             vaultIlk?.displaySymbol
                           } (${collateralizationPercent}%)`}
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
-                          loading={vaultsLoading}
+                          loading={vaultLoading}
                         />
                       )}
 
-                      {_selectedVault?.accruedArt.gt(ZERO_BN) && (
+                      {_selectedVault?.accruedArt.value.gt(ZERO_BN) && (
                         <InfoBite
                           label="Vault Liquidation"
                           value={`1 ${vaultIlk?.displaySymbol} : ${liquidationPrice_} ${vaultBase?.displaySymbol}`}
                           icon={<FiActivity />}
-                          loading={vaultsLoading}
+                          loading={vaultLoading}
                         />
                       )}
                     </Box>
@@ -530,8 +530,8 @@ const VaultPosition = () => {
 
                         {!repayInput &&
                           minDebt?.gt(ZERO_BN) &&
-                          _selectedVault.accruedArt.gt(ZERO_BN) &&
-                          minDebt.gt(_selectedVault.accruedArt) && (
+                          _selectedVault.accruedArt.value.gt(ZERO_BN) &&
+                          minDebt.gt(_selectedVault.accruedArt.value) && (
                             <InputInfoWrap>
                               <Text size="xsmall">Your debt is below the current minimumn debt requirement.</Text>
                               <Text size="xsmall">(It is only possible to repay the full debt)</Text>

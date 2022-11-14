@@ -11,7 +11,7 @@ import { ORACLE_INFO } from '../config/oracles';
 import { formatUnits } from 'ethers/lib/utils';
 import useAsset from './useAsset';
 import { useAccount } from 'wagmi';
-import { IVault } from '../types';
+import { IVaultDynamic } from '../types';
 import { generateVaultName } from '../utils/appUtils';
 
 const useVault = (id?: string) => {
@@ -28,7 +28,7 @@ const useVault = (id?: string) => {
   const Witch = contracts.get(ContractNames.WITCH) as Witch | undefined;
 
   const getVault = useCallback(
-    async (id: string): Promise<IVault> => {
+    async (id: string): Promise<IVaultDynamic> => {
       if (!Cauldron) throw new Error('no cauldron when fetching vault');
       if (!Witch) throw new Error('no witch when fetching vault');
 
@@ -101,12 +101,12 @@ const useVault = (id?: string) => {
         },
       };
     },
-    [Cauldron, Witch, chainId, contracts, getAsset, isMature, seriesRootMap]
+    [Cauldron, Witch, account, chainId, contracts, getAsset, isMature, seriesRootMap]
   );
 
   const key = useMemo(
-    () => (id && seriesRootMap.size ? ['vault', id, account] : null),
-    [account, id, seriesRootMap.size]
+    () => (id && seriesRootMap.size ? ['vault', id, seriesRootMap, account] : null),
+    [account, id, seriesRootMap]
   );
   const { data, error } = useSWRImmutable(key, () => getVault(id!));
 

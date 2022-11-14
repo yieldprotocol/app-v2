@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IVaultRoot } from '../../types';
+import { IAsset, ISeries, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -29,10 +29,10 @@ function VaultPositionSelector() {
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
-  const [allVaults, setAllVaults] = useState<IVaultRoot[]>([]);
+  const [allVaults, setAllVaults] = useState<IVault[]>([]);
 
   const [filter, setFilter] = useState<IVaultFilter>();
-  const [filteredVaults, setFilteredVaults] = useState<IVaultRoot[]>([]);
+  const [filteredVaults, setFilteredVaults] = useState<IVault[]>([]);
 
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {

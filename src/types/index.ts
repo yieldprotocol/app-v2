@@ -220,33 +220,33 @@ export interface ISeries extends ISeriesRoot {
   showSeries: boolean;
 }
 
-export interface IVaultRoot {
+export interface IVault {
   id: string;
-  ilkId: string;
   baseId: string;
-  seriesId: string;
+  ilkId: string;
+  owner: string;
   displayName: string;
   decimals: number;
-  series: ISeriesRoot | undefined;
-  owner: string;
   isActive: boolean;
 
+  seriesId: string;
+  series: ISeriesRoot | undefined;
+
+  ink: Value;
   art: Value;
 }
 
-export interface IDummyVault extends IVaultRoot {}
-export interface IVault extends IVaultRoot {
-  owner: string;
+export interface IVaultDynamic extends IVault {
   isWitchOwner: boolean;
   hasBeenLiquidated: boolean;
   isVaultMature: boolean;
-  isActive: boolean;
 
-  ink: Value;
   accruedArt: Value;
   rate: Value;
   rateAtMaturity: BigNumber;
 }
+
+export interface IDummyVault extends IVault {}
 
 export interface ICallData {
   args: (string | BigNumberish | boolean)[];

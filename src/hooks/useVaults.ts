@@ -2,20 +2,20 @@ import { formatUnits } from 'ethers/lib/utils';
 import { useCallback, useContext, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { useAccount } from 'wagmi';
-import { ChainContext } from '../contexts/ChainContext';
+import { UserContext } from '../contexts/UserContext';
 import { Cauldron } from '../contracts';
-import { IVaultRoot } from '../types';
+import { IVault } from '../types';
 import { generateVaultName } from '../utils/appUtils';
-import useChainId from './useChainId';
+import useAsset from './useAsset';
 import useContracts, { ContractNames } from './useContracts';
 
 const useVaults = () => {
-  const chainId = useChainId();
   const { address: account } = useAccount();
   const {
-    chainState: { seriesRootMap },
-  } = useContext(ChainContext);
+    userState: { seriesMap },
+  } = useContext(UserContext);
   const contracts = useContracts();
+  const { getAsset } = useAsset();
 
   const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron | undefined;
 
@@ -26,23 +26,31 @@ const useVaults = () => {
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
     const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter);
     const buildEventList = await Promise.all(
-      vaultsBuilt.map(async (x): Promise<IVaultRoot> => {
+      vaultsBuilt.map(async (x): Promise<IVault> => {
         const { vaultId: id, ilkId, seriesId, owner } = x.args;
-        const { art } = await Cauldron.balances(id);
-        const series = seriesRootMap.get(seriesId);
+        const { art, ink } = await Cauldron.balances(id);
+
+        const series = seriesMap.get(seriesId);
+        const base = await getAsset(series?.baseId!);
+        const ilk = await getAsset(ilkId);
+
         return {
           id,
-          owner,
-          seriesId,
-          ilkId,
           baseId: series?.baseId!,
+          ilkId,
+          owner,
           displayName: generateVaultName(id),
           decimals: series?.decimals!,
           series,
+          seriesId,
           isActive: owner === account,
           art: {
             value: art,
-            formatted: formatUnits(art, series?.decimals),
+            formatted: formatUnits(art, base?.decimals),
+          },
+          ink: {
+            value: ink,
+            formatted: formatUnits(ink, ilk?.decimals),
           },
         };
       })
@@ -52,26 +60,34 @@ const useVaults = () => {
     const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
     const vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
     const receivedEventsList = await Promise.all(
-      vaultsReceived.map(async (x): Promise<IVaultRoot> => {
+      vaultsReceived.map(async (x): Promise<IVault> => {
         const { vaultId: id } = x.args;
-        const [{ ilkId, seriesId, owner }, { art }] = await Promise.all([
+        const [{ ilkId, seriesId, owner }, { art, ink }] = await Promise.all([
           Cauldron.vaults(id),
           await Cauldron.balances(id),
         ]);
-        const series = seriesRootMap.get(seriesId);
+
+        const series = seriesMap.get(seriesId);
+        const base = await getAsset(series?.baseId!);
+        const ilk = await getAsset(ilkId);
+
         return {
           id,
-          owner,
-          seriesId,
-          ilkId,
           baseId: series?.baseId!,
+          ilkId,
+          owner,
           displayName: generateVaultName(id),
           decimals: series?.decimals!,
           series,
+          seriesId,
           isActive: owner === account,
           art: {
             value: art,
-            formatted: formatUnits(art, series?.decimals),
+            formatted: formatUnits(art, base?.decimals),
+          },
+          ink: {
+            value: ink,
+            formatted: formatUnits(ink, ilk?.decimals),
           },
         };
       })
@@ -81,12 +97,12 @@ const useVaults = () => {
 
     return allVaultsList.reduce(async (acc, v) => {
       return (await acc).set(v.id, v);
-    }, Promise.resolve(new Map<string, IVaultRoot>()));
-  }, [Cauldron, account, seriesRootMap]);
+    }, Promise.resolve(new Map<string, IVault>()));
+  }, [Cauldron, account, getAsset, seriesMap]);
 
   const key = useMemo(() => {
-    return account ? ['vaults', account, chainId] : null;
-  }, [account, chainId]);
+    return account && seriesMap.size ? ['vaults', account, seriesMap] : null;
+  }, [account, seriesMap]);
 
   const { data, error } = useSWRImmutable(key, getVaults);
 
