@@ -455,7 +455,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     chainId && _getProtocolData(chainId);
   }, [chainId]);
 
-  /* Reload the page on chain changes ( if chain is different ) */
+  /* Reload the page on chain changes ( if chain is different ) TODO: try remove this */
   useEffect(() => {
     if (chainId !== chainState.chainLoaded && chainState.chainLoaded !== 0) location.reload();
   }, [chainId, chainState.chainLoaded]);
