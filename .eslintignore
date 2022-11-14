@@ -15,3 +15,6 @@ src/serviceWorker.ts
 
 # ignore all js
 # **/*
+
+.netlify
+
