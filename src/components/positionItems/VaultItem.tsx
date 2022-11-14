@@ -30,7 +30,7 @@ function VaultItem({ id, index, condensed }: { id: string; index: number; conden
   const { data: vaultIlk } = useAsset(vault?.ilkId);
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
-  const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPairInfo, undefined);
+  const { debtInBase_ } = useBorrowHelpers(undefined, undefined, id, assetPairInfo, undefined);
 
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault);

@@ -17,12 +17,13 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
 import useAsset from '../useAsset';
+import useVault from '../useVault';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
   input: string | undefined,
   collateralInput: string | undefined,
-  vault: IVault | undefined,
+  vaultId: string | undefined,
   assetPairInfo: IAssetPair | undefined,
   futureSeries: ISeries | null = null // Future or rollToSeries
 ) => {
@@ -35,6 +36,7 @@ export const useBorrowHelpers = (
     userState: { seriesMap, selectedSeries },
   } = useContext(UserContext);
 
+  const { data: vault } = useVault(vaultId);
   const { data: vaultBase } = useAsset(vault?.baseId!);
   const { data: vaultIlk } = useAsset(vault?.ilkId!);
 

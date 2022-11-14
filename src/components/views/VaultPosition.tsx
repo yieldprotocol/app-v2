@@ -60,32 +60,26 @@ const VaultPosition = () => {
 
   const { address: account } = useAccount();
 
-  const { data: _selectedVault, isLoading: vaultLoading } = useVault(idFromUrl as string);
-  const { data: vaultBase } = useAsset(_selectedVault?.baseId!);
-  const { data: vaultIlk } = useAsset(_selectedVault?.ilkId!);
-  const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
+  const { data: vault, isLoading: vaultLoading } = useVault(idFromUrl as string);
+  const { data: vaultBase } = useAsset(vault?.baseId!);
+  const { data: vaultIlk } = useAsset(vault?.ilkId!);
+  const vaultSeries = seriesMap?.get(vault?.seriesId!);
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
   /* TX info (for disabling buttons) */
-  const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(
-    ActionCodes.REPAY,
-    _selectedVault?.id!
-  );
+  const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(ActionCodes.REPAY, vault?.id!);
 
-  const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
-    ActionCodes.ROLL_DEBT,
-    _selectedVault?.id!
-  );
+  const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(ActionCodes.ROLL_DEBT, vault?.id!);
 
   const { txProcess: addCollateralProcess, resetProcess: resetAddCollateralProcess } = useProcess(
     ActionCodes.ADD_COLLATERAL,
-    _selectedVault?.id!
+    vault?.id!
   );
 
   const { txProcess: removeCollateralProcess, resetProcess: resetRemoveCollateralProcess } = useProcess(
     ActionCodes.REMOVE_COLLATERAL,
-    _selectedVault?.id!
+    vault?.id!
   );
 
   /* LOCAL STATE */
@@ -115,9 +109,7 @@ const VaultPosition = () => {
   const [removeCollateralDisabled, setRemoveCollateralDisabled] = useState<boolean>(true);
   const [addCollateralDisabled, setAddCollateralDisabled] = useState<boolean>(true);
 
-  const [actionActive, setActionActive] = useState<any>(
-    _selectedVault && !_selectedVault?.isActive ? { index: 3 } : { index: 0 }
-  );
+  const [actionActive, setActionActive] = useState<any>(vault && !vault?.isActive ? { index: 3 } : { index: 0 });
 
   /* HOOK FNS */
   const repay = useRepayDebt();
@@ -135,22 +127,22 @@ const VaultPosition = () => {
     minCollatRatioPct,
     unhealthyCollatRatio,
     liquidationPrice_,
-  } = useCollateralHelpers('0', '0', _selectedVault, assetPairInfo);
+  } = useCollateralHelpers('0', '0', vault?.id, assetPairInfo);
 
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
     `-${repayInput! || '0'}`,
     '0',
-    _selectedVault,
+    vault?.id,
     assetPairInfo
   );
 
   const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
-    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPairInfo);
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, vault?.id, assetPairInfo);
 
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
-    _selectedVault,
+    vault?.id,
     assetPairInfo
   );
 
@@ -168,7 +160,7 @@ const VaultPosition = () => {
     debtInBase,
     debtInBase_,
     rollProtocolLimited,
-  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
+  } = useBorrowHelpers(repayInput, undefined, vault?.id, assetPairInfo, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
@@ -297,12 +289,10 @@ const VaultPosition = () => {
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
-    !repayInput || repayError || !_selectedVault ? setRepayDisabled(true) : setRepayDisabled(false);
-    !rollToSeries || rollError || !_selectedVault ? setRollDisabled(true) : setRollDisabled(false);
-    !addCollatInput || addCollatError || !_selectedVault
-      ? setAddCollateralDisabled(true)
-      : setAddCollateralDisabled(false);
-    !removeCollatInput || removeCollatError || !_selectedVault
+    !repayInput || repayError || !vault ? setRepayDisabled(true) : setRepayDisabled(false);
+    !rollToSeries || rollError || !vault ? setRollDisabled(true) : setRollDisabled(false);
+    !addCollatInput || addCollatError || !vault ? setAddCollateralDisabled(true) : setAddCollateralDisabled(false);
+    !removeCollatInput || removeCollatError || !vault
       ? setRemoveCollateralDisabled(true)
       : setRemoveCollateralDisabled(false);
   }, [
@@ -314,31 +304,22 @@ const VaultPosition = () => {
     addCollatError,
     removeCollatError,
     rollError,
-    _selectedVault,
+    vault,
   ]);
 
   /* EXTRA INITIATIONS */
   useEffect(() => {
-    if (_selectedVault) {
+    if (vault) {
       setSelectedSeries(vaultSeries!);
       setSelectedBase(vaultBase!);
       setSelectedIlk(vaultIlk!);
-      setSelectedVault(_selectedVault);
+      setSelectedVault(vault);
     }
-  }, [
-    _selectedVault,
-    setSelectedBase,
-    setSelectedIlk,
-    setSelectedSeries,
-    setSelectedVault,
-    vaultBase,
-    vaultIlk,
-    vaultSeries,
-  ]);
+  }, [vault, setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault, vaultBase, vaultIlk, vaultSeries]);
 
   useEffect(() => {
-    if (_selectedVault && account !== _selectedVault?.owner) router.push(prevLoc);
-  }, [account, _selectedVault, prevLoc, router]);
+    if (vault && account !== vault?.owner) router.push(prevLoc);
+  }, [account, vault, prevLoc, router]);
 
   /* watch if the processes timeout - if so, reset() */
   useEffect(() => {
@@ -352,7 +333,7 @@ const VaultPosition = () => {
 
   return (
     <>
-      {_selectedVault && (
+      {vault && (
         <ModalWrap>
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => router.back()} />}
@@ -367,20 +348,20 @@ const VaultPosition = () => {
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={_selectedVault!} actionType={ActionType.BORROW} />
+                    <PositionAvatar position={vault!} actionType={ActionType.BORROW} />
                     <Box>
-                      <Text size={mobile ? 'medium' : 'large'}> {_selectedVault?.displayName} </Text>
-                      <CopyWrap hash={_selectedVault?.id}>
-                        <Text size="small"> {abbreviateHash(_selectedVault?.id, 6)} </Text>
+                      <Text size={mobile ? 'medium' : 'large'}> {vault?.displayName} </Text>
+                      <CopyWrap hash={vault?.id}>
+                        <Text size="small"> {abbreviateHash(vault?.id, 6)} </Text>
                       </CopyWrap>
                     </Box>
                   </Box>
                 </Box>
 
-                {_selectedVault?.isActive && (
+                {vault?.isActive && (
                   <Box>
                     <Box gap="small">
-                      {_selectedVault?.isActive && !unhealthyCollatRatio && (
+                      {vault?.isActive && !unhealthyCollatRatio && (
                         <InfoBite
                           label="Maturity date"
                           value={`${vaultSeries?.displayName}`}
@@ -391,17 +372,17 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, _selectedVault?.decimals), 10)} ${
+                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, vault?.decimals), 10)} ${
                           vaultBase?.displaySymbol
-                        }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate.formatted}%)` : ''}`}
+                        }${vaultSeries?.seriesIsMature ? ` (variable rate: ${vault.rate.formatted}%)` : ''}`}
                         icon={<FiTrendingUp />}
                         loading={vaultLoading || !debtInBase_}
                       />
 
-                      {_selectedVault?.ink.value.gt(ZERO_BN) && (
+                      {vault?.ink.value.gt(ZERO_BN) && (
                         <InfoBite
                           label="Collateral posted"
-                          value={`${cleanValue(_selectedVault?.ink.formatted, vaultIlk?.decimals!)} ${
+                          value={`${cleanValue(vault?.ink.formatted, vaultIlk?.decimals!)} ${
                             vaultIlk?.displaySymbol
                           } (${collateralizationPercent}%)`}
                           icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
@@ -409,7 +390,7 @@ const VaultPosition = () => {
                         />
                       )}
 
-                      {_selectedVault?.accruedArt.value.gt(ZERO_BN) && (
+                      {vault?.accruedArt.value.gt(ZERO_BN) && (
                         <InfoBite
                           label="Vault Liquidation"
                           value={`1 ${vaultIlk?.displaySymbol} : ${liquidationPrice_} ${vaultBase?.displaySymbol}`}
@@ -419,7 +400,7 @@ const VaultPosition = () => {
                       )}
                     </Box>
                     <Box margin={{ top: 'small' }}>
-                      {_selectedVault?.isActive && unhealthyCollatRatio && (
+                      {vault?.isActive && unhealthyCollatRatio && (
                         <InfoBite
                           label="Vault is in danger of liquidation"
                           value={`Minimum collateralization needed is ${minCollatRatioPct}%`}
@@ -432,7 +413,7 @@ const VaultPosition = () => {
                         />
                       )}
 
-                      {_selectedVault?.hasBeenLiquidated && (
+                      {vault?.hasBeenLiquidated && (
                         <InfoBite
                           label="This vault has been Liquidated."
                           value="The collateralization ratio dropped below minimum required."
@@ -445,10 +426,10 @@ const VaultPosition = () => {
                         />
                       )}
 
-                      {!_selectedVault?.isActive && !_selectedVault?.isWitchOwner && (
+                      {!vault?.isActive && !vault?.isWitchOwner && (
                         <InfoBite
                           label="The connected account no longer owns this vault"
-                          value={`Vault ${_selectedVault?.id} has either been transfered, deleted or liquidated`}
+                          value={`Vault ${vault?.id} has either been transfered, deleted or liquidated`}
                           icon={<FiAlertTriangle size="1.5em" color="red" />}
                           loading={false}
                         />
@@ -456,7 +437,7 @@ const VaultPosition = () => {
                     </Box>
                   </Box>
                 )}
-                {_selectedVault?.isWitchOwner && (
+                {vault?.isWitchOwner && (
                   <InfoBite
                     label="Liquidation in progress."
                     value="This vault is in the process of being liquidated and the account no longer owns this vault"
@@ -485,7 +466,7 @@ const VaultPosition = () => {
                       valueKey="index"
                       value={actionActive}
                       onChange={({ option }) => handleSetActionActive(option)}
-                      disabled={_selectedVault?.isActive ? undefined : [0, 1, 2, 4, 5]}
+                      disabled={vault?.isActive ? undefined : [0, 1, 2, 4, 5]}
                     />
                   </Box>
                 </SectionWrap>
@@ -530,8 +511,8 @@ const VaultPosition = () => {
 
                         {!repayInput &&
                           minDebt?.gt(ZERO_BN) &&
-                          _selectedVault.accruedArt.value.gt(ZERO_BN) &&
-                          minDebt.gt(_selectedVault.accruedArt.value) && (
+                          vault.accruedArt.value.gt(ZERO_BN) &&
+                          minDebt.gt(vault.accruedArt.value) && (
                             <InputInfoWrap>
                               <Text size="xsmall">Your debt is below the current minimumn debt requirement.</Text>
                               <Text size="xsmall">(It is only possible to repay the full debt)</Text>
@@ -769,7 +750,7 @@ const VaultPosition = () => {
                   </>
                 )}
 
-                {actionActive.index === 4 && <YieldHistory seriesOrVault={_selectedVault!} view={['VAULT']} />}
+                {actionActive.index === 4 && <YieldHistory seriesOrVault={vault!} view={['VAULT']} />}
               </Box>
             </Box>
 
