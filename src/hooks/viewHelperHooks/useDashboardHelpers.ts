@@ -64,7 +64,7 @@ export const useDashboardHelpers = () => {
     const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
       .map((_series) => {
         const currentValue = _series.seriesIsMature
-          ? _series.fyTokenBalance
+          ? _series.fyTokenBalance || ZERO_BN
           : sellFYToken(
               _series.sharesReserves,
               _series.fyTokenReserves,

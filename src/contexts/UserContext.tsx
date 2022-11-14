@@ -725,7 +725,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    * */
   useEffect(() => {
     if (userState.selectedSeries && userState.seriesMap) {
-      console.log('series changed');
       updateState({
         type: UserState.SELECTED_SERIES,
         payload: userState.seriesMap.get(userState.selectedSeries.id)!,
