@@ -2,7 +2,7 @@ import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
-import { useNetwork, useProvider } from 'wagmi';
+import { useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
 
@@ -123,7 +123,8 @@ const TxProvider = ({ children }: any) => {
   };
 
   const provider = useProvider();
-  const { chain } = useNetwork();
+  const { address: account } = useAccount();
+  const { refetch: refetchETHBal } = useBalance({ addressOrName: account });
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -232,6 +233,10 @@ const TxProvider = ({ children }: any) => {
       }
 
       res = await tx.wait();
+
+      // refetch eth bal after every tx
+      refetchETHBal();
+
       const txSuccess: boolean = res.status === 1 || false;
       const _tx = { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED };
       updateState({
@@ -254,6 +259,7 @@ const TxProvider = ({ children }: any) => {
       }
       /* this is the case when the tx was a fallback from a permit/allowance tx */
       _setProcessStage(txCode, ProcessStage.SIGNING_COMPLETE);
+
       return res;
     } catch (e: any) {
       /* catch tx errors */

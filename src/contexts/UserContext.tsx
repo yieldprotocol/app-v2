@@ -26,7 +26,7 @@ import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
@@ -53,6 +53,9 @@ const initState: IUserContextState = {
   selectedBase: null, // initial base
   selectedVault: null,
   selectedStrategy: null,
+
+  selectedIlkBalance: null,
+  selectedBaseBalance: null,
 };
 
 const initActions: IUserContextActions = {
@@ -111,9 +114,14 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
       return { ...state, selectedIlk: action.payload };
     case UserState.SELECTED_BASE:
       return { ...state, selectedBase: action.payload };
+
+    case UserState.SELECTED_ILK_BALANCE:
+      return { ...state, selectedIlkBalance: action.payload };
+    case UserState.SELECTED_BASE_BALANCE:
+      return { ...state, selectedBaseBalance: action.payload };
+
     case UserState.SELECTED_STRATEGY:
       return { ...state, selectedStrategy: action.payload };
-
     default:
       return state;
   }
@@ -123,6 +131,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext);
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
@@ -142,6 +151,31 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { tenderlyStartBlock } = useTenderly();
   const contracts = useContracts();
+
+  /* watch the selectedBase and selectedIlk */
+  const {
+    data: baseBalance,
+    isLoading: baseLoading,
+    status: baseStatus,
+    refetch: refetchBase,
+  } = useBalance({
+    addressOrName: account,
+    token: userState.selectedBase?.address,
+    enabled: !!account && userState.selectedBase !== null && chainId === chainLoaded,
+    cacheTime: 10_000,
+  });
+
+  const {
+    data: ilkBalance,
+    isLoading: ilkLoading,
+    status: ilkStatus,
+    refetch: refetchIlk,
+  } = useBalance({
+    addressOrName: account,
+    token: userState.selectedIlk?.address,
+    enabled: !!account && userState.selectedIlk !== null && chainId === chainLoaded,
+    cacheTime: 10_000,
+  });
 
   /* TODO consider moving out of here ? */
   const getPoolAPY = useCallback(
@@ -240,12 +274,19 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       console.log('Updating assets...');
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
+      /* refetch the selected base ilk balances */
+      account && refetchBase();
+      account && refetchIlk();
+
+      /**
+       * NOTE! this lock Below is just a place holder for if EVER async updates of assets are required.
+       * Those async fetches would go here.
+       * */
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
           const newAsset = {
             /* public data */
             ...asset,
-            displaySymbol: asset?.displaySymbol,
           };
           return newAsset as IAsset;
         })
@@ -256,11 +297,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       }, new Map() as Map<string, IAsset>);
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
-
-      diagnostics && console.log('ASSETS updated (with dynamic data):');
+      console.log('ASSETS updated (with dynamic data):', newAssetsMap);
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
-    [diagnostics]
+    [diagnostics, account]
   );
 
   /* Updates the series with relevant *user* data */
@@ -299,7 +339,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
             sharesAddress = series.baseAddress;
-            console.log('Using old pool contract that does not include c, mu, and shares');
+            diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
           // convert base amounts to shares amounts (baseAmount is wad)
@@ -425,6 +465,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[]) => {
+      console.log('Updating strategies...');
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
       let _publicData: IStrategy[] = [];
@@ -658,21 +699,20 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    *
    * */
   useEffect(() => {
-    if (chainLoaded) {
+    if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
       updateAssets(Array.from(assetRootMap.values()));
       updateSeries(Array.from(seriesRootMap.values()));
-
       account && updateVaults();
     }
-  }, [chainLoaded, account, assetRootMap, seriesRootMap, strategyRootMap, updateAssets, updateSeries, updateVaults]);
+  }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateSeries, updateVaults]);
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
-    if (chainLoaded && Array.from(userState.seriesMap?.values()!).length) {
+    if (chainLoaded === chainId && Array.from(userState.seriesMap?.values()!).length) {
       /*  when series has finished loading,...load/reload strategy data */
-      updateStrategies(Array.from(strategyRootMap.values()));
+      strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [chainLoaded, strategyRootMap, userState.seriesMap]);
+  }, [strategyRootMap, userState.seriesMap, chainLoaded, chainId, updateStrategies]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -685,12 +725,28 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    * */
   useEffect(() => {
     if (userState.selectedSeries && userState.seriesMap) {
+      console.log('series changed');
       updateState({
         type: UserState.SELECTED_SERIES,
         payload: userState.seriesMap.get(userState.selectedSeries.id)!,
       });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
+
+  /* update selected asset balances */
+  useEffect(() => {
+    if (account ) {
+      updateState({
+        type: UserState.SELECTED_BASE_BALANCE,
+        payload: baseBalance,
+      });
+      updateState({
+        type: UserState.SELECTED_ILK_BALANCE,
+        payload: ilkBalance,
+      });
+    }
+  }, [baseBalance, ilkBalance, account]);
+
 
   /* Exposed userActions */
   const userActions = {

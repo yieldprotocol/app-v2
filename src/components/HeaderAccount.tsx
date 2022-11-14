@@ -11,7 +11,7 @@ import GeneralButton from './buttons/GeneralButton';
 import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import YieldBalances from './HeaderBalances';
+import HeaderBalances from './HeaderBalances';
 
 const StyledText = styled(Text)`
   svg,
@@ -50,7 +50,8 @@ const HeaderAccount = () => {
     <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      {!mobile && <YieldBalances />}
+      { !mobile && <HeaderBalances /> }
+
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">

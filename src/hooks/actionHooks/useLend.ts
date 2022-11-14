@@ -11,7 +11,7 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 /* Lend Actions Hook */
@@ -21,9 +21,14 @@ export const useLend = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap } = userState;
+  const { assetMap, selectedSeries } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { address: account } = useAccount();
+  const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.fyTokenAddress });
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedSeries?.baseAddress,
+  });
 
   const {
     historyActions: { updateTradeHistory },
@@ -99,6 +104,8 @@ export const useLend = () => {
     ];
 
     await transact(calls, txCode);
+    refetchBaseBal();
+    refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);
     updateTradeHistory([series]);

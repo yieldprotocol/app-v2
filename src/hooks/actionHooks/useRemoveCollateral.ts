@@ -1,17 +1,16 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { ChainContext } from '../../contexts/ChainContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { useAccount, useNetwork, useProvider } from 'wagmi';
+import { useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useRemoveCollateral = () => {
@@ -21,6 +20,10 @@ export const useRemoveCollateral = () => {
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
+  const { refetch: refetchIlkBal } = useBalance({
+    addressOrName: account,
+    token: selectedIlk?.address,
+  });
 
   const {
     historyActions: { updateVaultHistory },
@@ -87,6 +90,7 @@ export const useRemoveCollateral = () => {
     ];
 
     await transact(calls, txCode);
+    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateVaults([vault]);
     updateAssets([ilk, selectedIlk!]);
     updateVaultHistory([vault]);

@@ -115,6 +115,8 @@ export const useChain = () => {
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
+    if (!signer) throw new Error('no signer');
+
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
       const _ladleAddr = contracts.get(ContractNames.LADLE)?.address;

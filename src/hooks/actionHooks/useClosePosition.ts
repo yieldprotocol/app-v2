@@ -13,7 +13,7 @@ import { ONE_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 /* Lend Actions Hook */
@@ -23,8 +23,13 @@ export const useClosePosition = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap } = userState;
+  const { assetMap, selectedSeries } = userState;
   const { address: account } = useAccount();
+  const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.fyTokenAddress });
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedSeries?.baseAddress,
+  });
   const contracts = useContracts();
   const { updateSeries, updateAssets } = userActions;
   const {
@@ -131,6 +136,8 @@ export const useClosePosition = () => {
       ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
+    refetchBaseBal();
+    refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);
     updateTradeHistory([series]);
