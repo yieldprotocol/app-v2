@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { SettingsContext } from '../contexts/SettingsContext';
-import { Settings } from '../contexts/types/settings';
+import { Settings, SettingsContext } from '../contexts/SettingsContext';
+import { USDC, WETH } from '../config/assets';
 
 const CurrencyToggle = () => {
   const {
@@ -14,26 +14,24 @@ const CurrencyToggle = () => {
       <Box
         fill
         pad="small"
-        // border={dashCurrency === 'USDC' ? undefined : { color: 'lightgrey' }}
-        background={dashCurrency === 'USDC' ? 'gradient-transparent' : undefined}
+        background={dashCurrency === USDC ? 'gradient-transparent' : undefined}
         round={{ corner: 'left' }}
-        onClick={() => updateSetting(Settings.DASH_CURRENCY, 'USDC')}
+        onClick={() => updateSetting(Settings.DASH_CURRENCY, USDC)}
         align="center"
         justify="center"
-        elevation={dashCurrency === 'USDC' ? 'xsmall' : 'small'}
+        elevation={dashCurrency === USDC ? 'xsmall' : 'small'}
       >
         <Text size="xsmall">USD</Text>
       </Box>
       <Box
         fill
         pad="small"
-        // border={dashCurrency === 'ETH' ? undefined : { color: 'lightgrey' }}
-        background={dashCurrency === 'ETH' ? 'gradient-transparent' : undefined}
+        background={dashCurrency === WETH ? 'gradient-transparent' : undefined}
         round={{ corner: 'right' }}
-        onClick={() => updateSetting(Settings.DASH_CURRENCY, 'ETH')}
+        onClick={() => updateSetting(Settings.DASH_CURRENCY, WETH)}
         align="center"
         justify="center"
-        elevation={dashCurrency === 'ETH' ? 'xsmall' : 'small'}
+        elevation={dashCurrency === WETH ? 'xsmall' : 'small'}
       >
         <Text size="xsmall">ETH</Text>
       </Box>

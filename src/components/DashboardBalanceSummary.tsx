@@ -94,7 +94,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
 
       <Box direction="row-responsive" justify="between" margin={{ top: 'medium' }} border={{ side: 'top' }}>
         <Text size="medium">Total:</Text>
-        {vaultsLoading || seriesLoading || strategiesLoading || !totalBalance ? (
+        {vaultsLoading || seriesLoading || strategiesLoading ? (
           <Skeleton width={50} />
         ) : (
           <Box direction="row" gap="medium">
