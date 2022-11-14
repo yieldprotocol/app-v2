@@ -510,11 +510,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    *
    * */
   useEffect(() => {
-    if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
+    if (chainLoaded === chainId && seriesRootMap.size) {
       updateSeries(Array.from(seriesRootMap.values()));
       account && updateVaults();
     }
-  }, [account, assetRootMap, chainId, chainLoaded, seriesRootMap, updateSeries, updateVaults]);
+  }, [account, chainId, chainLoaded, seriesRootMap, updateSeries, updateVaults]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
