@@ -36,7 +36,7 @@ const useAsset = (id: string) => {
     };
   };
 
-  const key = useMemo(() => ['asset', id, assetRootMap], [assetRootMap, id]);
+  const key = useMemo(() => ['asset', id, assetRootMap, account], [account, assetRootMap, id]);
 
   const { data, error } = useSWRImmutable(key, getAsset);
 

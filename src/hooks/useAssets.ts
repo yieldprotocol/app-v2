@@ -1,3 +1,4 @@
+import { BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
@@ -19,16 +20,17 @@ const useAssets = () => {
   const provider = useDefaultProvider();
 
   const getAssets = async () => {
-    if (!account) return;
-
     return [...assetRootMap.values()].reduce(async (acc, a) => {
       const asset = assetRootMap.get(a.id);
 
       if (!asset) return await acc;
 
       const args = asset.tokenIdentifier ? [account, asset.tokenIdentifier] : [account]; // handle erc1155
-      const balance =
-        a.id === WETH ? await provider.getBalance(account!) : await asset.assetContract.balanceOf(...args);
+      const balance: BigNumber = !account
+        ? ethers.constants.Zero
+        : a.id === WETH
+        ? await provider.getBalance(account)
+        : await asset.assetContract.balanceOf(...args);
 
       return (await acc).set(a.id, {
         ...asset,
@@ -38,8 +40,8 @@ const useAssets = () => {
   };
 
   const key = useMemo(() => {
-    return assetRootMap.size ? ['assets', assetRootMap] : null;
-  }, [assetRootMap]);
+    return assetRootMap.size ? ['assets', assetRootMap, account] : null;
+  }, [account, assetRootMap]);
 
   const { data, error } = useSWRImmutable(key, getAssets);
 
