@@ -35,6 +35,7 @@ export const useDashboardHelpers = () => {
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { data: strategyMap } = useStrategies();
+  const { getStrategy, genKey } = useStrategy();
 
   const { pairMap } = priceState;
   const { updateAssetPair } = priceActions;
@@ -92,41 +93,49 @@ export const useDashboardHelpers = () => {
 
   /* set strategy positions */
   useEffect(() => {
-    if (!strategyMap) return;
+    (async () => {
+      if (!strategyMap) return;
 
-    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
-      .map((_strategy) => {
-        if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
+      const _strategyPositions: IStrategyPosition[] = await Promise.all(
+        Array.from(strategyMap.values()).map(async (s) => {
+          const strategy = await getStrategy(s.address);
 
-        const currentStrategySeries = seriesMap?.get(_strategy.currentSeriesId);
-        const [fyTokenToShares, sharesReceived] = strategyTokenValue(
-          _strategy?.accountBalance || ethers.constants.Zero,
-          _strategy?.strategyTotalSupply || ethers.constants.Zero,
-          _strategy?.strategyPoolBalance || ethers.constants.Zero,
-          currentStrategySeries?.sharesReserves!,
-          currentStrategySeries?.fyTokenReserves!,
-          currentStrategySeries?.totalSupply!,
-          getTimeTillMaturity(currentStrategySeries?.maturity!),
-          currentStrategySeries?.ts!,
-          currentStrategySeries?.g2!,
-          currentStrategySeries?.decimals!,
-          currentStrategySeries?.c,
-          currentStrategySeries?.mu
+          const { currentSeries: series } = strategy;
+
+          const [fyTokenToShares, sharesReceived] = strategyTokenValue(
+            strategy.accountBalance.value,
+            strategy.totalSupply.value,
+            strategy.strategyPoolBalance.value,
+            series.sharesReserves,
+            series.fyTokenReserves,
+            series.totalSupply,
+            getTimeTillMaturity(series.maturity),
+            series.ts,
+            series.g2,
+            series.decimals,
+            series.c,
+            series.mu
+          );
+
+          const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
+            ? ethers.utils.formatUnits(
+                series.getBase(fyTokenToShares).add(series?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
+                series.decimals
+              )
+            : strategy.accountBalance.formatted; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
+
+          return { ...strategy, currentValue_ };
+        })
+      );
+
+      const filtered = _strategyPositions
+        .filter((strategy) => strategy.accountBalance?.value.gt(ZERO_BN))
+        .sort((_strategyA, _strategyB) =>
+          _strategyA.accountBalance?.value.lt(_strategyB.accountBalance?.value!) ? 1 : -1
         );
-
-        const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
-          ? ethers.utils.formatUnits(
-              currentStrategySeries?.getBase(fyTokenToShares).add(currentStrategySeries?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
-              currentStrategySeries?.decimals
-            )
-          : _strategy.accountBalance_; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
-
-        return { ..._strategy, currentValue_ };
-      })
-      .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
-      .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
-    setStrategyPositions(_strategyPositions);
-  }, [strategyMap, seriesMap, getTimeTillMaturity]);
+      setStrategyPositions(filtered);
+    })();
+  }, [getStrategy, getTimeTillMaturity, strategyMap]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const convertValue = useCallback(
