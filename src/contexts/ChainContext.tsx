@@ -6,7 +6,7 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, ISeriesRoot, ISeriesRootRoot, IStrategyRoot, TokenType } from '../types';
+import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -237,7 +237,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   /* add on extra/calculated ASYNC series info and contract instances */
   const _chargeSeries = useCallback(
-    (series: ISeriesRootRoot, chain: number): ISeriesRoot => {
+    (series: ISeriesRoot, chain: number): ISeriesRoot => {
       /* contracts need to be added in again in when charging because the cached state only holds strings */
       const poolContract = contractTypes.Pool__factory.connect(series.poolAddress, provider);
       const fyTokenContract = contractTypes.FYToken__factory.connect(series.fyTokenAddress, provider);
@@ -286,7 +286,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const seriesMap = chain === 1 ? SERIES_1 : SERIES_42161;
-      const newSeriesList: ISeriesRootRoot[] = [];
+      const newSeriesList: ISeriesRoot[] = [];
 
       await Promise.all(
         Array.from(seriesMap).map(async (x) => {
@@ -332,7 +332,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             g1,
             g2,
             baseAddress,
-          } as ISeriesRootRoot;
+          } as ISeriesRoot;
 
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries, chain) });
           newSeriesList.push(newSeries);
@@ -455,9 +455,9 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     chainId && _getProtocolData(chainId);
   }, [chainId]);
 
-  /* Reload the page on chain changes */
+  /* Reload the page on chain changes ( if chain is different ) */
   useEffect(() => {
-    if (chainId !== chainState.chainLoaded && chainState.chainLoaded !== 0 ) location.reload();
+    if (chainId !== chainState.chainLoaded && chainState.chainLoaded !== 0) location.reload();
   }, [chainId, chainState.chainLoaded]);
 
   /**
