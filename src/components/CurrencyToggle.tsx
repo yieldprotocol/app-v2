@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { Settings, SettingsContext } from '../contexts/SettingsContext';
+import { SettingsContext } from '../contexts/SettingsContext';
+import { Settings } from '../contexts/types/settings';
 import { USDC, WETH } from '../config/assets';
 
 const CurrencyToggle = () => {
