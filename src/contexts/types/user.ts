@@ -1,7 +1,6 @@
 import { IAsset, IDummyVault, ISeries, IStrategy, IVault } from '../../types';
 
 export interface IUserContextActions {
-  updateVaults: (vaultList?: IVault[]) => void;
   updateSeries: (seriesList: ISeries[]) => void;
 
   setSelectedSeries: (series: ISeries | null) => void;
@@ -15,9 +14,7 @@ export interface IUserContextState {
   userLoading: boolean;
 
   seriesMap: Map<string, ISeries>;
-  vaultMap: Map<string, IVault>;
 
-  vaultsLoading: boolean;
   seriesLoading: boolean;
   assetsLoading: boolean;
 
@@ -27,19 +24,17 @@ export interface IUserContextState {
   selectedVault: IVault | null;
   selectedStrategy: IStrategy | null;
 
-  selectedBaseBalance: any,
-  selectedIlkBalance: any,
+  selectedBaseBalance: any;
+  selectedIlkBalance: any;
 }
 
 export enum UserState {
   USER_LOADING = 'userLoading',
 
   SERIES = 'series',
-  VAULTS = 'vaults',
 
   CLEAR_VAULTS = 'clearVaults',
 
-  VAULTS_LOADING = 'vaultsLoading',
   SERIES_LOADING = 'seriesLoading',
 
   SELECTED_VAULT = 'selectedVault',
@@ -57,11 +52,6 @@ export type UserLoadingAction = {
   payload: boolean;
 };
 
-export type VaultsLoadingAction = {
-  type: UserState.VAULTS_LOADING;
-  payload: boolean;
-};
-
 export type SeriesLoadingAction = {
   type: UserState.SERIES_LOADING;
   payload: boolean;
@@ -70,11 +60,6 @@ export type SeriesLoadingAction = {
 export type SeriesAction = {
   type: UserState.SERIES;
   payload: Map<string, ISeries>;
-};
-
-export type VaultsAction = {
-  type: UserState.VAULTS;
-  payload: Map<string, IVault>;
 };
 
 export type ClearVaultsAction = {
@@ -117,10 +102,8 @@ export type SelectedStrategyAction = {
 
 export type UserContextAction =
   | UserLoadingAction
-  | VaultsLoadingAction
   | SeriesLoadingAction
   | SeriesAction
-  | VaultsAction
   | ClearVaultsAction
   | SelectedVaultAction
   | SelectedSeriesAction

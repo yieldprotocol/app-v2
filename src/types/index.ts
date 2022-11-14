@@ -189,15 +189,6 @@ export interface IStrategyDynamic extends IStrategy {
   strategyPoolBalance: Value;
 }
 
-export interface IVaultRoot {
-  id: string;
-  ilkId: string;
-  baseId: string;
-  seriesId: string;
-  displayName: string;
-  decimals: number;
-}
-
 export interface ISeries extends ISeriesRoot {
   apr: string;
   sharesReserves: BigNumber;
@@ -229,27 +220,28 @@ export interface ISeries extends ISeriesRoot {
   showSeries: boolean;
 }
 
+export interface IVaultRoot {
+  id: string;
+  ilkId: string;
+  baseId: string;
+  seriesId: string;
+  displayName: string;
+  decimals: number;
+}
+
 export interface IDummyVault extends IVaultRoot {}
 export interface IVault extends IVaultRoot {
   owner: string;
-
   isWitchOwner: boolean;
   hasBeenLiquidated: boolean;
   isVaultMature: boolean;
-
   isActive: boolean;
-  ink: BigNumber;
-  art: BigNumber;
-  accruedArt: BigNumber;
 
-  ink_: string;
-  art_: string;
-
+  ink: Value;
+  art: Value;
+  accruedArt: Value;
+  rate: Value;
   rateAtMaturity: BigNumber;
-  rate: BigNumber;
-  rate_: string;
-
-  accruedArt_: string;
 }
 
 export interface ICallData {

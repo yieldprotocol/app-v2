@@ -54,7 +54,7 @@ const VaultPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, vaultMap, vaultsLoading } = userState;
+  const { seriesMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const { address: account } = useAccount();
@@ -326,16 +326,14 @@ const VaultPosition = () => {
       setSelectedVault(_selectedVault);
     }
   }, [
-    vaultMap,
     _selectedVault,
-    seriesMap,
-    setSelectedSeries,
     setSelectedBase,
     setSelectedIlk,
+    setSelectedSeries,
     setSelectedVault,
-    vaultSeries,
     vaultBase,
     vaultIlk,
+    vaultSeries,
   ]);
 
   useEffect(() => {
