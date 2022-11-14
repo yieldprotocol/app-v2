@@ -227,6 +227,11 @@ export interface IVaultRoot {
   seriesId: string;
   displayName: string;
   decimals: number;
+  series: ISeriesRoot | undefined;
+  owner: string;
+  isActive: boolean;
+
+  art: Value;
 }
 
 export interface IDummyVault extends IVaultRoot {}
@@ -238,7 +243,6 @@ export interface IVault extends IVaultRoot {
   isActive: boolean;
 
   ink: Value;
-  art: Value;
   accruedArt: Value;
   rate: Value;
   rateAtMaturity: BigNumber;

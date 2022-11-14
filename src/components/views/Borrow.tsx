@@ -13,7 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IVault, ProcessStage, TxState } from '../../types';
+import { ActionCodes, ActionType, IVault, IVaultRoot, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -53,6 +53,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAsset from '../../hooks/useAsset';
+import useVaults from '../../hooks/useVaults';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -63,12 +64,13 @@ const Borrow = () => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext);
-  const { vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccount();
   const { data: weth } = useAsset(WETH);
   const contracts = useContracts();
+  const { data: vaults } = useVaults();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -88,7 +90,7 @@ const Borrow = () => {
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
 
-  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
+  const [matchingVaults, setMatchingVaults] = useState<IVaultRoot[]>([]);
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
@@ -122,7 +124,7 @@ const Borrow = () => {
   ]);
 
   const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
-    Number(minCollateral_) - Number(vaultToUse?.ink_),
+    Number(minCollateral_) - Number(vaultToUse?.ink.value),
     maxCollateral,
   ]);
 
@@ -238,10 +240,10 @@ const Borrow = () => {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
-    if (selectedBase && selectedSeries && selectedIlk) {
-      const arr: IVault[] = Array.from(vaultMap?.values()!) as IVault[];
+    if (selectedBase && selectedSeries && selectedIlk && vaults) {
+      const arr = Array.from(vaults.values());
       const _matchingVaults = arr.filter(
-        (v: IVault) =>
+        (v) =>
           v.ilkId === selectedIlk.proxyId &&
           v.baseId === selectedBase.proxyId &&
           v.seriesId === selectedSeries.id &&
@@ -249,7 +251,7 @@ const Borrow = () => {
       );
       setMatchingVaults(_matchingVaults);
     }
-  }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
+  }, [selectedBase, selectedIlk, selectedSeries, vaults]);
 
   /* reset the selected vault, and get limits on every component change */
   useEffect(() => {
@@ -547,7 +549,7 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
-                  {vaultToUse && <VaultItem vault={vaultMap?.get(vaultToUse.id)!} condensed index={1} />}
+                  {vaultToUse && <VaultItem id={vaultToUse.id} condensed index={1} />}
                   {!vaultToUse && newVaultId && (
                     <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
                   )}

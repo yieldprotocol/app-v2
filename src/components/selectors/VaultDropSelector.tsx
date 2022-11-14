@@ -1,12 +1,12 @@
 import { useContext } from 'react';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { FiChevronDown, FiPlusCircle } from 'react-icons/fi';
-import { ActionType, IVault } from '../../types';
+import { ActionType, IVault, IVaultRoot } from '../../types';
 import PositionAvatar from '../PositionAvatar';
 import { UserContext } from '../../contexts/UserContext';
 
 interface IVaultDropSelectorProps {
-  vaults: IVault[];
+  vaults: IVaultRoot[];
   handleSelect: any;
   itemSelected: any;
   displayName: string;

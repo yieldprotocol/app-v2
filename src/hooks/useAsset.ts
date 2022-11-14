@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
@@ -12,7 +12,7 @@ import useDefaultProvider from './useDefaultProvider';
  * Fetch a single asset's data
  * @param id asset id
  */
-const useAsset = (id: string) => {
+const useAsset = (id?: string) => {
   const {
     chainState: { assetRootMap },
   } = useContext(ChainContext);
@@ -21,7 +21,7 @@ const useAsset = (id: string) => {
 
   const { address: account } = useAccount();
 
-  const getAsset = async (): Promise<IAsset> => {
+  const getAsset = async (id: string): Promise<IAsset> => {
     const asset = assetRootMap.get(id);
 
     if (!asset) throw new Error('no asset');
@@ -36,9 +36,9 @@ const useAsset = (id: string) => {
     };
   };
 
-  const key = useMemo(() => ['asset', id, assetRootMap, account], [account, assetRootMap, id]);
+  const key = useMemo(() => (id ? ['asset', id, assetRootMap, account] : null), [account, assetRootMap, id]);
 
-  const { data, error } = useSWRImmutable(key, getAsset);
+  const { data, error } = useSWRImmutable(key, () => getAsset(id!));
 
   return {
     data,

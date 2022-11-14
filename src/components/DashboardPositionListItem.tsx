@@ -6,17 +6,18 @@ import VaultItem from './positionItems/VaultItem';
 import LendItem from './positionItems/LendItem';
 import StrategyItem from './positionItems/StrategyItem';
 import useStrategies from '../hooks/useStrategies';
+import useVaults from '../hooks/useVaults';
 
 function DashboardPositionListItem({ item, index, actionType }: { item: any; index: number; actionType: ActionType }) {
   const {
-    userState: { vaultMap, seriesMap },
+    userState: { seriesMap },
   } = useContext(UserContext);
-
+  const { data: vaults } = useVaults();
   const { data: strategyMap } = useStrategies();
 
   return (
     <Box>
-      {vaultMap?.has(item.id!) && <VaultItem vault={item!} index={index} condensed />}
+      {vaults?.has(item.id!) && <VaultItem id={item.id!} index={index} condensed />}
       {seriesMap?.has(item.id) && <LendItem series={item!} index={index} actionType={actionType} condensed />}
       {strategyMap?.has(item.id) && <StrategyItem strategyAddress={item.address!} index={index} condensed />}
     </Box>

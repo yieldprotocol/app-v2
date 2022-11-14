@@ -14,19 +14,20 @@ import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAsset from '../../hooks/useAsset';
+import useVault from '../../hooks/useVault';
+import { CardSkeleton } from '../selectors/StrategySelector';
 
-function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
+function VaultItem({ id, index, condensed }: { id: string; index: number; condensed?: boolean }) {
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { seriesMap, vaultsLoading, selectedVault },
-    userActions,
+    userActions: { setSelectedVault },
   } = useContext(UserContext);
-  const { setSelectedVault } = userActions;
 
-  const { data: vaultBase } = useAsset(vault.baseId);
-  const { data: vaultIlk } = useAsset(vault.ilkId);
+  const { data: vault, isLoading: vaultLoading } = useVault(id);
+  const { data: vaultBase } = useAsset(vault?.baseId);
+  const { data: vaultIlk } = useAsset(vault?.ilkId);
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
   const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPairInfo, undefined);
@@ -38,6 +39,13 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
       id: _vault?.id.slice(2),
     } as GA_Properties.position_opened);
   };
+
+  if (!vault)
+    return (
+      <ItemWrap action={() => null} index={index}>
+        <CardSkeleton />
+      </ItemWrap>
+    );
 
   return (
     <ItemWrap
@@ -60,18 +68,14 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
           {vault.isActive ? (
             <Box direction="column" width={condensed ? '6rem' : undefined}>
               <Text weight={450} size="xsmall">
-                {seriesMap?.get(vault.seriesId)?.displayName}
+                {vault.series?.displayName}
               </Text>
               <Box direction="row" gap="xsmall">
                 <Text weight={450} size="xsmall">
                   Debt:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {(vaultsLoading && vault.id === selectedVault?.id) || !debtInBase_ ? (
-                    <SkeletonWrap width={30} />
-                  ) : (
-                    cleanValue(debtInBase_, 2)
-                  )}
+                  {vaultLoading || !debtInBase_ ? <SkeletonWrap width={30} /> : cleanValue(debtInBase_, 2)}
                 </Text>
               </Box>
             </Box>

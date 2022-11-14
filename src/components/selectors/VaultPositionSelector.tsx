@@ -2,11 +2,12 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IVault } from '../../types';
+import { IAsset, ISeries, IVaultRoot } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAccount } from 'wagmi';
+import useVaults from '../../hooks/useVaults';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -14,51 +15,53 @@ interface IVaultFilter {
   ilk: IAsset | undefined;
 }
 
-function VaultPositionSelector(target: any) {
+function VaultPositionSelector() {
   /* STATE FROM CONTEXT */
   const {
     settingsState: { dashHideInactiveVaults },
   } = useContext(SettingsContext);
   const {
-    userState: { vaultMap, selectedSeries, selectedBase },
+    userState: { selectedSeries, selectedBase },
   } = useContext(UserContext);
+  const { data: vaults } = useVaults();
 
   const { isConnected } = useAccount();
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
-  const [allVaults, setAllVaults] = useState<IVault[]>([]);
+  const [allVaults, setAllVaults] = useState<IVaultRoot[]>([]);
 
   const [filter, setFilter] = useState<IVaultFilter>();
-  const [filteredVaults, setFilteredVaults] = useState<IVault[]>([]);
+  const [filteredVaults, setFilteredVaults] = useState<IVaultRoot[]>([]);
 
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
-      if (!vaultMap) return;
-      const _filteredVaults = Array.from(vaultMap.values())
+      if (!vaults) return;
+
+      const _filteredVaults = Array.from(vaults.values())
         .filter((vault) => !dashHideInactiveVaults || vault.isActive)
         .filter((vault) => (base ? vault.baseId === base.proxyId : true))
         .filter((vault) => (series ? vault.seriesId === series.id : true))
         .filter((vault) => (ilk ? vault.ilkId === ilk.proxyId : true))
         .filter((vault) => vault.baseId !== vault.ilkId)
-        .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
+        .sort((vaultA, vaultB) => (vaultA.art.value.lt(vaultB.art.value) ? 1 : -1));
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
     },
-    [vaultMap, dashHideInactiveVaults]
+    [dashHideInactiveVaults, vaults]
   );
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
-    if (!vaultMap) return;
-    const _allVaults = Array.from(vaultMap.values())
+    if (!vaults) return;
+
+    const _allVaults = Array.from(vaults.values())
       // filter out vaults that have same base and ilk (borrow and pool liquidity positions)
       .filter((vault) => vault.baseId !== vault.ilkId)
 
       // sorting by debt balance
-      .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+      .sort((vaultA, vaultB) => (vaultA.art.value.lt(vaultB.art.value) ? 1 : -1))
       // sorting to prioritize active vaults
-      // eslint-disable-next-line no-nested-ternary
       .sort((vaultA, vaultB) => (vaultA.isActive === vaultB.isActive ? 0 : vaultA.isActive ? -1 : 1));
 
     setAllVaults(_allVaults);
@@ -69,7 +72,7 @@ function VaultPositionSelector(target: any) {
     if (selectedBase && selectedSeries) {
       handleFilter({ base: selectedBase, series: selectedSeries, ilk: undefined });
     }
-  }, [vaultMap, selectedBase, selectedSeries, handleFilter]);
+  }, [handleFilter, selectedBase, selectedSeries, vaults]);
 
   useEffect(() => {
     allVaults.length <= 5 && setShowAllVaults(true);
@@ -100,8 +103,8 @@ function VaultPositionSelector(target: any) {
                   </Text>
                 )}
 
-                {(showAllVaults ? allVaults : filteredVaults).map((x: IVault, i: number) => (
-                  <VaultListItem vault={x} index={i} key={x.id} />
+                {(showAllVaults ? allVaults : filteredVaults).map((x, i) => (
+                  <VaultListItem id={x.id} index={i} key={x.id} />
                 ))}
               </ListWrap>
 
