@@ -26,7 +26,7 @@ import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
@@ -137,31 +137,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { tenderlyStartBlock } = useTenderly();
   const contracts = useContracts();
-
-  /* watch the selectedBase and selectedIlk */
-  const {
-    data: baseBalance,
-    isLoading: baseLoading,
-    status: baseStatus,
-    refetch: refetchBase,
-  } = useBalance({
-    addressOrName: account,
-    token: userState.selectedBase?.address,
-    enabled: !!account && userState.selectedBase !== null && chainId === chainLoaded,
-    cacheTime: 10_000,
-  });
-
-  const {
-    data: ilkBalance,
-    isLoading: ilkLoading,
-    status: ilkStatus,
-    refetch: refetchIlk,
-  } = useBalance({
-    addressOrName: account,
-    token: userState.selectedIlk?.address,
-    enabled: !!account && userState.selectedIlk !== null && chainId === chainLoaded,
-    cacheTime: 10_000,
-  });
 
   /* TODO consider moving out of here ? */
   const getPoolAPY = useCallback(
@@ -558,20 +533,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
-
-  /* update selected asset balances */
-  useEffect(() => {
-    if (account) {
-      updateState({
-        type: UserState.SELECTED_BASE_BALANCE,
-        payload: baseBalance,
-      });
-      updateState({
-        type: UserState.SELECTED_ILK_BALANCE,
-        payload: ilkBalance,
-      });
-    }
-  }, [baseBalance, ilkBalance, account]);
 
   /* Exposed userActions */
   const userActions = {

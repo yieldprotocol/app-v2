@@ -40,7 +40,7 @@ import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
 import { useAssetPair } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAsset from '../../hooks/useAsset';
@@ -64,8 +64,6 @@ const VaultPosition = () => {
   const { data: vaultBase } = useAsset(_selectedVault?.baseId!);
   const { data: vaultIlk } = useAsset(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
-
-  const { data: ilkBal } = useBalance({ addressOrName: account, token: vaultIlk?.address });
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
