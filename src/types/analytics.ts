@@ -4,6 +4,8 @@ export enum GA_Event {
   connect_wallet = 'connect_wallet',
   autoConnect_wallet = 'auto_connect_wallet',
 
+  sanctioned_wallet = 'sanctioned_wallet',
+
   view_changed = 'view_change', // from and to
 
   asset_selected = 'asset_selected',
@@ -41,6 +43,8 @@ export enum GA_View {
 export namespace GA_Properties {
   export type connect_wallet = { view?: GA_View };
   export type autoConnect_wallet = { view?: GA_View };
+
+  export type sanctioned_wallet = { address: string, view?: GA_View };
 
   export type view_changed = {  toView: GA_View };
 

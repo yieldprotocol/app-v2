@@ -3,10 +3,14 @@ import { Anchor, Box, Button, Collapsible, Layer, Text } from 'grommet';
 import { FiAlertCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useAccount, useDisconnect, useProvider } from 'wagmi';
 import { ethers } from 'ethers';
+import { GA_Event, GA_Properties } from '../types/analytics';
+import useAnalytics from '../hooks/useAnalytics';
 
 const SanctionedAddressError = () => {
+  
   const { disconnect } = useDisconnect();
   const provider = useProvider();
+  const { logAnalyticsEvent } = useAnalytics();
 
   const [showError, setShowError] = useState<boolean>(false);
   const [showMore, setShowMore] = useState<boolean>(false);
@@ -22,7 +26,7 @@ const SanctionedAddressError = () => {
   const chainalysisContract = new ethers.Contract(chainalysisAddress, chainalysisABI, provider);
 
   const { address: account } = useAccount({
-    onConnect: async ({ address, isReconnected }) => {
+    onConnect: async ({ address }) => {
       
       if (address && approvedAddresses.includes(address)) {
         console.log('Pre-approved address: ', approvedAddresses); // or remove this  
@@ -35,6 +39,10 @@ const SanctionedAddressError = () => {
           if (isSanctioned) {
             setShowError(true);
             console.log('Account ', address, 'is sanctioned.');
+            logAnalyticsEvent(GA_Event.sanctioned_wallet, {
+              address: address,
+            } as GA_Properties.sanctioned_wallet);
+
           } else {
             setApprovedAddresses([...approvedAddresses, address]);
             console.log('No sanctions.');
