@@ -37,6 +37,7 @@ const HeaderAccount = () => {
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
   const { address: account } = useAccount();
+
   const { data: ethBalance } = useBalance({ addressOrName: account });
 
   const {
@@ -50,6 +51,7 @@ const HeaderAccount = () => {
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
       { !mobile && <HeaderBalances /> }
+
       {account ? (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">

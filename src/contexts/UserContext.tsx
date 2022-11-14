@@ -143,9 +143,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
 
   /* HOOKS */
-  const { address: account } = useAccount();
   const chainId = useChainId();
   const provider = useDefaulProvider();
+  const { address: account } = useAccount()
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();

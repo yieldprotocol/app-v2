@@ -1,7 +1,6 @@
 import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { ReactNode, useContext } from 'react';
-import { SettingsContext } from './SettingsContext';
+import { ReactNode} from 'react';
 import {
   darkTheme,
   RainbowKitProvider,
@@ -84,7 +83,6 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
         modalSize="compact"
         avatar={CustomAvatar}
         theme={ colorTheme === 'dark' ? myDarkTheme : myLightTheme }
-        // theme={darkTheme()}
       >
         {children}
       </RainbowKitProvider>
