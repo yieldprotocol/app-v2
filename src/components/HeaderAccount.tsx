@@ -36,7 +36,12 @@ const HeaderAccount = () => {
 
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
-  const { address: account } = useAccount();
+
+  const { address: account } = useAccount({
+    onConnect({ address, connector, isReconnected }) {
+      console.log('Connected: ', { address, connector, isReconnected })
+    },
+  });
 
   const { data: ethBalance } = useBalance({ addressOrName: account });
 
@@ -52,7 +57,8 @@ const HeaderAccount = () => {
 
       { !mobile && <HeaderBalances /> }
 
-      {account ? (
+      {account 
+      && (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
@@ -89,14 +95,15 @@ const HeaderAccount = () => {
             )}
           </StyledBox>
         </Box>
-      ) : (
-        !!openConnectModal && (
-          <GeneralButton action={openConnectModal} background="gradient-transparent">
+      )}
+      
+      { !account && (
+        // !!openConnectModal && (
+          <GeneralButton action={() => !!openConnectModal && openConnectModal() } background="gradient-transparent">
             <Text size="small" color="text">
               Connect Wallet
             </Text>
           </GeneralButton>
-        )
       )}
     </Box>
   );

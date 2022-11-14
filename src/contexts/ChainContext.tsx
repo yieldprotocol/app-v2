@@ -1,4 +1,4 @@
-import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer } from 'react';
+import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer, useContext } from 'react';
 import { BigNumber, Contract } from 'ethers';
 import { format } from 'date-fns';
 
@@ -22,7 +22,7 @@ import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
-import { UserState } from './types/user';
+import { SettingsContext } from './SettingsContext';
 
 const initState: IChainContextState = {
   /* flags */
@@ -82,6 +82,8 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
 
 const ChainProvider = ({ children }: { children: ReactNode }) => {
   const [chainState, updateState] = useReducer(chainReducer, initState);
+
+  const {settingsState: { diagnostics } } = useContext(SettingsContext);
 
   /* HOOKS */
   const provider = useDefaulProvider();
@@ -176,10 +178,11 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             try {
               [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
             } catch (e) {
-              console.log(
-                id,
-                ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
-              );
+              diagnostics &&
+                console.log(
+                  id,
+                  ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
+                );
             }
           }
           /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
@@ -188,6 +191,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             try {
               version = await contract.version();
             } catch (e) {
+              diagnostics &&
               console.log(
                 id,
                 ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
@@ -421,8 +425,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       /* Clear maps in local app memory  ( note: this is not the cache ) and set chainLoaded false */
       updateState({ type: ChainState.CLEAR_MAPS });
 
-      console.log('Fetching Protocol contract addresses for chain Id: ', chain);
-      console.log('Checking for new Assets and Series, and Strategies : ', chain);
+      console.log('Fetching Protocol contract addresses and checking for new Assets and Series, and Strategies : ', chain);
 
       await Promise.all([_getAssets(chain), _getSeries(chain), _getStrategies(chain)])
         .catch(() => {
