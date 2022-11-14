@@ -150,7 +150,7 @@ export const useDashboardHelpers = () => {
         );
       setStrategyPositions(filtered);
     })();
-  }, [getStrategy, getTimeTillMaturity, strategyMap]);
+  }, [cache, genKey, getStrategy, getTimeTillMaturity, mutate, strategyMap]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const convertValue = useCallback(
