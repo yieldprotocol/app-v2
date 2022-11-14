@@ -18,8 +18,10 @@ const useAssets = () => {
   const { address: account } = useAccount();
   const provider = useDefaultProvider();
 
-  const getAssets = async () =>
-    [...assetRootMap.values()].reduce(async (acc, a) => {
+  const getAssets = async () => {
+    if (!account) return;
+
+    return [...assetRootMap.values()].reduce(async (acc, a) => {
       const asset = assetRootMap.get(a.id);
 
       if (!asset) return await acc;
@@ -33,6 +35,7 @@ const useAssets = () => {
         balance: { value: balance, formatted: formatUnits(balance, asset.decimals) },
       });
     }, Promise.resolve(new Map<string, IAsset>()));
+  };
 
   const key = useMemo(() => {
     return assetRootMap.size ? ['assets', assetRootMap] : null;
