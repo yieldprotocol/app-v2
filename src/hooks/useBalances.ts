@@ -11,24 +11,24 @@ import { IAsset, IAssetInfo } from '../types';
  * @returns assetMap values with balance added
  */
 
-const useBalances = () => {
-  const {
-    userState: { assetMap },
-  } = useContext(UserContext);
+const useBalances = ( assets: IAsset[] = [] ) => {
 
+  const {userState: { assetMap }} = useContext(UserContext);
   const { address: account } = useAccount();
+
+  const assetList = assets.length > 0 ? assets : [...assetMap.values()] 
 
   // data to read
   const contracts = useMemo(
     () =>
-      [...assetMap.values()].map((a) => ({
+      assetList.map((a) => ({
         addressOrName: a.address,
         args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
         functionName: 'balanceOf',
         contractInterface: a.assetContract.interface,
       })) as ReadContractsContract[],
 
-    [account, assetMap]
+    [account, assetList]
   );
 
   /**
@@ -43,7 +43,7 @@ const useBalances = () => {
   // copy of asset map with bal
   const _data = useMemo(
     () =>
-      [...assetMap.values()].map(
+      assetList.map(
         (a, i) =>
           ({
             ...a,
@@ -51,7 +51,7 @@ const useBalances = () => {
             balance_: data && !!data[i] ? formatUnits(data[i], a.decimals) : '0',
           } as IAsset)
       ),
-    [assetMap, data]
+    [assetList, data]
   );
   return { data: _data, isLoading, refetch };
 };

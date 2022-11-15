@@ -145,7 +145,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const provider = useDefaulProvider();
-  const { address: account } = useAccount()
+  const { address: account } = useAccount();
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
@@ -172,18 +172,25 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     refetch: refetchIlkBalance,
   } = useBalance({
     addressOrName: account,
-    token: userState.selectedIlk?.proxyId === WETH ? '' : userState.selectedIlk?.address, // use ETH balance for WETH 
+    token: userState.selectedIlk?.proxyId === WETH ? '' : userState.selectedIlk?.address, // use ETH balance for WETH
     enabled: !!account && userState.selectedIlk !== null && chainId === chainLoaded,
     cacheTime: 10_000,
-    onError: async (e:Error) => {
-      const tokenIdentifier = userState.selectedIlk?.tokenIdentifier
+    onError: async (e: Error) => {
+      const tokenIdentifier = userState.selectedIlk?.tokenIdentifier;
       if (tokenIdentifier) {
-        const balance = await userState.selectedIlk?.assetContract.balanceOf( account,tokenIdentifier )
-        return balance;
+        console.log(userState.selectedIlk?.assetContract);
+        const balance = await userState.selectedIlk?.assetContract.balanceOf(account, tokenIdentifier);
+        return {
+          value: balance,
+          formatted: '1.0',
+          decimals: userState.selectedIlk?.decimals,
+          symbol: userState.selectedIlk?.symbol,
+        };
       }
       return e;
-    } 
+    },
   });
+
 
   /* TODO consider moving out of here ? */
   const getPoolAPY = useCallback(
@@ -742,20 +749,20 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* update selected asset balances */
   useEffect(() => {
-    if (account ) {
+    if (account) {
       updateState({
         type: UserState.SELECTED_BASE_BALANCE,
         payload: baseBalance,
       });
 
-      console.log( ilkStatus )
+      console.log(ilkBalance);
+
       updateState({
         type: UserState.SELECTED_ILK_BALANCE,
         payload: ilkBalance,
       });
     }
   }, [baseBalance, ilkBalance, account]);
-
 
   /* Exposed userActions */
   const userActions = {

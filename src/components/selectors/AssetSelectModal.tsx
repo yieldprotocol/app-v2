@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { Box, Button, Layer, ResponsiveContext, Text } from 'grommet';
 import { useContext } from 'react';
 import { FiX } from 'react-icons/fi';
+import useBalances from '../../hooks/useBalances';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { IAsset } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
@@ -19,6 +20,8 @@ interface IAssetSelectModalProps {
 const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectModalProps) => {
   const theme = useColorScheme();
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+
+  const assetList = useBalances(assets);
 
   return open ? (
     <Layer
@@ -45,7 +48,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
 
         <Box width="550px">
           <Box overflow="auto" height={{ max: '600px' }} pad={{ vertical: 'small', horizontal: 'large' }} gap="small">
-            {assets
+            {assetList.data
               .sort((a, b) => (a.balance?.lt(b.balance!) ? 1 : -1))
               .map((a) => (
                 <Button
@@ -68,7 +71,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
                     <Box direction="row" gap="small" align="center">
                       <Logo image={a.image} />
                       <Box>
-                        <Text size="medium">{a.displaySymbol}</Text>
+                        <Text size="medium">{a.symbol}</Text>
                         <Text size="xsmall" color="text-weak">
                           {a.name}
                         </Text>
