@@ -20,6 +20,7 @@ import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 import useStrategy from '../useStrategy';
+import useVaults from '../useVaults';
 
 export const useAddLiquidity = () => {
   const { mutate } = useSWRConfig();
@@ -29,7 +30,7 @@ export const useAddLiquidity = () => {
 
   const { userState, userActions } = useContext(UserContext);
   const { selectedStrategy } = userState;
-  const { updateVaults, updateSeries } = userActions;
+  const { updateSeries } = userActions;
 
   const { data: strategy, key: strategyKey } = useStrategy(selectedStrategy?.address!);
 
@@ -38,6 +39,7 @@ export const useAddLiquidity = () => {
   const { address: account } = useAccount();
   const contracts = useContracts();
 
+  const { data: vaults, key: vaultsKey } = useVaults();
   const { data: base, key: baseKey } = useAsset(selectedStrategy?.baseId!);
 
   const { sign, transact } = useChain();
@@ -62,6 +64,7 @@ export const useAddLiquidity = () => {
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
+
     const cleanInput = cleanValue(input, base.decimals);
 
     const _input = ethers.utils.parseUnits(cleanInput, base.decimals);
@@ -296,10 +299,10 @@ export const useAddLiquidity = () => {
 
     mutate(strategyKey);
     mutate(baseKey);
+    if (method === AddLiquidityType.BORROW) mutate(vaultsKey); // update all vaults to get newly created vault when borrowing
 
     updateSeries([series]);
     updateStrategyHistory([strategy]);
-    updateVaults();
   };
 
   return addLiquidity;
