@@ -13,6 +13,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import useStrategies from '../useStrategies';
 import useStrategy from '../useStrategy';
 import { useSWRConfig } from 'swr';
+import useVaults from '../useVaults';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -31,8 +32,9 @@ export const useDashboardHelpers = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { vaultMap, seriesMap },
+    userState: { seriesMap },
   } = useContext(UserContext);
+  const { data: vaults } = useVaults();
 
   const { priceState, priceActions } = useContext(PriceContext) as IPriceContext;
 
@@ -58,13 +60,15 @@ export const useDashboardHelpers = () => {
 
   /* set vault positions */
   useEffect(() => {
-    const _vaultPositions = Array.from(vaultMap?.values()!)
+    if (!vaults) return;
+
+    const _vaultPositions = Array.from(vaults.values())
       .filter((vault) => (dashHideInactiveVaults ? vault.isActive : true))
-      .filter((vault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.accruedArt.gt(ZERO_BN) : true))
+      .filter((vault) => (dashHideEmptyVaults ? vault.ink.value.gt(ZERO_BN) || vault.art.value.gt(ZERO_BN) : true))
       .filter((vault) => vault.baseId !== vault.ilkId)
-      .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
+      .sort((vaultA, vaultB) => (vaultA.art.value.lt(vaultB.art.value) ? 1 : -1));
     setVaultPositions(_vaultPositions);
-  }, [vaultMap, dashHideInactiveVaults, dashHideEmptyVaults]);
+  }, [dashHideInactiveVaults, dashHideEmptyVaults, vaults]);
 
   /* set lend positions */
   useEffect(() => {
@@ -190,7 +194,7 @@ export const useDashboardHelpers = () => {
     /* calc total debt */
     const _debts = vaultPositions.map((position) =>
       pairMap.has(currencySettingAssetId + position.baseId) && position.isActive
-        ? convertValue(currencySettingAssetId, position.baseId, position.accruedArt_)
+        ? convertValue(currencySettingAssetId, position.baseId, position.accruedArt.formatted)
         : 0
     );
     setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toFixed(), currencySettingDigits));
@@ -198,7 +202,7 @@ export const useDashboardHelpers = () => {
     /* calc total collateral */
     const _collateral = vaultPositions.map((position) =>
       pairMap.has(currencySettingAssetId + position.ilkId) && position.isActive
-        ? convertValue(currencySettingAssetId, position.ilkId, position.ink_)
+        ? convertValue(currencySettingAssetId, position.ilkId, position.ink.formatted)
         : 0
     );
     setTotalCollateral(

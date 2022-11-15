@@ -6,18 +6,18 @@ import useContracts, { ContractNames } from './useContracts';
 import useTimeTillMaturity from './useTimeTillMaturity';
 import useChainId from './useChainId';
 import { BigNumber } from 'ethers';
-import { ChainContext } from '../contexts/ChainContext';
 import { ORACLE_INFO } from '../config/oracles';
 import { formatUnits } from 'ethers/lib/utils';
 import useAsset from './useAsset';
 import { useAccount } from 'wagmi';
-import { IVaultDynamic } from '../types';
+import { IVault } from '../types';
 import { generateVaultName } from '../utils/appUtils';
+import { UserContext } from '../contexts/UserContext';
 
 const useVault = (id?: string) => {
   const {
-    chainState: { seriesRootMap },
-  } = useContext(ChainContext);
+    userState: { seriesMap },
+  } = useContext(UserContext);
   const { address: account } = useAccount();
   const contracts = useContracts();
   const chainId = useChainId();
@@ -28,7 +28,7 @@ const useVault = (id?: string) => {
   const Witch = contracts.get(ContractNames.WITCH) as Witch | undefined;
 
   const getVault = useCallback(
-    async (id: string): Promise<IVaultDynamic> => {
+    async (id: string): Promise<IVault> => {
       if (!Cauldron) throw new Error('no cauldron when fetching vault');
       if (!Witch) throw new Error('no witch when fetching vault');
 
@@ -42,7 +42,7 @@ const useVault = (id?: string) => {
         Cauldron.balances(id),
       ]);
 
-      const series = seriesRootMap.get(seriesId);
+      const series = seriesMap.get(seriesId);
       const isVaultMature = isMature(series?.maturity!);
 
       let accruedArt: BigNumber;
@@ -54,7 +54,7 @@ const useVault = (id?: string) => {
         const oracleName = ORACLE_INFO.get(chainId)?.get(series?.baseId!)?.get(RATE);
 
         const RateOracle = contracts.get(oracleName!);
-        rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
+        rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
         [rate] = await RateOracle?.peek(bytesToBytes32(series?.baseId!, 6), RATE, '0');
 
         [accruedArt] = rateAtMaturity.gt(ZERO_BN)
@@ -101,12 +101,12 @@ const useVault = (id?: string) => {
         },
       };
     },
-    [Cauldron, Witch, account, chainId, contracts, getAsset, isMature, seriesRootMap]
+    [Cauldron, Witch, account, chainId, contracts, getAsset, isMature, seriesMap]
   );
 
   const key = useMemo(
-    () => (id && seriesRootMap.size ? ['vault', id, seriesRootMap, account] : null),
-    [account, id, seriesRootMap]
+    () => (id && seriesMap.size ? ['vault', id, seriesMap, account] : null),
+    [account, id, seriesMap]
   );
   const { data, error } = useSWRImmutable(key, () => getVault(id!));
 
@@ -115,6 +115,7 @@ const useVault = (id?: string) => {
     isLoading: !data && !error,
     error,
     key,
+    getVault,
   };
 };
 

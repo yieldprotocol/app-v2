@@ -230,13 +230,11 @@ export interface IVault {
   isActive: boolean;
 
   seriesId: string;
-  series: ISeriesRoot | undefined;
+  series: ISeries | undefined;
 
   ink: Value;
   art: Value;
-}
 
-export interface IVaultDynamic extends IVault {
   isWitchOwner: boolean;
   hasBeenLiquidated: boolean;
   isVaultMature: boolean;
