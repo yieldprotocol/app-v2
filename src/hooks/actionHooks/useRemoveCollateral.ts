@@ -19,7 +19,7 @@ import useVault from '../useVault';
 export const useRemoveCollateral = () => {
   const { mutate } = useSWRConfig();
   const {
-    userState: { selectedVault: vault },
+    userState: { selectedVault },
   } = useContext(UserContext);
   const { address: account } = useAccount();
   const { chain } = useNetwork();
@@ -33,8 +33,8 @@ export const useRemoveCollateral = () => {
   const { transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
+  const { data: vault, key: vaultKey } = useVault(selectedVault?.id);
   const { data: ilk, key: ilkKey } = useAsset(vault?.ilkId!);
-  const { data: vaultToUse, key: vaultKey } = useVault();
 
   const removeCollateral = async (input: string, unwrapOnRemove: boolean = true) => {
     if (!account) throw new Error('no account detected in remove collat');
