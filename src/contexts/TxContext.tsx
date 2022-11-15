@@ -124,7 +124,8 @@ const TxProvider = ({ children }: any) => {
 
   const provider = useProvider();
   const { address: account } = useAccount();
-  const { refetch: refetchETHBal } = useBalance({ addressOrName: account });
+  
+  // const { refetch: refetchETHBal } = useBalance({ addressOrName: account });
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -235,7 +236,7 @@ const TxProvider = ({ children }: any) => {
       res = await tx.wait();
 
       // refetch eth bal after every tx
-      refetchETHBal();
+      // refetchETHBal();
 
       const txSuccess: boolean = res.status === 1 || false;
       const _tx = { tx, txCode, receipt: res, status: txSuccess ? TxState.SUCCESSFUL : TxState.FAILED };

@@ -20,9 +20,9 @@ import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategy
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
+import { EULER_SUPGRAPH_ENDPOINT, ONE_BN, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ETH_BASED_ASSETS } from '../config/assets';
+import { ETH_BASED_ASSETS, WETH } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
@@ -157,10 +157,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     data: baseBalance,
     isLoading: baseLoading,
     status: baseStatus,
-    refetch: refetchBase,
+    refetch: refetchBaseBalance,
   } = useBalance({
     addressOrName: account,
-    token: userState.selectedBase?.address,
+    token: userState.selectedBase?.proxyId === WETH ? '' : userState.selectedBase?.address, // use ETH balance for WETH
     enabled: !!account && userState.selectedBase !== null && chainId === chainLoaded,
     cacheTime: 10_000,
   });
@@ -169,12 +169,20 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     data: ilkBalance,
     isLoading: ilkLoading,
     status: ilkStatus,
-    refetch: refetchIlk,
+    refetch: refetchIlkBalance,
   } = useBalance({
     addressOrName: account,
-    token: userState.selectedIlk?.address,
+    token: userState.selectedIlk?.proxyId === WETH ? '' : userState.selectedIlk?.address, // use ETH balance for WETH 
     enabled: !!account && userState.selectedIlk !== null && chainId === chainLoaded,
     cacheTime: 10_000,
+    onError: async (e:Error) => {
+      const tokenIdentifier = userState.selectedIlk?.tokenIdentifier
+      if (tokenIdentifier) {
+        const balance = await userState.selectedIlk?.assetContract.balanceOf( account,tokenIdentifier )
+        return balance;
+      }
+      return e;
+    } 
   });
 
   /* TODO consider moving out of here ? */
@@ -275,8 +283,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
       /* refetch the selected base ilk balances */
-      account && refetchBase();
-      account && refetchIlk();
+      account && refetchBaseBalance();
+      account && refetchIlkBalance();
 
       /**
        * NOTE! this lock Below is just a place holder for if EVER async updates of assets are required.
@@ -739,6 +747,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         type: UserState.SELECTED_BASE_BALANCE,
         payload: baseBalance,
       });
+
+      console.log( ilkStatus )
       updateState({
         type: UserState.SELECTED_ILK_BALANCE,
         payload: ilkBalance,

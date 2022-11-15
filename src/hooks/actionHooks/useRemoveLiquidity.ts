@@ -51,16 +51,13 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const { txActions } = useContext(TxContext);
-  const { resetProcess } = txActions;
+  // const { resetProcess } = txActions;
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedStrategy, selectedBase } = userState;
   const { address: account } = useAccount();
   const contracts = useContracts();
-  const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.address,
-  });
+
   const { refetch: refetchStrategyBal } = useBalance({
     addressOrName: account,
     token: selectedStrategy?.address,
@@ -432,7 +429,6 @@ export const useRemoveLiquidity = () => {
     //   await transact(calls, txCode);
     // }
 
-    if (selectedBase?.proxyId !== WETH) refetchBaseBal();
     refetchStrategyBal();
     updateSeries([series]);
     updateAssets([_base]);

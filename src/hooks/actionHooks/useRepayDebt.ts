@@ -13,7 +13,7 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
+import { useAccount, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useRepayDebt = () => {
@@ -28,14 +28,6 @@ export const useRepayDebt = () => {
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
-  const { refetch: refetchIlkBal } = useBalance({
-    addressOrName: account,
-    token: selectedIlk?.address,
-  });
-  const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.id === WETH ? '' : selectedBase?.address,
-  });
 
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
@@ -208,8 +200,6 @@ export const useRepayDebt = () => {
       ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
-    if (selectedBase?.proxyId !== WETH) refetchBaseBal();
-    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
     updateSeries([series]);

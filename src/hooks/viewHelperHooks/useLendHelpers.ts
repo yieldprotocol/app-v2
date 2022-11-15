@@ -8,7 +8,7 @@ import { ActionType, ISeries } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { cleanValue } from '../../utils/appUtils';
 import { WETH } from '../../config/assets';
 
@@ -22,10 +22,9 @@ export const useLendHelpers = (
   } = useContext(SettingsContext);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: activeAccount } = useAccount();
 
   const { userState } = useContext(UserContext);
-  const { selectedBase } = userState;
+  const { selectedBase, selectedBaseBalance } = userState;
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
@@ -51,13 +50,9 @@ export const useLendHelpers = (
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
   const { address: account } = useAccount();
-  const { data } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
-    enabled: !!activeAccount && !!selectedBase,
-  });
-  const userBaseBalance = data?.value || ethers.constants.Zero;
-  const userBaseBalance_ = data?.formatted;
+
+  const userBaseBalance = selectedBaseBalance?.value || ethers.constants.Zero;
+  const userBaseBalance_ = selectedBaseBalance?.formatted;
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {

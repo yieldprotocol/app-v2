@@ -15,7 +15,6 @@ import Logo from '../logos/Logo';
 import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
-import useBalances from '../../hooks/useBalances';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -41,9 +40,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
-
-  // const { address: activeAccount } = useAccount();
-  // const { data: balances, isLoading } = useBalances();
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);

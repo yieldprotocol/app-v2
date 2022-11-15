@@ -13,7 +13,7 @@ import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { WETH } from '../../config/assets';
 
 /* Collateralization hook calculates collateralization metrics */
@@ -25,7 +25,7 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
+    userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap, selectedIlkBalance },
   } = useContext(UserContext);
 
   const _selectedBase = vault ? assetMap?.get(vault.baseId) : selectedBase;
@@ -34,12 +34,6 @@ export const useCollateralHelpers = (
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: activeAccount } = useAccount();
-  const { data: userIlkBalance } = useBalance({
-    addressOrName: activeAccount,
-    token: _selectedIlk?.proxyId === WETH ? '' : _selectedIlk?.address,
-    enabled: !!_selectedIlk && !!activeAccount,
-  });
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -105,8 +99,8 @@ export const useCollateralHelpers = (
 
   /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {
-    setMaxCollateral(userIlkBalance?.formatted);
-  }, [userIlkBalance?.formatted]);
+    setMaxCollateral(selectedIlkBalance?.formatted);
+  }, [selectedIlkBalance?.formatted]);
 
   /* handle changes to input values */
   useEffect(() => {

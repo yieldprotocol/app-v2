@@ -246,3 +246,8 @@ export const numberWithCommas = (x: number) => x.toString().replace(/\B(?=(\d{3}
 
 export const formatValue = (x: string | number, decimals: number) =>
   numberWithCommas(Number(cleanValue(x?.toString(), decimals)));
+
+
+  export const useBalanceFallback = () => {
+      
+  }

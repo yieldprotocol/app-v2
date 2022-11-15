@@ -15,8 +15,7 @@ import { IVault, ISeries, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
-import { WETH } from '../../config/assets';
+import { useAccount } from 'wagmi';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -32,17 +31,13 @@ export const useBorrowHelpers = (
   } = useContext(SettingsContext);
 
   const {
-    userState: { assetMap, seriesMap, selectedSeries },
+    userState: { assetMap, seriesMap, selectedSeries, selectedBaseBalance },
   } = useContext(UserContext);
 
   const vaultBase = assetMap.get(vault?.baseId!);
   const vaultIlk = assetMap.get(vault?.ilkId!);
 
   const { address: account } = useAccount();
-  const { data: baseBalance } = useBalance({
-    addressOrName: account,
-    token: vaultBase?.proxyId === WETH ? '' : vaultBase?.address,
-  });
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
 
@@ -250,7 +245,7 @@ export const useBorrowHelpers = (
 
         /* maxRepayable is either the max tokens they have or max debt */
         const _maxRepayable =
-          baseBalance?.value && _debtInBaseWithBuffer.gt(baseBalance.value) ? baseBalance.value : _debtInBaseWithBuffer;
+          selectedBaseBalance?.value && _debtInBaseWithBuffer.gt(selectedBaseBalance.value) ? selectedBaseBalance.value : _debtInBaseWithBuffer;
 
         /* set the min repayable up to the dust limit */
         const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
@@ -259,8 +254,8 @@ export const useBorrowHelpers = (
 
         /* if the series is mature re-set max as all debt (if balance allows) */
         if (vaultSeries.seriesIsMature) {
-          const _accruedArt = vault.accruedArt.gt(baseBalance?.value || ethers.constants.Zero)
-            ? baseBalance?.value!
+          const _accruedArt = vault.accruedArt.gt(selectedBaseBalance?.value || ethers.constants.Zero)
+            ? selectedBaseBalance?.value!
             : vault.accruedArt;
           setMaxRepay(_accruedArt);
           setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
@@ -272,8 +267,8 @@ export const useBorrowHelpers = (
     }
   }, [
     account,
-    baseBalance?.formatted,
-    baseBalance?.value,
+    selectedBaseBalance?.formatted,
+    selectedBaseBalance?.value,
     getTimeTillMaturity,
     isMature,
     minDebt,
@@ -304,8 +299,8 @@ export const useBorrowHelpers = (
     maxRoll,
     maxRoll_,
 
-    userBaseBalance: baseBalance?.value,
-    userBaseBalance_: baseBalance?.formatted,
+    userBaseBalance: selectedBaseBalance?.value,
+    userBaseBalance_: selectedBaseBalance?.formatted,
     maxDebt,
     minDebt,
     maxDebt_,

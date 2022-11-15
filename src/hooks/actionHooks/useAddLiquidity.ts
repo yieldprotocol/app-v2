@@ -47,10 +47,7 @@ export const useAddLiquidity = () => {
 
   const { addEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.address,
-  });
+
   const { refetch: refetchStrategyBal } = useBalance({
     addressOrName: account,
     token: selectedStrategy?.address,
@@ -300,7 +297,7 @@ export const useAddLiquidity = () => {
     ];
 
     await transact(calls, txCode);
-    if (selectedBase?.proxyId !== WETH) refetchBaseBal();
+    // if (selectedBase?.proxyId !== WETH) refetchBaseBal();
     refetchStrategyBal();
     updateSeries([_series]);
     updateAssets([_base]);

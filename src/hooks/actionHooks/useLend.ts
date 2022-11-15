@@ -24,11 +24,8 @@ export const useLend = () => {
   const { assetMap, selectedSeries } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { address: account } = useAccount();
+  
   const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.fyTokenAddress });
-  const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedSeries?.baseAddress,
-  });
 
   const {
     historyActions: { updateTradeHistory },
@@ -104,7 +101,6 @@ export const useLend = () => {
     ];
 
     await transact(calls, txCode);
-    refetchBaseBal();
     refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);
