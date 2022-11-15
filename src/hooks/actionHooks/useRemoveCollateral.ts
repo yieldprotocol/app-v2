@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -14,12 +14,12 @@ import { useAccount, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 import { useContext } from 'react';
+import useVault from '../useVault';
 
 export const useRemoveCollateral = () => {
   const { mutate } = useSWRConfig();
   const {
     userState: { selectedVault: vault },
-    userActions,
   } = useContext(UserContext);
   const { address: account } = useAccount();
   const { chain } = useNetwork();
@@ -30,11 +30,11 @@ export const useRemoveCollateral = () => {
     historyActions: { updateVaultHistory },
   } = useContext(HistoryContext) as IHistoryContext;
 
-  const { updateVaults } = userActions;
   const { transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { data: ilk, key: ilkKey } = useAsset(vault?.ilkId!);
+  const { data: vaultToUse, key: vaultKey } = useVault();
 
   const removeCollateral = async (input: string, unwrapOnRemove: boolean = true) => {
     if (!account) throw new Error('no account detected in remove collat');
@@ -98,7 +98,7 @@ export const useRemoveCollateral = () => {
 
     await transact(calls, txCode);
     mutate(ilkKey);
-    updateVaults([vault]);
+    mutate(vaultKey);
     updateVaultHistory([vault]);
   };
 
