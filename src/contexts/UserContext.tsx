@@ -1,5 +1,4 @@
-import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext, ReactNode } from 'react';
+import { useContext, useEffect, useReducer, useCallback, Dispatch, createContext, ReactNode } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
 import { calculateAPR, divDecimal, floorDecimal, mulDecimal, sellFYToken, toBn } from '@yield-protocol/ui-math';
@@ -9,17 +8,14 @@ import { ISeriesRoot, ISeries, IAsset, IVault, IStrategy } from '../types';
 
 import { ChainContext } from './ChainContext';
 
-import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
+import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import useTenderly from '../hooks/useTenderly';
 import { useAccount } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
-import useDefaulProvider from '../hooks/useDefaultProvider';
-import useContracts from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 
 const initState: IUserContextState = {
@@ -275,14 +271,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               series.fyTokenContract.balanceOf(account),
             ]);
 
-            const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
               ...series,
               poolTokens,
               fyTokenBalance,
               poolTokens_: ethers.utils.formatUnits(poolTokens, series.decimals),
               fyTokenBalance_: ethers.utils.formatUnits(fyTokenBalance, series.decimals),
-              poolPercent,
             };
           })
         );
