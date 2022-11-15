@@ -108,11 +108,11 @@ const useVault = (id?: string) => {
     () => (id && seriesMap.size ? ['vault', id, seriesMap, account] : null),
     [account, id, seriesMap]
   );
-  const { data, error } = useSWRImmutable(key, () => getVault(id!));
+  const { data, error, isValidating } = useSWRImmutable(key, () => getVault(id!));
 
   return {
     data,
-    isLoading: !data && !error,
+    isLoading: (!data && !error) || isValidating,
     error,
     key,
     getVault,
