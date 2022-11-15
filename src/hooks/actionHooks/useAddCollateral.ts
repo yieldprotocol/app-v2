@@ -42,7 +42,6 @@ export const useAddCollateral = () => {
   const addCollateral = async (input: string) => {
     if (!account) throw new Error('no account detected in add collat');
     if (!ilk) throw new Error('no ilk detected in add collat');
-    console.log('🦄 ~ file: useAddCollateral.ts ~ line 45 ~ addCollateral ~ ilk', ilk);
     if (!vaultSeries) throw new Error('no vault series detected in add collat');
 
     /* use the vault id provided OR 0 if new/ not provided */
