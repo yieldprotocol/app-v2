@@ -13,7 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IVault, IVaultRoot, ProcessStage, TxState } from '../../types';
+import { ActionCodes, ActionType, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -112,7 +112,7 @@ const Borrow = () => {
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
-    vaultToUse,
+    vaultToUse?.id,
     assetPairInfo,
     selectedSeries
   );
