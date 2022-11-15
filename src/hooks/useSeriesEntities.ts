@@ -260,7 +260,7 @@ const useSeriesEntities = () => {
     }, Promise.resolve<{ [id: string]: ISeries }>({}));
   };
 
-  const key = useMemo(() => (chainId ? ['seriesEntities', account] : null), [account, chainId]);
+  const key = useMemo(() => (chainId ? ['seriesEntities', chainId, account] : null), [account, chainId]);
 
   const { data, error } = useSWRImmutable(key, () => mapify(getSeriesEntities(chainId)) as Map<string, ISeries>);
 
