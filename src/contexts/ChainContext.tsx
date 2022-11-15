@@ -6,7 +6,7 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { IAssetRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
@@ -237,115 +237,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     newAssetList.length && localStorage.setItem(cacheKey, JSON.stringify(newAssetList));
     newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
   }, [_chargeAsset, chainId, diagnostics, provider]);
-
-  /* add on extra/calculated ASYNC series info and contract instances */
-  const _chargeSeries = useCallback(
-    (series: ISeriesRoot): ISeriesRoot => {
-      /* contracts need to be added in again in when charging because the cached state only holds strings */
-      const poolContract = contractTypes.Pool__factory.connect(series.poolAddress, provider);
-      const fyTokenContract = contractTypes.FYToken__factory.connect(series.fyTokenAddress, provider);
-      const seasonColorMap = [1, 4, 5, 42].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
-      const season = getSeason(series.maturity);
-      const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
-      const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
-      const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
-
-      return {
-        ...series,
-
-        poolContract,
-        fyTokenContract,
-
-        fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
-        displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
-        displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
-
-        season,
-        startColor,
-        endColor,
-        color: `linear-gradient(${startColor}, ${endColor})`,
-        textColor,
-
-        oppStartColor,
-        oppEndColor,
-        oppTextColor,
-        seriesMark: <YieldMark colors={[startColor, endColor]} />,
-      };
-    },
-    [chainId, provider]
-  );
-
-  const _getSeries = useCallback(async () => {
-    // handle cache
-    const cacheKey = `series_${chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-
-    if (cachedValues !== null && cachedValues.length) {
-      console.log('Yield Protocol SERIES data retrieved ::: CACHE :::');
-      return cachedValues.forEach((s: ISeriesRoot) => {
-        updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
-      });
-    }
-
-    const seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
-    const newSeriesList: ISeriesRoot[] = [];
-
-    await Promise.all(
-      Array.from(seriesMap).map(async (x) => {
-        const id = x[0];
-        const fyTokenAddress = x[1].fyTokenAddress;
-        const poolAddress = x[1].poolAddress;
-        const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
-
-        const { maturity, baseId } = await Cauldron.series(id);
-        const poolContract = contractTypes.Pool__factory.connect(poolAddress, provider);
-        const fyTokenContract = contractTypes.FYToken__factory.connect(fyTokenAddress, provider);
-
-        const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
-          await Promise.all([
-            fyTokenContract.name(),
-            fyTokenContract.symbol(),
-            fyTokenContract.version(),
-            fyTokenContract.decimals(),
-            poolContract.name(),
-            poolContract.version(),
-            poolContract.symbol(),
-            poolContract.ts(),
-            poolContract.g1(),
-            poolContract.g2(),
-            poolContract.base(),
-          ]);
-
-        const newSeries = {
-          id,
-          baseId,
-          maturity,
-          name,
-          symbol,
-          version,
-          address: fyTokenAddress,
-          fyTokenAddress,
-          decimals,
-          poolAddress,
-          poolVersion,
-          poolName,
-          poolSymbol,
-          ts: BigNumber.from(ts),
-          g1,
-          g2,
-          baseAddress,
-        } as ISeriesRoot;
-
-        updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-        newSeriesList.push(newSeries);
-      })
-    ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
-
-    console.log('Yield Protocol Series data updated successfully.');
-    /* cache results */
-    newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
-    newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
-  }, [_chargeSeries, chainId, contracts, provider]);
 
   /* Attach contract instance */
   const _chargeStrategy = useCallback(

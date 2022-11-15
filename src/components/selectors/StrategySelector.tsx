@@ -150,7 +150,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   return (
     <Box gap="small">
       {options.map((o) => {
-        const displayName = seriesMap?.get(o.currentSeriesId!)?.displayName!;
+        const displayName = selectedStrategy?.currentSeries.displayName!;
         const selected = selectedStrategy?.address === o.address;
         return (
           <StrategySelectItem

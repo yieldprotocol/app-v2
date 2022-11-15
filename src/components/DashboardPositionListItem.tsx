@@ -7,11 +7,10 @@ import LendItem from './positionItems/LendItem';
 import StrategyItem from './positionItems/StrategyItem';
 import useStrategies from '../hooks/useStrategies';
 import useVaults from '../hooks/useVaults';
+import useSeriesEntities from '../hooks/useSeriesEntities';
 
 function DashboardPositionListItem({ item, index, actionType }: { item: any; index: number; actionType: ActionType }) {
-  const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
+  const { data: seriesMap } = useSeriesEntities();
   const { data: vaults } = useVaults();
   const { data: strategyMap } = useStrategies();
 
