@@ -64,7 +64,9 @@ export const useDashboardHelpers = () => {
 
     const _vaultPositions = Array.from(vaults.values())
       .filter((vault) => (dashHideInactiveVaults ? vault.isActive : true))
-      .filter((vault) => (dashHideEmptyVaults ? vault.ink.value.gt(ZERO_BN) || vault.art.value.gt(ZERO_BN) : true))
+      .filter((vault) =>
+        dashHideEmptyVaults ? vault.ink.value.gt(ZERO_BN) || vault.accruedArt.value.gt(ZERO_BN) : true
+      )
       .filter((vault) => vault.baseId !== vault.ilkId)
       .sort((vaultA, vaultB) => (vaultA.art.value.lt(vaultB.art.value) ? 1 : -1));
     setVaultPositions(_vaultPositions);

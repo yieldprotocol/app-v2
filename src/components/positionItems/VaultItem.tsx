@@ -14,8 +14,8 @@ import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAsset from '../../hooks/useAsset';
-import useVault from '../../hooks/useVault';
 import { CardSkeleton } from '../selectors/StrategySelector';
+import useVaults from '../../hooks/useVaults';
 
 function VaultItem({ id, index, condensed }: { id: string; index: number; condensed?: boolean }) {
   const router = useRouter();
@@ -25,7 +25,8 @@ function VaultItem({ id, index, condensed }: { id: string; index: number; conden
     userActions: { setSelectedVault },
   } = useContext(UserContext);
 
-  const { data: vault, isLoading: vaultLoading } = useVault(id);
+  const { data: vaults } = useVaults();
+  const vault = vaults?.get(id);
   const { data: vaultBase } = useAsset(vault?.baseId);
   const { data: vaultIlk } = useAsset(vault?.ilkId);
 
@@ -75,7 +76,7 @@ function VaultItem({ id, index, condensed }: { id: string; index: number; conden
                   Debt:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {vaultLoading || !debtInBase_ ? <SkeletonWrap width={30} /> : cleanValue(debtInBase_, 2)}
+                  {!debtInBase_ ? <SkeletonWrap width={30} /> : cleanValue(debtInBase_, 2)}
                 </Text>
               </Box>
             </Box>
