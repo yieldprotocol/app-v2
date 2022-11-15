@@ -28,7 +28,7 @@ export const useAddCollateral = () => {
 
   const { key: vaultKey } = useVault(vault?.id);
   /* set the ilk based on if a vault has been selected or it's a new vault */
-  const { data: ilk, key: ilkKey } = useAsset(vault ? vault?.baseId! : selectedIlk?.id!);
+  const { data: ilk, key: ilkKey } = useAsset(vault ? vault?.ilkId! : selectedIlk?.id!);
   const vaultSeries = seriesMap.get(vault?.seriesId!) || selectedSeries;
 
   const {
@@ -42,6 +42,7 @@ export const useAddCollateral = () => {
   const addCollateral = async (input: string) => {
     if (!account) throw new Error('no account detected in add collat');
     if (!ilk) throw new Error('no ilk detected in add collat');
+    console.log('🦄 ~ file: useAddCollateral.ts ~ line 45 ~ addCollateral ~ ilk', ilk);
     if (!vaultSeries) throw new Error('no vault series detected in add collat');
 
     /* use the vault id provided OR 0 if new/ not provided */
