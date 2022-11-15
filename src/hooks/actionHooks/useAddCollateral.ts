@@ -26,7 +26,7 @@ export const useAddCollateral = () => {
   const { address: account } = useAccount();
   const contracts = useContracts();
   /* set the ilk based on if a vault has been selected or it's a new vault */
-  const { data: ilk, key: ilkKey } = useAsset(vault ? vault?.baseId! : selectedIlk?.id!);
+  const { data: ilk, key: ilkKey } = useAsset(vault ? vault?.ilkId! : selectedIlk?.id!);
   const vaultSeries = seriesMap.get(vault?.seriesId!) || selectedSeries;
 
   const {
