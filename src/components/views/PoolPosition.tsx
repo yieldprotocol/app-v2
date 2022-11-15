@@ -33,7 +33,6 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import { divDecimal, mulDecimal } from '@yield-protocol/ui-math';
 import useStrategy from '../../hooks/useStrategy';
-import useStrategies from '../../hooks/useStrategies';
 import useAsset from '../../hooks/useAsset';
 
 const PoolPosition = () => {
@@ -120,7 +119,7 @@ const PoolPosition = () => {
   const handleRemove = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
-    removeLiquidity(removeInput!, matchingVault);
+    removeLiquidity(removeInput!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
