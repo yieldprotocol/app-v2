@@ -6,6 +6,7 @@ import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
 import useStrategies from '../hooks/useStrategies';
+import useVaults from '../hooks/useVaults';
 
 interface IDashboardBalance {
   debt: string;
@@ -20,8 +21,9 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   const theme = useContext(ThemeContext);
   const { green, red } = theme.global.colors;
   const {
-    userState: { vaultsLoading, seriesLoading },
+    userState: { seriesLoading },
   } = useContext(UserContext);
+  const { isLoading: vaultsLoading } = useVaults();
 
   const { isLoading: strategiesLoading } = useStrategies();
   const [totalBalance, setTotalBalance] = useState<number>();
