@@ -25,6 +25,7 @@ import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useStrategy from '../useStrategy';
 import useAsset from '../useAsset';
+import useVault from '../useVault';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -50,7 +51,7 @@ is Mature?        N     +--------+
                +-----------+
  */
 
-export const useRemoveLiquidity = () => {
+export const useRemoveLiquidity = (matchingVault: IVault | undefined) => {
   const { mutate } = useSWRConfig();
   const { userState, userActions } = useContext(UserContext);
   const { updateSeries } = userActions;
@@ -61,6 +62,7 @@ export const useRemoveLiquidity = () => {
   const {
     settingsState: { diagnostics, slippageTolerance },
   } = useContext(SettingsContext);
+  const { data: matchingVaultToUse, key: matchingVaultKey } = useVault(matchingVault?.id);
 
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
@@ -71,7 +73,7 @@ export const useRemoveLiquidity = () => {
   const { address: account } = useAccount();
   const contracts = useContracts();
 
-  const removeLiquidity = async (input: string, matchingVault: IVault | undefined) => {
+  const removeLiquidity = async (input: string) => {
     if (!strategy) throw new Error('no strategy detected in remove liq');
     if (!account) throw new Error('no account detected in remove liq');
     if (!base) throw new Error('no base detected in remove liq');
@@ -128,10 +130,10 @@ export const useRemoveLiquidity = () => {
     /**
      * With vault
      */
-    const matchingVaultId = matchingVault?.id;
-    const matchingVaultDebt = matchingVault?.accruedArt || ZERO_BN;
+    const matchingVaultId = matchingVaultToUse?.id;
+    const matchingVaultDebt = matchingVaultToUse?.accruedArt.value || ZERO_BN;
     // Choose use matching vault:
-    const useMatchingVault = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
+    const useMatchingVault = !!matchingVaultToUse && matchingVaultDebt.gt(ethers.constants.Zero);
 
     const fyTokenReceivedGreaterThanDebt = _fyTokenReceived.gt(matchingVaultDebt); // i.e. debt below fytoken
 
@@ -428,6 +430,7 @@ export const useRemoveLiquidity = () => {
 
     mutate(strategyKey);
     mutate(baseKey);
+    mutate(matchingVaultKey);
 
     updateSeries([series]);
     updateStrategyHistory([strategy]);

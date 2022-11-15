@@ -71,13 +71,13 @@ const PoolPosition = () => {
   const [stepPosition, setStepPosition] = useState<number[]>(initialStepperState);
 
   /* HOOK FNS */
-  const removeLiquidity = useRemoveLiquidity();
   const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired, removeFyTokenReceived_ } =
     usePoolHelpers(removeInput, true);
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(
     _selectedStrategy?.accountBalance.formatted,
     true
   );
+  const removeLiquidity = useRemoveLiquidity(matchingVault);
 
   const { logAnalyticsEvent } = useAnalytics();
 
