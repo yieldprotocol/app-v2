@@ -17,6 +17,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
+import useVault from '../useVault';
 
 export const useRepayDebt = () => {
   const { mutate } = useSWRConfig();
@@ -25,14 +26,15 @@ export const useRepayDebt = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { seriesMap, selectedVault: vault },
+    userState: { seriesMap, selectedVault },
     userActions,
   } = useContext(UserContext);
-  const { updateVaults, updateSeries } = userActions;
+  const { updateSeries } = userActions;
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
+  const { data: vault, key: vaultKey } = useVault(selectedVault?.id);
 
   const { data: base, key: baseKey } = useAsset(vault?.baseId!);
   const { data: ilk, key: ilkKey } = useAsset(vault?.ilkId!);
@@ -110,14 +112,14 @@ export const useRepayDebt = () => {
     );
 
     /* Check if input is more than the debt */
-    const inputGreaterThanEqualDebt = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt);
+    const inputGreaterThanEqualDebt = ethers.BigNumber.from(_inputAsFyToken).gte(vault.accruedArt.value);
 
     /* If requested, and all debt will be repaid, automatically remove collateral */
     const _collateralToRemove =
-      reclaimCollateral && inputGreaterThanEqualDebt ? vault.ink.mul(-1) : ethers.constants.Zero;
+      reclaimCollateral && inputGreaterThanEqualDebt ? vault.ink.value.mul(-1) : ethers.constants.Zero;
 
     /* Cap the amount to transfer: check that if input is greater than debt, used after maturity only repay the max debt (or accrued debt) */
-    const _inputCappedAtArt = vault.art.gt(ZERO_BN) && vault.art.lte(_input) ? vault.art : _input;
+    const _inputCappedAtArt = vault.art.value.gt(ZERO_BN) && vault.art.value.lte(_input) ? vault.art.value : _input;
 
     /* Set the amount to transfer ( + 0.1% after maturity ) */
     const amountToTransfer = series.seriesIsMature ? _input.mul(10001).div(10000) : _input; // After maturity + 0.1% for increases during tx time
@@ -215,7 +217,7 @@ export const useRepayDebt = () => {
     await transact(calls, txCode);
     mutate(baseKey);
     mutate(ilkKey);
-    updateVaults([vault]);
+    mutate(vaultKey);
     updateSeries([series]);
   };
 
