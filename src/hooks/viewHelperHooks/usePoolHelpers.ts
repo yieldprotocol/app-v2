@@ -21,6 +21,7 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import useStrategy from '../useStrategy';
 import useAsset from '../useAsset';
+import useVaults from '../useVaults';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -29,11 +30,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(SettingsContext);
 
   const {
-    userState: { selectedStrategy, selectedBase, vaultMap },
+    userState: { selectedStrategy, selectedBase },
   } = useContext(UserContext);
 
   /* HOOKS */
-
+  const { data: vaults } = useVaults();
   const { data: strategy } = useStrategy(selectedStrategy?.address!);
   const strategySeries = strategy?.currentSeries;
   const { data: base } = useAsset(selectedBase?.id!);
@@ -65,18 +66,18 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* Check for any vaults with the same series/ilk/base for REMOVING LIQUIDITY -> */
   useEffect(() => {
-    if (strategySeries && base) {
-      const arr = Array.from(vaultMap?.values()!);
+    if (strategySeries && base && vaults) {
+      const arr = Array.from(vaults.values());
       const _matchingVault = arr
         .sort((vaultA, vaultB) => (vaultA.id > vaultB.id ? 1 : -1))
-        .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+        .sort((vaultA, vaultB) => (vaultA.art.value.lt(vaultB.art.value) ? 1 : -1))
         .find((v: IVault) => v.ilkId === base.proxyId && v.baseId === base.proxyId && v.seriesId === strategySeries.id);
       setMatchingVault(_matchingVault);
       diagnostics && console.log('Matching Vault:', _matchingVault?.id || 'No matching vault.');
     } else {
       setMatchingVault(undefined);
     }
-  }, [vaultMap, strategy, base, strategySeries, removeLiquidityView, diagnostics]);
+  }, [strategy, base, strategySeries, removeLiquidityView, diagnostics, vaults]);
 
   /* Set input (need to make sure we can parse the input value) */
   useEffect(() => {
@@ -193,14 +194,14 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
       /* Matching vault (with debt) exists: USE 1, 2.1, or 2.2 */
       if (matchingVault) {
-        if (fyTokenReceivedFromBurn.gt(matchingVault.accruedArt)) {
+        if (fyTokenReceivedFromBurn.gt(matchingVault.accruedArt.value)) {
           /* Fytoken sold to base greater than debt : USE REMOVE OPTION 2.1 or 2.2 */
           diagnostics &&
             console.log(
               'FyTokens received will be greater than debt: an extra sellFytoken trade may be required (if possible): REMOVE OPTION 2.1 or 2.2 '
             );
 
-          const _extraFyTokensToSell = fyTokenReceivedFromBurn.sub(matchingVault.accruedArt);
+          const _extraFyTokensToSell = fyTokenReceivedFromBurn.sub(matchingVault.accruedArt.value);
 
           diagnostics &&
             console.log(formatUnits(_extraFyTokensToSell, strategySeries.decimals), 'FyTokens Need to be sold');
@@ -227,7 +228,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
             const _val = strategySeries
               .getBase(sharesReceivedFromBurn)
               .add(strategySeries.getBase(_extraFyTokenValue))
-              .add(matchingVault.accruedArt);
+              .add(matchingVault.accruedArt.value);
             setRemoveBaseReceived(_val);
             setRemoveBaseReceived_(ethers.utils.formatUnits(_val, strategySeries.decimals));
             setRemoveFyTokenReceived(ethers.constants.Zero);
