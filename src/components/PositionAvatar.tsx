@@ -4,7 +4,7 @@ import { FiClock } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { IVault, ISeries, IAsset, IStrategy, ActionType, IVaultRoot } from '../types';
+import { IVault, ISeries, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
 import useAsset from '../hooks/useAsset';
 
@@ -32,7 +32,7 @@ function PositionAvatar({
   condensed,
   actionType,
 }: {
-  position: IVaultRoot | ISeries | IStrategy;
+  position: IVault | ISeries | IStrategy;
   actionType: ActionType;
   condensed?: boolean;
 }) {
