@@ -114,6 +114,7 @@ const useVault = (id?: string) => {
     data,
     isLoading: !data && !error,
     error,
+    key,
   };
 };
 
