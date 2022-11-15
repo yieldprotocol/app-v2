@@ -5,11 +5,11 @@ import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, ISeries, IAsset } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
 
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
@@ -20,6 +20,8 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
+import useVaults from '../useVaults';
+import useVault from '../useVault';
 
 export const useBorrow = (vault?: IVault) => {
   const { mutate } = useSWRConfig();
@@ -29,7 +31,7 @@ export const useBorrow = (vault?: IVault) => {
 
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, selectedSeries, seriesMap } = userState;
-  const { updateVaults, updateSeries } = userActions;
+  const { updateSeries } = userActions;
 
   /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
   const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
@@ -38,6 +40,8 @@ export const useBorrow = (vault?: IVault) => {
 
   const { address: account } = useAccount();
   const contracts = useContracts();
+  const { data: vaults, key: vaultsKey } = useVaults();
+  const { data: vaultToUse, key: vaultKey } = useVault();
 
   const { addEth, removeEth } = useAddRemoveEth();
 
@@ -169,12 +173,14 @@ export const useBorrow = (vault?: IVault) => {
 
     /* When complete, update vaults.
       If a vault was provided, update it only,
-      else update ALL vaults (by passing an empty array)
+      else update ALL vaults
     */
+    updateSeries([series]);
     mutate(baseKey);
     mutate(ilkToUseKey);
-    updateVaults();
-    updateSeries([series]);
+
+    if (vault?.id) return mutate(vaultKey);
+    mutate(vaultsKey);
   };
 
   return borrow;
