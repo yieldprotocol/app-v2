@@ -69,7 +69,7 @@ const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const { selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
 
-  const { data: selectedSeriesEntity } = useSeriesEntity();
+  const { data: selectedSeriesEntity } = useSeriesEntity(selectedSeries?.id);
   const { address: activeAccount } = useAccount();
   const { data: weth } = useAsset(WETH);
   const contracts = useContracts();
