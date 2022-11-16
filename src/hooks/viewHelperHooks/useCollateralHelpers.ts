@@ -9,14 +9,13 @@ import {
 } from '@yield-protocol/ui-math';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IAssetPair, IVault } from '../../types';
+import { IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount } from 'wagmi';
-import { WETH } from '../../config/assets';
 import useAsset from '../useAsset';
 import useVault from '../useVault';
+import useSeriesEntity from '../useSeriesEntity';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -27,13 +26,13 @@ export const useCollateralHelpers = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedBase, selectedIlk, selectedSeries, seriesMap },
+    userState: { selectedBase, selectedIlk, selectedSeries },
   } = useContext(UserContext);
 
   const { data: vault } = useVault(vaultId!);
   const { data: _selectedBase } = useAsset(vault ? vault.baseId : selectedBase?.id!);
   const { data: _selectedIlk } = useAsset(vault ? vault.ilkId : selectedIlk?.id!);
-  const _selectedSeries = vault ? seriesMap?.get(vault.seriesId) : selectedSeries;
+  const { data: _selectedSeries } = useSeriesEntity(vault ? vault.seriesId : selectedSeries?.id);
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
@@ -125,8 +124,8 @@ export const useCollateralHelpers = (
     const newDebt =
       debtInput && Math.abs(parseFloat(debtInput)) > 0 && _selectedSeries
         ? buyBase(
-            _selectedSeries.sharesReserves,
-            _selectedSeries.fyTokenReserves,
+            _selectedSeries.sharesReserves.value,
+            _selectedSeries.fyTokenReserves.value,
             _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase?.decimals)),
             getTimeTillMaturity(_selectedSeries.maturity),
             _selectedSeries.ts,
