@@ -9,6 +9,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
 import Header from '../Header';
 import YieldMobileMenu from '../YieldMobileMenu';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
 
 interface IModalWrap {
   children: any;
@@ -20,10 +21,10 @@ function ModalWrap({ children, series }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    userState: { selectedSeries, seriesMap },
+    userState: { selectedSeries },
   } = useContext(UserContext);
 
-  const _series = series! || seriesMap?.get(selectedSeries?.id!);
+  const { data: _series } = useSeriesEntity(series ? series.id : selectedSeries?.id!);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);

@@ -45,6 +45,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAsset from '../../hooks/useAsset';
 import useVault from '../../hooks/useVault';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -54,8 +55,7 @@ const VaultPosition = () => {
   const { id: idFromUrl } = router.query;
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext);
-  const { seriesMap } = userState;
+  const { userActions } = useContext(UserContext);
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const { address: account } = useAccount();
@@ -63,7 +63,7 @@ const VaultPosition = () => {
   const { data: vault, isLoading: vaultLoading } = useVault(idFromUrl as string);
   const { data: vaultBase } = useAsset(vault?.baseId!);
   const { data: vaultIlk } = useAsset(vault?.ilkId!);
-  const vaultSeries = seriesMap?.get(vault?.seriesId!);
+  const { data: vaultSeries } = useSeriesEntity(vault?.seriesId!);
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
