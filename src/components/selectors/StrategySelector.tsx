@@ -11,6 +11,8 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
 import useStrategy from '../../hooks/useStrategy';
 import useStrategies from '../../hooks/useStrategies';
+import YieldMark from '../logos/YieldMark';
+import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -73,7 +75,7 @@ const StrategySelectItem = ({
               boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
             }}
           >
-            {strategy.currentSeries?.seriesMark || <FiSlash />}
+            {<YieldMark colors={[strategy.currentSeries.startColor, strategy.currentSeries.endColor]} /> || <FiSlash />}
           </Avatar>
           <Box align="center" fill="vertical" justify="center">
             <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
@@ -114,18 +116,19 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
+  const { isMature } = useTimeTillMaturity();
 
-  const { selectedStrategy, selectedBase, seriesMap } = userState;
+  const { selectedStrategy, selectedBase } = userState;
   const [options, setOptions] = useState<IStrategy[]>();
 
   const filterStrategies = useCallback(
     (strategies: IStrategy[]) => {
       return strategies
         .filter((_st) => _st.currentSeries?.baseId === selectedBase?.proxyId)
-        .filter((_st) => !_st.currentSeries?.seriesIsMature)
+        .filter((_st) => !isMature(_st.currentSeries?.maturity))
         .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
     },
-    [selectedBase?.proxyId]
+    [isMature, selectedBase?.proxyId]
   );
 
   useEffect(() => {
