@@ -58,6 +58,7 @@ export const CardSkeleton = (props: { rightSide?: boolean }) => (
 CardSkeleton.defaultProps = { rightSide: false };
 
 interface ISeriesSelectorProps {
+  seriesMap: Map<string, ISeries>;
   actionType: ActionType;
   selectSeriesLocally?: (
     series: ISeries
@@ -139,7 +140,14 @@ const AprText = ({
   );
 };
 
-function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayout, setOpen }: ISeriesSelectorProps) {
+function SeriesSelector({
+  seriesMap,
+  selectSeriesLocally,
+  inputValue,
+  actionType,
+  cardLayout,
+  setOpen,
+}: ISeriesSelectorProps) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
@@ -147,9 +155,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   } = useContext(SettingsContext);
   const { userState, userActions } = useContext(UserContext);
   const { selectedSeries, selectedBase, selectedVault } = userState;
-  const { data: seriesMap, isLoading: seriesLoading } = useSeriesEntities();
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
+  const { isMature } = useTimeTillMaturity();
 
   const _selectedSeries = selectSeriesLocally ? localSeries : selectedSeries;
 
@@ -165,9 +173,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   const optionExtended = (_series: ISeries | undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small" align="center">
-      <Box align="center">{_series?.seriesMark}</Box>
+      <Box align="center">
+        <YieldMark />
+      </Box>
       {optionText(_series)}
-      {_series?.seriesIsMature && (
+      {isMature(_series?.maturity!) && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
           <Text size="xsmall">Mature</Text>
         </Box>
@@ -183,18 +193,21 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     const opts = Array.from(seriesMap?.values()!);
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
-    let filteredOpts = opts.filter((_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature);
+    let filteredOpts = opts.filter(
+      (_series) => _series.baseId === selectedBase?.proxyId && !isMature(_series.maturity)
+    );
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
       filteredOpts = opts
-        .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
+        .filter((_series) => _series.baseId === selectedSeries?.baseId && !isMature(_series.maturity)) // only use selected series' base
         .filter((_series) => _series.id !== selectedSeries?.id) // filter out current globally selected series
         .filter((_series) => _series.maturity > selectedSeries?.maturity!); // prevent rolling positions to an earlier maturity
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
   }, [
+    isMature,
     selectSeriesLocally,
     selectedBase?.proxyId,
     selectedSeries?.baseId,
@@ -219,7 +232,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
-      {seriesLoading && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select
@@ -264,63 +276,51 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
       {cardLayout && (
         <Grid columns={mobile ? '100%' : '40%'} gap="small">
-          {seriesLoading ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton rightSide />
-            </>
-          ) : (
-            options.map((series: ISeries, i) => (
-              <StyledBox
-                key={series.id}
-                pad="xsmall"
-                round={
-                  // eslint-disable-next-line no-nested-ternary
-                  mobile
-                    ? 'xlarge'
-                    : i % 2 === 0
-                    ? { corner: 'left', size: 'large' }
-                    : { corner: 'right', size: 'large' }
-                }
-                onClick={() => handleSelect(series)}
-                background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
-                elevation="xsmall"
-                align="center"
-              >
-                <Box pad="small" width="small" direction="row" align="center" gap="small">
-                  <Avatar
-                    background={
-                      series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
-                    }
-                    style={{
-                      boxShadow:
-                        series.id === _selectedSeries?.id
-                          ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
-                          : undefined,
-                    }}
+          {options.map((series, i) => (
+            <StyledBox
+              key={series.id}
+              pad="xsmall"
+              round={
+                // eslint-disable-next-line no-nested-ternary
+                mobile ? 'xlarge' : i % 2 === 0 ? { corner: 'left', size: 'large' } : { corner: 'right', size: 'large' }
+              }
+              onClick={() => handleSelect(series)}
+              background={series.id === _selectedSeries?.id ? series?.color : 'hoverBackground'}
+              elevation="xsmall"
+              align="center"
+            >
+              <Box pad="small" width="small" direction="row" align="center" gap="small">
+                <Avatar
+                  background={
+                    series.id === _selectedSeries?.id ? 'lightBackground' : series.endColor.toString().concat('20')
+                  }
+                  style={{
+                    boxShadow:
+                      series.id === _selectedSeries?.id
+                        ? `inset 1px 1px 2px ${series.endColor.toString().concat('69')}`
+                        : undefined,
+                  }}
+                >
+                  {<YieldMark colors={[series.startColor, series.endColor]} />}
+                </Avatar>
+                <Box>
+                  <AprText
+                    inputValue={_inputValue}
+                    seriesId={series.id}
+                    actionType={actionType}
+                    color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                  />
+                  <Text
+                    size="small"
+                    weight="lighter"
+                    color={series.id === _selectedSeries?.id ? series.textColor : undefined}
                   >
-                    {<YieldMark />}
-                  </Avatar>
-
-                  <Box>
-                    <AprText
-                      inputValue={_inputValue}
-                      seriesId={series.id}
-                      actionType={actionType}
-                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
-                    />
-                    <Text
-                      size="small"
-                      weight="lighter"
-                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
-                    >
-                      {series.displayName}
-                    </Text>
-                  </Box>
+                    {series.displayName}
+                  </Text>
                 </Box>
-              </StyledBox>
-            ))
-          )}
+              </Box>
+            </StyledBox>
+          ))}
         </Grid>
       )}
     </>
