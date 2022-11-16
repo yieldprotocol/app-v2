@@ -19,6 +19,7 @@ import { useAccount } from 'wagmi';
 import useAsset from '../useAsset';
 import useVault from '../useVault';
 import useSeriesEntity from '../useSeriesEntity';
+import { formatUnits } from 'ethers/lib/utils';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -75,6 +76,7 @@ export const useBorrowHelpers = (
   const [maxRoll, setMaxRoll] = useState<BigNumber>(ethers.constants.Zero);
   const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
 
+  const [maxBorrow_, setMaxBorrow] = useState<string>();
   const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
   const [rollPossible, setRollPossible] = useState<boolean>(false);
   const [rollProtocolLimited, setRollProtocolLimited] = useState<boolean>(false);
@@ -102,7 +104,10 @@ export const useBorrowHelpers = (
     if (input && parseFloat(input) > 0) {
       const cleanedInput = cleanValue(input, decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, decimals);
-      input_.lte(getBase(sharesReserves.value)) ? setBorrowPossible(true) : setBorrowPossible(false);
+
+      const maxBorrow = getBase(sharesReserves.value);
+      setMaxBorrow(cleanValue(formatUnits(maxBorrow, decimals), 2));
+      input_.lte(maxBorrow) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
   }, [input, seriesEntity]);
 
@@ -318,5 +323,6 @@ export const useBorrowHelpers = (
     minDebt,
     maxDebt_,
     minDebt_,
+    maxBorrow_,
   };
 };

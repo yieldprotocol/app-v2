@@ -112,7 +112,7 @@ const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
     liquidationPrice_,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse?.id, assetPairInfo);
 
-  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
+  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_, maxBorrow_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse?.id,
@@ -339,7 +339,7 @@ const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
                           : ''
                       }
                     >
-                      <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
+                      <SeriesSelector seriesMap={seriesMap} inputValue={borrowInput} actionType={ActionType.BORROW} />
                     </SectionWrap>
                   )}
                 </Box>
@@ -349,14 +349,7 @@ const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
                     <Text size="xsmall" color="text-weak">
                       Max borrow is{' '}
                       <Text size="small" color="text-weak">
-                        {cleanValue(
-                          formatUnits(
-                            selectedSeriesEntity?.getBase(selectedSeriesEntity?.sharesReserves?.value!)!,
-                            selectedSeriesEntity?.decimals
-                          ),
-                          2
-                        )}{' '}
-                        {selectedBase?.displaySymbol}
+                        {maxBorrow_} {selectedBase?.displaySymbol}
                       </Text>{' '}
                       (limited by protocol liquidity)
                     </Text>
