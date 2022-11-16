@@ -12,7 +12,7 @@ import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, ProcessStage, TxState } from '../../types';
+import { ActionCodes, ActionType, ISeries, ProcessStage, TxState } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
@@ -45,12 +45,12 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 
-const Lend = () => {
+const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap } = userState;
+  const { selectedSeries, selectedBase } = userState;
 
   const { address: activeAccount } = useAccount();
 
@@ -181,6 +181,7 @@ const Lend = () => {
 
                   {mobile ? (
                     <SeriesOrStrategySelectorModal
+                      seriesMap={seriesMap}
                       inputValue={lendInput!}
                       actionType={ActionType.LEND}
                       open={modalOpen}
@@ -196,7 +197,7 @@ const Lend = () => {
                           : ''
                       }
                     >
-                      <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                      <SeriesSelector seriesMap={seriesMap} inputValue={lendInput} actionType={ActionType.LEND} />
                     </SectionWrap>
                   )}
                 </Box>

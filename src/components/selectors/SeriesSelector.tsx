@@ -16,7 +16,6 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 import useSeriesEntity from '../../hooks/useSeriesEntity';
 import SkeletonWrap from '../wraps/SkeletonWrap';
-import useSeriesEntities from '../../hooks/useSeriesEntities';
 import YieldMark from '../logos/YieldMark';
 
 const StyledBox = styled(Box)`
@@ -154,7 +153,7 @@ function SeriesSelector({
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeries, selectedBase, selectedVault } = userState;
+  const { selectedSeries, selectedBase } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
   const { isMature } = useTimeTillMaturity();
@@ -190,7 +189,7 @@ function SeriesSelector({
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(seriesMap?.values()!);
+    const opts = Array.from(seriesMap.values());
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts.filter(
