@@ -63,12 +63,5 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
     }
   }, [_selectedSeries, _input, actionType, _fallbackInput, getTimeTillMaturity]);
 
-  /* Get the min APR from all the series */
-  const aprArray = Array.from(seriesMap?.values()!)
-    .filter((x: ISeries) => x.baseId === selectedBase?.proxyId)
-    .map((x: ISeries) => parseFloat(x.apr));
-  const minApr = aprArray.length && Math.min(...aprArray);
-  const maxApr = aprArray.length && Math.min(...aprArray);
-
-  return { apr, minApr, maxApr };
+  return { apr };
 };
