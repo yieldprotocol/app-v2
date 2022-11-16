@@ -33,6 +33,7 @@ import useChainId from '../hooks/useChainId';
 import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
+import useBalances from '../hooks/useBalances';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -191,6 +192,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     },
   });
 
+  // const { data: [ baseBalance, ilkBalance ] } =  useBalances([userState.selectedBase!, userState.selectedIlk!]) 
 
   /* TODO consider moving out of here ? */
   const getPoolAPY = useCallback(
@@ -747,21 +749,21 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [userState.selectedSeries, userState.seriesMap]);
 
-  /* update selected asset balances */
+  /* update selected asset balances - if undefind use a tokenised  */
   useEffect(() => {
+
     if (account) {
       updateState({
         type: UserState.SELECTED_BASE_BALANCE,
         payload: baseBalance,
       });
 
-      console.log(ilkBalance);
-
       updateState({
         type: UserState.SELECTED_ILK_BALANCE,
         payload: ilkBalance,
       });
     }
+
   }, [baseBalance, ilkBalance, account]);
 
   /* Exposed userActions */

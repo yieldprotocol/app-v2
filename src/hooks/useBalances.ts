@@ -11,7 +11,7 @@ import { IAsset, IAssetInfo } from '../types';
  * @returns assetMap values with balance added
  */
 
-const useBalances = ( assets: IAsset[] = [] ) => {
+const useBalances = ( assets: IAsset[] = []) => {
 
   const {userState: { assetMap }} = useContext(UserContext);
   const { address: account } = useAccount();
@@ -21,7 +21,9 @@ const useBalances = ( assets: IAsset[] = [] ) => {
   // data to read
   const contracts = useMemo(
     () =>
-      assetList.map((a) => ({
+      assetList
+      .filter( (a:IAsset) => a !== undefined ) // filter out undefined assets
+      .map((a:IAsset) => ({
         addressOrName: a.address,
         args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
         functionName: 'balanceOf',

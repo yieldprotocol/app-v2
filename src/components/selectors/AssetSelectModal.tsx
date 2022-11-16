@@ -23,6 +23,8 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
 
   const assetList = useBalances(assets);
 
+  console.log( 'adasdasdasdasd')
+
   return open ? (
     <Layer
       onEsc={() => setOpen(false)}
