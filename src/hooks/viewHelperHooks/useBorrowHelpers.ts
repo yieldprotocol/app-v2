@@ -18,6 +18,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
 import useAsset from '../useAsset';
 import useVault from '../useVault';
+import useSeriesEntity from '../useSeriesEntity';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -33,12 +34,13 @@ export const useBorrowHelpers = (
   } = useContext(SettingsContext);
 
   const {
-    userState: { seriesMap, selectedSeries },
+    userState: { selectedSeries },
   } = useContext(UserContext);
 
   const { data: vault } = useVault(vaultId);
   const { data: vaultBase } = useAsset(vault?.baseId!);
   const { data: vaultIlk } = useAsset(vault?.ilkId!);
+  const { data: seriesEntity } = useSeriesEntity(vault ? vault.seriesId : selectedSeries?.id);
 
   const { address: account } = useAccount();
 
@@ -92,12 +94,16 @@ export const useBorrowHelpers = (
 
   /* check if the user can borrow the specified amount based on protocol base reserves */
   useEffect(() => {
-    if (input && selectedSeries && parseFloat(input) > 0) {
-      const cleanedInput = cleanValue(input, selectedSeries.decimals);
-      const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries.decimals);
-      input_.lte(selectedSeries.sharesReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
+    if (!seriesEntity) return;
+
+    const { decimals, getBase, sharesReserves } = seriesEntity;
+
+    if (input && parseFloat(input) > 0) {
+      const cleanedInput = cleanValue(input, decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, decimals);
+      input_.lte(getBase(sharesReserves.value)) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
-  }, [input, selectedSeries, selectedSeries?.sharesReserves]);
+  }, [input, seriesEntity]);
 
   /* check the new debt level after potential repaying */
   useEffect(() => {
