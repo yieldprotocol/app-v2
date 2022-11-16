@@ -334,8 +334,8 @@ const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
                   ) : (
                     <SectionWrap
                       title={
-                        seriesMap?.size! > 0
-                          ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
+                        selectedBase
+                          ? `Available ${selectedBase.displaySymbol}${selectedBase && '-based'} maturity dates:`
                           : ''
                       }
                     >
