@@ -7,16 +7,17 @@ import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import useTimeTillMaturity from './useTimeTillMaturity';
-import useSeriesEntities from './useSeriesEntities';
+import useSeriesEntity from './useSeriesEntity';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { selectedSeries, selectedBase } = userState;
+  const { data: seriesEntity } = useSeriesEntity(series?.id);
 
   /* HOOKS */
-  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const _selectedSeries = series || selectedSeries;
   /* Make sure there won't be an underflow */
@@ -27,42 +28,44 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
   const [apr, setApr] = useState<string | undefined>();
 
   useEffect(() => {
+    if (!seriesEntity) return;
+
+    const { sharesReserves, fyTokenReserves, ts, g1, g2, decimals, c, mu, maturity, getShares, apr } = seriesEntity;
+
+    const baseAmount = ethers.utils.parseUnits(_input || _fallbackInput, decimals);
+
     let preview: ethers.BigNumber | Error = ethers.constants.Zero;
-    if (_selectedSeries) {
-      const baseAmount = ethers.utils.parseUnits(_input || _fallbackInput, _selectedSeries.decimals);
-      const { sharesReserves, fyTokenReserves } = _selectedSeries;
 
-      if (actionType === 'LEND')
-        preview = sellBase(
-          sharesReserves,
-          fyTokenReserves,
-          _selectedSeries.getShares(baseAmount), // convert input from base to shares
-          getTimeTillMaturity(_selectedSeries.maturity),
-          _selectedSeries.ts,
-          _selectedSeries.g1,
-          _selectedSeries.decimals,
-          _selectedSeries.c,
-          _selectedSeries.mu
-        );
+    if (actionType === 'LEND')
+      preview = sellBase(
+        sharesReserves.value,
+        fyTokenReserves.value,
+        getShares(baseAmount), // convert input from base to shares
+        getTimeTillMaturity(maturity),
+        ts,
+        g1,
+        decimals,
+        c,
+        mu
+      );
 
-      if (actionType === 'BORROW')
-        preview = buyBase(
-          sharesReserves,
-          fyTokenReserves,
-          _selectedSeries.getShares(baseAmount), // convert input from base to shares
-          getTimeTillMaturity(_selectedSeries.maturity),
-          _selectedSeries.ts,
-          _selectedSeries.g2,
-          _selectedSeries.decimals,
-          _selectedSeries.c,
-          _selectedSeries.mu
-        );
+    if (actionType === 'BORROW')
+      preview = buyBase(
+        sharesReserves.value,
+        fyTokenReserves.value,
+        getShares(baseAmount), // convert input from base to shares
+        getTimeTillMaturity(maturity),
+        ts,
+        g2,
+        decimals,
+        c,
+        mu
+      );
 
-      // figure out what to do with negative apr on borrow for tv series
-      const _apr = calculateAPR(baseAmount, preview, _selectedSeries.maturity);
-      _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
-    }
-  }, [_selectedSeries, _input, actionType, _fallbackInput, getTimeTillMaturity]);
+    // figure out what to do with negative apr on borrow for tv series
+    const _apr = calculateAPR(baseAmount, preview, maturity);
+    _apr ? setApr(cleanValue(_apr, 2)) : setApr(apr);
+  }, [_fallbackInput, _input, actionType, getTimeTillMaturity, seriesEntity]);
 
   return { apr };
 };
