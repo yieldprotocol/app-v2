@@ -9,10 +9,6 @@ import * as contractTypes from '../contracts';
 import { IAssetRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
-import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
-
-import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
-
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
@@ -28,7 +24,6 @@ const initState: IChainContextState = {
   /* flags */
   chainLoaded: 0,
   assetRootMap: new Map<string, IAssetRoot>(),
-  seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
@@ -52,12 +47,6 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: action.payload };
-
-    case ChainState.ADD_SERIES:
-      return {
-        ...state,
-        seriesRootMap: new Map(state.seriesRootMap.set(action.payload.id, action.payload)),
-      };
 
     case ChainState.ADD_ASSET:
       return {
@@ -313,7 +302,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       chainId
     );
 
-    await Promise.all([_getAssets(), _getSeries(), _getStrategies()])
+    await Promise.all([_getAssets(), _getStrategies()])
       .catch(() => {
         toast.error('Error getting Yield Protocol data.');
         console.log('Error getting Yield Protocol data.');
@@ -321,7 +310,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       .finally(() => {
         updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
       });
-  }, [_getAssets, _getSeries, _getStrategies, chainId]);
+  }, [_getAssets, _getStrategies, chainId]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version

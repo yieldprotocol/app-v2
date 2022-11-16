@@ -13,7 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IVault, ProcessStage, TxState } from '../../types';
+import { ActionCodes, ActionType, ISeries, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -54,8 +54,10 @@ import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAsset from '../../hooks/useAsset';
 import useVaults from '../../hooks/useVaults';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
+import { formatUnits } from 'ethers/lib/utils';
 
-const Borrow = () => {
+const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   useTenderly();
 
@@ -64,9 +66,10 @@ const Borrow = () => {
   /* STATE FROM CONTEXT */
 
   const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
 
+  const { data: selectedSeriesEntity } = useSeriesEntity();
   const { address: activeAccount } = useAccount();
   const { data: weth } = useAsset(WETH);
   const contracts = useContracts();
@@ -163,7 +166,6 @@ const Borrow = () => {
 
   const handleMaxAction = (actionCode: ActionCodes) => {
     actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral!);
-    actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
       action_code: actionCode,
@@ -191,6 +193,8 @@ const Borrow = () => {
 
   /* BORROW DISABLING LOGIC */
   useEffect(() => {
+    if (!selectedSeriesEntity) return;
+
     /* if ANY of the following conditions are met: block action */
     !activeAccount ||
     !borrowInput ||
@@ -199,7 +203,7 @@ const Borrow = () => {
     undercollateralized ||
     borrowInputError ||
     collatInputError ||
-    selectedSeries?.seriesIsMature
+    selectedSeriesEntity.seriesIsMature
       ? setBorrowDisabled(true)
       : setBorrowDisabled(false); /* else if all pass, then unlock borrowing */
   }, [
@@ -211,16 +215,19 @@ const Borrow = () => {
     borrowInputError,
     collatInputError,
     undercollateralized,
+    selectedSeriesEntity,
   ]);
 
   /* ADD COLLATERAL DISABLING LOGIC */
 
   /* if ANY of the following conditions are met: block next step action */
   useEffect(() => {
+    if (!selectedSeriesEntity) return;
+
     !borrowInput ||
     !selectedSeries ||
     borrowInputError ||
-    selectedSeries?.seriesIsMature ||
+    selectedSeriesEntity.seriesIsMature ||
     (stepPosition === 1 && undercollateralized) ||
     (stepPosition === 1 && collatInputError) ||
     selectedSeries.baseId !== selectedBase?.proxyId
@@ -236,6 +243,7 @@ const Borrow = () => {
     undercollateralized,
     collatInputError,
     selectedBase?.proxyId,
+    selectedSeriesEntity,
   ]);
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
@@ -341,7 +349,14 @@ const Borrow = () => {
                     <Text size="xsmall" color="text-weak">
                       Max borrow is{' '}
                       <Text size="small" color="text-weak">
-                        {cleanValue(selectedSeries?.sharesReserves_!, 2)} {selectedBase?.displaySymbol}
+                        {cleanValue(
+                          formatUnits(
+                            selectedSeriesEntity?.getBase(selectedSeriesEntity?.sharesReserves?.value!)!,
+                            selectedSeriesEntity?.decimals
+                          ),
+                          2
+                        )}{' '}
+                        {selectedBase?.displaySymbol}
                       </Text>{' '}
                       (limited by protocol liquidity)
                     </Text>
@@ -431,12 +446,12 @@ const Borrow = () => {
                               onChange={(event: any) =>
                                 setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
                               }
-                              disabled={!selectedSeries || selectedSeries.seriesIsMature}
+                              disabled={!selectedSeries || selectedSeriesEntity?.seriesIsMature}
                             />
                             <MaxButton
                               action={() => maxCollateral && handleMaxAction(ActionCodes.ADD_COLLATERAL)}
                               disabled={
-                                !selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature
+                                !selectedSeries || collatInput === maxCollateral || selectedSeriesEntity?.seriesIsMature
                               }
                               clearAction={() => setCollatInput('')}
                               showingMax={!!collatInput && collatInput === maxCollateral}

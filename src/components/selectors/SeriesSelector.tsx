@@ -14,6 +14,10 @@ import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
+import SkeletonWrap from '../wraps/SkeletonWrap';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
+import YieldMark from '../logos/YieldMark';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -65,44 +69,54 @@ interface ISeriesSelectorProps {
 
 const AprText = ({
   inputValue,
-  series,
+  seriesId,
   actionType,
   color,
 }: {
   inputValue: string | undefined;
-  series: ISeries;
+  seriesId: string;
   actionType: ActionType;
   color: string | undefined;
 }) => {
+  const { data: seriesEntity } = useSeriesEntity(seriesId);
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const _inputValue = cleanValue(inputValue, series.decimals);
-  const { apr } = useApr(_inputValue, actionType, series);
+  const _inputValue = cleanValue(inputValue, seriesEntity?.decimals);
+  const { apr } = useApr(_inputValue, actionType, seriesEntity!);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
-  const sharesIn = maxBaseIn(
-    series.sharesReserves,
-    series.fyTokenReserves,
-    getTimeTillMaturity(series.maturity),
-    series.ts,
-    series.g1,
-    series.decimals,
-    series.c,
-    series.mu
-  );
-
   useEffect(() => {
-    if (!series?.seriesIsMature && _inputValue)
+    if (!seriesEntity) return;
+
+    const { sharesReserves, fyTokenReserves, ts, g1, decimals, c, mu, seriesIsMature, getShares } = seriesEntity;
+
+    const sharesIn = maxBaseIn(
+      sharesReserves.value,
+      fyTokenReserves.value,
+      getTimeTillMaturity(seriesEntity.maturity),
+      ts,
+      g1,
+      decimals,
+      c,
+      mu
+    );
+
+    if (!seriesIsMature && _inputValue)
       actionType === ActionType.LEND
-        ? setLimitHit(series.getShares(ethers.utils.parseUnits(_inputValue, series.decimals)).gt(sharesIn)) // lending max
-        : setLimitHit(
-            series.getShares(ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(series.sharesReserves)
-          ); // borrow max
-  }, [_inputValue, actionType, series, sharesIn]);
+        ? setLimitHit(getShares(ethers.utils.parseUnits(_inputValue, decimals)).gt(sharesIn)) // lending max
+        : setLimitHit(getShares(ethers.utils.parseUnits(_inputValue, decimals)).gt(sharesReserves.value)); // borrow max
+  }, [_inputValue, actionType, getTimeTillMaturity, seriesEntity]);
+
+  if (!seriesEntity)
+    return (
+      <Text size="1.2em" color={color}>
+        <SkeletonWrap />
+      </Text>
+    );
 
   return (
     <>
-      {!series?.seriesIsMature && !limitHit && (
+      {!seriesEntity.seriesIsMature && !limitHit && (
         <Text size="1.2em" color={color}>
           {apr} <Text size="xsmall">% {[ActionType.POOL].includes(actionType) ? 'APY' : 'APR'}</Text>
         </Text>
@@ -114,7 +128,7 @@ const AprText = ({
         </Text>
       )}
 
-      {series.seriesIsMature && (
+      {seriesEntity.seriesIsMature && (
         <Box direction="row" gap="xsmall" align="center">
           <Text size="xsmall" color={color}>
             Mature
@@ -132,7 +146,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
+  const { selectedSeries, selectedBase, selectedVault } = userState;
+  const { data: seriesMap, isLoading: seriesLoading } = useSeriesEntities();
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -158,7 +173,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
         </Box>
       )}
       {_series && actionType !== 'POOL' && (
-        <AprText inputValue={_inputValue} series={_series} actionType={actionType} color="text" />
+        <AprText inputValue={_inputValue} seriesId={_series.id} actionType={actionType} color="text" />
       )}
     </Box>
   );
@@ -168,12 +183,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     const opts = Array.from(seriesMap?.values()!);
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
-    let filteredOpts = opts
-      .filter((s) => s.showSeries)
-      .filter(
-        (_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature
-        // !ignoredSeries?.includes(_series.baseId)
-      );
+    let filteredOpts = opts.filter((_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature);
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
@@ -184,7 +194,14 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
-  }, [selectedBase?.proxyId, selectedSeries?.baseId, selectedSeries?.id, selectedSeries?.maturity, seriesMap]);
+  }, [
+    selectSeriesLocally,
+    selectedBase?.proxyId,
+    selectedSeries?.baseId,
+    selectedSeries?.id,
+    selectedSeries?.maturity,
+    seriesMap,
+  ]);
 
   const handleSelect = (_series: ISeries) => {
     if (!selectSeriesLocally) {
@@ -253,7 +270,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
               <CardSkeleton rightSide />
             </>
           ) : (
-            options.map((series: ISeries, i: number) => (
+            options.map((series: ISeries, i) => (
               <StyledBox
                 key={series.id}
                 pad="xsmall"
@@ -282,13 +299,13 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                           : undefined,
                     }}
                   >
-                    {series.seriesMark}
+                    {<YieldMark />}
                   </Avatar>
 
                   <Box>
                     <AprText
                       inputValue={_inputValue}
-                      series={series}
+                      seriesId={series.id}
                       actionType={actionType}
                       color={series.id === _selectedSeries?.id ? series.textColor : undefined}
                     />

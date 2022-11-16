@@ -7,12 +7,13 @@ import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import useTimeTillMaturity from './useTimeTillMaturity';
+import useSeriesEntities from './useSeriesEntities';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { seriesMap, selectedSeries, selectedBase } = userState;
+  const { selectedSeries, selectedBase } = userState;
 
   /* HOOKS */
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();

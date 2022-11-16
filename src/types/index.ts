@@ -69,7 +69,6 @@ export interface ISeries extends ISignable {
   poolName: string;
   poolSymbol: string; // for signing
   baseAddress: string;
-  sharesAddress: string;
 
   fullDate: string;
   displayName: string;
@@ -103,22 +102,25 @@ export interface ISeriesDynamic extends ISeries {
   totalSupply: Value;
   poolAPY?: string;
   seriesIsMature: boolean;
+  sharesAddress: string;
 
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
   startBlock?: Block;
 
   // user data
-  poolTokens?: BigNumber | undefined;
-  poolTokens_?: string | undefined;
-  fyTokenBalance?: BigNumber | undefined;
-  fyTokenBalance_?: string | undefined;
+  poolTokens: Value;
+  fyTokenBalance: Value;
 
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
 
   poolContract: Pool;
   fyTokenContract: FYToken;
+}
+
+export interface ISeriesMap {
+  [seriesId: string]: ISeries;
 }
 
 export enum TokenType {

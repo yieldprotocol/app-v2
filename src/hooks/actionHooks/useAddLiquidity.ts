@@ -20,7 +20,6 @@ import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 import useStrategy from '../useStrategy';
-import useVaults from '../useVaults';
 
 export const useAddLiquidity = () => {
   const { mutate } = useSWRConfig();
@@ -39,7 +38,6 @@ export const useAddLiquidity = () => {
   const { address: account } = useAccount();
   const contracts = useContracts();
 
-  const { data: vaults, key: vaultsKey } = useVaults();
   const { data: base, key: baseKey } = useAsset(selectedStrategy?.baseId!);
 
   const { sign, transact } = useChain();

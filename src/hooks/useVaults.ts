@@ -1,7 +1,6 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { useAccount } from 'wagmi';
-import { UserContext } from '../contexts/UserContext';
 import { Cauldron } from '../contracts';
 import { IVault } from '../types';
 import useContracts, { ContractNames } from './useContracts';
@@ -10,9 +9,6 @@ import useVault from './useVault';
 const useVaults = () => {
   const { address: account } = useAccount();
   const { getVault } = useVault();
-  const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
   const contracts = useContracts();
 
   const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron | undefined;
@@ -48,8 +44,8 @@ const useVaults = () => {
   }, [Cauldron, account, getVault]);
 
   const key = useMemo(() => {
-    return account && seriesMap.size ? ['vaults', account, seriesMap] : null;
-  }, [account, seriesMap]);
+    return account ? ['vaults', account] : null;
+  }, [account]);
 
   const { data, error } = useSWRImmutable(key, getVaults);
 

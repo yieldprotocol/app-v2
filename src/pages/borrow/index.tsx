@@ -1,7 +1,20 @@
-import dynamic from 'next/dynamic';
+import { GetStaticProps, InferGetStaticPropsType } from 'next';
+import Borrow from '../../components/views/Borrow';
+import useChainId from '../../hooks/useChainId';
+import { getSeriesEntitiesSSR, mapify } from '../../lib/seriesEntities';
+import { ISeriesMap } from '../../types';
 
-const DynamicBorrow = dynamic(() => import('../../components/views/Borrow'), { ssr: false });
+const BorrowPage = ({ seriesMap }: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const chainId = useChainId();
+  return <Borrow seriesMap={mapify(seriesMap[chainId]!)} />;
+};
 
-const Borrow = () => <DynamicBorrow />;
+// map chain id to ISeriesMap (mapping series id to series entity)
+export const getStaticProps: GetStaticProps<{
+  seriesMap: { [chainId: number]: ISeriesMap | undefined };
+}> = async () => {
+  const seriesMap = await getSeriesEntitiesSSR();
+  return { props: { seriesMap } };
+};
 
-export default Borrow;
+export default BorrowPage;

@@ -1,6 +1,6 @@
 import useSWRImmutable from 'swr/immutable';
 import { bytesToBytes32, calcAccruedDebt, ZERO_BN } from '@yield-protocol/ui-math';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Cauldron, Witch } from '../contracts';
 import useContracts, { ContractNames } from './useContracts';
 import useTimeTillMaturity from './useTimeTillMaturity';
@@ -12,12 +12,11 @@ import useAsset from './useAsset';
 import { useAccount } from 'wagmi';
 import { IVault } from '../types';
 import { generateVaultName } from '../utils/appUtils';
-import { UserContext } from '../contexts/UserContext';
+import { getSeriesEntity } from '../lib/seriesEntities';
+import useDefaultProvider from './useDefaultProvider';
 
 const useVault = (id?: string) => {
-  const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
+  const provider = useDefaultProvider();
   const { address: account } = useAccount();
   const contracts = useContracts();
   const chainId = useChainId();
@@ -42,7 +41,7 @@ const useVault = (id?: string) => {
         Cauldron.balances(id),
       ]);
 
-      const series = seriesMap.get(seriesId);
+      const series = await getSeriesEntity(provider, Cauldron, chainId, seriesId);
       const isVaultMature = isMature(series?.maturity!);
 
       let accruedArt: BigNumber;
@@ -101,13 +100,11 @@ const useVault = (id?: string) => {
         },
       };
     },
-    [Cauldron, Witch, account, chainId, contracts, getAsset, isMature, seriesMap]
+    [Cauldron, Witch, account, chainId, contracts, getAsset, isMature, provider]
   );
 
-  const key = useMemo(
-    () => (id && seriesMap.size ? ['vault', id, seriesMap, account] : null),
-    [account, id, seriesMap]
-  );
+  const key = useMemo(() => (account && id ? ['vault', id, account] : null), [account, id]);
+
   const { data, error, isValidating } = useSWRImmutable(key, () => getVault(id!));
 
   return {
