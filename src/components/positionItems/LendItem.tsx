@@ -11,42 +11,47 @@ import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAsset from '../../hooks/useAsset';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
+import { CardSkeleton } from '../selectors/StrategySelector';
 
 function LendItem({
-  series,
+  seriesId,
   index,
   actionType,
   condensed,
 }: {
-  series: ISeries;
+  seriesId: string;
   index: number;
   actionType: ActionType;
   condensed?: boolean;
 }) {
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
-
-  const {
-    userState: { seriesLoading, selectedSeries, selectedBase },
-    userActions,
-  } = useContext(UserContext);
-  const { fyTokenMarketValue } = useLendHelpers(series!, '0');
-  const { data: seriesBase } = useAsset(series.baseId);
-  const isSelectedBaseAndSeries = series.baseId === seriesBase?.proxyId && series.id === selectedSeries?.id;
+  const { userActions } = useContext(UserContext);
+  const { fyTokenMarketValue } = useLendHelpers(seriesId, '0');
+  const { data: seriesEntity } = useSeriesEntity(seriesId);
+  const { data: seriesBase } = useAsset(seriesEntity?.baseId);
 
   const handleSelect = (_series: ISeries) => {
-    userActions.setSelectedBase(selectedBase);
+    userActions.setSelectedBase(seriesBase!);
     userActions.setSelectedSeries(_series);
     router.push(`/${actionType.toLowerCase()}position/${_series.id}`);
     logAnalyticsEvent(GA_Event.position_opened, {
-      id: selectedSeries?.name,
+      id: _series.name,
     } as GA_Properties.position_opened);
   };
 
+  if (!seriesEntity)
+    return (
+      <ItemWrap action={() => null} index={index}>
+        <CardSkeleton />
+      </ItemWrap>
+    );
+
   return (
-    <ItemWrap action={() => handleSelect(series)} index={index}>
+    <ItemWrap action={() => handleSelect(seriesEntity)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={series} condensed={condensed} actionType={ActionType.LEND} />
+        <PositionAvatar position={seriesEntity} condensed={condensed} actionType={ActionType.LEND} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
@@ -54,7 +59,7 @@ function LendItem({
           width={condensed ? '6rem' : undefined}
         >
           <Text weight={900} size="small">
-            {series.displayName}
+            {seriesEntity.displayName}
           </Text>
           <Box direction="row" gap="xsmall">
             {fyTokenMarketValue !== 'Low liquidity' && (
@@ -63,7 +68,7 @@ function LendItem({
                   Balance:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {seriesLoading && isSelectedBaseAndSeries ? (
+                  {fyTokenMarketValue ? (
                     <SkeletonWrap width={30} />
                   ) : (
                     cleanValue(fyTokenMarketValue, seriesBase?.digitFormat!)
