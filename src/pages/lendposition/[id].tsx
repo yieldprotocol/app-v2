@@ -20,7 +20,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 // map chain id to ISeriesMap (mapping series id to series entity)
 export const getStaticProps: GetStaticProps<{
   seriesMap: { [chainId: number]: ISeriesMap | undefined };
-}> = async ({ params }) => {
+}> = async () => {
   const seriesMap = await getSeriesEntitiesSSR();
   return { props: { seriesMap } };
 };

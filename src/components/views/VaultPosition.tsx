@@ -47,7 +47,7 @@ import useAsset from '../../hooks/useAsset';
 import useVault from '../../hooks/useVault';
 import useSeriesEntity from '../../hooks/useSeriesEntity';
 
-const VaultPosition = () => {
+const VaultPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
@@ -585,6 +585,7 @@ const VaultPosition = () => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }}>
                         <SeriesSelector
+                          seriesMap={seriesMap}
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.BORROW}
                           cardLayout={false}
