@@ -44,7 +44,7 @@ function PositionAvatar({
   const { isMature } = useTimeTillMaturity();
   const { data: base } = useAsset(position.baseId);
   const { data: ilk } = useAsset(vault?.ilkId!);
-  const { data: seriesEntity } = useSeriesEntity(vault?.seriesId);
+  const { data: seriesEntity } = useSeriesEntity(vault?.seriesId!);
   const series = vault ? seriesEntity : (position as ISeries);
 
   const baseImageSize = condensed ? '20px' : '24px';
