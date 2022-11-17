@@ -10,9 +10,10 @@ import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { cleanValue } from '../../utils/appUtils';
 import useAsset from '../useAsset';
+import useSeriesEntity from '../useSeriesEntity';
 
 export const useLendHelpers = (
-  series: ISeries | null,
+  seriesId: string,
   input: string | undefined,
   rollToSeries: ISeries | undefined = undefined
 ) => {
@@ -25,6 +26,7 @@ export const useLendHelpers = (
   const { userState } = useContext(UserContext);
   const { selectedBase } = userState;
   const { data: base } = useAsset(selectedBase?.id!);
+  const { data: series } = useSeriesEntity(seriesId);
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
