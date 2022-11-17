@@ -190,9 +190,8 @@ const LendPosition = () => {
   }, [closeProcess?.stage, resetInputs, rollProcess?.stage]);
 
   useEffect(() => {
-    const _series = seriesMap?.get(idFromUrl as string) || null;
     if (idFromUrl) {
-      setSelectedSeries(_series);
+      setSelectedSeries(seriesen);
     }
   }, [idFromUrl, seriesMap, setSelectedSeries]);
 
