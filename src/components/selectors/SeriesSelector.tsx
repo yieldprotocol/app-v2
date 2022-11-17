@@ -82,7 +82,7 @@ const AprText = ({
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const _inputValue = cleanValue(inputValue, seriesEntity?.decimals);
-  const { apr } = useApr(_inputValue, actionType, seriesEntity!);
+  const { apr } = useApr(_inputValue, actionType, seriesEntity?.id!);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
