@@ -269,12 +269,7 @@ const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View position: </Text>
-                <LendItem
-                  series={seriesMap?.get(selectedSeries?.id!)!}
-                  index={0}
-                  actionType={ActionType.LEND}
-                  condensed
-                />
+                <LendItem seriesId={selectedSeries?.id!} index={0} actionType={ActionType.LEND} condensed />
               </Box>
             )}
         </Box>

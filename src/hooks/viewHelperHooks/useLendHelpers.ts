@@ -139,9 +139,8 @@ export const useLendHelpers = (
     }
 
     if (series && series.seriesIsMature) {
-      const val = ethers.utils.formatUnits(series.fyTokenBalance.value!, series.decimals);
-      setFyTokenMarketValue(val);
-      setMaxClose_(val);
+      setFyTokenMarketValue(series.fyTokenBalance.formatted);
+      setMaxClose_(series.fyTokenBalance.formatted);
       setMaxClose(series.fyTokenBalance.value!);
     }
   }, [getTimeTillMaturity, series]);
