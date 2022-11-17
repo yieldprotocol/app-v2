@@ -44,6 +44,7 @@ import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
+import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 
 const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -57,12 +58,13 @@ const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [lendInput, setLendInput] = useState<string | undefined>(undefined);
-  // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
+  const { isMature } = useTimeTillMaturity();
+  const seriesIsMature = isMature(selectedSeries?.maturity!);
   const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
   const lend = useLend();
 
@@ -124,7 +126,7 @@ const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
       {!mobile && (
         <PanelWrap basis="30%">
           <Navigation sideNavigation={true} />
-          <PositionSelector actionType={ActionType.LEND} />
+          <PositionSelector seriesMap={seriesMap} actionType={ActionType.LEND} />
         </PanelWrap>
       )}
 
@@ -152,7 +154,7 @@ const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={lendError}
-                          disabled={selectedSeries?.seriesIsMature}
+                          disabled={seriesIsMature}
                         >
                           <TextInput
                             plain
@@ -163,11 +165,11 @@ const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
                             onChange={(event: any) =>
                               setLendInput(cleanValue(event.target.value, selectedSeries?.decimals))
                             }
-                            disabled={selectedSeries?.seriesIsMature}
+                            disabled={seriesIsMature}
                           />
                           <MaxButton
                             action={() => handleMaxAction()}
-                            disabled={maxLend_ === '0' || selectedSeries?.seriesIsMature}
+                            disabled={maxLend_ === '0' || seriesIsMature}
                             clearAction={() => setLendInput('')}
                             showingMax={!!lendInput && (lendInput === maxLend_ || !!lendError)}
                           />
@@ -278,7 +280,7 @@ const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
         </Box>
 
         <ActionButtonGroup pad>
-          {stepPosition !== 1 && !selectedSeries?.seriesIsMature && (
+          {stepPosition !== 1 && !seriesIsMature && (
             <NextButton
               secondary
               disabled={stepDisabled}
@@ -289,27 +291,25 @@ const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
             />
           )}
 
-          {stepPosition === 1 &&
-            !selectedSeries?.seriesIsMature &&
-            lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-              <TransactButton
-                primary
-                label={
-                  <Text size={mobile ? 'small' : undefined}>
-                    {!activeAccount
-                      ? 'Connect Wallet'
-                      : `Lend${lendProcess?.processActive ? `ing` : ''} ${
-                          nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.displaySymbol || ''}`}
-                  </Text>
-                }
-                onClick={() => handleLend()}
-                disabled={lendDisabled || lendProcess?.processActive}
-              />
-            )}
+          {stepPosition === 1 && !seriesIsMature && lendProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+            <TransactButton
+              primary
+              label={
+                <Text size={mobile ? 'small' : undefined}>
+                  {!activeAccount
+                    ? 'Connect Wallet'
+                    : `Lend${lendProcess?.processActive ? `ing` : ''} ${
+                        nFormatter(Number(lendInput), selectedBase?.digitFormat!) || ''
+                      } ${selectedBase?.displaySymbol || ''}`}
+                </Text>
+              }
+              onClick={() => handleLend()}
+              disabled={lendDisabled || lendProcess?.processActive}
+            />
+          )}
 
           {stepPosition === 1 &&
-            !selectedSeries?.seriesIsMature &&
+            !seriesIsMature &&
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && ( // lendTx.success && (
               <NextButton
