@@ -4,7 +4,6 @@ import { ThemeContext } from 'styled-components';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
-import { UserContext } from '../contexts/UserContext';
 import useStrategies from '../hooks/useStrategies';
 import useVaults from '../hooks/useVaults';
 
@@ -20,11 +19,8 @@ interface IDashboardBalance {
 const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, digits, symbol }: IDashboardBalance) => {
   const theme = useContext(ThemeContext);
   const { green, red } = theme.global.colors;
-  const {
-    userState: { seriesLoading },
-  } = useContext(UserContext);
-  const { isLoading: vaultsLoading } = useVaults();
 
+  const { isLoading: vaultsLoading } = useVaults();
   const { isLoading: strategiesLoading } = useStrategies();
   const [totalBalance, setTotalBalance] = useState<number>();
 
@@ -37,17 +33,13 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
       <Box gap="small">
         <Box direction="row-responsive" justify="between">
           <Text size="small">Total Lent:</Text>
-          {seriesLoading ? (
-            <Skeleton width={50} />
-          ) : (
-            <Box direction="row" gap="medium">
-              <Text size="small">
-                {symbol}
-                {formatValue(lendBalance, digits!)}
-              </Text>
-              <FiPlus color={green} />
-            </Box>
-          )}
+          <Box direction="row" gap="medium">
+            <Text size="small">
+              {symbol}
+              {formatValue(lendBalance, digits!)}
+            </Text>
+            <FiPlus color={green} />
+          </Box>
         </Box>
 
         <Box direction="row-responsive" justify="between">
@@ -98,7 +90,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
 
       <Box direction="row-responsive" justify="between" margin={{ top: 'medium' }} border={{ side: 'top' }}>
         <Text size="medium">Total:</Text>
-        {vaultsLoading || seriesLoading || strategiesLoading ? (
+        {vaultsLoading || strategiesLoading ? (
           <Skeleton width={50} />
         ) : (
           <Box direction="row" gap="medium">
