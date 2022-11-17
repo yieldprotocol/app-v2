@@ -185,7 +185,7 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)})
     `;
 
-export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
+export const getPositionPath = (txCode: string, receipt: any, contractMap?: any) => {
   const action = txCode.split('_')[0];
   const positionId = txCode.split('_')[1];
 
@@ -205,7 +205,7 @@ export const getPositionPath = (txCode: string, receipt: any, contractMap?: any,
     case ActionCodes.REDEEM:
       return `/lendposition/${positionId}`;
     case ActionCodes.ROLL_POSITION:
-      return `/lendposition/${getSeriesAfterRollPosition(receipt, seriesMap)}`;
+      return undefined;
     // POOL
     case ActionCodes.ADD_LIQUIDITY:
     case ActionCodes.REMOVE_LIQUIDITY:
@@ -213,7 +213,7 @@ export const getPositionPath = (txCode: string, receipt: any, contractMap?: any,
       return `/poolposition/${getStrategyAddrFromReceipt(receipt, action)}`;
 
     default:
-      return '/';
+      return undefined;
   }
 };
 

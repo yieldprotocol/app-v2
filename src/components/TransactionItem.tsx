@@ -27,9 +27,6 @@ const StyledBox = styled(Box)`
 
 const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
-    chainState: { seriesRootMap },
-  } = useContext(ChainContext);
-  const {
     txActions: { updateTxStage },
   } = useContext(TxContext);
   const colorScheme = useColorScheme();
@@ -44,9 +41,9 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
 
   /* get position link for viewing position */
   useEffect(() => {
-    const path = getPositionPath(txCode, receipt, contracts, seriesRootMap);
+    const path = getPositionPath(txCode, receipt, contracts);
     path && setLink(path);
-  }, [receipt, contracts, seriesRootMap, txCode]);
+  }, [receipt, contracts, txCode]);
 
   return (
     <Box
