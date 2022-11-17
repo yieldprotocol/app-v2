@@ -15,7 +15,6 @@ import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAssets from '../../hooks/useAssets';
-import useSeriesEntity from '../../hooks/useSeriesEntity';
 import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 
 interface IAssetSelectorProps {
