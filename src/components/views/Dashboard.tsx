@@ -13,7 +13,6 @@ import DashboardPositionList from '../DashboardPositionList';
 import CurrencyToggle from '../CurrencyToggle';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHelpers';
-import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
 import { useAccount } from 'wagmi';
 import { Settings } from '../../contexts/types/settings';
@@ -37,10 +36,6 @@ const Dashboard = () => {
     settingsState: { dashHideVaults, dashHideLendPositions, dashHidePoolPositions },
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
-
-  const {
-    userState: { seriesLoading },
-  } = useContext(UserContext);
 
   const {
     chainState: { chainLoaded },
@@ -120,16 +115,12 @@ const Dashboard = () => {
                 </Box>
               </Box>
 
-              {seriesLoading ? (
-                <Skeleton width={mobile ? 300 : undefined} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.LEND}
-                  positions={lendPositions}
-                  lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance!, currencySettingDigits)}`}
-                  showList={!dashHideLendPositions}
-                />
-              )}
+              <DashboardPositionList
+                actionType={ActionType.LEND}
+                positions={lendPositions}
+                lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance!, currencySettingDigits)}`}
+                showList={!dashHideLendPositions}
+              />
             </Box>
 
             <Box gap="medium">

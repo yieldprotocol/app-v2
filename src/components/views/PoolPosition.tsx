@@ -34,6 +34,7 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import { divDecimal, mulDecimal } from '@yield-protocol/ui-math';
 import useStrategy from '../../hooks/useStrategy';
 import useAsset from '../../hooks/useAsset';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -42,16 +43,13 @@ const PoolPosition = () => {
 
   /* STATE FROM CONTEXT */
   const {
-    userState,
     userActions: { setSelectedStrategy },
   } = useContext(UserContext);
-  const { selectedStrategy, seriesLoading } = userState;
 
   const { address: activeAccount } = useAccount();
-  const { data: _selectedStrategy } = useStrategy(selectedStrategy?.address || (idFromUrl as string));
-
-  const selectedSeries = _selectedStrategy?.currentSeries;
-  const { data: selectedBase } = useAsset(selectedStrategy?.baseId!);
+  const { data: strategy } = useStrategy(idFromUrl as string);
+  const { data: seriesEntity, isLoading: seriesEntityLoading } = useSeriesEntity(strategy?.id!);
+  const { data: base, isLoading: baseLoading } = useAsset(strategy?.baseId!);
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
@@ -72,29 +70,26 @@ const PoolPosition = () => {
   /* HOOK FNS */
   const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired, removeFyTokenReceived_ } =
     usePoolHelpers(removeInput, true);
-  const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(
-    _selectedStrategy?.accountBalance.formatted,
-    true
-  );
+  const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(strategy?.accountBalance.formatted, true);
   const removeLiquidity = useRemoveLiquidity(matchingVault);
 
   const { logAnalyticsEvent } = useAnalytics();
 
-  const userStrategyBalance = selectedStrategy?.accountBalance;
+  const userStrategyBalance = strategy?.accountBalance;
 
   const accountStrategyPercent = mulDecimal(
-    divDecimal(userStrategyBalance?.value! || '0', _selectedStrategy?.totalSupply.value || '0'),
+    divDecimal(userStrategyBalance?.value! || '0', strategy?.totalSupply.value || '0'),
     '100'
   );
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
-    selectedSeries?.id!
+    seriesEntity?.id!
   );
 
   /* input validation hooks */
-  const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, selectedSeries!, [
+  const { inputError: removeError } = useInputValidation(removeInput, ActionCodes.REMOVE_LIQUIDITY, seriesEntity!, [
     0,
     maxRemove,
   ]);
@@ -117,13 +112,14 @@ const PoolPosition = () => {
   );
 
   const handleRemove = () => {
+    if (!seriesEntity) throw new Error('no series entity detected');
     if (removeDisabled) return;
     setRemoveDisabled(true);
     removeLiquidity(removeInput!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries?.name,
+      series_id: seriesEntity?.name,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
     } as GA_Properties.transaction_initiated);
   };
@@ -156,12 +152,12 @@ const PoolPosition = () => {
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
+    !removeInput || removeError || !seriesEntity ? setRemoveDisabled(true) : setRemoveDisabled(false);
+  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, seriesEntity]);
 
   useEffect(() => {
-    if (idFromUrl && _selectedStrategy) setSelectedStrategy(_selectedStrategy);
-  }, [idFromUrl, setSelectedStrategy, _selectedStrategy]);
+    if (idFromUrl && strategy) setSelectedStrategy(strategy);
+  }, [idFromUrl, setSelectedStrategy, strategy]);
 
   /* watch process timeouts */
   useEffect(() => {
@@ -170,8 +166,8 @@ const PoolPosition = () => {
 
   return (
     <>
-      {_selectedStrategy && (
-        <ModalWrap series={selectedSeries}>
+      {strategy && (
+        <ModalWrap series={seriesEntity}>
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => router.back()} />}
 
@@ -185,11 +181,11 @@ const PoolPosition = () => {
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
+                    <PositionAvatar position={seriesEntity!} actionType={ActionType.POOL} />
                     <Box>
-                      <Text size={mobile ? 'medium' : 'large'}> {formatStrategyName(_selectedStrategy?.name)}</Text>
-                      <CopyWrap hash={_selectedStrategy.address}>
-                        <Text size="small"> {abbreviateHash(_selectedStrategy.address!, 6)}</Text>
+                      <Text size={mobile ? 'medium' : 'large'}> {formatStrategyName(strategy.name)}</Text>
+                      <CopyWrap hash={strategy.address}>
+                        <Text size="small"> {abbreviateHash(strategy.address, 6)}</Text>
                       </CopyWrap>
                     </Box>
                   </Box>
@@ -199,46 +195,44 @@ const PoolPosition = () => {
                   <Box gap="small">
                     <InfoBite
                       label="Next Roll Date"
-                      value={_selectedStrategy?.currentSeries?.fullDate.toString()!}
+                      value={seriesEntity?.fullDate.toString()!}
                       icon={<FiClock height="1em" />}
                     />
                     <InfoBite
                       label="Strategy Token Balance"
-                      value={`${cleanValue(
-                        _selectedStrategy?.accountBalance.formatted,
-                        selectedBase?.digitFormat!
-                      )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase?.symbol
-                      })`}
-                      icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
-                      loading={seriesLoading}
+                      value={`${cleanValue(strategy.accountBalance.formatted, base?.digitFormat!)} tokens (${cleanValue(
+                        removeBaseReceivedMax_,
+                        base?.digitFormat!
+                      )} ${base?.symbol})`}
+                      icon={<YieldMark height="1em" colors={[seriesEntity?.startColor!]} />}
+                      loading={baseLoading || seriesEntityLoading}
                     />
 
-                    {!_selectedStrategy.currentSeries && (
+                    {!seriesEntity && (
                       <InfoBite
                         label="Strategy is currently inactive"
                         value="Only token removal allowed"
                         icon={<FiSlash />}
-                        loading={seriesLoading}
+                        loading={false}
                       />
                     )}
 
-                    {_selectedStrategy.currentSeries && (
+                    {seriesEntity && (
                       <InfoBite
                         label="Strategy Token Ownership"
                         value={`${cleanValue(accountStrategyPercent, 2)}% of ${nFormatter(
-                          parseFloat(_selectedStrategy?.totalSupply.formatted),
+                          parseFloat(strategy.totalSupply.formatted),
                           2
                         )}`}
                         icon={<FiPercent />}
-                        loading={seriesLoading}
+                        loading={seriesEntityLoading}
                       />
                     )}
-                    {_selectedStrategy?.currentSeries?.poolAPY && (
+                    {seriesEntity?.poolAPY && (
                       <InfoBite
                         label="Pool APY"
                         icon={<FiZap />}
-                        value={`${cleanValue(_selectedStrategy.currentSeries.poolAPY, 2)}%`}
+                        value={`${cleanValue(seriesEntity.poolAPY, 2)}%`}
                         labelInfo="Estimated APY based on the current Euler supply APY"
                       />
                     )}
@@ -278,9 +272,9 @@ const PoolPosition = () => {
                             placeholder="Tokens to remove"
                             value={removeInput || ''}
                             onChange={(event: any) =>
-                              setRemoveInput(cleanValue(event.target.value, selectedSeries?.decimals))
+                              setRemoveInput(cleanValue(event.target.value, seriesEntity?.decimals))
                             }
-                            icon={<YieldMark height="24px" width="24px" colors={[selectedSeries?.startColor!]} />}
+                            icon={<YieldMark height="24px" width="24px" colors={[seriesEntity?.startColor!]} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction()}
@@ -293,8 +287,7 @@ const PoolPosition = () => {
                         {removeInput && !partialRemoveRequired && !removeError && (
                           <InputInfoWrap>
                             <Text color="text-weak" alignSelf="end" size="small">
-                              Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
-                              {selectedBase?.displaySymbol}
+                              Approx. return {cleanValue(removeBaseReceived_, base?.digitFormat)} {base?.displaySymbol}
                             </Text>
                           </InputInfoWrap>
                         )}
@@ -303,8 +296,8 @@ const PoolPosition = () => {
                           <InputInfoWrap>
                             <Box gap="xsmall" pad={{ right: 'medium' }} justify="between">
                               <Text color="text-weak" alignSelf="end" size="xsmall">
-                                Removing that amount of tokens and trading immediately for {selectedBase?.displaySymbol}{' '}
-                                is currently not possible due to liquidity limitations.
+                                Removing that amount of tokens and trading immediately for {base?.displaySymbol} is
+                                currently not possible due to liquidity limitations.
                               </Text>
                             </Box>
                           </InputInfoWrap>
@@ -321,13 +314,13 @@ const PoolPosition = () => {
                         <InfoBite
                           label="Remove Liquidity Tokens"
                           icon={<FiArrowRight />}
-                          value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} tokens`}
+                          value={`${cleanValue(removeInput, base?.digitFormat!)} tokens`}
                         />
                       </ActiveTransaction>
                     )}
                   </>
                 )}
-                {actionActive.index === 1 && <YieldHistory seriesOrVault={_selectedStrategy!} view={['STRATEGY']} />}
+                {actionActive.index === 1 && <YieldHistory seriesOrVault={strategy} view={['STRATEGY']} />}
               </Box>
             </Box>
 
@@ -339,8 +332,8 @@ const PoolPosition = () => {
                       <Box>
                         <Text size="xsmall">
                           Force removal and
-                          {` receive ~${cleanValue(removeBaseReceived_, 2)} ${selectedBase?.displaySymbol} `}
-                          {`and ~${removeFyTokenReceived_} fy${selectedBase?.displaySymbol}`}
+                          {` receive ~${cleanValue(removeBaseReceived_, 2)} ${base?.displaySymbol} `}
+                          {`and ~${removeFyTokenReceived_} fy${base?.displaySymbol}`}
                         </Text>
                       </Box>
                     }
@@ -370,7 +363,7 @@ const PoolPosition = () => {
                     label={
                       <Text size={mobile ? 'small' : undefined}>
                         {`Remov${removeProcess?.processActive ? 'ing' : 'e'} ${
-                          cleanValue(removeInput, selectedBase?.digitFormat!) || ''
+                          cleanValue(removeInput, base?.digitFormat!) || ''
                         } tokens`}
                       </Text>
                     }
