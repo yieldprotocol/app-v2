@@ -55,7 +55,6 @@ import useContracts from '../../hooks/useContracts';
 import useAsset from '../../hooks/useAsset';
 import useVaults from '../../hooks/useVaults';
 import useSeriesEntity from '../../hooks/useSeriesEntity';
-import { formatUnits } from 'ethers/lib/utils';
 
 const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -69,7 +68,7 @@ const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const { selectedSeries, selectedIlk, selectedBase } = userState;
   const { setSelectedIlk } = userActions;
 
-  const { data: selectedSeriesEntity } = useSeriesEntity(selectedSeries?.id);
+  const { data: selectedSeriesEntity } = useSeriesEntity(selectedSeries?.id!);
   const { address: activeAccount } = useAccount();
   const { data: weth } = useAsset(WETH);
   const contracts = useContracts();
@@ -97,7 +96,7 @@ const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
-  const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries?.id!);
 
   const assetPairInfo = useAssetPair(selectedBase!, selectedIlk!);
   const {
@@ -326,6 +325,7 @@ const Borrow = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
                   </Box>
                   {mobile ? (
                     <SeriesOrStrategySelectorModal
+                      seriesMap={seriesMap}
                       inputValue={borrowInput}
                       actionType={ActionType.BORROW}
                       open={modalOpen}
