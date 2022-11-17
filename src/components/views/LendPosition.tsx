@@ -32,19 +32,20 @@ import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAsset from '../../hooks/useAsset';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
   const { id: idFromUrl } = router.query;
+  const { data: seriesEntity, isLoading: seriesEntityLoading } = useSeriesEntity(idFromUrl as string);
+  const { data: base, isLoading: baseLoading } = useAsset(seriesEntity?.baseId);
 
   /* STATE FROM CONTEXT */
   const {
     userState,
     userActions: { setSelectedSeries, setSelectedBase },
   } = useContext(UserContext);
-  const { selectedSeries } = userState;
-  const { data: selectedBase } = useAsset(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
@@ -69,14 +70,10 @@ const LendPosition = () => {
 
   /* HOOK FNS */
   /* Close helpers */
-  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(
-    selectedSeries?.id!,
-    closeInput,
-    rollToSeries?.id!
-  );
+  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(seriesEntity?.id!, closeInput, rollToSeries?.id!);
 
   /* Roll helpers */
-  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeries?.id!, rollInput, rollToSeries?.id!);
+  const { maxRoll_, rollEstimate_ } = useLendHelpers(seriesEntity?.id!, rollInput, rollToSeries?.id!);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
@@ -86,20 +83,20 @@ const LendPosition = () => {
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
-    selectedSeries?.id!
+    seriesEntity?.id!
   );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_POSITION,
-    selectedSeries?.id!
+    seriesEntity?.id!
   );
 
   /* input validation hooks */
-  const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
+  const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, seriesEntity!, [
     0,
     maxClose_,
   ]);
 
-  const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
+  const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, seriesEntity!, [
     0,
     maxRoll_,
   ]);
@@ -122,25 +119,29 @@ const LendPosition = () => {
   );
 
   const handleClosePosition = () => {
+    if (!seriesEntity) throw new Error('No series entity detected');
+
     if (closeDisabled) return;
     setCloseDisabled(true);
     closePosition(closeInput);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries?.name,
+      series_id: seriesEntity.name,
       action_code: ActionCodes.CLOSE_POSITION,
     } as GA_Properties.transaction_initiated);
   };
 
   const handleRollPosition = () => {
+    if (!seriesEntity) throw new Error('No series entity detected');
+
     if (rollDisabled) return;
     setRollDisabled(true);
     rollPosition(rollInput, rollToSeries!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries?.name,
+      series_id: seriesEntity.name,
       action_code: ActionCodes.ROLL_POSITION,
     } as GA_Properties.transaction_initiated);
   };
@@ -191,14 +192,15 @@ const LendPosition = () => {
 
   useEffect(() => {
     if (idFromUrl) {
-      setSelectedSeries(seriesen);
+      setSelectedSeries(seriesEntity!);
+      setSelectedBase(base!);
     }
-  }, [idFromUrl, seriesMap, setSelectedSeries]);
+  }, [base, idFromUrl, seriesEntity, setSelectedBase, setSelectedSeries]);
 
   return (
     <>
-      {selectedSeries && (
-        <ModalWrap series={selectedSeries}>
+      {seriesEntity && (
+        <ModalWrap series={seriesEntity}>
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => router.back()} />}
 
@@ -212,11 +214,11 @@ const LendPosition = () => {
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedSeries!} actionType={ActionType.LEND} />
+                    <PositionAvatar position={seriesEntity} actionType={ActionType.LEND} />
                     <Box>
-                      <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
-                      <CopyWrap hash={selectedSeries.fyTokenAddress}>
-                        <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 6)}</Text>
+                      <Text size={mobile ? 'medium' : 'large'}> {seriesEntity.displayName} </Text>
+                      <CopyWrap hash={seriesEntity.fyTokenAddress}>
+                        <Text size="small"> {abbreviateHash(seriesEntity.fyTokenAddress, 6)}</Text>
                       </CopyWrap>
                     </Box>
                   </Box>
@@ -226,34 +228,30 @@ const LendPosition = () => {
                   <Box gap="small">
                     <InfoBite
                       label="Maturity date"
-                      value={`${selectedSeries?.fullDate}`}
-                      icon={<FiClock color={selectedSeries?.color} />}
+                      value={`${seriesEntity.fullDate}`}
+                      icon={<FiClock color={seriesEntity.color} />}
                     />
                     <InfoBite
                       label="Portfolio value at Maturity"
-                      value={`${cleanValue(
-                        selectedSeries?.fyTokenBalance?.formatted,
-                        selectedBase?.digitFormat!
-                      )} ${selectedBase?.displaySymbol!}`}
+                      value={`${cleanValue(seriesEntity.fyTokenBalance.formatted, base?.digitFormat)} ${
+                        base?.displaySymbol
+                      }`}
                       icon={<FiTrendingUp />}
-                      loading={seriesLoading}
+                      loading={seriesEntityLoading || baseLoading}
                     />
                     <InfoBite
                       label="Current value"
                       value={
                         fyTokenMarketValue === 'Low liquidity'
                           ? 'Low Liquidity'
-                          : `${cleanValue(
-                              fyTokenMarketValue,
-                              selectedBase?.digitFormat!
-                            )} ${selectedBase?.displaySymbol!}`
+                          : `${cleanValue(fyTokenMarketValue, base?.digitFormat)} ${base?.displaySymbol}`
                       }
                       icon={
                         <Box height="1em" width="1em">
-                          <Logo image={selectedBase?.image} />
+                          <Logo image={base?.image} />
                         </Box>
                       }
-                      loading={seriesLoading}
+                      loading={seriesEntityLoading || baseLoading}
                     />
                   </Box>
                 </SectionWrap>
@@ -267,7 +265,7 @@ const LendPosition = () => {
                       size="small"
                       dropProps={{ round: 'small' }}
                       options={[
-                        { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
+                        { text: `Redeem ${base?.displaySymbol}`, index: 0 },
                         { text: 'Roll Position', index: 1 },
                         { text: 'View Transaction History', index: 2 },
                       ]}
@@ -285,12 +283,7 @@ const LendPosition = () => {
                   <>
                     {stepPosition[0] === 0 && (
                       <Box margin={{ top: 'small' }}>
-                        <InputWrap
-                          action={() => console.log('maxAction')}
-                          isError={closeError}
-                          disabled={!selectedSeries}
-                          round
-                        >
+                        <InputWrap action={() => console.log('maxAction')} isError={closeError} disabled={!base} round>
                           <TextInput
                             plain
                             type="number"
@@ -298,24 +291,24 @@ const LendPosition = () => {
                             placeholder="Amount to redeem"
                             value={closeInput || ''}
                             onChange={(event: any) =>
-                              setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
+                              setCloseInput(cleanValue(event.target.value, seriesEntity.decimals))
                             }
-                            disabled={!selectedSeries}
-                            icon={<Logo image={selectedBase?.image} />}
+                            disabled={!seriesEntity}
+                            icon={<Logo image={base?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}
-                            disabled={maxClose_ === '0.0' || !selectedSeries}
+                            disabled={maxClose_ === '0.0'}
                             clearAction={() => setCloseInput('')}
                             showingMax={!!closeInput && closeInput === maxClose_}
                           />
                         </InputWrap>
 
-                        {maxClose.lt(selectedSeries?.fyTokenBalance?.value!) && (
+                        {maxClose.lt(seriesEntity.fyTokenBalance.value) && (
                           <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
                             <Text color="text" alignSelf="end" size="xsmall">
-                              Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
-                              {selectedSeries.sharesReserves.eq(maxClose) && ' (limited by protocol)'}
+                              Max redeemable is {cleanValue(maxClose_, 2)} {base?.displaySymbol}
+                              {seriesEntity.sharesReserves.value.eq(maxClose) && ' (limited by protocol)'}
                             </Text>
                           </InputInfoWrap>
                         )}
@@ -329,10 +322,10 @@ const LendPosition = () => {
                         cancelAction={() => resetInputs(ActionCodes.CLOSE_POSITION)}
                       >
                         <InfoBite
-                          label={`Redeem Position ${selectedBase?.displaySymbol}`}
+                          label={`Redeem Position ${base?.displaySymbol}`}
                           icon={<FiArrowRight />}
-                          value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
-                          loading={seriesLoading}
+                          value={`${cleanValue(closeInput, base?.digitFormat!)} ${base?.displaySymbol}`}
+                          loading={seriesEntityLoading || baseLoading}
                         />
                       </ActiveTransaction>
                     )}
@@ -352,23 +345,23 @@ const LendPosition = () => {
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={closeError}
-                          disabled={!selectedSeries || !rollToSeries}
+                          disabled={!rollToSeries}
                           round
                         >
                           <TextInput
                             plain
                             type="number"
-                            placeholder={`Amount of ${selectedBase?.displaySymbol} to roll`}
+                            placeholder={`Amount of ${base?.displaySymbol} to roll`}
                             value={rollInput || ''}
                             onChange={(event: any) =>
-                              setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
+                              setRollInput(cleanValue(event.target.value, seriesEntity.decimals))
                             }
-                            disabled={!selectedSeries || !rollToSeries}
-                            icon={<Logo image={selectedBase?.image} />}
+                            disabled={!rollToSeries}
+                            icon={<Logo image={base?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.ROLL_POSITION)}
-                            disabled={maxRoll_ === '0.0' || !selectedSeries || !rollToSeries}
+                            disabled={maxRoll_ === '0.0' || !rollToSeries}
                             clearAction={() => setRollInput('')}
                             showingMax={!!rollInput && rollInput === maxRoll_}
                           />
@@ -387,18 +380,18 @@ const LendPosition = () => {
                           icon={<FiArrowRight />}
                           value={`Roll${rollProcess?.processActive ? 'ing' : ''}  ${cleanValue(
                             rollInput,
-                            selectedBase?.digitFormat!
-                          )} ${selectedBase?.displaySymbol} to ${rollToSeries?.displayName}, receiving ~${cleanValue(
+                            base?.digitFormat!
+                          )} ${base?.displaySymbol} to ${rollToSeries?.displayName}, receiving ~${cleanValue(
                             rollEstimate_,
                             2
-                          )} fy${selectedBase?.displaySymbol}`}
+                          )} fy${base?.displaySymbol}`}
                         />
                       </ActiveTransaction>
                     )}
                   </>
                 )}
 
-                {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
+                {actionActive.index === 2 && <YieldHistory seriesOrVault={seriesEntity} view={['TRADE']} />}
               </Box>
             </Box>
 
@@ -422,8 +415,8 @@ const LendPosition = () => {
                     label={
                       <Text size={mobile ? 'small' : undefined}>
                         {`Redeem${closeProcess?.processActive ? 'ing' : ''} ${
-                          nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.displaySymbol}`}
+                          nFormatter(Number(closeInput), base?.digitFormat!) || ''
+                        } ${base?.displaySymbol}`}
                       </Text>
                     }
                     onClick={() => handleClosePosition()}
@@ -439,8 +432,8 @@ const LendPosition = () => {
                     label={
                       <Text size={mobile ? 'small' : undefined}>
                         {`Roll${rollProcess?.processActive ? 'ing' : ''} ${
-                          nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.displaySymbol}`}
+                          nFormatter(Number(rollInput), base?.digitFormat!) || ''
+                        } ${base?.displaySymbol}`}
                       </Text>
                     }
                     onClick={() => handleRollPosition()}
