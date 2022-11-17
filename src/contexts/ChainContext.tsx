@@ -335,14 +335,14 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
    */
   const exportContractAddresses = () => {
     const contractList = [...contracts].map(([v, k]) => [v, k.address]);
-    const seriesList = [...chainState.seriesRootMap].map(([v, k]) => [v, k.address]);
+    // const seriesList = [...chainState.seriesRootMap].map(([v, k]) => [v, k.address]);
     const assetList = [...chainState.assetRootMap].map(([v, k]) => [v, k.address]);
     const strategyList = [...chainState.strategyRootMap].map(([v, k]) => [k.symbol, v]);
     const joinList = [...chainState.assetRootMap].map(([v, k]) => [v, k.joinAddress]);
 
     const res = JSON.stringify({
       contracts: contractList,
-      series: seriesList,
+      // series: seriesList,
       assets: assetList,
       strategies: strategyList,
       joins: joinList,
