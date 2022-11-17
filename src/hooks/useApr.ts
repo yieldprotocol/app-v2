@@ -60,7 +60,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
 
     // figure out what to do with negative apr on borrow for tv series
     const _apr = calculateAPR(baseAmount, preview, maturity);
-    _apr ? setApr(cleanValue(_apr, 2)) : setApr(apr);
+    _apr ? setApr(cleanValue(_apr, 2)) : setApr(cleanValue(apr, 2));
   }, [actionType, getTimeTillMaturity, input, seriesEntity]);
 
   return { apr };
