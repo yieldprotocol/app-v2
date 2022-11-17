@@ -68,7 +68,7 @@ function LendItem({
                   Balance:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {fyTokenMarketValue ? (
+                  {!fyTokenMarketValue ? (
                     <SkeletonWrap width={30} />
                   ) : (
                     cleanValue(fyTokenMarketValue, seriesBase?.digitFormat!)

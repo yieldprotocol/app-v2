@@ -34,7 +34,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import useAsset from '../../hooks/useAsset';
 import useSeriesEntity from '../../hooks/useSeriesEntity';
 
-const LendPosition = () => {
+const LendPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
   const { id: idFromUrl } = router.query;
@@ -43,7 +43,6 @@ const LendPosition = () => {
 
   /* STATE FROM CONTEXT */
   const {
-    userState,
     userActions: { setSelectedSeries, setSelectedBase },
   } = useContext(UserContext);
 
@@ -337,6 +336,7 @@ const LendPosition = () => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }} gap="small">
                         <SeriesSelector
+                          seriesMap={seriesMap}
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
                           cardLayout={false}
