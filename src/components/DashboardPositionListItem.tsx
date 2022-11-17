@@ -1,7 +1,5 @@
-import { useContext } from 'react';
 import { Box } from 'grommet';
 import { ActionType } from '../types';
-import { UserContext } from '../contexts/UserContext';
 import VaultItem from './positionItems/VaultItem';
 import LendItem from './positionItems/LendItem';
 import StrategyItem from './positionItems/StrategyItem';
@@ -17,7 +15,7 @@ function DashboardPositionListItem({ item, index, actionType }: { item: any; ind
   return (
     <Box>
       {vaults?.has(item.id!) && <VaultItem id={item.id!} index={index} condensed />}
-      {seriesMap?.has(item.id) && <LendItem series={item!} index={index} actionType={actionType} condensed />}
+      {seriesMap?.has(item.id) && <LendItem seriesId={item.id!} index={index} actionType={actionType} condensed />}
       {strategyMap?.has(item.id) && <StrategyItem strategyAddress={item.address!} index={index} condensed />}
     </Box>
   );
