@@ -43,7 +43,7 @@ const LendPosition = () => {
     userState,
     userActions: { setSelectedSeries, setSelectedBase },
   } = useContext(UserContext);
-  const { selectedSeries, seriesMap, seriesLoading } = userState;
+  const { selectedSeries } = userState;
   const { data: selectedBase } = useAsset(selectedSeries?.baseId!);
 
   /* LOCAL STATE */
@@ -69,10 +69,14 @@ const LendPosition = () => {
 
   /* HOOK FNS */
   /* Close helpers */
-  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput, rollToSeries!);
+  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(
+    selectedSeries?.id!,
+    closeInput,
+    rollToSeries?.id!
+  );
 
   /* Roll helpers */
-  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeries!, rollInput, rollToSeries!);
+  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeries?.id!, rollInput, rollToSeries?.id!);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
@@ -229,7 +233,7 @@ const LendPosition = () => {
                     <InfoBite
                       label="Portfolio value at Maturity"
                       value={`${cleanValue(
-                        selectedSeries?.fyTokenBalance_!,
+                        selectedSeries?.fyTokenBalance?.formatted,
                         selectedBase?.digitFormat!
                       )} ${selectedBase?.displaySymbol!}`}
                       icon={<FiTrendingUp />}
@@ -308,7 +312,7 @@ const LendPosition = () => {
                           />
                         </InputWrap>
 
-                        {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
+                        {maxClose.lt(selectedSeries?.fyTokenBalance?.value!) && (
                           <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}

@@ -65,7 +65,7 @@ const Lend = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   /* HOOK FNS */
   const { isMature } = useTimeTillMaturity();
   const seriesIsMature = isMature(selectedSeries?.maturity!);
-  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
+  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries?.id!, lendInput);
   const lend = useLend();
 
   const { logAnalyticsEvent } = useAnalytics();

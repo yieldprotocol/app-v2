@@ -83,6 +83,8 @@ export interface ISeries extends ISignable {
   oppStartColor: string;
   oppEndColor: string;
   oppTextColor: string;
+
+  fyTokenBalance?: Value;
 }
 
 export interface ISeriesDynamic extends ISeries {
