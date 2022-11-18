@@ -32,7 +32,7 @@ export const useCollateralHelpers = (
   const { data: vault } = useVault(vaultId!);
   const { data: _selectedBase } = useAsset(vault ? vault.baseId : selectedBase?.id!);
   const { data: _selectedIlk } = useAsset(vault ? vault.ilkId : selectedIlk?.id!);
-  const { data: _selectedSeries } = useSeriesEntity(vault ? vault.seriesId : selectedSeries?.id);
+  const { data: _selectedSeries } = useSeriesEntity(vault ? vault.seriesId : selectedSeries?.id!);
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
