@@ -46,7 +46,7 @@ export const getSeriesEntity = async (
       poolContract.base(),
     ]);
 
-  const seasonColorMap = [1, 4, 5, 42].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
+  const seasonColorMap = [1].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
   const season = getSeason(maturity);
   const oppSeason = (_season: SeasonType) => getSeason(maturity + 23670000);
   const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
