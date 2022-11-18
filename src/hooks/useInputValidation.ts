@@ -17,7 +17,7 @@ export const useInputValidation = (
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { selectedSeries, selectedBase } = userState;
-  const { data: _selectedSeries } = useSeriesEntity(series ? series.id : selectedSeries?.id);
+  const { data: _selectedSeries } = useSeriesEntity(series ? series.id : selectedSeries?.id!);
   const { data: _selectedBase } = useAsset(series?.baseId! || selectedBase?.id!);
 
   const { address: activeAccount } = useAccount();
