@@ -75,7 +75,7 @@ const LendPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const { maxRoll_, rollEstimate_ } = useLendHelpers(seriesEntity?.id!, rollInput, rollToSeries?.id!);
 
   const closePosition = useClosePosition();
-  const rollPosition = useRollPosition();
+  const rollPosition = useRollPosition(rollToSeries?.id!);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -136,7 +136,7 @@ const LendPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
 
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollPosition(rollInput, rollToSeries!);
+    rollPosition(rollInput);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
