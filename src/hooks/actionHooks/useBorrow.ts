@@ -40,8 +40,8 @@ export const useBorrow = (vault?: IVault) => {
 
   const { address: account } = useAccount();
   const contracts = useContracts();
-  const { data: vaults, key: vaultsKey } = useVaults();
-  const { data: vaultToUse, key: vaultKey } = useVault();
+  const { key: vaultsKey } = useVaults();
+  const { key: vaultKey } = useVault();
 
   const { addEth, removeEth } = useAddRemoveEth();
 
