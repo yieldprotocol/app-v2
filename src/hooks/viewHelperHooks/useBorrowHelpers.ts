@@ -41,8 +41,8 @@ export const useBorrowHelpers = (
   const { data: vault } = useVault(vaultId);
   const { data: vaultBase } = useAsset(vault?.baseId!);
   const { data: vaultIlk } = useAsset(vault?.ilkId!);
-  const { data: seriesEntity } = useSeriesEntity(vault ? vault.seriesId : selectedSeries?.id);
-  const { data: futureSeriesEntity } = useSeriesEntity(futureSeries?.id);
+  const { data: seriesEntity } = useSeriesEntity(vault ? vault.seriesId : selectedSeries?.id!);
+  const { data: futureSeriesEntity } = useSeriesEntity(futureSeries?.id!);
 
   const { address: account } = useAccount();
 
