@@ -15,9 +15,10 @@ import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
+import useSeriesEntity from '../useSeriesEntity';
 
 /* Roll Lend Position Action Hook */
-export const useRollPosition = () => {
+export const useRollPosition = (toSeriesId: string) => {
   const { mutate } = useSWRConfig();
   const router = useRouter();
   const {
@@ -25,12 +26,12 @@ export const useRollPosition = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { selectedSeries: fromSeries },
-    userActions,
+    userState: { selectedSeries },
   } = useContext(UserContext);
-  const { updateSeries } = userActions;
 
-  const { data: base, key: baseKey } = useAsset(fromSeries?.baseId!);
+  const { data: fromSeriesEntity, key: fromSeriesEntityKey } = useSeriesEntity(selectedSeries?.id!);
+  const { data: toSeriesEntity, key: toSeriesEntityKey } = useSeriesEntity(toSeriesId);
+  const { data: base, key: baseKey } = useAsset(fromSeriesEntity?.baseId!);
   const { address: account } = useAccount();
   const contracts = useContracts();
 
@@ -44,15 +45,15 @@ export const useRollPosition = () => {
   /**
    * Transfer fyToken to the "from" pool to sell for base, then send base to "to" pool and sell base for fyToken
    * @param input in base (i.e.: 100 USDC)
-   * @param toSeries the series fyToken is rolled to
    */
-  const rollPosition = async (input: string | undefined, toSeries: ISeries) => {
+  const rollPosition = async (input: string | undefined) => {
     if (!account) throw new Error('no account detected in roll position');
-    if (!fromSeries) throw new Error('no from series detected in roll position');
+    if (!fromSeriesEntity) throw new Error('no from series detected in roll position');
+    if (!toSeriesEntity) throw new Error('no to series detected in roll position');
     if (!base) throw new Error('no base detected in roll position');
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
+    const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeriesEntity.id);
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
@@ -60,31 +61,31 @@ export const useRollPosition = () => {
     if (!ladleAddress) throw new Error('no ladle address detected in roll position');
 
     // estimate how much fyToken you could sell given the input (base), using the from series
-    const _fyTokenValueOfInputIn = fromSeries.seriesIsMature
+    const _fyTokenValueOfInputIn = fromSeriesEntity.seriesIsMature
       ? _input
       : buyBase(
-          fromSeries.sharesReserves,
-          fromSeries.fyTokenReserves,
-          fromSeries.getShares(_input),
-          getTimeTillMaturity(fromSeries.maturity),
-          fromSeries.ts,
-          fromSeries.g2,
-          fromSeries.decimals,
-          fromSeries.c,
-          fromSeries.mu
+          fromSeriesEntity.sharesReserves.value,
+          fromSeriesEntity.fyTokenReserves.value,
+          fromSeriesEntity.getShares(_input),
+          getTimeTillMaturity(fromSeriesEntity.maturity),
+          fromSeriesEntity.ts,
+          fromSeriesEntity.g2,
+          fromSeriesEntity.decimals,
+          fromSeriesEntity.c,
+          fromSeriesEntity.mu
         );
 
     // estimate how much fyToken you can get given input (base), using the to series
     const _fyTokenValueOfInputOut = sellBase(
-      toSeries.sharesReserves,
-      toSeries.fyTokenReserves,
-      toSeries.getShares(_input),
-      getTimeTillMaturity(toSeries.maturity),
-      toSeries.ts,
-      toSeries.g1,
-      toSeries.decimals,
-      toSeries.c,
-      toSeries.mu
+      toSeriesEntity.sharesReserves.value,
+      toSeriesEntity.fyTokenReserves.value,
+      toSeriesEntity.getShares(_input),
+      getTimeTillMaturity(toSeriesEntity.maturity),
+      toSeriesEntity.ts,
+      toSeriesEntity.g1,
+      toSeriesEntity.decimals,
+      toSeriesEntity.c,
+      toSeriesEntity.mu
     );
 
     // the minimum amount of base to receive when swapping fyToken to base within "from" pool
@@ -97,24 +98,24 @@ export const useRollPosition = () => {
       console.log(
         '\n',
         'fyToken value of input in (from series): ',
-        formatUnits(_fyTokenValueOfInputIn, fromSeries.decimals),
+        formatUnits(_fyTokenValueOfInputIn, fromSeriesEntity.decimals),
         '\n',
         'fyToken value of input out (to series): ',
-        formatUnits(_fyTokenValueOfInputOut, toSeries.decimals),
+        formatUnits(_fyTokenValueOfInputOut, toSeriesEntity.decimals),
         '\n',
         'minimum base to receive (from series)',
-        formatUnits(_minimumBaseReceived, fromSeries.decimals),
+        formatUnits(_minimumBaseReceived, fromSeriesEntity.decimals),
         '\n',
         'minimum fyToken to receive out (to series)',
-        formatUnits(_minimumFYTokenReceived, toSeries.decimals)
+        formatUnits(_minimumFYTokenReceived, toSeriesEntity.decimals)
       );
 
-    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account, ladleAddress)).gte(_input);
+    const alreadyApproved = (await fromSeriesEntity.fyTokenContract.allowance(account, ladleAddress)).gte(_input);
 
     const permitCallData = await sign(
       [
         {
-          target: fromSeries,
+          target: fromSeriesEntity,
           spender: 'LADLE',
           amount: _fyTokenValueOfInputIn,
           ignoreIf: alreadyApproved === true,
@@ -125,8 +126,8 @@ export const useRollPosition = () => {
 
     /* Reciever of transfer (based on maturity) the series maturity */
     const transferToAddress = () => {
-      if (fromSeries.seriesIsMature) return fromSeries.fyTokenAddress;
-      return fromSeries.poolAddress;
+      if (fromSeriesEntity.seriesIsMature) return fromSeriesEntity.fyTokenAddress;
+      return fromSeriesEntity.poolAddress;
     };
 
     const calls: ICallData[] = [
@@ -134,50 +135,55 @@ export const useRollPosition = () => {
 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [fromSeries.fyTokenAddress, transferToAddress(), _fyTokenValueOfInputIn] as LadleActions.Args.TRANSFER,
+        args: [
+          fromSeriesEntity.fyTokenAddress,
+          transferToAddress(),
+          _fyTokenValueOfInputIn,
+        ] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore
       },
 
       /* BEFORE MATURITY */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [toSeries.poolAddress, _minimumBaseReceived] as RoutedActions.Args.SELL_FYTOKEN,
+        args: [toSeriesEntity.poolAddress, _minimumBaseReceived] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
-        targetContract: fromSeries.poolContract,
-        ignoreIf: fromSeries.seriesIsMature,
+        targetContract: fromSeriesEntity.poolContract,
+        ignoreIf: fromSeriesEntity.seriesIsMature,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _minimumFYTokenReceived] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
-        targetContract: toSeries.poolContract,
-        ignoreIf: fromSeries.seriesIsMature,
+        targetContract: toSeriesEntity.poolContract,
+        ignoreIf: fromSeriesEntity.seriesIsMature,
       },
 
       /* AFTER MATURITY */
       {
         // ladle.redeemAction(seriesId, pool2.address, fyTokenToRoll)
         operation: LadleActions.Fn.REDEEM,
-        args: [fromSeries.id, toSeries.poolAddress, _minimumBaseReceived] as LadleActions.Args.REDEEM,
-        ignoreIf: !fromSeries.seriesIsMature,
+        args: [fromSeriesEntity.id, toSeriesEntity.poolAddress, _minimumBaseReceived] as LadleActions.Args.REDEEM,
+        ignoreIf: !fromSeriesEntity.seriesIsMature,
       },
       {
         // ladle.sellBaseAction(series2Id, receiver, minimumFYTokenToReceive)
         operation: LadleActions.Fn.ROUTE,
         args: [account, _minimumFYTokenReceived] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
-        targetContract: toSeries.poolContract,
-        ignoreIf: !fromSeries.seriesIsMature,
+        targetContract: toSeriesEntity.poolContract,
+        ignoreIf: !fromSeriesEntity.seriesIsMature,
       },
     ];
 
     const res = (await transact(calls, txCode)) as Promise<ethers.ContractReceipt | null> | void;
 
     mutate(baseKey);
-    updateSeries([fromSeries, toSeries]);
-    updateTradeHistory([fromSeries, toSeries]);
+    mutate(fromSeriesEntityKey);
+    mutate(toSeriesEntityKey);
+    updateTradeHistory([fromSeriesEntity, toSeriesEntity]);
 
-    res && router.replace(`/lendposition/${toSeries.id}`);
+    res && router.replace(`/lendposition/${toSeriesEntity.id}`);
   };
 
   return rollPosition;
