@@ -14,6 +14,7 @@ import useStrategies from '../useStrategies';
 import useStrategy from '../useStrategy';
 import { useSWRConfig } from 'swr';
 import useVaults from '../useVaults';
+import useSeriesEntity from '../useSeriesEntity';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -23,7 +24,7 @@ interface IStrategyPosition extends IStrategy {
   currentValue_: string | undefined;
 }
 
-export const useDashboardHelpers = () => {
+export const useDashboardHelpers = (seriesMap: Map<string, ISeries>) => {
   const { cache, mutate } = useSWRConfig();
 
   /* STATE FROM CONTEXT */
@@ -31,9 +32,6 @@ export const useDashboardHelpers = () => {
     settingsState: { dashHideEmptyVaults, dashHideInactiveVaults, dashCurrency },
   } = useContext(SettingsContext);
 
-  const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
   const { data: vaults } = useVaults();
 
   const { priceState, priceActions } = useContext(PriceContext) as IPriceContext;
@@ -41,6 +39,7 @@ export const useDashboardHelpers = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { data: strategyMap } = useStrategies();
   const { getStrategy, genKey } = useStrategy();
+  const { getCurrentValue } = useSeriesEntity();
 
   const { pairMap } = priceState;
   const { updateAssetPair } = priceActions;
@@ -74,34 +73,11 @@ export const useDashboardHelpers = () => {
 
   /* set lend positions */
   useEffect(() => {
-    const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
-      .map((_series) => {
-        const currentValue = _series.seriesIsMature
-          ? _series.fyTokenBalance || ZERO_BN
-          : sellFYToken(
-              _series.sharesReserves,
-              _series.fyTokenReserves,
-              _series.fyTokenBalance || ethers.constants.Zero,
-              getTimeTillMaturity(_series.maturity),
-              _series.ts,
-              _series.g2,
-              _series.decimals,
-              _series.c,
-              _series.mu
-            );
+    const lendPositions = Array.from(seriesMap.values()).map((_series) => {
+      return { ..._series, currentValue_: _series.fyTokenBalance?.formatted } as ILendPosition;
+    });
 
-        const currentValue_ =
-          currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
-            ? _series.fyTokenBalance_
-            : ethers.utils.formatUnits(currentValue, _series.decimals);
-
-        return { ..._series, currentValue_ };
-      })
-      .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
-      .sort((_seriesA: ILendPosition, _seriesB: ILendPosition) =>
-        _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
-      );
-    setLendPositions(_lendPositions);
+    setLendPositions(lendPositions);
   }, [getTimeTillMaturity, seriesMap]);
 
   /* set strategy positions */
@@ -125,31 +101,31 @@ export const useDashboardHelpers = () => {
             mutate(swrKey, strategy);
           }
 
-          const { currentSeries: series } = strategy;
+          // const { currentSeries: series } = strategy;
 
-          const [fyTokenToShares, sharesReceived] = strategyTokenValue(
-            strategy.accountBalance.value,
-            strategy.totalSupply.value,
-            strategy.strategyPoolBalance.value,
-            series.sharesReserves,
-            series.fyTokenReserves,
-            series.totalSupply,
-            getTimeTillMaturity(series.maturity),
-            series.ts,
-            series.g2,
-            series.decimals,
-            series.c,
-            series.mu
-          );
+          // const [fyTokenToShares, sharesReceived] = strategyTokenValue(
+          //   strategy.accountBalance.value,
+          //   strategy.totalSupply.value,
+          //   strategy.strategyPoolBalance.value,
+          //   series.sharesReserves,
+          //   series.fyTokenReserves,
+          //   series.totalSupply,
+          //   getTimeTillMaturity(series.maturity),
+          //   series.ts,
+          //   series.g2,
+          //   series.decimals,
+          //   series.c,
+          //   series.mu
+          // );
 
-          const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
-            ? ethers.utils.formatUnits(
-                series.getBase(fyTokenToShares).add(series?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
-                series.decimals
-              )
-            : strategy.accountBalance.formatted; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
+          // const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
+          //   ? ethers.utils.formatUnits(
+          //       series.getBase(fyTokenToShares).add(series?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
+          //       series.decimals
+          //     )
+          //   : strategy.accountBalance.formatted; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
 
-          return { ...strategy, currentValue_ };
+          return { ...strategy, currentValue_: '0' };
         })
       );
 

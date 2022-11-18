@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import Skeleton from '../wraps/SkeletonWrap';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ActionType } from '../../types';
+import { ActionType, ISeries } from '../../types';
 import YieldInfo from '../FooterInfo';
 import DashboardBalanceSummary from '../DashboardBalanceSummary';
 import MainViewWrap from '../wraps/MainViewWrap';
@@ -28,7 +28,7 @@ const StyledBox = styled(Box)`
   overflow-y: auto;
 `;
 
-const Dashboard = () => {
+const Dashboard = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -56,7 +56,7 @@ const Dashboard = () => {
     totalStrategyBalance,
     currencySettingDigits,
     currencySettingSymbol,
-  } = useDashboardHelpers();
+  } = useDashboardHelpers(seriesMap);
 
   return (
     <MainViewWrap>
