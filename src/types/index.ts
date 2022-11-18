@@ -210,8 +210,8 @@ export interface IStrategyRoot extends ISignable {
 }
 
 export interface IStrategy extends IStrategyRoot {
-  currentSeries: ISeries;
   currentSeriesId: string;
+  currentPoolMaturity: number;
   currentPoolAddr: string;
   accountBalance?: Value;
 }

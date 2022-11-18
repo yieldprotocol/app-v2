@@ -2,9 +2,9 @@ import { ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
-import { useAccount } from 'wagmi';
+import { useAccount, useProvider } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
-import { UserContext } from '../contexts/UserContext';
+import { Pool__factory } from '../contracts';
 import { IStrategy } from '../types';
 
 /**
@@ -14,10 +14,8 @@ const useStrategies = () => {
   const {
     chainState: { strategyRootMap },
   } = useContext(ChainContext);
-  const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
 
+  const provider = useProvider();
   const { address: account } = useAccount();
 
   const getStrategies = async () => {
@@ -28,22 +26,22 @@ const useStrategies = () => {
         account ? s.strategyContract.balanceOf(account) : ethers.constants.Zero,
       ]);
 
-      const currentSeries = seriesMap.get(currentSeriesId);
-      if (!currentSeries) return await acc;
+      const poolContract = Pool__factory.connect(currentPoolAddr, provider);
+      const currentPoolMaturity = await poolContract.maturity();
 
       return (await acc).set(s.address, {
         ...s,
         currentSeriesId,
         currentPoolAddr,
-        currentSeries,
+        currentPoolMaturity,
         accountBalance: { value: accountBalance, formatted: formatUnits(accountBalance, s.decimals) },
       });
     }, Promise.resolve(new Map<string, IStrategy>()));
   };
 
   const key = useMemo(() => {
-    return seriesMap.size ? ['strategies', seriesMap, account] : null;
-  }, [account, seriesMap]);
+    return strategyRootMap.size ? ['strategies', strategyRootMap, account] : null;
+  }, [account, strategyRootMap]);
 
   const { data, error } = useSWRImmutable(key, getStrategies);
 
