@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext } from 'react';
 import useSWRImmutable from 'swr/immutable';
-import { useAccount } from 'wagmi';
+import { useAccount, useProvider } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
-import { UserContext } from '../contexts/UserContext';
+import { Pool__factory } from '../contracts';
 import { IStrategyDynamic } from '../types';
 
 /**
@@ -14,10 +14,8 @@ const useStrategy = (address?: string) => {
   const {
     chainState: { strategyRootMap },
   } = useContext(ChainContext);
-  const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
 
+  const provider = useProvider();
   const { address: account } = useAccount();
 
   const getStrategy = useCallback(
@@ -34,18 +32,18 @@ const useStrategy = (address?: string) => {
         contract.totalSupply(),
       ]);
 
-      const currentSeries = seriesMap.get(currentSeriesId);
-      if (!currentSeries) throw new Error('no current series');
+      const poolContract = Pool__factory.connect(currentPoolAddr, provider);
 
-      const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-        currentSeries.poolContract.totalSupply(),
-        currentSeries.poolContract.balanceOf(strategy.address),
+      const [poolTotalSupply, strategyPoolBalance, currentPoolMaturity] = await Promise.all([
+        poolContract.totalSupply(),
+        poolContract.balanceOf(strategy.address),
+        poolContract.maturity(),
       ]);
 
       return {
         ...strategy,
-        currentSeries,
         currentPoolAddr,
+        currentPoolMaturity,
         currentSeriesId,
         accountBalance: {
           value: accountBalance,
@@ -65,7 +63,7 @@ const useStrategy = (address?: string) => {
         },
       };
     },
-    [account, seriesMap, strategyRootMap]
+    [account, provider, strategyRootMap]
   );
 
   // generates the key to be used by swr
