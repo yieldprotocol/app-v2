@@ -22,6 +22,7 @@ import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 import useVaults from '../useVaults';
 import useVault from '../useVault';
+import useSeriesEntity from '../useSeriesEntity';
 
 export const useBorrow = (vault?: IVault) => {
   const { mutate } = useSWRConfig();
@@ -29,13 +30,12 @@ export const useBorrow = (vault?: IVault) => {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
-  const { selectedIlk, selectedSeries, seriesMap } = userState;
-  const { updateSeries } = userActions;
+  const { userState } = useContext(UserContext);
+  const { selectedIlk, selectedSeries } = userState;
 
-  /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
-  const series = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
-  const { data: base, key: baseKey } = useAsset(series?.baseId!);
+  /* Set the seriesEntity and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
+  const { data: seriesEntity, key: seriesEntityKey } = useSeriesEntity(vault ? vault.seriesId : selectedSeries?.id!);
+  const { data: base, key: baseKey } = useAsset(seriesEntity?.baseId!);
   const { data: ilkToUse, key: ilkToUseKey } = useAsset(vault ? vault.ilkId : selectedIlk?.proxyId!);
 
   const { address: account } = useAccount();
@@ -54,9 +54,11 @@ export const useBorrow = (vault?: IVault) => {
 
   const borrow = async (input: string | undefined, collInput: string | undefined) => {
     if (!account) throw new Error('no account detected in use borrow');
-    if (!series) throw new Error('no series detected in use borrow');
+    if (!seriesEntity) throw new Error('no seriesEntity detected in use borrow');
     if (!base) throw new Error('no base detected in use borrow');
     if (!ilkToUse) throw new Error('no ilk to use detected in use borrow');
+
+    const { sharesReserves, fyTokenReserves, getShares, ts, g2, decimals, c, mu } = seriesEntity;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);
@@ -67,7 +69,7 @@ export const useBorrow = (vault?: IVault) => {
     /* is ETH  used as collateral */
     const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!);
     /* is ETH being Borrowed   */
-    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+    const isEthBase = ETH_BASED_ASSETS.includes(seriesEntity.baseId);
 
     /* is convex-type collateral */
     const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
@@ -80,15 +82,15 @@ export const useBorrow = (vault?: IVault) => {
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
     const _expectedFyToken = buyBase(
-      series.sharesReserves,
-      series.fyTokenReserves,
-      series.getShares(_input), // convert input in base to shares
-      getTimeTillMaturity(series.maturity),
-      series.ts,
-      series.g2,
-      series.decimals,
-      series.c,
-      series.mu
+      sharesReserves.value,
+      fyTokenReserves.value,
+      getShares(_input), // convert input in base to shares
+      getTimeTillMaturity(seriesEntity.maturity),
+      ts,
+      g2,
+      decimals,
+      c,
+      mu
     );
     const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance.toString());
 
@@ -175,12 +177,14 @@ export const useBorrow = (vault?: IVault) => {
       If a vault was provided, update it only,
       else update ALL vaults
     */
-    updateSeries([series]);
+    mutate(seriesEntityKey);
     mutate(baseKey);
     mutate(ilkToUseKey);
 
-    if (vault?.id) return mutate(vaultKey);
-    mutate(vaultsKey);
+    if (vault?.id) {
+      mutate(vaultKey);
+      mutate(vaultsKey);
+    }
   };
 
   return borrow;

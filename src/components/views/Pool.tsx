@@ -57,8 +57,8 @@ function Pool() {
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
 
   /* HOOK FNS */
-  const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
+  const addLiquidity = useAddLiquidity(matchingVault?.id);
   const { returns: lpReturns } = useStrategyReturns(poolInput);
 
   const { logAnalyticsEvent } = useAnalytics();
@@ -78,7 +78,7 @@ function Pool() {
     if (poolDisabled) return;
 
     setPoolDisabled(true);
-    addLiquidity(poolInput!, canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW, matchingVault);
+    addLiquidity(poolInput!, canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
