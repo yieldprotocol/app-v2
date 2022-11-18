@@ -113,7 +113,7 @@ const VaultPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
 
   /* HOOK FNS */
   const repay = useRepayDebt();
-  const rollDebt = useRollDebt();
+  const rollDebt = useRollDebt(rollToSeries?.id!);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -213,7 +213,7 @@ const VaultPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const handleRoll = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollDebt(rollToSeries!);
+    rollDebt();
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
