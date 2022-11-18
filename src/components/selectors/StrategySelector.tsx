@@ -44,13 +44,11 @@ const StrategySelectItem = ({
   input,
   address,
   selected,
-  displayName,
   handleClick,
 }: {
   input: string;
   address: string;
   selected: boolean;
-  displayName: string;
   handleClick: (strategy: IStrategy) => void;
   apy?: string;
 }) => {
@@ -84,7 +82,7 @@ const StrategySelectItem = ({
               {formatStrategyName(strategy.name)}
             </Text>
             <Text size="xsmall" color={selected ? seriesEntity.textColor : 'text-weak'}>
-              Rolling {displayName}
+              Rolling {seriesEntity.displayName}
             </Text>
           </Box>
         </Box>
@@ -118,10 +116,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { isMature } = useTimeTillMaturity();
-
   const { selectedStrategy, selectedBase } = userState;
-  const { data: seriesEntity } = useSeriesEntity(selectedStrategy?.currentSeriesId!);
+  const { isMature } = useTimeTillMaturity();
 
   const [options, setOptions] = useState<IStrategy[]>();
 
@@ -157,7 +153,6 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   return (
     <Box gap="small">
       {options.map((o) => {
-        const displayName = seriesEntity?.displayName!;
         const selected = selectedStrategy?.address === o.address;
         return (
           <StrategySelectItem
@@ -166,7 +161,6 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
             address={o.address}
             handleClick={() => handleSelect(o)}
             selected={selected}
-            displayName={displayName}
           />
         );
       })}
