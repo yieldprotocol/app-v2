@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { ISeries, ISeriesDynamic, IStrategy } from '../types';
+import { ISeriesDynamic, IStrategy } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import {
   ONE_DEC as ONE,
@@ -118,25 +118,22 @@ const useStrategyReturns = (
    * @returns {number} fyToken price in base, where 1 is at par with base
    */
   const getFyTokenPrice = (series: ISeriesDynamic, input: string): number => {
-    if (series) {
-      const cleaned = cleanValue(input, series.decimals);
-      const input_ = parseUnits(cleaned, series.decimals);
+    const cleaned = cleanValue(input, series.decimals);
+    const input_ = parseUnits(cleaned, series.decimals);
 
-      const sharesOut = sellFYToken(
-        series.sharesReserves.value,
-        series.fyTokenReserves.value,
-        input_,
-        getTimeTillMaturity(series.maturity),
-        series.ts,
-        series.g2,
-        series.decimals,
-        series.c,
-        series.mu
-      );
-      const baseValOfInput = series.getBase(sharesOut);
-      return +baseValOfInput / +input_;
-    }
-    return 1;
+    const sharesOut = sellFYToken(
+      series.sharesReserves.value,
+      series.fyTokenReserves.value,
+      input_,
+      getTimeTillMaturity(series.maturity),
+      series.ts,
+      series.g2,
+      series.decimals,
+      series.c,
+      series.mu
+    );
+    const baseValOfInput = series.getBase(sharesOut);
+    return +baseValOfInput / +input_;
   };
 
   /**
@@ -146,8 +143,6 @@ const useStrategyReturns = (
    * @returns {number} total base value of pool
    */
   const getPoolBaseValue = (series: ISeriesDynamic, input: string): number => {
-    if (!series) return 0;
-
     const fyTokenPrice = getFyTokenPrice(series, input);
     const sharesBaseVal = +series.getBase(series.sharesReserves.value);
     const fyTokenBaseVal = +series.fyTokenRealReserves.value * fyTokenPrice;
@@ -220,8 +215,6 @@ const useStrategyReturns = (
    * @returns {number} estimated fyToken interest from LP position
    */
   const getFyTokenAPY = (series: ISeriesDynamic, input: string): number => {
-    if (!series) return 0;
-
     const marketInterestRate = calcInterestRate(
       series.sharesReserves.value,
       series.fyTokenReserves.value,
@@ -230,31 +223,9 @@ const useStrategyReturns = (
     ).mul(100); // interest rate is formatted in decimal (.1) so multiply by 100 to get percent
     const fyTokenPrice = getFyTokenPrice(series, input);
     const poolBaseValue = getPoolBaseValue(series, input);
-    const fyTokenValRatio = (+series.fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
+    const fyTokenValRatio = (+series.fyTokenRealReserves.value * fyTokenPrice) / poolBaseValue;
     return +marketInterestRate * fyTokenValRatio;
   };
-
-  // get the init series data to use the invariant function
-  useEffect(() => {
-    (async () => {
-      if (!selectedStrategySeries) return;
-
-      const { poolContract, currentInvariant, initInvariant } = selectedStrategySeries;
-
-      if (!currentInvariant || !initInvariant) {
-        const [sharesReserves, fyTokenReserves, totalSupply, ts, g2, c] = await Promise.all([
-          poolContract.getSharesBalance(),
-          poolContract.getFYTokenBalance(),
-          poolContract.totalSupply(),
-          poolContract.ts(),
-          poolContract.g2(),
-          poolContract.getC(),
-        ]);
-
-        setInitSeries({ sharesReserves, fyTokenReserves, totalSupply, ts, g2, c });
-      }
-    })();
-  }, [selectedStrategySeries]);
 
   const calcStrategyReturns = (strategySeriesEntity: ISeriesDynamic | undefined, input: string) => {
     if (!strategySeriesEntity) return;

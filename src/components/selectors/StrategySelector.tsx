@@ -56,7 +56,7 @@ const StrategySelectItem = ({
 }) => {
   const { calcStrategyReturns } = useStrategyReturns(input);
   const { data: strategy } = useStrategy(address);
-  const { data: seriesEntity } = useSeriesEntity(strategy?.id!);
+  const { data: seriesEntity } = useSeriesEntity(strategy?.currentSeriesId!);
   const returns = calcStrategyReturns(seriesEntity, input && +input !== 0 ? input : '1');
 
   if (!strategy || !seriesEntity) return <CardSkeleton />;
