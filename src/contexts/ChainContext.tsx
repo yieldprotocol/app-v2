@@ -136,6 +136,7 @@ const ChainProvider = ({ children }: any) => {
       let CompoundMultiOracle: contracts.CompoundMultiOracle;
       let YearnVaultMultiOracle: contracts.YearnVaultMultiOracle;
       let Witch: contracts.Witch;
+      let WitchV2: contracts.WitchV2;
 
       // modules
       let WrapEtherModule: contracts.WrapEtherModule;
@@ -154,6 +155,8 @@ const ChainProvider = ({ children }: any) => {
         Cauldron = contracts.Cauldron__factory.connect(addrs.Cauldron, fallbackProvider);
         Ladle = contracts.Ladle__factory.connect(addrs.Ladle, fallbackProvider);
         Witch = contracts.Witch__factory.connect(addrs.Witch, fallbackProvider);
+
+        WitchV2 = contracts.WitchV2__factory.connect(addrs.WitchV2, fallbackProvider);
 
         // module access
         WrapEtherModule = contracts.WrapEtherModule__factory.connect(addrs.WrapEtherModule, fallbackProvider);
@@ -220,13 +223,14 @@ const ChainProvider = ({ children }: any) => {
       }
 
       // if there was an issue loading at htis point simply return
-      if (!Cauldron || !Ladle || !RateOracle || !Witch) return;
+      if (!Cauldron || !Ladle || !RateOracle ) return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap as Map<string, Contract>;
       newContractMap.set('Cauldron', Cauldron);
       newContractMap.set('Ladle', Ladle);
       newContractMap.set('Witch', Witch);
+      newContractMap.set('WitchV2', WitchV2);
       newContractMap.set('RateOracle', RateOracle);
 
       newContractMap.set('ChainlinkMultiOracle', ChainlinkMultiOracle);
