@@ -161,7 +161,6 @@ export const getSeriesEntityDynamic = async (
   account: string | undefined
 ): Promise<ISeriesDynamic> => {
   const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id);
-  console.log('🦄 ~ file: seriesEntities.ts ~ line 164 ~ seriesEntity', seriesEntity.displayName);
   const { maturity, baseId, decimals, poolAddress, baseAddress } = seriesEntity;
   const poolContract = Pool__factory.connect(seriesEntity.poolAddress, provider);
   const fyTokenContract = FYToken__factory.connect(seriesEntity.fyTokenAddress, provider);
@@ -233,7 +232,6 @@ export const getSeriesEntityDynamic = async (
     const gmFilter = poolContract.filters.gm();
     const gm = (await poolContract.queryFilter(gmFilter))[0];
     startBlock = await gm.getBlock();
-    console.log('🦄 ~ file: seriesEntities.ts ~ line 235 ~ startBlock', startBlock);
 
     currentInvariant = await poolContract.invariant();
     initInvariant = await poolContract.invariant({ blockTag: startBlock.number });
