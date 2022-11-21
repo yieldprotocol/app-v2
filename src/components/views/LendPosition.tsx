@@ -33,10 +33,12 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAsset from '../../hooks/useAsset';
 import useSeriesEntity from '../../hooks/useSeriesEntity';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
-const LendPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
+const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
+  const { data: seriesMap } = useSeriesEntities();
   const { id: idFromUrl } = router.query;
   const { data: seriesEntity, isLoading: seriesEntityLoading } = useSeriesEntity(idFromUrl as string);
   const { data: base, isLoading: baseLoading } = useAsset(seriesEntity?.baseId);
@@ -336,7 +338,7 @@ const LendPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }} gap="small">
                         <SeriesSelector
-                          seriesMap={seriesMap}
+                          seriesMap={seriesMap!}
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
                           cardLayout={false}
