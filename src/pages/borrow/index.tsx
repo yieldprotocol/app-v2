@@ -11,7 +11,7 @@ const BorrowPage = ({ seriesMap }: InferGetStaticPropsType<typeof getStaticProps
 
 // map chain id to ISeriesMap (mapping series id to series entity)
 export const getStaticProps: GetStaticProps<{
-  seriesMap: { [chainId: number]: ISeriesMap | undefined };
+  seriesMap: { [chainId: number]: ISeriesMap | null };
 }> = async () => {
   const seriesMap = await getSeriesEntitiesSSR();
   return { props: { seriesMap } };
