@@ -3,11 +3,13 @@ import useSWRImmutable from 'swr/immutable';
 import { useAccount } from 'wagmi';
 import { Cauldron } from '../contracts';
 import { IVault } from '../types';
+import useChainId from './useChainId';
 import useContracts, { ContractNames } from './useContracts';
 import useVault from './useVault';
 
 const useVaults = () => {
   const { address: account } = useAccount();
+  const chainId = useChainId();
   const { getVault } = useVault();
   const contracts = useContracts();
 
@@ -44,8 +46,8 @@ const useVaults = () => {
   }, [Cauldron, account, getVault]);
 
   const key = useMemo(() => {
-    return account ? ['vaults', account] : null;
-  }, [account]);
+    return account ? ['vaults', chainId, account] : null;
+  }, [account, chainId]);
 
   const { data, error } = useSWRImmutable(key, getVaults);
 
