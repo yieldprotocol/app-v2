@@ -74,7 +74,7 @@ export const useDashboardHelpers = (seriesMap: Map<string, ISeries>) => {
   /* set lend positions */
   useEffect(() => {
     const lendPositions = Array.from(seriesMap.values()).map((_series) => {
-      return { ..._series, currentValue_: _series.fyTokenBalance?.formatted } as ILendPosition;
+      return { ..._series, currentValue_: _series.fyTokenBalance?.formatted || '0' } as ILendPosition;
     });
 
     setLendPositions(lendPositions);
