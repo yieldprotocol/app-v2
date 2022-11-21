@@ -46,13 +46,15 @@ import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAsset from '../../hooks/useAsset';
 import useVault from '../../hooks/useVault';
 import useSeriesEntity from '../../hooks/useSeriesEntity';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
-const VaultPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
+const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
 
   const router = useRouter();
   const { id: idFromUrl } = router.query;
+  const { data: seriesMap } = useSeriesEntities();
 
   /* STATE FROM CONTEXT */
   const { userActions } = useContext(UserContext);
@@ -585,7 +587,7 @@ const VaultPosition = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }}>
                         <SeriesSelector
-                          seriesMap={seriesMap}
+                          seriesMap={seriesMap!}
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.BORROW}
                           cardLayout={false}
