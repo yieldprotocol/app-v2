@@ -43,6 +43,8 @@ import useTenderly from '../hooks/useTenderly';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 
+
+
 enum UserState {
   USER_LOADING = 'userLoading',
   ACTIVE_ACCOUNT = 'activeAccount',
@@ -139,7 +141,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, chainId, useTenderlyFork },
+    connection: { account, chainId, useTenderlyFork, provider },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -441,8 +443,7 @@ const UserProvider = ({ children }: any) => {
         let _vaultList: IVaultRoot[] = vaultList;
         const Cauldron = contractMap.get('Cauldron');
         const Witch = contractMap.get('Witch');
-
-        // const RateOracle = contractMap.get('RateOracle');
+        const WitchV2 = contractMap.get('WitchV2');
 
         /* if vaultList is empty, fetch complete Vaultlist from chain via _getVaults */
         if (vaultList.length === 0) {
@@ -458,15 +459,53 @@ const UserProvider = ({ children }: any) => {
               { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
             ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
-            /* If art 0, check for liquidation event */
-            const hasBeenLiquidated =
-              (
-                await Witch.queryFilter(
-                  Witch.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                  useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
-                  'latest'
-                )
-              ).length > 0;
+            const liquidationEvents =  ( await Promise.all([
+              Witch.queryFilter(
+                Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
+                useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                'latest'
+              ),
+              WitchV2.queryFilter(
+                WitchV2.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
+                useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                'latest'
+              ),
+            ]) ).flat();
+
+            const hasBeenLiquidated = liquidationEvents.length > 0;
+            if (hasBeenLiquidated) {
+              const baseId = `${seriesId.substring(0,6)}00000000`;
+              const firstEvent = liquidationEvents[0];
+              const tx = await firstEvent.getTransaction();
+              const { oracle: oracleAddr } = await Cauldron?.spotOracles(baseId, ilkId);
+
+              console.log( firstEvent.blockNumber-1 )
+              const Oracle = new ethers.Contract( 
+                oracleAddr, 
+                [ 
+                  {
+                    "inputs": [
+                      { "internalType": "bytes32", "name": "baseId", "type": "bytes32" },
+                      { "internalType": "bytes32", "name": "quoteId", "type": "bytes32" },
+                      { "internalType": "uint256", "name": "amountBase", "type": "uint256" }
+                    ],
+                    "name": "peek",
+                    "outputs": [
+                      { "internalType": "uint256", "name": "amountQuote", "type": "uint256" },
+                      { "internalType": "uint256", "name": "updateTime", "type": "uint256" }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                  }
+                ], provider);
+
+              const rate = await Oracle.peek(
+                  bytesToBytes32(vault.baseId, 6),
+                  bytesToBytes32(vault.ilkId, 6),
+                  '1000000',
+                  { blockTag: firstEvent.blockNumber})
+                console.log(rate );
+            }
 
             const series = seriesRootMap.get(seriesId);
 
