@@ -48,7 +48,7 @@ const PoolPosition = () => {
 
   const { address: activeAccount } = useAccount();
   const { data: strategy } = useStrategy(idFromUrl as string);
-  const { data: seriesEntity, isLoading: seriesEntityLoading } = useSeriesEntity(strategy?.id!);
+  const { data: seriesEntity, isLoading: seriesEntityLoading } = useSeriesEntity(strategy?.currentSeriesId!);
   const { data: base, isLoading: baseLoading } = useAsset(strategy?.baseId!);
 
   /* LOCAL STATE */
