@@ -95,19 +95,26 @@ export const getSeriesEntitiesSSR = async () => {
   // returns a chain id mapped to a ISeriesMap
   const chainIds = [1, 42161];
   return chainIds.reduce(async (acc, chainId) => {
-    const { addresses } = yieldEnv;
-    const chainAddrs = (addresses as any)[chainId];
+    try {
+      const { addresses } = yieldEnv;
+      const chainAddrs = (addresses as any)[chainId];
 
-    const provider = new JsonRpcProvider(
-      chainId === 1 ? process.env.REACT_APP_RPC_URL_1 : process.env.REACT_APP_RPC_URL_42161
-    );
-    const cauldron = Cauldron__factory.connect(chainAddrs.Cauldron, provider);
+      const provider = new JsonRpcProvider(
+        chainId === 1 ? process.env.REACT_APP_RPC_URL_1 : process.env.REACT_APP_RPC_URL_42161
+      );
+      const cauldron = Cauldron__factory.connect(chainAddrs.Cauldron, provider);
 
-    return {
-      ...(await acc),
-      [chainId]: await getSeriesEntities(provider, cauldron, chainId),
-    };
-  }, Promise.resolve(<{ [chainId: number]: ISeriesMap | undefined }>{}));
+      return {
+        ...(await acc),
+        [chainId]: await getSeriesEntities(provider, cauldron, chainId),
+      };
+    } catch (e) {
+      return {
+        ...(await acc),
+        [chainId]: null,
+      };
+    }
+  }, Promise.resolve(<{ [chainId: number]: ISeriesMap | null }>{}));
 };
 
 const getPoolAPY = async (sharesTokenAddr: string) => {
@@ -154,6 +161,7 @@ export const getSeriesEntityDynamic = async (
   account: string | undefined
 ): Promise<ISeriesDynamic> => {
   const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id);
+  console.log('🦄 ~ file: seriesEntities.ts ~ line 164 ~ seriesEntity', seriesEntity.displayName);
   const { maturity, baseId, decimals, poolAddress, baseAddress } = seriesEntity;
   const poolContract = Pool__factory.connect(seriesEntity.poolAddress, provider);
   const fyTokenContract = FYToken__factory.connect(seriesEntity.fyTokenAddress, provider);
@@ -225,6 +233,7 @@ export const getSeriesEntityDynamic = async (
     const gmFilter = poolContract.filters.gm();
     const gm = (await poolContract.queryFilter(gmFilter))[0];
     startBlock = await gm.getBlock();
+    console.log('🦄 ~ file: seriesEntities.ts ~ line 235 ~ startBlock', startBlock);
 
     currentInvariant = await poolContract.invariant();
     initInvariant = await poolContract.invariant({ blockTag: startBlock.number });
