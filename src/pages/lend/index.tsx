@@ -1,12 +1,14 @@
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
-import Lend from '../../components/views/Lend';
+import dynamic from 'next/dynamic';
 import useChainId from '../../hooks/useChainId';
 import { getSeriesEntitiesSSR, mapify } from '../../lib/seriesEntities';
 import { ISeriesMap } from '../../types';
 
+const DynamicLend = dynamic(() => import('../../components/views/Lend'), { ssr: true });
+
 const LendPage = ({ seriesMap }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const chainId = useChainId();
-  return <Lend seriesMap={mapify(seriesMap[chainId]!)} />;
+  return <DynamicLend seriesMap={mapify(seriesMap[chainId]!)} />;
 };
 
 // map chain id to ISeriesMap (mapping series id to series entity)
