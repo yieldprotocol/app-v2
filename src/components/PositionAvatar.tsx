@@ -1,9 +1,7 @@
-import { useContext } from 'react';
 import { Avatar, Box } from 'grommet';
 import { FiClock } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
 import styled from 'styled-components';
-import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
 import useAsset from '../hooks/useAsset';
@@ -34,15 +32,15 @@ function PositionAvatar({
   condensed,
   actionType,
 }: {
-  position: IVault | ISeries | IStrategy;
+  position: IVault | ISeries | IStrategy | null;
   actionType: ActionType;
   condensed?: boolean;
 }) {
-  const isVault = position?.id.length > 15;
+  const isVault = position?.id.length! > 15;
   const vault = isVault ? (position as IVault) : undefined;
 
   const { isMature } = useTimeTillMaturity();
-  const { data: base } = useAsset(position.baseId);
+  const { data: base } = useAsset(position?.baseId);
   const { data: ilk } = useAsset(vault?.ilkId!);
   const { data: seriesEntity } = useSeriesEntity(vault?.seriesId!);
   const series = vault ? seriesEntity : (position as ISeries);
