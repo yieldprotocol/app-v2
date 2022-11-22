@@ -237,7 +237,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       chainId
     );
 
-    await Promise.all([_getAssets(), _getStrategies()])
+    await Promise.all([_getAssets()])
       .catch(() => {
         toast.error('Error getting Yield Protocol data.');
         console.log('Error getting Yield Protocol data.');
@@ -245,7 +245,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       .finally(() => {
         updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
       });
-  }, [_getAssets, _getStrategies, chainId]);
+  }, [_getAssets, chainId]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
