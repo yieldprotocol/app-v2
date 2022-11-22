@@ -1,21 +1,17 @@
 import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer, useContext } from 'react';
 import { BigNumber, Contract } from 'ethers';
-import { format } from 'date-fns';
 
 import { useCachedState } from '../hooks/generalHooks';
 
-import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
 import { IAssetRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
 import markMap from '../config/marks';
-import YieldMark from '../components/logos/YieldMark';
 
-import { SERIES_1, SERIES_42161 } from '../config/series';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
-import useContracts, { ContractNames } from '../hooks/useContracts';
+import useContracts from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 import useDefaultProvider from '../hooks/useDefaultProvider';
 import { SettingsContext } from './SettingsContext';
@@ -24,7 +20,6 @@ const initState: IChainContextState = {
   /* flags */
   chainLoaded: 0,
   assetRootMap: new Map<string, IAssetRoot>(),
-  strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
 const initActions: IChainContextActions = {
@@ -52,12 +47,6 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
       return {
         ...state,
         assetRootMap: new Map(state.assetRootMap.set(action.payload.id, action.payload)),
-      };
-
-    case ChainState.ADD_STRATEGY:
-      return {
-        ...state,
-        strategyRootMap: new Map(state.strategyRootMap.set(action.payload.address, action.payload)),
       };
 
     case ChainState.CLEAR_MAPS:
@@ -238,60 +227,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     },
     [provider]
   );
-
-  /* Iterate through the strategies list and update accordingly */
-  const _getStrategies = useCallback(async () => {
-    /**
-     * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
-     * */
-    const cacheKey = `strategies_${chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-
-    const newStrategyList: any[] = [];
-    const strategyList: string[] = (yieldEnv.strategies as any)[chainId];
-
-    if (cachedValues !== null && cachedValues.length) {
-      console.log('Yield Protocol STRATEGY data retrieved ::: CACHE :::');
-      return cachedValues.forEach((st: IStrategyRoot) => {
-        updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
-      });
-    }
-
-    try {
-      await Promise.all(
-        strategyList.map(async (strategyAddr) => {
-          /* if the strategy is NOT already in the cache : */
-          const Strategy = contractTypes.Strategy__factory.connect(strategyAddr, provider);
-          const [name, symbol, baseId, decimals, version] = await Promise.all([
-            Strategy.name(),
-            Strategy.symbol(),
-            Strategy.baseId(),
-            Strategy.decimals(),
-            Strategy.version(),
-          ]);
-
-          const newStrategy = {
-            id: strategyAddr,
-            address: strategyAddr,
-            symbol,
-            name,
-            version,
-            baseId,
-            decimals,
-          };
-          // update state and cache
-          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
-          newStrategyList.push(newStrategy);
-        })
-      );
-    } catch (e) {
-      console.log('Error fetching strategies', e);
-    }
-
-    /* cache results */
-    newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
-    newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
-  }, [_chargeStrategy, chainId, provider]);
 
   const _getProtocolData = useCallback(async () => {
     /* Clear maps in local app memory  ( note: this is not the cache ) and set chainLoaded false */
