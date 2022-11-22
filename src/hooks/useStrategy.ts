@@ -1,5 +1,3 @@
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { MulticallService } from '@yield-protocol/ui-multicall';
 import { ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useCallback, useContext } from 'react';

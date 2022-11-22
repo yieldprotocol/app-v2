@@ -20,6 +20,7 @@ const useAssets = () => {
   const provider = useDefaultProvider();
 
   const getAssets = async () => {
+    console.log('fetching assets');
     return [...assetRootMap.values()].reduce(async (acc, a) => {
       const asset = assetRootMap.get(a.id);
 

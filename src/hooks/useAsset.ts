@@ -22,6 +22,7 @@ const useAsset = (id?: string) => {
   const { address: account } = useAccount();
 
   const getAsset = async (id: string): Promise<IAsset> => {
+    console.log(`fetching asset with id: ${id}`);
     const asset = assetRootMap.get(id);
 
     if (!asset) throw new Error('no asset');

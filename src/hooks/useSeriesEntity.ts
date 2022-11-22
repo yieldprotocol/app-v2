@@ -20,6 +20,7 @@ const useSeriesEntity = (id?: string) => {
 
   const _getSeriesEntity = useCallback(async () => {
     if (!Cauldron || !id) return;
+    console.log(`fetching series entity with id: ${id}`);
     return await getSeriesEntityDynamic(provider, Cauldron, chainId, id, account);
   }, [Cauldron, account, chainId, id, provider]);
 
