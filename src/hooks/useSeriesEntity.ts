@@ -1,5 +1,5 @@
 import useSWRImmutable from 'swr/immutable';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import { Cauldron } from '../contracts';
 import useChainId from './useChainId';
@@ -9,8 +9,12 @@ import { getSeriesEntityDynamic } from '../lib/seriesEntities';
 import useTimeTillMaturity from './useTimeTillMaturity';
 import { sellFYToken, ZERO_BN } from '@yield-protocol/ui-math';
 import { ethers } from 'ethers';
+import { ChainContext } from '../contexts/ChainContext';
 
 const useSeriesEntity = (id?: string) => {
+  const {
+    chainState: { multicall },
+  } = useContext(ChainContext);
   const { address: account } = useAccount();
   const provider = useDefaultProvider();
   const chainId = useChainId();
@@ -19,14 +23,14 @@ const useSeriesEntity = (id?: string) => {
   const { isMature, getTimeTillMaturity } = useTimeTillMaturity();
 
   const _getSeriesEntity = useCallback(async () => {
-    if (!Cauldron || !id) return;
+    if (!Cauldron || !id || !multicall) return;
     console.log(`fetching series entity with id: ${id}`);
-    return await getSeriesEntityDynamic(provider, Cauldron, chainId, id, account);
-  }, [Cauldron, account, chainId, id, provider]);
+    return await getSeriesEntityDynamic(provider, Cauldron, chainId, id, account, multicall);
+  }, [Cauldron, account, chainId, id, multicall, provider]);
 
   const getCurrentValue = async (id: string) => {
-    if (!Cauldron) return;
-    const seriesEntity = await getSeriesEntityDynamic(provider, Cauldron, chainId, id, account);
+    if (!Cauldron || !multicall) return;
+    const seriesEntity = await getSeriesEntityDynamic(provider, Cauldron, chainId, id, account, multicall);
     const currentValue = isMature(seriesEntity.maturity)
       ? seriesEntity.fyTokenBalance.value || ZERO_BN
       : sellFYToken(

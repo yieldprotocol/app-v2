@@ -14,6 +14,7 @@ import { calculateAPR, floorDecimal, sellFYToken, toBn } from '@yield-protocol/u
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { Provider } from '@wagmi/core';
+import { EthersMulticall } from '@yield-protocol/ui-multicall';
 
 // gets a single series non-dynamic
 export const getSeriesEntity = async (
@@ -158,7 +159,8 @@ export const getSeriesEntityDynamic = async (
   cauldron: Cauldron,
   chainId: number,
   id: string,
-  account: string | undefined
+  account: string | undefined,
+  multicall: EthersMulticall
 ): Promise<ISeriesDynamic> => {
   const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id);
   const { maturity, baseId, decimals, poolAddress, baseAddress } = seriesEntity;
@@ -166,13 +168,13 @@ export const getSeriesEntityDynamic = async (
   const fyTokenContract = FYToken__factory.connect(seriesEntity.fyTokenAddress, provider);
 
   const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, ts, g1, g2] = await Promise.all([
-    poolContract.getBaseBalance(),
-    poolContract.getFYTokenBalance(),
-    poolContract.totalSupply(),
-    fyTokenContract.balanceOf(poolAddress),
-    poolContract.ts(),
-    poolContract.g1(),
-    poolContract.g2(),
+    multicall.wrap(poolContract).getBaseBalance(),
+    multicall.wrap(poolContract).getFYTokenBalance(),
+    multicall.wrap(poolContract).totalSupply(),
+    multicall.wrap(fyTokenContract).balanceOf(poolAddress),
+    multicall.wrap(poolContract).ts(),
+    multicall.wrap(poolContract).g1(),
+    multicall.wrap(poolContract).g2(),
   ]);
 
   let sharesReserves: BigNumber;
@@ -183,11 +185,11 @@ export const getSeriesEntityDynamic = async (
 
   try {
     [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
-      poolContract.getSharesBalance(),
-      poolContract.getC(),
-      poolContract.mu(),
-      poolContract.getCurrentSharePrice(),
-      poolContract.sharesToken(),
+      multicall.wrap(poolContract).getSharesBalance(),
+      multicall.wrap(poolContract).getC(),
+      multicall.wrap(poolContract).mu(),
+      multicall.wrap(poolContract).getCurrentSharePrice(),
+      multicall.wrap(poolContract).sharesToken(),
     ]);
   } catch (error) {
     sharesReserves = baseReserves;
@@ -230,11 +232,11 @@ export const getSeriesEntityDynamic = async (
   try {
     // get pool init block
     const gmFilter = poolContract.filters.gm();
-    const gm = (await poolContract.queryFilter(gmFilter))[0];
+    const gm = (await multicall.wrap(poolContract).queryFilter(gmFilter))[0];
     startBlock = await gm.getBlock();
 
-    currentInvariant = await poolContract.invariant();
-    initInvariant = await poolContract.invariant({ blockTag: startBlock.number });
+    currentInvariant = await multicall.wrap(poolContract).invariant();
+    initInvariant = await multicall.wrap(poolContract).invariant({ blockTag: startBlock.number });
   } catch (e) {
     console.log('Could not get current and init invariant for series', seriesEntity.id);
   }
@@ -244,8 +246,8 @@ export const getSeriesEntityDynamic = async (
 
   if (account) {
     [poolTokens, fyTokenBalance] = await Promise.all([
-      poolContract.balanceOf(account),
-      fyTokenContract.balanceOf(account),
+      multicall.wrap(poolContract).balanceOf(account),
+      multicall.wrap(fyTokenContract).balanceOf(account),
     ]);
   } else {
     poolTokens = ethers.constants.Zero;
