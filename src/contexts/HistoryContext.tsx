@@ -27,6 +27,7 @@ import useTenderly from '../hooks/useTenderly';
 import { useAccount, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import useSeriesEntities from '../hooks/useSeriesEntities';
+import useAssets from '../hooks/useAssets';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -89,8 +90,7 @@ function historyReducer(state: any, action: any) {
 
 const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext);
-  const { assetRootMap } = chainState;
+  const { data: assetRootMap } = useAssets();
 
   const useTenderlyFork = false;
 

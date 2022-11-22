@@ -15,7 +15,6 @@ export interface IChainContext {
 
 export interface IChainContextState {
   chainLoaded: number;
-  assetRootMap: Map<string, IAssetRoot>;
   multicall: EthersMulticall | null;
 }
 
@@ -28,11 +27,6 @@ type ChainLoadedAction = {
   payload: number;
 };
 
-type AssetsAction = {
-  type: ChainState.ASSETS;
-  payload: Map<string, IAssetRoot>;
-};
-
 type ClearMapsAction = {
   type: ChainState.CLEAR_MAPS;
 };
@@ -42,4 +36,4 @@ type MulticallAction = {
   payload: EthersMulticall;
 };
 
-export type ChainContextActions = ChainLoadedAction | AssetsAction | ClearMapsAction | MulticallAction;
+export type ChainContextActions = ChainLoadedAction | ClearMapsAction | MulticallAction;

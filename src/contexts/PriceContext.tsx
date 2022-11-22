@@ -10,6 +10,7 @@ import { ORACLE_INFO } from '../config/oracles';
 import useChainId from '../hooks/useChainId';
 import { Cauldron } from '../contracts';
 import useContracts, { ContractNames } from '../hooks/useContracts';
+import useAssets from '../hooks/useAssets';
 
 enum PriceState {
   UPDATE_PAIR = 'updatePair',
@@ -49,8 +50,7 @@ const priceReducer = (state: IPriceContextState, action: any) => {
 
 const PriceProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext);
-  const { assetRootMap } = chainState;
+  const { data: assetRootMap } = useAssets();
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
@@ -63,6 +63,7 @@ const PriceProvider = ({ children }: any) => {
 
   const updateAssetPair = useCallback(
     async (baseId: string, ilkId: string): Promise<IAssetPair | null> => {
+      if (!assetRootMap) return null;
       diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading);
       const pairId = `${baseId}${ilkId}`;
       const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
