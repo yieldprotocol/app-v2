@@ -15,11 +15,14 @@ import useContracts from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 import useDefaultProvider from '../hooks/useDefaultProvider';
 import { SettingsContext } from './SettingsContext';
+import { MulticallService } from '@yield-protocol/ui-multicall';
+import { JsonRpcProvider } from '@ethersproject/providers';
 
 const initState: IChainContextState = {
   /* flags */
   chainLoaded: 0,
   assetRootMap: new Map<string, IAssetRoot>(),
+  multicall: null,
 };
 
 const initActions: IChainContextActions = {
@@ -42,6 +45,9 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: action.payload };
+
+    case ChainState.MULTICALL:
+      return { ...state, multicall: action.payload };
 
     case ChainState.ADD_ASSET:
       return {
@@ -69,6 +75,9 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   const provider = useDefaultProvider();
   const chainId = useChainId();
   const contracts = useContracts();
+
+  const multicallService = new MulticallService(provider as JsonRpcProvider);
+  const multicall = multicallService.getMulticall(chainId);
 
   /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
@@ -272,14 +281,14 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     const contractList = [...contracts].map(([v, k]) => [v, k.address]);
     // const seriesList = [...chainState.seriesRootMap].map(([v, k]) => [v, k.address]);
     const assetList = [...chainState.assetRootMap].map(([v, k]) => [v, k.address]);
-    const strategyList = [...chainState.strategyRootMap].map(([v, k]) => [k.symbol, v]);
+    // const strategyList = [...chainState.strategyRootMap].map(([v, k]) => [k.symbol, v]);
     const joinList = [...chainState.assetRootMap].map(([v, k]) => [v, k.joinAddress]);
 
     const res = JSON.stringify({
       contracts: contractList,
       // series: seriesList,
       assets: assetList,
-      strategies: strategyList,
+      // strategies: strategyList,
       joins: joinList,
     });
 
@@ -294,7 +303,11 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   const chainActions = { exportContractAddresses };
 
-  return <ChainContext.Provider value={{ chainState, chainActions, updateState }}>{children}</ChainContext.Provider>;
+  return (
+    <ChainContext.Provider value={{ chainState: { ...chainState, multicall }, chainActions, updateState }}>
+      {children}
+    </ChainContext.Provider>
+  );
 };
 
 export { ChainContext };
