@@ -38,8 +38,9 @@ const useAsset = (id?: string) => {
     [account, assets, provider]
   );
 
-  const key = useMemo(() => (id ? ['asset', assets, id, account] : null), [account, assets, id]);
+  const genKey = useCallback((id: string) => (id ? ['asset', assets, id, account] : null), [account, assets]);
 
+  const key = genKey(id!);
   const { data, error } = useSWRImmutable(key, () => getAsset(id!));
 
   return {
@@ -47,6 +48,7 @@ const useAsset = (id?: string) => {
     isLoading: !data && !error,
     key,
     getAsset,
+    genKey,
   };
 };
 

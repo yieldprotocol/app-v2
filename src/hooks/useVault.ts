@@ -10,17 +10,19 @@ import { ORACLE_INFO } from '../config/oracles';
 import { formatUnits } from 'ethers/lib/utils';
 import useAsset from './useAsset';
 import { useAccount } from 'wagmi';
-import { IVault } from '../types';
+import { IAsset, IVault } from '../types';
 import { generateVaultName } from '../utils/appUtils';
 import { getSeriesEntity } from '../lib/seriesEntities';
 import useDefaultProvider from './useDefaultProvider';
+import { unstable_serialize, useSWRConfig } from 'swr';
 
 const useVault = (id?: string) => {
+  const { cache, mutate } = useSWRConfig();
   const provider = useDefaultProvider();
   const { address: account } = useAccount();
   const contracts = useContracts();
   const chainId = useChainId();
-  const { getAsset } = useAsset();
+  const { getAsset, genKey } = useAsset();
   const { isMature } = useTimeTillMaturity();
 
   const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron | undefined;
@@ -64,9 +66,27 @@ const useVault = (id?: string) => {
         rateAtMaturity = BigNumber.from('1');
         accruedArt = art;
       }
+      const ilkKey = unstable_serialize(genKey(ilkId));
+      const baseKey = unstable_serialize(genKey(series.baseId));
 
-      const ilk = await getAsset(ilkId);
-      const base = await getAsset(series?.baseId!);
+      let ilk: IAsset | undefined;
+      let base: IAsset | undefined;
+
+      const cachedIlk = cache.get(unstable_serialize(ilkKey));
+      if (cachedIlk) {
+        ilk = cachedIlk;
+      } else {
+        ilk = await getAsset(ilkId);
+        mutate(ilkKey, ilk, { revalidate: false });
+      }
+
+      const cachedBase = cache.get(unstable_serialize(baseKey));
+      if (cachedBase) {
+        base = cachedBase;
+      } else {
+        base = await getAsset(series.baseId);
+        mutate(baseKey, base, { revalidate: false });
+      }
 
       return {
         id,
@@ -82,15 +102,15 @@ const useVault = (id?: string) => {
         ilkId, // refreshed in case ilkId has been updated
         ink: {
           value: ink,
-          formatted: formatUnits(ink, ilk.decimals), // for display purposes only
+          formatted: formatUnits(ink, ilk?.decimals), // for display purposes only
         },
         art: {
           value: art,
-          formatted: formatUnits(art, base.decimals), // for display purposes only
+          formatted: formatUnits(art, base?.decimals), // for display purposes only
         },
         accruedArt: {
           value: accruedArt,
-          formatted: formatUnits(accruedArt, base.decimals), // display purposes
+          formatted: formatUnits(accruedArt, base?.decimals), // display purposes
         },
         isVaultMature,
         rateAtMaturity,
@@ -100,7 +120,7 @@ const useVault = (id?: string) => {
         },
       };
     },
-    [Cauldron, Witch, account, chainId, contracts, getAsset, isMature, provider]
+    [Cauldron, Witch, account, cache, chainId, contracts, genKey, getAsset, isMature, mutate, provider]
   );
 
   const key = useMemo(() => (account && id ? ['vault', id, account] : null), [account, id]);
