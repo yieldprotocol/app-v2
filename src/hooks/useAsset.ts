@@ -1,11 +1,11 @@
 import { BigNumber } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import { useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { useAccount } from 'wagmi';
 import { WETH } from '../config/assets';
-import { ChainContext } from '../contexts/ChainContext';
 import { IAsset } from '../types';
+import useAssets from './useAssets';
 import useDefaultProvider from './useDefaultProvider';
 
 /**
@@ -13,31 +13,32 @@ import useDefaultProvider from './useDefaultProvider';
  * @param id asset id
  */
 const useAsset = (id?: string) => {
-  const {
-    chainState: { assetRootMap },
-  } = useContext(ChainContext);
-
+  const { data: assets } = useAssets();
   const provider = useDefaultProvider();
-
   const { address: account } = useAccount();
 
-  const getAsset = async (id: string): Promise<IAsset> => {
-    console.log(`fetching asset with id: ${id}`);
-    const asset = assetRootMap.get(id);
+  const getAsset = useCallback(
+    async (id: string): Promise<IAsset | undefined> => {
+      if (!assets) return;
 
-    if (!asset) throw new Error('no asset');
+      console.log(`fetching asset with id: ${id}`);
+      const asset = assets.get(id);
 
-    const args = asset.tokenIdentifier ? [account, asset.tokenIdentifier] : [account]; // handle erc1155
-    const balance: BigNumber =
-      id === WETH ? await provider.getBalance(account!) : await asset.assetContract.balanceOf(...args);
+      if (!asset) throw new Error('no asset');
 
-    return {
-      ...asset,
-      balance: { value: balance, formatted: formatUnits(balance, asset.decimals) },
-    };
-  };
+      const args = asset.tokenIdentifier ? [account, asset.tokenIdentifier] : [account]; // handle erc1155
+      const balance: BigNumber =
+        id === WETH ? await provider.getBalance(account!) : await asset.assetContract.balanceOf(...args);
 
-  const key = useMemo(() => (id ? ['asset', id, assetRootMap, account] : null), [account, assetRootMap, id]);
+      return {
+        ...asset,
+        balance: { value: balance, formatted: formatUnits(balance, asset.decimals) },
+      };
+    },
+    [account, assets, provider]
+  );
+
+  const key = useMemo(() => (id ? ['asset', assets, id, account] : null), [account, assets, id]);
 
   const { data, error } = useSWRImmutable(key, () => getAsset(id!));
 

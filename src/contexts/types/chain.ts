@@ -3,7 +3,7 @@ import { IAssetRoot } from '../../types';
 
 export enum ChainState {
   CHAIN_LOADED = 'chainLoaded',
-  ADD_ASSET = 'addAsset',
+  ASSETS = 'assets',
   CLEAR_MAPS = 'clearMaps',
   MULTICALL = 'multicall',
 }
@@ -28,9 +28,9 @@ type ChainLoadedAction = {
   payload: number;
 };
 
-type AddAssetAction = {
-  type: ChainState.ADD_ASSET;
-  payload: IAssetRoot;
+type AssetsAction = {
+  type: ChainState.ASSETS;
+  payload: Map<string, IAssetRoot>;
 };
 
 type ClearMapsAction = {
@@ -42,4 +42,4 @@ type MulticallAction = {
   payload: EthersMulticall;
 };
 
-export type ChainContextActions = ChainLoadedAction | AddAssetAction | ClearMapsAction | MulticallAction;
+export type ChainContextActions = ChainLoadedAction | AssetsAction | ClearMapsAction | MulticallAction;
