@@ -24,7 +24,8 @@ export const getSeriesEntity = async (
   provider: JsonRpcProvider | Provider,
   cauldron: Cauldron,
   chainId: number,
-  id: string
+  id: string,
+  multicall: EthersMulticall
 ): Promise<ISeries> => {
   const seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
   if (!cauldron) throw new Error('no cauldron detected');
@@ -40,15 +41,15 @@ export const getSeriesEntity = async (
 
   const [{ maturity, baseId }, name, symbol, version, decimals, poolName, poolVersion, poolSymbol, baseAddress] =
     await Promise.all([
-      cauldron.series(id),
-      fyTokenContract.name(),
-      fyTokenContract.symbol(),
-      fyTokenContract.version(),
-      fyTokenContract.decimals(),
-      poolContract.name(),
-      poolContract.version(),
-      poolContract.symbol(),
-      poolContract.base(),
+      multicall.wrap(cauldron).series(id),
+      multicall.wrap(fyTokenContract).name(),
+      multicall.wrap(fyTokenContract).symbol(),
+      multicall.wrap(fyTokenContract).version(),
+      multicall.wrap(fyTokenContract).decimals(),
+      multicall.wrap(poolContract).name(),
+      multicall.wrap(poolContract).version(),
+      multicall.wrap(poolContract).symbol(),
+      multicall.wrap(poolContract).base(),
     ]);
 
   const seasonColorMap = [1].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
@@ -88,15 +89,20 @@ export const getSeriesEntity = async (
   };
 };
 
-export const getSeriesEntities = async (provider: JsonRpcProvider | Provider, cauldron: Cauldron, chainId: number) => {
+export const getSeriesEntities = async (
+  provider: JsonRpcProvider | Provider,
+  cauldron: Cauldron,
+  chainId: number,
+  multicall: EthersMulticall
+) => {
   const seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
   return [...seriesMap.keys()].reduce(async (acc, id) => {
-    const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id);
+    const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id, multicall);
     return { ...(await acc), [id]: { ...seriesEntity } };
   }, Promise.resolve<{ [id: string]: ISeries }>({}));
 };
 
-export const getSeriesEntitiesSSR = async () => {
+export const getSeriesEntitiesSSR = async (multicall: EthersMulticall) => {
   // returns a chain id mapped to a ISeriesMap
   const chainIds = [1, 42161];
   return chainIds.reduce(async (acc, chainId) => {
@@ -111,7 +117,7 @@ export const getSeriesEntitiesSSR = async () => {
 
       return {
         ...(await acc),
-        [chainId]: await getSeriesEntities(provider, cauldron, chainId),
+        [chainId]: await getSeriesEntities(provider, cauldron, chainId, multicall),
       };
     } catch (e) {
       return {
@@ -166,7 +172,7 @@ export const getSeriesEntityDynamic = async (
   account: string | undefined,
   multicall: EthersMulticall
 ): Promise<ISeriesDynamic> => {
-  const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id);
+  const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id, multicall);
   const { maturity, baseId, decimals, poolAddress, baseAddress } = seriesEntity;
   const poolContract = Pool__factory.connect(seriesEntity.poolAddress, provider);
   const fyTokenContract = FYToken__factory.connect(seriesEntity.fyTokenAddress, provider);

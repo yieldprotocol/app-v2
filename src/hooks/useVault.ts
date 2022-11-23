@@ -74,6 +74,7 @@ const useVault = (id?: string) => {
         rateAtMaturity = BigNumber.from('1');
         accruedArt = art;
       }
+
       const ilkKey = unstable_serialize(genKey(ilkId));
       const baseKey = unstable_serialize(genKey(baseId));
 
