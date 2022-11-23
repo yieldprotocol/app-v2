@@ -1,6 +1,6 @@
 import useSWRImmutable from 'swr/immutable';
 import { bytesToBytes32, calcAccruedDebt, ZERO_BN } from '@yield-protocol/ui-math';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { Cauldron, Witch } from '../contracts';
 import useContracts, { ContractNames } from './useContracts';
 import useTimeTillMaturity from './useTimeTillMaturity';
@@ -12,12 +12,15 @@ import useAsset from './useAsset';
 import { useAccount } from 'wagmi';
 import { IAsset, IVault } from '../types';
 import { generateVaultName } from '../utils/appUtils';
-import { getSeriesEntity } from '../lib/seriesEntities';
 import useDefaultProvider from './useDefaultProvider';
 import { unstable_serialize, useSWRConfig } from 'swr';
+import { ChainContext } from '../contexts/ChainContext';
 
 const useVault = (id?: string) => {
   const { cache, mutate } = useSWRConfig();
+  const {
+    chainState: { multicall },
+  } = useContext(ChainContext);
   const provider = useDefaultProvider();
   const { address: account } = useAccount();
   const contracts = useContracts();
@@ -30,21 +33,26 @@ const useVault = (id?: string) => {
 
   const getVault = useCallback(
     async (id: string): Promise<IVault> => {
+      if (!multicall) throw new Error('no multicall detected');
       if (!Cauldron) throw new Error('no cauldron when fetching vault');
       if (!Witch) throw new Error('no witch when fetching vault');
 
       /* If art 0, check for liquidation event */
       const hasBeenLiquidated =
-        (await Witch.queryFilter(Witch.filters.Auctioned(bytesToBytes32(id, 12), null), 'earliest', 'latest')).length >
-        0;
+        (
+          await multicall
+            .wrap(Witch)
+            .queryFilter(Witch.filters.Auctioned(bytesToBytes32(id, 12), null), 'earliest', 'latest')
+        ).length > 0;
 
       const [{ owner, seriesId, ilkId }, { ink, art }] = await Promise.all([
-        Cauldron.vaults(id),
-        Cauldron.balances(id),
+        multicall.wrap(Cauldron).vaults(id),
+        multicall.wrap(Cauldron).balances(id),
       ]);
 
-      const series = await getSeriesEntity(provider, Cauldron, chainId, seriesId);
-      const isVaultMature = isMature(series?.maturity!);
+      const [{ fyToken, baseId, maturity }] = await Promise.all([Cauldron.series(seriesId)]);
+
+      const isVaultMature = isMature(maturity);
 
       let accruedArt: BigNumber;
       let rateAtMaturity: BigNumber;
@@ -52,11 +60,11 @@ const useVault = (id?: string) => {
 
       if (isVaultMature) {
         const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-        const oracleName = ORACLE_INFO.get(chainId)?.get(series?.baseId!)?.get(RATE);
+        const oracleName = ORACLE_INFO.get(chainId)?.get(baseId)?.get(RATE);
 
         const RateOracle = contracts.get(oracleName!);
-        rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-        [rate] = await RateOracle?.peek(bytesToBytes32(series?.baseId!, 6), RATE, '0');
+        rateAtMaturity = await multicall.wrap(Cauldron).ratesAtMaturity(seriesId);
+        [rate] = await multicall.wrap(RateOracle!)?.peek(bytesToBytes32(baseId, 6), RATE, '0');
 
         [accruedArt] = rateAtMaturity.gt(ZERO_BN)
           ? calcAccruedDebt(rate, rateAtMaturity, art)
@@ -67,7 +75,7 @@ const useVault = (id?: string) => {
         accruedArt = art;
       }
       const ilkKey = unstable_serialize(genKey(ilkId));
-      const baseKey = unstable_serialize(genKey(series.baseId));
+      const baseKey = unstable_serialize(genKey(baseId));
 
       let ilk: IAsset | undefined;
       let base: IAsset | undefined;
@@ -84,16 +92,14 @@ const useVault = (id?: string) => {
       if (cachedBase) {
         base = cachedBase;
       } else {
-        base = await getAsset(series.baseId);
+        base = await getAsset(baseId);
         mutate(baseKey, base, { revalidate: false });
       }
 
       return {
         id,
-        baseId: series?.baseId!,
+        baseId: baseId!,
         displayName: generateVaultName(id),
-        decimals: series?.decimals!,
-        series,
         isActive: owner === account,
         owner, // refreshed in case owner has been updated
         isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
@@ -120,7 +126,7 @@ const useVault = (id?: string) => {
         },
       };
     },
-    [Cauldron, Witch, account, cache, chainId, contracts, genKey, getAsset, isMature, mutate, provider]
+    [Cauldron, Witch, account, cache, chainId, contracts, genKey, getAsset, isMature, multicall, mutate]
   );
 
   const key = useMemo(() => (account && id ? ['vault', id, account] : null), [account, id]);

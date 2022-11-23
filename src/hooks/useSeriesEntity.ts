@@ -18,18 +18,24 @@ const useSeriesEntity = (id?: string) => {
   const contracts = useContracts();
   const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron | undefined;
 
-  const getSeriesEntity = useCallback(async () => {
-    if (!Cauldron || !id || !multicall) return;
-    console.log(`fetching series entity with id: ${id}`);
+  const getSeriesEntity = useCallback(
+    async (id: string) => {
+      if (!Cauldron || !id || !multicall) return;
+      console.log(`fetching series entity with id: ${id}`);
+      return await getSeriesEntityDynamic(provider, Cauldron, chainId, id, account, multicall);
+    },
+    [Cauldron, account, chainId, multicall, provider]
+  );
 
-    return await getSeriesEntityDynamic(provider, Cauldron, chainId, id, account, multicall);
-  }, [Cauldron, account, chainId, id, multicall, provider]);
+  const genKey = useCallback(
+    (id: string) => (chainId && id ? ['seriesEntity', id, chainId, account] : null),
+    [account, chainId]
+  );
 
-  const key = useMemo(() => (chainId && id ? ['seriesEntity', id, chainId, account] : null), [account, chainId, id]);
+  const key = genKey(id!);
+  const { data, error, isValidating } = useSWRImmutable(key, () => getSeriesEntity(id!));
 
-  const { data, error, isValidating } = useSWRImmutable(key, getSeriesEntity);
-
-  return { data, error, isLoading: (!data && !error) || isValidating, key };
+  return { data, error, isLoading: (!data && !error) || isValidating, key, getSeriesEntity, genKey };
 };
 
 export default useSeriesEntity;

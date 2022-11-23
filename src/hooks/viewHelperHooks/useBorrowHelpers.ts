@@ -113,14 +113,14 @@ export const useBorrowHelpers = (
 
   /* check the new debt level after potential repaying */
   useEffect(() => {
-    if (input && vault && parseFloat(input) > 0) {
-      const cleanedInput = cleanValue(input, vault.decimals);
-      const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
+    if (input && vaultBase && parseFloat(input) > 0) {
+      const cleanedInput = cleanValue(input, vaultBase.decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, vaultBase.decimals);
       /* remaining debt is debt in base less input (with a minimum of zero) */
       const remainingDebt = debtInBase.sub(input_).gte(ZERO_BN) ? debtInBase.sub(input_) : ZERO_BN;
       setDebtAfterRepay(remainingDebt);
     }
-  }, [input, vault, debtInBase]);
+  }, [debtInBase, input, vaultBase]);
 
   /* Calculate an estimated sale based on the input and future strategy, assuming correct collateralisation */
   useEffect(() => {
@@ -240,11 +240,10 @@ export const useBorrowHelpers = (
 
       /* adjust max repayable to vault art if protocol limited */
       if (limited) {
-        const accruedArt_ = ethers.utils.formatUnits(vault.accruedArt.value, vault.decimals);
         setMaxRepay(vault.accruedArt.value);
-        setMaxRepay_(accruedArt_);
+        setMaxRepay_(vault.accruedArt.formatted);
         setDebtInBase(vault.accruedArt.value);
-        setDebtInBase_(accruedArt_);
+        setDebtInBase_(vault.accruedArt.formatted);
       } else {
         const _sharesRequired = buyFYToken(
           sharesReserves.value,

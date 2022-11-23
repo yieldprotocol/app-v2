@@ -230,11 +230,9 @@ export interface IVault {
   ilkId: string;
   owner: string;
   displayName: string;
-  decimals: number;
   isActive: boolean;
 
   seriesId: string;
-  series: ISeries | undefined;
 
   ink: Value;
   art: Value;
