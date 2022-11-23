@@ -14,7 +14,7 @@ import { calculateAPR, floorDecimal, sellFYToken, toBn } from '@yield-protocol/u
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { Provider } from '@wagmi/core';
-import { EthersMulticall } from '@yield-protocol/ui-multicall';
+import { EthersMulticall, MulticallService } from '@yield-protocol/ui-multicall';
 
 const getTimeTillMaturity = (maturity: number, blockTimestamp: number) => (maturity - blockTimestamp).toString();
 const isMature = (maturity: number, blockTimestamp: number) => maturity - blockTimestamp <= 0;
@@ -102,7 +102,7 @@ export const getSeriesEntities = async (
   }, Promise.resolve<{ [id: string]: ISeries }>({}));
 };
 
-export const getSeriesEntitiesSSR = async (multicall: EthersMulticall) => {
+export const getSeriesEntitiesSSR = async () => {
   // returns a chain id mapped to a ISeriesMap
   const chainIds = [1, 42161];
   return chainIds.reduce(async (acc, chainId) => {
@@ -113,6 +113,7 @@ export const getSeriesEntitiesSSR = async (multicall: EthersMulticall) => {
       const provider = new JsonRpcProvider(
         chainId === 1 ? process.env.REACT_APP_RPC_URL_1 : process.env.REACT_APP_RPC_URL_42161
       );
+      const multicall = new MulticallService(provider).getMulticall(chainId);
       const cauldron = Cauldron__factory.connect(chainAddrs.Cauldron, provider);
 
       return {
