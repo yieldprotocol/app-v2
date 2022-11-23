@@ -16,6 +16,9 @@ import { ETH_BASED_ASSETS } from '../config/assets';
 import { Provider } from '@wagmi/core';
 import { EthersMulticall } from '@yield-protocol/ui-multicall';
 
+const getTimeTillMaturity = (maturity: number, blockTimestamp: number) => (maturity - blockTimestamp).toString();
+const isMature = (maturity: number, blockTimestamp: number) => maturity - blockTimestamp <= 0;
+
 // gets a single series non-dynamic
 export const getSeriesEntity = async (
   provider: JsonRpcProvider | Provider,
@@ -26,6 +29,7 @@ export const getSeriesEntity = async (
   const seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
   if (!cauldron) throw new Error('no cauldron detected');
 
+  console.log('fetching series entity inside lib with id: ', id);
   const seriesEntity = seriesMap.get(id);
   if (!seriesEntity) throw new Error(`no series with ${id} in series config`);
 
@@ -254,6 +258,23 @@ export const getSeriesEntityDynamic = async (
     fyTokenBalance = ethers.constants.Zero;
   }
 
+  const currentValue = isMature(seriesEntity.maturity, latestTimestamp)
+    ? fyTokenBalance
+    : sellFYToken(
+        sharesReserves,
+        fyTokenReserves,
+        fyTokenBalance,
+        getTimeTillMaturity(seriesEntity.maturity, latestTimestamp),
+        ts,
+        g2,
+        decimals,
+        c,
+        mu
+      );
+
+  const currValInBase =
+    currentValue.lte(ethers.constants.Zero) && fyTokenBalance.gt(ethers.constants.Zero) ? fyTokenBalance : currentValue;
+
   return {
     ...seriesEntity,
     ts: BigNumber.from(ts),
@@ -295,6 +316,10 @@ export const getSeriesEntityDynamic = async (
     fyTokenBalance: {
       value: fyTokenBalance,
       formatted: formatUnits(fyTokenBalance, decimals),
+    },
+    currentValueInBase: {
+      value: currValInBase,
+      formatted: formatUnits(currValInBase, decimals),
     },
   };
 };
