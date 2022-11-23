@@ -50,7 +50,7 @@ const useVault = (id?: string) => {
         multicall.wrap(Cauldron).balances(id),
       ]);
 
-      const [{ fyToken, baseId, maturity }] = await Promise.all([multicall.wrap(Cauldron).series(seriesId)]);
+      const [{ baseId, maturity }] = await Promise.all([multicall.wrap(Cauldron).series(seriesId)]);
 
       const isVaultMature = isMature(maturity);
 
