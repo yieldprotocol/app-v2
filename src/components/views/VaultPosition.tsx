@@ -374,7 +374,7 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, vault?.decimals), 10)} ${
+                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, vaultBase?.decimals), 10)} ${
                           vaultBase?.displaySymbol
                         }${vaultSeries?.seriesIsMature ? ` (variable rate: ${vault.rate.formatted}%)` : ''}`}
                         icon={<FiTrendingUp />}
