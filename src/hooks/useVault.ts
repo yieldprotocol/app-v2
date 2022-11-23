@@ -12,7 +12,6 @@ import useAsset from './useAsset';
 import { useAccount } from 'wagmi';
 import { IAsset, IVault } from '../types';
 import { generateVaultName } from '../utils/appUtils';
-import useDefaultProvider from './useDefaultProvider';
 import { unstable_serialize, useSWRConfig } from 'swr';
 import { ChainContext } from '../contexts/ChainContext';
 
@@ -21,7 +20,6 @@ const useVault = (id?: string) => {
   const {
     chainState: { multicall },
   } = useContext(ChainContext);
-  const provider = useDefaultProvider();
   const { address: account } = useAccount();
   const contracts = useContracts();
   const chainId = useChainId();
