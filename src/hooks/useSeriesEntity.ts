@@ -32,7 +32,7 @@ const useSeriesEntity = (id?: string) => {
     [account, chainId]
   );
 
-  const key = genKey(id!);
+  const key = useMemo(() => genKey(id!), [genKey, id]);
   const { data, error, isValidating } = useSWRImmutable(key, () => getSeriesEntity(id!));
 
   return { data, error, isLoading: (!data && !error) || isValidating, key, getSeriesEntity, genKey };
