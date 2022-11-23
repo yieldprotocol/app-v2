@@ -1,10 +1,9 @@
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
+import { strategyTokenValue } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { UserContext } from '../../contexts/UserContext';
-import { IPriceContext, ISeries, IStrategy, IStrategyDynamic, IVault } from '../../types';
+import { IPriceContext, ISeries, ISeriesDynamic, IStrategy, IStrategyDynamic, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
@@ -12,7 +11,7 @@ import { PriceContext } from '../../contexts/PriceContext';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import useStrategies from '../useStrategies';
 import useStrategy from '../useStrategy';
-import { useSWRConfig } from 'swr';
+import { unstable_serialize, useSWRConfig } from 'swr';
 import useVaults from '../useVaults';
 import useSeriesEntity from '../useSeriesEntity';
 
@@ -39,7 +38,7 @@ export const useDashboardHelpers = (seriesMap: Map<string, ISeries>) => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { data: strategyMap } = useStrategies();
   const { getStrategy, genKey } = useStrategy();
-  const { getCurrentValue } = useSeriesEntity();
+  const { getSeriesEntity, genKey: genSeriesEntityKey } = useSeriesEntity();
 
   const { pairMap } = priceState;
   const { updateAssetPair } = priceActions;
@@ -90,7 +89,7 @@ export const useDashboardHelpers = (seriesMap: Map<string, ISeries>) => {
           let strategy: IStrategyDynamic | undefined;
 
           // check if swr has strategy
-          const swrKey = genKey(s.address);
+          const swrKey = unstable_serialize(genKey(s.address));
           const cachedStrategy = cache.get(swrKey) as IStrategyDynamic | undefined;
 
           if (cachedStrategy) {
@@ -101,31 +100,43 @@ export const useDashboardHelpers = (seriesMap: Map<string, ISeries>) => {
             mutate(swrKey, strategy);
           }
 
-          // const { currentSeries: series } = strategy;
+          if (!strategy) return { ...s, currentValue_: '0' };
 
-          // const [fyTokenToShares, sharesReceived] = strategyTokenValue(
-          //   strategy.accountBalance.value,
-          //   strategy.totalSupply.value,
-          //   strategy.strategyPoolBalance.value,
-          //   series.sharesReserves,
-          //   series.fyTokenReserves,
-          //   series.totalSupply,
-          //   getTimeTillMaturity(series.maturity),
-          //   series.ts,
-          //   series.g2,
-          //   series.decimals,
-          //   series.c,
-          //   series.mu
-          // );
+          let series: ISeriesDynamic | undefined;
+          const seriesKey = unstable_serialize(genSeriesEntityKey(s.address));
 
-          // const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
-          //   ? ethers.utils.formatUnits(
-          //       series.getBase(fyTokenToShares).add(series?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
-          //       series.decimals
-          //     )
-          //   : strategy.accountBalance.formatted; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
+          const cachedSeriesEntity = cache.get(seriesKey) as ISeriesDynamic | undefined;
+          if (cachedSeriesEntity) {
+            series = cachedSeriesEntity;
+          } else {
+            series = await getSeriesEntity(strategy.currentSeriesId);
+          }
 
-          return { ...strategy, currentValue_: '0' };
+          if (!series) return { ...s, currentValue_: '0' };
+
+          const [fyTokenToShares, sharesReceived] = strategyTokenValue(
+            strategy.accountBalance.value,
+            strategy.totalSupply.value,
+            strategy.strategyPoolBalance.value,
+            series.sharesReserves.value,
+            series.fyTokenReserves.value,
+            series.totalSupply.value,
+            getTimeTillMaturity(series.maturity),
+            series.ts,
+            series.g2,
+            series.decimals,
+            series.c,
+            series.mu
+          );
+
+          const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
+            ? ethers.utils.formatUnits(
+                series.getBase(fyTokenToShares).add(series?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
+                series.decimals
+              )
+            : strategy.accountBalance.formatted; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
+
+          return { ...strategy, currentValue_ };
         })
       );
 
@@ -136,7 +147,7 @@ export const useDashboardHelpers = (seriesMap: Map<string, ISeries>) => {
         );
       setStrategyPositions(filtered);
     })();
-  }, [cache, genKey, getStrategy, getTimeTillMaturity, mutate, strategyMap]);
+  }, [cache, genKey, genSeriesEntityKey, getSeriesEntity, getStrategy, getTimeTillMaturity, mutate, strategyMap]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const convertValue = useCallback(
