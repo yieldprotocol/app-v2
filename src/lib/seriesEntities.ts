@@ -246,7 +246,7 @@ export const getSeriesEntityDynamic = async (
     startBlock = await gm.getBlock();
 
     currentInvariant = await multicall.wrap(poolContract).invariant();
-    initInvariant = await multicall.wrap(poolContract).invariant({ blockTag: startBlock.number });
+    initInvariant = await poolContract.invariant({ blockTag: startBlock.number });
   } catch (e) {
     console.log('Could not get current and init invariant for series', seriesEntity.id);
   }
