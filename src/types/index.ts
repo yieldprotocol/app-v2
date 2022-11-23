@@ -113,6 +113,7 @@ export interface ISeriesDynamic extends ISeries {
   // user data
   poolTokens: Value;
   fyTokenBalance: Value;
+  currentValueInBase: Value;
 
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
