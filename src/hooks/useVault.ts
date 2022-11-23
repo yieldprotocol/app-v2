@@ -80,7 +80,7 @@ const useVault = (id?: string) => {
       let ilk: IAsset | undefined;
       let base: IAsset | undefined;
 
-      const cachedIlk = cache.get(unstable_serialize(ilkKey));
+      const cachedIlk = cache.get(ilkKey);
       if (cachedIlk) {
         ilk = cachedIlk;
       } else {
@@ -88,7 +88,7 @@ const useVault = (id?: string) => {
         mutate(ilkKey, ilk, { revalidate: false });
       }
 
-      const cachedBase = cache.get(unstable_serialize(baseKey));
+      const cachedBase = cache.get(baseKey);
       if (cachedBase) {
         base = cachedBase;
       } else {
