@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { useAccount, useProvider } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
@@ -80,7 +80,7 @@ const useStrategy = (address?: string) => {
   );
 
   // generate the key for the current context's supplied strategy address
-  const key = genKey(address);
+  const key = useMemo(() => genKey(address), [address, genKey]);
   const { data, error, isValidating } = useSWRImmutable(key, () => getStrategy(address!));
 
   return {

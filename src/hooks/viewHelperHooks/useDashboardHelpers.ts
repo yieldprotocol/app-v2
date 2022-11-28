@@ -97,19 +97,22 @@ export const useDashboardHelpers = (seriesMap: Map<string, ISeries>) => {
           } else {
             strategy = await getStrategy(s.address);
             // mutate (update) swr with the strategy if not in cache
-            mutate(swrKey, strategy);
+            mutate(swrKey, strategy, { revalidate: false });
           }
+
+          if (strategy?.accountBalance.value.eq(ethers.constants.Zero)) return { ...s, currentValue_: '0' };
 
           if (!strategy) return { ...s, currentValue_: '0' };
 
           let series: ISeriesDynamic | undefined;
-          const seriesKey = unstable_serialize(genSeriesEntityKey(s.address));
+          const seriesKey = unstable_serialize(genSeriesEntityKey(s.currentSeriesId));
 
           const cachedSeriesEntity = cache.get(seriesKey) as ISeriesDynamic | undefined;
           if (cachedSeriesEntity) {
             series = cachedSeriesEntity;
           } else {
             series = await getSeriesEntity(strategy.currentSeriesId);
+            mutate(seriesKey, series, { revalidate: false });
           }
 
           if (!series) return { ...s, currentValue_: '0' };
