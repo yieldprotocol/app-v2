@@ -2,6 +2,7 @@ interface StrategyInfo {
   address: string;
   type: 'V1' | 'V2';
   associatedStrategy?: string; // if V2 strategy, then the V1 associated strategy (and vice versa)
+  rewardsContractAddr?: string;
 }
 
 // map each chain id to its corresponding strategies' data
