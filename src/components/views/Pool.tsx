@@ -222,6 +222,11 @@ function Pool() {
                         value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
                         labelInfo={
                           <Box>
+                            {+lpReturns.rewardsAPY! > 0 && (
+                              <Text size="small" weight="lighter">
+                                Rewards APY: {lpReturns.rewardsAPY}%
+                              </Text>
+                            )}
                             {
                               <Text size="small" weight="lighter">
                                 {`${selectedBase?.symbol} APY: ${lpReturns.sharesAPY}%`}
