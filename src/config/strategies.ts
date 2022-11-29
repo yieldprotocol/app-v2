@@ -2,7 +2,6 @@ interface StrategyInfo {
   address: string;
   type: 'V1' | 'V2';
   associatedStrategy?: string; // if V2 strategy, then the V1 associated strategy (and vice versa)
-  rewardsContractAddr?: string;
 }
 
 // map each chain id to its corresponding strategies' data
@@ -13,45 +12,20 @@ STRATEGIES.set(1, [
   {
     address: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
     type: 'V1',
-    associatedStrategy: '0x298F6A44bDFE462b6035B099105CA32F71b4C74B',
   },
-  {
-    type: 'V2',
-    address: '0x298F6A44bDFE462b6035B099105CA32F71b4C74B',
-    associatedStrategy: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
-  },
-
   { address: '0xFBc322415CBC532b54749E31979a803009516b5D', type: 'V1' },
   {
     address: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
     type: 'V1',
-    associatedStrategy: '0x3EE06a8feEe8018d5Fe275e6Ac050bADD03a305b',
-  },
-  {
-    address: '0x3EE06a8feEe8018d5Fe275e6Ac050bADD03a305b',
-    type: 'V2',
-    associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
   },
   { address: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247', type: 'V1' },
   {
     address: '0x831dF23f7278575BA0b136296a285600cD75d076',
     type: 'V1',
-    associatedStrategy: '0x5915b60689a4693ae2B35620A519dA2EDc16DE51',
-  },
-  {
-    associatedStrategy: '0x831dF23f7278575BA0b136296a285600cD75d076',
-    type: 'V2',
-    address: '0x5915b60689a4693ae2B35620A519dA2EDc16DE51',
   },
   {
     address: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
     type: 'V1',
-    associatedStrategy: '0xE58D899B4F6FF23d66aD88F117EeAC07505Fe068',
-  },
-  {
-    associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
-    type: 'V2',
-    address: '0xE58D899B4F6FF23d66aD88F117EeAC07505Fe068',
   },
   { address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6', type: 'V1' },
 ]);
