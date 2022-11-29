@@ -471,7 +471,7 @@ const UserProvider = ({ children }: any) => {
                 ),
               ])
             ).flat();
-            
+
             const hasBeenLiquidated = liquidationEvents.length > 0;
             if (hasBeenLiquidated) {
               // const baseId = `${seriesId.substring(0, 6)}00000000`;
@@ -496,7 +496,6 @@ const UserProvider = ({ children }: any) => {
               //       "type": "function"
               //     }
               //   ], provider);
-
               // const rate = await Oracle.peek(
               //     bytesToBytes32(vault.baseId, 6),
               //     bytesToBytes32(vault.ilkId, 6),
@@ -648,6 +647,27 @@ const UserProvider = ({ children }: any) => {
 
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
 
+            // get rewards data
+            let rewardsPeriod: { start: number; end: number } | undefined;
+            let rewardsRate: BigNumber | undefined;
+
+            try {
+              const [{ rate }, { start, end }] = await Promise.all([
+                _strategy.strategyContract.rewardsPerToken(),
+                _strategy.strategyContract.rewardsPeriod(),
+              ]);
+
+              rewardsPeriod = { start, end };
+              rewardsRate = rate;
+            } catch (e) {
+              diagnostics && console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
+              rewardsPeriod = undefined;
+              rewardsRate = undefined;
+            }
+
+            console.log('🦄 ~ file: UserContext.tsx ~ line 729 ~ .map ~ _strategy', _strategy.name);
+            console.log('🦄 ~ file: UserContext.tsx ~ line 713 ~ .map ~ rate', rewardsRate);
+
             return {
               ..._strategy,
               strategyTotalSupply,
@@ -667,6 +687,8 @@ const UserProvider = ({ children }: any) => {
               returnRate,
               returnRate_: returnRate.toString(),
               active: true,
+              rewardsRate,
+              rewardsPeriod,
             };
           }
 
@@ -716,7 +738,7 @@ const UserProvider = ({ children }: any) => {
       const newStrategyMap = new Map(
         _combinedData.reduce((acc: any, item: any) => {
           const _map = acc;
-          _map.set(item.address, item);
+          _map.set(item.id, item);
           return _map;
         }, new Map())
       );
