@@ -20,6 +20,7 @@ interface IReturns {
   sharesAPY?: string;
   fyTokenAPY?: string;
   feesAPY?: string;
+  rewardsAPY?: string;
   blendedAPY?: string; // "blended" because sharesAPY is weighted against pool ratio of shares to fyToken
 }
 
@@ -232,6 +233,17 @@ const useStrategyReturns = (
     return +marketInterestRate * fyTokenValRatio;
   };
 
+  /**
+   * Calculate (estimate) how much rewards token is accrued by strategy position
+   * @returns {number} estimated rewards apy from strategy
+   */
+  const getRewardsAPY = (strategy: IStrategy): number => {
+    if (!strategy.rewardsPeriod || !strategy.rewardsRate) return 0;
+
+    const { start, end } = strategy.rewardsPeriod;
+    return +calculateAPR('1', (1 + +strategy.rewardsRate).toString(), end, start);
+  };
+
   /* TODO  fix this*/
   const totalAPYBackward = (strategy: IStrategy, digits: number = 2) => {
     const series = strategy.currentSeries;
@@ -283,13 +295,15 @@ const useStrategyReturns = (
     const sharesAPY = getSharesAPY(series, input);
     const feesAPY = getFeesAPY(series, undefined);
     const fyTokenAPY = getFyTokenAPY(series, input);
+    const rewardsAPY = getRewardsAPY(strategy);
 
     return {
       feesAPY: cleanValue(feesAPY.toString(), digits),
       sharesAPY: cleanValue(series.poolAPY, digits),
       sharesBlendedAPY: cleanValue(sharesAPY.toString(), digits),
       fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
-      blendedAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY).toString(), digits),
+      rewardsAPY: cleanValue(rewardsAPY.toString(), digits),
+      blendedAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY + rewardsAPY).toString(), digits),
     };
   };
 
