@@ -172,7 +172,7 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
-  
+
   startBlock: Block; // pool init block
 
   decimals: number;
@@ -275,6 +275,8 @@ export interface IStrategyRoot extends ISignable {
   decimals: number;
   strategyContract: Strategy;
   startBlock?: Block;
+  type: 'V1' | 'V2';
+  associatedStrategy?: string;
 }
 
 export interface IVaultRoot {
@@ -375,6 +377,9 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolBalance?: BigNumber;
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
+
+  rewardsRate?: BigNumber;
+  rewardsPeriod?: { start: number; end: number };
 }
 
 export interface ICallData {
