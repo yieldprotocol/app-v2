@@ -665,9 +665,6 @@ const UserProvider = ({ children }: any) => {
               rewardsRate = undefined;
             }
 
-            console.log('🦄 ~ file: UserContext.tsx ~ line 729 ~ .map ~ _strategy', _strategy.name);
-            console.log('🦄 ~ file: UserContext.tsx ~ line 713 ~ .map ~ rate', rewardsRate);
-
             return {
               ..._strategy,
               strategyTotalSupply,
