@@ -6,7 +6,7 @@ import { FiSlash } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ISettingsContext, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { formatStrategyName } from '../../utils/appUtils';
+import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
@@ -87,7 +87,7 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small">{apy}%</Text>
+              <Text size="small">{+apy > 999 ? nFormatter(+apy, 1) : apy}%</Text>
             </Avatar>
           </Box>
         )}
@@ -98,7 +98,7 @@ const StrategySelectItem = ({
 
 interface IStrategySelectorProps {
   inputValue?: string /* accepts an input value for possible dynamic Return calculations */;
-  setOpen?: any
+  setOpen?: any;
 }
 
 const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
