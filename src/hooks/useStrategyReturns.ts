@@ -10,6 +10,7 @@ import {
   ZERO_DEC as ZERO,
   invariant,
   calcInterestRate,
+  secondsInOneYear,
 } from '@yield-protocol/ui-math';
 import { parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
@@ -41,6 +42,7 @@ const calculateAPR = (
 
   const secsToMaturity = maturity - fromDate;
   const propOfYear = new Decimal(secsToMaturity / SECONDS_PER_YEAR);
+
   const priceRatio = amount_.div(tradeValue_);
   const powRatio = ONE.div(propOfYear);
   const apr = priceRatio.pow(powRatio).sub(ONE);
@@ -241,7 +243,23 @@ const useStrategyReturns = (
     if (!strategy.rewardsPeriod || !strategy.rewardsRate) return 0;
 
     const { start, end } = strategy.rewardsPeriod;
-    return +calculateAPR('1', (1 + +strategy.rewardsRate).toString(), end, start);
+
+    // wei rewarded per second for all token holders
+    const rewardsRate = +strategy.rewardsRate;
+    // estimate the total wei rewarded for the period
+    const totalRewards = rewardsRate * (end - start);
+
+    // assess if outside of rewards period
+    if (NOW < start || NOW > end) return 0;
+
+    const apy = +calculateAPR(
+      strategy.strategyTotalSupply,
+      (+strategy.strategyTotalSupply + totalRewards).toString(),
+      end,
+      start
+    );
+
+    return isNaN(apy) ? 0 : apy;
   };
 
   /* TODO  fix this*/
