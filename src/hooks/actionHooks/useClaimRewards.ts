@@ -1,21 +1,30 @@
-import { BigNumber } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { IAsset, IStrategy, IUserContext } from '../../types';
+import { useConnection } from '../useConnection';
 
 const useClaimRewards = (strategy: IStrategy | undefined) => {
+  const {
+    connectionState: { provider },
+  } = useConnection();
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount: account, assetMap } = userState;
   const { updateAssets } = userActions;
   const asset = assetMap.get(strategy?.baseId!);
 
+  const signer = provider?.getSigner(account!);
+
   const [accruedRewards, setAccruedRewards] = useState<string>();
   const [rewardsToken, setRewardsToken] = useState<IAsset>();
 
   const claimRewards = async () => {
+    if (!account) throw new Error('no account detected when claiming rewards');
+    if (!signer) throw new Error('no signer detected when claiming rewards');
     if (!strategy) throw new Error('no strategy detected when claiming rewards');
-    await strategy.strategyContract.claim(account!);
+
+    await strategy.strategyContract.connect(signer).claim(account);
+
     updateAssets([asset!]);
     getRewards();
   };
