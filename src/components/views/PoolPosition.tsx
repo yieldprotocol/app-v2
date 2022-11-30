@@ -31,6 +31,7 @@ import ExitButton from '../buttons/ExitButton';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useClaimRewards from '../../hooks/actionHooks/useClaimRewards';
+import useStrategyReturns from '../../hooks/useStrategyReturns';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -74,6 +75,7 @@ const PoolPosition = () => {
 
   const { logAnalyticsEvent } = useAnalytics();
   const { claimRewards, accruedRewards, rewardsToken } = useClaimRewards(selectedStrategy!);
+  const { returns: lpReturns } = useStrategyReturns(_selectedStrategy?.accountBalance_, _selectedStrategy);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
@@ -112,11 +114,11 @@ const PoolPosition = () => {
   const handleRemove = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
-    removeLiquidity(removeInput!, selectedSeries, matchingVault);
+    removeLiquidity(removeInput!, selectedSeries!, matchingVault);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries.name,
+      series_id: selectedStrategy?.currentSeries?.name,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
     } as GA_Properties.transaction_initiated);
   };
@@ -128,7 +130,7 @@ const PoolPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries.name,
+      series_id: selectedStrategy?.currentSeries?.name,
       action_code: ActionCodes.CLAIM_REWARDS,
     } as GA_Properties.transaction_initiated);
   };
@@ -165,7 +167,7 @@ const PoolPosition = () => {
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
-    +accruedRewards === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
+    +accruedRewards! === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
   }, [accruedRewards, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
@@ -218,7 +220,7 @@ const PoolPosition = () => {
                         _selectedStrategy?.accountBalance_,
                         selectedBase?.digitFormat!
                       )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase.symbol
+                        selectedBase?.symbol
                       })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
@@ -244,12 +246,40 @@ const PoolPosition = () => {
                         loading={seriesLoading}
                       />
                     )}
-                    {_selectedStrategy.currentSeries.poolAPY && (
+
+                    {lpReturns && +lpReturns.blendedAPY! > 0 && (
                       <InfoBite
-                        label="Pool APY"
-                        icon={<FiZap />}
-                        value={`${cleanValue(_selectedStrategy.currentSeries.poolAPY, 2)}%`}
-                        labelInfo="Estimated APY based on the current Euler supply APY"
+                        textSize="small"
+                        label="Variable APY"
+                        icon={<FiZap color="#10B981" />}
+                        value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
+                        labelInfo={
+                          <Box>
+                            {+lpReturns.rewardsAPY! > 0 && (
+                              <Text size="small" weight="lighter">
+                                Rewards APY: {lpReturns.rewardsAPY}%
+                              </Text>
+                            )}
+                            {
+                              <Text size="small" weight="lighter">
+                                {`${selectedBase?.symbol} APY: ${lpReturns.sharesAPY}%`}
+                              </Text>
+                            }
+                            {
+                              <Text size="small" weight="lighter">
+                                fyToken APY: {lpReturns.fyTokenAPY}%
+                              </Text>
+                            }
+                            {+lpReturns.feesAPY! > 0 && (
+                              <Text size="small" weight="lighter">
+                                Fees APY: {lpReturns.feesAPY}%
+                              </Text>
+                            )}
+                            <Text size="small" weight="bold">
+                              Blended APY: {lpReturns.blendedAPY}%
+                            </Text>
+                          </Box>
+                        }
                       />
                     )}
                   </Box>
