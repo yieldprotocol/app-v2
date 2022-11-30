@@ -30,6 +30,7 @@ import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import useClaimRewards from '../../hooks/actionHooks/useClaimRewards';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -51,6 +52,7 @@ const PoolPosition = () => {
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
+  const [claimDisabled, setClaimDisabled] = useState<boolean>(true);
 
   const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
 
@@ -71,10 +73,16 @@ const PoolPosition = () => {
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   const { logAnalyticsEvent } = useAnalytics();
+  const { claimRewards, accruedRewards, rewardsToken } = useClaimRewards(selectedStrategy!);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
+    selectedSeries?.id!
+  );
+
+  const { txProcess: claimProcess, resetProcess: resetClaimProcess } = useProcess(
+    ActionCodes.CLAIM_REWARDS,
     selectedSeries?.id!
   );
 
@@ -110,8 +118,19 @@ const PoolPosition = () => {
       view: GA_View.POOL,
       series_id: selectedStrategy?.currentSeries.name,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
-    } as GA_Properties.transaction_initiated );
+    } as GA_Properties.transaction_initiated);
+  };
 
+  const handleClaim = () => {
+    if (claimDisabled) return;
+    setClaimDisabled(true);
+    claimRewards();
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.POOL,
+      series_id: selectedStrategy?.currentSeries.name,
+      action_code: ActionCodes.CLAIM_REWARDS,
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleMaxAction = () => {
@@ -119,8 +138,8 @@ const PoolPosition = () => {
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
-      } as GA_Properties.max_clicked)
-  }
+    } as GA_Properties.max_clicked);
+  };
 
   const handleSetActionActive = (option: { text: string; index: number }) => {
     setActionActive(option);
@@ -136,14 +155,18 @@ const PoolPosition = () => {
         setRemoveInput(undefined);
         resetRemoveProcess();
       }
+      if (actionCode === ActionCodes.CLAIM_REWARDS) {
+        resetClaimProcess();
+      }
     },
-    [resetRemoveProcess, resetStepper]
+    [resetClaimProcess, resetRemoveProcess, resetStepper]
   );
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
+    +accruedRewards === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
+  }, [accruedRewards, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl as string) || null;
@@ -243,6 +266,7 @@ const PoolPosition = () => {
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
+                        { text: 'Claim Rewards', index: 2 },
                       ]}
                       icon={<FiChevronDown />}
                       labelKey="text"
@@ -337,7 +361,7 @@ const PoolPosition = () => {
                 </Box>
               )}
 
-              {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
+              {stepPosition[actionActive.index] === 0 && ![1, 2].includes(actionActive.index) && (
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                   onClick={() => handleStepper()}
@@ -365,6 +389,21 @@ const PoolPosition = () => {
                     disabled={removeDisabled || removeProcess?.processActive}
                   />
                 )}
+
+              {actionActive.index === 2 && (
+                <TransactButton
+                  primary
+                  label={
+                    <Text size={mobile ? 'small' : undefined}>
+                      {`Claim${claimProcess?.processActive ? 'ing' : ''} ${
+                        cleanValue(accruedRewards, rewardsToken?.digitFormat!) || ''
+                      } ${rewardsToken?.symbol}`}
+                    </Text>
+                  }
+                  onClick={claimRewards}
+                  disabled={claimDisabled || claimProcess?.processActive}
+                />
+              )}
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>

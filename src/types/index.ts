@@ -518,6 +518,7 @@ export enum ActionCodes {
   ADD_LIQUIDITY = 'Add Liquidity',
   REMOVE_LIQUIDITY = 'Remove Liquidity',
   ROLL_LIQUIDITY = 'Roll Liquidity',
+  CLAIM_REWARDS = 'Claim Rewards',
   // VAULT
   DELETE_VAULT = 'Delete Vault',
   TRANSFER_VAULT = 'Transfer Vault',
