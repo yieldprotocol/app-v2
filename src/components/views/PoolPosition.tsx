@@ -157,11 +157,8 @@ const PoolPosition = () => {
         setRemoveInput(undefined);
         resetRemoveProcess();
       }
-      if (actionCode === ActionCodes.CLAIM_REWARDS) {
-        resetClaimProcess();
-      }
     },
-    [resetClaimProcess, resetRemoveProcess, resetStepper]
+    [resetRemoveProcess, resetStepper]
   );
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
@@ -293,8 +290,8 @@ const PoolPosition = () => {
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
-                        { text: 'Claim Rewards', index: 2 },
-                      ]}
+                        !!rewardsToken && { text: 'Claim Rewards', index: 2 },
+                      ].filter(Boolean)}
                       icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
@@ -427,7 +424,7 @@ const PoolPosition = () => {
                       } ${rewardsToken?.symbol}`}
                     </Text>
                   }
-                  onClick={claimRewards}
+                  onClick={handleClaim}
                   disabled={claimDisabled || claimProcess?.processActive}
                 />
               )}
