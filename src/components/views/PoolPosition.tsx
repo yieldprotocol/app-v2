@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiStar, FiZap } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -235,23 +235,11 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {_selectedStrategy.currentSeries && (
-                      <InfoBite
-                        label="Strategy Token Ownership"
-                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)}% of ${nFormatter(
-                          parseFloat(_selectedStrategy?.strategyTotalSupply_!),
-                          2
-                        )}`}
-                        icon={<FiPercent />}
-                        loading={seriesLoading}
-                      />
-                    )}
-
                     {lpReturns && +lpReturns.blendedAPY! > 0 && (
                       <InfoBite
                         textSize="small"
                         label="Variable APY"
-                        icon={<FiZap color="#10B981" />}
+                        icon={<FiZap />}
                         value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
                         labelInfo={
                           <Box>
@@ -280,6 +268,15 @@ const PoolPosition = () => {
                             </Text>
                           </Box>
                         }
+                      />
+                    )}
+
+                    {accruedRewards && rewardsToken && +accruedRewards > 0 && (
+                      <InfoBite
+                        label="Claimable Rewards"
+                        value={`${cleanValue(accruedRewards, rewardsToken?.digitFormat)} ${rewardsToken?.symbol}`}
+                        icon={<FiStar />}
+                        loading={seriesLoading}
                       />
                     )}
                   </Box>
