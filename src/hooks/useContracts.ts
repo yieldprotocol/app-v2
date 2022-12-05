@@ -8,6 +8,7 @@ import useDefaultProvider from './useDefaultProvider';
 export enum ContractNames {
   CAULDRON = 'Cauldron',
   WITCH = 'Witch',
+  WITCHV2 = 'WitchV2',
   LADLE = 'Ladle',
   WRAP_ETHER_MODULE = 'WrapEtherModule',
   CONVEX_LADLE_MODULE = 'ConvexLadleModule',
