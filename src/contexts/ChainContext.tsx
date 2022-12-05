@@ -83,7 +83,9 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
 const ChainProvider = ({ children }: { children: ReactNode }) => {
   const [chainState, updateState] = useReducer(chainReducer, initState);
 
-  const {settingsState: { diagnostics } } = useContext(SettingsContext);
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
 
   /* HOOKS */
   const provider = useDefaulProvider();
@@ -192,10 +194,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
               version = await contract.version();
             } catch (e) {
               diagnostics &&
-              console.log(
-                id,
-                ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
-              );
+                console.log(
+                  id,
+                  ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
+                );
             }
           }
 
@@ -425,7 +427,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       /* Clear maps in local app memory  ( note: this is not the cache ) and set chainLoaded false */
       updateState({ type: ChainState.CLEAR_MAPS });
 
-      console.log('Fetching Protocol contract addresses and checking for new Assets and Series, and Strategies : ', chain);
+      console.log(
+        'Fetching Protocol contract addresses and checking for new Assets and Series, and Strategies : ',
+        chain
+      );
 
       await Promise.all([_getAssets(chain), _getSeries(chain), _getStrategies(chain)])
         .catch(() => {

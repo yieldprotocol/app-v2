@@ -145,7 +145,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const provider = useDefaulProvider();
-  const { address: account } = useAccount()
+  const { address: account } = useAccount();
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
@@ -585,7 +585,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       let _vaults: IVaultRoot[] | undefined = vaultList;
       const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
-      const Witch = contracts.get(ContractNames.WITCH) as contractTypes.Witch;
+      const WitchV1 = contracts.get(ContractNames.WITCH) as contractTypes.Witch;
+      const Witch = contracts.get(ContractNames.WITCHV2) as contractTypes.WitchV2;
 
       /**
        * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
@@ -608,15 +609,22 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           const isVaultMature = isMature(series.maturity);
 
-          /* If art 0, check for liquidation event */
-          const hasBeenLiquidated =
-            art === ZERO_BN
-              ? (await Witch?.queryFilter(
-                  Witch?.filters.Auctioned(bytesToBytes32(vault.id, 12), null),
-                  useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
-                  'latest'
-                ))!.length > 0
-              : false;
+          const liquidationEvents = (
+            await Promise.all([
+              WitchV1.queryFilter(
+                Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
+                useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                'latest'
+              ),
+              Witch.queryFilter(
+                Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
+                useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                'latest'
+              ),
+            ])
+          ).flat();
+
+          const hasBeenLiquidated = liquidationEvents.length > 0;
 
           let accruedArt: BigNumber;
           let rateAtMaturity: BigNumber;
@@ -645,7 +653,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const newVault: IVault = {
             ...vault,
             owner, // refreshed in case owner has been updated
-            isWitchOwner: Witch?.address === owner, // check if witch is the owner (in liquidation process)
+            isWitchOwner: Witch.address === owner || WitchV1.address === owner, // check if witch is the owner (in liquidation process)
             hasBeenLiquidated,
             isActive: owner === account, // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
@@ -734,7 +742,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* update selected asset balances */
   useEffect(() => {
-    if (account ) {
+    if (account) {
       updateState({
         type: UserState.SELECTED_BASE_BALANCE,
         payload: baseBalance,
@@ -745,7 +753,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       });
     }
   }, [baseBalance, ilkBalance, account]);
-
 
   /* Exposed userActions */
   const userActions = {
