@@ -150,7 +150,7 @@ const Borrow = () => {
 
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
-    _stepPosition === 0 && setSelectedIlk(assetMap?.get('0x303000000000')!);
+    _stepPosition === 0 && setSelectedIlk(selectedIlk || assetMap?.get('0x303000000000')!);
     setStepPosition(_stepPosition);
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.BORROW,
@@ -357,9 +357,6 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <>
-                {/* <Box style={{ position: 'absolute', left:'-20px' }} pad="small">
-                  <BackButton action={() => setStepPosition(0)} />
-                </Box> */}
                 <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
                   <BackButton action={() => handleNavAction(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">

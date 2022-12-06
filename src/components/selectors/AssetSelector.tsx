@@ -1,9 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
-
 import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
-
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
 import { IAsset } from '../../types';
@@ -12,10 +10,8 @@ import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
-import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
-import useBalances from '../../hooks/useBalances';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -41,9 +37,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
-
-  // const { address: activeAccount } = useAccount();
-  // const { data: balances, isLoading } = useBalances();
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
@@ -95,9 +88,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
-    // const sortedOptions = selectCollateral
-    //   ? filteredOptions.sort((a, b) => (a.balance && a.balance.lt(b.balance) ? 1 : -1))
-    //   : filteredOptions;
     setOptions(filteredOptions);
   }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap]);
 
@@ -112,7 +102,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk?.proxyId === selectedBase?.proxyId) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.proxyId !== selectedIlk?.proxyId);
+      const firstNotBaseIlk = options.find((asset) => asset.proxyId !== selectedIlk?.proxyId);
       setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
@@ -143,7 +133,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           name="assetSelect"
           placeholder="Select Asset"
           options={options}
-          // value={selectCollateral ? selectedIlk! : selectedBase!}
           labelKey={(x: IAsset | undefined) => optionText(x)}
           valueLabel={
             <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
