@@ -448,7 +448,7 @@ const Borrow = () => {
 
                     <Box flex={false}>
                       {matchingVaults.length > 0 && (
-                        <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                        <SectionWrap title="Choose Vault to Use" disabled={matchingVaults.length < 1}>
                           <VaultDropSelector
                             vaults={matchingVaults}
                             handleSelect={(option: any) => setVaultToUse(option.id ? option : undefined)}
