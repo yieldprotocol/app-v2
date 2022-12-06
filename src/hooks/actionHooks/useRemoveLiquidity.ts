@@ -299,6 +299,15 @@ export const useRemoveLiquidity = () => {
         args: [_strategy.address, _strategy.address, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: !_strategy,
       },
+
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [_strategy.associatedStrategy] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy ? _strategy.strategyContract : undefined,
+        ignoreIf: !_strategy || _strategy?.type === 'V2',
+      },
+
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
