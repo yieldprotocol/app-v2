@@ -28,6 +28,8 @@ STRATEGIES.set(1, [
     type: 'V1',
   },
   { address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6', type: 'V1' },
+
+
 ]);
 
 STRATEGIES.set(42161, [
@@ -40,3 +42,16 @@ STRATEGIES.set(42161, [
 ]);
 
 export default STRATEGIES;
+
+
+//   "YSETH6MJD",
+//   "0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745"
+
+//   "YSDAI6MJD",
+//   "0xd2Cbc2307b3703064714363557158c4D7a26697C"
+
+//   "YSUSDC6MJD",
+//   "0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7"
+
+//   "YSFRAX6MJD",
+//   "0x43d8c5dB4206CD8627940f68248D80042160e9Bd"
