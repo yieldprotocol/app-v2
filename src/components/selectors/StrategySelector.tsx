@@ -72,13 +72,11 @@ const StrategySelectItem = ({
             {strategy.currentSeries?.seriesMark || <FiSlash />}
           </Avatar>
           <Box align="center" fill="vertical" justify="center">
-
-            <Box direction='row'>
-            <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
-              {formatStrategyName(strategy.name!)}
-            </Text>
- 
-        </Box>
+            <Box direction="row">
+              <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
+                {formatStrategyName(strategy.name!)}
+              </Text>
+            </Box>
 
             <Text size="xsmall" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
               Rolling {displayName}
@@ -87,7 +85,12 @@ const StrategySelectItem = ({
         </Box>
 
         {strategy.rewardsRate.gt(ZERO_BN) && (
-          <Box round background="red" pad="xsmall" style={{ position: 'absolute', marginTop:'-1em', marginLeft:'17em'}}>
+          <Box
+            round
+            background="red"
+            pad="xsmall"
+            style={{ position: 'absolute', marginTop: '-1em', marginLeft: '17em' }}
+          >
             <Text size="0.5em" color="white">
               Extra Rewards
             </Text>
@@ -164,24 +167,18 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
     } else {
-      /* select strategy with the  lowest totalSupply and is active */
-      opts.length &&
-        userActions.setSelectedStrategy(
-          opts
-            .filter((s) => s.currentSeries?.showSeries)
-            .filter((s) => s.active)
-            .reduce((prev, curr) => {
-              // if there are rewards on Offer, select that strategy:
-              if (prev.rewardsRate.gt(ZERO_BN) || curr.rewardsRate.gt(ZERO_BN))
-                return prev.rewardsRate.lt(prev.rewardsRate)
-                  ? prev
-                  : curr;
-              // else selec tthe one with lowest suppy:
-              // return parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr;
-            })
-        );
-      /* or select random strategy from opts */
-      userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
+      /* select strategy with the active rewards and is active */
+      const strategyToSelect = opts
+        .filter((s) => s.currentSeries?.showSeries)
+        .filter((s) => s.active)
+        .find((s) => s.rewardsRate.gt(ZERO_BN));
+        // .reduce((prev, curr) => {
+        //   if (prev.rewardsRate.gt(ZERO_BN) || curr.rewardsRate.gt(ZERO_BN))
+        //     return prev.rewardsRate.lt(prev.rewardsRate) ? prev : curr;
+        //   // else selec tthe one with lowest suppy:
+        //   return parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr;
+        // });
+      userActions.setSelectedStrategy(strategyToSelect || opts[Math.floor(Math.random() * opts.length)]);
     }
   }, [selectedBase, strategyMap]);
 
