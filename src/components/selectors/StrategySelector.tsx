@@ -164,21 +164,20 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
     } else {
-      /* select strategy with the lowest totalSupply and is active */
+      /* select strategy with the  lowest totalSupply and is active */
       opts.length &&
         userActions.setSelectedStrategy(
           opts
             .filter((s) => s.currentSeries?.showSeries)
             .filter((s) => s.active)
-
             .reduce((prev, curr) => {
               // if there are rewards on Offer, select that strategy:
               if (prev.rewardsRate.gt(ZERO_BN) || curr.rewardsRate.gt(ZERO_BN))
-                return parseInt(prev.rewardsRate.toString(), 10) > parseInt(prev.rewardsRate.toString(), 10)
+                return prev.rewardsRate.lt(prev.rewardsRate)
                   ? prev
                   : curr;
               // else selec tthe one with lowest suppy:
-              return parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr;
+              // return parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr;
             })
         );
       /* or select random strategy from opts */

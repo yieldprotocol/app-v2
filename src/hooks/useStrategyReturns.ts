@@ -239,7 +239,8 @@ const useStrategyReturns = (
    * Calculate (estimate) how much rewards token is accrued by strategy position
    * @returns {number} estimated rewards apy from strategy
    */
-  const getRewardsAPY = (strategy: IStrategy): number => {
+  const getRewardsAPY = (strategy: IStrategy, input:string): number => {
+    
     if (!strategy.rewardsPeriod || !strategy.rewardsRate) return 0;
 
     const { start, end } = strategy.rewardsPeriod;
@@ -252,10 +253,6 @@ const useStrategyReturns = (
     // assess if outside of rewards period
     if (NOW < start || NOW > end) return 0;
 
-    console.log( totalRewards )
-    console.log( strategy.strategyTotalSupply.toString() )
-    console.log( (+strategy.strategyTotalSupply + totalRewards).toString() )
-
     const apy = +calculateAPR(
       strategy.strategyTotalSupply,
       (+strategy.strategyTotalSupply + totalRewards).toString(),
@@ -265,6 +262,8 @@ const useStrategyReturns = (
 
     return isNaN(apy) ? 0 : apy;
   };
+
+
 
   /* TODO  fix this*/
   const totalAPYBackward = (strategy: IStrategy, digits: number = 2) => {
@@ -290,9 +289,7 @@ const useStrategyReturns = (
   useEffect(() => {
     (async () => {
       if (!series) return;
-
       const { poolContract, currentInvariant, initInvariant } = series;
-
       if (!currentInvariant || !initInvariant) {
         const [sharesReserves, fyTokenReserves, totalSupply, ts, g2, c] = await Promise.all([
           poolContract.getSharesBalance(),
@@ -302,22 +299,20 @@ const useStrategyReturns = (
           poolContract.g2(),
           poolContract.getC(),
         ]);
-
         setInitSeries({ sharesReserves, fyTokenReserves, totalSupply, ts, g2, c });
       }
     })();
   }, [series]);
 
+
   const calcStrategyReturns = (strategy: IStrategy | null, input: string) => {
     if (!strategy) return;
-
     const series = strategy.currentSeries;
     if (!series) return;
-
     const sharesAPY = getSharesAPY(series, input);
     const feesAPY = getFeesAPY(series, undefined);
     const fyTokenAPY = getFyTokenAPY(series, input);
-    const rewardsAPY = getRewardsAPY(strategy);
+    const rewardsAPY = getRewardsAPY(strategy, input);
 
     return {
       feesAPY: cleanValue(feesAPY.toString(), digits),
