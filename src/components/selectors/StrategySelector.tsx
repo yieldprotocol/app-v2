@@ -10,7 +10,8 @@ import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
-import useStrategyReturns from '../../hooks/useStrategyReturns';
+import useStrategyReturns, { IReturns } from '../../hooks/useStrategyReturns';
+
 import { MdLocalOffer } from 'react-icons/md';
 import { relative } from 'path';
 
@@ -43,15 +44,14 @@ const StrategySelectItem = ({
   strategy,
   selected,
   displayName,
-
   handleClick,
-  apy,
+  returns,
 }: {
   strategy: IStrategy;
   selected: boolean;
   displayName: string;
   handleClick: (strategy: IStrategy) => void;
-  apy?: string;
+  returns?: IReturns;
 }) => {
   return (
     <StyledBox
@@ -88,16 +88,17 @@ const StrategySelectItem = ({
           <Box
             round
             background="red"
-            pad="xsmall"
+            pad={{horizontal:"small", vertical: 'xsmall' }}
             style={{ position: 'absolute', marginTop: '-1em', marginLeft: '17em' }}
-          >
-            <Text size="0.5em" color="white">
-              Extra Rewards
+            elevation='small'
+          > 
+            <Text size="small" color="white" textAlign='center'>
+              +{returns.rewardsAPY}%
             </Text>
           </Box>
         )}
 
-        {apy && (
+        {returns.blendedAPY && (
           <Box fill align="end">
             <Avatar
               background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
@@ -105,7 +106,9 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small">{+apy > 999 ? nFormatter(+apy, 1) : apy}%</Text>
+              <Text size="small">
+                { (+returns.blendedAPY - +returns.rewardsAPY).toFixed(1) }%
+              </Text>
             </Avatar>
           </Box>
         )}
@@ -172,12 +175,12 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
         .filter((s) => s.currentSeries?.showSeries)
         .filter((s) => s.active)
         .find((s) => s.rewardsRate.gt(ZERO_BN));
-        // .reduce((prev, curr) => {
-        //   if (prev.rewardsRate.gt(ZERO_BN) || curr.rewardsRate.gt(ZERO_BN))
-        //     return prev.rewardsRate.lt(prev.rewardsRate) ? prev : curr;
-        //   // else selec tthe one with lowest suppy:
-        //   return parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr;
-        // });
+      // .reduce((prev, curr) => {
+      //   if (prev.rewardsRate.gt(ZERO_BN) || curr.rewardsRate.gt(ZERO_BN))
+      //     return prev.rewardsRate.lt(prev.rewardsRate) ? prev : curr;
+      //   // else selec tthe one with lowest suppy:
+      //   return parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr;
+      // });
       userActions.setSelectedStrategy(strategyToSelect || opts[Math.floor(Math.random() * opts.length)]);
     }
   }, [selectedBase, strategyMap]);
@@ -204,7 +207,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
               handleClick={() => handleSelect(o)}
               selected={selected}
               displayName={displayName}
-              apy={returns.blendedAPY}
+              returns={returns}
+              // extra={ returns.}
             />
           );
         })}

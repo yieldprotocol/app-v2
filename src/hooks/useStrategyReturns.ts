@@ -17,7 +17,7 @@ import { formatEther, parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
 import useTimeTillMaturity from './useTimeTillMaturity';
 
-interface IReturns {
+export interface IReturns {
   sharesBlendedAPY?: string;
   sharesAPY?: string;
   fyTokenAPY?: string;
@@ -26,7 +26,7 @@ interface IReturns {
   blendedAPY?: string; // "blended" because sharesAPY is weighted against pool ratio of shares to fyToken
 }
 
-interface IStrategyReturns {
+export interface IStrategyReturns {
   calcStrategyReturns: (strategy: IStrategy, input: string) => IReturns;
   returns: IReturns;
 }
