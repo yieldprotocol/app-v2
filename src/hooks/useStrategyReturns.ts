@@ -11,8 +11,9 @@ import {
   invariant,
   calcInterestRate,
   secondsInOneYear,
+  ZERO_BN,
 } from '@yield-protocol/ui-math';
-import { parseUnits } from 'ethers/lib/utils';
+import { formatEther, parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
 import useTimeTillMaturity from './useTimeTillMaturity';
 
@@ -239,31 +240,55 @@ const useStrategyReturns = (
    * Calculate (estimate) how much rewards token is accrued by strategy position
    * @returns {number} estimated rewards apy from strategy
    */
-  const getRewardsAPY = (strategy: IStrategy, input:string): number => {
+  const getRewardsAPY = (strategy: IStrategy, input: string): number => {
+    /// console.log( strategy.rewardsRate.toString() ) ;
+
+    if (!strategy.rewardsPeriod || strategy.rewardsRate.lte(ZERO_BN)) return 0;
     
-    if (!strategy.rewardsPeriod || !strategy.rewardsRate) return 0;
-
     const { start, end } = strategy.rewardsPeriod;
-
-    // wei rewarded per second for all token holders
-    const rewardsRate = +strategy.rewardsRate;
-    // estimate the total wei rewarded for the period
-    const totalRewards = rewardsRate * (end - start);
 
     // assess if outside of rewards period
     if (NOW < start || NOW > end) return 0;
 
-    const apy = +calculateAPR(
-      strategy.strategyTotalSupply,
-      (+strategy.strategyTotalSupply + totalRewards).toString(),
+    const timeRemaining = end - NOW;
+    console.log(timeRemaining.toString(), 'seconds remaining');
+
+    const weiRemaining = BigNumber.from(timeRemaining).mul(strategy.rewardsRate);
+    const ethRemaining = formatEther( weiRemaining )
+    console.log(ethRemaining, 'eth remaining to be distributed');
+
+    const currentTotalSupply = strategy.strategyTotalSupply;
+    const currentTotalEthSupply = formatEther(currentTotalSupply);
+
+    console.log(currentTotalEthSupply, 'current total ETH strategy supply');
+
+    const inputAsPropOfPool = ( +input / (+currentTotalEthSupply + +input) )
+    console.log('input ETH:',  input )
+    console.log('input as proportion of pool:', inputAsPropOfPool  )
+
+    console.log(
+      'if adding ETH to match total supply, (',
+      +currentTotalEthSupply,
+      ') -> returns will be half the remaining eth: ',
+      +ethRemaining * ( +currentTotalEthSupply / (+currentTotalEthSupply + +currentTotalEthSupply)  )
+    );
+    console.log(
+      'if adding input: ',
+      +input,
+      'your returns will be  ',
+      +ethRemaining * inputAsPropOfPool
+    );
+
+    const newEst = +calculateAPR(
+      input.toString(),
+      (+input + (+ethRemaining * inputAsPropOfPool) ).toString(),
       end,
       start
     );
+    console.log( 'New APY estimate: ', newEst )
 
-    return isNaN(apy) ? 0 : apy;
+    return isNaN(newEst) ? 0 : newEst;
   };
-
-
 
   /* TODO  fix this*/
   const totalAPYBackward = (strategy: IStrategy, digits: number = 2) => {
@@ -303,7 +328,6 @@ const useStrategyReturns = (
       }
     })();
   }, [series]);
-
 
   const calcStrategyReturns = (strategy: IStrategy | null, input: string) => {
     if (!strategy) return;
