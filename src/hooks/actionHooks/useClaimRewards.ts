@@ -11,7 +11,7 @@ const useClaimRewards = (strategy: IStrategy | undefined) => {
   } = useConnection();
   const { userState, userActions } = useContext(UserContext) as IUserContext;
   const { activeAccount: account, assetMap } = userState;
-  const { updateAssets } = userActions;
+  const { updateAssets, updateStrategies } = userActions;
   const {
     txActions: { handleTx },
   } = useContext(TxContext);
@@ -30,8 +30,9 @@ const useClaimRewards = (strategy: IStrategy | undefined) => {
 
     const claim = async () => await strategy.strategyContract.connect(signer).claim(account);
 
-    handleTx(claim, ActionCodes.CLAIM_REWARDS);
+    await handleTx(claim, ActionCodes.CLAIM_REWARDS);
     updateAssets([asset!]);
+    updateStrategies([strategy]);
     getRewards();
   };
 
