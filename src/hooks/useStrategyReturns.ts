@@ -114,6 +114,8 @@ const useStrategyReturns = (
     c: BigNumber;
   }>();
 
+  const [returns, setLpReturns] = useState<IReturns>();
+
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
   /**
@@ -314,6 +316,7 @@ const useStrategyReturns = (
   }, [series]);
 
   const calcStrategyReturns = (strategy: IStrategy | null, input: string) => {
+
     if (!strategy) return;
     const series = strategy.currentSeries;
     if (!series) return;
@@ -332,7 +335,10 @@ const useStrategyReturns = (
     };
   };
 
-  const returns = calcStrategyReturns(selectedStrategy!, inputToUse);
+  // const returns = calcStrategyReturns(selectedStrategy!, inputToUse);
+  useEffect(()=> {
+      setLpReturns( calcStrategyReturns(selectedStrategy!, inputToUse) );
+  },[inputToUse, selectedStrategy])
 
   return {
     returns,

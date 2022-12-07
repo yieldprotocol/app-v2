@@ -6,14 +6,11 @@ import { FiSlash } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ISettingsContext, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { formatStrategyName, nFormatter } from '../../utils/appUtils';
+import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useStrategyReturns, { IReturns } from '../../hooks/useStrategyReturns';
-
-import { MdLocalOffer } from 'react-icons/md';
-import { relative } from 'path';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -123,6 +120,7 @@ interface IStrategySelectorProps {
 }
 
 const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
+  
   const { calcStrategyReturns } = useStrategyReturns(inputValue);
 
   const {
