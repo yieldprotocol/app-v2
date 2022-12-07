@@ -644,7 +644,6 @@ const UserProvider = ({ children }: any) => {
               : [ZERO_BN, ZERO_BN];
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-
             const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
 
             // get rewards data
@@ -702,7 +701,7 @@ const UserProvider = ({ children }: any) => {
         })
       );
 
-      /* add in account specific data */
+      /* Add in account specific data */
       if (account) {
         _accountData = await Promise.all(
           _publicData

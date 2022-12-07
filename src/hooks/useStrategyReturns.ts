@@ -244,7 +244,7 @@ const useStrategyReturns = (
     /// console.log( strategy.rewardsRate.toString() ) ;
 
     if (!strategy.rewardsPeriod || strategy.rewardsRate.lte(ZERO_BN)) return 0;
-    
+
     const { start, end } = strategy.rewardsPeriod;
 
     // assess if outside of rewards period
@@ -254,38 +254,22 @@ const useStrategyReturns = (
     console.log(timeRemaining.toString(), 'seconds remaining');
 
     const weiRemaining = BigNumber.from(timeRemaining).mul(strategy.rewardsRate);
-    const ethRemaining = formatEther( weiRemaining )
+    const ethRemaining = formatEther(weiRemaining);
     console.log(ethRemaining, 'eth remaining to be distributed');
 
     const currentTotalSupply = strategy.strategyTotalSupply;
     const currentTotalEthSupply = formatEther(currentTotalSupply);
-
     console.log(currentTotalEthSupply, 'current total ETH strategy supply');
 
-    const inputAsPropOfPool = ( +input / (+currentTotalEthSupply + +input) )
-    console.log('input ETH:',  input )
-    console.log('input as proportion of pool:', inputAsPropOfPool  )
+    const inputAsPropOfPool = +input / (+currentTotalEthSupply + +input);
+    console.log('input ETH:', input);
+    console.log('input as proportion of pool:', inputAsPropOfPool);
 
-    console.log(
-      'if adding ETH to match total supply, (',
-      +currentTotalEthSupply,
-      ') -> returns will be half the remaining eth: ',
-      +ethRemaining * ( +currentTotalEthSupply / (+currentTotalEthSupply + +currentTotalEthSupply)  )
-    );
-    console.log(
-      'if adding input: ',
-      +input,
-      'your returns will be  ',
-      +ethRemaining * inputAsPropOfPool
-    );
+    const rewardsEarned =  Math.min( +ethRemaining * inputAsPropOfPool, +ethRemaining )
+    console.log('if adding input: ', +input, 'your returns will be  ', rewardsEarned);
 
-    const newEst = +calculateAPR(
-      input.toString(),
-      (+input + (+ethRemaining * inputAsPropOfPool) ).toString(),
-      end,
-      start
-    );
-    console.log( 'New APY estimate: ', newEst )
+    const newEst = +calculateAPR(input.toString(), (+input + rewardsEarned).toString(), end, start);
+    console.log('New APY estimate: ', newEst);
 
     return isNaN(newEst) ? 0 : newEst;
   };
