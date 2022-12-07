@@ -252,6 +252,10 @@ const useStrategyReturns = (
     // assess if outside of rewards period
     if (NOW < start || NOW > end) return 0;
 
+    console.log( totalRewards )
+    console.log( strategy.strategyTotalSupply.toString() )
+    console.log( (+strategy.strategyTotalSupply + totalRewards).toString() )
+
     const apy = +calculateAPR(
       strategy.strategyTotalSupply,
       (+strategy.strategyTotalSupply + totalRewards).toString(),

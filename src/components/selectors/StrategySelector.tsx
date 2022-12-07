@@ -11,6 +11,8 @@ import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
+import { MdLocalOffer } from 'react-icons/md';
+import { relative } from 'path';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -70,14 +72,27 @@ const StrategySelectItem = ({
             {strategy.currentSeries?.seriesMark || <FiSlash />}
           </Avatar>
           <Box align="center" fill="vertical" justify="center">
+
+            <Box direction='row'>
             <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
               {formatStrategyName(strategy.name!)}
             </Text>
+ 
+        </Box>
+
             <Text size="xsmall" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
               Rolling {displayName}
             </Text>
           </Box>
         </Box>
+
+        {strategy.rewardsRate.gt(ZERO_BN) && (
+          <Box round background="red" pad="xsmall" style={{ position: 'absolute', marginTop:'-1em', marginLeft:'17em'}}>
+            <Text size="0.5em" color="white">
+              Extra Rewards
+            </Text>
+          </Box>
+        )}
 
         {apy && (
           <Box fill align="end">
@@ -155,12 +170,19 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
           opts
             .filter((s) => s.currentSeries?.showSeries)
             .filter((s) => s.active)
-            .reduce((prev, curr) =>
-              parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
-            )
+
+            .reduce((prev, curr) => {
+              // if there are rewards on Offer, select that strategy:
+              if (prev.rewardsRate.gt(ZERO_BN) || curr.rewardsRate.gt(ZERO_BN))
+                return parseInt(prev.rewardsRate.toString(), 10) > parseInt(prev.rewardsRate.toString(), 10)
+                  ? prev
+                  : curr;
+              // else selec tthe one with lowest suppy:
+              return parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr;
+            })
         );
       /* or select random strategy from opts */
-      // userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
+      userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
     }
   }, [selectedBase, strategyMap]);
 

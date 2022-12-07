@@ -64,18 +64,6 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
                 )}
               </Text>
             </Box>
-            {/* <Box gap="xxsmall" direction={condensed ? 'row' : undefined}>
-                <Text weight={450} size="xsmall">
-                  Strategy %:
-                </Text>
-                <Text weight={450} size="xsmall">
-                  {strategiesLoading && isSelectedStrategy ? (
-                    <SkeletonWrap width={30} />
-                  ) : (
-                    cleanValue(strategy.accountStrategyPercent, 2)
-                  )}
-                </Text>
-              </Box> */}
           </Box>
         </Box>
       </Box>
