@@ -251,25 +251,25 @@ const useStrategyReturns = (
     if (NOW < start || NOW > end) return 0;
 
     const timeRemaining = end - NOW;
-    console.log(timeRemaining.toString(), 'seconds remaining');
+    // console.log(timeRemaining.toString(), 'seconds remaining');
 
     const weiRemaining = BigNumber.from(timeRemaining).mul(strategy.rewardsRate);
     const ethRemaining = formatEther(weiRemaining);
-    console.log(ethRemaining, 'eth remaining to be distributed');
+    // console.log(ethRemaining, 'eth remaining to be distributed');
 
     const currentTotalSupply = strategy.strategyTotalSupply;
     const currentTotalEthSupply = formatEther(currentTotalSupply);
-    console.log(currentTotalEthSupply, 'current total ETH strategy supply');
+    // console.log(currentTotalEthSupply, 'current total ETH strategy supply');
 
     const inputAsPropOfPool = +input / (+currentTotalEthSupply + +input);
-    console.log('input ETH:', input);
-    console.log('input as proportion of pool:', inputAsPropOfPool);
+    // console.log('input ETH:', input);
+    // console.log('input as proportion of pool:', inputAsPropOfPool);
 
     const rewardsEarned =  Math.min( +ethRemaining * inputAsPropOfPool, +ethRemaining )
-    console.log('if adding input: ', +input, 'your returns will be  ', rewardsEarned);
+    // console.log('if adding input: ', +input, 'your returns will be  ', rewardsEarned);
 
     const newEst = +calculateAPR(input.toString(), (+input + rewardsEarned).toString(), end, start);
-    console.log('New APY estimate: ', newEst);
+    // console.log('New APY estimate: ', newEst);
 
     return isNaN(newEst) ? 0 : newEst;
   };
