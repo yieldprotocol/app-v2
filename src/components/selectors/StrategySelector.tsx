@@ -6,11 +6,14 @@ import { FiSlash } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ISettingsContext, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
-import { formatStrategyName } from '../../utils/appUtils';
+import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
-import useStrategyReturns from '../../hooks/useStrategyReturns';
+import useStrategyReturns, { IReturns } from '../../hooks/useStrategyReturns';
+
+import { MdLocalOffer } from 'react-icons/md';
+import { relative } from 'path';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -41,15 +44,14 @@ const StrategySelectItem = ({
   strategy,
   selected,
   displayName,
-
   handleClick,
-  apy,
+  returns,
 }: {
   strategy: IStrategy;
   selected: boolean;
   displayName: string;
   handleClick: (strategy: IStrategy) => void;
-  apy?: string;
+  returns?: IReturns;
 }) => {
   return (
     <StyledBox
@@ -70,16 +72,33 @@ const StrategySelectItem = ({
             {strategy.currentSeries?.seriesMark || <FiSlash />}
           </Avatar>
           <Box align="center" fill="vertical" justify="center">
-            <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
-              {formatStrategyName(strategy.name!)}
-            </Text>
+            <Box direction="row">
+              <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
+                {formatStrategyName(strategy.name!)}
+              </Text>
+            </Box>
+
             <Text size="xsmall" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
               Rolling {displayName}
             </Text>
           </Box>
         </Box>
 
-        {apy && (
+        {strategy.rewardsRate.gt(ZERO_BN) && (
+          <Box
+            round
+            background="red"
+            pad={{horizontal:"small", vertical: 'xsmall' }}
+            style={{ position: 'absolute', marginTop: '-1em', marginLeft: '17em' }}
+            elevation='small'
+          > 
+            <Text size="small" color="white" textAlign='center'>
+              +{returns.rewardsAPY}%
+            </Text>
+          </Box>
+        )}
+
+        {returns.blendedAPY && (
           <Box fill align="end">
             <Avatar
               background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
@@ -87,7 +106,9 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small">{apy}%</Text>
+              <Text size="small">
+                { (+returns.blendedAPY - +returns.rewardsAPY).toFixed(1) }%
+              </Text>
             </Avatar>
           </Box>
         )}
@@ -98,7 +119,7 @@ const StrategySelectItem = ({
 
 interface IStrategySelectorProps {
   inputValue?: string /* accepts an input value for possible dynamic Return calculations */;
-  setOpen?: any
+  setOpen?: any;
 }
 
 const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
@@ -149,18 +170,18 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
     } else {
-      /* select strategy with the lowest totalSupply and is active */
-      opts.length &&
-        userActions.setSelectedStrategy(
-          opts
-            .filter((s) => s.currentSeries?.showSeries)
-            .filter((s) => s.active)
-            .reduce((prev, curr) =>
-              parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
-            )
-        );
-      /* or select random strategy from opts */
-      // userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
+      /* select strategy with the active rewards and is active */
+      const strategyToSelect = opts
+        .filter((s) => s.currentSeries?.showSeries)
+        .filter((s) => s.active)
+        .find((s) => s.rewardsRate.gt(ZERO_BN));
+      // .reduce((prev, curr) => {
+      //   if (prev.rewardsRate.gt(ZERO_BN) || curr.rewardsRate.gt(ZERO_BN))
+      //     return prev.rewardsRate.lt(prev.rewardsRate) ? prev : curr;
+      //   // else selec tthe one with lowest suppy:
+      //   return parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr;
+      // });
+      userActions.setSelectedStrategy(strategyToSelect || opts[Math.floor(Math.random() * opts.length)]);
     }
   }, [selectedBase, strategyMap]);
 
@@ -186,7 +207,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
               handleClick={() => handleSelect(o)}
               selected={selected}
               displayName={displayName}
-              apy={returns.blendedAPY}
+              returns={returns}
+              // extra={ returns.}
             />
           );
         })}

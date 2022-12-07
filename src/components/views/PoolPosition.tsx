@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiStar, FiZap } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -30,6 +30,8 @@ import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import useClaimRewards from '../../hooks/actionHooks/useClaimRewards';
+import useStrategyReturns from '../../hooks/useStrategyReturns';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -51,6 +53,7 @@ const PoolPosition = () => {
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
+  const [claimDisabled, setClaimDisabled] = useState<boolean>(true);
 
   const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
 
@@ -71,10 +74,17 @@ const PoolPosition = () => {
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   const { logAnalyticsEvent } = useAnalytics();
+  const { claimRewards, accruedRewards, rewardsToken } = useClaimRewards(selectedStrategy!);
+  const { returns: lpReturns } = useStrategyReturns(_selectedStrategy?.accountBalance_, _selectedStrategy);
 
   /* TX data */
   const { txProcess: removeProcess, resetProcess: resetRemoveProcess } = useProcess(
     ActionCodes.REMOVE_LIQUIDITY,
+    selectedSeries?.id!
+  );
+
+  const { txProcess: claimProcess, resetProcess: resetClaimProcess } = useProcess(
+    ActionCodes.CLAIM_REWARDS,
     selectedSeries?.id!
   );
 
@@ -104,14 +114,25 @@ const PoolPosition = () => {
   const handleRemove = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
-    removeLiquidity(removeInput!, selectedSeries, matchingVault);
+    removeLiquidity(removeInput!, selectedSeries!, matchingVault);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries.name,
+      series_id: selectedStrategy?.currentSeries?.name,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
-    } as GA_Properties.transaction_initiated );
+    } as GA_Properties.transaction_initiated);
+  };
 
+  const handleClaim = () => {
+    if (claimDisabled) return;
+    setClaimDisabled(true);
+    claimRewards();
+
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.POOL,
+      series_id: selectedStrategy?.currentSeries?.name,
+      action_code: ActionCodes.CLAIM_REWARDS,
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleMaxAction = () => {
@@ -119,8 +140,8 @@ const PoolPosition = () => {
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.POOL,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
-      } as GA_Properties.max_clicked)
-  }
+    } as GA_Properties.max_clicked);
+  };
 
   const handleSetActionActive = (option: { text: string; index: number }) => {
     setActionActive(option);
@@ -143,7 +164,8 @@ const PoolPosition = () => {
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
-  }, [activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
+    +accruedRewards! === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
+  }, [accruedRewards, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl as string) || null;
@@ -195,7 +217,7 @@ const PoolPosition = () => {
                         _selectedStrategy?.accountBalance_,
                         selectedBase?.digitFormat!
                       )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase.symbol
+                        selectedBase?.symbol
                       })`}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
@@ -210,23 +232,48 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {_selectedStrategy.currentSeries && (
+                    {lpReturns && +lpReturns.blendedAPY! > 0 && (
                       <InfoBite
-                        label="Strategy Token Ownership"
-                        value={`${cleanValue(_selectedStrategy?.accountStrategyPercent, 2)}% of ${nFormatter(
-                          parseFloat(_selectedStrategy?.strategyTotalSupply_!),
-                          2
-                        )}`}
-                        icon={<FiPercent />}
-                        loading={seriesLoading}
+                        textSize="small"
+                        label="Variable APY"
+                        icon={<FiZap />}
+                        value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
+                        labelInfo={
+                          <Box>
+                            {+lpReturns.rewardsAPY! > 0 && (
+                              <Text size="small" weight="lighter">
+                                Rewards APY: {lpReturns.rewardsAPY}%
+                              </Text>
+                            )}
+                            {
+                              <Text size="small" weight="lighter">
+                                {`${selectedBase?.symbol} APY: ${lpReturns.sharesAPY}%`}
+                              </Text>
+                            }
+                            {
+                              <Text size="small" weight="lighter">
+                                fyToken APY: {lpReturns.fyTokenAPY}%
+                              </Text>
+                            }
+                            {+lpReturns.feesAPY! > 0 && (
+                              <Text size="small" weight="lighter">
+                                Fees APY: {lpReturns.feesAPY}%
+                              </Text>
+                            )}
+                            <Text size="small" weight="bold">
+                              Blended APY: {lpReturns.blendedAPY}%
+                            </Text>
+                          </Box>
+                        }
                       />
                     )}
-                    {_selectedStrategy.currentSeries.poolAPY && (
+
+                    {accruedRewards && rewardsToken && +accruedRewards > 0 && (
                       <InfoBite
-                        label="Pool APY"
-                        icon={<FiZap />}
-                        value={`${cleanValue(_selectedStrategy.currentSeries.poolAPY, 2)}%`}
-                        labelInfo="Estimated APY based on the current Euler supply APY"
+                        label="Claimable Rewards"
+                        value={`${cleanValue(accruedRewards, rewardsToken?.digitFormat)} ${rewardsToken?.symbol}`}
+                        icon={<FiStar />}
+                        loading={seriesLoading}
                       />
                     )}
                   </Box>
@@ -243,7 +290,8 @@ const PoolPosition = () => {
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
-                      ]}
+                        !!rewardsToken && { text: 'Claim Rewards', index: 2 },
+                      ].filter(Boolean)}
                       icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
@@ -337,7 +385,7 @@ const PoolPosition = () => {
                 </Box>
               )}
 
-              {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
+              {stepPosition[actionActive.index] === 0 && ![1, 2].includes(actionActive.index) && (
                 <NextButton
                   label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                   onClick={() => handleStepper()}
@@ -365,6 +413,21 @@ const PoolPosition = () => {
                     disabled={removeDisabled || removeProcess?.processActive}
                   />
                 )}
+
+              {actionActive.index === 2 && (
+                <TransactButton
+                  primary
+                  label={
+                    <Text size={mobile ? 'small' : undefined}>
+                      {`Claim${claimProcess?.processActive ? 'ing' : ''} ${
+                        cleanValue(accruedRewards, rewardsToken?.digitFormat!) || ''
+                      } ${rewardsToken?.symbol}`}
+                    </Text>
+                  }
+                  onClick={handleClaim}
+                  disabled={claimDisabled || claimProcess?.processActive}
+                />
+              )}
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>

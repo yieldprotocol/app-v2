@@ -18,6 +18,7 @@ import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 import { SERIES_1, SERIES_42161 } from '../config/series';
 import { Block } from '@ethersproject/providers';
+import STRATEGIES from '../config/strategies';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -223,7 +224,7 @@ const ChainProvider = ({ children }: any) => {
       }
 
       // if there was an issue loading at htis point simply return
-      if (!Cauldron || !Ladle || !RateOracle ) return;
+      if (!Cauldron || !Ladle || !RateOracle) return;
 
       /* Update the baseContracts state : ( hardcoded based on networkId ) */
       const newContractMap = chainState.contractMap as Map<string, Contract>;
@@ -249,7 +250,7 @@ const ChainProvider = ({ children }: any) => {
       updateState({ type: ChainState.CONTRACT_MAP, payload: newContractMap });
 
       /* Get the hardcoded strategy addresses */
-      const strategyAddresses = yieldEnv.strategies[fallbackChainId] as string[];
+      const STRATEGY_CONFIG = STRATEGIES.get(fallbackChainId);
 
       /* get asset map config */
       const ASSET_CONFIG = fallbackChainId === 1 ? ASSETS_1 : ASSETS_42161;
@@ -503,11 +504,13 @@ const ChainProvider = ({ children }: any) => {
         const newStrategyList: IStrategyRoot[] = [];
         try {
           await Promise.all(
-            strategyAddresses.map(async (strategyAddr) => {
-              /* if the strategy is NOT already in the cache : */
-              console.log('Updating Strategy contract ', strategyAddr);
+            STRATEGY_CONFIG.map(async (strategy) => {
+              const { address, type } = strategy;
 
-              const Strategy = contracts.Strategy__factory.connect(strategyAddr, fallbackProvider);
+              /* if the strategy is NOT already in the cache : */
+              console.log('Updating Strategy contract ', address);
+
+              const Strategy = contracts.Strategy__factory.connect(address, fallbackProvider);
               const [name, symbol, baseId, decimals, version] = await Promise.all([
                 Strategy.name(),
                 Strategy.symbol(),
@@ -527,15 +530,17 @@ const ChainProvider = ({ children }: any) => {
                 console.log('could not get start block for strategy', symbol);
               }
 
-              const newStrategy = _chargeStrategy({
-                id: strategyAddr,
-                address: strategyAddr,
+              const newStrategy: IStrategyRoot = _chargeStrategy({
+                id: address,
+                address,
                 symbol,
                 name,
                 version,
                 baseId,
                 decimals,
                 startBlock,
+                type,
+                associatedStrategy: strategy.associatedStrategy,
               });
 
               // update state
@@ -570,7 +575,7 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
-          strategyAddresses.includes(st.address) &&
+          STRATEGY_CONFIG.map((s) => s.address).includes(st.address) &&
             updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
         setLoadingFlag(false);
