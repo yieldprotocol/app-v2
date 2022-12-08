@@ -76,7 +76,7 @@ const AprText = ({
   actionType,
   color,
 }: {
-  inputValue: string | undefined;
+  inputValue: string;
   series: ISeries;
   actionType: ActionType;
   color: string;

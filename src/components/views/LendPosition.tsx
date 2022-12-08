@@ -6,7 +6,7 @@ import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'reac
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
-import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
