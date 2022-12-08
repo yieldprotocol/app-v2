@@ -36,6 +36,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { Strategy__factory } from '../../contracts';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -63,8 +64,10 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const {
-    chainState: { contractMap },
+    chainState: { contractMap, connection },
   } = useContext(ChainContext) as IChainContext;
+
+  const { provider } = connection;
 
   const { txActions } = useContext(TxContext);
   const {resetProcess} = txActions;
@@ -72,7 +75,7 @@ export const useRemoveLiquidity = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, selectedStrategy } = userState;
+  const { activeAccount: account, assetMap, selectedStrategy} = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -94,6 +97,8 @@ export const useRemoveLiquidity = () => {
     const _base: IAsset = assetMap.get(series.baseId)!;
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
+
+    const _associatedStrategyContract = Strategy__factory.connect(_strategy.associatedStrategy, provider);
 
     const ladleAddress = contractMap.get('Ladle').address;
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
@@ -264,7 +269,7 @@ export const useRemoveLiquidity = () => {
 
     const permitCallData: ICallData[] = await sign(
       [
-        /* give strategy permission to sell tokens to pool */
+        /* Give strategy permission to sell tokens to pool */
         {
           target: _strategy,
           spender: 'LADLE',
@@ -272,7 +277,7 @@ export const useRemoveLiquidity = () => {
           ignoreIf: !_strategy || alreadyApprovedStrategy === true,
         },
 
-        /* give pool permission to sell tokens */
+        /* Give pool permission to sell tokens */
         {
           target: {
             address: series.poolAddress,
@@ -300,6 +305,7 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy,
       },
 
+      /* If removing from a v1 strategy, we need to burn the tokens to the associated v2 strategy */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [_strategy.associatedStrategy] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
@@ -308,11 +314,12 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy || _strategy?.type === 'V2',
       },
 
+      /* if removing from a v2 strategy, simply burn form strategy to the pool address, else burn form the associated strategy to the pool. */ 
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy ? _strategy.strategyContract : undefined,
+        targetContract: _strategy?.type === 'V1' ?  _associatedStrategyContract : _strategy,
         ignoreIf: !_strategy,
       },
 
