@@ -138,7 +138,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
     const filteredOpts = opts
-      .filter((_st) => _st.type !== 'V1')
+       .filter((_st) => !(_st.type === 'V1' &&  _st.associatedStrategy !== undefined) ) // filter out if strat is v1 AND has an associated strategy
       .filter((_st) => _st.currentSeries?.showSeries)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
