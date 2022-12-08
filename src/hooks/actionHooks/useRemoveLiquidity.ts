@@ -109,7 +109,6 @@ export const useRemoveLiquidity = () => {
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
 
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
-
     const [_sharesReceived, _fyTokenReceived] = burn(cachedSharesReserves, cachedRealReserves, totalSupply, lpReceived);
 
     const _newPool = newPoolState(
@@ -314,12 +313,11 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy || _strategy?.type === 'V2',
       },
 
-      /* if removing from a v2 strategy, simply burn form strategy to the pool address, else burn form the associated strategy to the pool. */ 
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy?.type === 'V1' ?  _associatedStrategyContract : _strategy,
+        targetContract: _strategy?.type === 'V1' ?  _associatedStrategyContract : _strategy, /* if removing from a v2 strategy, simply burn form strategy to the pool address, else burn form the associated strategy to the pool. */ 
         ignoreIf: !_strategy,
       },
 
