@@ -56,7 +56,7 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
-  const { returns: lpReturns } = useStrategyReturns(poolInput);
+  const { returns  } = useStrategyReturns(poolInput);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -214,36 +214,36 @@ function Pool() {
                     animation={{ type: 'zoomIn', size: 'small' }}
                     flex={false}
                   >
-                    {lpReturns && +lpReturns.blendedAPY! > 0 && (
+                    {returns && + returns.blendedAPY! > 0 && (
                       <InfoBite
                         textSize="large"
                         label="Variable APY"
                         icon={<FiZap color="#10B981" />}
-                        value={`${cleanValue(lpReturns.blendedAPY, 2)}%`}
+                        value={`${cleanValue(returns.blendedAPY, 2)}%`}
                         labelInfo={
                           <Box>
-                            {+lpReturns.rewardsAPY! > 0 && (
+                            {+returns.rewardsAPY! > 0 && (
                               <Text size="small" weight="lighter">
-                                Rewards APY: {lpReturns.rewardsAPY}%
+                                Rewards APY: {returns.rewardsAPY}%
                               </Text>
                             )}
                             {
                               <Text size="small" weight="lighter">
-                                {`${selectedBase?.symbol} APY: ${lpReturns.sharesAPY}%`}
+                                {`${selectedBase?.symbol} APY: ${returns.sharesAPY}%`}
                               </Text>
                             }
                             {
                               <Text size="small" weight="lighter">
-                                fyToken APY: {lpReturns.fyTokenAPY}%
+                                fyToken APY: {returns.fyTokenAPY}%
                               </Text>
                             }
-                            {+lpReturns.feesAPY! > 0 && (
+                            {+returns.feesAPY! > 0 && (
                               <Text size="small" weight="lighter">
-                                Fees APY: {lpReturns.feesAPY}%
+                                Fees APY: {returns.feesAPY}%
                               </Text>
                             )}
                             <Text size="small" weight="bold">
-                              Blended APY: {lpReturns.blendedAPY}%
+                              Blended APY: {returns.blendedAPY}%
                             </Text>
                           </Box>
                         }
