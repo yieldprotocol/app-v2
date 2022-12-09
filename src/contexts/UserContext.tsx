@@ -663,6 +663,9 @@ const UserProvider = ({ children }: any) => {
                 rewardsRate = undefined;
               }
 
+              /* Decide if stragtegy should be 'active' */ 
+              const isActive = _strategy.type === 'V2' || (_strategy.type === 'V1' ) // && !_strategy.associatedStrategy)
+
               return {
                 ..._strategy,
                 strategyTotalSupply,
@@ -678,7 +681,7 @@ const UserProvider = ({ children }: any) => {
 
                 currentPoolAddr,
 
-                active: true,
+                active: isActive,
                 rewardsRate,
                 rewardsPeriod,
               };
