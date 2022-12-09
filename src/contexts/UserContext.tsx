@@ -620,86 +620,83 @@ const UserProvider = ({ children }: any) => {
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
 
-      _publicData = await Promise.all(
-        strategyList.map(async (_strategy): Promise<IStrategy> => {
-          /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
-            _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.seriesId(),
-            _strategy.strategyContract.pool(),
-            _strategy.strategyContract.nextSeriesId(),
-          ]);
+      const seriesList = Array.from(userState.seriesMap.values());
 
-          const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
-          const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
-
-          if (currentSeries) {
-            const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-              currentSeries.poolContract.totalSupply(),
-              currentSeries.poolContract.balanceOf(_strategy.address),
+      if (seriesList.length) {
+        _publicData = await Promise.all(
+          strategyList.map(async (_strategy): Promise<IStrategy> => {
+            /* Get all the data simultanenously in a promise.all */
+            const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
+              _strategy.strategyContract.totalSupply(),
+              _strategy.strategyContract.fyToken(),
+              _strategy.strategyContract.pool(),
             ]);
 
-            const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
-              ? [ZERO_BN, ZERO_BN]
-              : [ZERO_BN, ZERO_BN];
+            // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
+            // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
+            const currentSeries = seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
 
-            const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
+            console.log(_strategy.address, fyToken);
 
-            // get rewards data
-            let rewardsPeriod: { start: number; end: number } | undefined;
-            let rewardsRate: BigNumber | undefined;
-
-            try {
-              const [{ rate }, { start, end }] = await Promise.all([
-                _strategy.strategyContract.rewardsPerToken(),
-                _strategy.strategyContract.rewardsPeriod(),
+            if (currentSeries) {
+              const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
+                currentSeries.poolContract.totalSupply(),
+                currentSeries.poolContract.balanceOf(_strategy.address),
               ]);
 
-              rewardsPeriod = { start, end };
-              rewardsRate = rate;
-            } catch (e) {
-              diagnostics && console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
-              rewardsPeriod = undefined;
-              rewardsRate = undefined;
+              const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+
+              // get rewards data
+              let rewardsPeriod: { start: number; end: number } | undefined;
+              let rewardsRate: BigNumber | undefined;
+
+              try {
+                const [{ rate }, { start, end }] = await Promise.all([
+                  _strategy.strategyContract.rewardsPerToken(),
+                  _strategy.strategyContract.rewardsPeriod(),
+                ]);
+
+                rewardsPeriod = { start, end };
+                rewardsRate = rate;
+              } catch (e) {
+                diagnostics &&
+                  console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
+                rewardsPeriod = undefined;
+                rewardsRate = undefined;
+              }
+
+              return {
+                ..._strategy,
+                strategyTotalSupply,
+                strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
+                poolTotalSupply,
+                poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
+                strategyPoolBalance,
+                strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
+                strategyPoolPercent,
+
+                currentSeriesAddr: fyToken,
+                currentSeries,
+
+                currentPoolAddr,
+
+                active: true,
+                rewardsRate,
+                rewardsPeriod,
+              };
             }
 
+            /* else return an 'EMPTY' strategy */
             return {
               ..._strategy,
-              strategyTotalSupply,
-              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
-              poolTotalSupply,
-              poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
-              strategyPoolBalance,
-              strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
-              strategyPoolPercent,
-              currentSeriesId,
+              currentSeriesAddr: undefined,
               currentPoolAddr,
-              nextSeriesId,
-              currentSeries,
-              nextSeries,
-              initInvariant: initInvariant || BigNumber.from('0'),
-              currentInvariant: currentInvariant || BigNumber.from('0'),
-              returnRate,
-              returnRate_: returnRate.toString(),
-              active: true,
-              rewardsRate,
-              rewardsPeriod,
+              currentSeries: undefined,
+              active: false,
             };
-          }
-
-          /* else return an 'EMPTY' strategy */
-          return {
-            ..._strategy,
-            currentSeriesId,
-            currentPoolAddr,
-            nextSeriesId,
-            currentSeries: undefined,
-            nextSeries: undefined,
-            active: false,
-          };
-        })
-      );
+          })
+        );
+      }
 
       /* Add in account specific data */
       if (account) {

@@ -346,12 +346,11 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
-  currentSeriesId: string;
+  
+  currentSeriesAddr: string;
   currentPoolAddr: string;
-  nextSeriesId: string;
 
   currentSeries: ISeries | undefined;
-  nextSeries: ISeries | undefined;
   active: boolean;
 
   initInvariant?: BigNumber;

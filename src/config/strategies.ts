@@ -106,51 +106,103 @@ STRATEGIES.set(1, [
   //     name: 'Yield Strategy DAI 6M Jun Dec',
   //     decimals: 18,
   //   },
-  //   {
-  //     address: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7',
-  //     type: 'V2',
-  //     associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
-  //     symbol: 'YSUSDC6MJD',
-  //     baseId: USDC,
-  //     name: 'Yield Strategy USDC 6M Jun Dec',
-  //     decimals: 6,
-  //   },
-  //   {
-  //     address: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd',
-  //     type: 'V2',
-  //     associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
-  //     symbol: 'YSFRAX6MJD',
-  //     baseId: FRAX,
-  //     name: 'Yield Strategy FRAX 6M Jun Dec',
-  //     decimals: 18,
-  //   },
+    {
+      address: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7',
+      type: 'V2',
+      associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
+      symbol: 'YSUSDC6MJD',
+      baseId: USDC,
+      name: 'Yield Strategy USDC 6M Jun Dec',
+      decimals: 6,
+    },
+    // {
+    //   address: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd',
+    //   type: 'V2',
+    //   associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
+    //   symbol: 'YSFRAX6MJD',
+    //   baseId: FRAX,
+    //   name: 'Yield Strategy FRAX 6M Jun Dec',
+    //   decimals: 18,
+    // },
 ]);
 
 STRATEGIES.set(42161, [
-  { address: '0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1', type: 'V1' },
-  { address: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8', type: 'V1' },
-  { address: '0xD5B43b2550751d372025d048553352ac60f27151', type: 'V1' },
-  { address: '0xa3cAF61FD23d374ce13c742E4E9fA9FAc23Ddae6', type: 'V1' },
-  { address: '0x54F08092e3256131954dD57C04647De8b2E7A9a9', type: 'V1' },
-  { address: '0x3353E1E2976DBbc191a739871faA8E6E9D2622c7', type: 'V1' },
+  {
+    address: '0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1',
+    type: 'V1',
+    symbol: 'YSDAI6MMS',
+    baseId: DAI,
+    name: 'Yield Strategy DAI 6M Mar Sep',
+    decimals: 18,
+  },
+
+  {
+    address: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
+    type: 'V1',
+    symbol: 'YSUSDC6MMS',
+    baseId: USDC,
+    name: 'Yield Strategy USDC 6M Mar Sep',
+    decimals: 6,
+  },
+
+  {
+    address: '0xD5B43b2550751d372025d048553352ac60f27151',
+    type: 'V1',
+    symbol: 'YSETH6MMS',
+    baseId: WETH,
+    name: 'Yield Strategy ETH 6M Mar Sep',
+    decimals: 18,
+  },
+
+  {
+    address: '0xa3cAF61FD23d374ce13c742E4E9fA9FAc23Ddae6',
+    type: 'V1',
+    symbol: 'YSDAI6MJD',
+    baseId: DAI,
+    name: 'Yield Strategy DAI 6M Jun Dec',
+    decimals: 18,
+  },
+
+  {
+    address: '0x54F08092e3256131954dD57C04647De8b2E7A9a9',
+    type: 'V1',
+    symbol: 'YSUSDC6MJD',
+    baseId: USDC,
+    name: 'Yield Strategy USDC 6M Jun Dec',
+    decimals: 18,
+  },
+
+  {
+    address: '0x3353E1E2976DBbc191a739871faA8E6E9D2622c7',
+    type: 'V1',
+    symbol: 'YSWETH6MJD',
+    baseId: WETH,
+    name: 'Yield Strategy ETH 6M Jun Dec',
+    decimals: 18,
+  },
 ]);
 
 export default STRATEGIES;
 
-export const validateStrategies = async (provider: BaseProvider ) => {
+export const validateStrategies = async (provider: BaseProvider) => {
+  const preText = '### STRATEGY VALIDATION ERROR ### ';
   const chainId = (await provider.getNetwork()).chainId;
-  const strategyList = STRATEGIES.get(chainId)
-  strategyList.forEach(async (s:StrategyInfo)=> {
+  const strategyList = STRATEGIES.get(chainId);
+  strategyList.forEach(async (s: StrategyInfo) => {
     const strategy = Strategy__factory.connect(s.address, provider);
-    const [ symbol, baseId, name, decimals ] = await Promise.all( [
-      strategy.symbol(),
-      strategy.baseId(),
-      strategy.name(),
-      strategy.decimals()
-    ])
-    s.symbol !== symbol && console.log(s.address, ': symbol mismatch')
-    s.baseId !== baseId && console.log(s.address, ': baseId mismatch')
-    s.name !== name && console.log(s.address, ': name mismatch')
-    s.decimals !== decimals && console.log(s.address, ': decimals mismatch')
-  })
-}
+    try {
+      const [symbol, baseId, name, decimals] = await Promise.all([
+        strategy.symbol(),
+        strategy.baseId(),
+        strategy.name(),
+        strategy.decimals(),
+      ]);
+      s.symbol !== symbol && console.log(preText, s.address, ': symbol mismatch');
+      s.baseId !== baseId && console.log(preText, s.address, ': baseId mismatch');
+      s.name !== name && console.log(preText, s.address, ': name mismatch');
+      s.decimals !== decimals && console.log(preText, s.address, ': decimals mismatch');
+    } catch (e) {
+      console.log(preText, s.address, ': Contract not reachable');
+    }
+  });
+};

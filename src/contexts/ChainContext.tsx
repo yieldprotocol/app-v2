@@ -545,13 +545,14 @@ const ChainProvider = ({ children }: any) => {
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
 
-        (async () => await validateStrategies(fallbackProvider) )(); 
+        // (async () => await validateStrategies(fallbackProvider) )();
 
         (async () => {
           await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
           setLoadingFlag(false);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
         })();
+        
       } else {
         // get assets, series and strategies from cache and 'charge' them, and add to state:
         cachedAssets.forEach((a: IAssetRoot) => {

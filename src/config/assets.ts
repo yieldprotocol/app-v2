@@ -472,3 +472,4 @@ ASSETS_42161.set(WETH, {
   joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
   isYieldBase: true,
 });
+
