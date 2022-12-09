@@ -636,8 +636,6 @@ const UserProvider = ({ children }: any) => {
             // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
             const currentSeries = seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
 
-            console.log(_strategy.address, fyToken);
-
             if (currentSeries) {
               const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
                 currentSeries.poolContract.totalSupply(),
