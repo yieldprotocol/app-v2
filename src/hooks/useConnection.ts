@@ -160,11 +160,7 @@ export const useConnection = () => {
   useEffect(() => {
     const getProviders = () => {
       if (useTenderlyFork && process.env.ENV === 'development') {
-
-
         const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
-
-        console.log( 'using tenderly provider:', process.env.TENDERLY_JSON_RPC_URL)
         return { provider: tenderlyProvider, fallbackProvider: tenderlyProvider };
       }
 
