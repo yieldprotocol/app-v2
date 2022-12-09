@@ -153,27 +153,25 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   /* Auto select a default strategy  */
   useEffect(() => {
-    // if strategy already selected, no need to set explicitly again
+    /* if strategy already selected, no need to set explicitly again */
     if (selectedStrategy) return;
 
     const opts: IStrategy[] = Array.from(strategyMap.values())
       .filter((_st) => _st.currentSeries?.showSeries && _st.active)
       .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
-
+    
     /* select strategy with rewards */
     const strategyWithRewards = opts.find((s) => s.rewardsRate.gt(ZERO_BN));
     if (strategyWithRewards) {
       userActions.setSelectedStrategy(strategyWithRewards);
       return;
     }
-
     /* select strategy with existing balance */
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
       return;
     }
-
     /* else set a random one as a last resort */
     userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
   }, [selectedBase, strategyMap]);

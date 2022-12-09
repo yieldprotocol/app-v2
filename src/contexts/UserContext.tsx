@@ -632,6 +632,8 @@ const UserProvider = ({ children }: any) => {
               _strategy.strategyContract.pool(),
             ]);
 
+            // console.log(_strategy.address, strategyTotalSupply, fyToken, currentPoolAddr )
+
             // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
             // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
             const currentSeries = seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
