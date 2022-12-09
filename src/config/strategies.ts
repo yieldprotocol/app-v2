@@ -1,30 +1,129 @@
+import { BaseProvider, Provider } from '@ethersproject/providers';
+import { Strategy__factory } from '../contracts';
+import { DAI, FRAX, USDC, WETH } from './assets';
+
 interface StrategyInfo {
   address: string;
   type: 'V1' | 'V2';
   associatedStrategy?: string; // if V2 strategy, then the V1 associated strategy (and vice versa)
+  symbol?: string;
+  name?: string;
+  baseId?: string;
+  decimals?: number;
 }
 
 // map each chain id to its corresponding strategies' data
 const STRATEGIES = new Map<number, StrategyInfo[]>();
 
 STRATEGIES.set(1, [
+  /* V1 strategies */
+  {
+    address: '0x7ACFe277dEd15CabA6a8Da2972b1eb93fe1e2cCD',
+    type: 'V1',
+    symbol: 'YSDAI6MMS',
+    baseId: DAI,
+    name: 'Yield Strategy DAI 6M Mar Sep',
+    decimals: 18,
+  },
+  {
+    address: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
+    type: 'V1',
+    associatedStrategy: '0xd2Cbc2307b3703064714363557158c4D7a26697C',
+    symbol: 'YSDAI6MJD',
+    baseId: DAI,
+    name: 'Yield Strategy DAI 6M Jun Dec',
+    decimals: 18,
+  },
+  {
+    address: '0xFBc322415CBC532b54749E31979a803009516b5D',
+    type: 'V1',
+    symbol: 'YSUSDC6MMS',
+    baseId: USDC,
+    name: 'Yield Strategy USDC 6M Mar Sep',
+    decimals: 6,
+  },
+  {
+    address: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
+    type: 'V1',
+    associatedStrategy: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7',
+    symbol: 'YSUSDC6MJD',
+    baseId: USDC,
+    name: 'Yield Strategy USDC 6M Jun Dec',
+    decimals: 6,
+  },
+  {
+    address: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247',
+    type: 'V1',
+    symbol: 'YSETH6MMS',
+    baseId: WETH,
+    name: 'Yield Strategy ETH 6M Mar Sep',
+    decimals: 18,
+  },
+  {
+    address: '0x831dF23f7278575BA0b136296a285600cD75d076',
+    type: 'V1',
+    associatedStrategy: '0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745',
+    symbol: 'YSETH6MJD',
+    baseId: WETH,
+    name: 'Yield Strategy ETH 6M Jun Dec',
+    decimals: 18,
+  },
+  {
+    address: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
+    type: 'V1',
+    associatedStrategy: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd',
+    symbol: 'YSFRAX6MJD',
+    baseId: FRAX,
+    name: 'Yield Strategy FRAX 6M Jun Dec',
+    decimals: 18,
+  },
 
-  /* v1 strategies */ 
-  { address: '0x7ACFe277dEd15CabA6a8Da2972b1eb93fe1e2cCD', type: 'V1' }, // "YSDAI6MMS"
-  { address: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295', type: 'V1', associatedStrategy: '0xd2Cbc2307b3703064714363557158c4D7a26697C'  }, // "YSDAI6MJD"
-  { address: '0xFBc322415CBC532b54749E31979a803009516b5D', type: 'V1' }, // "YSUSDC6MMS"
-  { address: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39', type: 'V1', associatedStrategy: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7'  },// "YSUSDC6MJD"
-  { address: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247', type: 'V1' },// "YSETH6MMS"
-  { address: '0x831dF23f7278575BA0b136296a285600cD75d076', type: 'V1', associatedStrategy: '0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745' }, // "YSETH6MJD"
-  { address: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A', type: 'V1', associatedStrategy: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd' }, // "YSFRAX6MJD"
-  { address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6', type: 'V1' }, // "YSFRAX6MMS"
+  {
+    address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
+    type: 'V1',
+    symbol: 'YSFRAX6MMS',
+    baseId: FRAX,
+    name: 'Yield Strategy FRAX 6M Mar Sep',
+    decimals: 18,
+  },
 
-  /* V2 strategies */ 
-  { address: '0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745', type: 'V2', associatedStrategy: '0x831dF23f7278575BA0b136296a285600cD75d076'   }, // "YSETH6MJD"
-  { address: '0xd2Cbc2307b3703064714363557158c4D7a26697C', type: 'V2', associatedStrategy: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295' }, // "YSDAI6MJD"
-  { address: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7', type: 'V2', associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39' }, // "YSUSDC6MJD"
-  { address: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd', type: 'V2', associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A'  }, // "YSFRAX6MJD"
-
+  /* V2 strategies */
+  // {
+  //   address: '0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745',
+  //   type: 'V2',
+  //   associatedStrategy: '0x831dF23f7278575BA0b136296a285600cD75d076',
+  //   symbol: 'YSETH6MJD',
+  //   baseId: WETH,
+  //   name: 'Yield Strategy WETH 6M Jun Dec',
+  //   decimals: 18,
+  // },
+  //   {
+  //     address: '0xd2Cbc2307b3703064714363557158c4D7a26697C',
+  //     type: 'V2',
+  //     associatedStrategy: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
+  //     symbol: 'YSDAI6MJD',
+  //     baseId: DAI,
+  //     name: 'Yield Strategy DAI 6M Jun Dec',
+  //     decimals: 18,
+  //   },
+  //   {
+  //     address: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7',
+  //     type: 'V2',
+  //     associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
+  //     symbol: 'YSUSDC6MJD',
+  //     baseId: USDC,
+  //     name: 'Yield Strategy USDC 6M Jun Dec',
+  //     decimals: 6,
+  //   },
+  //   {
+  //     address: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd',
+  //     type: 'V2',
+  //     associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
+  //     symbol: 'YSFRAX6MJD',
+  //     baseId: FRAX,
+  //     name: 'Yield Strategy FRAX 6M Jun Dec',
+  //     decimals: 18,
+  //   },
 ]);
 
 STRATEGIES.set(42161, [
@@ -37,3 +136,21 @@ STRATEGIES.set(42161, [
 ]);
 
 export default STRATEGIES;
+
+export const validateStrategies = async (provider: BaseProvider ) => {
+  const chainId = (await provider.getNetwork()).chainId;
+  const strategyList = STRATEGIES.get(chainId)
+  strategyList.forEach(async (s:StrategyInfo)=> {
+    const strategy = Strategy__factory.connect(s.address, provider);
+    const [ symbol, baseId, name, decimals ] = await Promise.all( [
+      strategy.symbol(),
+      strategy.baseId(),
+      strategy.name(),
+      strategy.decimals()
+    ])
+    s.symbol !== symbol && console.log(s.address, ': symbol mismatch')
+    s.baseId !== baseId && console.log(s.address, ': baseId mismatch')
+    s.name !== name && console.log(s.address, ': name mismatch')
+    s.decimals !== decimals && console.log(s.address, ': decimals mismatch')
+  })
+}

@@ -18,7 +18,7 @@ import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 import { SERIES_1, SERIES_42161 } from '../config/series';
 import { Block } from '@ethersproject/providers';
-import STRATEGIES from '../config/strategies';
+import STRATEGIES, { validateStrategies } from '../config/strategies';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -508,39 +508,22 @@ const ChainProvider = ({ children }: any) => {
               const { address, type } = strategy;
 
               /* if the strategy is NOT already in the cache : */
-              console.log('Updating Strategy contract ', address);
-
+              console.log('Updating Strategy Contract ', address);
               const Strategy = contracts.Strategy__factory.connect(address, fallbackProvider);
-              const [name, symbol, baseId, decimals, version] = await Promise.all([
-                Strategy.name(),
-                Strategy.symbol(),
-                Strategy.baseId(),
-                Strategy.decimals(),
-                Strategy.version(),
-              ]);
 
-              // get strategy created block using first StartPool event as proxy
+              // get Strategy created block using first StartPool event as proxy
               let startBlock: Block | undefined;
-
               const filter = Strategy.filters.PoolStarted();
-
               try {
                 startBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
               } catch (error) {
-                console.log('could not get start block for strategy', symbol);
+                console.log('Could not get start block for strategy', strategy.symbol);
               }
 
               const newStrategy: IStrategyRoot = _chargeStrategy({
+                ...strategy,
                 id: address,
-                address,
-                symbol,
-                name,
-                version,
-                baseId,
-                decimals,
                 startBlock,
-                type,
-                associatedStrategy: strategy.associatedStrategy,
               });
 
               // update state
@@ -561,6 +544,9 @@ const ChainProvider = ({ children }: any) => {
        * */
       if (cachedAssets.length === 0 || cachedSeries.length === 0) {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
+
+        (async () => await validateStrategies(fallbackProvider) )(); 
+
         (async () => {
           await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
           setLoadingFlag(false);
@@ -575,6 +561,7 @@ const ChainProvider = ({ children }: any) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });
         cachedStrategies.forEach((st: IStrategyRoot) => {
+  
           STRATEGY_CONFIG.map((s) => s.address).includes(st.address) &&
             updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
