@@ -632,6 +632,9 @@ const UserProvider = ({ children }: any) => {
               _strategy.strategyContract.pool(),
             ]);
 
+            /* we check if the strategy has been supersecced by a v2 version */
+            const hasAnUpdatedVersion =  (_strategy.type === 'V1' && _strategy.associatedStrategy )
+
             // console.log(_strategy.address, strategyTotalSupply, fyToken, currentPoolAddr )
 
             // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
@@ -641,7 +644,7 @@ const UserProvider = ({ children }: any) => {
             if (currentSeries) {
               const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
                 currentSeries.poolContract.totalSupply(),
-                currentSeries.poolContract.balanceOf(_strategy.address),
+                currentSeries.poolContract.balanceOf( hasAnUpdatedVersion ?_strategy.associatedStrategy : _strategy.address),
               ]);
 
               const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
@@ -649,8 +652,6 @@ const UserProvider = ({ children }: any) => {
               // get rewards data
               let rewardsPeriod: { start: number; end: number } | undefined;
               let rewardsRate: BigNumber | undefined;
-
-              console.log( rewardsRate );  
 
               try {
                 const [{ rate }, { start, end }] = await Promise.all([
