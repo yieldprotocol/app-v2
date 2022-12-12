@@ -650,6 +650,8 @@ const UserProvider = ({ children }: any) => {
               let rewardsPeriod: { start: number; end: number } | undefined;
               let rewardsRate: BigNumber | undefined;
 
+              console.log( rewardsRate );  
+
               try {
                 const [{ rate }, { start, end }] = await Promise.all([
                   _strategy.strategyContract.rewardsPerToken(),
