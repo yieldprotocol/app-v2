@@ -32,7 +32,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   const strategy: IStrategy | undefined = selectedStrategy;
   const strategySeries: ISeries | undefined = seriesMap?.get(
-    selectedStrategy ? strategy?.currentSeriesId : selectedSeries?.id
+    selectedStrategy ? strategy?.currentSeries.id : selectedSeries?.id
   );
 
   const strategyBase: IAsset | undefined = assetMap?.get(selectedStrategy ? strategy?.baseId : selectedBase?.proxyId);
@@ -41,7 +41,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
   /* LOCAL STATE */
-
   const [_input, setInput] = useState<BigNumber>(ethers.constants.Zero);
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
 
