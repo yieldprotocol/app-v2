@@ -88,24 +88,24 @@ STRATEGIES.set(1, [
   },
 
   /* V2 strategies */
-  // {
-  //   address: '0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745',
-  //   type: 'V2',
-  //   associatedStrategy: '0x831dF23f7278575BA0b136296a285600cD75d076',
-  //   symbol: 'YSETH6MJD',
-  //   baseId: WETH,
-  //   name: 'Yield Strategy WETH 6M Jun Dec',
-  //   decimals: 18,
-  // },
-  //   {
-  //     address: '0xd2Cbc2307b3703064714363557158c4D7a26697C',
-  //     type: 'V2',
-  //     associatedStrategy: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
-  //     symbol: 'YSDAI6MJD',
-  //     baseId: DAI,
-  //     name: 'Yield Strategy DAI 6M Jun Dec',
-  //     decimals: 18,
-  //   },
+  {
+    address: '0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745',
+    type: 'V2',
+    associatedStrategy: '0x831dF23f7278575BA0b136296a285600cD75d076',
+    symbol: 'YSETH6MJD',
+    baseId: WETH,
+    name: 'Yield Strategy WETH 6M Jun Dec',
+    decimals: 18,
+  },
+    {
+      address: '0xd2Cbc2307b3703064714363557158c4D7a26697C',
+      type: 'V2',
+      associatedStrategy: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
+      symbol: 'YSDAI6MJD',
+      baseId: DAI,
+      name: 'Yield Strategy DAI 6M Jun Dec',
+      decimals: 18,
+    },
     {
       address: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7',
       type: 'V2',
@@ -115,15 +115,15 @@ STRATEGIES.set(1, [
       name: 'Yield Strategy USDC 6M Jun Dec',
       decimals: 6,
     },
-    // {
-    //   address: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd',
-    //   type: 'V2',
-    //   associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
-    //   symbol: 'YSFRAX6MJD',
-    //   baseId: FRAX,
-    //   name: 'Yield Strategy FRAX 6M Jun Dec',
-    //   decimals: 18,
-    // },
+    {
+      address: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd',
+      type: 'V2',
+      associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
+      symbol: 'YSFRAX6MJD',
+      baseId: FRAX,
+      name: 'Yield Strategy FRAX 6M Jun Dec',
+      decimals: 18,
+    },
 ]);
 
 STRATEGIES.set(42161, [
