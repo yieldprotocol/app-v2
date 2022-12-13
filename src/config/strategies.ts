@@ -28,7 +28,7 @@ STRATEGIES.set(1, [
   {
     address: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
     type: 'V1',
-    associatedStrategy: '0xd2Cbc2307b3703064714363557158c4D7a26697C',
+    associatedStrategy: '0xCc28081d668677007FCDafbCFfD132B69a44F6f1',
     symbol: 'YSDAI6MJD',
     baseId: DAI,
     name: 'Yield Strategy DAI 6M Jun Dec',
@@ -45,7 +45,7 @@ STRATEGIES.set(1, [
   {
     address: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
     type: 'V1',
-    associatedStrategy: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7',
+    associatedStrategy: '0xa6c77A07786d0F40540bB72059905b357cF81881',
     symbol: 'YSUSDC6MJD',
     baseId: USDC,
     name: 'Yield Strategy USDC 6M Jun Dec',
@@ -62,7 +62,7 @@ STRATEGIES.set(1, [
   {
     address: '0x831dF23f7278575BA0b136296a285600cD75d076',
     type: 'V1',
-    associatedStrategy: '0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745',
+    associatedStrategy: '0xEA7577bE7C29FbD8246FE69408bf4Bc7b6668d2a',
     symbol: 'YSETH6MJD',
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Jun Dec',
@@ -71,7 +71,7 @@ STRATEGIES.set(1, [
   {
     address: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
     type: 'V1',
-    associatedStrategy: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd',
+    associatedStrategy: '0x7CA19022b0e371BFB545E3e91c0AEa4A3DBB9C91',
     symbol: 'YSFRAX6MJD',
     baseId: FRAX,
     name: 'Yield Strategy FRAX 6M Jun Dec',
@@ -111,10 +111,8 @@ STRATEGIES.set(1, [
       baseId: USDC,
       name: 'Yield Strategy USDC 6M Jun Dec',
       decimals: 6,
-
       type: 'V2',
       associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
-
     },
     {
       address: '0x7CA19022b0e371BFB545E3e91c0AEa4A3DBB9C91',
