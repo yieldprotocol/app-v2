@@ -17,6 +17,8 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 import { SERIES_1, SERIES_42161 } from '../config/series';
+
+import { SERIES, SeriesStaticInfo } from '../config/series_new';
 import { Block } from '@ethersproject/providers';
 import STRATEGIES, { validateStrategies } from '../config/strategies';
 
@@ -256,7 +258,8 @@ const ChainProvider = ({ children }: any) => {
       const ASSET_CONFIG = fallbackChainId === 1 ? ASSETS_1 : ASSETS_42161;
 
       /* get series map config */
-      const SERIES_CONFIG = fallbackChainId === 1 ? SERIES_1 : SERIES_42161;
+      const SERIES_CONFIG =  SERIES.get(fallbackChainId);
+      //const SERIES_CONFIG =  fallbackChainId === 1 ? SERIES_1 : SERIES_42161;
 
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
@@ -433,82 +436,66 @@ const ChainProvider = ({ children }: any) => {
       const _getSeries = async () => {
         let seriesMap = SERIES_CONFIG;
 
-        const newSeriesList: any[] = [];
+        // const newSeriesList: any[] = [];
 
-        await Promise.all(
-          Array.from(seriesMap).map(async (x): Promise<void> => {
-            const id = x[0];
-            const fyTokenAddress = x[1].fyTokenAddress;
-            const poolAddress = x[1].poolAddress;
+        seriesMap.forEach((series:SeriesStaticInfo)=> { 
+          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(series) });
+        })
 
-            const { maturity, baseId } = await Cauldron.series(id);
-            const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-            const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
+        // await Promise.all(
+        //   Array.from(seriesMap).map(async (x): Promise<void> => {
+        //     const id = x[0];
+        //     const fyTokenAddress = x[1].fyTokenAddress;
+        //     const poolAddress = x[1].poolAddress;
 
-            const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
-              await Promise.all([
-                fyTokenContract.name(),
-                fyTokenContract.symbol(),
-                fyTokenContract.version(),
-                fyTokenContract.decimals(),
-                poolContract.name(),
-                poolContract.version(),
-                poolContract.symbol(),
-                poolContract.ts(),
-                poolContract.g1(),
-                poolContract.g2(),
-                poolContract.base(),
-              ]);
+        //     const { maturity, baseId } = await Cauldron.series(id);
+        //     const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
+        //     const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
 
-            const newSeries = {
-              id,
+        //     const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
+        //       await Promise.all([
+        //         fyTokenContract.name(),
+        //         fyTokenContract.symbol(),
+        //         fyTokenContract.version(),
+        //         fyTokenContract.decimals(),
+        //         poolContract.name(),
+        //         poolContract.version(),
+        //         poolContract.symbol(),
+        //         poolContract.ts(),
+        //         poolContract.g1(),
+        //         poolContract.g2(),
+        //         poolContract.base(),
+        //       ]);
 
-              baseId,
-              baseAddress,
-              maturity,
+        //     const newSeries = {
+        //       id,
 
-              name,
-              symbol,
-              version,
-              address: fyTokenAddress,
-              fyTokenAddress,
-              decimals,
-              poolAddress,
-              poolVersion,
-              poolName,
-              poolSymbol,
+        //       baseId,
+        //       baseAddress,
+        //       maturity,
 
-              ts: ts.toString(),
-              g1:g1.toString(),
-              g2:g2.toString(),
+        //       name,
+        //       symbol,
+        //       version,
+        //       address: fyTokenAddress,
+        //       fyTokenAddress,
+        //       decimals,
+        //       poolAddress,
+        //       poolVersion,
+        //       poolName,
+        //       poolSymbol,
+
+        //       ts: ts.toString(),
+        //       g1:g1.toString(),
+        //       g2:g2.toString(),
               
-            };
+        //     }
+        //     updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
+        //     newSeriesList.push(newSeries);
+        //   })
+        // ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
 
-            console.log( 
-             'id:', id, ',',
-             'maturity:', maturity, ',',
-             'baseId:', baseId, ',',
-             'fyTokenAddress:', fyTokenAddress, ',',
-             'poolAddress:', poolAddress,',',
-             'name:', name, ',',
-             'symbol:', symbol, ',',
-             'version:', version, ',',
-             'decimals:', decimals, ',',
-             'poolName:',poolName, ',',
-             'poolSymbol:', poolSymbol, ',',
-             'poolVersion:', poolVersion, ',',
-             'ts:', ts.toString(), ',', 
-             'g1:', g1.toString(), ',', 
-             'g2:', g2.toString(), ',',
-            )
-
-            updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-            newSeriesList.push(newSeries);
-          })
-        ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
-
-        setCachedSeries(newSeriesList);
-
+        // setCachedSeries(newSeriesList);
         console.log('Yield Protocol Series data updated successfully.');
       };
 
