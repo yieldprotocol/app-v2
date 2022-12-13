@@ -20,6 +20,7 @@ import YieldMark from '../components/logos/YieldMark';
 import { SERIES, SeriesStaticInfo } from '../config/series';
 import { Block } from '@ethersproject/providers';
 import STRATEGIES, { validateStrategies } from '../config/strategies';
+import { Pool__factory } from '../contracts';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
@@ -437,13 +438,27 @@ const ChainProvider = ({ children }: any) => {
 
         // const newSeriesList: any[] = [];
 
-        seriesMap.forEach((series:SeriesStaticInfo)=> { 
+        seriesMap.forEach(async (series:SeriesStaticInfo)=> { 
+
+          /* development get ts g1 g2 values */ 
+          if (false) {
+            const poolContract = Pool__factory.connect(series.poolAddress, fallbackProvider);
+            const [ts, g1, g2 ] = await Promise.all([
+              poolContract.ts(),
+              poolContract.g1(),
+              poolContract.g2(),
+            ]);
+            console.log( series.symbol, ts, g1,g2)
+          }
+        
           const seriesDefaults = {
             ...series,
             version: series.version || '1',
             poolVersion: series.poolVersion || '1',
             decimals: series.decimals || '18',
+
           }
+
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(seriesDefaults) });
         })
 

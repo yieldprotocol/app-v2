@@ -95,7 +95,6 @@ export const validateSeries = async (provider: BaseProvider, cauldronAddress: st
       s.ts !== ts.toString() && console.log(preText, s.address, ': pool ts mismatch');
       s.g1 !== g1.toString() && console.log(preText, s.address, ': pool g1 mismatch');
       s.g2 !== g2.toString() && console.log(preText, s.address, ': pool g2 mismatch');
-
     } catch (e) {
       console.log(preText, s.address, ': Contract not reachable');
     }
@@ -126,11 +125,11 @@ SERIES.set(
         g2: '24595658764946068821',
       },
     ],
-    
+
     [
-       WETH_2209,
+      WETH_2209,
       {
-        id:  WETH_2209,
+        id: WETH_2209,
         baseId: '0x303000000000',
         // baseAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         maturity: 1664550000,
@@ -242,9 +241,9 @@ SERIES.set(
       },
     ],
     [
-       WETH_2212,
+      WETH_2212,
       {
-        id:  WETH_2212,
+        id: WETH_2212,
         baseId: '0x303000000000',
         // baseAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         maturity: 1672412400,
@@ -280,9 +279,9 @@ SERIES.set(
       },
     ],
     [
-       WETH_2206,
+      WETH_2206,
       {
-        id:  WETH_2206,
+        id: WETH_2206,
         baseId: '0x303000000000',
         // baseAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         maturity: 1656039600,
@@ -337,9 +336,9 @@ SERIES.set(
       },
     ],
     [
-       WETH_2303,
+      WETH_2303,
       {
-        id:  WETH_2303,
+        id: WETH_2303,
         baseId: '0x303000000000',
         // baseAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         maturity: 1680274800,
@@ -474,7 +473,6 @@ SERIES.set(
       {
         id: DAI_2206,
         baseId: '0x303100000000',
-        // baseAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         maturity: 1656039600,
         name: 'FYDAI2206',
         symbol: 'FYDAI2206',
@@ -489,73 +487,81 @@ SERIES.set(
       },
     ],
 
-    [WETH_2306, {
-      id: WETH_2306,
-      baseId: '0x303000000000',
-      maturity: 0,
-      name: 'FYETH2306',
-      symbol: 'FYETH2306',
-      address: '',
-      decimals: 18,
-      poolAddress: '',
-      poolName: '',
-      poolSymbol: '',
-      ts: '',
-      g1: '',
-      g2: '',
-    }
+    [
+      WETH_2306,
+      {
+        id: WETH_2306,
+        baseId: '0x303000000000',
+        maturity: 1688137200,
+        name: 'FYETH2306',
+        symbol: 'FYETH2306',
+        address: '0x2058435D65698b1CD6b06B1EdB58B31a0155fa7B',
+        decimals: 18,
+        poolAddress: '0xDC167BB5D3858D973C1b2f256FCa4f48b4A765Ff',
+        poolName: 'FYETH2306 LP',
+        poolSymbol: 'FYETH2306LP',
+        ts: '23381681843',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
     ],
 
-    [DAI_2306, {
-      id: DAI_2306,
-      baseId: '0x303100000000',
-      maturity: 0,
-      name: 'FYDAI2306',
-      symbol: 'FYDAI2306',
-      address: '',
-      decimals: 18,
-      poolAddress: '',
-      poolName: '',
-      poolSymbol: '',
-      ts: '',
-      g1: '',
-      g2: '',
-    }
-    ],
-    [USDC_2306, {
-      id: USDC_2306,
-      baseId: '0x303200000000',
-      maturity: 0,
-      name: 'FYUSDC2306',
-      symbol: 'FYUSDC2306',
-      address: '',
-      decimals: 18,
-      poolAddress: '',
-      poolName: '',
-      poolSymbol: '',
-      ts: '',
-      g1: '',
-      g2: '',
-    }
-    ],
-    [FRAX_2306, {
-      id: FRAX_2306,
-      baseId: '0x313800000000',
-      baseAddress: '',
-      maturity: 0,
-      name: 'FYFRAX2306',
-      symbol: 'FYFRAX2306',
-      address: '0x7BCBB18C0c4e2a53431AC5F9dA2C82bF58ebE0c5',
-      decimals: 18,
-      poolAddress: '0xdbEe5521334667331c1802a8a69E13E21269bceB',
-      poolName: '',
-      poolSymbol: '',
-      ts: '',
-      g1: '',
-      g2: '',
-    }
+    [
+      DAI_2306,
+      {
+        id: DAI_2306,
+        baseId: '0x303100000000',
+        maturity: 1688137200,
+        name: 'FYDAI2306',
+        symbol: 'FYDAI2306',
+        address: '0x2AC3f3d6BaEda36C28F058B5eb1038bb7Bb872ab',
+        decimals: 18,
+        poolAddress: '0x6B4AaAe2ebdD290e7f13509d36e514bad27a5350',
+        poolName: 'FYDAI2306 LP',
+        poolSymbol: 'FYDAI2306LP',
+        ts: '12989823246',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
     ],
 
+    [
+      USDC_2306,
+      {
+        id: USDC_2306,
+        baseId: '0x303200000000',
+        maturity: 1688137200,
+        name: 'FYUSDC2306',
+        symbol: 'FYUSDC2306',
+        address: '0x08bfC0437b795e1d0eE4E9489fA3F447385bB1f0',
+        decimals: 18,
+        poolAddress: '0x1Ff11E2bE283D5C0636b426077f3A3538e11F32c',
+        poolName: 'FYUSDC2306 LP',
+        poolSymbol: 'FYUSDC2306LP',
+        ts: '10628037201',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    [
+      FRAX_2306,
+      {
+        id: FRAX_2306,
+        baseId: '0x313800000000',
+        maturity: 1688137200,
+        name: 'FYFRAX2306',
+        symbol: 'FYFRAX2306',
+        address: '0x7194d7ba2Df221f369e95e7B1C109123054B3ac2',
+        decimals: 18,
+        poolAddress: '0x8619CE967d5dd609A02E97a2734D3925f963D6D0',
+        poolName: 'FYFRAX2306 LP',
+        poolSymbol: 'FYFRAX2306LP',
+        ts: '29227102304',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
   ])
 );
 
@@ -611,9 +617,9 @@ SERIES.set(
       },
     ],
     [
-       WETH_2206,
+      WETH_2206,
       {
-        id:  WETH_2206,
+        id: WETH_2206,
         baseId: '0x303100000000',
         // baseAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
         maturity: 1656039600,
@@ -630,9 +636,9 @@ SERIES.set(
       },
     ],
     [
-       WETH_2303,
+      WETH_2303,
       {
-        id:  WETH_2303,
+        id: WETH_2303,
         baseId: '0x303000000000',
         // baseAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         maturity: 1680274800,
@@ -706,9 +712,9 @@ SERIES.set(
       },
     ],
     [
-       WETH_2209,
+      WETH_2209,
       {
-        id:  WETH_2209,
+        id: WETH_2209,
         baseId: '0x303000000000',
         // baseAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         maturity: 1664550000,
@@ -744,9 +750,9 @@ SERIES.set(
       },
     ],
     [
-       WETH_2212,
+      WETH_2212,
       {
-        id:  WETH_2212,
+        id: WETH_2212,
         baseId: '0x303000000000',
         // baseAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         maturity: 1672412400,
