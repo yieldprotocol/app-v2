@@ -398,11 +398,11 @@ const ChainProvider = ({ children }: any) => {
         maturity: number;
         baseId: string;
         poolAddress: string;
-        fyTokenAddress: string;
+        address: string;
       }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
         const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
-        const fyTokenContract = contracts.FYToken__factory.connect(series.fyTokenAddress, fallbackProvider);
+        const fyTokenContract = contracts.FYToken__factory.connect(series.address, fallbackProvider);
 
         const season = getSeason(series.maturity);
         const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
@@ -437,8 +437,6 @@ const ChainProvider = ({ children }: any) => {
 
         // const newSeriesList: any[] = [];
 
-
-
         seriesMap.forEach((series:SeriesStaticInfo)=> { 
           const seriesDefaults = {
             ...series,
@@ -446,7 +444,7 @@ const ChainProvider = ({ children }: any) => {
             poolVersion: series.poolVersion || '1',
             decimals: series.decimals || '18',
           }
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(series) });
+          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(seriesDefaults) });
         })
 
         // await Promise.all(
@@ -478,7 +476,6 @@ const ChainProvider = ({ children }: any) => {
         //       id,
 
         //       baseId,
-        //       baseAddress,
         //       maturity,
 
         //       name,

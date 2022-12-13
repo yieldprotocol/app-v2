@@ -166,7 +166,7 @@ export interface ISeriesRoot extends ISignable {
 
   fullDate: string;
   fyTokenContract: FYToken;
-  fyTokenAddress: string;
+  
   poolContract: Pool;
   poolAddress: string;
   poolName: string;
@@ -192,7 +192,7 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-  baseAddress: string;
+
 }
 
 export enum TokenType {

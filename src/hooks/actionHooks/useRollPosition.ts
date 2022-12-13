@@ -130,7 +130,7 @@ export const useRollPosition = () => {
 
     /* Reciever of transfer (based on maturity) the series maturity */
     const transferToAddress = () => {
-      if (fromSeries.seriesIsMature) return fromSeries.fyTokenAddress;
+      if (fromSeries.seriesIsMature) return fromSeries.address;
       return fromSeries.poolAddress;
     };
 
@@ -139,7 +139,7 @@ export const useRollPosition = () => {
 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [fromSeries.fyTokenAddress, transferToAddress(), _fyTokenValueOfInputIn] as LadleActions.Args.TRANSFER,
+        args: [fromSeries.address, transferToAddress(), _fyTokenValueOfInputIn] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore
       },
 

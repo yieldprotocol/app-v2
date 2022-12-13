@@ -303,7 +303,7 @@ const UserProvider = ({ children }: any) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-            sharesAddress = series.baseAddress;
+            sharesAddress = assetRootMap.get(series.baseId).address;
             console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
