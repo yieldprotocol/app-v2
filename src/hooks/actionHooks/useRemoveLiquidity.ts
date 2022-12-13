@@ -361,7 +361,7 @@ export const useRemoveLiquidity = () => {
       /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY + VAULT + FYTOKEN > DEBT */
 
       // 2.1 doTrade 2.2 !doTrade
-
+      
       // ladle.transferAction(pool, pool, lpTokensBurnt), ^^^^ DONE ABOVE ^^^^
       // ladle.routeAction(pool, ['burn', [receiver, ladle, 0, 0]),
       // ladle.repayFromLadleAction(vaultId, pool),

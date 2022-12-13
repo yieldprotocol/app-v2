@@ -52,7 +52,7 @@ const initState: ISettingsContextState = {
   powerUser: false,
 
   /* Always force transctions to the chain -> even if they will likely fail */
-  forceTransactions: false,
+  forceTransactions: true,
 
   /* Show wrapped tokens */
   showWrappedTokens: true,

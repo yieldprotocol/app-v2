@@ -462,8 +462,11 @@ const ChainProvider = ({ children }: any) => {
 
             const newSeries = {
               id,
+
               baseId,
+              baseAddress,
               maturity,
+
               name,
               symbol,
               version,
@@ -474,10 +477,11 @@ const ChainProvider = ({ children }: any) => {
               poolVersion,
               poolName,
               poolSymbol,
+
               ts: BigNumber.from(ts),
               g1,
               g2,
-              baseAddress,
+              
             };
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });

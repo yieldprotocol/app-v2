@@ -89,7 +89,7 @@ STRATEGIES.set(1, [
 
   /* V2 strategies */
   {
-    address: '0x03CDBE143479dC11B9b79BE2C2b080Acdefe9745',
+    address: '0xc82aBf25B93593b2e7f643CF22FdE5b4F0bA7976',
     type: 'V2',
     associatedStrategy: '0x831dF23f7278575BA0b136296a285600cD75d076',
     symbol: 'YSETH6MJD',
@@ -98,7 +98,7 @@ STRATEGIES.set(1, [
     decimals: 18,
   },
     {
-      address: '0xd2Cbc2307b3703064714363557158c4D7a26697C',
+      address: '0xE292d6D1d4951EA2F832Be97b589A745c25b7cD8',
       type: 'V2',
       associatedStrategy: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
       symbol: 'YSDAI6MJD',
@@ -107,16 +107,18 @@ STRATEGIES.set(1, [
       decimals: 18,
     },
     {
-      address: '0xe368C1Bd5c90a65d24B853EB428db9E3545F68a7',
-      type: 'V2',
-      associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
+      address: '0xCc984ea3A2CACfdc39E2e4003DDc55dedd9fB065',
       symbol: 'YSUSDC6MJD',
       baseId: USDC,
       name: 'Yield Strategy USDC 6M Jun Dec',
       decimals: 6,
+
+      type: 'V2',
+      associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
+
     },
     {
-      address: '0x43d8c5dB4206CD8627940f68248D80042160e9Bd',
+      address: '0xC1F22B36d641BeB100b94e4273f46AdB087321E7',
       type: 'V2',
       associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
       symbol: 'YSFRAX6MJD',
