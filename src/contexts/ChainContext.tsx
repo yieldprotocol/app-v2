@@ -16,9 +16,8 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
-import { SERIES_1, SERIES_42161 } from '../config/series';
 
-import { SERIES, SeriesStaticInfo } from '../config/series_new';
+import { SERIES, SeriesStaticInfo } from '../config/series';
 import { Block } from '@ethersproject/providers';
 import STRATEGIES, { validateStrategies } from '../config/strategies';
 
@@ -438,7 +437,15 @@ const ChainProvider = ({ children }: any) => {
 
         // const newSeriesList: any[] = [];
 
+
+
         seriesMap.forEach((series:SeriesStaticInfo)=> { 
+          const seriesDefaults = {
+            ...series,
+            version: series.version || '1',
+            poolVersion: series.poolVersion || '1',
+            decimals: series.decimals || '18',
+          }
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(series) });
         })
 
