@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { AssetInfo, ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
+import { AssetStaticInfo, ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 
@@ -319,19 +319,19 @@ const ChainProvider = ({ children }: any) => {
         const newAssetList: any[] = [];
 
         await Promise.all(
-          Array.from(assetMap).map(async (x: [string, AssetInfo]): Promise<void> => {
+          Array.from(assetMap).map(async (x: [string, AssetStaticInfo]): Promise<void> => {
             const id = x[0];
-            const assetInfo = x[1];
+            const AssetStaticInfo = x[1];
 
-            let { name, symbol, decimals, version } = assetInfo;
+            let { name, symbol, decimals, version } = AssetStaticInfo;
 
             /* On first load checks & corrects the ERC20 name/symbol/decimals (if possible ) */
             if (
-              assetInfo.tokenType === TokenType.ERC20_ ||
-              assetInfo.tokenType === TokenType.ERC20_Permit ||
-              assetInfo.tokenType === TokenType.ERC20_DaiPermit
+              AssetStaticInfo.tokenType === TokenType.ERC20_ ||
+              AssetStaticInfo.tokenType === TokenType.ERC20_Permit ||
+              AssetStaticInfo.tokenType === TokenType.ERC20_DaiPermit
             ) {
-              const contract = contracts.ERC20__factory.connect(assetInfo.assetAddress, fallbackProvider);
+              const contract = contracts.ERC20__factory.connect(AssetStaticInfo.assetAddress, fallbackProvider);
               try {
                 [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
               } catch (e) {
@@ -342,8 +342,8 @@ const ChainProvider = ({ children }: any) => {
               }
             }
             /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
-            if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
-              const contract = contracts.ERC20Permit__factory.connect(assetInfo.assetAddress, fallbackProvider);
+            if (AssetStaticInfo.tokenType === TokenType.ERC20_Permit || AssetStaticInfo.tokenType === TokenType.ERC20_DaiPermit) {
+              const contract = contracts.ERC20Permit__factory.connect(AssetStaticInfo.assetAddress, fallbackProvider);
               try {
                 version = await contract.version();
               } catch (e) {
@@ -355,29 +355,29 @@ const ChainProvider = ({ children }: any) => {
             }
 
             /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-            const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(fallbackChainId);
+            const isWrappedToken = AssetStaticInfo.unwrapHandlerAddresses?.has(fallbackChainId);
             /* check if a wrapping handler is provided, if so, wrapping is required */
-            const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(fallbackChainId);
+            const wrappingRequired = AssetStaticInfo.wrapHandlerAddresses?.has(fallbackChainId);
 
             const newAsset = {
-              ...assetInfo,
+              ...AssetStaticInfo,
               id,
-              address: assetInfo.assetAddress,
+              address: AssetStaticInfo.assetAddress,
               name,
               symbol,
               decimals,
               version,
 
               /* Redirect the id/join if required due to using wrapped tokens */
-              joinAddress: assetInfo.joinAddress, // assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
+              joinAddress: AssetStaticInfo.joinAddress, // AssetStaticInfo.proxyId ? joinMap.get(AssetStaticInfo.proxyId) : joinMap.get(id),
 
               isWrappedToken,
               wrappingRequired,
-              proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
+              proxyId: AssetStaticInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
 
-              /* Default setting of assetInfo fields if required */
-              displaySymbol: assetInfo.displaySymbol || symbol,
-              showToken: assetInfo.showToken || false,
+              /* Default setting of AssetStaticInfo fields if required */
+              displaySymbol: AssetStaticInfo.displaySymbol || symbol,
+              showToken: AssetStaticInfo.showToken || false,
             };
 
             updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
@@ -478,11 +478,29 @@ const ChainProvider = ({ children }: any) => {
               poolName,
               poolSymbol,
 
-              ts: BigNumber.from(ts),
-              g1,
-              g2,
+              ts: ts.toString(),
+              g1:g1.toString(),
+              g2:g2.toString(),
               
             };
+
+            console.log( 
+             'id:', id, ',',
+             'maturity:', maturity, ',',
+             'baseId:', baseId, ',',
+             'fyTokenAddress:', fyTokenAddress, ',',
+             'poolAddress:', poolAddress,',',
+             'name:', name, ',',
+             'symbol:', symbol, ',',
+             'version:', version, ',',
+             'decimals:', decimals, ',',
+             'poolName:',poolName, ',',
+             'poolSymbol:', poolSymbol, ',',
+             'poolVersion:', poolVersion, ',',
+             'ts:', ts.toString(), ',', 
+             'g1:', g1.toString(), ',', 
+             'g2:', g2.toString(), ',',
+            )
 
             updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
             newSeriesList.push(newSeries);

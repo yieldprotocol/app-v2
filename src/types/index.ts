@@ -204,7 +204,7 @@ export enum TokenType {
   ERC720_,
 }
 
-export interface IAssetInfo {
+export interface IAssetStaticInfo {
   assetAddress: string;
   joinAddress: string;
 
@@ -229,7 +229,7 @@ export interface IAssetInfo {
   proxyId?: string;
 }
 
-export interface IAssetRoot extends IAssetInfo, ISignable {
+export interface IAssetRoot extends IAssetStaticInfo, ISignable {
   // fixed/static:
   id: string;
 
