@@ -33,7 +33,7 @@ const markMap = new Map([
   ['Cvx3Crv Mock', <CVX3CRVMark key="cvx3crv mock" />],
   ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],
-  ['CRAB', <CRABMark key="crab" />],
+  ['Crabv2', <CRABMark key="crab" />],
 ]);
 
 export default markMap;

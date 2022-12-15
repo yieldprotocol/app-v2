@@ -127,6 +127,8 @@ const PriceProvider = ({ children }: any) => {
           oracle: oracleName || '',
         };
 
+        console.log( pairId, newPair)
+
         updateState({ type: PriceState.UPDATE_PAIR, payload: { pairId, pairInfo: newPair } });
         updateState({ type: PriceState.END_PAIR_FETCH, payload: pairId });
         return newPair;
@@ -135,6 +137,7 @@ const PriceProvider = ({ children }: any) => {
     },
     [assetRootMap, contractMap, diagnostics, fallbackChainId, priceState.pairLoading]
   );
+
 
   const priceActions = { updateAssetPair };
   return <PriceContext.Provider value={{ priceState, priceActions }}>{children}</PriceContext.Provider>;
