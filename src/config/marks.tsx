@@ -35,7 +35,7 @@ const markMap = new Map([
   ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],
   // ['Crabv2', <CRABMark key="crab" />],
-  ['Crabv2', <Box> <Text size='1em'>🦀</Text> </Box>],
+  ['Crabv2', <Box key="crab"> <Text size='1em'>🦀</Text> </Box>],
 
 ]);
 

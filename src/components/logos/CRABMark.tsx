@@ -7,8 +7,8 @@ function USDCMark(props: React.SVGProps<SVGSVGElement>) {
         d="M335.477 664.046C516.915 664.046 664 516.961 664 335.523C664 154.085 516.915 7 335.477 7C154.039 7 6.9541 154.085 6.9541 335.523C6.9541 516.961 154.039 664.046 335.477 664.046Z"
         fill="#020202"
         stroke="#020202"
-        stroke-width="13"
-        stroke-miterlimit="10"
+        strokeWidth="13"
+        strokeMiterlimit="10"
       />
       <path
         d="M335.477 664.046C516.915 664.046 664 516.961 664 335.523C664 154.085 516.915 7 335.477 7C154.039 7 6.9541 154.085 6.9541 335.523C6.9541 516.961 154.039 664.046 335.477 664.046Z"
@@ -3291,8 +3291,8 @@ function USDCMark(props: React.SVGProps<SVGSVGElement>) {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(335.477 335.523) scale(288.044)"
         >
-          <stop stop-color="#31F7FB" />
-          <stop offset="1" stop-color="#15AFF9" />
+          <stop stopColor="#31F7FB" />
+          <stop offset="1" stopColor="#15AFF9" />
         </radialGradient>
       </defs>
     </svg>
