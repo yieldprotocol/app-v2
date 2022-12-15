@@ -410,9 +410,10 @@ ASSETS_1.set(CRAB, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: [],
+  limitToSeries: ['0x303030380000','0x303030390000', '0x303130380000','0x303130390000','0x303230380000', '0x303230390000'],
   isYieldBase: false,
-});
+}); 
+
 
 // ASSETS_1.set(CVX3CRV, {
 //   assetAddress: '',
