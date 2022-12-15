@@ -401,12 +401,12 @@ ASSETS_1.set(FDAI2303, {
 });
 
 ASSETS_1.set(CRAB, {
-  assetAddress: '',
+  assetAddress: '0x3B960E47784150F5a63777201ee2B15253D713e8',
   joinAddress: '0xc76a01d18463d7aebea574a34b7d70d8aab389b2',
   version: '1',
-  name: 'Squeeth Crab Strategy',
+  name: 'Crab Strategy v2',
   decimals: 18,
-  symbol: 'CRAB',
+  symbol: 'Crabv2',
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
