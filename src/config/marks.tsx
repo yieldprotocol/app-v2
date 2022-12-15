@@ -1,3 +1,4 @@
+import { Box, Text } from 'grommet';
 import CRABMark from '../components/logos/CRABMark';
 import CVX3CRVMark from '../components/logos/CVX3CRVMark';
 import DaiMark from '../components/logos/DaiMark';
@@ -33,7 +34,9 @@ const markMap = new Map([
   ['Cvx3Crv Mock', <CVX3CRVMark key="cvx3crv mock" />],
   ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],
-  ['Crabv2', <CRABMark key="crab" />],
+  // ['Crabv2', <CRABMark key="crab" />],
+  ['Crabv2', <Box> <Text size='1em'>🦀</Text> </Box>],
+
 ]);
 
 export default markMap;

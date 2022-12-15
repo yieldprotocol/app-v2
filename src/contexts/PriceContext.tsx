@@ -7,7 +7,6 @@ import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from 
 
 import { ChainContext } from './ChainContext';
 
-
 import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
