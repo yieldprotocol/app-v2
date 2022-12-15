@@ -12,10 +12,11 @@
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
       "NotionalMultiOracle": "0x660bB2F1De01AacA46FCD8004e852234Cf65F3fb",
       "AccumulatorMultiOracle": "0x95750d6F5fba4ed1cc4Dc42D2c01dFD3DB9a11eC",
-
+      "crabOracle": "0x35d753A30a750C0291CD86baEDef7d27d55879F9",
+      
       "transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
       "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA",
-      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6"
+      "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6"   
     },
 
     "42161": {
