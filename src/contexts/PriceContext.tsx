@@ -7,7 +7,6 @@ import { IAssetPair, IChainContext, IPriceContextState, ISettingsContext } from 
 
 import { ChainContext } from './ChainContext';
 
-
 import { WAD_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ORACLE_INFO } from '../config/oracles';
@@ -135,6 +134,7 @@ const PriceProvider = ({ children }: any) => {
     },
     [assetRootMap, contractMap, diagnostics, fallbackChainId, priceState.pairLoading]
   );
+
 
   const priceActions = { updateAssetPair };
   return <PriceContext.Provider value={{ priceState, priceActions }}>{children}</PriceContext.Provider>;
