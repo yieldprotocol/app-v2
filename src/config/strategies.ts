@@ -11,6 +11,7 @@ interface StrategyInfo {
   name?: string;
   baseId?: string;
   decimals?: number;
+  version?:string;
 }
 
 // map each chain id to its corresponding strategies' data
@@ -27,6 +28,7 @@ STRATEGIES.set(1, [
     baseId: DAI,
     name: 'Yield Strategy DAI 6M Mar Sep',
     decimals: 18,
+    version: '1',
   },
   {
     address: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
@@ -37,6 +39,7 @@ STRATEGIES.set(1, [
     baseId: DAI,
     name: 'Yield Strategy DAI 6M Jun Dec',
     decimals: 18,
+    version: '1',
   },
   {
     address: '0xFBc322415CBC532b54749E31979a803009516b5D',
@@ -46,6 +49,7 @@ STRATEGIES.set(1, [
     baseId: USDC,
     name: 'Yield Strategy USDC 6M Mar Sep',
     decimals: 6,
+    version: '1',
   },
   {
     address: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
@@ -56,6 +60,7 @@ STRATEGIES.set(1, [
     baseId: USDC,
     name: 'Yield Strategy USDC 6M Jun Dec',
     decimals: 6,
+    version: '1',
   },
   {
     address: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247',
@@ -65,6 +70,7 @@ STRATEGIES.set(1, [
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Mar Sep',
     decimals: 18,
+    version: '1',
   },
   {
     address: '0x831dF23f7278575BA0b136296a285600cD75d076',
@@ -75,6 +81,7 @@ STRATEGIES.set(1, [
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
+    version: '1',
   },
   {
     address: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
@@ -85,6 +92,7 @@ STRATEGIES.set(1, [
     baseId: FRAX,
     name: 'Yield Strategy FRAX 6M Jun Dec',
     decimals: 18,
+    version: '1',
   },
   {
     address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
@@ -94,6 +102,7 @@ STRATEGIES.set(1, [
     baseId: FRAX,
     name: 'Yield Strategy FRAX 6M Mar Sep',
     decimals: 18,
+    version: '1',
   },
 
   /* V2 strategies */
@@ -106,6 +115,7 @@ STRATEGIES.set(1, [
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
+    version: '1',
   },
     {
       address: '0x9ca2a34ea52bc1264D399aCa042c0e83091FEECe',
@@ -116,6 +126,7 @@ STRATEGIES.set(1, [
       baseId: DAI,
       name: 'Yield Strategy DAI 6M Jun Dec',
       decimals: 18,
+      version: '1',
     },
     {
       address: '0x5dd6DcAE25dFfa0D46A04C9d99b4875044289fB2',
@@ -126,6 +137,7 @@ STRATEGIES.set(1, [
       decimals: 6,
       type: 'V2',
       associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
+      version: '1',
     },
     {
       address: '0x4B010fA49E8b673D0682CDeFCF7834328076748C',
@@ -136,6 +148,7 @@ STRATEGIES.set(1, [
       baseId: FRAX,
       name: 'Yield Strategy FRAX 6M Jun Dec',
       decimals: 18,
+      version: '1',
     },
 ]);
 
@@ -148,6 +161,7 @@ STRATEGIES.set(42161, [
     baseId: DAI,
     name: 'Yield Strategy DAI 6M Mar Sep',
     decimals: 18,
+    version: '1',
   },
 
   {
@@ -158,6 +172,7 @@ STRATEGIES.set(42161, [
     baseId: USDC,
     name: 'Yield Strategy USDC 6M Mar Sep',
     decimals: 6,
+    version: '1',
   },
 
   {
@@ -168,6 +183,7 @@ STRATEGIES.set(42161, [
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Mar Sep',
     decimals: 18,
+    version: '1',
   },
 
   {
@@ -178,6 +194,7 @@ STRATEGIES.set(42161, [
     baseId: DAI,
     name: 'Yield Strategy DAI 6M Jun Dec',
     decimals: 18,
+    version: '1',
   },
 
   {
@@ -188,6 +205,7 @@ STRATEGIES.set(42161, [
     baseId: USDC,
     name: 'Yield Strategy USDC 6M Jun Dec',
     decimals: 18,
+    version: '1',
   },
 
   {
@@ -198,6 +216,7 @@ STRATEGIES.set(42161, [
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
+    version: '1',
   },
 ]);
 
@@ -210,16 +229,18 @@ export const validateStrategies = async (provider: BaseProvider) => {
   strategyList.forEach(async (s: StrategyInfo) => {
     const strategy = Strategy__factory.connect(s.address, provider);
     try {
-      const [symbol, baseId, name, decimals] = await Promise.all([
+      const [symbol, baseId, name, decimals, version] = await Promise.all([
         strategy.symbol(),
         strategy.baseId(),
         strategy.name(),
         strategy.decimals(),
+        strategy.version(),
       ]);
       s.symbol !== symbol && console.log(preText, s.address, ': symbol mismatch');
       s.baseId !== baseId && console.log(preText, s.address, ': baseId mismatch');
       s.name !== name && console.log(preText, s.address, ': name mismatch');
       s.decimals !== decimals && console.log(preText, s.address, ': decimals mismatch');
+      s.version !== version && console.log(preText, s.address, ': version mismatch');
     } catch (e) {
       console.log(preText, s.address, ': Contract not reachable');
     }
