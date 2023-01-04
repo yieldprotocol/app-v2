@@ -57,7 +57,6 @@ export const FETH2303 = '0x323900000000';
 export const FDAI2303 = '0x323500000000';
 export const FUSDC2303 = '0x323600000000';
 
-
 export const FETH2306 = '0x40301200028B';
 export const FDAI2306 = '0x40311200028B';
 export const FUSDC2306 = '0x40321200028B'; 
@@ -440,7 +439,6 @@ ASSETS_1.set(FETH2306, {
   tokenIdentifier: 281906949062657,  
   limitToSeries: ['0x0030FF00028B'],
 });
-
 
 ASSETS_1.set(CRAB, {
   assetAddress: '0x3B960E47784150F5a63777201ee2B15253D713e8',
