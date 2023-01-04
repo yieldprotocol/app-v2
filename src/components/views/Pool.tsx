@@ -353,6 +353,7 @@ function Pool() {
       )}
     </MainViewWrap>
   );
+
 }
 
 export default Pool;

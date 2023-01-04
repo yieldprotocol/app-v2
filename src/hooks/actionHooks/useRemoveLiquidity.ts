@@ -311,18 +311,19 @@ export const useRemoveLiquidity = () => {
       /* If removing from a v1 strategy, we need to burn the tokens to the associated v2 strategy */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy || _strategy.address] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.associatedStrategy || series.poolAddress ] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: _strategy ? _strategy.strategyContract : undefined,
         ignoreIf: !_strategy || _strategy?.type === 'V2',
       },
-
+     
+      /* If removing from a v2 strategy, simply burn fromm strategy to the pool address, else burn form the associated strategy to the pool. */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: (_strategy?.type === 'V2' || _strategy.associatedStrategy === undefined) ?  _strategy.strategyContract: _associatedStrategyContract, /* if removing from a v2 strategy, simply burn fromm strategy to the pool address, else burn form the associated strategy to the pool. */ 
-        ignoreIf: !_strategy,
+        targetContract: _strategy?.type === 'V2' ?  _strategy.strategyContract : _associatedStrategyContract,  
+        ignoreIf: !_strategy || _strategy.associatedStrategy === undefined,
       },
 
       /* FOR ALL REMOVES NOT USING STRATEGY >  move tokens to poolAddress  : */
