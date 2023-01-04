@@ -47,13 +47,11 @@ const Layout = ({ children }: ILayout) => {
         <link rel="apple-touch-icon" href="/logo.svg" />
         <link rel="manifest" href="/favicons/site.webmanifest" />
       </Head>
-      
-      Please be patient while we fix a pending issue.
 
-      {/* <Grommet theme={deepMerge(base, yieldTheme) as any} themeMode={colorScheme} full>
+      {/* Please be patient while we fix a pending issue. */}
+      <Grommet theme={deepMerge(base, yieldTheme) as any} themeMode={colorScheme} full>
         <Box fill background="background">
-          <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-          
+          <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />       
           <DynamicNetworkBanner />
           <DynamicTransactionWidget />
           <DynamicNetworkError />
@@ -62,10 +60,9 @@ const Layout = ({ children }: ILayout) => {
           <Box overflow="hidden">
             {menuLayerOpen && <DynamicYieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
           </Box>
-          
           {children}
         </Box>
-      </Grommet> */}
+      </Grommet>
     </>
   );
 };
