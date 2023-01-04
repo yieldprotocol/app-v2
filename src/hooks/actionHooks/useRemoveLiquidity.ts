@@ -100,9 +100,9 @@ export const useRemoveLiquidity = () => {
 
     const _associatedStrategyContract = _strategy.associatedStrategy ? Strategy__factory.connect(_strategy.associatedStrategy, provider): undefined;
 
-    console.log('strategy symbol', _strategy.symbol ); 
-    console.log('strategy type', _strategy.type ); 
-    console.log('associatedStratgyContract', _associatedStrategyContract ); 
+    // console.log('strategy symbol', _strategy.symbol ); 
+    // console.log('strategy type', _strategy.type ); 
+    // console.log('associatedStratgyContract', _associatedStrategyContract ); 
 
     const ladleAddress = contractMap.get('Ladle').address;
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
