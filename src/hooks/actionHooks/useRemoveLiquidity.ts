@@ -98,7 +98,11 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    const _associatedStrategyContract = Strategy__factory.connect(_strategy.associatedStrategy, provider);
+    const _associatedStrategyContract = _strategy.associatedStrategy ? Strategy__factory.connect(_strategy.associatedStrategy, provider): undefined;
+
+    console.log('strategy symbol', _strategy.symbol ); 
+    console.log('strategy type', _strategy.type ); 
+    console.log('associatedStratgyContract', _associatedStrategyContract ); 
 
     const ladleAddress = contractMap.get('Ladle').address;
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
@@ -107,7 +111,6 @@ export const useRemoveLiquidity = () => {
     ]);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
-
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
     const [_sharesReceived, _fyTokenReceived] = burn(cachedSharesReserves, cachedRealReserves, totalSupply, lpReceived);
 
@@ -142,6 +145,7 @@ export const useRemoveLiquidity = () => {
      */
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
+    
     // Choose use matching vault:
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
 
@@ -307,7 +311,7 @@ export const useRemoveLiquidity = () => {
       /* If removing from a v1 strategy, we need to burn the tokens to the associated v2 strategy */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.associatedStrategy || _strategy.address] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: _strategy ? _strategy.strategyContract : undefined,
         ignoreIf: !_strategy || _strategy?.type === 'V2',
@@ -317,7 +321,7 @@ export const useRemoveLiquidity = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy?.type === 'V1' ?  _associatedStrategyContract : _strategy, /* if removing from a v2 strategy, simply burn form strategy to the pool address, else burn form the associated strategy to the pool. */ 
+        targetContract: (_strategy?.type === 'V2' || _strategy.associatedStrategy === undefined) ?  _strategy.strategyContract: _associatedStrategyContract, /* if removing from a v2 strategy, simply burn fromm strategy to the pool address, else burn form the associated strategy to the pool. */ 
         ignoreIf: !_strategy,
       },
 

@@ -59,7 +59,11 @@ export const useChain = () => {
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.MODULE) {
         if (call.fnName && call.targetContract) {
-          const encodedFn = (call.targetContract as any).interface.encodeFunctionData(call.fnName, call.args);
+
+          console.log('contract', call.targetContract ) 
+          console.log('fnName', call.fnName )
+          console.log('args', call.args ) 
+          const encodedFn = (call.targetContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
 
           if (call.operation === LadleActions.Fn.ROUTE)
             return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
