@@ -104,7 +104,7 @@ STRATEGIES.set(1, [
     symbol: 'YSETH6MJD',
     id: '0x1030FF000000',
     baseId: WETH,
-    name: 'Yield Strategy WETH 6M Jun Dec',
+    name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
   },
     {
