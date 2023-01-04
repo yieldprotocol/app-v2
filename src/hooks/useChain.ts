@@ -146,11 +146,6 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Spender', _spender);
         diagnostics && console.log('Sign: Amount', _amount?.toString());
 
-
-        console.log( reqSig.target.name,
-          reqSig.target.version,
-          chainId,
-         reqSig.target.address )
         /* Request the signature if using DaiType permit style */
         if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chainId !== 42161) {
           // dai in arbitrum uses regular permits
