@@ -1,25 +1,21 @@
 import { TokenType } from '../types';
 
-export interface AssetInfo {
+export interface AssetStaticInfo {
   assetAddress: string;
   joinAddress: string;
-
   tokenType: TokenType;
-  tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
-
   name: string;
   version: string;
   symbol: string;
   decimals: number;
-  isYieldBase?: boolean;
-
   showToken: boolean; // Display/hide the token on the UI
-
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
+
+  // optionals
+  isYieldBase?: boolean;
+  tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
   displaySymbol?: string; // override for symbol display
-
   limitToSeries?: string[];
-
   wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
   unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
   proxyId?: string;
@@ -73,9 +69,9 @@ export const CONVEX_BASED_ASSETS = [
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
-export const ASSETS_42161 = new Map<string, AssetInfo>();
+export const ASSETS_42161 = new Map<string, AssetStaticInfo>();
 
-export const ASSETS_1 = new Map<string, AssetInfo>();
+export const ASSETS_1 = new Map<string, AssetStaticInfo>();
 
 ASSETS_1.set(DAI, {
   assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -478,3 +474,4 @@ ASSETS_42161.set(WETH, {
   joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
   isYieldBase: true,
 });
+

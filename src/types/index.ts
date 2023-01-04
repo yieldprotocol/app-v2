@@ -166,7 +166,7 @@ export interface ISeriesRoot extends ISignable {
 
   fullDate: string;
   fyTokenContract: FYToken;
-  fyTokenAddress: string;
+  
   poolContract: Pool;
   poolAddress: string;
   poolName: string;
@@ -192,7 +192,7 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-  baseAddress: string;
+
 }
 
 export enum TokenType {
@@ -204,7 +204,7 @@ export enum TokenType {
   ERC720_,
 }
 
-export interface IAssetInfo {
+export interface IAssetStaticInfo {
   assetAddress: string;
   joinAddress: string;
 
@@ -229,7 +229,7 @@ export interface IAssetInfo {
   proxyId?: string;
 }
 
-export interface IAssetRoot extends IAssetInfo, ISignable {
+export interface IAssetRoot extends IAssetStaticInfo, ISignable {
   // fixed/static:
   id: string;
 
@@ -346,12 +346,11 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
-  currentSeriesId: string;
+  
+  currentSeriesAddr: string;
   currentPoolAddr: string;
-  nextSeriesId: string;
 
   currentSeries: ISeries | undefined;
-  nextSeries: ISeries | undefined;
   active: boolean;
 
   initInvariant?: BigNumber;

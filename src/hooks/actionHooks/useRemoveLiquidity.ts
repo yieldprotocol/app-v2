@@ -36,6 +36,7 @@ import { ETH_BASED_ASSETS } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { Strategy__factory } from '../../contracts';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -63,8 +64,10 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const {
-    chainState: { contractMap },
+    chainState: { contractMap, connection },
   } = useContext(ChainContext) as IChainContext;
+
+  const { provider } = connection;
 
   const { txActions } = useContext(TxContext);
   const {resetProcess} = txActions;
@@ -72,7 +75,7 @@ export const useRemoveLiquidity = () => {
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, selectedStrategy } = userState;
+  const { activeAccount: account, assetMap, selectedStrategy} = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -95,6 +98,12 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
+    const _associatedStrategyContract = _strategy.associatedStrategy ? Strategy__factory.connect(_strategy.associatedStrategy, provider): undefined;
+
+    // console.log('strategy symbol', _strategy.symbol ); 
+    // console.log('strategy type', _strategy.type ); 
+    // console.log('associatedStratgyContract', _associatedStrategyContract ); 
+
     const ladleAddress = contractMap.get('Ladle').address;
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
       series.poolContract.getCache(),
@@ -102,9 +111,7 @@ export const useRemoveLiquidity = () => {
     ]);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
-
     const lpReceived = burnFromStrategy(_strategy.poolTotalSupply!, _strategy.strategyTotalSupply!, _input);
-
     const [_sharesReceived, _fyTokenReceived] = burn(cachedSharesReserves, cachedRealReserves, totalSupply, lpReceived);
 
     const _newPool = newPoolState(
@@ -138,6 +145,7 @@ export const useRemoveLiquidity = () => {
      */
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
+    
     // Choose use matching vault:
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
 
@@ -264,7 +272,7 @@ export const useRemoveLiquidity = () => {
 
     const permitCallData: ICallData[] = await sign(
       [
-        /* give strategy permission to sell tokens to pool */
+        /* Give strategy permission to sell tokens to pool */
         {
           target: _strategy,
           spender: 'LADLE',
@@ -272,7 +280,7 @@ export const useRemoveLiquidity = () => {
           ignoreIf: !_strategy || alreadyApprovedStrategy === true,
         },
 
-        /* give pool permission to sell tokens */
+        /* Give pool permission to sell tokens */
         {
           target: {
             address: series.poolAddress,
@@ -299,11 +307,21 @@ export const useRemoveLiquidity = () => {
         args: [_strategy.address, _strategy.address, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: !_strategy,
       },
+
+      /* If removing from a v1 strategy, we need to burn the tokens to the associated v2 strategy */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [_strategy.associatedStrategy || _strategy.address] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy ? _strategy.strategyContract : undefined,
+        ignoreIf: !_strategy || _strategy?.type === 'V2',
+      },
+
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy ? _strategy.strategyContract : undefined,
+        targetContract: (_strategy?.type === 'V2' || _strategy.associatedStrategy === undefined) ?  _strategy.strategyContract: _associatedStrategyContract, /* if removing from a v2 strategy, simply burn fromm strategy to the pool address, else burn form the associated strategy to the pool. */ 
         ignoreIf: !_strategy,
       },
 
@@ -347,7 +365,7 @@ export const useRemoveLiquidity = () => {
       /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY + VAULT + FYTOKEN > DEBT */
 
       // 2.1 doTrade 2.2 !doTrade
-
+      
       // ladle.transferAction(pool, pool, lpTokensBurnt), ^^^^ DONE ABOVE ^^^^
       // ladle.routeAction(pool, ['burn', [receiver, ladle, 0, 0]),
       // ladle.repayFromLadleAction(vaultId, pool),
@@ -376,7 +394,7 @@ export const useRemoveLiquidity = () => {
       /* PATCH!!! if removing ETH-BASE, retrieve fyETH as to not leave it in the ladle  */
       {
         operation: LadleActions.Fn.RETRIEVE,
-        args: [series.fyTokenAddress, account] as LadleActions.Args.RETRIEVE,
+        args: [series.address, account] as LadleActions.Args.RETRIEVE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !isEthBase,
       },
 
@@ -418,7 +436,7 @@ export const useRemoveLiquidity = () => {
       // ladle.redeemAction(seriesId, receiver, 0),
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [toAddress, series.fyTokenAddress, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
+        args: [toAddress, series.address, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
         targetContract: series.poolContract,
         ignoreIf: !series.seriesIsMature,

@@ -105,8 +105,7 @@ export const useDashboardHelpers = () => {
     const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
       .map((_strategy) => {
         if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
-
-        const currentStrategySeries = seriesMap.get(_strategy.currentSeriesId);
+        const currentStrategySeries = seriesMap.get(_strategy.currentSeries.id);
         const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,
@@ -121,7 +120,6 @@ export const useDashboardHelpers = () => {
           currentStrategySeries.c,
           currentStrategySeries.mu
         );
-
         const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
           ? ethers.utils.formatUnits(
               currentStrategySeries.getBase(fyTokenToShares).add(currentStrategySeries.getBase(sharesReceived)), // add shares received to fyTokenToShares (in base)
