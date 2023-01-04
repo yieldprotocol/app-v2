@@ -353,11 +353,7 @@ function Pool() {
       )}
     </MainViewWrap>
   );
-  // return (
-  //   <MainViewWrap>
-  //   Adding and removing Liquidity functionality is currently under maintenaince. Please be patient.
-  // </MainViewWrap>
-  // )
+
 }
 
 export default Pool;
