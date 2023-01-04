@@ -3,6 +3,7 @@ import { Strategy__factory } from '../contracts';
 import { DAI, FRAX, USDC, WETH } from './assets';
 
 interface StrategyInfo {
+  id:string;
   address: string;
   type: 'V1' | 'V2';
   associatedStrategy?: string; // if V2 strategy, then the V1 associated strategy (and vice versa)
@@ -18,9 +19,11 @@ const STRATEGIES = new Map<number, StrategyInfo[]>();
 STRATEGIES.set(1, [
   /* V1 strategies */
   {
+
     address: '0x7ACFe277dEd15CabA6a8Da2972b1eb93fe1e2cCD',
     type: 'V1',
     symbol: 'YSDAI6MMS',
+    id: 'YSDAI6MMS',
     baseId: DAI,
     name: 'Yield Strategy DAI 6M Mar Sep',
     decimals: 18,
@@ -28,8 +31,9 @@ STRATEGIES.set(1, [
   {
     address: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
     type: 'V1',
-    associatedStrategy: '0xCc28081d668677007FCDafbCFfD132B69a44F6f1',
+    associatedStrategy: '0x9ca2a34ea52bc1264D399aCa042c0e83091FEECe',
     symbol: 'YSDAI6MJD',
+    id: 'YSDAI6MJD',
     baseId: DAI,
     name: 'Yield Strategy DAI 6M Jun Dec',
     decimals: 18,
@@ -38,6 +42,7 @@ STRATEGIES.set(1, [
     address: '0xFBc322415CBC532b54749E31979a803009516b5D',
     type: 'V1',
     symbol: 'YSUSDC6MMS',
+    id: 'YSUSDC6MMS',
     baseId: USDC,
     name: 'Yield Strategy USDC 6M Mar Sep',
     decimals: 6,
@@ -45,8 +50,9 @@ STRATEGIES.set(1, [
   {
     address: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
     type: 'V1',
-    associatedStrategy: '0xa6c77A07786d0F40540bB72059905b357cF81881',
+    associatedStrategy: '0x5dd6DcAE25dFfa0D46A04C9d99b4875044289fB2',
     symbol: 'YSUSDC6MJD',
+    id: 'YSUSDC6MJD',
     baseId: USDC,
     name: 'Yield Strategy USDC 6M Jun Dec',
     decimals: 6,
@@ -55,6 +61,7 @@ STRATEGIES.set(1, [
     address: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247',
     type: 'V1',
     symbol: 'YSETH6MMS',
+    id: 'YSETH6MMS',
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Mar Sep',
     decimals: 18,
@@ -62,8 +69,9 @@ STRATEGIES.set(1, [
   {
     address: '0x831dF23f7278575BA0b136296a285600cD75d076',
     type: 'V1',
-    associatedStrategy: '0xEA7577bE7C29FbD8246FE69408bf4Bc7b6668d2a',
+    associatedStrategy: '0xb268E2C85861B74ec75fe728Ae40D9A2308AD9Bb',
     symbol: 'YSETH6MJD',
+    id: 'YSETH6MJD',
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
@@ -71,8 +79,9 @@ STRATEGIES.set(1, [
   {
     address: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
     type: 'V1',
-    associatedStrategy: '0x7CA19022b0e371BFB545E3e91c0AEa4A3DBB9C91',
+    associatedStrategy: '0x4B010fA49E8b673D0682CDeFCF7834328076748C',
     symbol: 'YSFRAX6MJD',
+    id: 'YSFRAX6MJD',
     baseId: FRAX,
     name: 'Yield Strategy FRAX 6M Jun Dec',
     decimals: 18,
@@ -81,6 +90,7 @@ STRATEGIES.set(1, [
     address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
     type: 'V1',
     symbol: 'YSFRAX6MMS',
+    id: 'YSFRAX6MMS',
     baseId: FRAX,
     name: 'Yield Strategy FRAX 6M Mar Sep',
     decimals: 18,
@@ -88,26 +98,29 @@ STRATEGIES.set(1, [
 
   /* V2 strategies */
   {
-    address: '0xEA7577bE7C29FbD8246FE69408bf4Bc7b6668d2a',
+    address: '0xb268E2C85861B74ec75fe728Ae40D9A2308AD9Bb',
     type: 'V2',
     associatedStrategy: '0x831dF23f7278575BA0b136296a285600cD75d076',
     symbol: 'YSETH6MJD',
+    id: '0x1030FF000000',
     baseId: WETH,
     name: 'Yield Strategy WETH 6M Jun Dec',
     decimals: 18,
   },
     {
-      address: '0xCc28081d668677007FCDafbCFfD132B69a44F6f1',
+      address: '0x9ca2a34ea52bc1264D399aCa042c0e83091FEECe',
       type: 'V2',
       associatedStrategy: '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295',
       symbol: 'YSDAI6MJD',
+      id: '0x1031FF000000',
       baseId: DAI,
       name: 'Yield Strategy DAI 6M Jun Dec',
       decimals: 18,
     },
     {
-      address: '0xa6c77A07786d0F40540bB72059905b357cF81881',
+      address: '0x5dd6DcAE25dFfa0D46A04C9d99b4875044289fB2',
       symbol: 'YSUSDC6MJD',
+      id: '0x1032FF000000',
       baseId: USDC,
       name: 'Yield Strategy USDC 6M Jun Dec',
       decimals: 6,
@@ -115,10 +128,11 @@ STRATEGIES.set(1, [
       associatedStrategy: '0x8e8D6aB093905C400D583EfD37fbeEB1ee1c0c39',
     },
     {
-      address: '0x7CA19022b0e371BFB545E3e91c0AEa4A3DBB9C91',
+      address: '0x4B010fA49E8b673D0682CDeFCF7834328076748C',
       type: 'V2',
       associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
       symbol: 'YSFRAX6MJD',
+      id: '0x1138FF000000',
       baseId: FRAX,
       name: 'Yield Strategy FRAX 6M Jun Dec',
       decimals: 18,
