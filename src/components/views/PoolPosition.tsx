@@ -112,17 +112,15 @@ const PoolPosition = () => {
   );
 
   const handleRemove = () => {
+    if (removeDisabled) return;
+    setRemoveDisabled(true);
+    removeLiquidity(removeInput!, selectedSeries!, matchingVault);
 
-    console.log( 'Liquidity Removal Temporarily Suspended.')
-    // if (removeDisabled) return;
-    // setRemoveDisabled(true);
-    // removeLiquidity(removeInput!, selectedSeries!, matchingVault);
-
-    // logAnalyticsEvent(GA_Event.transaction_initiated, {
-    //   view: GA_View.POOL,
-    //   series_id: selectedStrategy?.currentSeries?.name,
-    //   action_code: ActionCodes.REMOVE_LIQUIDITY,
-    // } as GA_Properties.transaction_initiated);
+    logAnalyticsEvent(GA_Event.transaction_initiated, {
+      view: GA_View.POOL,
+      series_id: selectedStrategy?.currentSeries?.name,
+      action_code: ActionCodes.REMOVE_LIQUIDITY,
+    } as GA_Properties.transaction_initiated);
   };
 
   const handleClaim = () => {
@@ -355,12 +353,12 @@ const PoolPosition = () => {
                         txProcess={removeProcess}
                         cancelAction={() => resetInputs(ActionCodes.REMOVE_LIQUIDITY)}
                       >
-                        <Text size='small'>Liquidity Removal Temporarily disabled</Text>
-                        {/* <InfoBite
+                        {/* <Text size='small'>Liquidity Removal Temporarily disabled</Text> */}
+                        <InfoBite
                           label="Remove Liquidity Tokens"
                           icon={<FiArrowRight />}
                           value={`${cleanValue(removeInput, selectedBase?.digitFormat!)} tokens`}
-                        /> */}
+                        />
                       </ActiveTransaction>
                     )}
                   </>
@@ -413,7 +411,7 @@ const PoolPosition = () => {
                       </Text>
                     }
                     onClick={() => handleRemove()}
-                    disabled= {true} // {removeDisabled || removeProcess?.processActive}
+                    disabled= {removeDisabled || removeProcess?.processActive}
                   />
                 )}
 
