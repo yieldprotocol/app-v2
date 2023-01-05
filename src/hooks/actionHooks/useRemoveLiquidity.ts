@@ -456,12 +456,12 @@ export const useRemoveLiquidity = () => {
     await transact(calls, txCode);
 
     /* Isolate a particular user case if required */
-    if (true) {
-      toast.warn('Liquidity withdrawal temporarily disabled')
-      resetProcess(txCode);
-    } else {
-      await transact(calls, txCode);
-    }
+    // if (true) {
+    //   toast.warn('Liquidity withdrawal temporarily disabled')
+    //   resetProcess(txCode);
+    // } else {
+    //   await transact(calls, txCode);
+    // }
 
     updateSeries([series]);
     updateAssets([_base]);
