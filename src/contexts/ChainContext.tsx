@@ -435,8 +435,7 @@ const ChainProvider = ({ children }: any) => {
 
       const _getSeries = async () => {
         let seriesMap = SERIES_CONFIG;
-
-        // const newSeriesList: any[] = [];
+        const newSeriesList: any[] = [];
 
         seriesMap.forEach(async (series:SeriesStaticInfo)=> { 
 
@@ -458,7 +457,7 @@ const ChainProvider = ({ children }: any) => {
             decimals: series.decimals || '18',
 
           }
-
+          newSeriesList.push(seriesDefaults)
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(seriesDefaults) });
         })
 
@@ -514,7 +513,7 @@ const ChainProvider = ({ children }: any) => {
         //   })
         // ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
 
-        // setCachedSeries(newSeriesList);
+        setCachedSeries(newSeriesList);
         console.log('Yield Protocol Series data updated successfully.');
       };
 
@@ -574,7 +573,6 @@ const ChainProvider = ({ children }: any) => {
         console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
 
         // (async () => await validateStrategies(fallbackProvider) )();
-
         (async () => {
           await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
           setLoadingFlag(false);
