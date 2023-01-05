@@ -192,7 +192,7 @@ STRATEGIES.set(42161, [
 
   {
     address: '0xa3cAF61FD23d374ce13c742E4E9fA9FAc23Ddae6',
-    associatedStrategy: '',
+    associatedStrategy: '0x4276BEaA49DE905eED06FCDc0aD438a19D3861DD',
     type: StrategyType.V1,
     symbol: 'YSDAI6MJD',
     id: 'YSDAI6MJD',
@@ -204,7 +204,7 @@ STRATEGIES.set(42161, [
 
   {
     address: '0x54F08092e3256131954dD57C04647De8b2E7A9a9',
-    associatedStrategy: '',
+    associatedStrategy: '0x33e6B154efC7021dD55464c4e11a6AfE1f3D0635',
     type: StrategyType.V1,
     symbol: 'YSUSDC6MJD',
     id: 'YSUSDC6MJD',
@@ -216,7 +216,7 @@ STRATEGIES.set(42161, [
 
   {
     address: '0x3353E1E2976DBbc191a739871faA8E6E9D2622c7',
-    associatedStrategy: '',
+    associatedStrategy: '0xad1983745D6c739537fEaB5bed45795f47A940b3',
     type: StrategyType.V1,
     symbol: 'YSWETH6MJD',
     id: 'YSWETH6MJD',
@@ -228,7 +228,7 @@ STRATEGIES.set(42161, [
 
   //V2 Strategies
   {
-    address: '',
+    address: '0xad1983745D6c739537fEaB5bed45795f47A940b3',
     type: StrategyType.V2,
     associatedStrategy: '0x3353E1E2976DBbc191a739871faA8E6E9D2622c7',
     symbol: 'YSETH6MJD',
@@ -239,7 +239,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    address: '',
+    address: '0x4276BEaA49DE905eED06FCDc0aD438a19D3861DD',
     type: StrategyType.V2,
     associatedStrategy: '0xa3cAF61FD23d374ce13c742E4E9fA9FAc23Ddae6',
     symbol: 'YSDAI6MJD',
@@ -250,7 +250,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    address: '',
+    address: '0x33e6B154efC7021dD55464c4e11a6AfE1f3D0635',
     associatedStrategy: '0x54F08092e3256131954dD57C04647De8b2E7A9a9',
     symbol: 'YSUSDC6MJD',
     id: '0x1032FF000000',
