@@ -297,7 +297,7 @@ export const useRemoveLiquidity = () => {
     const calls: ICallData[] = [
       ...permitCallData,
 
-      /* FOR ALL REMOVES NOT USING STRATEGY >  move tokens to poolAddress  : */
+      /* FOR ALL REMOVES NOT USING STRATEGY */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [series.poolAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
