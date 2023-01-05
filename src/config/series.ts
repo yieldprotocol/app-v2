@@ -564,28 +564,6 @@ SERIES.set(
   ])
 );
 
-// /* 2306 */
-// SERIES_1.set(WETH_2306_SERIES_ID, {
-//   id:WETH_2306_SERIES_ID ,
-//   address: '0x4bcAd19a61682f5bF0e8B4AB6E45Fd441cdd0a69',
-//   poolAddress: '0x59784B822Ee864a7F64F521094A4c9fbBdb4Cd72',
-// });
-// SERIES_1.set(DAI_2306_SERIES_ID, {
-//   id: DAI_2306_SERIES_ID,
-//  address: '0x85976CAcFECe6c615FdA280EB35F9dEb65D08EA2',
-//   poolAddress: '0xb8e1B61f689524A3585c365cF765b0504003c5f4',
-// });
-// SERIES_1.set(USDC_2306_SERIES_ID, {
-//   id: USDC_2306_SERIES_ID,
-//   address: '0xc7D20961f8D8410F261e35Afbe5988046BEC0f96',
-//   poolAddress: '0x924014515288e7acde50229c84512c61594bd0Fa',
-// });
-// SERIES_1.set(FRAX_2306_SERIES_ID, {
-//   id:FRAX_2306_SERIES_ID ,
-//   address: '0x7BCBB18C0c4e2a53431AC5F9dA2C82bF58ebE0c5',
-//   poolAddress: '0xdbEe5521334667331c1802a8a69E13E21269bceB',
-// });
-
 /**
  *
  *
@@ -822,6 +800,63 @@ SERIES.set(
         ts: '23381681843',
         g1: '13835058055282163712',
         g2: '24595658764946068821',
+      },
+    ],
+
+    [
+      WETH_2306,
+      {
+        id: WETH_2306,
+        baseId: '0x303000000000',
+        maturity: 1688137200,
+        name: 'FYETH2306',
+        symbol: 'FYETH2306',
+        address: '',
+        decimals: 18,
+        poolAddress: '',
+        poolName: 'FYETH2306 LP',
+        poolSymbol: 'FYETH2306LP',
+        ts: '23381681843',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    [
+      DAI_2306,
+      {
+        id: DAI_2306,
+        baseId: '0x303100000000',
+        maturity: 1688137200,
+        name: 'FYDAI2306',
+        symbol: 'FYDAI2306',
+        address: '',
+        decimals: 18,
+        poolAddress: '',
+        poolName: 'FYDAI2306 LP',
+        poolSymbol: 'FYDAI2306LP',
+        ts: '12989823246',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    [
+      USDC_2306,
+      {
+        id: USDC_2306,
+        baseId: '0x303200000000',
+        maturity: 1688137200,
+        name: 'FYUSDC2306',
+        symbol: 'FYUSDC2306',
+        address: '',
+        decimals: 18,
+        poolAddress: '',
+        poolName: 'FYUSDC2306 LP',
+        poolSymbol: 'FYUSDC2306LP',
+        ts: '10628037201',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
       },
     ],
   ])
