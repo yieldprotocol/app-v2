@@ -37,6 +37,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { Strategy__factory } from '../../contracts';
+import { StrategyType } from '../../config/strategies';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -70,12 +71,12 @@ export const useRemoveLiquidity = () => {
   const { provider } = connection;
 
   const { txActions } = useContext(TxContext);
-  const {resetProcess} = txActions;
+  const { resetProcess } = txActions;
 
   const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
     UserContext
   ) as IUserContext;
-  const { activeAccount: account, assetMap, selectedStrategy} = userState;
+  const { activeAccount: account, assetMap, selectedStrategy } = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
@@ -98,11 +99,9 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    const _associatedStrategyContract = _strategy.associatedStrategy ? Strategy__factory.connect(_strategy.associatedStrategy, provider): undefined;
-
-    // console.log('strategy symbol', _strategy.symbol ); 
-    // console.log('strategy type', _strategy.type ); 
-    // console.log('associatedStratgyContract', _associatedStrategyContract ); 
+    const _associatedStrategyContract = _strategy.associatedStrategy
+      ? Strategy__factory.connect(_strategy.associatedStrategy, provider)
+      : undefined;
 
     const ladleAddress = contractMap.get('Ladle').address;
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
@@ -145,7 +144,7 @@ export const useRemoveLiquidity = () => {
      */
     const matchingVaultId: string | undefined = matchingVault?.id;
     const matchingVaultDebt: BigNumber = matchingVault?.accruedArt || ZERO_BN;
-    
+
     // Choose use matching vault:
     const useMatchingVault: boolean = !!matchingVault && matchingVaultDebt.gt(ethers.constants.Zero);
 
@@ -169,7 +168,6 @@ export const useRemoveLiquidity = () => {
 
     // if extra fyToken trade is possible, estimate min base user to receive (convert shares to base)
     const minBaseToReceive = calculateSlippage(series.getBase(extrafyTokenTrade), slippageTolerance.toString(), true);
-
     /* if extra trade is possible (extraTrade > 0), we can auto sell fyToken after burning lp tokens and getting back excess (greater than vault debt) fyToken */
     const extraTradeSupported = extrafyTokenTrade.gt(ethers.constants.Zero) && useMatchingVault;
 
@@ -269,7 +267,6 @@ export const useRemoveLiquidity = () => {
     /* handle removing eth Base tokens:  */
     // NOTE: REMOVE ETH FOR ALL PATHS/OPTIONS (exit_ether sweeps all the eth out the ladle, so exact amount is not important -> just greater than zero)
     const removeEthCallData: ICallData[] = isEthBase ? removeEth(ONE_BN) : [];
-
     const permitCallData: ICallData[] = await sign(
       [
         /* Give strategy permission to sell tokens to pool */
@@ -298,39 +295,45 @@ export const useRemoveLiquidity = () => {
 
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
     const calls: ICallData[] = [
-      
       ...permitCallData,
-
-      /* FOR ALL REMOVES (when using a strategy) > move tokens from strategy to pool tokens  */
-      {
-        operation: LadleActions.Fn.TRANSFER,
-        args: [_strategy.address, _strategy.address, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: !_strategy,
-      },
-
-      /* If removing from a v1 strategy, we need to burn the tokens to the associated v2 strategy */
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy || series.poolAddress ] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
-        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy ? _strategy.strategyContract : undefined,
-        ignoreIf: !_strategy || _strategy?.type === 'V2',
-      },
-     
-      /* If removing from a v2 strategy, simply burn fromm strategy to the pool address, else burn form the associated strategy to the pool. */
-      {
-        operation: LadleActions.Fn.ROUTE,
-        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
-        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy?.type === 'V2' ?  _strategy.strategyContract : _associatedStrategyContract,  
-        ignoreIf: !_strategy || _strategy.associatedStrategy === undefined,
-      },
 
       /* FOR ALL REMOVES NOT USING STRATEGY >  move tokens to poolAddress  : */
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [series.poolAddress, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: _strategy || series.seriesIsMature,
+      },
+
+      /* FOR ALL REMOVES (when using a STRATEGY) > move tokens from strategy to pool tokens  */
+      {
+        operation: LadleActions.Fn.TRANSFER,
+        args: [_strategy.address, _strategy.address, _input] as LadleActions.Args.TRANSFER,
+        ignoreIf: !_strategy,
+      },
+
+      /** If removing from a V1 strategy, we need to burn the tokens to either the associated v2 strategy or the pool if the is no associatedStrategy */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [_strategy.associatedStrategy || series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy.strategyContract,
+        ignoreIf: !_strategy || _strategy.type === StrategyType.V2,
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _associatedStrategyContract,
+        ignoreIf: !_strategy || _strategy.type === StrategyType.V2 || !_associatedStrategyContract,
+      },
+
+      /* If removing from a V2 strategy, simply burn fromm strategy to the pool address */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy.strategyContract,
+        ignoreIf: !_strategy || _strategy.type === StrategyType.V1,
       },
 
       /**
@@ -366,7 +369,7 @@ export const useRemoveLiquidity = () => {
       /* OPTION 2.Remove liquidity, repay and sell - BEFORE MATURITY + VAULT + FYTOKEN > DEBT */
 
       // 2.1 doTrade 2.2 !doTrade
-      
+
       // ladle.transferAction(pool, pool, lpTokensBurnt), ^^^^ DONE ABOVE ^^^^
       // ladle.routeAction(pool, ['burn', [receiver, ladle, 0, 0]),
       // ladle.repayFromLadleAction(vaultId, pool),
@@ -378,7 +381,7 @@ export const useRemoveLiquidity = () => {
         targetContract: series.poolContract,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault,
       },
-      
+
       {
         operation: LadleActions.Fn.REPAY_FROM_LADLE,
         args: [matchingVaultId, toAddress] as LadleActions.Args.REPAY_FROM_LADLE,
@@ -398,7 +401,6 @@ export const useRemoveLiquidity = () => {
         args: [series.address, account] as LadleActions.Args.RETRIEVE,
         ignoreIf: series.seriesIsMature || !fyTokenReceivedGreaterThanDebt || !useMatchingVault || !isEthBase,
       },
-
 
       /* OPTION 4. Remove Liquidity and sell - BEFORE MATURITY + NO VAULT */
 
