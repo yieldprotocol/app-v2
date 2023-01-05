@@ -779,7 +779,7 @@ SERIES.set(
       USDC_2303,
       {
         id: USDC_2303,
-        baseId: '0x303100000000',
+        baseId: '0x303200000000',
         // baseAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
         maturity: 1680274800,
         name: 'FYUSDC2303',
