@@ -642,10 +642,14 @@ const UserProvider = ({ children }: any) => {
             // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
             const currentSeries = seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
 
+            console.log(' strategy:',  _strategy.address, 'fyToken', fyToken )
+
             if (currentSeries) {
+
               const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
                 currentSeries.poolContract.totalSupply(),
                 currentSeries.poolContract.balanceOf( hasAnUpdatedVersion ?_strategy.associatedStrategy : _strategy.address),
+                // currentSeries.poolContract.balanceOf( _strategy.address),
               ]);
 
               const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');

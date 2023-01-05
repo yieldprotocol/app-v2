@@ -23,7 +23,7 @@ export const useChain = () => {
   const {
     settingsState: { approveMax, forceTransactions, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
-
+  
   const {
     chainState: {
       connection: { account, provider, chainId },
