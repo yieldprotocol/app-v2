@@ -10,7 +10,7 @@ import * as contracts from '../contracts';
 import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { AssetStaticInfo, ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
 
-import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
+import { nameFromMaturity, getSeason, SeasonType, getSeriesAfterRollPosition } from '../utils/appUtils';
 
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 
@@ -435,9 +435,7 @@ const ChainProvider = ({ children }: any) => {
 
       const _getSeries = async () => {
         let seriesMap = SERIES_CONFIG;
-
         // const newSeriesList: any[] = [];
-
         seriesMap.forEach(async (series:SeriesStaticInfo)=> { 
 
           /* development get ts g1 g2 values */ 
@@ -456,65 +454,11 @@ const ChainProvider = ({ children }: any) => {
             version: series.version || '1',
             poolVersion: series.poolVersion || '1',
             decimals: series.decimals || '18',
-
           }
-
+          // newSeriesList.push(seriesDefaults)
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(seriesDefaults) });
         })
 
-        // await Promise.all(
-        //   Array.from(seriesMap).map(async (x): Promise<void> => {
-        //     const id = x[0];
-        //     const fyTokenAddress = x[1].fyTokenAddress;
-        //     const poolAddress = x[1].poolAddress;
-
-        //     const { maturity, baseId } = await Cauldron.series(id);
-        //     const poolContract = contracts.Pool__factory.connect(poolAddress, fallbackProvider);
-        //     const fyTokenContract = contracts.FYToken__factory.connect(fyTokenAddress, fallbackProvider);
-
-        //     const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
-        //       await Promise.all([
-        //         fyTokenContract.name(),
-        //         fyTokenContract.symbol(),
-        //         fyTokenContract.version(),
-        //         fyTokenContract.decimals(),
-        //         poolContract.name(),
-        //         poolContract.version(),
-        //         poolContract.symbol(),
-        //         poolContract.ts(),
-        //         poolContract.g1(),
-        //         poolContract.g2(),
-        //         poolContract.base(),
-        //       ]);
-
-        //     const newSeries = {
-        //       id,
-
-        //       baseId,
-        //       maturity,
-
-        //       name,
-        //       symbol,
-        //       version,
-        //       address: fyTokenAddress,
-        //       fyTokenAddress,
-        //       decimals,
-        //       poolAddress,
-        //       poolVersion,
-        //       poolName,
-        //       poolSymbol,
-
-        //       ts: ts.toString(),
-        //       g1:g1.toString(),
-        //       g2:g2.toString(),
-              
-        //     }
-        //     updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-        //     newSeriesList.push(newSeries);
-        //   })
-        // ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
-
-        // setCachedSeries(newSeriesList);
         console.log('Yield Protocol Series data updated successfully.');
       };
 
@@ -570,11 +514,9 @@ const ChainProvider = ({ children }: any) => {
       /**
        * LOAD the Series and Assets *
        * */
-      if (cachedAssets.length === 0 || cachedSeries.length === 0) {
-        console.log('FIRST LOAD: Loading Asset, Series and Strategies data ');
-
+      if ( cachedAssets.length === 0 ) {
+        console.log('FIRST LOAD: Loading Asset and Strategies data ');
         // (async () => await validateStrategies(fallbackProvider) )();
-
         (async () => {
           await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
           setLoadingFlag(false);
@@ -582,15 +524,18 @@ const ChainProvider = ({ children }: any) => {
         })();
         
       } else {
+
+        _getSeries();
+        // cachedSeries.forEach(async (s: ISeriesRoot) => {
+        //   updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
+        // });
+
         // get assets, series and strategies from cache and 'charge' them, and add to state:
         cachedAssets.forEach((a: IAssetRoot) => {
           updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
         });
-        cachedSeries.forEach(async (s: ISeriesRoot) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
-        });
+
         cachedStrategies.forEach((st: IStrategyRoot) => {
-  
           STRATEGY_CONFIG.map((s) => s.address).includes(st.address) &&
             updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
