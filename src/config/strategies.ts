@@ -189,7 +189,6 @@ STRATEGIES.set(42161, [
     decimals: 18,
     version: '1',
   },
-
   {
     address: '0xa3cAF61FD23d374ce13c742E4E9fA9FAc23Ddae6',
     associatedStrategy: '0x4276BEaA49DE905eED06FCDc0aD438a19D3861DD',
@@ -201,7 +200,6 @@ STRATEGIES.set(42161, [
     decimals: 18,
     version: '1',
   },
-
   {
     address: '0x54F08092e3256131954dD57C04647De8b2E7A9a9',
     associatedStrategy: '0x33e6B154efC7021dD55464c4e11a6AfE1f3D0635',
@@ -213,7 +211,6 @@ STRATEGIES.set(42161, [
     decimals: 18,
     version: '1',
   },
-
   {
     address: '0x3353E1E2976DBbc191a739871faA8E6E9D2622c7',
     associatedStrategy: '0xad1983745D6c739537fEaB5bed45795f47A940b3',
