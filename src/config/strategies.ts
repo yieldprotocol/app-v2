@@ -1,4 +1,4 @@
-import { BaseProvider, Provider } from '@ethersproject/providers';
+import { BaseProvider } from '@ethersproject/providers';
 import { Strategy__factory } from '../contracts';
 import { DAI, FRAX, USDC, WETH } from './assets';
 
@@ -7,7 +7,7 @@ export enum StrategyType {
   V2 = 'V2',
 }
 
-interface StrategyInfo {
+export interface StrategyInfo {
   id: string;
   address: string;
   type: StrategyType;
@@ -258,10 +258,8 @@ STRATEGIES.set(42161, [
     name: 'Yield Strategy USDC 6M Jun Dec',
     decimals: 6,
     type: StrategyType.V2,
-    
     version: '1',
   },
-
 ]);
 
 export default STRATEGIES;
@@ -286,7 +284,7 @@ export const validateStrategies = async (provider: BaseProvider) => {
       s.decimals !== decimals && console.log(preText, s.address, ': decimals mismatch');
       s.version !== version && console.log(preText, s.address, ': version mismatch');
     } catch (e) {
-      console.log(preText, s.address, ': Contract not reachable');
+      console.log(preText, s.address, ': Contract not reachable.');
     }
   });
 };
