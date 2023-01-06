@@ -281,7 +281,7 @@ const PoolPosition = () => {
                     )}
 
                     {accruedRewards && rewardsToken && +accruedRewards > 0 && (
-                      <Box direction="row" gap="large">
+                      <Box direction="row" gap="large" justify='between'>
                         <InfoBite
                           label="Claimable Rewards"
                           value={`${cleanValue(accruedRewards, rewardsToken?.digitFormat)} ${rewardsToken?.symbol}`}
@@ -295,7 +295,7 @@ const PoolPosition = () => {
                             background="background"
                           >
                             <Text size="xsmall" textAlign='center'>
-                              <MdShortcut />  Go to Claim Rewards
+                              <MdShortcut />  Go to Claim rewards
                             </Text>
                           </GeneralButton>
                         )}
