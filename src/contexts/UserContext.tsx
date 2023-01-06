@@ -42,6 +42,7 @@ import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
+import { formatUnits } from 'ethers/lib/utils';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -278,7 +279,6 @@ const UserProvider = ({ children }: any) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
-          
           /* Get all the data simultanenously in a promise.all */
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),
@@ -634,21 +634,20 @@ const UserProvider = ({ children }: any) => {
             ]);
 
             /* we check if the strategy has been supersecced by a v2 version */
-            const hasAnUpdatedVersion =  (_strategy.type === 'V1' && _strategy.associatedStrategy )
+            const hasAnUpdatedVersion = _strategy.type === 'V1' && _strategy.associatedStrategy;
 
             // console.log(_strategy.address, strategyTotalSupply, fyToken, currentPoolAddr )
 
             // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
             // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
             const currentSeries = seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
-
-            console.log(' strategy:',  _strategy.address, 'fyToken', fyToken )
-
+            
             if (currentSeries) {
-
               const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
                 currentSeries.poolContract.totalSupply(),
-                currentSeries.poolContract.balanceOf( hasAnUpdatedVersion ?_strategy.associatedStrategy : _strategy.address),
+                currentSeries.poolContract.balanceOf(
+                  hasAnUpdatedVersion ? _strategy.associatedStrategy : _strategy.address
+                ),
                 // currentSeries.poolContract.balanceOf( _strategy.address),
               ]);
 
@@ -657,24 +656,27 @@ const UserProvider = ({ children }: any) => {
               // get rewards data
               let rewardsPeriod: { start: number; end: number } | undefined;
               let rewardsRate: BigNumber | undefined;
+              let rewardsTokenAddress: string | undefined;
 
               try {
-                const [{ rate }, { start, end }] = await Promise.all([
+                const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
                   _strategy.strategyContract.rewardsPerToken(),
                   _strategy.strategyContract.rewardsPeriod(),
+                  _strategy.strategyContract.rewardsToken(),
                 ]);
-
                 rewardsPeriod = { start, end };
                 rewardsRate = rate;
+                rewardsTokenAddress = rewardsToken;
               } catch (e) {
                 diagnostics &&
                   console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
                 rewardsPeriod = undefined;
                 rewardsRate = undefined;
+                rewardsTokenAddress = undefined;
               }
 
-              /* Decide if stragtegy should be 'active' */ 
-              const isActive = _strategy.type === 'V2' || (_strategy.type === 'V1' ) // && !_strategy.associatedStrategy)
+              /* Decide if stragtegy should be 'active' */
+              const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
 
               return {
                 ..._strategy,
@@ -694,6 +696,7 @@ const UserProvider = ({ children }: any) => {
                 active: isActive,
                 rewardsRate,
                 rewardsPeriod,
+                rewardsTokenAddress,
               };
             }
 
@@ -720,6 +723,9 @@ const UserProvider = ({ children }: any) => {
                 _strategy.currentSeries?.poolContract.balanceOf(account),
               ]);
 
+              const accountRewards = _strategy.rewardsRate.gt(ZERO_BN)
+                ? (await _strategy.strategyContract.rewards(account)).accumulated : ZERO_BN
+
               const accountStrategyPercent = mulDecimal(
                 divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
                 '100'
@@ -731,6 +737,8 @@ const UserProvider = ({ children }: any) => {
                 accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
                 accountPoolBalance,
                 accountStrategyPercent,
+                accountRewards: accountRewards,
+                accountRewards_: formatUnits(accountRewards, _strategy.decimals),
               };
             })
         );

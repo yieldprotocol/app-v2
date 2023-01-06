@@ -1,7 +1,14 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiStar, FiZap } from 'react-icons/fi';
+import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Tip } from 'grommet';
+import {
+  FiArrowRight,
+  FiChevronDown,
+  FiClock,
+  FiSlash,
+  FiStar,
+  FiZap,
+} from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -32,6 +39,9 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useClaimRewards from '../../hooks/actionHooks/useClaimRewards';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
+import GeneralButton from '../buttons/GeneralButton';
+import { MdShortcut } from 'react-icons/md';
+import { ZERO_BN } from '@yield-protocol/ui-math';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -74,7 +84,7 @@ const PoolPosition = () => {
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
 
   const { logAnalyticsEvent } = useAnalytics();
-  const { claimRewards, accruedRewards, rewardsToken } = useClaimRewards(selectedStrategy!);
+  const { claimRewards } = useClaimRewards(selectedStrategy!);
   const { returns: lpReturns } = useStrategyReturns(_selectedStrategy?.accountBalance_, _selectedStrategy);
 
   /* TX data */
@@ -164,8 +174,8 @@ const PoolPosition = () => {
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
-    +accruedRewards! === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
-  }, [accruedRewards, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
+    +selectedStrategy.accountRewards_! === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
+  }, [selectedStrategy, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
     const _strategy = strategyMap.get(idFromUrl as string) || null;
@@ -268,13 +278,26 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {accruedRewards && rewardsToken && +accruedRewards > 0 && (
-                      <InfoBite
-                        label="Claimable Rewards"
-                        value={`${cleanValue(accruedRewards, rewardsToken?.digitFormat)} ${rewardsToken?.symbol}`}
-                        icon={<FiStar />}
-                        loading={seriesLoading}
-                      />
+                    {selectedStrategy.accountRewards.gt(ZERO_BN) && selectedStrategy.rewardsTokenAddress && (
+                      <Box direction="row" gap="large" justify='between'>
+                        <InfoBite
+                          label="Claimable Rewards"
+                          value={`${cleanValue(selectedStrategy.accountRewards_, 6)} ETH`}
+                          icon={<FiStar />}
+                          loading={seriesLoading}
+                        />
+                        {actionActive.index !== 2 &&  (
+                          <GeneralButton
+                            action={() => handleSetActionActive({ text: 'Claim Rewards', index: 2 })}
+                            // action={handleClaim}
+                            background="background"
+                          >
+                            <Text size="xsmall" textAlign='center'>
+                              <MdShortcut />  Go to Claim rewards
+                            </Text>
+                          </GeneralButton>
+                        )}
+                      </Box>
                     )}
                   </Box>
                 </SectionWrap>
@@ -290,7 +313,7 @@ const PoolPosition = () => {
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
-                        !!rewardsToken && { text: 'Claim Rewards', index: 2 },
+                        !!selectedStrategy.rewardsTokenAddress && { text: 'Claim Rewards', index: 2 },
                       ].filter(Boolean)}
                       icon={<FiChevronDown />}
                       labelKey="text"
@@ -411,7 +434,7 @@ const PoolPosition = () => {
                       </Text>
                     }
                     onClick={() => handleRemove()}
-                    disabled= {removeDisabled || removeProcess?.processActive}
+                    disabled={removeDisabled || removeProcess?.processActive}
                   />
                 )}
 
@@ -421,8 +444,8 @@ const PoolPosition = () => {
                   label={
                     <Text size={mobile ? 'small' : undefined}>
                       {`Claim${claimProcess?.processActive ? 'ing' : ''} ${
-                        cleanValue(accruedRewards, rewardsToken?.digitFormat!) || ''
-                      } ${rewardsToken?.symbol}`}
+                        cleanValue(selectedStrategy.accountRewards_, 8) || ''
+                      } ETH`}
                     </Text>
                   }
                   onClick={handleClaim}

@@ -377,6 +377,10 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
 
+  accountRewards?: BigNumber;
+  accountRewards_?: string;
+                
+  rewardsTokenAddress?: string;
   rewardsRate?: BigNumber;
   rewardsPeriod?: { start: number; end: number };
 }
