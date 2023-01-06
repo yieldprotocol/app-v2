@@ -33,25 +33,23 @@ const useClaimRewards = (strategy: IStrategy | undefined) => {
     await handleTx(claim, ActionCodes.CLAIM_REWARDS);
     updateAssets([asset!]);
     updateStrategies([strategy]);
-    getRewards();
+    // getRewards();
   };
 
-  const getRewards = useCallback(async () => {
-    if (!strategy) return;
+  // const getRewards = useCallback(async () => {
+  //   if (!strategy) return;
+  //   const { strategyContract } = strategy;
+  //   const [{ accumulated }, tokenAddr] = await Promise.all([
+  //     strategyContract.rewards(account!),
+  //     strategyContract.rewardsToken(),
+  //   ]);
+  //   setAccruedRewards(formatUnits(accumulated, strategy.decimals));
+  //   setRewardsToken([...assetMap.values()].find((a) => a.address === tokenAddr));
+  // }, [account, assetMap, strategy]);
 
-    const { strategyContract } = strategy;
-
-    const [{ accumulated }, tokenAddr] = await Promise.all([
-      strategyContract.rewards(account!),
-      strategyContract.rewardsToken(),
-    ]);
-    setAccruedRewards(formatUnits(accumulated, strategy.decimals));
-    setRewardsToken([...assetMap.values()].find((a) => a.address === tokenAddr));
-  }, [account, assetMap, strategy]);
-
-  useEffect(() => {
-    getRewards();
-  }, [getRewards]);
+  // useEffect(() => {
+  //   getRewards();
+  // }, [getRewards]);
 
   return { claimRewards, accruedRewards, rewardsToken };
 };

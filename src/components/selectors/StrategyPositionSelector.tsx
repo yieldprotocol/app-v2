@@ -23,10 +23,11 @@ function StrategyPositionSelector() {
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
+
     /* only if veiwing the main screen (not when modal is showing) */
     const _allPositions: IStrategy[] = Array.from(strategyMap.values())
       /* filter by positive strategy balances */
-      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN))
+      .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN) || _strategy.accountRewards?.gt(ZERO_BN) )
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>
         _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
       );
