@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput } from 'grommet';
-import { FiArrowRight, FiChevronDown, FiClock, FiPercent, FiSlash, FiStar, FiZap } from 'react-icons/fi';
+import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Tip } from 'grommet';
+import { FiArrowRight, FiChevronDown, FiClock, FiExternalLink, FiLink2, FiPercent, FiSlash, FiStar, FiZap } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -32,6 +32,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useClaimRewards from '../../hooks/actionHooks/useClaimRewards';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
+import GeneralButton from '../buttons/GeneralButton';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -269,12 +270,19 @@ const PoolPosition = () => {
                     )}
 
                     {accruedRewards && rewardsToken && +accruedRewards > 0 && (
-                      <InfoBite
-                        label="Claimable Rewards"
-                        value={`${cleanValue(accruedRewards, rewardsToken?.digitFormat)} ${rewardsToken?.symbol}`}
-                        icon={<FiStar />}
-                        loading={seriesLoading}
-                      />
+                      <Box direction="row" gap="small" justify="between">
+                        <InfoBite
+                          label="Claimable Rewards"
+                          value={`${cleanValue(accruedRewards, rewardsToken?.digitFormat)} ${rewardsToken?.symbol}`}
+                          icon={<FiStar />}
+                          loading={seriesLoading}
+                        />
+                        { actionActive.index !== 2 &&
+                        <GeneralButton action={()=>  handleSetActionActive({ text: 'Claim Rewards', index: 2 }) } background="background">
+                          <Text size="xsmall"><FiExternalLink /> Claim Rewards</Text>
+                        </GeneralButton>
+                        }
+                      </Box>
                     )}
                   </Box>
                 </SectionWrap>
@@ -411,7 +419,7 @@ const PoolPosition = () => {
                       </Text>
                     }
                     onClick={() => handleRemove()}
-                    disabled= {removeDisabled || removeProcess?.processActive}
+                    disabled={removeDisabled || removeProcess?.processActive}
                   />
                 )}
 
