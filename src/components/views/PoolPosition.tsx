@@ -1,7 +1,17 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Tip } from 'grommet';
-import { FiArrowRight, FiChevronDown, FiClock, FiExternalLink, FiLink2, FiPercent, FiSlash, FiStar, FiZap } from 'react-icons/fi';
+import {
+  FiArrowRight,
+  FiChevronDown,
+  FiClock,
+  FiExternalLink,
+  FiLink2,
+  FiPercent,
+  FiSlash,
+  FiStar,
+  FiZap,
+} from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -33,6 +43,7 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useClaimRewards from '../../hooks/actionHooks/useClaimRewards';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
 import GeneralButton from '../buttons/GeneralButton';
+import { MdShortcut } from 'react-icons/md';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -270,18 +281,24 @@ const PoolPosition = () => {
                     )}
 
                     {accruedRewards && rewardsToken && +accruedRewards > 0 && (
-                      <Box direction="row" gap="small" justify="between">
+                      <Box direction="row" gap="large">
                         <InfoBite
                           label="Claimable Rewards"
                           value={`${cleanValue(accruedRewards, rewardsToken?.digitFormat)} ${rewardsToken?.symbol}`}
                           icon={<FiStar />}
                           loading={seriesLoading}
                         />
-                        { actionActive.index !== 2 &&
-                        <GeneralButton action={()=>  handleSetActionActive({ text: 'Claim Rewards', index: 2 }) } background="background">
-                          <Text size="xsmall"><FiExternalLink /> Claim Rewards</Text>
-                        </GeneralButton>
-                        }
+                        {actionActive.index !== 2 &&  (
+                          <GeneralButton
+                            action={() => handleSetActionActive({ text: 'Claim Rewards', index: 2 })}
+                            // action={handleClaim}
+                            background="background"
+                          >
+                            <Text size="xsmall" textAlign='center'>
+                              <MdShortcut />  Go to Claim Rewards
+                            </Text>
+                          </GeneralButton>
+                        )}
                       </Box>
                     )}
                   </Box>
