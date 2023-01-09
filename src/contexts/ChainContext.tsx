@@ -70,7 +70,7 @@ function chainReducer(state: IChainContextState, action: any) {
   /* Reducer switch */
   switch (action.type) {
     case ChainState.CHAIN_LOADING:
-      return { ...state, chainLoading: onlyIfChanged(action) };
+      return { ...state, chainLoading: action.payload };
 
     case ChainState.APP_VERSION:
       return { ...state, appVersion: onlyIfChanged(action) };
@@ -116,7 +116,6 @@ const ChainProvider = ({ children }: any) => {
   /* Connection hook */
   const { connectionState, connectionActions } = useConnection();
   const { fallbackProvider, fallbackChainId } = connectionState;
-
   const [loadingFlag, setLoadingFlag] = useState(false);
 
   /**
@@ -259,7 +258,6 @@ const ChainProvider = ({ children }: any) => {
 
       /* get series map config */
       const SERIES_CONFIG =  SERIES.get(fallbackChainId);
-      //const SERIES_CONFIG =  fallbackChainId === 1 ? SERIES_1 : SERIES_42161;
 
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
@@ -434,10 +432,9 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-        let seriesMap = SERIES_CONFIG;
+        let seriesList = Array.from(SERIES_CONFIG.values());
         // const newSeriesList: any[] = [];
-        seriesMap.forEach(async (series:SeriesStaticInfo)=> { 
-
+        await Promise.all(seriesList.map(async (series:SeriesStaticInfo)=> { 
           /* development get ts g1 g2 values */ 
           if (false) {
             const poolContract = Pool__factory.connect(series.poolAddress, fallbackProvider);
@@ -448,18 +445,18 @@ const ChainProvider = ({ children }: any) => {
             ]);
             console.log( series.symbol, ts, g1,g2)
           }
-        
           const seriesDefaults = {
             ...series,
             version: series.version || '1',
             poolVersion: series.poolVersion || '1',
             decimals: series.decimals || '18',
           }
-          // newSeriesList.push(seriesDefaults)
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(seriesDefaults) });
-        })
+        }))
 
-        console.log('Yield Protocol Series data updated successfully.');
+        // log the new assets in the cache
+        setCachedSeries(seriesList);
+        console.log('Yield Protocol Series data updated successfully.' );
       };
 
       /* Attach contract instance */
@@ -518,17 +515,16 @@ const ChainProvider = ({ children }: any) => {
         console.log('FIRST LOAD: Loading Asset and Strategies data ');
         // (async () => await validateStrategies(fallbackProvider) )();
         (async () => {
-          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
-          setLoadingFlag(false);
+          await Promise.all([ _getAssets(), _getSeries(), _getStrategies()]);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+          setLoadingFlag(false);
         })();
         
       } else {
 
-        _getSeries();
-        // cachedSeries.forEach(async (s: ISeriesRoot) => {
-        //   updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
-        // });
+        cachedSeries.forEach(async (s: ISeriesRoot) => {
+          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
+        });
 
         // get assets, series and strategies from cache and 'charge' them, and add to state:
         cachedAssets.forEach((a: IAssetRoot) => {
@@ -539,8 +535,8 @@ const ChainProvider = ({ children }: any) => {
           STRATEGY_CONFIG.map((s) => s.address).includes(st.address) &&
             updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
-        setLoadingFlag(false);
         updateState({ type: ChainState.CHAIN_LOADING, payload: false });
+        setLoadingFlag(false);
       }
     }
   }, [fallbackProvider, fallbackChainId]);

@@ -180,7 +180,7 @@ const UserProvider = ({ children }: any) => {
       try {
         vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter);
       } catch (error) {
-        console.log('could not get vaults received');
+        console.log('Could not get vaults received');
       }
 
       const buildEventList = vaultsBuilt.map((x: VaultBuiltEvent): IVaultRoot => {
@@ -773,7 +773,6 @@ const UserProvider = ({ children }: any) => {
       if (seriesRootMap.size) {
         updateSeries(Array.from(seriesRootMap.values()));
       }
-
       if (assetRootMap.size) {
         updateAssets(Array.from(assetRootMap.values()));
       }
@@ -795,7 +794,7 @@ const UserProvider = ({ children }: any) => {
     }
     /* keep checking the active account when it changes/ chainloading */
     updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
-  }, [account, chainLoading, tenderlyStartBlock]); // updateVaults ignored here on purpose
+  }, [account, chainLoading]); // updateVaults ignored here on purpose
 
   /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
   useEffect(() => {
