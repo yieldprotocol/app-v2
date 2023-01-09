@@ -49,10 +49,10 @@ const FRAX_2212 = '0x313830380000';
 const FRAX_2303 = '0x313830390000';
 
 // 2306 - New Naming Structure
-const USDC_2306 = '0x0032FF00028B';
-const DAI_2306 = '0x0031FF00028B';
-const WETH_2306 = '0x0030FF00028B';
-const FRAX_2306 = '0x0138FF00028B';
+const USDC_2306 = '0x0032ff00028b';
+const DAI_2306 = '0x0031ff00028b';
+const WETH_2306 = '0x0030ff00028b';
+const FRAX_2306 = '0x0138ff00028b';
 
 export const validateSeries = async (provider: BaseProvider, cauldronAddress: string) => {
   const preText = '### SERIES SET VALIDATION ERROR ### ';
