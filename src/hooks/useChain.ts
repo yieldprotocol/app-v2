@@ -96,7 +96,7 @@ export const useChain = () => {
     // let gasEstFail: boolean = false;
     try {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
-      console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
+      console.log('Auto gas estimate:', gasEst.mul(135).div(100).toString());
     } catch (e: any) {
       gasEst = BigNumber.from(500000);
       /* handle if the tx if going to fail and transactions aren't forced */
@@ -237,7 +237,7 @@ export const useChain = () => {
         console.log(v < 27 ? v + 27 : v);
 
         const args = [
-          reqSig.target.address, // the asset id OR the seriesId (if signing fyToken)
+          reqSig.target.address, 
           _spender,
           value,
           deadline,

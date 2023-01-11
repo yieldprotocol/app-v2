@@ -42,12 +42,12 @@ import { StrategyType } from '../../config/strategies';
 /*
                                                                             +---------+  DEFUNCT PATH
                                                                        +--> |OPTION 2.1 |  (unique call: SELL_FYTOKEN) 
-                                                                NEVER  |    +---------+
+                                       Repay from ladle              NEVER  |    +---------+
                                                                        |
-                                 +------------------> sell Token supported
+                                 +------------------> sell Token supported (> fytoken left >0 && selltoken supported)
                                  |Y                                    |
                                  |                               Y/  N |    +--------------------+
-               +------> FyTokenRecieved > Debt                        +--->|OPTION 2.2 (no trade) | (unique call: none of others) 
+               +------> FyTokenRecieved > 0                                 +--->|OPTION 2.2 (no trade) | (unique call: none of others) 
                |                 |                    +-----------+         +--------------------+
                |Y                +------------------> | OPTION 1  |
                |                  N                   +-----------+
