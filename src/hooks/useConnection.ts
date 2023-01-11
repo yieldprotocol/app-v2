@@ -34,10 +34,10 @@ export const useConnection = () => {
   const [connectionName, setConnectionName] = useCachedState('connectionName', '');
 
   const primaryConnection = useWeb3React<ethers.providers.Web3Provider>();
-  const { connector, library: provider, chainId, account, activate, deactivate, active } = primaryConnection;
-
-  /* mocking location */
-  // const { connector, library: provider, chainId, activate, deactivate, active } = primaryConnection;
+  const { connector, library: provider, chainId, activate, deactivate, active } = primaryConnection;
+  
+  /* mocking location - set either */
+  const { account } = primaryConnection;
   // const account = "" ;
 
   const fallbackConnection = useWeb3React<ethers.providers.JsonRpcProvider>('fallback');
