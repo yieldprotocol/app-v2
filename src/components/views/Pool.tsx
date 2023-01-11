@@ -320,7 +320,7 @@ function Pool() {
               disabled={
                 stepDisabled ||
                 !selectedStrategy ||
-                (selectedStrategy.type === StrategyType.V1 && !selectedStrategy.associatedStrategy) 
+                (selectedStrategy.associatedStrategy && selectedStrategy.type === StrategyType.V1)
               }
               errorLabel={poolError}
             />
