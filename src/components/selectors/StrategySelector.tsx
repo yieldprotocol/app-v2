@@ -143,7 +143,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   }, [selectedBase, strategyMap, selectedStrategy]);
 
   const handleSelect = (_strategy: IStrategy) => {
-    console.log( _strategy.type)
+    console.log('SELECTED: ',_strategy.address, 'VERSION: ',_strategy.type )
     if (_strategy.active) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy);

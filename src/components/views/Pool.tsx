@@ -37,6 +37,8 @@ import useStrategyReturns from '../../hooks/useStrategyReturns';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
+import { StrategyType } from '../../config/strategies';
+import { toast } from 'react-toastify';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -75,12 +77,20 @@ function Pool() {
     if (poolDisabled) return;
 
     setPoolDisabled(true);
-    // addLiquidity(
-    //   poolInput,
-    //   selectedStrategy,
-    //   canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
-    //   matchingVault
-    // );
+    /* this is simply a check that we don't add to a v1 strategy that has a v2 verison) */
+    console.log('Strategy: ', selectedStrategy);
+    if (selectedStrategy.type === StrategyType.V1 && selectedStrategy.associatedStrategy) {
+      console.log('config error: Trying to add to an old strategy');
+      toast.warning('Trying to add Liquidity to an old Strategy version. Please refresh your browser and try again.');
+      return;
+    }
+
+    addLiquidity(
+      poolInput,
+      selectedStrategy,
+      canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
+      matchingVault
+    );
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
@@ -271,25 +281,24 @@ function Pool() {
 
         <Box id="midSection" gap="small">
           {stepPosition === 1 && !poolProcess?.processActive && (
-            <Box pad='large'>
-            <Text size="xsmall" weight="lighter">
-              Deposits are currently disabled for maintenance. Please check back shortly.
-            </Text>
-            </Box>
-
-            // <CheckBox
-            //   pad={{ vertical: 'small', horizontal: 'large' }}
-            //   label={
-            //     <Text size="xsmall" weight="lighter">
-            //       I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
-            //       the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
-            //       demand. I also understand that the variable APY shown is a projection and that actual returns may
-            //       differ.
-            //     </Text>
-            //   }
-            //   checked={disclaimerChecked}
-            //   onChange={() => setDisclaimerChecked(!disclaimerChecked)}
-            // />
+            // <Box pad='large'>
+            // <Text size="xsmall" weight="lighter">
+            //   Deposits are currently disabled for maintenance. Please check back shortly.
+            // </Text>
+            // </Box>
+            <CheckBox
+              pad={{ vertical: 'small', horizontal: 'large' }}
+              label={
+                <Text size="xsmall" weight="lighter">
+                  I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
+                  the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
+                  demand. I also understand that the variable APY shown is a projection and that actual returns may
+                  differ.
+                </Text>
+              }
+              checked={disclaimerChecked}
+              onChange={() => setDisclaimerChecked(!disclaimerChecked)}
+            />
           )}
 
           {stepPosition === 1 &&
@@ -308,7 +317,11 @@ function Pool() {
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               onClick={() => handleNavAction(stepPosition + 1)}
-              disabled={stepDisabled || !selectedStrategy}
+              disabled={
+                stepDisabled ||
+                !selectedStrategy ||
+                (selectedStrategy.associatedStrategy && selectedStrategy.type === StrategyType.V1)
+              }
               errorLabel={poolError}
             />
           )}

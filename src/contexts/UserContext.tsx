@@ -636,8 +636,6 @@ const UserProvider = ({ children }: any) => {
             /* we check if the strategy has been supersecced by a v2 version */
             const hasAnUpdatedVersion = _strategy.type === 'V1' && _strategy.associatedStrategy;
 
-            // console.log(_strategy.address, strategyTotalSupply, fyToken, currentPoolAddr )
-
             // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
             // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
             const currentSeries = seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
