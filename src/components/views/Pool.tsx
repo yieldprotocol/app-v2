@@ -75,6 +75,8 @@ function Pool() {
     if (poolDisabled) return;
 
     setPoolDisabled(true);
+
+    console.log( selectedStrategy )
     // addLiquidity(
     //   poolInput,
     //   selectedStrategy,
@@ -271,25 +273,25 @@ function Pool() {
 
         <Box id="midSection" gap="small">
           {stepPosition === 1 && !poolProcess?.processActive && (
-            <Box pad='large'>
-            <Text size="xsmall" weight="lighter">
-              Deposits are currently disabled for maintenance. Please check back shortly.
-            </Text>
-            </Box>
+            // <Box pad='large'>
+            // <Text size="xsmall" weight="lighter">
+            //   Deposits are currently disabled for maintenance. Please check back shortly.
+            // </Text>
+            // </Box>
 
-            // <CheckBox
-            //   pad={{ vertical: 'small', horizontal: 'large' }}
-            //   label={
-            //     <Text size="xsmall" weight="lighter">
-            //       I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
-            //       the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
-            //       demand. I also understand that the variable APY shown is a projection and that actual returns may
-            //       differ.
-            //     </Text>
-            //   }
-            //   checked={disclaimerChecked}
-            //   onChange={() => setDisclaimerChecked(!disclaimerChecked)}
-            // />
+            <CheckBox
+              pad={{ vertical: 'small', horizontal: 'large' }}
+              label={
+                <Text size="xsmall" weight="lighter">
+                  I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
+                  the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
+                  demand. I also understand that the variable APY shown is a projection and that actual returns may
+                  differ.
+                </Text>
+              }
+              checked={disclaimerChecked}
+              onChange={() => setDisclaimerChecked(!disclaimerChecked)}
+            />
           )}
 
           {stepPosition === 1 &&
