@@ -236,7 +236,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.ROUTE,
         args: [
-          strategy.id || account, // NOTE GOTCHA: receiver is _strategyAddress (if it exists) or else account
+          strategy.address || account, // NOTE GOTCHA: receiver is _strategyAddress (if it exists) or else account
           account,
           fyTokenToBuy,
           minRatio,
