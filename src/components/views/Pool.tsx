@@ -37,6 +37,8 @@ import useStrategyReturns from '../../hooks/useStrategyReturns';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
+import { StrategyType } from '../../config/strategies';
+import { toast } from 'react-toastify';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -76,13 +78,20 @@ function Pool() {
 
     setPoolDisabled(true);
 
-    console.log( selectedStrategy )
-    // addLiquidity(
-    //   poolInput,
-    //   selectedStrategy,
-    //   canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
-    //   matchingVault
-    // );
+    /* this is simply a check that we don't add to a v1 strategy that has a v2 verison) */
+    console.log('Strategy: ', selectedStrategy )
+    if (selectedStrategy.type === StrategyType.V1 && selectedStrategy.associatedStrategy ) {
+      console.log( 'config error: Trying to add to an old strategy')
+      toast.warning('Trying to add Liquidity to an old Strategy version. Please refresh your browser and try again.')
+      return;
+    };
+ 
+    addLiquidity(
+      poolInput,
+      selectedStrategy,
+      canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
+      matchingVault
+    );
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
@@ -278,7 +287,6 @@ function Pool() {
             //   Deposits are currently disabled for maintenance. Please check back shortly.
             // </Text>
             // </Box>
-
             <CheckBox
               pad={{ vertical: 'small', horizontal: 'large' }}
               label={
