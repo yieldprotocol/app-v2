@@ -56,7 +56,7 @@ function Pool() {
   /* HOOK FNS */
   const addLiquidity = useAddLiquidity();
   const { maxPool, poolPercentPreview, canBuyAndPool, matchingVault } = usePoolHelpers(poolInput);
-  const { returns  } = useStrategyReturns(poolInput);
+  const { returns } = useStrategyReturns(poolInput);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -75,12 +75,12 @@ function Pool() {
     if (poolDisabled) return;
 
     setPoolDisabled(true);
-    addLiquidity(
-      poolInput,
-      selectedStrategy,
-      canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
-      matchingVault
-    );
+    // addLiquidity(
+    //   poolInput,
+    //   selectedStrategy,
+    //   canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
+    //   matchingVault
+    // );
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
@@ -214,7 +214,7 @@ function Pool() {
                     animation={{ type: 'zoomIn', size: 'small' }}
                     flex={false}
                   >
-                    {returns && + returns.blendedAPY! > 0 && (
+                    {returns && +returns.blendedAPY! > 0 && (
                       <InfoBite
                         textSize="large"
                         label="Variable APY"
@@ -271,19 +271,25 @@ function Pool() {
 
         <Box id="midSection" gap="small">
           {stepPosition === 1 && !poolProcess?.processActive && (
-            <CheckBox
-              pad={{ vertical: 'small', horizontal: 'large' }}
-              label={
-                <Text size="xsmall" weight="lighter">
-                  I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
-                  the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
-                  demand. I also understand that the variable APY shown is a projection and that actual returns may
-                  differ.
-                </Text>
-              }
-              checked={disclaimerChecked}
-              onChange={() => setDisclaimerChecked(!disclaimerChecked)}
-            />
+            <Box pad='large'>
+            <Text size="xsmall" weight="lighter">
+              Deposits are currently disabled for maintenance. Please check back shortly.
+            </Text>
+            </Box>
+
+            // <CheckBox
+            //   pad={{ vertical: 'small', horizontal: 'large' }}
+            //   label={
+            //     <Text size="xsmall" weight="lighter">
+            //       I understand that providing liquidity into Yield Protocol may result in impermanent loss, result in
+            //       the payment of fees, and that under certain conditions I may not be able to withdraw all liquidity on
+            //       demand. I also understand that the variable APY shown is a projection and that actual returns may
+            //       differ.
+            //     </Text>
+            //   }
+            //   checked={disclaimerChecked}
+            //   onChange={() => setDisclaimerChecked(!disclaimerChecked)}
+            // />
           )}
 
           {stepPosition === 1 &&
@@ -353,7 +359,6 @@ function Pool() {
       )}
     </MainViewWrap>
   );
-
 }
 
 export default Pool;

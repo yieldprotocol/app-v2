@@ -281,7 +281,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [strategy.id || account, account, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS,
+        args: [strategy.address || account, account, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS,
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: _series.poolContract,
         ignoreIf: method !== AddLiquidityType.BORROW,
