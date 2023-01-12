@@ -721,8 +721,12 @@ const UserProvider = ({ children }: any) => {
                 _strategy.currentSeries?.poolContract.balanceOf(account),
               ]);
 
-              const accountRewards = _strategy.rewardsRate.gt(ZERO_BN)
-                ? (await _strategy.strategyContract.rewards(account)).accumulated : ZERO_BN
+              // const accountRewards = _strategy.rewardsRate.gt(ZERO_BN)
+              //   ? (await _strategy.strategyContract.rewards(account)).accumulated : ZERO_BN
+              const signer = provider.getSigner(account);
+              const stratConnected = _strategy.strategyContract.connect(signer )
+                const accountRewards = _strategy.rewardsRate.gt(ZERO_BN) && signer
+                ? (await  stratConnected.callStatic.claim(account)) : ZERO_BN
 
               const accountStrategyPercent = mulDecimal(
                 divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
