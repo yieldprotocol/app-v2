@@ -712,7 +712,7 @@ const UserProvider = ({ children }: any) => {
 
       /* Add in account specific data */
       if (account) {
-        const signer = provider.getSigner(account);
+        const signer = provider?.getSigner(account);
         _accountData = await Promise.all(
           _publicData
             // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
