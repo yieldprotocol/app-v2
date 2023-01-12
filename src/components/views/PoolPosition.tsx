@@ -174,7 +174,7 @@ const PoolPosition = () => {
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
     !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
-    +selectedStrategy.accountRewards_! === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
+    +selectedStrategy?.accountRewards_! === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
   }, [selectedStrategy, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
@@ -278,11 +278,11 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {selectedStrategy.accountRewards.gt(ZERO_BN) && selectedStrategy.rewardsTokenAddress && (
+                    {selectedStrategy?.accountRewards.gt(ZERO_BN) && selectedStrategy?.rewardsTokenAddress && (
                       <Box direction="row" gap="large" justify='between'>
                         <InfoBite
                           label="Claimable Rewards"
-                          value={`${cleanValue(selectedStrategy.accountRewards_, 6)} ETH`}
+                          value={`${cleanValue(selectedStrategy?.accountRewards_, 6)} ETH`}
                           icon={<FiStar />}
                           loading={seriesLoading}
                         />
@@ -313,7 +313,7 @@ const PoolPosition = () => {
                       options={[
                         { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
-                        !!selectedStrategy.rewardsTokenAddress && { text: 'Claim Rewards', index: 2 },
+                        !!selectedStrategy?.rewardsTokenAddress && { text: 'Claim Rewards', index: 2 },
                       ].filter(Boolean)}
                       icon={<FiChevronDown />}
                       labelKey="text"
@@ -444,7 +444,7 @@ const PoolPosition = () => {
                   label={
                     <Text size={mobile ? 'small' : undefined}>
                       {`Claim${claimProcess?.processActive ? 'ing' : ''} ${
-                        cleanValue(selectedStrategy.accountRewards_, 8) || ''
+                        cleanValue(selectedStrategy?.accountRewards_, 8) || ''
                       } ETH`}
                     </Text>
                   }

@@ -712,17 +712,22 @@ const UserProvider = ({ children }: any) => {
 
       /* Add in account specific data */
       if (account) {
+        const signer = provider.getSigner(account);
         _accountData = await Promise.all(
           _publicData
             // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
             .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+              
               const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract.balanceOf(account),
                 _strategy.currentSeries?.poolContract.balanceOf(account),
               ]);
 
-              const accountRewards = _strategy.rewardsRate.gt(ZERO_BN)
-                ? (await _strategy.strategyContract.rewards(account)).accumulated : ZERO_BN
+              // const accountRewards = _strategy.rewardsRate.gt(ZERO_BN)
+              //   ? (await _strategy.strategyContract.rewards(account)).accumulated : ZERO_BN
+              const stratConnected = _strategy.strategyContract.connect(signer )
+                const accountRewards = _strategy.rewardsRate.gt(ZERO_BN) && signer
+                ? (await  stratConnected.callStatic.claim(account)) : ZERO_BN
 
               const accountStrategyPercent = mulDecimal(
                 divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
