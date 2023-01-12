@@ -21,7 +21,6 @@ import { SERIES, SeriesStaticInfo, validateSeries } from '../config/series';
 import { Block } from '@ethersproject/providers';
 import STRATEGIES, { validateStrategies } from '../config/strategies';
 import { Pool__factory } from '../contracts';
-import { getGenericPayload } from 'react-use-gesture/dist/recognizers/Recognizer';
 
 enum ChainState {
   CHAIN_LOADING = 'chainLoading',
