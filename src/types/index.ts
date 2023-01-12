@@ -27,7 +27,6 @@ export interface IConnectionState {
   chainId: number | null;
   fallbackProvider: ethers.providers.JsonRpcProvider | null;
   fallbackChainId: number | null;
-  signer: ethers.providers.JsonRpcSigner | null;
   account: string | null;
   connectionName: string | null;
   useTenderlyFork: boolean;
