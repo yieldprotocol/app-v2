@@ -139,7 +139,7 @@ function Pool() {
           <StrategyPositionSelector />
         </PanelWrap>
       )}
-
+      
       <CenterPanelWrap series={selectedStrategy?.currentSeries}>
         <Box id="topsection">
           {stepPosition === 0 && (
@@ -193,7 +193,6 @@ function Pool() {
                   }
                 >
                   <Box flex={false}>
-                    
                     <StrategySelector inputValue={poolInput} />
                   </Box>
                 </SectionWrap>

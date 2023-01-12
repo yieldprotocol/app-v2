@@ -278,7 +278,7 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {selectedStrategy?.accountRewards.gt(ZERO_BN) && selectedStrategy?.rewardsTokenAddress && (
+                    {selectedStrategy?.accountRewards?.gt(ZERO_BN) && selectedStrategy?.rewardsTokenAddress && (
                       <Box direction="row" gap="large" justify='between'>
                         <InfoBite
                           label="Claimable Rewards"

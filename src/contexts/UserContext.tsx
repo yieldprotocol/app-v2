@@ -42,7 +42,8 @@ import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
-import { formatUnits } from 'ethers/lib/utils';
+import { formatUnits, zeroPad } from 'ethers/lib/utils';
+import { useConnection } from '../hooks/useConnection';
 
 enum UserState {
   USER_LOADING = 'userLoading',
@@ -102,13 +103,13 @@ function userReducer(state: IUserContextState, action: any) {
       return { ...state, activeAccount: onlyIfChanged(action) };
 
     case UserState.ASSET_MAP:
-      return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) as Map<string,IAsset> };
+      return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) as Map<string, IAsset> };
     case UserState.SERIES_MAP:
-      return { ...state, seriesMap: new Map([...state.seriesMap, ...action.payload]) as Map<string,ISeries>};
+      return { ...state, seriesMap: new Map([...state.seriesMap, ...action.payload]) as Map<string, ISeries> };
     case UserState.VAULT_MAP:
-      return { ...state, vaultMap: new Map([...state.vaultMap, ...action.payload]) as Map<string,IVault> };
+      return { ...state, vaultMap: new Map([...state.vaultMap, ...action.payload]) as Map<string, IVault> };
     case UserState.STRATEGY_MAP:
-      return { ...state, strategyMap: new Map([...state.strategyMap, ...action.payload]) as Map<string,IStrategy> };
+      return { ...state, strategyMap: new Map([...state.strategyMap, ...action.payload]) as Map<string, IStrategy> };
 
     case UserState.VAULTS_LOADING:
       return { ...state, vaultsLoading: onlyIfChanged(action) };
@@ -140,7 +141,7 @@ const UserProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext) as IChainContext;
   const {
     contractMap,
-    connection: { account, chainId, useTenderlyFork, provider },
+    connection: { account, chainId, useTenderlyFork },
     chainLoading,
     seriesRootMap,
     assetRootMap,
@@ -159,6 +160,9 @@ const UserProvider = ({ children }: any) => {
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { tenderlyStartBlock } = useTenderly();
+  const {
+    connectionState: { provider },
+  } = useConnection();
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -607,196 +611,177 @@ const UserProvider = ({ children }: any) => {
   );
 
   /* Updates the assets with relevant *user* data */
-  const updateStrategies = useCallback(
-    async (strategyList: IStrategyRoot[]) => {
-      updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
-      const seriesList = Array.from(seriesRootMap.values());
-      const _publicData = await Promise.all(
-          strategyList.map(async (_strategy): Promise<IStrategy> => {
-            /* Get all the data simultanenously in a promise.all */
-            const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
-              _strategy.strategyContract.totalSupply(),
-              _strategy.strategyContract.fyToken(),
-              _strategy.strategyContract.pool(),
+  const updateStrategies = async (strategyList: IStrategyRoot[], seriesList: ISeries[] = []) => {
+    updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
+
+    const _seriesList = seriesList || Array.from(userState.seriesMap.values());
+    const _publicData = await Promise.all(
+      strategyList.map(async (_strategy): Promise<IStrategy> => {
+        /* Get all the data simultanenously in a promise.all */
+        const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
+          _strategy.strategyContract.totalSupply(),
+          _strategy.strategyContract.fyToken(),
+          _strategy.strategyContract.pool(),
+        ]);
+
+        /* we check if the strategy has been supersecced by a v2 version */
+        const hasAnUpdatedVersion = _strategy.type === 'V1' && _strategy.associatedStrategy;
+
+        // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
+        // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
+        const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
+
+        if (currentSeries) {
+          const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
+            currentSeries.poolContract.totalSupply(),
+            currentSeries.poolContract.balanceOf(
+              hasAnUpdatedVersion ? _strategy.associatedStrategy : _strategy.address
+            ),
+            // currentSeries.poolContract.balanceOf( _strategy.address),
+          ]);
+
+          const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
+
+          // get rewards data
+          let rewardsPeriod: { start: number; end: number } | undefined;
+          let rewardsRate: BigNumber | undefined;
+          let rewardsTokenAddress: string | undefined;
+
+          try {
+            const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
+              _strategy.strategyContract.rewardsPerToken(),
+              _strategy.strategyContract.rewardsPeriod(),
+              _strategy.strategyContract.rewardsToken(),
+            ]);
+            rewardsPeriod = { start, end };
+            rewardsRate = rate;
+            rewardsTokenAddress = rewardsToken;
+          } catch (e) {
+            diagnostics && console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
+            rewardsPeriod = undefined;
+            rewardsRate = undefined;
+            rewardsTokenAddress = undefined;
+          }
+
+          /* Decide if stragtegy should be 'active' */
+          const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
+
+          return {
+            ..._strategy,
+            strategyTotalSupply,
+            strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
+            poolTotalSupply,
+            poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
+            strategyPoolBalance,
+            strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
+            strategyPoolPercent,
+
+            currentSeriesAddr: fyToken,
+            currentSeries,
+
+            currentPoolAddr,
+
+            active: isActive,
+            rewardsRate,
+            rewardsPeriod,
+            rewardsTokenAddress,
+          };
+        }
+
+        /* else return an 'EMPTY' strategy */
+        return {
+          ..._strategy,
+          currentSeriesAddr: undefined,
+          currentPoolAddr,
+          currentSeries: undefined,
+          active: false,
+        };
+      })
+    );
+
+    /* Add in account specific data */
+    let _accountData: IStrategy[] = [];
+
+    if (account) {
+      const signer = provider?.getSigner(account);
+
+      _accountData = await Promise.all(
+        _publicData
+          // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
+          .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+            const [accountBalance, accountPoolBalance] = await Promise.all([
+              _strategy.strategyContract.balanceOf(account),
+              _strategy.currentSeries?.poolContract.balanceOf(account),
             ]);
 
-            /* we check if the strategy has been supersecced by a v2 version */
-            const hasAnUpdatedVersion = _strategy.type === 'V1' && _strategy.associatedStrategy;
+            // const accountRewards = _strategy.rewardsRate.gt(ZERO_BN)
+            //   ? (await _strategy.strategyContract.rewards(account)).accumulated : ZERO_BN
 
-            // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
-            // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
-            const currentSeries = seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
+            const stratConnected = _strategy.strategyContract.connect(signer);
+            const accountRewards =
+              _strategy.rewardsRate.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
+            console.log( accountRewards.gt(ZERO_BN)? accountRewards.toString(): 'no rewards' )
             
-            if (currentSeries) {
-              const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-                currentSeries.poolContract.totalSupply(),
-                currentSeries.poolContract.balanceOf(
-                  hasAnUpdatedVersion ? _strategy.associatedStrategy : _strategy.address
-                ),
-                // currentSeries.poolContract.balanceOf( _strategy.address),
-              ]);
+            const accountStrategyPercent = mulDecimal(
+              divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+              '100'
+            );
 
-              const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-
-              // get rewards data
-              let rewardsPeriod: { start: number; end: number } | undefined;
-              let rewardsRate: BigNumber | undefined;
-              let rewardsTokenAddress: string | undefined;
-
-              try {
-                const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
-                  _strategy.strategyContract.rewardsPerToken(),
-                  _strategy.strategyContract.rewardsPeriod(),
-                  _strategy.strategyContract.rewardsToken(),
-                ]);
-                rewardsPeriod = { start, end };
-                rewardsRate = rate;
-                rewardsTokenAddress = rewardsToken;
-              } catch (e) {
-                diagnostics &&
-                  console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
-                rewardsPeriod = undefined;
-                rewardsRate = undefined;
-                rewardsTokenAddress = undefined;
-              }
-
-              /* Decide if stragtegy should be 'active' */
-              const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
-
-              return {
-                ..._strategy,
-                strategyTotalSupply,
-                strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
-                poolTotalSupply,
-                poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
-                strategyPoolBalance,
-                strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
-                strategyPoolPercent,
-
-                currentSeriesAddr: fyToken,
-                currentSeries,
-
-                currentPoolAddr,
-
-                active: isActive,
-                rewardsRate,
-                rewardsPeriod,
-                rewardsTokenAddress,
-              };
-            }
-
-            /* else return an 'EMPTY' strategy */
             return {
               ..._strategy,
-              currentSeriesAddr: undefined,
-              currentPoolAddr,
-              currentSeries: undefined,
-              active: false,
+              accountBalance,
+              accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+              accountPoolBalance,
+              accountStrategyPercent,
+              accountRewards: accountRewards,
+              accountRewards_: formatUnits(accountRewards, _strategy.decimals),
             };
           })
-        );
-    
-      /* Add in account specific data */
-      let _accountData: IStrategy[] = [];
-      if (account) {
-        const signer = provider?.getSigner(account);
-        _accountData = await Promise.all(
-          _publicData
-            // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
-            .map(async (_strategy: IStrategy): Promise<IStrategy> => {
-              const [accountBalance, accountPoolBalance] = await Promise.all([
-                _strategy.strategyContract.balanceOf(account),
-                _strategy.currentSeries?.poolContract.balanceOf(account),
-              ]);
-
-              // const accountRewards = _strategy.rewardsRate.gt(ZERO_BN)
-              //   ? (await _strategy.strategyContract.rewards(account)).accumulated : ZERO_BN
-              const stratConnected = _strategy.strategyContract.connect(signer )
-                const accountRewards = _strategy.rewardsRate.gt(ZERO_BN) && signer
-                ? (await  stratConnected.callStatic.claim(account)) : ZERO_BN
-
-              const accountStrategyPercent = mulDecimal(
-                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
-                '100'
-              );
-
-              return {
-                ..._strategy,
-                accountBalance,
-                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
-                accountPoolBalance,
-                accountStrategyPercent,
-                accountRewards: accountRewards,
-                accountRewards_: formatUnits(accountRewards, _strategy.decimals),
-              };
-            })
-        );
-      }
-
-      const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
-
-      /* combined account and public series data reduced into a single Map */
-      const newStrategyMap = new Map(
-        _combinedData.reduce((acc: any, item: any) => {
-          const _map = acc;
-          _map.set(item.id, item);
-          return _map;
-        }, new Map())
       );
+    }
 
-      const combinedMap = newStrategyMap;
+    const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
 
-      updateState({ type: UserState.STRATEGY_MAP, payload: combinedMap });
-      updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
+    /* combined account and public series data reduced into a single Map */
+    const newStrategyMap = new Map(
+      _combinedData.reduce((acc: any, item: any) => {
+        const _map = acc;
+        _map.set(item.id, item);
+        return _map;
+      }, new Map())
+    );
 
-      console.log('STRATEGIES updated (with dynamic data): ', combinedMap);
+    const combinedMap = newStrategyMap;
 
-      return combinedMap;
-    },
-    [account]
-  );
+    updateState({ type: UserState.STRATEGY_MAP, payload: combinedMap });
+    updateState({ type: UserState.STRATEGIES_LOADING, payload: false });
+
+    console.log('STRATEGIES updated (with dynamic data): ', combinedMap);
+
+    return combinedMap;
+  };
 
   /* When the chainContext is finished loading get the dynamic series and asset data */
   useEffect(() => {
-    
     /* keep checking the active account when it changes/ chainloading */
-    updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account })
+    updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
 
     if (!chainLoading && !account) {
-      (async () => {
-        updateAssets(Array.from(assetRootMap.values()));
-        updateSeries(Array.from(seriesRootMap.values()));
-        updateStrategies(Array.from(strategyRootMap.values()));
-      })()
+      updateAssets(Array.from(assetRootMap.values()));
+      updateSeries(Array.from(seriesRootMap.values())).then((seriesMap) =>
+        updateStrategies(Array.from(strategyRootMap.values()), Array.from(seriesMap.values()))
+      );
     }
-    if (!chainLoading && account ) {
-        /* trigger update of all vaults by passing empty array */
-        updateSeries(Array.from(seriesRootMap.values()));
-        updateAssets(Array.from(assetRootMap.values()));
-        updateStrategies(Array.from(strategyRootMap.values()));
-        updateVaults([]); 
+
+    if (!chainLoading && account) {
+      /* trigger update of all vaults by passing empty array */
+      updateAssets(Array.from(assetRootMap.values()));
+      updateSeries(Array.from(seriesRootMap.values())).then((seriesMap) =>
+        updateStrategies(Array.from(strategyRootMap.values()), Array.from(seriesMap.values()))
+      );
+      updateVaults([]);
     }
   }, [strategyRootMap, assetRootMap, seriesRootMap, chainLoading, account]);
-
-  // /* Only when seriesContext is finished loading get the strategies data */
-  // useEffect(() => {
-  //   if (!userState.seriesLoading && !chainLoading && strategyRootMap.size) {
-  //     updateStrategies(Array.from(strategyRootMap.values()));
-  //   }
-  // }, [strategyRootMap, updateStrategies, userState.seriesLoading, chainLoading]);
-
-  // /* When the chainContext is finished loading get the users vault data */
-  // useEffect(() => {
-  //   if (!chainLoading && account) {
-  //     /* trigger update of all vaults by passing empty array */
-  //     updateVaults([]);
-  //     updateSeries(Array.from(seriesRootMap.values()), true);
-  //     updateAssets(Array.from(assetRootMap.values()));
-  //     updateStrategies(Array.from(strategyRootMap.values()));
-  //   }
-  //   /* keep checking the active account when it changes/ chainloading */
-  //   updateState({ type: UserState.ACTIVE_ACCOUNT, payload: account });
-  // }, [account, chainLoading]); // updateVaults ignored here on purpose
 
   /* Trigger update of all vaults and all strategies with tenderly start block when we are using tenderly */
   useEffect(() => {
