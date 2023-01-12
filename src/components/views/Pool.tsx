@@ -193,6 +193,7 @@ function Pool() {
                   }
                 >
                   <Box flex={false}>
+                    
                     <StrategySelector inputValue={poolInput} />
                   </Box>
                 </SectionWrap>
