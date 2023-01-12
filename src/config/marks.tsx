@@ -30,7 +30,7 @@ const markMap = new Map([
   ['UNI', <UNIMark key="uni" />],
   ['yvUSDC', <YVUSDCMark key="yvusdc" />],
   ['MKR', <MakerMark key="mkr" />],
-  ['Notional', <NotionalMark key="notional" />],
+  ['Notional', <NotionalMark />],
   ['Cvx3Crv Mock', <CVX3CRVMark key="cvx3crv mock" />],
   ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],

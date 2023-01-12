@@ -153,6 +153,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     }
   };
 
+
   /* Auto select a default strategy  */
   useEffect(() => {
     /* if strategy already selected, no need to set explicitly again */

@@ -10,7 +10,7 @@ import {
   ZERO_DEC as ZERO,
   invariant,
   calcInterestRate,
-  secondsInOneYear,
+  // secondsInOneYear,
   ZERO_BN,
 } from '@yield-protocol/ui-math';
 import { formatEther, parseUnits } from 'ethers/lib/utils';
@@ -100,7 +100,7 @@ const useStrategyReturns = (
 
   const strategy_ = strategy || selectedStrategy;
   const series = strategy_?.currentSeries;
-
+  
   const inputToUse = cleanValue(!input || +input === 0 ? '1' : input, series?.decimals!);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
@@ -115,7 +115,6 @@ const useStrategyReturns = (
   }>();
 
   const [returns, setLpReturns] = useState<IReturns>();
-
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
   /**
@@ -123,9 +122,8 @@ const useStrategyReturns = (
    * @returns {number} fyToken price in base, where 1 is at par with base
    */
   const getFyTokenPrice = (series: ISeries, input: string): number => {
-    if (series) {
-      const input_ = parseUnits(input, series.decimals);
-
+    if (series) {  
+      const input_ = parseUnits(cleanValue(input,series.decimals ), series.decimals);
       const sharesOut = sellFYToken(
         series.sharesReserves,
         series.fyTokenReserves,
@@ -225,7 +223,6 @@ const useStrategyReturns = (
    */
   const getFyTokenAPY = (series: ISeries, input: string): number => {
     if (!series) return 0;
-
     const marketInterestRate = calcInterestRate(
       series.sharesReserves,
       series.fyTokenReserves,

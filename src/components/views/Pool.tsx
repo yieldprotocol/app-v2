@@ -139,7 +139,7 @@ function Pool() {
           <StrategyPositionSelector />
         </PanelWrap>
       )}
-
+      
       <CenterPanelWrap series={selectedStrategy?.currentSeries}>
         <Box id="topsection">
           {stepPosition === 0 && (

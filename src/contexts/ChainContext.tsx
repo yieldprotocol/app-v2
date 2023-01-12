@@ -407,15 +407,20 @@ const ChainProvider = ({ children }: any) => {
         const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
         const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
 
+        /* some logic to decide if the series is shown or not */
+        // const showSeries = series.maturity !== 1672412400; // example
+        const showSeries = true;
+
         return {
           ...series,
-
+          showSeries,
           poolContract,
           fyTokenContract,
 
           fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
           displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
           displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
+
 
           season,
           startColor,
