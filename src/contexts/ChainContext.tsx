@@ -17,7 +17,7 @@ import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
-import { SERIES, SeriesStaticInfo } from '../config/series';
+import { SERIES, SeriesStaticInfo, validateSeries } from '../config/series';
 import { Block } from '@ethersproject/providers';
 import STRATEGIES, { validateStrategies } from '../config/strategies';
 import { Pool__factory } from '../contracts';
@@ -432,8 +432,11 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
+
         let seriesList = Array.from(SERIES_CONFIG.values());
-        // const newSeriesList: any[] = [];
+
+        // await validateSeries(fallbackProvider, addrs.Cauldron )
+
         await Promise.all(seriesList.map(async (series:SeriesStaticInfo)=> { 
           /* development get ts g1 g2 values */ 
           if (false) {
@@ -447,9 +450,9 @@ const ChainProvider = ({ children }: any) => {
           }
           const seriesDefaults = {
             ...series,
-            version: series.version || '1',
+            //version: series.version || '1',
             poolVersion: series.poolVersion || '1',
-            decimals: series.decimals || '18',
+            // decimals: series.decimals || '18',
           }
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(seriesDefaults) });
         }))

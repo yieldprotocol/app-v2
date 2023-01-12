@@ -282,7 +282,7 @@ export const useRemoveLiquidity = () => {
           target: {
             address: series.poolAddress,
             name: series.poolName,
-            version: series.poolVersion,
+            version: '1',
             symbol: series.poolSymbol,
           },
           spender: 'LADLE',
