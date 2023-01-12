@@ -45,7 +45,6 @@ const initState: IChainContextState = {
     fallbackProvider: null as ethers.providers.Web3Provider | null,
     fallbackChainId: Number(process.env.REACT_APP_DEFAULT_CHAINID) as number | null,
 
-    // signer: null as ethers.providers.JsonRpcSigner | null,
     account: null as string | null,
 
     connectionName: null as string | null,

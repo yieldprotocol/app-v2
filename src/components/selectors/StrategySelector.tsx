@@ -135,7 +135,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   useEffect(() => {
     const opts = Array.from(strategyMap.values()) as IStrategy[];
     const filteredOpts = opts
-      .filter((_st) => _st.type === 'V2' ||  (_st.type === 'V1' && !_st.associatedStrategy) )
+      .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
       .filter((_st) => _st.currentSeries?.showSeries && _st.active)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
@@ -143,7 +143,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   }, [selectedBase, strategyMap, selectedStrategy]);
 
   const handleSelect = (_strategy: IStrategy) => {
-    console.log('SELECTED: ',_strategy.address, 'VERSION: ',_strategy.type )
+    console.log('SELECTED: ', _strategy.address, 'VERSION: ', _strategy.type);
     if (_strategy.active) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy);
@@ -159,10 +159,10 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     if (selectedStrategy) return;
 
     const opts: IStrategy[] = Array.from(strategyMap.values())
-      .filter((_st) => _st.type === 'V2' ||  (_st.type === 'V1' && !_st.associatedStrategy) )
+      .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
       .filter((_st) => _st.currentSeries?.showSeries && _st.active)
       .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
-    
+
     /* select strategy with rewards */
     const strategyWithRewards = opts.find((s) => s.rewardsRate.gt(ZERO_BN));
     if (strategyWithRewards) {
@@ -188,25 +188,26 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
           <CardSkeleton />
         </>
       )}
-
-      <Box gap="small">
-        {options.map((o: IStrategy) => {
-          const displayName = o.currentSeries?.displayName!;
-          const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
-          const selected = selectedStrategy?.address === o.address;
-          return (
-            <StrategySelectItem
-              key={o.address}
-              strategy={o}
-              handleClick={() => handleSelect(o)}
-              selected={selected}
-              displayName={displayName}
-              returns={returns}
-              // extra={ returns.}
-            />
-          );
-        })}
-      </Box>
+      {!strategiesLoading && (
+        <Box gap="small">
+          {options.map((o: IStrategy) => {
+            const displayName = o.currentSeries?.displayName!;
+            const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
+            const selected = selectedStrategy?.address === o.address;
+            return (
+              <StrategySelectItem
+                key={o.address}
+                strategy={o}
+                handleClick={() => handleSelect(o)}
+                selected={selected}
+                displayName={displayName}
+                returns={returns}
+                // extra={ returns.}
+              />
+            );
+          })}
+        </Box>
+      )}
     </Box>
   );
 };
