@@ -16,6 +16,7 @@ export interface SeriesStaticInfo {
 
   poolName: string;
   poolSymbol: string;
+  
   ts: string;
   g1: string;
   g2: string;
@@ -23,6 +24,7 @@ export interface SeriesStaticInfo {
   // optionals
   // version?: string;
   poolVersion?: string;
+  
 }
 
 const USDC_2112 = '0x303230340000';
@@ -96,7 +98,7 @@ export const validateSeries = async (provider: BaseProvider, cauldronAddress: st
       s.poolSymbol !== poolSymbol && console.log(preText, s.address, ': pool symbol mismatch');
       // s.baseAddress !== baseAddress && console.log(preText, s.address, ': base Address mismatch');
       s.poolName !== poolName && console.log(preText, s.address, ': pool name mismatch');
-      // s.poolVersion !== poolVersion && console.log(preText, s.address, ': pool version mismatch');
+      s.poolVersion !== poolVersion && console.log(preText, s.address, ': pool version mismatch');
       s.ts !== ts.toString() && console.log(preText, s.address, ': pool ts mismatch');
       s.g1 !== g1.toString() && console.log(preText, s.address, ': pool g1 mismatch');
       s.g2 !== g2.toString() && console.log(preText, s.address, ': pool g2 mismatch');
