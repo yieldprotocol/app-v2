@@ -1,12 +1,13 @@
-import { ethers } from 'ethers';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useProvider } from 'wagmi';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const useTimeTillMaturity = (useBlockchainTime = false) => {
-  // const {
-  //   settingState: {useTenderlyFork},
-  // } = useContext(SettingsContext)
+  const {
+    settingsState: { useForkedEnv },
+  } = useContext(SettingsContext)
 
-  const useTenderlyFork = false;
+  const provider = useProvider();
 
   // block timestamp from network
   const [blockTimestamp, setBlockTimestamp] = useState<number>();
@@ -23,20 +24,21 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
     [NOW, blockTimestamp]
   );
 
-  // try to get the latest block timestamp when we are using tenderly, or when explicitly requested
+  // try to get the latest block timestamp when we are using forked env ( eg. tenderly ), or when explicitly requested
   useEffect(() => {
     const getBlockTimestamp = async () => {
       try {
-        const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
-        const { timestamp } = await tenderlyProvider.getBlock('latest');
+        // const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+        const { timestamp } = await provider.getBlock('latest');
+
+        useForkedEnv && console.log( 'Forked Blockchain time: ', new Date(timestamp*1000).toLocaleDateString())
         setBlockTimestamp(timestamp);
       } catch (e) {
-        console.log('error getting latest tenderly timestamp', e);
+        console.log('Error getting latest timestamp', e);
       }
     };
-
-    if (useTenderlyFork || useBlockchainTime) getBlockTimestamp();
-  }, [useTenderlyFork, useBlockchainTime]);
+    if (useForkedEnv || useBlockchainTime) getBlockTimestamp();
+  }, [useForkedEnv, useBlockchainTime]);
 
   return { getTimeTillMaturity, isMature };
 };

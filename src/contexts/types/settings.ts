@@ -18,9 +18,9 @@ export enum Settings {
   DASH_HIDE_LEND_POSITIONS = 'dashHideLendPositions',
   DASH_HIDE_POOL_POSITIONS = 'dashHidePoolPositions',
   DASH_CURRENCY = 'dashCurrency',
-  USE_TENDERLY_FORK = 'useTenderlyFork',
-  USE_FORK = 'useFork',
-  FORK_RPC = 'forkUrl',
+
+  USE_FORKED_ENV = 'useForkedEnv',
+  FORK_RPC_URL = 'forkRpcUrl',
 }
 
 export interface ISettingsContext {
@@ -47,8 +47,6 @@ export interface ISettingsContextState {
   showWrappedTokens: boolean;
   unwrapTokens: boolean;
 
-  useTenderlyFork: boolean;
-
   /* DashSettings */
   dashHideEmptyVaults: boolean;
   dashHideInactiveVaults: boolean;
@@ -57,8 +55,8 @@ export interface ISettingsContextState {
   dashHidePoolPositions: boolean;
   dashCurrency: string;
 
-  useFork: boolean;
-  forkUrl: string;
+  useForkedEnv: boolean;
+  forkRpcUrl: string;
 }
 
 export type SettingsContextAction = { type: Settings; payload: string | number | boolean };

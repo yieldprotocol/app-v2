@@ -1,6 +1,9 @@
 import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { ReactNode } from 'react';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { ReactNode, useContext } from 'react';
+import { SettingsContext } from './SettingsContext';
+
 import {
   darkTheme,
   RainbowKitProvider,
@@ -26,20 +29,40 @@ import { useColorScheme } from '../hooks/useColorScheme';
 
 const ProviderContext = ({ children }: { children: ReactNode }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
+  const { settingsState } = useContext(SettingsContext);
+  const { useForkedEnv, forkRpcUrl } = settingsState;
+  console.log( useForkedEnv, forkRpcUrl )
+
+  const chainConfig = !useForkedEnv
+    ? // Production environment >
+      [
+        alchemyProvider({ apiKey: process.env.ALCHEMY_MAINNET_KEY }), // mainnet
+        alchemyProvider({ apiKey: process.env.ALCHEMY_ARBITRUM_KEY }), // arbitrum
+      ]
+    : // Test/Dev environents (eg. tenderly) >
+      [
+        // mainnet
+        jsonRpcProvider({
+          rpc: (chain_) => ({
+            http: forkRpcUrl,
+          }),
+        }),
+        // arbiturm
+        jsonRpcProvider({
+          rpc: (chain_) => ({
+            http: forkRpcUrl,
+          }),
+        }),
+      ];
+
   // const { settingsState } = useContext(SettingsContext);
   const colorTheme = useColorScheme();
+
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider } = configureChains(
     [chain.mainnet, chain.arbitrum], // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
-    [
-      alchemyProvider({
-        apiKey: process.env.ALCHEMY_MAINNET_KEY,
-      }),
-      alchemyProvider({
-        apiKey: process.env.ALCHEMY_ARBITRUM_KEY,
-      }),
-    ]
+    chainConfig
   );
 
   const connectors = connectorsForWallets([
@@ -58,7 +81,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
       ],
     },
     {
-      groupName: 'Test environments',
+      groupName: 'Development Environments',
       wallets: [],
     },
   ]);

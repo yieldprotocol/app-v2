@@ -23,9 +23,10 @@ import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
 import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
-import useTenderly from '../hooks/useTenderly';
 import { useAccount, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../hooks/useContracts';
+
+import useFork from '../hooks/useFork';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -91,16 +92,14 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const { seriesRootMap, assetRootMap } = chainState;
 
-  const useTenderlyFork = false;
-
   const provider = useProvider();
   const contracts = useContracts();
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
-  const { tenderlyStartBlock } = useTenderly();
+  const { startBlock } = useFork();
 
-  const lastSeriesUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
-  const lastVaultUpdate = useTenderlyFork ? tenderlyStartBlock : 'earliest';
+  const lastSeriesUpdate = startBlock || 'earliest';
+  const lastVaultUpdate = startBlock || 'earliest';
 
   const { address: account } = useAccount();
 

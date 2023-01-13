@@ -26,13 +26,14 @@ import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import useTenderly from '../hooks/useTenderly';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, useProvider } from 'wagmi';
+
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
-import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
+import useFork from '../hooks/useFork';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -133,10 +134,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const {
-    settingsState: { diagnostics },
+    settingsState: { diagnostics , useForkedEnv },
   } = useContext(SettingsContext);
-
-  const useTenderlyFork = false;
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
@@ -144,12 +143,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* HOOKS */
   const chainId = useChainId();
-  const provider = useDefaulProvider();
+  // const provider = useDefaulProvider();
+  const provider = useProvider();
   const { address: account } = useAccount();
+
 
   const { pathname } = useRouter();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-  const { tenderlyStartBlock } = useTenderly();
+  
+  const { startBlock } = useFork();
+
   const contracts = useContracts();
 
   /* watch the selectedBase and selectedIlk */
@@ -626,6 +629,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           const hasBeenLiquidated = liquidationEvents.length > 0;
 
+
           let accruedArt: BigNumber;
           let rateAtMaturity: BigNumber;
           let rate: BigNumber;
@@ -695,8 +699,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics,
       isMature,
       seriesRootMap,
-      tenderlyStartBlock,
-      useTenderlyFork,
+      startBlock,
+      useForkedEnv,
     ]
   );
 

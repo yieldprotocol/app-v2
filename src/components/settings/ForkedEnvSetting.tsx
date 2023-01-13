@@ -1,29 +1,37 @@
 import { Box, Text } from 'grommet';
 import { useContext } from 'react';
 import Switch from 'react-switch';
-import useTenderly from '../../hooks/useTenderly';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { Settings } from '../../contexts/types/settings';
+import useFork from '../../hooks/useFork';
 import GeneralButton from '../buttons/GeneralButton';
 
-const TenderlyForkSetting = () => {
-  const useTenderlyFork = false;
-  const { fillEther } = useTenderly();
+const ForkedEnvSetting = () => {
+
+  const {
+    settingsState: { useForkedEnv },
+    settingsActions: { updateSetting },
+  } = useContext(SettingsContext);
+
+  const { fillEther} = useFork(); 
 
   return (
+    <>
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
         <Text size="small" color="text">
-          Use Tenderly Fork
+          Use Forked Env
         </Text>
         <Switch
           width={55}
-          checked={useTenderlyFork}
+          checked={useForkedEnv}
           offColor="#BFDBFE"
           onColor="#60A5FA"
           uncheckedIcon={false}
           checkedIcon={false}
-          onChange={(val: boolean) => {
-            // connectionActions.useTenderly(val);
-            val && window.location.reload();
+          onChange={(val: boolean) => { 
+            updateSetting(Settings.USE_FORKED_ENV, val)
+            window.location.reload();
           }}
           handleDiameter={20}
           borderRadius={20}
@@ -33,7 +41,9 @@ const TenderlyForkSetting = () => {
         <Text size="xsmall">Fill ETH</Text>
       </GeneralButton>
     </Box>
+    <input /> 
+    </>
   );
 };
 
-export default TenderlyForkSetting;
+export default ForkedEnvSetting;
