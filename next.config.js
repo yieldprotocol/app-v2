@@ -28,7 +28,6 @@ const nextConfig = {
     ALCHEMY_MAINNET_KEY: process.env.ALCHEMY_MAINNET_KEY,
     ENV: process.env.NODE_ENV,
 
-
   },
   async redirects() {
     return [

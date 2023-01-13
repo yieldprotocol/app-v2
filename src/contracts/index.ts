@@ -23,6 +23,7 @@ export type { Strategy } from "./Strategy";
 export type { Transfer1155Module } from "./Transfer1155Module";
 export type { UniswapV3Oracle } from "./UniswapV3Oracle";
 export type { Witch } from "./Witch";
+export type { WitchV2 } from "./WitchV2";
 export type { WrapEtherModule } from "./WrapEtherModule";
 export type { YearnVaultMultiOracle } from "./YearnVaultMultiOracle";
 
@@ -48,5 +49,6 @@ export { Strategy__factory } from "./factories/Strategy__factory";
 export { Transfer1155Module__factory } from "./factories/Transfer1155Module__factory";
 export { UniswapV3Oracle__factory } from "./factories/UniswapV3Oracle__factory";
 export { Witch__factory } from "./factories/Witch__factory";
+export { WitchV2__factory } from "./factories/WitchV2__factory";
 export { WrapEtherModule__factory } from "./factories/WrapEtherModule__factory";
 export { YearnVaultMultiOracle__factory } from "./factories/YearnVaultMultiOracle__factory";

@@ -59,7 +59,7 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } = userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccount();
@@ -80,10 +80,9 @@ const Borrow = () => {
 
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
 
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
-
-  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
@@ -146,7 +145,7 @@ const Borrow = () => {
 
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
-    _stepPosition === 0 && setSelectedIlk(assetMap?.get('0x303000000000')!);
+    _stepPosition === 0 && setSelectedIlk(selectedIlk || assetMap?.get('0x303000000000')!);
     setStepPosition(_stepPosition);
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.BORROW,
@@ -246,10 +245,18 @@ const Borrow = () => {
     }
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
-  /* reset the selected vault, and get limits on every component change */
+  /* handle selected vault */
   useEffect(() => {
+    if (matchingVaults && matchingVaults.length > 0) {
+      return setVaultToUse(matchingVaults[0]);
+    }
+
+    if (selectedVault) {
+      return setVaultToUse(selectedVault);
+    }
+
     setVaultToUse(undefined);
-  }, [selectedIlk, selectedBase, selectedSeries]);
+  }, [matchingVaults, selectedVault]);
 
   useEffect(() => {
     if (
@@ -353,9 +360,6 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <>
-                {/* <Box style={{ position: 'absolute', left:'-20px' }} pad="small">
-                  <BackButton action={() => setStepPosition(0)} />
-                </Box> */}
                 <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
                   <BackButton action={() => handleNavAction(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">
@@ -444,7 +448,7 @@ const Borrow = () => {
 
                     <Box flex={false}>
                       {matchingVaults.length > 0 && (
-                        <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                        <SectionWrap title="Choose Vault to Use" disabled={matchingVaults.length < 1}>
                           <VaultDropSelector
                             vaults={matchingVaults}
                             handleSelect={(option: any) => setVaultToUse(option.id ? option : undefined)}

@@ -4,6 +4,7 @@ import { FiChevronDown, FiPlusCircle } from 'react-icons/fi';
 import { ActionType, IVault } from '../../types';
 import PositionAvatar from '../PositionAvatar';
 import { UserContext } from '../../contexts/UserContext';
+import { useColorScheme } from '../../hooks/useColorScheme';
 
 interface IVaultDropSelectorProps {
   vaults: IVault[];
@@ -22,10 +23,10 @@ function VaultDropSelector({
   placeholder,
   defaultOptionValue,
 }: IVaultDropSelectorProps) {
-  const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const {
     userState: { selectedIlk },
   } = useContext(UserContext);
+  const colorScheme = useColorScheme();
 
   return (
     <Box elevation="xsmall" background="hoverBackground" round="xlarge">
@@ -48,9 +49,9 @@ function VaultDropSelector({
             {itemSelected?.id ? (
               <PositionAvatar position={itemSelected} condensed actionType={ActionType.BORROW} />
             ) : (
-              <FiPlusCircle color="lightgrey" />
+              <FiPlusCircle color={colorScheme === 'dark' ? 'lightGrey' : '#555555'} />
             )}
-            <Text color={itemSelected?.displayName ? 'text-weak' : 'text-xweak'} size="xsmall">
+            <Text color="text" size="xsmall">
               {itemSelected?.displayName || displayName}
             </Text>
           </Box>
@@ -75,8 +76,8 @@ function VaultDropSelector({
               </Box>
             ) : (
               <Box pad="medium" direction="row" gap="small" align="center">
-                <FiPlusCircle color="lightgrey" />
-                <Text color="text-weak" size="xsmall">
+                <FiPlusCircle color={colorScheme === 'dark' ? 'lightGrey' : '#555555'} />
+                <Text color="text" size="xsmall">
                   {x.displayName}
                 </Text>
               </Box>
