@@ -1,16 +1,25 @@
 import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { ReactNode} from 'react';
+import { ReactNode } from 'react';
 import {
   darkTheme,
   RainbowKitProvider,
   DisclaimerComponent,
-  wallet,
   connectorsForWallets,
   Theme,
   AvatarComponent,
   lightTheme,
 } from '@rainbow-me/rainbowkit';
+import {
+  metaMaskWallet,
+  walletConnectWallet,
+  injectedWallet,
+  coinbaseWallet,
+  rainbowWallet,
+  ledgerWallet,
+  argentWallet,
+  braveWallet,
+} from '@rainbow-me/rainbowkit/wallets';
 import YieldAvatar from '../components/YieldAvatar';
 import '@rainbow-me/rainbowkit/styles.css';
 import { useColorScheme } from '../hooks/useColorScheme';
@@ -36,16 +45,16 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
   const connectors = connectorsForWallets([
     {
       groupName: 'Recommended',
-      wallets: [wallet.metaMask({ chains }), wallet.walletConnect({ chains }), wallet.injected({ chains })],
+      wallets: [metaMaskWallet({ chains }), walletConnectWallet({ chains }), injectedWallet({ chains })],
     },
     {
       groupName: 'Experimental',
       wallets: [
-        wallet.coinbase({ appName: 'yieldProtocol', chains }),
-        wallet.rainbow({ chains }),
-        wallet.ledger({ chains }),
-        wallet.argent({ chains }),
-        wallet.brave({ chains }),
+        coinbaseWallet({ appName: 'yieldProtocol', chains }),
+        rainbowWallet({ chains }),
+        ledgerWallet({ chains }),
+        argentWallet({ chains }),
+        braveWallet({ chains }),
       ],
     },
     {
@@ -63,7 +72,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
 
   const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
     <Text>
-      By connecting my wallet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
+      By connecting my allet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
       acknowledge I have read and understand the protocol{' '}
       <Link href="https://yieldprotocol.com/privacy/">Privacy Policy</Link>.
     </Text>
@@ -82,7 +91,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
         showRecentTransactions={true}
         modalSize="compact"
         avatar={CustomAvatar}
-        theme={ colorTheme === 'dark' ? myDarkTheme : myLightTheme }
+        theme={colorTheme === 'dark' ? myDarkTheme : myLightTheme}
       >
         {children}
       </RainbowKitProvider>
@@ -94,9 +103,9 @@ export default ProviderContext;
 
 const myDarkTheme: Theme = {
   ...darkTheme(),
-  colors : {
+  colors: {
     ...darkTheme().colors,
-    modalBackdrop: 'rgb(1, 1, 1, .85)'
+    modalBackdrop: 'rgb(1, 1, 1, .85)',
   },
   radii: {
     actionButton: '...',
@@ -109,9 +118,9 @@ const myDarkTheme: Theme = {
 
 const myLightTheme: Theme = {
   ...lightTheme(),
-  colors : {
+  colors: {
     ...lightTheme().colors,
-    modalBackdrop: 'rgb(1, 1, 1, .50)'
+    modalBackdrop: 'rgb(1, 1, 1, .50)',
   },
   radii: {
     actionButton: '...',

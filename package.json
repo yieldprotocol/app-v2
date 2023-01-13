@@ -6,7 +6,7 @@
     "@ethersproject/providers": "^5.6.8",
     "@gnosis.pm/safe-apps-wagmi": "^1.0.3",
     "@multiavatar/multiavatar": "^1.0.6",
-    "@rainbow-me/rainbowkit": "^0.6.1",
+    "@rainbow-me/rainbowkit": "^0.8.0",
     "@yield-protocol/ui-math": "^1.0.3",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.0.1",

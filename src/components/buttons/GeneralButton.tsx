@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ComponentPropsWithoutRef } from 'react';
 import { Box } from 'grommet';
 import styled from 'styled-components';
 
@@ -14,7 +14,9 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const GeneralButton = (props: any) => (
+interface Props extends ComponentPropsWithoutRef<typeof StyledBox> {}
+
+const GeneralButton = (props: Props) => (
   <StyledBox
     background={props.background}
     round
