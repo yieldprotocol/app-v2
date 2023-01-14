@@ -25,7 +25,7 @@ import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { useAccount, useBalance, useProvider } from 'wagmi';
+import { useAccount, useBalance, useProvider, useSigner } from 'wagmi';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
@@ -134,7 +134,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const {
-    settingsState: { diagnostics , useForkedEnv },
+    settingsState: { diagnostics, useForkedEnv },
   } = useContext(SettingsContext);
 
   /* LOCAL STATE */
@@ -143,16 +143,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* HOOKS */
   const chainId = useChainId();
-  // const provider = useDefaulProvider();
   const provider = useProvider();
   const { address: account } = useAccount();
-
+  const { data: signer, isError, isLoading } = useSigner();
 
   const { pathname } = useRouter();
-  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-  
-  const { startBlock } = useFork();
 
+  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const { startBlock } = useFork();
   const contracts = useContracts();
 
   /* watch the selectedBase and selectedIlk */
@@ -303,7 +301,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       console.log('ASSETS updated (with dynamic data):', newAssetsMap);
       updateState({ type: UserState.ASSETS_LOADING, payload: false });
     },
-    [diagnostics, account]
+    [account]
   );
 
   /* Updates the series with relevant *user* data */
@@ -341,7 +339,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-            sharesAddress = series.baseAddress;
+            sharesAddress = assetRootMap.get(series.baseId)!.address;
             diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
@@ -422,7 +420,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             currentInvariant,
             initInvariant,
             startBlock: startBlock!,
-            ts: BigNumber.from(series.ts),
+            // ts: BigNumber.from(series.ts),
           };
         })
       );
@@ -451,7 +449,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const _combinedData = _accountData.length ? _accountData : _publicData;
 
-      /* combined account and public series data reduced into a single Map */
+      /* Combined account and public series data reduced into a single Map */
       const newSeriesMap = _combinedData.reduce((acc, item) => {
         return acc.set(item.id, item);
       }, new Map() as Map<string, ISeries>);
@@ -467,40 +465,65 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
-    async (strategyList: IStrategyRoot[]) => {
+    async (strategyList: IStrategyRoot[], seriesList: ISeries[] = []) => {
       console.log('Updating strategies...');
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
 
+      const _seriesList = seriesList || Array.from(userState.seriesMap.values());
+
       _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, currentSeriesId, currentPoolAddr, nextSeriesId] = await Promise.all([
+          const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
             _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.seriesId(),
+            _strategy.strategyContract.fyToken(),
             _strategy.strategyContract.pool(),
-            _strategy.strategyContract.nextSeriesId(),
           ]);
-
-          const currentSeries = userState.seriesMap?.get(currentSeriesId) as ISeries;
-          const nextSeries = userState.seriesMap?.get(nextSeriesId) as ISeries;
-
+  
+          /* we check if the strategy has been supersecced by a v2 version */
+          const hasAnUpdatedVersion = _strategy.type === 'V1' && _strategy.associatedStrategy;
+  
+          // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
+          // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
+          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
+  
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
-              currentSeries.poolContract.balanceOf(_strategy.address),
+              currentSeries.poolContract.balanceOf(
+                hasAnUpdatedVersion && _strategy.associatedStrategy ? _strategy.associatedStrategy : _strategy.address
+              ),
             ]);
-
-            const [currentInvariant, initInvariant] = currentSeries.seriesIsMature
-              ? [ZERO_BN, ZERO_BN]
-              : [ZERO_BN, ZERO_BN];
-
+  
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-
-            const returnRate = currentInvariant && currentInvariant.sub(initInvariant)!;
-
+  
+            // get rewards data
+            let rewardsPeriod: { start: number; end: number } | undefined;
+            let rewardsRate: BigNumber | undefined;
+            let rewardsTokenAddress: string | undefined;
+  
+            try {
+              const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
+                _strategy.strategyContract.rewardsPerToken(),
+                _strategy.strategyContract.rewardsPeriod(),
+                _strategy.strategyContract.rewardsToken(),
+              ]);
+              rewardsPeriod = { start, end };
+              rewardsRate = rate;
+              rewardsTokenAddress = rewardsToken;
+            } catch (e) {
+              diagnostics && console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
+              rewardsPeriod = undefined;
+              rewardsRate = undefined;
+              rewardsTokenAddress = undefined;
+            }
+  
+            /* Decide if stragtegy should be 'active' */
+            const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
+  
             return {
               ..._strategy,
               strategyTotalSupply,
@@ -510,27 +533,23 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               strategyPoolBalance,
               strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
               strategyPoolPercent,
-              currentSeriesId,
-              currentPoolAddr,
-              nextSeriesId,
+  
+              currentSeriesAddr: fyToken,
               currentSeries,
-              nextSeries,
-              initInvariant: initInvariant || BigNumber.from('0'),
-              currentInvariant: currentInvariant || BigNumber.from('0'),
-              returnRate,
-              returnRate_: returnRate.toString(),
-              active: true,
+  
+              currentPoolAddr,
+  
+              active: isActive,
+              rewardsRate,
+              rewardsPeriod,
+              rewardsTokenAddress,
             };
           }
-
+  
           /* else return an 'EMPTY' strategy */
           return {
             ..._strategy,
-            currentSeriesId,
-            currentPoolAddr,
-            nextSeriesId,
             currentSeries: undefined,
-            nextSeries: undefined,
             active: false,
           };
         })
@@ -540,26 +559,32 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       if (account) {
         _accountData = await Promise.all(
           _publicData
-            // .filter( (s:IStrategy) => s.active) // filter out strategies with no current series
-            .map(async (_strategy: IStrategy): Promise<IStrategy> => {
-              const [accountBalance, accountPoolBalance] = await Promise.all([
-                _strategy.strategyContract.balanceOf(account),
-                _strategy.currentSeries?.poolContract.balanceOf(account),
-              ]);
 
-              const accountStrategyPercent = mulDecimal(
-                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
-                '100'
-              );
+          .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+            const [accountBalance, accountPoolBalance] = await Promise.all([
+              _strategy.strategyContract.balanceOf(account),
+              _strategy.currentSeries?.poolContract.balanceOf(account),
+            ]);
 
-              return {
-                ..._strategy,
-                accountBalance,
-                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
-                accountPoolBalance,
-                accountStrategyPercent,
-              };
-            })
+            const stratConnected = _strategy.strategyContract.connect(signer!);
+            const accountRewards =
+              _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
+            console.log( accountRewards.gt(ZERO_BN)? accountRewards.toString(): 'no rewards' )
+            const accountStrategyPercent = mulDecimal(
+              divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+              '100'
+            );
+
+            return {
+              ..._strategy,
+              accountBalance,
+              accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+              accountPoolBalance,
+              accountStrategyPercent,
+              accountRewards: accountRewards,
+              accountRewards_: formatUnits(accountRewards, _strategy.decimals),
+            };
+          })
         );
       }
 
@@ -616,12 +641,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             await Promise.all([
               WitchV1.queryFilter(
                 Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                'earliest', // useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
                 'latest'
               ),
               Witch.queryFilter(
                 Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                'earliest', // useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
                 'latest'
               ),
             ])

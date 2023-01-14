@@ -22,7 +22,7 @@ import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useProvider, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import { Strategy__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
@@ -52,24 +52,30 @@ is Mature?        N     +--------+
  */
 
 export const useRemoveLiquidity = () => {
-  const {
-    chainState: { contractMap, connection },
-  } = useContext(ChainContext) as IChainContext;
 
-  const { provider } = connection;
+  const provider = useProvider();
+  const {address:account} = useAccount();
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-  const { activeAccount: account, assetMap, selectedStrategy } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap, selectedStrategy, selectedBase } = userState;
 
   const { updateSeries, updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+
+  const contracts = useContracts();
+  const { refetch: refetchBaseBal } = useBalance({
+    addressOrName: account,
+    token: selectedBase?.address,
+  });
+  const { refetch: refetchStrategyBal } = useBalance({
+    addressOrName: account,
+    token: selectedStrategy?.address,
+  });
 
   const {
     historyActions: { updateStrategyHistory },

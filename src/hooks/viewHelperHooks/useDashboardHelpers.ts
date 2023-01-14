@@ -95,7 +95,7 @@ export const useDashboardHelpers = () => {
       .map((_strategy) => {
         if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
 
-        const currentStrategySeries = seriesMap?.get(_strategy.currentSeriesId);
+        const currentStrategySeries = seriesMap?.get(_strategy.currentSeries!.id);
         const [fyTokenToShares, sharesReceived] = strategyTokenValue(
           _strategy?.accountBalance || ethers.constants.Zero,
           _strategy?.strategyTotalSupply || ethers.constants.Zero,

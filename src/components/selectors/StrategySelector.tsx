@@ -81,7 +81,7 @@ const StrategySelectItem = ({
           </Box>
         </Box>
 
-        {strategy.rewardsRate.gt(ZERO_BN) && (
+        {strategy.rewardsRate!.gt(ZERO_BN) && (
           <Box
             round
             background="red"
@@ -90,12 +90,12 @@ const StrategySelectItem = ({
             elevation="small"
           >
             <Text size="small" color="white" textAlign="center">
-              +{returns.rewardsAPY}%
+              +{returns?.rewardsAPY}%
             </Text>
           </Box>
         )}
 
-        {returns.blendedAPY && (
+        {returns?.blendedAPY && (
           <Box fill align="end">
             <Avatar
               background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
@@ -103,7 +103,7 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small">{(+returns.blendedAPY - +returns.rewardsAPY).toFixed(1)}%</Text>
+              <Text size="small">{(+returns.blendedAPY - +returns.rewardsAPY!).toFixed(1)}%</Text>
             </Avatar>
           </Box>
         )}
@@ -163,7 +163,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
       .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
 
     /* select strategy with rewards */
-    const strategyWithRewards = opts.find((s) => s.rewardsRate.gt(ZERO_BN));
+    const strategyWithRewards = opts.find((s) => s.rewardsRate?.gt(ZERO_BN));
     if (strategyWithRewards) {
       userActions.setSelectedStrategy(strategyWithRewards);
       return;

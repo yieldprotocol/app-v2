@@ -264,7 +264,7 @@ export default STRATEGIES;
 export const validateStrategies = async (provider: BaseProvider) => {
   const preText = '### STRATEGY VALIDATION ERROR ### ';
   const chainId = (await provider.getNetwork()).chainId;
-  const strategyList = STRATEGIES.get(chainId);
+  const strategyList = STRATEGIES.get(chainId)!;
   strategyList.forEach(async (s: StrategyInfo) => {
     const strategy = Strategy__factory.connect(s.address, provider);
     try {

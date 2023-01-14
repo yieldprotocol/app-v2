@@ -196,7 +196,7 @@ export interface IStrategyRoot extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
-  // startBlock?: Block;
+  startBlock: Block;
   type: 'V1' | 'V2';
   associatedStrategy?: string;
 }
@@ -237,7 +237,7 @@ export interface ISeries extends ISeriesRoot {
 
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
-  // startBlock?: Block;
+  startBlock: Block;
 
   // showSeries: boolean;
 }
@@ -267,13 +267,10 @@ export interface IVault extends IVaultRoot {
 
 export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
-  currentSeriesId: string;
-  
-  currentSeriesAddr: string;
-  currentPoolAddr: string;
-
-  nextSeries: ISeries | undefined;
   active: boolean;
+  
+  currentSeriesAddr?: string;
+  currentPoolAddr?: string;
 
   initInvariant?: BigNumber;
   currentInvariant?: BigNumber;
