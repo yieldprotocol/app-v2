@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import yieldEnv from './../contexts/yieldEnv.json';
 import * as contractTypes from '../contracts';
 import useChainId from './useChainId';
-import useDefaultProvider from './useDefaultProvider';
 import { useProvider } from 'wagmi';
 
 export enum ContractNames {

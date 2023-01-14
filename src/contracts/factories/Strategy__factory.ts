@@ -34,6 +34,11 @@ const _abi = [
         name: "baseId_",
         type: "bytes6",
       },
+      {
+        internalType: "address",
+        name: "baseJoin_",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -370,6 +375,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LOCK8605463013",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "PERMIT_TYPEHASH",
     outputs: [
       {
@@ -384,6 +402,19 @@ const _abi = [
   {
     inputs: [],
     name: "ROOT",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ROOT4146650865",
     outputs: [
       {
         internalType: "bytes4",
@@ -703,25 +734,6 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "invariants",
-    outputs: [
-      {
-        internalType: "uint128",
-        name: "",
-        type: "uint128",
       },
     ],
     stateMutability: "view",

@@ -11,6 +11,8 @@ import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { useAccount, useNetwork, useSigner } from 'wagmi';
 import useContracts, { ContractNames } from './useContracts';
+import { ISettingsContext } from '../contexts/types/settings';
+import { ChainContext } from '../contexts/ChainContext';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -23,7 +25,7 @@ const _getCallValue = (calls: ICallData[]): BigNumber =>
 export const useChain = () => {
   const {
     settingsState: { approveMax, forceTransactions, diagnostics },
-  } = useContext(SettingsContext);
+  } = useContext(SettingsContext) as ISettingsContext;
 
   const {
     txActions: { handleTx, handleSign, handleTxWillFail },
@@ -57,7 +59,11 @@ export const useChain = () => {
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.MODULE) {
         if (call.fnName && call.targetContract) {
-          const encodedFn = (call.targetContract as any).interface.encodeFunctionData(call.fnName, call.args);
+
+          console.log('contract', call.targetContract ) 
+          console.log('fnName', call.fnName )
+          console.log('args', call.args ) 
+          const encodedFn = (call.targetContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
 
           if (call.operation === LadleActions.Fn.ROUTE)
             return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
@@ -90,7 +96,7 @@ export const useChain = () => {
     // let gasEstFail: boolean = false;
     try {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
-      console.log('Auto gas estimate:', gasEst.mul(120).div(100).toString());
+      console.log('Auto gas estimate:', gasEst.mul(135).div(100).toString());
     } catch (e: any) {
       gasEst = BigNumber.from(500000);
       /* handle if the tx if going to fail and transactions aren't forced */
@@ -232,7 +238,7 @@ export const useChain = () => {
         );
 
         const args = [
-          reqSig.target.address, // the asset id OR the seriesId (if signing fyToken)
+          reqSig.target.address, 
           _spender,
           value,
           deadline,

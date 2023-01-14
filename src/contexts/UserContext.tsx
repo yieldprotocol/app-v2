@@ -25,7 +25,6 @@ import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import useTenderly from '../hooks/useTenderly';
 import { useAccount, useBalance, useProvider } from 'wagmi';
 
 import request from 'graphql-request';
@@ -34,6 +33,7 @@ import useChainId from '../hooks/useChainId';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 import useFork from '../hooks/useFork';
+import { formatUnits, zeroPad } from 'ethers/lib/utils';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -628,7 +628,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           ).flat();
 
           const hasBeenLiquidated = liquidationEvents.length > 0;
-
 
           let accruedArt: BigNumber;
           let rateAtMaturity: BigNumber;

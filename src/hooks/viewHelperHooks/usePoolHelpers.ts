@@ -47,7 +47,6 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   });
 
   /* LOCAL STATE */
-
   const [_input, setInput] = useState<BigNumber>(ethers.constants.Zero);
   const [matchingVault, setMatchingVault] = useState<IVault | undefined>();
 

@@ -63,8 +63,8 @@ export const useDashboardHelpers = () => {
   useEffect(() => {
     const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
       .map((_series) => {
-        const currentValue = _series.seriesIsMature
-          ? _series.fyTokenBalance || ZERO_BN
+        const currentValue = _series.seriesIsMature && _series.fyTokenBalance
+          ? _series.fyTokenBalance
           : sellFYToken(
               _series.sharesReserves,
               _series.fyTokenReserves,
@@ -75,13 +75,11 @@ export const useDashboardHelpers = () => {
               _series.decimals,
               _series.c,
               _series.mu
-            );
-
+          );
         const currentValue_ =
           currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
             ? _series.fyTokenBalance_
             : ethers.utils.formatUnits(currentValue, _series.decimals);
-
         return { ..._series, currentValue_ };
       })
       .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
@@ -112,7 +110,6 @@ export const useDashboardHelpers = () => {
           currentStrategySeries?.c,
           currentStrategySeries?.mu
         );
-
         const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
           ? ethers.utils.formatUnits(
               currentStrategySeries?.getBase(fyTokenToShares).add(currentStrategySeries?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)

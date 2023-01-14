@@ -6,7 +6,7 @@ import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'reac
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
-import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
+import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -214,8 +214,8 @@ const LendPosition = () => {
                     <PositionAvatar position={selectedSeries!} actionType={ActionType.LEND} />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
-                      <CopyWrap hash={selectedSeries.fyTokenAddress}>
-                        <Text size="small"> {abbreviateHash(selectedSeries?.fyTokenAddress!, 6)}</Text>
+                      <CopyWrap hash={selectedSeries.address}>
+                        <Text size="small"> {abbreviateHash(selectedSeries?.address!, 6)}</Text>
                       </CopyWrap>
                     </Box>
                   </Box>

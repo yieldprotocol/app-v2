@@ -140,6 +140,7 @@ const VaultPosition = () => {
     minCollatRatioPct,
     unhealthyCollatRatio,
     liquidationPrice_,
+    minSafeCollatRatioPct,
   } = useCollateralHelpers('0', '0', _selectedVault, assetPairInfo);
 
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
@@ -416,7 +417,13 @@ const VaultPosition = () => {
                           value={`${cleanValue(_selectedVault?.ink_, vaultIlk?.decimals!)} ${
                             vaultIlk?.displaySymbol
                           } (${collateralizationPercent}%)`}
-                          icon={<Gauge value={parseFloat(collateralizationPercent!)} size="1em" />}
+                          icon={
+                            <Gauge
+                              value={parseFloat(collateralizationPercent!)}
+                              size="1em"
+                              mean={parseFloat(minSafeCollatRatioPct!) * 0.9}
+                            />
+                          }
                           loading={vaultsLoading}
                         />
                       )}

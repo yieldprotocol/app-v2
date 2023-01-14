@@ -33,7 +33,7 @@ const nextConfig = {
     return [
       {
         source: '/',
-        destination: '/borrow',
+        destination: '/pool',
         permanent: true,
       },
     ];

@@ -8,7 +8,7 @@ import AssetSelector from '../selectors/AssetSelector';
 import InputWrap from '../wraps/InputWrap';
 import MainViewWrap from '../wraps/MainViewWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
-import { cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
+import { cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -56,7 +56,7 @@ const Lend = () => {
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
-  const [lendInput, setLendInput] = useState<string | undefined>(undefined);
+  const [lendInput, setLendInput] = useState<string>('');
   // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
@@ -103,7 +103,7 @@ const Lend = () => {
   };
 
   const resetInputs = useCallback(() => {
-    setLendInput(undefined);
+    setLendInput('');
     setStepPosition(0);
     resetLendProcess();
   }, [resetLendProcess]);
@@ -159,7 +159,7 @@ const Lend = () => {
                             type="number"
                             inputMode="decimal"
                             placeholder="Enter amount"
-                            value={lendInput || ''}
+                            value={lendInput}
                             onChange={(event: any) =>
                               setLendInput(cleanValue(event.target.value, selectedSeries?.decimals))
                             }

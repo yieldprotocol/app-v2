@@ -1,25 +1,21 @@
 import { TokenType } from '../types';
 
-export interface AssetInfo {
+export interface AssetStaticInfo {
   assetAddress: string;
   joinAddress: string;
-
   tokenType: TokenType;
-  tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
-
   name: string;
   version: string;
   symbol: string;
   decimals: number;
-  showToken: boolean; // Display/hide the token on the UI DEFAULTS
-
+  showToken: boolean; // Display/hide the token on the UI
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
-  displaySymbol?: string; // override for symbol display
 
+  // optionals
   isYieldBase?: boolean;
-
+  tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
+  displaySymbol?: string; // override for symbol display
   limitToSeries?: string[];
-
   wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
   unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
   proxyId?: string; // associated token (eg. )
@@ -59,6 +55,12 @@ export const FETH2303 = '0x323900000000';
 export const FDAI2303 = '0x323500000000';
 export const FUSDC2303 = '0x323600000000';
 
+export const FETH2306 = '0x40301200028B';
+export const FDAI2306 = '0x40311200028B';
+export const FUSDC2306 = '0x40321200028B'; 
+
+export const CRAB = '0x333800000000'
+
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
   CVX3CRV,
@@ -69,14 +71,13 @@ export const CONVEX_BASED_ASSETS = [
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
-export const ASSETS_42161 = new Map<string, AssetInfo>();
+export const ASSETS_42161 = new Map<string, AssetStaticInfo>();
 
-export const ASSETS_1 = new Map<string, AssetInfo>();
+export const ASSETS_1 = new Map<string, AssetStaticInfo>();
 
 ASSETS_1.set(DAI, {
   assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   joinAddress: '0x4fE92119CDf873Cf8826F4E6EcfD4E578E3D44Dc',
-
   version: '1',
   name: 'Dai stable coin',
   decimals: 18,
@@ -90,7 +91,6 @@ ASSETS_1.set(DAI, {
 ASSETS_1.set(USDC, {
   assetAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   joinAddress: '0x0d9A1A773be5a83eEbda23bf98efB8585C3ae4f4',
-
   version: '1',
   name: 'USDC Stable coin',
   decimals: 18,
@@ -104,7 +104,6 @@ ASSETS_1.set(USDC, {
 ASSETS_1.set(WBTC, {
   assetAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
   joinAddress: '0x00De0AEFcd3069d88f85b4F18b144222eaAb92Af',
-
   version: '1',
   name: 'Wrapped Bitcoin',
   decimals: 18,
@@ -117,7 +116,6 @@ ASSETS_1.set(WBTC, {
 ASSETS_1.set(ENS, {
   assetAddress: '0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72',
   joinAddress: '0x5AAfd8F0bfe3e1e6bAE781A6641096317D762969',
-
   version: '1',
   name: 'Ethereum Naming Service',
   decimals: 18,
@@ -130,7 +128,6 @@ ASSETS_1.set(ENS, {
 ASSETS_1.set(WETH, {
   assetAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   joinAddress: '0x3bDb887Dc46ec0E964Df89fFE2980db0121f0fD0',
-
   version: '1',
   name: 'Wrapped Ether',
   decimals: 18,
@@ -145,7 +142,6 @@ ASSETS_1.set(WETH, {
 ASSETS_1.set(wstETH, {
   assetAddress: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
   joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
-
   version: '1',
   name: 'Wrapped Staked Ether',
   decimals: 18,
@@ -165,7 +161,6 @@ ASSETS_1.set(wstETH, {
 ASSETS_1.set(stETH, {
   assetAddress: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
   joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
-
   version: '1',
   name: 'Staked Eth',
   decimals: 18,
@@ -181,7 +176,6 @@ ASSETS_1.set(stETH, {
 ASSETS_1.set(LINK, {
   assetAddress: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
   joinAddress: '0xbDaBb91cDbDc252CBfF3A707819C5f7Ec2B92833',
-
   version: '1',
   name: 'ChainLink',
   decimals: 18,
@@ -194,7 +188,6 @@ ASSETS_1.set(LINK, {
 ASSETS_1.set(yvUSDC, {
   assetAddress: '0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE',
   joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
-
   version: '1',
   name: 'Yearn Vault USDC',
   decimals: 18,
@@ -234,18 +227,15 @@ ASSETS_1.set(FRAX, {
 ASSETS_1.set(FDAI2203, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0xb8d37d6Fcbc6882480633aBF3682b1D4ae2aB124',
-
   version: '1',
   name: 'fDAI2203',
   decimals: 8,
   symbol: 'FDAI2203',
   showToken: false,
   digitFormat: 2,
-
   tokenType: TokenType.ERC1155_,
   tokenIdentifier: 563371972493313,
   limitToSeries: ['0x303130350000'],
-
   wrapHandlerAddresses: new Map([]),
   unwrapHandlerAddresses: new Map([]),
 });
@@ -365,6 +355,7 @@ ASSETS_1.set(FUSDC2212, {
   tokenIdentifier: 844852921171969,
   limitToSeries: ['0x303230380000'],
 });
+
 ASSETS_1.set(FUSDC2303, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x3FdDa15EccEE67248048a560ab61Dd2CdBDeA5E6',
@@ -378,6 +369,7 @@ ASSETS_1.set(FUSDC2303, {
   tokenIdentifier: 844854911827969,
   limitToSeries: ['0x303230390000'],
 });
+
 ASSETS_1.set(FDAI2212, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0x83e99A843607CfFFC97A3acA15422aC672a463eF',
@@ -391,6 +383,7 @@ ASSETS_1.set(FDAI2212, {
   tokenIdentifier: 563377944461313,
   limitToSeries: ['0x303130380000'],
 });
+
 ASSETS_1.set(FDAI2303, {
   assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   joinAddress: '0xE6A63e2166fcEeB447BFB1c0f4f398083214b7aB',
@@ -405,11 +398,64 @@ ASSETS_1.set(FDAI2303, {
   limitToSeries: ['0x303130390000'],
 });
 
-// ASSETS_1.set(CVX3CRV, {
+ASSETS_1.set(FDAI2306, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0xe295111049A6665b35C054e3D0e896816bD12b2C',
+  version: '1',
+  name: 'Notional fCash DAI June 23',
+  decimals: 8,
+  symbol: 'fDAI2306',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 563381925773313,
+  limitToSeries: ['0x0031FF00028B'],
+});
+ASSETS_1.set(FUSDC2306, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0x53B0C1b8fEB4dEcdcc068367119110E20c3BCBD3',
+  version: '1',
+  name: 'Notional fCash USDC June 23',
+  decimals: 8,
+  symbol: 'fUSDC2306',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 844856902483969,
+  limitToSeries: ['0x0032FF00028B'],
+});
+ASSETS_1.set(FETH2306, {
+  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  joinAddress: '0x067Fb37Dd51a4eF6Fea0E006CaF689Db6c705812',
+  version: '1',
+  name: 'Notional fCash ETH June 23',
+  decimals: 8,
+  symbol: 'fETH2306',
+  showToken: true,
+  digitFormat: 6,
+  tokenType: TokenType.ERC1155_,
+  tokenIdentifier: 281906949062657,  
+  limitToSeries: ['0x0030FF00028B'],
+});
 
+ASSETS_1.set(CRAB, {
+  assetAddress: '0x3B960E47784150F5a63777201ee2B15253D713e8',
+  joinAddress: '0xc76a01d18463d7aebea574a34b7d70d8aab389b2',
+  version: '1',
+  name: 'Crab Strategy v2',
+  decimals: 18,
+  symbol: 'Crabv2',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+  limitToSeries: ['0x303030380000','0x303030390000', '0x303130380000','0x303130390000','0x303230380000', '0x303230390000'],
+  isYieldBase: false,
+}); 
+
+
+// ASSETS_1.set(CVX3CRV, {
 //   assetAddress: '',
 //   joinAddress: '',
-
 //   version: '1',
 //   name: 'cvx3crv',
 //   decimals: 18,
@@ -470,3 +516,4 @@ ASSETS_42161.set(WETH, {
   joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
   isYieldBase: true,
 });
+

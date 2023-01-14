@@ -131,6 +131,7 @@ const PriceProvider = ({ children }: any) => {
     [assetRootMap, chainId, contracts, diagnostics, priceState.pairLoading]
   );
 
+
   const priceActions = { updateAssetPair };
   return <PriceContext.Provider value={{ priceState, priceActions }}>{children}</PriceContext.Provider>;
 };
