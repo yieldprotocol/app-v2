@@ -19,8 +19,7 @@ const useContracts = () => {
   const chainId = useChainId();
   // const provider = useDefaultProvider();
   const provider = useProvider();
-  const chainAddrs = (addresses as any)[chainId];
-
+  const chainAddrs = (addresses as any)[chainId];  
   return useMemo(() => {
     return Object.keys(chainAddrs).reduce((contracts, name: string) => {
       const contract = (contractTypes as any)[`${name}__factory`].connect(chainAddrs[name], provider) as Contract;
