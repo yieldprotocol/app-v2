@@ -25,7 +25,7 @@ export const useBorrow = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
+  const { selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccount();
   const contracts = useContracts();
@@ -36,7 +36,7 @@ export const useBorrow = () => {
   });
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
-    token: selectedSeries?.baseAddress,
+    token: selectedBase?.address,
   });
 
   const { addEth, removeEth } = useAddRemoveEth();

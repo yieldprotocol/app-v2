@@ -70,7 +70,10 @@ const Borrow = () => {
   const [stepPosition, setStepPosition] = useState<number>(0);
 
   // renderId for user flow traking (analytics)
-  const [renderId, setRenderId] = useState<string>();
+  // const [renderId, setRenderId] = useState<string>();
+  // useEffect(() => {
+  //   setRenderId(new Date().getTime().toString(36));
+  // }, []);
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
@@ -139,9 +142,7 @@ const Borrow = () => {
     } as GA_Properties.transaction_initiated);
   };
 
-  useEffect(() => {
-    setRenderId(new Date().getTime().toString(36));
-  }, []);
+
 
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {

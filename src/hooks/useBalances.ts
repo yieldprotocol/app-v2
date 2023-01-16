@@ -4,7 +4,7 @@ import { formatUnits, Result } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
 import { useAccount, useContractReads } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
-import { IAsset, IAssetInfo } from '../types';
+import { IAsset } from '../types';
 
 /**
  * Gets all asset balances

@@ -44,7 +44,7 @@ const Dashboard = () => {
     chainState: { chainLoaded },
   } = useContext(ChainContext);
 
-  const { isConnected } = useAccount();
+  const { address:account, isConnected } = useAccount();
 
   const {
     vaultPositions,
@@ -65,8 +65,13 @@ const Dashboard = () => {
         margin={{ top: 'xlarge' }}
         basis={mobile ? undefined : '60%'}
       >
-        {!isConnected && chainLoaded && <Text>Please connect to your account</Text>}
-        {isConnected && (
+        {!account && chainLoaded && (
+          <Box width={mobile ? '100%' : undefined} align='center' fill='horizontal' >
+            <Text size='small' >No Wallet Connected.</Text>
+        </Box>
+        )}
+        
+        {account && (
           <Box width={mobile ? '100%' : undefined} gap="large">
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">

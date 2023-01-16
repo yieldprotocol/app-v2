@@ -10,7 +10,7 @@ import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
-import useStrategyReturns from '../../hooks/useStrategyReturns';
+import useStrategyReturns, { IReturns } from '../../hooks/useStrategyReturns';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -41,15 +41,14 @@ const StrategySelectItem = ({
   strategy,
   selected,
   displayName,
-
   handleClick,
-  apy,
+  returns,
 }: {
   strategy: IStrategy;
   selected: boolean;
   displayName: string;
   handleClick: (strategy: IStrategy) => void;
-  apy?: string;
+  returns?: IReturns;
 }) => {
   return (
     <StyledBox
@@ -70,16 +69,33 @@ const StrategySelectItem = ({
             {strategy.currentSeries?.seriesMark || <FiSlash />}
           </Avatar>
           <Box align="center" fill="vertical" justify="center">
-            <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
-              {formatStrategyName(strategy.name!)}
-            </Text>
+            <Box direction="row">
+              <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
+                {formatStrategyName(strategy.name!)}
+              </Text>
+            </Box>
+
             <Text size="xsmall" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
               Rolling {displayName}
             </Text>
           </Box>
         </Box>
 
-        {apy && (
+        {strategy.rewardsRate!.gt(ZERO_BN) && (
+          <Box
+            round
+            background="red"
+            pad={{ horizontal: 'small', vertical: 'xsmall' }}
+            style={{ position: 'absolute', marginTop: '-1em', marginLeft: '17em' }}
+            elevation="small"
+          >
+            <Text size="small" color="white" textAlign="center">
+              +{returns?.rewardsAPY}%
+            </Text>
+          </Box>
+        )}
+
+        {returns?.blendedAPY && (
           <Box fill align="end">
             <Avatar
               background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
@@ -87,7 +103,7 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small">{apy}%</Text>
+              <Text size="small">{(+returns.blendedAPY - +returns.rewardsAPY!).toFixed(1)}%</Text>
             </Avatar>
           </Box>
         )}
@@ -117,13 +133,15 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   useEffect(() => {
     const opts = Array.from(strategyMap?.values()!);
     const filteredOpts = opts
-      .filter((_st) => _st.currentSeries?.showSeries)
+      .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
+      .filter((_st) => _st.currentSeries?.showSeries && _st.active)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
     setOptions(filteredOpts);
   }, [selectedBase, strategyMap, selectedStrategy]);
 
   const handleSelect = (_strategy: IStrategy) => {
+    console.log('SELECTED: ', _strategy.address, 'VERSION: ', _strategy.type);
     if (_strategy.active) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy);
@@ -133,33 +151,31 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     }
   };
 
-  /* Keeping options/selection fresh and valid: */
+
+  /* Auto select a default strategy  */
   useEffect(() => {
-    const opts: IStrategy[] = Array.from(strategyMap?.values()!)
-      .filter((_st) => _st.currentSeries?.showSeries)
-      .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
-    const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
 
-    // if strategy already selected, no need to set explicitly again
+    /* if strategy already selected, no need to set explicitly again */
     if (selectedStrategy) return;
+    const opts: IStrategy[] = Array.from(strategyMap.values())
+      .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
+      .filter((_st) => _st.currentSeries?.showSeries && _st.active)
+      .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
 
+    /* select strategy with rewards */
+    const strategyWithRewards = opts.find((s) => s.rewardsRate?.gt(ZERO_BN));
+    if (strategyWithRewards) {
+      userActions.setSelectedStrategy(strategyWithRewards);
+      return;
+    }
     /* select strategy with existing balance */
+    const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
     if (strategyWithBalance) {
       userActions.setSelectedStrategy(strategyWithBalance);
-    } else {
-      /* select strategy with the lowest totalSupply and is active */
-      opts.length &&
-        userActions.setSelectedStrategy(
-          opts
-            .filter((s) => s.currentSeries?.showSeries)
-            .filter((s) => s.active)
-            .reduce((prev, curr) =>
-              parseInt(prev.poolTotalSupply_!, 10) < parseInt(curr.poolTotalSupply_!, 10) ? prev : curr
-            )
-        );
-      /* or select random strategy from opts */
-      // userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
+      return;
     }
+    /* else set a random one as a last resort */
+    userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
   }, [selectedBase, strategyMap]);
 
   return (
@@ -172,23 +188,28 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
         </>
       )}
 
-      <Box gap="small">
-        {options.map((o) => {
-          const displayName = seriesMap?.get(o.currentSeriesId!)?.displayName!;
-          const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
-          const selected = selectedStrategy?.address === o.address;
-          return (
-            <StrategySelectItem
-              key={o.address}
-              strategy={o}
-              handleClick={() => handleSelect(o)}
-              selected={selected}
-              displayName={displayName}
-              apy={returns.blendedAPY}
-            />
-          );
-        })}
-      </Box>
+      {!strategiesLoading && (
+        <Box gap="small">
+          {options.map((o: IStrategy) => {
+            const displayName = o.currentSeries?.displayName!;
+            const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
+            const selected = selectedStrategy?.address === o.address;
+            return (
+              <StrategySelectItem
+                key={o.address}
+                strategy={o}
+                handleClick={() => handleSelect(o)}
+                selected={selected}
+                displayName={displayName}
+                returns={returns}
+                // apy={returns.blendedAPY}
+                // extra={ returns.}
+              />
+            );
+          })}
+        </Box>
+      )}
+
     </Box>
   );
 };

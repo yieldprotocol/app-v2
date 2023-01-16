@@ -19,7 +19,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
 
   const _selectedSeries = series || selectedSeries;
   /* Make sure there won't be an underflow */
-  const _fallbackInput = ETH_BASED_ASSETS.includes(series?.baseId!) ? '.001' : '1';
+  const _fallbackInput = ETH_BASED_ASSETS.includes(series?.baseId!) ? '0.01' : '1';
   const _input = Number(input) === 0 ? _fallbackInput : cleanValue(input, _selectedSeries?.decimals);
 
   /* LOCAL STATE */

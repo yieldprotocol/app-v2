@@ -1,9 +1,37 @@
 import { Block } from '@ethersproject/providers';
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import { ReactNode } from 'react';
+import { IChainContextActions } from '../contexts/types/chain';
 import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
+
+export interface IChainContext {
+  chainState: IChainContextState;
+  chainActions: IChainContextActions;
+}
+
+export interface IChainContextState {
+  appVersion: string;
+  connection: IConnectionState;
+
+  chainLoading: boolean;
+
+  contractMap: Map<string, Contract>;
+  assetRootMap: Map<string, IAssetRoot>;
+  seriesRootMap: Map<string, ISeriesRoot>;
+  strategyRootMap: Map<string, IStrategyRoot>;
+}
+
+export interface IConnectionState {
+  provider: ethers.providers.Web3Provider | null;
+  chainId: number | null;
+  fallbackProvider: ethers.providers.JsonRpcProvider | null;
+  fallbackChainId: number | null;
+  account: string | null;
+  connectionName: string | null;
+  useTenderlyFork: boolean;
+}
 
 export interface IHistoryList {
   lastBlock: number;
@@ -51,39 +79,39 @@ export interface ISignable {
   tokenType?: TokenType;
 }
 
-export interface ISeriesRootRoot extends ISignable {
+export interface ISeriesRoot extends ISignable {
   id: string;
-  baseId: string;
-  maturity: number;
-  fyTokenAddress: string;
-  decimals: number;
-  poolAddress: string;
-  poolVersion: string; // for signing
-  poolName: string;
-  poolSymbol: string; // for signing
-  ts: BigNumber;
-  g1: BigNumber;
-  g2: BigNumber;
-  baseAddress: string;
-}
-
-export interface ISeriesRoot extends ISeriesRootRoot {
-  poolContract: Pool;
-  fyTokenContract: FYToken;
-  fullDate: string;
   displayName: string;
   displayNameMobile: string;
+  maturity: number;
+  showSeries: boolean;
+  decimals: number;
 
-  season: string;
-  startColor: string;
-  endColor: string;
+  fullDate: string;
+  fyTokenContract: FYToken;
+  
+  poolContract: Pool;
+  poolAddress: string;
+  poolName: string;
+  poolVersion: string; // for signing
+  poolSymbol: string; // for signing
+  ts: string;
+  g1: string;
+  g2: string;
+
+  // startBlock: Block; // pool init block
+  baseId: string;
+
   color: string;
   textColor: string;
+  startColor: string;
+  endColor: string;
 
   oppStartColor: string;
   oppEndColor: string;
-  oppTextColor: string;
+
   seriesMark: ReactNode;
+
 }
 
 export enum TokenType {
@@ -95,7 +123,7 @@ export enum TokenType {
   ERC720_,
 }
 
-export interface IAssetInfo {
+export interface IAssetStaticInfo {
   assetAddress: string;
   joinAddress: string;
 
@@ -120,7 +148,7 @@ export interface IAssetInfo {
   proxyId?: string;
 }
 
-export interface IAssetRoot extends IAssetInfo, ISignable {
+export interface IAssetRoot extends IAssetStaticInfo, ISignable {
   // fixed/static:
   id: string;
 
@@ -168,7 +196,9 @@ export interface IStrategyRoot extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
-  startBlock?: Block;
+  startBlock: Block;
+  type: 'V1' | 'V2';
+  associatedStrategy?: string;
 }
 
 export interface IVaultRoot {
@@ -204,11 +234,12 @@ export interface ISeries extends ISeriesRoot {
   mu: BigNumber | undefined;
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
+
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
-  startBlock?: Block;
+  startBlock: Block;
 
-  showSeries: boolean;
+  // showSeries: boolean;
 }
 
 export interface IDummyVault extends IVaultRoot {}
@@ -236,12 +267,10 @@ export interface IVault extends IVaultRoot {
 
 export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
-  currentSeriesId: string;
-  currentPoolAddr: string;
-  nextSeriesId: string;
-
-  nextSeries: ISeries | undefined;
   active: boolean;
+  
+  currentSeriesAddr?: string;
+  currentPoolAddr?: string;
 
   initInvariant?: BigNumber;
   currentInvariant?: BigNumber;
@@ -266,6 +295,13 @@ export interface IStrategy extends IStrategyRoot {
   accountPoolBalance?: BigNumber;
   accountPoolBalance_?: string;
   accountPoolPercent?: string | undefined;
+
+  accountRewards?: BigNumber;
+  accountRewards_?: string;
+                
+  rewardsTokenAddress?: string;
+  rewardsRate?: BigNumber;
+  rewardsPeriod?: { start: number; end: number };
 }
 
 export interface ICallData {
@@ -402,6 +438,7 @@ export enum ActionCodes {
   ADD_LIQUIDITY = 'Add Liquidity',
   REMOVE_LIQUIDITY = 'Remove Liquidity',
   ROLL_LIQUIDITY = 'Roll Liquidity',
+  CLAIM_REWARDS = 'Claim Rewards',
   // VAULT
   DELETE_VAULT = 'Delete Vault',
   TRANSFER_VAULT = 'Transfer Vault',

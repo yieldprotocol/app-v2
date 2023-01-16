@@ -23,8 +23,10 @@ interface StrategyInterface extends ethers.utils.Interface {
   functions: {
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "LOCK()": FunctionFragment;
+    "LOCK8605463013()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
     "ROOT()": FunctionFragment;
+    "ROOT4146650865()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
@@ -44,7 +46,6 @@ interface StrategyInterface extends ethers.utils.Interface {
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
-    "invariants(address)": FunctionFragment;
     "ladle()": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "mint(address)": FunctionFragment;
@@ -83,10 +84,18 @@ interface StrategyInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "LOCK8605463013",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "PERMIT_TYPEHASH",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "ROOT", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ROOT4146650865",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "allowance",
     values: [string, string]
@@ -127,7 +136,6 @@ interface StrategyInterface extends ethers.utils.Interface {
     functionFragment: "hasRole",
     values: [BytesLike, string]
   ): string;
-  encodeFunctionData(functionFragment: "invariants", values: [string]): string;
   encodeFunctionData(functionFragment: "ladle", values?: undefined): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "mint", values: [string]): string;
@@ -227,10 +235,18 @@ interface StrategyInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "LOCK8605463013",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "PERMIT_TYPEHASH",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "ROOT", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ROOT4146650865",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -259,7 +275,6 @@ interface StrategyInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "invariants", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ladle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
@@ -474,9 +489,13 @@ export class Strategy extends BaseContract {
 
     LOCK(overrides?: CallOverrides): Promise<[string]>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<[string]>;
+
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
     ROOT(overrides?: CallOverrides): Promise<[string]>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<[string]>;
 
     allowance(
       owner: string,
@@ -546,8 +565,6 @@ export class Strategy extends BaseContract {
       account: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    invariants(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     ladle(overrides?: CallOverrides): Promise<[string]>;
 
@@ -693,9 +710,13 @@ export class Strategy extends BaseContract {
 
   LOCK(overrides?: CallOverrides): Promise<string>;
 
+  LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
   ROOT(overrides?: CallOverrides): Promise<string>;
+
+  ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
   allowance(
     owner: string,
@@ -765,8 +786,6 @@ export class Strategy extends BaseContract {
     account: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  invariants(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   ladle(overrides?: CallOverrides): Promise<string>;
 
@@ -912,9 +931,13 @@ export class Strategy extends BaseContract {
 
     LOCK(overrides?: CallOverrides): Promise<string>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<string>;
+
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     ROOT(overrides?: CallOverrides): Promise<string>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<string>;
 
     allowance(
       owner: string,
@@ -973,8 +996,6 @@ export class Strategy extends BaseContract {
       account: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    invariants(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     ladle(overrides?: CallOverrides): Promise<string>;
 
@@ -1307,9 +1328,13 @@ export class Strategy extends BaseContract {
 
     LOCK(overrides?: CallOverrides): Promise<BigNumber>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<BigNumber>;
+
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
     ROOT(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<BigNumber>;
 
     allowance(
       owner: string,
@@ -1382,8 +1407,6 @@ export class Strategy extends BaseContract {
       account: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    invariants(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     ladle(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1515,9 +1538,13 @@ export class Strategy extends BaseContract {
 
     LOCK(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    LOCK8605463013(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ROOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ROOT4146650865(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     allowance(
       owner: string,
@@ -1591,11 +1618,6 @@ export class Strategy extends BaseContract {
     hasRole(
       role: BytesLike,
       account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    invariants(
-      arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

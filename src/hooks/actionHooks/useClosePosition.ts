@@ -23,12 +23,12 @@ export const useClosePosition = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, selectedSeries } = userState;
+  const { assetMap, selectedSeries, selectedBase } = userState;
   const { address: account } = useAccount();
-  const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.fyTokenAddress });
+  const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.address });
   const { refetch: refetchBaseBal } = useBalance({
     addressOrName: account,
-    token: selectedSeries?.baseAddress,
+    token: selectedBase?.address,
   });
   const contracts = useContracts();
   const { updateSeries, updateAssets } = userActions;
@@ -50,7 +50,8 @@ export const useClosePosition = () => {
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
-    const { fyTokenAddress, poolAddress, seriesIsMature } = series;
+    const { address, poolAddress, seriesIsMature } = series;
+    // const ladleAddress = contractMap.get('Ladle').address;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     /* assess how much fyToken is needed to buy base amount (input) */
@@ -94,7 +95,7 @@ export const useClosePosition = () => {
 
     /* Set the transferTo address based on series maturity */
     const transferToAddress = () => {
-      if (seriesIsMature) return fyTokenAddress;
+      if (seriesIsMature) return address;
       return poolAddress;
     };
 
@@ -110,7 +111,7 @@ export const useClosePosition = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [
-          fyTokenAddress,
+          address,
           transferToAddress(), // select destination based on maturity
           _fyTokenValueOfInput,
         ] as LadleActions.Args.TRANSFER,

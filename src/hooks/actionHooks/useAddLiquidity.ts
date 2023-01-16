@@ -63,7 +63,7 @@ export const useAddLiquidity = () => {
     matchingVault: IVault | undefined = undefined
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
-    const _series: ISeries = seriesMap?.get(strategy.currentSeriesId)!;
+    const _series: ISeries = seriesMap?.get(strategy.currentSeries!.id)!;
     const _base: IAsset = assetMap?.get(_series?.baseId!)!;
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
@@ -232,7 +232,7 @@ export const useAddLiquidity = () => {
       {
         operation: LadleActions.Fn.ROUTE,
         args: [
-          strategy.id || account, // NOTE GOTCHA: receiver is _strategyAddress (if it exists) or else account
+          strategy.address || account, // NOTE GOTCHA: receiver is _strategyAddress (if it exists) or else account
           account,
           fyTokenToBuy,
           minRatio,
@@ -277,7 +277,7 @@ export const useAddLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [strategy.id || account, account, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS,
+        args: [strategy.address || account, account, minRatio, maxRatio] as RoutedActions.Args.MINT_POOL_TOKENS,
         fnName: RoutedActions.Fn.MINT_POOL_TOKENS,
         targetContract: _series.poolContract,
         ignoreIf: method !== AddLiquidityType.BORROW,
