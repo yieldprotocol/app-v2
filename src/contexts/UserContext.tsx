@@ -519,7 +519,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             }
 
             /* Decide if stragtegy should be 'active' */
-            const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
+            const isActive = true // _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
 
             return {
               ..._strategy,
@@ -541,9 +541,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsPeriod,
               rewardsTokenAddress,
             };
-          }
 
           /* Else return an 'EMPTY' strategy */
+
           return {
             ..._strategy,
             currentSeries: undefined,

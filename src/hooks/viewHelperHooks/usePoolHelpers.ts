@@ -32,8 +32,10 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },
   } = useContext(UserContext);
 
-  const strategy = selectedStrategy;
-  const strategySeries = seriesMap?.get(selectedStrategy ? strategy?.currentSeries?.id! : selectedSeries?.id!);
+  const strategy: IStrategy | undefined = selectedStrategy;
+  const strategySeries: ISeries | undefined = seriesMap?.get(
+    (selectedStrategy && strategy.currentSeries) ? strategy?.currentSeries.id : selectedSeries?.id
+  );
 
   const strategyBase = assetMap?.get(strategy ? strategy.baseId : selectedBase?.proxyId!);
 

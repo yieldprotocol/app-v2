@@ -582,7 +582,7 @@ SERIES.set(
         name: 'FYUSDC2306',
         symbol: 'FYUSDC2306',
         address: '0x667f185407C4CAb52aeb681f0006e4642d8091DF',
-        decimals: 18,
+        decimals: 6,
         version: '1',
         poolAddress: '0x06aaF385809c7BC00698f1E266eD4C78d6b8ba75',
         poolName: 'FYUSDC2306 LP',

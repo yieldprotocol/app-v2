@@ -21,7 +21,8 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   } = useContext(UserContext);
 
   const base = assetMap?.get(strategy.baseId) || null;
-  const series = seriesMap?.get(strategy.currentSeries?.id!) || null;
+  const series = strategy.currentSeries || null; // seriesMap.get(strategy.currentSeries.id) || null;
+
   const isSelectedStrategy = strategy.id === selectedStrategy?.id;
 
   const handleSelect = (_series: IStrategy) => {
