@@ -112,12 +112,12 @@ export const useDashboardHelpers = () => {
           currentStrategySeries?.sharesReserves!,
           currentStrategySeries?.fyTokenReserves!,
           currentStrategySeries?.totalSupply!,
-          getTimeTillMaturity(currentStrategySeries.maturity)!,
+          getTimeTillMaturity(currentStrategySeries?.maturity)!,
           currentStrategySeries?.ts!,
           currentStrategySeries?.g2!,
           currentStrategySeries?.decimals!,
-          currentStrategySeries.c,
-          currentStrategySeries.mu
+          currentStrategySeries?.c,
+          currentStrategySeries?.mu
         );
         const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
           ? ethers.utils.formatUnits(
