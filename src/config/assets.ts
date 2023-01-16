@@ -95,7 +95,7 @@ ASSETS_1.set(USDC, {
   joinAddress: '0x0d9A1A773be5a83eEbda23bf98efB8585C3ae4f4',
   version: '1',
   name: 'USDC Stable coin',
-  decimals: 18,
+  decimals: 6,
   symbol: 'USDC',
   showToken: true,
   digitFormat: 2,
@@ -491,7 +491,7 @@ ASSETS_42161.set(DAI, {
 ASSETS_42161.set(USDC, {
   version: '1',
   name: 'USDC Stable coin',
-  decimals: 18,
+  decimals: 6,
   symbol: 'USDC',
 
   showToken: true,
