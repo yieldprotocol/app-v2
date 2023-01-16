@@ -472,7 +472,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       let _publicData: IStrategy[] = [];
       let _accountData: IStrategy[] = [];
 
-      const _seriesList = seriesList || Array.from(userState.seriesMap.values());
+      const _seriesList = seriesList.length ? seriesList : Array.from(userState.seriesMap.values());
 
       _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
@@ -482,14 +482,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             _strategy.strategyContract.fyToken(),
             _strategy.strategyContract.pool(),
           ]);
-  
-          /* we check if the strategy has been supersecced by a v2 version */
-          const hasAnUpdatedVersion = _strategy.type === 'V1' && _strategy.associatedStrategy;
-  
-          // const currentSeries = userState.seriesMap.get(currentSeriesId) as ISeries;
-          // const nextSeries = userState.seriesMap.get(nextSeriesId) as ISeries;
+
+          /* We check if the strategy has been supersecced by a v2 version */
+          const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
+
+          /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
-  
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
@@ -497,14 +495,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 hasAnUpdatedVersion && _strategy.associatedStrategy ? _strategy.associatedStrategy : _strategy.address
               ),
             ]);
-  
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-  
-            // get rewards data
+            
+            /* get rewards data */
             let rewardsPeriod: { start: number; end: number } | undefined;
             let rewardsRate: BigNumber | undefined;
             let rewardsTokenAddress: string | undefined;
-  
+
             try {
               const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
                 _strategy.strategyContract.rewardsPerToken(),
@@ -520,10 +517,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsRate = undefined;
               rewardsTokenAddress = undefined;
             }
-  
+
             /* Decide if stragtegy should be 'active' */
             const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
-  
+
             return {
               ..._strategy,
               strategyTotalSupply,
@@ -533,20 +530,20 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               strategyPoolBalance,
               strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
               strategyPoolPercent,
-  
+
               currentSeriesAddr: fyToken,
               currentSeries,
-  
+
               currentPoolAddr,
-  
+
               active: isActive,
               rewardsRate,
               rewardsPeriod,
               rewardsTokenAddress,
             };
           }
-  
-          /* else return an 'EMPTY' strategy */
+
+          /* Else return an 'EMPTY' strategy */
           return {
             ..._strategy,
             currentSeries: undefined,
@@ -555,12 +552,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         })
       );
 
-      /* add in account specific data */
+      /* Add in account specific data */
       if (account) {
         _accountData = await Promise.all(
-          _publicData
-
-          .map(async (_strategy: IStrategy): Promise<IStrategy> => {
+          _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
             const [accountBalance, accountPoolBalance] = await Promise.all([
               _strategy.strategyContract.balanceOf(account),
               _strategy.currentSeries?.poolContract.balanceOf(account),
@@ -569,7 +564,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const stratConnected = _strategy.strategyContract.connect(signer!);
             const accountRewards =
               _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
-            console.log( accountRewards.gt(ZERO_BN)? accountRewards.toString(): 'no rewards' )
             const accountStrategyPercent = mulDecimal(
               divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
               '100'

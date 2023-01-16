@@ -224,10 +224,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       const season = getSeason(series.maturity);
       const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
       const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
-      const [oppStartColor, oppEndColor ] = seasonColorMap.get(oppSeason(season))!;
+      const [oppStartColor, oppEndColor] = seasonColorMap.get(oppSeason(season))!;
 
       /* some logic to decide if the series is shown or not */
-      const showSeries = true; // eg. series.maturity !== 1672412400; 
+      const showSeries = true; // eg. series.maturity !== 1672412400;
       // const poolVersion =  series.poolVersion || '1'
 
       return {
@@ -274,7 +274,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       const newSeriesList: ISeriesStatic[] = [];
 
       await Promise.all(
-       seriesList.map(async (series:ISeriesStatic) => {  
+        seriesList.map(async (series: ISeriesStatic) => {
           if (false) {
             // eg. development get ts g1 g2 values
             const poolContract = Pool__factory.connect(series.poolAddress, provider);
@@ -312,91 +312,87 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     [provider]
   );
 
-    /* Iterate through the strategies list and update accordingly */
-    const _getStrategies = useCallback(
-      async (chain: number) => {
-        /**
-         * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
-         * */
-        const cacheKey = `strategies_${chain}`;
-        const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-        if (cachedValues !== null && cachedValues.length) {
-          console.log('Yield Protocol STRATEGY data retrieved ::: CACHE :::');
-          return cachedValues.forEach((st: IStrategyRoot) => {
-            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
-          });
-        }
+  /* Iterate through the strategies list and update accordingly */
+  const _getStrategies = useCallback(
+    async (chain: number) => {
+      /**
+       * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
+       * */
+      const cacheKey = `strategies_${chain}`;
+      const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
+      if (cachedValues !== null && cachedValues.length) {
+        console.log('Yield Protocol STRATEGY data retrieved ::: CACHE :::');
+        return cachedValues.forEach((st: IStrategyRoot) => {
+          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
+        });
+      }
 
-        const strategyMap = STRATEGIES.get(chain);
-        let strategyList = Array.from(strategyMap!.values());
-  
-        const newStrategyList: any[] = [];
-        try {
+      const strategyMap = STRATEGIES.get(chain);
+      let strategyList = Array.from(strategyMap!.values());
 
-          await Promise.all(
-            strategyList.map(async (strategy) => {
-              const { address, type } = strategy;
+      const newStrategyList: any[] = [];
+      try {
+        await Promise.all(
+          strategyList.map(async (strategy) => {
+            const { address, type } = strategy;
 
-              /* if the strategy is NOT already in the cache : */
-              console.log('Updating Strategy Contract ', address);
-              const Strategy = contractTypes.Strategy__factory.connect(address, provider);
+            /* if the strategy is NOT already in the cache : */
+            console.log('Updating Strategy Contract ', address);
+            const Strategy = contractTypes.Strategy__factory.connect(address, provider);
 
-              // get Strategy created block using first StartPool event as Proxy
-              let startBlock: Block | undefined;
-              const filter = Strategy.filters.PoolStarted();
-              try {
-                startBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
-              } catch (error) {
-                console.log('Could not get start block for strategy', strategy.symbol);
-              }
+            // get Strategy created block using first StartPool event as Proxy
+            let startBlock: Block | undefined;
+            const filter = Strategy.filters.PoolStarted();
+            try {
+              startBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
+            } catch (error) {
+              console.log('Could not get start block for strategy', strategy.symbol);
+            }
 
-              const newStrategy: IStrategyRoot = _chargeStrategy({
-                ...strategy,
-                id: address,
-                startBlock,
-              });
+            const newStrategy: IStrategyRoot = _chargeStrategy({
+              ...strategy,
+              id: address,
+              startBlock,
+            });
 
-              // update state
-              updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
-              newStrategyList.push(newStrategy);
-            })
-          );
-
-        } catch (e) {
-          console.log('Error fetching strategies', e);
-        }
-  
-        /* cache results */
-        newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
-        newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
-      },
-      [_chargeStrategy, provider]
-    );
-
-
-    const _getProtocolData = useCallback(
-      async (chain: number) => {
-        /* Clear maps in local app memory  ( note: this is not the cache ) and set chainLoaded false */
-        updateState({ type: ChainState.CLEAR_MAPS });
-  
-        console.log(
-          'Fetching Protocol contract addresses and checking for new Assets and Series, and Strategies : ',
-          chain
-        );
-  
-        await Promise.all([_getAssets(chain), _getSeries(chain), _getStrategies(chain)])
-          .catch(() => {
-            toast.error('Error getting Yield Protocol data.');
-            console.log('Error getting Yield Protocol data.');
+            // update state
+            updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
+            newStrategyList.push(newStrategy);
           })
-          .finally(() => {
-            updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
-          });
-      },
-      [_getAssets, _getSeries, _getStrategies]
-    );
+        );
+      } catch (e) {
+        console.log('Error fetching strategies', e);
+      }
 
-  
+      /* cache results */
+      newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
+      newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
+    },
+    [_chargeStrategy, provider]
+  );
+
+  const _getProtocolData = useCallback(
+    async (chain: number) => {
+      /* Clear maps in local app memory  ( note: this is not the cache ) and set chainLoaded false */
+      updateState({ type: ChainState.CLEAR_MAPS });
+
+      console.log(
+        'Fetching Protocol contract addresses and checking for new Assets and Series, and Strategies : ',
+        chain
+      );
+
+      await Promise.all([_getAssets(chain), _getSeries(chain), _getStrategies(chain)])
+        .catch(() => {
+          toast.error('Error getting Yield Protocol data.');
+          console.log('Error getting Yield Protocol data.');
+        })
+        .finally(() => {
+          updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
+        });
+    },
+    [_getAssets, _getSeries, _getStrategies]
+  );
+
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
    */
