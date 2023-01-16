@@ -614,7 +614,7 @@ const UserProvider = ({ children }: any) => {
   const updateStrategies = async (strategyList: IStrategyRoot[], seriesList: ISeries[] = []) => {
     updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
-    const _seriesList = seriesList || Array.from(userState.seriesMap.values());
+    const _seriesList = seriesList.length > 0 ? seriesList : Array.from(userState.seriesMap.values());
     const _publicData = await Promise.all(
       strategyList.map(async (_strategy): Promise<IStrategy> => {
         /* Get all the data simultanenously in a promise.all */
@@ -664,7 +664,7 @@ const UserProvider = ({ children }: any) => {
           }
 
           /* Decide if stragtegy should be 'active' */
-          const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
+          const isActive = true; // _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
 
           return {
             ..._strategy,
