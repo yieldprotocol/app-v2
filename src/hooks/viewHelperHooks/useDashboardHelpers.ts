@@ -104,7 +104,7 @@ export const useDashboardHelpers = () => {
           currentStrategySeries?.sharesReserves!,
           currentStrategySeries?.fyTokenReserves!,
           currentStrategySeries?.totalSupply!,
-          getTimeTillMaturity(currentStrategySeries?.maturity)!,
+          getTimeTillMaturity(currentStrategySeries?.maturity!),
           currentStrategySeries?.ts!,
           currentStrategySeries?.g2!,
           currentStrategySeries?.decimals!,

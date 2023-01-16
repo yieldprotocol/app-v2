@@ -14,7 +14,7 @@ import {
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import { IVault } from '../../types';
+import { ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
@@ -29,13 +29,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(SettingsContext);
 
   const {
-    userState: { selectedSeries, selectedBase, selectedStrategy, seriesMap, vaultMap, assetMap },
+    userState: { selectedBase, selectedStrategy, vaultMap, assetMap },
   } = useContext(UserContext);
 
-  const strategy: IStrategy | undefined = selectedStrategy;
-  const strategySeries: ISeries | undefined = seriesMap?.get(
-    (selectedStrategy && strategy.currentSeries) ? strategy?.currentSeries.id : selectedSeries?.id
-  );
+  const strategy = selectedStrategy;
+  const strategySeries = selectedStrategy?.currentSeries
 
   const strategyBase = assetMap?.get(strategy ? strategy.baseId : selectedBase?.proxyId!);
 

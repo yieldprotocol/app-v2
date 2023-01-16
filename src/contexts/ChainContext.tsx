@@ -167,7 +167,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     const cacheKey = `assets_${chain}`;
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
     if (cachedValues !== null && cachedValues.length) {
-      console.log('Yield Protocol ASSET data retrieved ::: CACHE :::');
+      console.log('::: CACHE ::: Yield Protocol ASSET data retrieved ');
       return cachedValues.forEach((a: IAssetRoot) => {
         updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a, chain) });
       });
@@ -263,7 +263,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
       if (cachedValues !== null && cachedValues.length) {
-        console.log('Yield Protocol SERIES data retrieved ::: CACHE :::');
+        console.log('::: CACHE ::: Yield Protocol SERIES data retrieved ');
         return cachedValues.forEach((s: ISeriesStatic) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, chain) });
         });
@@ -321,7 +321,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       const cacheKey = `strategies_${chain}`;
       const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
       if (cachedValues !== null && cachedValues.length) {
-        console.log('Yield Protocol STRATEGY data retrieved ::: CACHE :::');
+        console.log('::: CACHE ::: Yield Protocol STRATEGY data retrieved ');
         return cachedValues.forEach((st: IStrategyRoot) => {
           updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
         });
@@ -336,8 +336,9 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
           strategyList.map(async (strategy) => {
             const { address, type } = strategy;
 
-            /* if the strategy is NOT already in the cache : */
-            console.log('Updating Strategy Contract ', address);
+            // /* if the strategy is NOT already in the cache : */
+            // console.log('::: LOADING ::: Strategy Contract ', address);
+
             const Strategy = contractTypes.Strategy__factory.connect(address, provider);
 
             // get Strategy created block using first StartPool event as Proxy
@@ -404,7 +405,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       location.reload();
     }
     setLastAppVersion(process.env.REACT_APP_VERSION);
-  }, [lastAppVersion, setLastAppVersion]);
+  }, [ lastAppVersion ]);
 
   /* Hande getting protocol data on first load */
   useEffect(() => {
