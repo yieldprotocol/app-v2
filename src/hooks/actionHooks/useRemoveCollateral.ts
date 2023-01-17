@@ -10,7 +10,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
+import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useRemoveCollateral = () => {
@@ -21,9 +21,9 @@ export const useRemoveCollateral = () => {
   const provider = useProvider();
   const contracts = useContracts();
   const { refetch: refetchIlkBal } = useBalance({
-    addressOrName: account,
-    token: selectedIlk?.address,
-  });
+    address: account,
+    token: selectedIlk?.address as Address
+  }); 
 
   const {
     historyActions: { updateVaultHistory },

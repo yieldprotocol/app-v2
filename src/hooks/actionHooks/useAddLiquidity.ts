@@ -25,7 +25,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddLiquidity = () => {
@@ -48,12 +48,12 @@ export const useAddLiquidity = () => {
   const { addEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.address,
+    address: account,
+    token: selectedBase?.address as Address,
   });
   const { refetch: refetchStrategyBal } = useBalance({
-    addressOrName: account,
-    token: selectedStrategy?.address,
+    address: account,
+    token: selectedStrategy?.address as Address,
   });
 
   const addLiquidity = async (

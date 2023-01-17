@@ -1,4 +1,5 @@
-import { chain, WagmiConfig, createClient, configureChains } from 'wagmi';
+import { WagmiConfig, createClient, configureChains } from 'wagmi';
+import { mainnet, arbitrum } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { ReactNode, useContext } from 'react';
@@ -36,8 +37,8 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
   const chainConfig = !useForkedEnv
     ? // Production environment >
       [
-        alchemyProvider({ apiKey: process.env.ALCHEMY_MAINNET_KEY }), // mainnet
-        alchemyProvider({ apiKey: process.env.ALCHEMY_ARBITRUM_KEY }), // arbitrum
+        alchemyProvider({ apiKey: process.env.ALCHEMY_MAINNET_KEY || '' }), // mainnet
+        alchemyProvider({ apiKey: process.env.ALCHEMY_ARBITRUM_KEY || ''}), // arbitrum
       ]
     : // Test/Dev environents (eg. tenderly) >
       [
@@ -61,7 +62,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider } = configureChains(
-    [chain.mainnet, chain.arbitrum], // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
+    [mainnet, arbitrum], // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
     chainConfig
   );
 

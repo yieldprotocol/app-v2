@@ -44,6 +44,7 @@ import { useAccount, useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import { WETH } from '../../config/assets';
+import { Address } from '@wagmi/core';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -66,8 +67,8 @@ const VaultPosition = () => {
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
 
   const { data: ilkBal } = useBalance({
-    addressOrName: account,
-    token: vaultIlk?.proxyId === WETH ? '' : vaultIlk?.address,
+    address: account,
+    token: vaultIlk?.proxyId === WETH ? undefined : vaultIlk?.address as Address,
   });
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);

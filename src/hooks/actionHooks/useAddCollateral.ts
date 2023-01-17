@@ -13,7 +13,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddCollateral = () => {
@@ -32,12 +32,12 @@ export const useAddCollateral = () => {
   const { addEth } = useAddRemoveEth();
 
   const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.address,
+    address: account,
+    token: selectedBase?.address as Address,
   });
   const { refetch: refetchIlkBal } = useBalance({
-    addressOrName: account,
-    token: selectedIlk?.address,
+    address: account,
+    token: selectedIlk?.address as Address
   });
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {

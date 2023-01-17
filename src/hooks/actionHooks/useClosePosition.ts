@@ -13,7 +13,7 @@ import { ONE_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 /* Lend Actions Hook */
@@ -25,10 +25,10 @@ export const useClosePosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
   const { address: account } = useAccount();
-  const { refetch: refetchFyTokenBal } = useBalance({ addressOrName: account, token: selectedSeries?.address });
+  const { refetch: refetchFyTokenBal } = useBalance({ address: account, token: selectedSeries?.address as Address });
   const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.address,
+    address: account,
+    token: selectedBase?.address as Address,
   });
   const contracts = useContracts();
   const { updateSeries, updateAssets } = userActions;

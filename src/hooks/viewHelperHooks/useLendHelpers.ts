@@ -8,7 +8,7 @@ import { ActionType, ISeries } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import { cleanValue } from '../../utils/appUtils';
 import { WETH } from '../../config/assets';
 
@@ -52,8 +52,8 @@ export const useLendHelpers = (
   const { apr: apy } = useApr(input, ActionType.LEND, series);
   const { address: account } = useAccount();
   const { data } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.proxyId === WETH ? '' : selectedBase?.address,
+    address: account,
+    token: selectedBase?.proxyId === WETH ? undefined : selectedBase?.address as Address,
     enabled: !!activeAccount && !!selectedBase,
   });
   const userBaseBalance = data?.value || ethers.constants.Zero;

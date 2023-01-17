@@ -43,7 +43,7 @@ const HeaderAccount = () => {
     },
   });
 
-  const { data: ethBalance } = useBalance({ addressOrName: account });
+  const { data: ethBalance } = useBalance({ address: account });
 
   const {
     userState: { assetsLoading },
