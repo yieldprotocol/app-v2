@@ -1,8 +1,7 @@
-import { ReadContractsContract } from '@wagmi/core/dist/declarations/src/actions/contracts/readContracts';
-import { BigNumber, ethers } from 'ethers';
-import { formatUnits, Result } from 'ethers/lib/utils';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
+import { FormatTypes, formatUnits } from 'ethers/lib/utils';
 import { useContext, useMemo } from 'react';
-import { useAccount, useContractReads } from 'wagmi';
+import { Address, useAccount, useContractReads } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
 import { IAsset } from '../types';
 
@@ -21,12 +20,16 @@ const useBalances = () => {
   // data to read
   const contracts = useMemo(
     () =>
-      [...assetMap.values()].map((a) => ({
-        address: a.address,
+      [...assetMap.values()].map((a) => {
+      const abi = JSON.parse(a.assetContract.interface.format(FormatTypes.JSON) as string);    
+      return {
+        address: a.address as Address,
         args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
         functionName: 'balanceOf',
-        contractInterface: a.assetContract.interface,
-      })) as ReadContractsContract[],
+        abi,
+        // contractInterface: a.assetContract.interface,
+      }
+      }),
 
     [account, assetMap]
   );
@@ -38,7 +41,7 @@ const useBalances = () => {
    *
    * (its done above becasue we cant use hooks 'conditionally' )
    * */
-  const { data, isLoading, refetch } = useContractReads({ contracts, enabled: !!account });
+  const { data, isLoading, refetch } = useContractReads({ contracts , enabled: !!account });
 
   // copy of asset map with bal
   const _data = useMemo(
@@ -48,7 +51,7 @@ const useBalances = () => {
           ({
             ...a,
             balance: data && !!data[i] ? (data[i] as BigNumber[]) : ethers.constants.Zero,
-            balance_: data && !!data[i] ? formatUnits(data[i], a.decimals) : '0',
+            balance_: data && !!data[i] ? formatUnits(data[i] as BigNumberish, a.decimals) : '0',
           } as IAsset)
       ),
     [assetMap, data]
