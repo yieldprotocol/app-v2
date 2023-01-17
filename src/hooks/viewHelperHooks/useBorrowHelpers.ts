@@ -15,7 +15,7 @@ import { IVault, ISeries, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
 
 /* Collateralization hook calculates collateralization metrics */
@@ -40,8 +40,8 @@ export const useBorrowHelpers = (
 
   const { address: account } = useAccount();
   const { data: baseBalance } = useBalance({
-    addressOrName: account,
-    token: vaultBase?.proxyId === WETH ? '' : vaultBase?.address,
+    address: account,
+    token: vaultBase?.proxyId === WETH ? undefined : vaultBase?.address as Address,
   });
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();

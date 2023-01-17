@@ -22,7 +22,7 @@ const useBalances = () => {
   const contracts = useMemo(
     () =>
       [...assetMap.values()].map((a) => ({
-        addressOrName: a.address,
+        address: a.address,
         args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
         functionName: 'balanceOf',
         contractInterface: a.assetContract.interface,

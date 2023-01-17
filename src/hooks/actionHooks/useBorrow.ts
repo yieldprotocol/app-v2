@@ -16,7 +16,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useBorrow = () => {
@@ -31,12 +31,12 @@ export const useBorrow = () => {
   const contracts = useContracts();
 
   const { refetch: refetchIlkBal } = useBalance({
-    addressOrName: account,
-    token: selectedIlk?.address,
+    address: account,
+    token: selectedIlk?.address as Address,
   });
   const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.address,
+    address: account,
+    token: selectedBase?.address as Address,
   });
 
   const { addEth, removeEth } = useAddRemoveEth();

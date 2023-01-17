@@ -22,7 +22,7 @@ import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount, useProvider, useBalance } from 'wagmi';
+import { useAccount, useProvider, useBalance, Address } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import { Strategy__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
@@ -69,12 +69,12 @@ export const useRemoveLiquidity = () => {
 
   const contracts = useContracts();
   const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.address,
+    address: account,
+    token: selectedBase?.address as Address,
   });
   const { refetch: refetchStrategyBal } = useBalance({
-    addressOrName: account,
-    token: selectedStrategy?.address,
+    address: account,
+    token: selectedStrategy?.address as Address,
   });
 
   const {

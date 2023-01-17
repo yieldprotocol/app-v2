@@ -13,8 +13,9 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
+import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import { removeUndefined } from 'grommet/utils';
 
 export const useRepayDebt = () => {
   const {
@@ -29,12 +30,12 @@ export const useRepayDebt = () => {
   const provider = useProvider();
   const contracts = useContracts();
   const { refetch: refetchIlkBal } = useBalance({
-    addressOrName: account,
-    token: selectedIlk?.address,
+    address: account,
+    token: selectedIlk?.address as Address,
   });
   const { refetch: refetchBaseBal } = useBalance({
-    addressOrName: account,
-    token: selectedBase?.id === WETH ? '' : selectedBase?.address,
+    address: account,
+    token: selectedBase?.id === WETH ? undefined : selectedBase?.address as Address
   });
 
   const { addEth, removeEth } = useAddRemoveEth();

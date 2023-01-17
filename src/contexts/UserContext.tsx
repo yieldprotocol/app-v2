@@ -25,7 +25,7 @@ import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { useAccount, useBalance, useProvider, useSigner } from 'wagmi';
+import { Address, useAccount, useBalance, useProvider, useSigner } from 'wagmi';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
@@ -160,8 +160,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     status: baseStatus,
     refetch: refetchBase,
   } = useBalance({
-    addressOrName: account,
-    token: userState.selectedBase?.address,
+    address: account,
+    token: userState.selectedBase?.address as Address,
     enabled: !!account && userState.selectedBase !== null && chainId === chainLoaded,
     cacheTime: 10_000,
   });
@@ -172,8 +172,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     status: ilkStatus,
     refetch: refetchIlk,
   } = useBalance({
-    addressOrName: account,
-    token: userState.selectedIlk?.address,
+    address: account,
+    token: userState.selectedIlk?.address as Address,
     enabled: !!account && userState.selectedIlk !== null && chainId === chainLoaded,
     cacheTime: 10_000,
   });

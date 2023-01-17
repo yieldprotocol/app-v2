@@ -124,7 +124,7 @@ const TxProvider = ({ children }: any) => {
 
   const provider = useProvider();
   const { address: account } = useAccount();
-  const { refetch: refetchETHBal } = useBalance({ addressOrName: account });
+  const { refetch: refetchETHBal } = useBalance({ address: account });
 
   const { logAnalyticsEvent } = useAnalytics();
 
