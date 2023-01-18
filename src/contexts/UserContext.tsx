@@ -34,6 +34,8 @@ import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 import useFork from '../hooks/useFork';
 import { formatUnits, zeroPad } from 'ethers/lib/utils';
+import useBalances from '../hooks/useBalances';
+import { FaBalanceScale } from 'react-icons/fa';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -156,8 +158,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* watch the selectedBase and selectedIlk */
   const {
     data: baseBalance,
-    isLoading: baseLoading,
-    status: baseStatus,
+    // isLoading: baseLoading,
+    // status: baseStatus,
     refetch: refetchBase,
   } = useBalance({
     address: account,
@@ -168,17 +170,28 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const {
     data: ilkBalance,
-    isLoading: ilkLoading,
-    status: ilkStatus,
+    // isLoading: ilkLoading,
+    // status: ilkStatus,
     refetch: refetchIlk,
   } = useBalance({
     address: account,
     token: userState.selectedIlk?.address as Address,
     enabled: !!account && userState.selectedIlk !== null && chainId === chainLoaded,
     cacheTime: 10_000,
+    // watch:true,
   });
 
-  /* TODO consider moving out of here ? */
+  const {
+    data: assetBalances,
+    // isLoading: assetsLoading,
+    // status: assetsStatus,
+    refetch: refetchAssetBalances,
+  } = useBalances(
+    Array.from(assetRootMap.values()), // asset list : assetRoot[]
+    ( !!account && chainId === chainLoaded ) // enabled : boolean
+  );
+
+  /* TODO consider moving out of here? */
   const getPoolAPY = useCallback(
     async (sharesTokenAddr: string) => {
       const query = `
@@ -190,7 +203,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   `;
-
       interface EulerRes {
         eulerMarketStore: {
           markets: {
@@ -276,18 +288,26 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
       /* refetch the selected base ilk balances */
-      account && refetchBase();
-      account && refetchIlk();
+      // account && refetchBase();
+      // account && refetchIlk();
+
+      account && await refetchAssetBalances();
 
       /**
-       * NOTE! this lock Below is just a place holder for if EVER async updates of assets are required.
+       * NOTE! this block Below is just a place holder for if EVER async updates of assets are required.
        * Those async fetches would go here.
        * */
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
+          // get the balance of the asset from the assetsBalance array
+          const { balance, balance_ } = assetBalances?.find((a)=> a.id === asset.id ) || {balance:ZERO_BN,balance_:'0'};
+
+          console.log(asset.id,  balance_ )
           const newAsset = {
             /* public data */
             ...asset,
+            balance, 
+            balance_
           };
           return newAsset as IAsset;
         })
@@ -496,7 +516,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ),
             ]);
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            
+
             /* get rewards data */
             let rewardsPeriod: { start: number; end: number } | undefined;
             let rewardsRate: BigNumber | undefined;

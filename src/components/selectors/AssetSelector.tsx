@@ -12,6 +12,7 @@ import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useBalances from '../../hooks/useBalances';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -41,8 +42,19 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
-
   const { logAnalyticsEvent } = useAnalytics();
+
+  const {
+    data: assetsBalance,
+    isLoading: assetsLoading,
+    // status: assetsStatus,
+    refetch: refetchAssets,
+  } = useBalances(
+    Array.from(assetMap.values()), // assetRoot[]
+    !!selectCollateral // enabled boolean
+  );
+
+  // console.log( assetsBalance )
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
