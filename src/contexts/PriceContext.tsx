@@ -13,8 +13,8 @@ import useContracts, { ContractNames } from '../hooks/useContracts';
 
 enum PriceState {
   UPDATE_PAIR = 'updatePair',
-  START_PAIR_FETCH = 'startPairFetch',
-  END_PAIR_FETCH = 'endPairFetch',
+  START_FETCH = 'startPairFetch',
+  END_FETCH = 'endPairFetch',
 }
 
 const PriceContext = React.createContext<any>({});
@@ -32,12 +32,12 @@ const priceReducer = (state: IPriceContextState, action: any) => {
         ...state,
         pairMap: new Map(state.pairMap.set(action.payload.pairId, action.payload.pairInfo)),
       };
-    case PriceState.START_PAIR_FETCH:
+    case PriceState.START_FETCH:
       return {
         ...state,
         pairLoading: [...state.pairLoading, action.payload],
       };
-    case PriceState.END_PAIR_FETCH:
+    case PriceState.END_FETCH:
       return {
         ...state,
         pairLoading: state.pairLoading.filter((s: string) => s === action.payload),
@@ -63,7 +63,7 @@ const PriceProvider = ({ children }: any) => {
 
   const updateAssetPair = useCallback(
     async (baseId: string, ilkId: string): Promise<IAssetPair | null> => {
-      diagnostics && console.log('Prices currently being fetched: ', priceState.pairLoading);
+
       const pairId = `${baseId}${ilkId}`;
       const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
       const oracleName = ORACLE_INFO.get(chainId)?.get(baseId)?.get(ilkId);
@@ -71,12 +71,12 @@ const PriceProvider = ({ children }: any) => {
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
 
-      diagnostics && console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+      console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
 
       /* if all the parts are there update the pairInfo */
 
       if (Cauldron && PriceOracle && base && ilk) {
-        updateState({ type: PriceState.START_PAIR_FETCH, payload: pairId });
+        updateState({ type: PriceState.START_FETCH, payload: pairId });
 
         // /* Get debt params and spot ratios */
         const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
@@ -106,7 +106,7 @@ const PriceProvider = ({ children }: any) => {
           diagnostics &&
             console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6), error);
           price = ethers.constants.Zero;
-          // updateState( { type: 'END_PAIR_FETCH', payload: pairId })
+          // updateState( { type: 'END_FETCH', payload: pairId })
         }
 
         const newPair: IAssetPair = {
@@ -123,14 +123,13 @@ const PriceProvider = ({ children }: any) => {
         };
 
         updateState({ type: PriceState.UPDATE_PAIR, payload: { pairId, pairInfo: newPair } });
-        updateState({ type: PriceState.END_PAIR_FETCH, payload: pairId });
+        updateState({ type: PriceState.END_FETCH, payload: pairId });
         return newPair;
       }
       return null;
     },
     [assetRootMap, chainId, contracts, diagnostics, priceState.pairLoading]
   );
-
 
   const priceActions = { updateAssetPair };
   return <PriceContext.Provider value={{ priceState, priceActions }}>{children}</PriceContext.Provider>;

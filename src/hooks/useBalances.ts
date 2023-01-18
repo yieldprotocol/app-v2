@@ -1,23 +1,25 @@
 import { formatUnits } from '@ethersproject/units';
-import { BigNumber, ethers, BigNumberish } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useMemo } from 'react';
 import { Address, erc20ABI, useAccount, useContractReads } from 'wagmi';
-import { IAsset, IAssetRoot } from '../types';
+import { IAssetRoot } from '../types';
+
+export interface BalanceData {
+  id: string,
+  balance: BigNumber,
+  balance_: string,
+}
 
 /**
  * Gets all asset balances
  * @returns assetMap values with balance added
  */
 
-const useBalances = (assetList: IAssetRoot[], enabled: boolean) => {
+const useBalances = (assetList: IAssetRoot[], enabled: boolean = false)  => {
   
-  // const {
-  //   userState: { assetMap },
-  // } = useContext(UserContext);
-
   const { address: account } = useAccount();
 
-  // data to read
+  // Data to read
   const contracts = useMemo(
     () =>
       assetList.map((a: IAssetRoot) => {
@@ -31,35 +33,23 @@ const useBalances = (assetList: IAssetRoot[], enabled: boolean) => {
     [account, assetList]
   );
 
-  /**
-   * Note:
-   * wagmi sends back null values if no wallet connected.
-   * So in that case, we send in an empty array from 'contracts' above ^ to avoid multiple failed wagmi calls.
-   *
-   * (its done above becasue we cant use hooks 'conditionally' )
-   * */
-  const { data, isLoading, refetch } = useContractReads({ contracts, enabled });
+  const formatData = (_data: BigNumber[]) =>  _data?.map((d: any, i:number) => { 
+    return {
+      id: assetList[i].id,     
+      balance: d || ethers.constants.Zero,
+      balance_: d ? formatUnits(d, assetList[i].decimals) : '0',
+    } as BalanceData
+  })
 
-  isLoading && console.log( 'App is Refetching asset balances.')
+  const { data, isLoading, isFetched, refetch } = useContractReads({ 
+    contracts, 
+    enabled: false,
+    select: (data: any[]): BalanceData[] => formatData(data),
+  }); // false so that the hook only runs on demand (when refetch() is called)
+  
+  isLoading && console.log( '::: Refetching Asset balances :::')
 
-  // Copy of asset map with bal
-  const _data = useMemo(
-    () =>
-      assetList.map(
-        (a, i) =>
-          ({
-            id: a.id,     
-            balance: data && !!data[i] ? (data[i] as BigNumber[]) : ethers.constants.Zero,
-            balance_: data && !!data[i] ? formatUnits(data[i] as BigNumberish, a.decimals) : '0',
-          } as IAsset)
-      ),
-    [assetList, data]
-  );
-
-  // return data only if its not null
-  const returnData = data ? _data : undefined;
-
- return { data: returnData , isLoading, refetch }
+ return { data, isLoading, refetch }
 
 };
 
