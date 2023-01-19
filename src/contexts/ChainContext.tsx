@@ -1,35 +1,26 @@
 import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer, useContext } from 'react';
 import { BigNumber, Contract } from 'ethers';
-import { format } from 'date-fns';
 
 import { useCachedState } from '../hooks/generalHooks';
 
-import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { IAssetRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 
-import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
-
-import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
-
 import markMap from '../config/marks';
-import YieldMark from '../components/logos/YieldMark';
 
-import { SERIES_1, SERIES_42161 } from '../config/series';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
-import useContracts, { ContractNames } from '../hooks/useContracts';
+import useContracts from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 import useDefaultProvider from '../hooks/useDefaultProvider';
-import { SettingsContext } from './SettingsContext';
+import { MulticallService } from '@yield-protocol/ui-multicall';
+import { JsonRpcProvider } from '@ethersproject/providers';
 
 const initState: IChainContextState = {
   /* flags */
   chainLoaded: 0,
-  assetRootMap: new Map<string, IAssetRoot>(),
-  seriesRootMap: new Map<string, ISeriesRoot>(),
-  strategyRootMap: new Map<string, IStrategyRoot>(),
+  multicall: null,
 };
 
 const initActions: IChainContextActions = {
@@ -53,23 +44,8 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: action.payload };
 
-    case ChainState.ADD_SERIES:
-      return {
-        ...state,
-        seriesRootMap: new Map(state.seriesRootMap.set(action.payload.id, action.payload)),
-      };
-
-    case ChainState.ADD_ASSET:
-      return {
-        ...state,
-        assetRootMap: new Map(state.assetRootMap.set(action.payload.id, action.payload)),
-      };
-
-    case ChainState.ADD_STRATEGY:
-      return {
-        ...state,
-        strategyRootMap: new Map(state.strategyRootMap.set(action.payload.address, action.payload)),
-      };
+    case ChainState.MULTICALL:
+      return { ...state, multicall: action.payload };
 
     case ChainState.CLEAR_MAPS:
       return initState;
@@ -83,335 +59,16 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
 const ChainProvider = ({ children }: { children: ReactNode }) => {
   const [chainState, updateState] = useReducer(chainReducer, initState);
 
-  const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext);
-
   /* HOOKS */
   const provider = useDefaultProvider();
   const chainId = useChainId();
   const contracts = useContracts();
 
+  const multicallService = new MulticallService(provider as JsonRpcProvider);
+  const multicall = multicallService.getMulticall(chainId);
+
   /* SIMPLE CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
-
-  /* add on extra/calculated ASSET info and contract instances  (no async) */
-  const _chargeAsset = useCallback(
-    (asset: any) => {
-      /* attach either contract, (or contract of the wrappedToken ) */
-
-      let assetContract: Contract;
-      let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
-      let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
-
-      const assetMap = chainId === 1 ? ASSETS_1 : ASSETS_42161;
-
-      switch (asset.tokenType) {
-        case TokenType.ERC20_:
-          assetContract = contractTypes.ERC20__factory.connect(asset.address, provider);
-          getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
-          break;
-
-        case TokenType.ERC1155_:
-          assetContract = contractTypes.ERC1155__factory.connect(asset.address, provider);
-          getAllowance = async (acc: string, spender: string) => assetContract.isApprovedForAll(acc, spender);
-          setAllowance = async (spender: string) => {
-            console.log(spender);
-            console.log(asset.address);
-            assetContract.setApprovalForAll(spender, true);
-          };
-          break;
-
-        default:
-          // Default is ERC20Permit;
-          assetContract = contractTypes.ERC20Permit__factory.connect(asset.address, provider);
-          getAllowance = async (acc: string, spender: string) => assetContract.allowance(acc, spender);
-          break;
-      }
-
-      return {
-        ...asset,
-        digitFormat: assetMap.get(asset.id)?.digitFormat || 6,
-        image: asset.tokenType !== TokenType.ERC1155_ ? markMap.get(asset.displaySymbol) : markMap.get('Notional'),
-
-        assetContract,
-
-        /* re-add in the wrap handler addresses when charging, because cache doesn't preserve map */
-        wrapHandlerAddresses: assetMap.get(asset.id)?.wrapHandlerAddresses,
-        unwrapHandlerAddresses: assetMap.get(asset.id)?.unwrapHandlerAddresses,
-
-        getAllowance,
-        setAllowance,
-      };
-    },
-    [chainId, provider]
-  );
-
-  const _getAssets = useCallback(async () => {
-    // handle cache
-    const cacheKey = `assets_${chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-
-    if (cachedValues !== null && cachedValues.length) {
-      console.log('Yield Protocol ASSET data retrieved ::: CACHE :::');
-      return cachedValues.forEach((a: IAssetRoot) => {
-        updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(a) });
-      });
-    }
-
-    const assetMap = chainId === 1 ? ASSETS_1 : ASSETS_42161;
-    const newAssetList: any[] = [];
-
-    await Promise.all(
-      Array.from(assetMap).map(async (x) => {
-        const id = x[0];
-        const assetInfo = x[1];
-
-        let { name, symbol, decimals, version } = assetInfo;
-
-        /* On first load checks & corrects the ERC20 name/symbol/decimals (if possible ) */
-        if (
-          assetInfo.tokenType === TokenType.ERC20_ ||
-          assetInfo.tokenType === TokenType.ERC20_Permit ||
-          assetInfo.tokenType === TokenType.ERC20_DaiPermit
-        ) {
-          const contract = contractTypes.ERC20__factory.connect(assetInfo.assetAddress, provider);
-          try {
-            [name, symbol, decimals] = await Promise.all([contract.name(), contract.symbol(), contract.decimals()]);
-          } catch (e) {
-            diagnostics &&
-              console.log(
-                id,
-                ': ERC20 contract auto-validation unsuccessfull. Please manually ensure symbol and decimals are correct.'
-              );
-          }
-        }
-        /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
-        if (assetInfo.tokenType === TokenType.ERC20_Permit || assetInfo.tokenType === TokenType.ERC20_DaiPermit) {
-          const contract = contractTypes.ERC20Permit__factory.connect(assetInfo.assetAddress, provider);
-          try {
-            version = await contract.version();
-          } catch (e) {
-            diagnostics &&
-              console.log(
-                id,
-                ': contract VERSION auto-validation unsuccessfull. Please manually ensure version is correct.'
-              );
-          }
-        }
-
-        /* check if an unwrapping handler is provided, if so, the token is considered to be a wrapped token */
-        const isWrappedToken = assetInfo.unwrapHandlerAddresses?.has(chainId);
-        /* check if a wrapping handler is provided, if so, wrapping is required */
-        const wrappingRequired = assetInfo.wrapHandlerAddresses?.has(chainId);
-
-        const newAsset = {
-          ...assetInfo,
-          id,
-          address: assetInfo.assetAddress,
-          name,
-          symbol,
-          decimals,
-          version,
-
-          /* Redirect the id/join if required due to using wrapped tokens */
-          joinAddress: assetInfo.joinAddress, // assetInfo.proxyId ? joinMap.get(assetInfo.proxyId) : joinMap.get(id),
-
-          isWrappedToken,
-          wrappingRequired,
-          proxyId: assetInfo.proxyId || id, // set proxyId  (or as baseId if undefined)
-
-          /* Default setting of assetInfo fields if required */
-          displaySymbol: assetInfo.displaySymbol || symbol,
-          showToken: assetInfo.showToken || false,
-        };
-
-        updateState({ type: ChainState.ADD_ASSET, payload: _chargeAsset(newAsset) });
-        newAssetList.push(newAsset);
-      })
-    ).catch(() => console.log('Problems getting Asset data. Check addresses in asset config.'));
-
-    console.log('Yield Protocol Asset data updated successfully.');
-
-    /* cache results */
-    newAssetList.length && localStorage.setItem(cacheKey, JSON.stringify(newAssetList));
-    newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
-  }, [_chargeAsset, chainId, diagnostics, provider]);
-
-  /* add on extra/calculated ASYNC series info and contract instances */
-  const _chargeSeries = useCallback(
-    (series: ISeriesRoot): ISeriesRoot => {
-      /* contracts need to be added in again in when charging because the cached state only holds strings */
-      const poolContract = contractTypes.Pool__factory.connect(series.poolAddress, provider);
-      const fyTokenContract = contractTypes.FYToken__factory.connect(series.fyTokenAddress, provider);
-      const seasonColorMap = [1, 4, 5, 42].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
-      const season = getSeason(series.maturity);
-      const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
-      const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
-      const [oppStartColor, oppEndColor, oppTextColor] = seasonColorMap.get(oppSeason(season))!;
-
-      return {
-        ...series,
-
-        poolContract,
-        fyTokenContract,
-
-        fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
-        displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
-        displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
-
-        season,
-        startColor,
-        endColor,
-        color: `linear-gradient(${startColor}, ${endColor})`,
-        textColor,
-
-        oppStartColor,
-        oppEndColor,
-        oppTextColor,
-        seriesMark: <YieldMark colors={[startColor, endColor]} />,
-      };
-    },
-    [chainId, provider]
-  );
-
-  const _getSeries = useCallback(async () => {
-    // handle cache
-    const cacheKey = `series_${chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-
-    if (cachedValues !== null && cachedValues.length) {
-      console.log('Yield Protocol SERIES data retrieved ::: CACHE :::');
-      return cachedValues.forEach((s: ISeriesRoot) => {
-        updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
-      });
-    }
-
-    const seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
-    const newSeriesList: ISeriesRoot[] = [];
-
-    await Promise.all(
-      Array.from(seriesMap).map(async (x) => {
-        const id = x[0];
-        const fyTokenAddress = x[1].fyTokenAddress;
-        const poolAddress = x[1].poolAddress;
-        const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
-
-        const { maturity, baseId } = await Cauldron.series(id);
-        const poolContract = contractTypes.Pool__factory.connect(poolAddress, provider);
-        const fyTokenContract = contractTypes.FYToken__factory.connect(fyTokenAddress, provider);
-
-        const [name, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress] =
-          await Promise.all([
-            fyTokenContract.name(),
-            fyTokenContract.symbol(),
-            fyTokenContract.version(),
-            fyTokenContract.decimals(),
-            poolContract.name(),
-            poolContract.version(),
-            poolContract.symbol(),
-            poolContract.ts(),
-            poolContract.g1(),
-            poolContract.g2(),
-            poolContract.base(),
-          ]);
-
-        const newSeries = {
-          id,
-          baseId,
-          maturity,
-          name,
-          symbol,
-          version,
-          address: fyTokenAddress,
-          fyTokenAddress,
-          decimals,
-          poolAddress,
-          poolVersion,
-          poolName,
-          poolSymbol,
-          ts: BigNumber.from(ts),
-          g1,
-          g2,
-          baseAddress,
-        } as ISeriesRoot;
-
-        updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries) });
-        newSeriesList.push(newSeries);
-      })
-    ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
-
-    console.log('Yield Protocol Series data updated successfully.');
-    /* cache results */
-    newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
-    newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
-  }, [_chargeSeries, chainId, contracts, provider]);
-
-  /* Attach contract instance */
-  const _chargeStrategy = useCallback(
-    (strategy: any) => {
-      const Strategy = contractTypes.Strategy__factory.connect(strategy.address, provider);
-      return {
-        ...strategy,
-        strategyContract: Strategy,
-      };
-    },
-    [provider]
-  );
-
-  /* Iterate through the strategies list and update accordingly */
-  const _getStrategies = useCallback(async () => {
-    /**
-     * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
-     * */
-    const cacheKey = `strategies_${chainId}`;
-    const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-
-    const newStrategyList: any[] = [];
-    const strategyList: string[] = (yieldEnv.strategies as any)[chainId];
-
-    if (cachedValues !== null && cachedValues.length) {
-      console.log('Yield Protocol STRATEGY data retrieved ::: CACHE :::');
-      return cachedValues.forEach((st: IStrategyRoot) => {
-        updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
-      });
-    }
-
-    try {
-      await Promise.all(
-        strategyList.map(async (strategyAddr) => {
-          /* if the strategy is NOT already in the cache : */
-          const Strategy = contractTypes.Strategy__factory.connect(strategyAddr, provider);
-          const [name, symbol, baseId, decimals, version] = await Promise.all([
-            Strategy.name(),
-            Strategy.symbol(),
-            Strategy.baseId(),
-            Strategy.decimals(),
-            Strategy.version(),
-          ]);
-
-          const newStrategy = {
-            id: strategyAddr,
-            address: strategyAddr,
-            symbol,
-            name,
-            version,
-            baseId,
-            decimals,
-          };
-          // update state and cache
-          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(newStrategy) });
-          newStrategyList.push(newStrategy);
-        })
-      );
-    } catch (e) {
-      console.log('Error fetching strategies', e);
-    }
-
-    /* cache results */
-    newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
-    newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
-  }, [_chargeStrategy, chainId, provider]);
 
   const _getProtocolData = useCallback(async () => {
     /* Clear maps in local app memory  ( note: this is not the cache ) and set chainLoaded false */
@@ -421,16 +78,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       'Fetching Protocol contract addresses and checking for new Assets and Series, and Strategies : ',
       chainId
     );
-
-    await Promise.all([_getAssets(), _getSeries(), _getStrategies()])
-      .catch(() => {
-        toast.error('Error getting Yield Protocol data.');
-        console.log('Error getting Yield Protocol data.');
-      })
-      .finally(() => {
-        updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
-      });
-  }, [_getAssets, _getSeries, _getStrategies, chainId]);
+  }, [chainId]);
 
   /**
    * Handle version updates on first load -> complete refresh if app is different to published version
@@ -455,17 +103,17 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
    */
   const exportContractAddresses = () => {
     const contractList = [...contracts].map(([v, k]) => [v, k.address]);
-    const seriesList = [...chainState.seriesRootMap].map(([v, k]) => [v, k.address]);
-    const assetList = [...chainState.assetRootMap].map(([v, k]) => [v, k.address]);
-    const strategyList = [...chainState.strategyRootMap].map(([v, k]) => [k.symbol, v]);
-    const joinList = [...chainState.assetRootMap].map(([v, k]) => [v, k.joinAddress]);
+    // const seriesList = [...chainState.seriesRootMap].map(([v, k]) => [v, k.address]);
+    // const assetList = [...chainState.assetRootMap].map(([v, k]) => [v, k.address]);
+    // const strategyList = [...chainState.strategyRootMap].map(([v, k]) => [k.symbol, v]);
+    // const joinList = [...chainState.assetRootMap].map(([v, k]) => [v, k.joinAddress]);
 
     const res = JSON.stringify({
       contracts: contractList,
-      series: seriesList,
-      assets: assetList,
-      strategies: strategyList,
-      joins: joinList,
+      // series: seriesList,
+      // assets: assetList,
+      // strategies: strategyList,
+      // joins: joinList,
     });
 
     const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(res)}`;
@@ -479,7 +127,11 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   const chainActions = { exportContractAddresses };
 
-  return <ChainContext.Provider value={{ chainState, chainActions, updateState }}>{children}</ChainContext.Provider>;
+  return (
+    <ChainContext.Provider value={{ chainState: { ...chainState, multicall }, chainActions, updateState }}>
+      {children}
+    </ChainContext.Provider>
+  );
 };
 
 export { ChainContext };

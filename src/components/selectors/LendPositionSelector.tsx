@@ -10,16 +10,18 @@ import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
 import { useAccount } from 'wagmi';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 interface IPositionFilter {
   base: IAsset | undefined;
   series: ISeries | undefined;
 }
 
-function PositionSelector({ actionType }: { actionType: ActionType }) {
+function PositionSelector({ seriesMap, actionType }: { seriesMap: Map<string, ISeries>; actionType: ActionType }) {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { seriesMap, selectedSeries, selectedBase } = userState;
+  const { data: seriesEntities } = useSeriesEntities(seriesMap);
+  const { selectedSeries, selectedBase } = userState;
 
   const { address: activeAccount } = useAccount();
 
@@ -32,40 +34,35 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
 
   const handleFilter = useCallback(
     ({ base, series }: IPositionFilter) => {
+      if (!seriesEntities) return;
+
       /* filter all positions by base if base is selected */
-      const _filteredSeries: ISeries[] = Array.from(seriesMap?.values()!)
+      const _filteredSeries = Array.from(seriesEntities.values())
         /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (base ? _series.baseId === base.proxyId : true))
-        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
+        .filter((_series) => (base ? _series.baseId === base.proxyId : true))
+        .filter((_series) => (series ? _series.id === series.id : true));
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
     },
-    [seriesMap, actionType]
+    [seriesEntities]
   );
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
-    /* only if veiwing the main screen (not when modal is showing) */
-    // if (!showPositionModal) {
-    const _allPositions: ISeries[] = Array.from(seriesMap?.values()!)
-      /* filter by positive balances on either pool tokens or fyTokens */
-      .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
-        actionType === 'LEND' && _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
-      )
-      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
-        actionType === 'POOL' && _seriesA.poolTokens?.lt(_seriesB.poolTokens!) ? 1 : -1
+    if (!seriesEntities) return;
+
+    const _allPositions = Array.from(seriesEntities.values())
+      /* filter by positive balances on fyTokens */
+      .filter((_series) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.value.gt(ZERO_BN) : true))
+      .sort((_seriesA, _seriesB) =>
+        actionType === 'LEND' && _seriesA.fyTokenBalance?.value.gt(_seriesB.fyTokenBalance?.value!) ? 1 : -1
       );
     setAllPositions(_allPositions);
 
     if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
     if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
-    // }
-  }, [selectedBase, selectedSeries, handleFilter, seriesMap, actionType]);
+  }, [selectedBase, selectedSeries, handleFilter, seriesMap, actionType, seriesEntities]);
 
   useEffect(() => {
     allPositions.length <= 5 && setShowAllPositions(true);
@@ -94,8 +91,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
               </Text>
             )}
 
-            {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-              <LendItem series={x} actionType={actionType} index={i} key={x.id} />
+            {(!showAllPositions ? filteredSeries : allPositions).map((x, i) => (
+              <LendItem seriesId={x.id} actionType={actionType} index={i} key={x.id} />
             ))}
           </ListWrap>
 

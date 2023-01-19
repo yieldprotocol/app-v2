@@ -17,6 +17,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
+import useSeriesEntity from '../useSeriesEntity';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -26,17 +27,16 @@ export const useClosePosition = () => {
   } = useContext(SettingsContext);
 
   const {
-    userActions,
-    userState: { selectedSeries: series },
+    userState: { selectedSeries },
   } = useContext(UserContext);
   const { address: account } = useAccount();
   const contracts = useContracts();
-  const { updateSeries } = userActions;
   const {
     historyActions: { updateTradeHistory },
   } = useContext(HistoryContext);
 
-  const { data: base, key: baseKey } = useAsset(series?.baseId!);
+  const { data: seriesEntity, key: seriesEntityKey } = useSeriesEntity(selectedSeries?.id!);
+  const { data: base, key: baseKey } = useAsset(seriesEntity?.baseId!);
 
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
@@ -44,46 +44,50 @@ export const useClosePosition = () => {
 
   const closePosition = async (input: string | undefined) => {
     if (!account) throw new Error('no account detected in close position');
-    if (!series) throw new Error('no series detected in close position');
+    if (!seriesEntity) throw new Error('no seriesEntity detected in close position');
     if (!base) throw new Error('no base detected in close position');
 
-    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
+    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, seriesEntity.id);
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
-    const { fyTokenAddress, poolAddress, seriesIsMature } = series;
+    const { fyTokenAddress, poolAddress, seriesIsMature } = seriesEntity;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     if (!ladleAddress) throw new Error('no ladle address detected in close position');
+
+    const { sharesReserves, fyTokenReserves, getShares, ts, g2, decimals, c, mu } = seriesEntity;
 
     /* assess how much fyToken is needed to buy base amount (input) */
     /* after maturity, fytoken === base (input) value */
     const _fyTokenValueOfInput = seriesIsMature
       ? _input
       : buyBase(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          series.getShares(_input),
-          getTimeTillMaturity(series.maturity),
-          series.ts,
-          series.g2,
-          series.decimals,
-          series.c,
-          series.mu
+          sharesReserves.value,
+          fyTokenReserves.value,
+          getShares(_input),
+          getTimeTillMaturity(seriesEntity.maturity),
+          ts,
+          g2,
+          decimals,
+          c,
+          mu
         );
 
     /* calculate slippage on the base token expected to recieve ie. input */
     const _inputWithSlippage = calculateSlippage(_input, slippageTolerance.toString(), true);
 
     /* if ethBase */
-    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+    const isEthBase = ETH_BASED_ASSETS.includes(seriesEntity.baseId);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await series.fyTokenContract.allowance(account, ladleAddress)).gte(_fyTokenValueOfInput);
+    const alreadyApproved = (await seriesEntity.fyTokenContract.allowance(account, ladleAddress)).gte(
+      _fyTokenValueOfInput
+    );
 
     const permitCallData = await sign(
       [
         {
-          target: series,
+          target: seriesEntity,
           spender: 'LADLE',
           amount: _fyTokenValueOfInput,
           ignoreIf: alreadyApproved === true,
@@ -94,7 +98,7 @@ export const useClosePosition = () => {
 
     const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
 
-    /* Set the transferTo address based on series maturity */
+    /* Set the transferTo address based on seriesEntity maturity */
     const transferToAddress = () => {
       if (seriesIsMature) return fyTokenAddress;
       return poolAddress;
@@ -124,14 +128,14 @@ export const useClosePosition = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [receiverAddress(), _inputWithSlippage] as RoutedActions.Args.SELL_FYTOKEN,
         fnName: RoutedActions.Fn.SELL_FYTOKEN,
-        targetContract: series.poolContract,
+        targetContract: seriesEntity.poolContract,
         ignoreIf: seriesIsMature,
       },
 
       /* AFTER MATURITY */
       {
         operation: LadleActions.Fn.REDEEM,
-        args: [series.id, receiverAddress(), _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
+        args: [seriesEntity.id, receiverAddress(), _fyTokenValueOfInput] as LadleActions.Args.REDEEM,
         ignoreIf: !seriesIsMature,
       },
 
@@ -140,8 +144,8 @@ export const useClosePosition = () => {
     await transact(calls, txCode);
 
     mutate(baseKey);
-    updateSeries([series]);
-    updateTradeHistory([series]);
+    mutate(seriesEntityKey);
+    updateTradeHistory([seriesEntity]);
   };
 
   return closePosition;

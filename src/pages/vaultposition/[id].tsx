@@ -2,6 +2,6 @@ import dynamic from 'next/dynamic';
 
 const DynamicVaultPosition = dynamic(() => import('../../components/views/VaultPosition'), { ssr: false });
 
-const VaultPosition = () => <DynamicVaultPosition />;
+const VaultPositionPage = () => <DynamicVaultPosition />;
 
-export default VaultPosition;
+export default VaultPositionPage;

@@ -13,6 +13,7 @@ import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { CardSkeleton } from '../selectors/StrategySelector';
 import SkeletonWrap from '../wraps/SkeletonWrap';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
 
 function StrategyItem({
   strategyAddress,
@@ -29,12 +30,13 @@ function StrategyItem({
   } = useContext(UserContext);
   const { logAnalyticsEvent } = useAnalytics();
   const { data: strategy, isValidating, error } = useStrategy(strategyAddress);
+  const { data: seriesEntity } = useSeriesEntity(strategy?.currentSeriesId!);
   const { data: base } = useAsset(strategy?.baseId!);
 
   const handleSelect = () => {
     if (strategy) {
       setSelectedStrategy(strategy);
-      setSelectedSeries(strategy?.currentSeries);
+      setSelectedSeries(seriesEntity!);
       setSelectedBase(base!);
       router.push(`/poolposition/${strategy.address}`);
       logAnalyticsEvent(GA_Event.position_opened, {
@@ -45,7 +47,7 @@ function StrategyItem({
 
   if (error) return null;
 
-  if (!strategy)
+  if (!strategy || !seriesEntity)
     return (
       <ItemWrap action={handleSelect} index={index}>
         <CardSkeleton />
@@ -55,7 +57,7 @@ function StrategyItem({
   return (
     <ItemWrap action={handleSelect} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={strategy.currentSeries} condensed={condensed} actionType={ActionType.POOL} />
+        <PositionAvatar position={seriesEntity} condensed={condensed} actionType={ActionType.POOL} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
@@ -65,7 +67,7 @@ function StrategyItem({
             <Text weight={900} size="small">
               {formatStrategyName(strategy.name)}
             </Text>
-            <Text size="xsmall">Rolling: {strategy.currentSeries?.fullDate}</Text>
+            <Text size="xsmall">Rolling: {seriesEntity.fullDate}</Text>
           </Box>
 
           <Box justify="center" width={'6rem'}>
@@ -77,7 +79,7 @@ function StrategyItem({
                 {isValidating ? (
                   <SkeletonWrap width={20} />
                 ) : (
-                  nFormatter(parseFloat(strategy.accountBalance?.formatted!), 2)
+                  nFormatter(parseFloat(strategy.accountBalance.formatted), 2)
                 )}
               </Text>
             </Box>

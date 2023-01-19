@@ -1,7 +1,19 @@
-import dynamic from 'next/dynamic';
+import { GetStaticProps, InferGetStaticPropsType } from 'next';
+import Dashboard from '../../components/views/Dashboard';
+import useChainId from '../../hooks/useChainId';
+import { getSeriesEntitiesSSR, mapify } from '../../lib/seriesEntities';
+import { ISeriesMap } from '../../types';
 
-const DynamicDashboard = dynamic(() => import('../../components/views/Dashboard'), { ssr: false });
+const DashboardPage = ({ seriesMap }: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const chainId = useChainId();
+  return <Dashboard seriesMap={mapify(seriesMap[chainId]!)} />;
+};
 
-const Dashboard = () => <DynamicDashboard />;
+export const getStaticProps: GetStaticProps<{
+  seriesMap: { [chainId: number]: ISeriesMap | null };
+}> = async () => {
+  const seriesMap = await getSeriesEntitiesSSR();
+  return { props: { seriesMap } };
+};
 
-export default Dashboard;
+export default DashboardPage;

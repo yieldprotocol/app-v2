@@ -15,6 +15,7 @@ import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAssets from '../../hooks/useAssets';
+import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -42,6 +43,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const { selectedIlk, selectedBase, selectedSeries } = userState;
   const { data: assetMap } = useAssets();
 
+  const { isMature } = useTimeTillMaturity();
   const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -110,7 +112,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk?.proxyId === selectedBase?.proxyId) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.proxyId !== selectedIlk?.proxyId);
+      const firstNotBaseIlk = options.find((asset) => asset.proxyId !== selectedIlk?.proxyId);
       setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
@@ -152,7 +154,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           onChange={({ option }: any) => handleSelect(option)}
           disabled={
             (selectCollateral && options.filter((o, i) => (o.balance.value.eq(ethers.constants.Zero) ? i : null))) ||
-            (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
+            (selectCollateral ? isMature(selectedSeries?.maturity!) || !selectedSeries : undefined)
           }
           size="small"
           // eslint-disable-next-line react/no-children-prop

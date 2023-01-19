@@ -22,6 +22,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import useStrategy from '../useStrategy';
 import useAsset from '../useAsset';
 import useVaults from '../useVaults';
+import useSeriesEntity from '../useSeriesEntity';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -36,7 +37,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   /* HOOKS */
   const { data: vaults } = useVaults();
   const { data: strategy } = useStrategy(selectedStrategy?.address!);
-  const strategySeries = strategy?.currentSeries;
+  const { data: strategySeries } = useSeriesEntity(strategy?.currentSeriesId!);
   const { data: base } = useAsset(selectedBase?.id!);
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
@@ -111,8 +112,8 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       let _fyTokenToBuy = ethers.constants.Zero;
 
       const _maxFyTokenOut = maxFyTokenOut(
-        strategySeries.sharesReserves,
-        strategySeries.fyTokenReserves,
+        strategySeries.sharesReserves.value,
+        strategySeries.fyTokenReserves.value,
         getTimeTillMaturity(strategySeries.maturity),
         strategySeries.ts,
         strategySeries.g1,
@@ -122,9 +123,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
       );
 
       [_fyTokenToBuy] = fyTokenForMint(
-        strategySeries.sharesReserves,
-        strategySeries.fyTokenRealReserves,
-        strategySeries.fyTokenReserves,
+        strategySeries.sharesReserves.value,
+        strategySeries.fyTokenRealReserves.value,
+        strategySeries.fyTokenReserves.value,
         calculateSlippage(strategySeries.getShares(_input), slippageTolerance.toString(), true),
         getTimeTillMaturity(strategySeries.maturity),
         strategySeries.ts,
@@ -171,18 +172,18 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     if (_input !== ethers.constants.Zero && strategySeries && removeLiquidityView && strategy) {
       const lpReceived = burnFromStrategy(strategy.strategyPoolBalance.value, strategy.totalSupply.value, _input);
       const [sharesReceivedFromBurn, fyTokenReceivedFromBurn] = burn(
-        strategySeries.sharesReserves,
-        strategySeries.fyTokenRealReserves,
-        strategySeries.totalSupply,
+        strategySeries.sharesReserves.value,
+        strategySeries.fyTokenRealReserves.value,
+        strategySeries.totalSupply.value,
         lpReceived
       );
 
       const newPool = newPoolState(
         sharesReceivedFromBurn.mul(-1),
         fyTokenReceivedFromBurn.mul(-1),
-        strategySeries.sharesReserves,
-        strategySeries.fyTokenReserves,
-        strategySeries.totalSupply
+        strategySeries.sharesReserves.value,
+        strategySeries.fyTokenReserves.value,
+        strategySeries.totalSupply.value
       );
 
       diagnostics &&
@@ -268,9 +269,9 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           _input,
           strategy.totalSupply.value,
           strategy.strategyPoolBalance.value,
-          strategySeries.sharesReserves,
-          strategySeries.fyTokenReserves,
-          strategySeries.totalSupply,
+          strategySeries.sharesReserves.value,
+          strategySeries.fyTokenReserves.value,
+          strategySeries.totalSupply.value,
           getTimeTillMaturity(strategySeries.maturity),
           strategySeries.ts,
           strategySeries.g2,

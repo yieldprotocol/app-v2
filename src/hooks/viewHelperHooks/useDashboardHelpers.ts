@@ -1,10 +1,9 @@
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
+import { strategyTokenValue } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { UserContext } from '../../contexts/UserContext';
-import { IPriceContext, ISeries, IStrategy, IStrategyDynamic, IVault } from '../../types';
+import { IPriceContext, ISeries, ISeriesDynamic, IStrategy, IStrategyDynamic, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
@@ -12,8 +11,9 @@ import { PriceContext } from '../../contexts/PriceContext';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import useStrategies from '../useStrategies';
 import useStrategy from '../useStrategy';
-import { useSWRConfig } from 'swr';
+import { unstable_serialize, useSWRConfig } from 'swr';
 import useVaults from '../useVaults';
+import useSeriesEntity from '../useSeriesEntity';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -23,7 +23,7 @@ interface IStrategyPosition extends IStrategy {
   currentValue_: string | undefined;
 }
 
-export const useDashboardHelpers = () => {
+export const useDashboardHelpers = (seriesMap: Map<string, ISeries>) => {
   const { cache, mutate } = useSWRConfig();
 
   /* STATE FROM CONTEXT */
@@ -31,9 +31,6 @@ export const useDashboardHelpers = () => {
     settingsState: { dashHideEmptyVaults, dashHideInactiveVaults, dashCurrency },
   } = useContext(SettingsContext);
 
-  const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
   const { data: vaults } = useVaults();
 
   const { priceState, priceActions } = useContext(PriceContext) as IPriceContext;
@@ -41,6 +38,7 @@ export const useDashboardHelpers = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { data: strategyMap } = useStrategies();
   const { getStrategy, genKey } = useStrategy();
+  const { getSeriesEntity, genKey: genSeriesEntityKey } = useSeriesEntity();
 
   const { pairMap } = priceState;
   const { updateAssetPair } = priceActions;
@@ -74,34 +72,11 @@ export const useDashboardHelpers = () => {
 
   /* set lend positions */
   useEffect(() => {
-    const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
-      .map((_series) => {
-        const currentValue = _series.seriesIsMature
-          ? _series.fyTokenBalance || ZERO_BN
-          : sellFYToken(
-              _series.sharesReserves,
-              _series.fyTokenReserves,
-              _series.fyTokenBalance || ethers.constants.Zero,
-              getTimeTillMaturity(_series.maturity),
-              _series.ts,
-              _series.g2,
-              _series.decimals,
-              _series.c,
-              _series.mu
-            );
+    const lendPositions = Array.from(seriesMap.values()).map((_series) => {
+      return { ..._series, currentValue_: _series.fyTokenBalance?.formatted || '0' } as ILendPosition;
+    });
 
-        const currentValue_ =
-          currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
-            ? _series.fyTokenBalance_
-            : ethers.utils.formatUnits(currentValue, _series.decimals);
-
-        return { ..._series, currentValue_ };
-      })
-      .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
-      .sort((_seriesA: ILendPosition, _seriesB: ILendPosition) =>
-        _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
-      );
-    setLendPositions(_lendPositions);
+    setLendPositions(lendPositions);
   }, [getTimeTillMaturity, seriesMap]);
 
   /* set strategy positions */
@@ -114,7 +89,7 @@ export const useDashboardHelpers = () => {
           let strategy: IStrategyDynamic | undefined;
 
           // check if swr has strategy
-          const swrKey = genKey(s.address);
+          const swrKey = unstable_serialize(genKey(s.address));
           const cachedStrategy = cache.get(swrKey) as IStrategyDynamic | undefined;
 
           if (cachedStrategy) {
@@ -122,18 +97,33 @@ export const useDashboardHelpers = () => {
           } else {
             strategy = await getStrategy(s.address);
             // mutate (update) swr with the strategy if not in cache
-            mutate(swrKey, strategy);
+            mutate(swrKey, strategy, { revalidate: false });
           }
 
-          const { currentSeries: series } = strategy;
+          if (strategy?.accountBalance.value.eq(ethers.constants.Zero)) return { ...s, currentValue_: '0' };
+
+          if (!strategy) return { ...s, currentValue_: '0' };
+
+          let series: ISeriesDynamic | undefined;
+          const seriesKey = unstable_serialize(genSeriesEntityKey(s.currentSeriesId));
+
+          const cachedSeriesEntity = cache.get(seriesKey) as ISeriesDynamic | undefined;
+          if (cachedSeriesEntity) {
+            series = cachedSeriesEntity;
+          } else {
+            series = await getSeriesEntity(strategy.currentSeriesId);
+            mutate(seriesKey, series, { revalidate: false });
+          }
+
+          if (!series) return { ...s, currentValue_: '0' };
 
           const [fyTokenToShares, sharesReceived] = strategyTokenValue(
             strategy.accountBalance.value,
             strategy.totalSupply.value,
             strategy.strategyPoolBalance.value,
-            series.sharesReserves,
-            series.fyTokenReserves,
-            series.totalSupply,
+            series.sharesReserves.value,
+            series.fyTokenReserves.value,
+            series.totalSupply.value,
             getTimeTillMaturity(series.maturity),
             series.ts,
             series.g2,
@@ -160,7 +150,7 @@ export const useDashboardHelpers = () => {
         );
       setStrategyPositions(filtered);
     })();
-  }, [cache, genKey, getStrategy, getTimeTillMaturity, mutate, strategyMap]);
+  }, [cache, genKey, genSeriesEntityKey, getSeriesEntity, getStrategy, getTimeTillMaturity, mutate, strategyMap]);
 
   /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
   const convertValue = useCallback(

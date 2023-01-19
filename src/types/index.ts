@@ -1,6 +1,5 @@
 import { Block } from '@ethersproject/providers';
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
-import { ReactNode } from 'react';
 import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
@@ -56,25 +55,21 @@ export interface ISignable {
   tokenType?: TokenType;
 }
 
-export interface ISeriesRootRoot extends ISignable {
+export interface ISeries extends ISignable {
+  // ssr no fetch
   id: string;
+  fyTokenAddress: string;
+  poolAddress: string;
+
+  // ssr but need to fetch
   baseId: string;
   maturity: number;
-  fyTokenAddress: string;
   decimals: number;
-  poolAddress: string;
   poolVersion: string; // for signing
   poolName: string;
   poolSymbol: string; // for signing
-  ts: BigNumber;
-  g1: BigNumber;
-  g2: BigNumber;
   baseAddress: string;
-}
 
-export interface ISeriesRoot extends ISeriesRootRoot {
-  poolContract: Pool;
-  fyTokenContract: FYToken;
   fullDate: string;
   displayName: string;
   displayNameMobile: string;
@@ -88,7 +83,47 @@ export interface ISeriesRoot extends ISeriesRootRoot {
   oppStartColor: string;
   oppEndColor: string;
   oppTextColor: string;
-  seriesMark: ReactNode;
+
+  fyTokenBalance?: Value;
+}
+
+export interface ISeriesDynamic extends ISeries {
+  // need to fetch client-side
+  ts: BigNumber;
+  g1: BigNumber;
+  g2: BigNumber;
+
+  // Yieldspace TV
+  c: BigNumber | undefined;
+  mu: BigNumber | undefined;
+
+  apr: string;
+  sharesReserves: Value;
+  fyTokenReserves: Value;
+  fyTokenRealReserves: Value;
+  totalSupply: Value;
+  poolAPY?: string;
+  seriesIsMature: boolean;
+  sharesAddress: string;
+
+  currentInvariant?: BigNumber;
+  initInvariant?: BigNumber;
+  startBlock?: Block;
+
+  // user data
+  poolTokens: Value;
+  fyTokenBalance: Value;
+  currentValueInBase: Value;
+
+  getShares: (baseAmount: BigNumber) => BigNumber;
+  getBase: (sharesAmount: BigNumber) => BigNumber;
+
+  poolContract: Pool;
+  fyTokenContract: FYToken;
+}
+
+export interface ISeriesMap {
+  [seriesId: string]: ISeries;
 }
 
 export enum TokenType {
@@ -176,8 +211,8 @@ export interface IStrategyRoot extends ISignable {
 }
 
 export interface IStrategy extends IStrategyRoot {
-  currentSeries: ISeries;
   currentSeriesId: string;
+  currentPoolMaturity: number;
   currentPoolAddr: string;
   accountBalance?: Value;
 }
@@ -189,48 +224,15 @@ export interface IStrategyDynamic extends IStrategy {
   strategyPoolBalance: Value;
 }
 
-export interface ISeries extends ISeriesRoot {
-  apr: string;
-  sharesReserves: BigNumber;
-  sharesReserves_: string;
-  fyTokenReserves: BigNumber;
-  fyTokenRealReserves: BigNumber;
-  totalSupply: BigNumber;
-  totalSupply_: string;
-  sharesAddress: string;
-
-  poolTokens?: BigNumber | undefined;
-  poolTokens_?: string | undefined;
-  fyTokenBalance?: BigNumber | undefined;
-  fyTokenBalance_?: string | undefined;
-
-  poolPercent?: string | undefined;
-  poolAPY?: string;
-  seriesIsMature: boolean;
-
-  // Yieldspace TV
-  c: BigNumber | undefined;
-  mu: BigNumber | undefined;
-  getShares: (baseAmount: BigNumber) => BigNumber;
-  getBase: (sharesAmount: BigNumber) => BigNumber;
-  currentInvariant?: BigNumber;
-  initInvariant?: BigNumber;
-  startBlock?: Block;
-
-  showSeries: boolean;
-}
-
 export interface IVault {
   id: string;
   baseId: string;
   ilkId: string;
   owner: string;
   displayName: string;
-  decimals: number;
   isActive: boolean;
 
   seriesId: string;
-  series: ISeries | undefined;
 
   ink: Value;
   art: Value;

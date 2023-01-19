@@ -16,6 +16,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import useAsset from '../../hooks/useAsset';
 import { CardSkeleton } from '../selectors/StrategySelector';
 import useVaults from '../../hooks/useVaults';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
 
 function VaultItem({ id, index, condensed }: { id: string; index: number; condensed?: boolean }) {
   const router = useRouter();
@@ -28,6 +29,7 @@ function VaultItem({ id, index, condensed }: { id: string; index: number; conden
   const { data: vaults } = useVaults();
   const vault = vaults?.get(id);
   const { data: vaultBase } = useAsset(vault?.baseId);
+  const { data: seriesEntity } = useSeriesEntity(vault?.seriesId);
   const { data: vaultIlk } = useAsset(vault?.ilkId);
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
@@ -69,7 +71,7 @@ function VaultItem({ id, index, condensed }: { id: string; index: number; conden
           {vault.isActive ? (
             <Box direction="column" width={condensed ? '6rem' : undefined}>
               <Text weight={450} size="xsmall">
-                {vault.series?.displayName}
+                {seriesEntity?.displayName}
               </Text>
               <Box direction="row" gap="xsmall">
                 <Text weight={450} size="xsmall">

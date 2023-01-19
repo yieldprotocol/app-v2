@@ -1,12 +1,12 @@
-import { useContext } from 'react';
 import { Avatar, Box } from 'grommet';
 import { FiClock } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
 import styled from 'styled-components';
-import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
 import useAsset from '../hooks/useAsset';
+import useSeriesEntity from '../hooks/useSeriesEntity';
+import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 
 const Outer = styled(Box)`
   position: relative;
@@ -32,20 +32,18 @@ function PositionAvatar({
   condensed,
   actionType,
 }: {
-  position: IVault | ISeries | IStrategy;
+  position: IVault | ISeries | IStrategy | null;
   actionType: ActionType;
   condensed?: boolean;
 }) {
-  const isVault = position?.id.length > 15;
+  const isVault = position?.id.length! > 15;
   const vault = isVault ? (position as IVault) : undefined;
 
-  /* STATE FROM CONTEXT */
-  const { userState } = useContext(UserContext);
-  const { seriesMap } = userState;
-
-  const { data: base } = useAsset(position.baseId);
+  const { isMature } = useTimeTillMaturity();
+  const { data: base } = useAsset(position?.baseId);
   const { data: ilk } = useAsset(vault?.ilkId!);
-  const series = vault ? seriesMap?.get(vault.seriesId!) : (position as ISeries);
+  const { data: seriesEntity } = useSeriesEntity(vault?.seriesId!);
+  const series = vault ? seriesEntity : (position as ISeries);
 
   const baseImageSize = condensed ? '20px' : '24px';
   const ilkImageSize = condensed ? '16px' : '20px';
@@ -54,7 +52,10 @@ function PositionAvatar({
 
   return (
     <Outer width={condensed ? '36px' : 'auto'}>
-      <Avatar background={series?.seriesIsMature ? 'lightGrey' : series?.color} size={condensed ? '36px' : undefined}>
+      <Avatar
+        background={isMature(series?.maturity!) ? 'lightGrey' : series?.color}
+        size={condensed ? '36px' : undefined}
+      >
         <Box round="large" background="white" pad="xxsmall">
           <Logo image={base?.image} height={baseImageSize} width={baseImageSize} />
         </Box>
@@ -68,7 +69,7 @@ function PositionAvatar({
           )}
           {actionType === ActionType.POOL && (
             <Avatar background="lightBackground" size={ilkBorderSize}>
-              {series?.seriesIsMature ? <FiClock /> : <MdAutorenew />}
+              {isMature(series?.maturity!) ? <FiClock /> : <MdAutorenew />}
             </Avatar>
           )}
         </Inner>

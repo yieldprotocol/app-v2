@@ -4,6 +4,7 @@ import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries, IVault } from '../types';
 import useAsset from './useAsset';
+import useSeriesEntity from './useSeriesEntity';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -16,7 +17,7 @@ export const useInputValidation = (
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { selectedSeries, selectedBase } = userState;
-  const _selectedSeries = series || selectedSeries;
+  const { data: _selectedSeries } = useSeriesEntity(series ? series.id : selectedSeries?.id!);
   const { data: _selectedBase } = useAsset(series?.baseId! || selectedBase?.id!);
 
   const { address: activeAccount } = useAccount();
@@ -50,7 +51,7 @@ export const useInputValidation = (
         case ActionCodes.BORROW:
           input &&
             _selectedSeries &&
-            ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.sharesReserves) &&
+            ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.sharesReserves.value) &&
             setInputError(`Amount exceeds the ${_selectedBase?.symbol} currently available in pool`);
           aboveMax && setInputError('Exceeds the max allowable debt for this series');
           belowMin &&

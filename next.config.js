@@ -7,7 +7,7 @@ const nextConfig = {
     REACT_APP_VERSION: process.env.REACT_APP_VERSION,
     REACT_APP_INFURA_KEY_V1: process.env.REACT_APP_INFURA_KEY_V1,
     REACT_APP_RPC_URL_42: process.env.REACT_APP_RPC_URL_42,
-    REACT_APP_RPC_URL_1: process.env.TENDERLY_JSON_RPC_URL,
+    REACT_APP_RPC_URL_1: process.env.REACT_APP_RPC_URL_1,
     REACT_APP_RPC_URL_4: process.env.REACT_APP_RPC_URL_4,
     REACT_APP_RPC_URL_5: process.env.REACT_APP_RPC_URL_5,
     REACT_APP_RPC_URL_10: process.env.REACT_APP_RPC_URL_10,
@@ -23,7 +23,6 @@ const nextConfig = {
     ALCHEMY_ARBITRUM_RINKEBY_KEY: process.env.ALCHEMY_ARBITRUM_RINKEBY_KEY,
     ALCHEMY_MAINNET_KEY: process.env.ALCHEMY_MAINNET_KEY,
     ENV: process.env.NODE_ENV,
-
   },
   async redirects() {
     return [

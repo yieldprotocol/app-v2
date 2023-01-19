@@ -18,6 +18,7 @@ import { useAccount, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 import useVault from '../useVault';
+import useSeriesEntity from '../useSeriesEntity';
 
 export const useRepayDebt = () => {
   const { mutate } = useSWRConfig();
@@ -26,10 +27,8 @@ export const useRepayDebt = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { seriesMap, selectedVault },
-    userActions,
+    userState: { selectedVault },
   } = useContext(UserContext);
-  const { updateSeries } = userActions;
   const { address: account } = useAccount();
   const { chain } = useNetwork();
   const provider = useProvider();
@@ -38,7 +37,7 @@ export const useRepayDebt = () => {
 
   const { data: base, key: baseKey } = useAsset(vault?.baseId!);
   const { data: ilk, key: ilkKey } = useAsset(vault?.ilkId!);
-  const series = seriesMap.get(vault?.seriesId!);
+  const { data: seriesEntity, key: seriesEntityKey } = useSeriesEntity(vault?.seriesId!);
 
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
@@ -54,9 +53,23 @@ export const useRepayDebt = () => {
     if (!account) throw new Error('no account detected in repay debt');
     if (!chain) throw new Error('no chain detected in repay debt');
     if (!vault) throw new Error('no vault detected in repay debt');
-    if (!series) throw new Error('no series detected in repay debt');
+    if (!seriesEntity) throw new Error('no series entity detected in repay debt');
     if (!ilk) throw new Error('no ilk detected in repay debt');
     if (!base) throw new Error('no base detected in repay debt');
+
+    const {
+      sharesReserves,
+      fyTokenReserves,
+      maturity,
+      ts,
+      g1,
+      decimals: seriesDecimals,
+      c,
+      mu,
+      getShares,
+      poolAddress,
+    } = seriesEntity;
+    const seriesIsMature = isMature(maturity);
 
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
@@ -64,7 +77,7 @@ export const useRepayDebt = () => {
     if (!ladleAddress) throw new Error('no ladle address detected in repay debt');
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
-    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+    const isEthBase = ETH_BASED_ASSETS.includes(seriesEntity.baseId);
 
     /* is convex-type collateral */
     const isConvexCollateral = CONVEX_BASED_ASSETS.includes(ilk.proxyId);
@@ -75,35 +88,35 @@ export const useRepayDebt = () => {
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
     const _maxSharesIn = maxBaseIn(
-      series.sharesReserves,
-      series.fyTokenReserves,
-      getTimeTillMaturity(series.maturity),
-      series.ts,
-      series.g1,
-      series.decimals,
-      series.c,
-      series.mu
+      sharesReserves.value,
+      fyTokenReserves.value,
+      getTimeTillMaturity(maturity),
+      ts,
+      g1,
+      seriesDecimals,
+      c,
+      mu
     );
 
     /* Check the max amount of the trade that the pool can handle */
-    const tradeIsNotPossible = series.getShares(_input).gt(_maxSharesIn);
+    const tradeIsNotPossible = getShares(_input).gt(_maxSharesIn);
 
     tradeIsNotPossible && console.log('trade is not possible:');
     tradeIsNotPossible && console.log('input', _input.toString());
     tradeIsNotPossible && console.log('Max base in:', _maxSharesIn.toString());
 
-    const _inputAsFyToken = isMature(series.maturity)
+    const _inputAsFyToken = isMature(maturity)
       ? _input
       : sellBase(
-          series.sharesReserves,
-          series.fyTokenReserves,
-          series.getShares(_input),
-          getTimeTillMaturity(series.maturity),
-          series.ts,
-          series.g1,
-          series.decimals,
-          series.c,
-          series.mu
+          sharesReserves.value,
+          fyTokenReserves.value,
+          getShares(_input),
+          getTimeTillMaturity(maturity),
+          ts,
+          g1,
+          seriesDecimals,
+          c,
+          mu
         );
     const _inputAsFyTokenWithSlippage = calculateSlippage(
       _inputAsFyToken,
@@ -122,10 +135,10 @@ export const useRepayDebt = () => {
     const _inputCappedAtArt = vault.art.value.gt(ZERO_BN) && vault.art.value.lte(_input) ? vault.art.value : _input;
 
     /* Set the amount to transfer ( + 0.1% after maturity ) */
-    const amountToTransfer = series.seriesIsMature ? _input.mul(10001).div(10000) : _input; // After maturity + 0.1% for increases during tx time
+    const amountToTransfer = seriesIsMature ? _input.mul(10001).div(10000) : _input; // After maturity + 0.1% for increases during tx time
 
     /* In low liq situations/or mature,  send repay funds to join not pool */
-    const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
+    const transferToAddress = tradeIsNotPossible || seriesIsMature ? base.joinAddress : poolAddress;
 
     /* Check if already approved */
     const alreadyApproved = (await base.getAllowance(account, ladleAddress)).gte(amountToTransfer);
@@ -164,8 +177,8 @@ export const useRepayDebt = () => {
       // ...wrapAssetCallData
 
       /* If ethBase, Send ETH to either base join or pool  */
-      ...addEth(isEthBase && !series.seriesIsMature ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
-      ...addEth(isEthBase && series.seriesIsMature ? amountToTransfer : ZERO_BN), // no destination defined after maturity , input +1% will will go to weth join
+      ...addEth(isEthBase && !seriesIsMature ? amountToTransfer : ZERO_BN, transferToAddress), // destination = either join or series depending if tradeable
+      ...addEth(isEthBase && seriesIsMature ? amountToTransfer : ZERO_BN), // no destination defined after maturity , input +1% will will go to weth join
 
       /* Else, Send Token to either join or pool via a ladle.transfer() */
       {
@@ -187,13 +200,13 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
-        ignoreIf: series.seriesIsMature || inputGreaterThanEqualDebt || tradeIsNotPossible,
+        ignoreIf: seriesIsMature || inputGreaterThanEqualDebt || tradeIsNotPossible,
       },
       {
         operation: LadleActions.Fn.REPAY_VAULT,
         args: [vault.id, reclaimToAddress(), _collateralToRemove, _input] as LadleActions.Args.REPAY_VAULT,
         ignoreIf:
-          series.seriesIsMature ||
+          seriesIsMature ||
           !inputGreaterThanEqualDebt || // ie ignore if use if input IS NOT more than debt
           tradeIsNotPossible,
       },
@@ -202,14 +215,14 @@ export const useRepayDebt = () => {
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, reclaimToAddress(), _collateralToRemove, _inputCappedAtArt.mul(-1)] as LadleActions.Args.CLOSE,
-        ignoreIf: series.seriesIsMature || !tradeIsNotPossible, // (ie. ignore if trade IS possible )
+        ignoreIf: seriesIsMature || !tradeIsNotPossible, // (ie. ignore if trade IS possible )
       },
 
       /* AFTER MATURITY  - series.seriesIsMature */
       {
         operation: LadleActions.Fn.CLOSE,
         args: [vault.id, reclaimToAddress(), _collateralToRemove, _inputCappedAtArt.mul(-1)] as LadleActions.Args.CLOSE,
-        ignoreIf: !series.seriesIsMature,
+        ignoreIf: !seriesIsMature,
       },
       ...removeEthCallData,
       ...unwrapAssetCallData,
@@ -218,7 +231,7 @@ export const useRepayDebt = () => {
     mutate(baseKey);
     mutate(ilkKey);
     mutate(vaultKey);
-    updateSeries([series]);
+    mutate(seriesEntityKey);
   };
 
   return repay;

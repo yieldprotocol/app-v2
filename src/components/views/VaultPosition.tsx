@@ -45,6 +45,8 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAsset from '../../hooks/useAsset';
 import useVault from '../../hooks/useVault';
+import useSeriesEntity from '../../hooks/useSeriesEntity';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -52,10 +54,10 @@ const VaultPosition = () => {
 
   const router = useRouter();
   const { id: idFromUrl } = router.query;
+  const { data: seriesMap } = useSeriesEntities();
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions } = useContext(UserContext);
-  const { seriesMap } = userState;
+  const { userActions } = useContext(UserContext);
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
   const { address: account } = useAccount();
@@ -63,7 +65,7 @@ const VaultPosition = () => {
   const { data: vault, isLoading: vaultLoading } = useVault(idFromUrl as string);
   const { data: vaultBase } = useAsset(vault?.baseId!);
   const { data: vaultIlk } = useAsset(vault?.ilkId!);
-  const vaultSeries = seriesMap?.get(vault?.seriesId!);
+  const { data: vaultSeries } = useSeriesEntity(vault?.seriesId!);
 
   const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
@@ -113,7 +115,7 @@ const VaultPosition = () => {
 
   /* HOOK FNS */
   const repay = useRepayDebt();
-  const rollDebt = useRollDebt();
+  const rollDebt = useRollDebt(rollToSeries?.id!);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -213,7 +215,7 @@ const VaultPosition = () => {
   const handleRoll = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollDebt(rollToSeries!);
+    rollDebt();
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
@@ -372,7 +374,7 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, vault?.decimals), 10)} ${
+                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, vaultBase?.decimals), 10)} ${
                           vaultBase?.displaySymbol
                         }${vaultSeries?.seriesIsMature ? ` (variable rate: ${vault.rate.formatted}%)` : ''}`}
                         icon={<FiTrendingUp />}
@@ -585,6 +587,7 @@ const VaultPosition = () => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }}>
                         <SeriesSelector
+                          seriesMap={seriesMap!}
                           selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
                           actionType={ActionType.BORROW}
                           cardLayout={false}

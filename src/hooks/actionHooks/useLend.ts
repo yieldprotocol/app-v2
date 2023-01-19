@@ -15,6 +15,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
+import useSeriesEntity from '../useSeriesEntity';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -24,12 +25,11 @@ export const useLend = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { selectedSeries: series },
-    userActions,
+    userState: { selectedSeries },
   } = useContext(UserContext);
-  const { updateSeries } = userActions;
   const { address: account } = useAccount();
-  const { data: base, key: baseKey } = useAsset(series?.baseId!);
+  const { data: seriesEntity, key: seriesEntityKey } = useSeriesEntity(selectedSeries?.id!);
+  const { data: base, key: baseKey } = useAsset(seriesEntity?.baseId!);
 
   const {
     historyActions: { updateTradeHistory },
@@ -42,11 +42,11 @@ export const useLend = () => {
 
   const lend = async (input: string | undefined) => {
     if (!account) throw new Error('no account detected in use lend');
-    if (!series) throw new Error('no series detected in use lend');
+    if (!seriesEntity) throw new Error('no seriesEntity detected in use lend');
     if (!base) throw new Error('no base detected in use lend');
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.LEND, series.id);
+    const txCode = getTxCode(ActionCodes.LEND, seriesEntity.id);
 
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
@@ -54,16 +54,18 @@ export const useLend = () => {
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     if (!ladleAddress) throw new Error('no ladle address detected in use lend');
 
+    const { sharesReserves, fyTokenReserves, getShares, ts, g1, decimals, c, mu } = seriesEntity;
+
     const _inputAsFyToken = sellBase(
-      series.sharesReserves,
-      series.fyTokenReserves,
-      series.getShares(_input), // convert base input to shares
-      getTimeTillMaturity(series.maturity),
-      series.ts,
-      series.g1,
-      series.decimals,
-      series.c,
-      series.mu
+      sharesReserves.value,
+      fyTokenReserves.value,
+      getShares(_input), // convert base input to shares
+      getTimeTillMaturity(seriesEntity.maturity),
+      ts,
+      g1,
+      decimals,
+      c,
+      mu
     );
 
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
@@ -72,7 +74,7 @@ export const useLend = () => {
     const alreadyApproved = (await base.getAllowance(account, ladleAddress)).gte(_input);
 
     /* ETH is used as a base */
-    const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
+    const isEthBase = ETH_BASED_ASSETS.includes(seriesEntity.baseId);
 
     const permitCallData = await sign(
       [
@@ -87,7 +89,7 @@ export const useLend = () => {
     );
 
     const addEthCallData = () => {
-      if (isEthBase) return addEth(_input, series.poolAddress);
+      if (isEthBase) return addEth(_input, seriesEntity.poolAddress);
       return [];
     };
 
@@ -96,14 +98,14 @@ export const useLend = () => {
       ...addEthCallData(),
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, series.poolAddress, _input] as LadleActions.Args.TRANSFER,
+        args: [base.address, seriesEntity.poolAddress, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: isEthBase,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _inputAsFyTokenWithSlippage] as RoutedActions.Args.SELL_BASE,
         fnName: RoutedActions.Fn.SELL_BASE,
-        targetContract: series.poolContract,
+        targetContract: seriesEntity.poolContract,
         ignoreIf: false,
       },
     ];
@@ -111,8 +113,8 @@ export const useLend = () => {
     await transact(calls, txCode);
 
     mutate(baseKey);
-    updateSeries([series]);
-    updateTradeHistory([series]);
+    mutate(seriesEntityKey);
+    updateTradeHistory([seriesEntity]);
   };
 
   return lend;

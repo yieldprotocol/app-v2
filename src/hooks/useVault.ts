@@ -10,18 +10,20 @@ import { ORACLE_INFO } from '../config/oracles';
 import { formatUnits } from 'ethers/lib/utils';
 import useAsset from './useAsset';
 import { useAccount } from 'wagmi';
-import { IVault } from '../types';
+import { IAsset, IVault } from '../types';
 import { generateVaultName } from '../utils/appUtils';
-import { UserContext } from '../contexts/UserContext';
+import { unstable_serialize, useSWRConfig } from 'swr';
+import { ChainContext } from '../contexts/ChainContext';
 
 const useVault = (id?: string) => {
+  const { cache, mutate } = useSWRConfig();
   const {
-    userState: { seriesMap },
-  } = useContext(UserContext);
+    chainState: { multicall },
+  } = useContext(ChainContext);
   const { address: account } = useAccount();
   const contracts = useContracts();
   const chainId = useChainId();
-  const { getAsset } = useAsset();
+  const { getAsset, genKey } = useAsset();
   const { isMature } = useTimeTillMaturity();
 
   const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron | undefined;
@@ -29,21 +31,26 @@ const useVault = (id?: string) => {
 
   const getVault = useCallback(
     async (id: string): Promise<IVault> => {
+      if (!multicall) throw new Error('no multicall detected');
       if (!Cauldron) throw new Error('no cauldron when fetching vault');
       if (!Witch) throw new Error('no witch when fetching vault');
 
       /* If art 0, check for liquidation event */
       const hasBeenLiquidated =
-        (await Witch.queryFilter(Witch.filters.Auctioned(bytesToBytes32(id, 12), null), 'earliest', 'latest')).length >
-        0;
+        (
+          await multicall
+            .wrap(Witch)
+            .queryFilter(Witch.filters.Auctioned(bytesToBytes32(id, 12), null), 'earliest', 'latest')
+        ).length > 0;
 
       const [{ owner, seriesId, ilkId }, { ink, art }] = await Promise.all([
-        Cauldron.vaults(id),
-        Cauldron.balances(id),
+        multicall.wrap(Cauldron).vaults(id),
+        multicall.wrap(Cauldron).balances(id),
       ]);
 
-      const series = seriesMap.get(seriesId);
-      const isVaultMature = isMature(series?.maturity!);
+      const [{ baseId, maturity }] = await Promise.all([multicall.wrap(Cauldron).series(seriesId)]);
+
+      const isVaultMature = isMature(maturity);
 
       let accruedArt: BigNumber;
       let rateAtMaturity: BigNumber;
@@ -51,11 +58,11 @@ const useVault = (id?: string) => {
 
       if (isVaultMature) {
         const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-        const oracleName = ORACLE_INFO.get(chainId)?.get(series?.baseId!)?.get(RATE);
+        const oracleName = ORACLE_INFO.get(chainId)?.get(baseId)?.get(RATE);
 
         const RateOracle = contracts.get(oracleName!);
-        rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-        [rate] = await RateOracle?.peek(bytesToBytes32(series?.baseId!, 6), RATE, '0');
+        rateAtMaturity = await multicall.wrap(Cauldron).ratesAtMaturity(seriesId);
+        [rate] = await multicall.wrap(RateOracle!)?.peek(bytesToBytes32(baseId, 6), RATE, '0');
 
         [accruedArt] = rateAtMaturity.gt(ZERO_BN)
           ? calcAccruedDebt(rate, rateAtMaturity, art)
@@ -66,15 +73,32 @@ const useVault = (id?: string) => {
         accruedArt = art;
       }
 
-      const ilk = await getAsset(ilkId);
-      const base = await getAsset(series?.baseId!);
+      const ilkKey = unstable_serialize(genKey(ilkId));
+      const baseKey = unstable_serialize(genKey(baseId));
+
+      let ilk: IAsset | undefined;
+      let base: IAsset | undefined;
+
+      const cachedIlk = cache.get(ilkKey);
+      if (cachedIlk) {
+        ilk = cachedIlk;
+      } else {
+        ilk = await getAsset(ilkId);
+        mutate(ilkKey, ilk, { revalidate: false });
+      }
+
+      const cachedBase = cache.get(baseKey);
+      if (cachedBase) {
+        base = cachedBase;
+      } else {
+        base = await getAsset(baseId);
+        mutate(baseKey, base, { revalidate: false });
+      }
 
       return {
         id,
-        baseId: series?.baseId!,
+        baseId: baseId!,
         displayName: generateVaultName(id),
-        decimals: series?.decimals!,
-        series,
         isActive: owner === account,
         owner, // refreshed in case owner has been updated
         isWitchOwner: Witch.address === owner, // check if witch is the owner (in liquidation process)
@@ -83,15 +107,15 @@ const useVault = (id?: string) => {
         ilkId, // refreshed in case ilkId has been updated
         ink: {
           value: ink,
-          formatted: formatUnits(ink, ilk.decimals), // for display purposes only
+          formatted: formatUnits(ink, ilk?.decimals), // for display purposes only
         },
         art: {
           value: art,
-          formatted: formatUnits(art, base.decimals), // for display purposes only
+          formatted: formatUnits(art, base?.decimals), // for display purposes only
         },
         accruedArt: {
           value: accruedArt,
-          formatted: formatUnits(accruedArt, base.decimals), // display purposes
+          formatted: formatUnits(accruedArt, base?.decimals), // display purposes
         },
         isVaultMature,
         rateAtMaturity,
@@ -101,13 +125,11 @@ const useVault = (id?: string) => {
         },
       };
     },
-    [Cauldron, Witch, account, chainId, contracts, getAsset, isMature, seriesMap]
+    [Cauldron, Witch, account, cache, chainId, contracts, genKey, getAsset, isMature, multicall, mutate]
   );
 
-  const key = useMemo(
-    () => (id && seriesMap.size ? ['vault', id, seriesMap, account] : null),
-    [account, id, seriesMap]
-  );
+  const key = useMemo(() => (account && id ? ['vault', id, account] : null), [account, id]);
+
   const { data, error, isValidating } = useSWRImmutable(key, () => getVault(id!));
 
   return {

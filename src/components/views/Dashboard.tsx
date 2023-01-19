@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import Skeleton from '../wraps/SkeletonWrap';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ActionType } from '../../types';
+import { ActionType, ISeries } from '../../types';
 import YieldInfo from '../FooterInfo';
 import DashboardBalanceSummary from '../DashboardBalanceSummary';
 import MainViewWrap from '../wraps/MainViewWrap';
@@ -13,7 +13,6 @@ import DashboardPositionList from '../DashboardPositionList';
 import CurrencyToggle from '../CurrencyToggle';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHelpers';
-import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
 import { useAccount } from 'wagmi';
 import { Settings } from '../../contexts/types/settings';
@@ -29,7 +28,7 @@ const StyledBox = styled(Box)`
   overflow-y: auto;
 `;
 
-const Dashboard = () => {
+const Dashboard = ({ seriesMap }: { seriesMap: Map<string, ISeries> }) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
@@ -37,10 +36,6 @@ const Dashboard = () => {
     settingsState: { dashHideVaults, dashHideLendPositions, dashHidePoolPositions },
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
-
-  const {
-    userState: { seriesLoading },
-  } = useContext(UserContext);
 
   const {
     chainState: { chainLoaded },
@@ -61,7 +56,7 @@ const Dashboard = () => {
     totalStrategyBalance,
     currencySettingDigits,
     currencySettingSymbol,
-  } = useDashboardHelpers();
+  } = useDashboardHelpers(seriesMap);
 
   return (
     <MainViewWrap>
@@ -120,16 +115,12 @@ const Dashboard = () => {
                 </Box>
               </Box>
 
-              {seriesLoading ? (
-                <Skeleton width={mobile ? 300 : undefined} count={1} height={40} />
-              ) : (
-                <DashboardPositionList
-                  actionType={ActionType.LEND}
-                  positions={lendPositions}
-                  lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance!, currencySettingDigits)}`}
-                  showList={!dashHideLendPositions}
-                />
-              )}
+              <DashboardPositionList
+                actionType={ActionType.LEND}
+                positions={lendPositions}
+                lendBalance={`${currencySettingSymbol}${formatValue(totalLendBalance!, currencySettingDigits)}`}
+                showList={!dashHideLendPositions}
+              />
             </Box>
 
             <Box gap="medium">

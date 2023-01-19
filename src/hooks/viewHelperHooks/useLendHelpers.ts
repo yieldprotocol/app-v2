@@ -4,17 +4,18 @@ import { maxBaseIn, maxBaseOut, maxFyTokenIn, sellBase, sellFYToken } from '@yie
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ActionType, ISeries } from '../../types';
+import { ActionType } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { cleanValue } from '../../utils/appUtils';
 import useAsset from '../useAsset';
+import useSeriesEntity from '../useSeriesEntity';
 
 export const useLendHelpers = (
-  series: ISeries | null,
+  seriesId: string,
   input: string | undefined,
-  rollToSeries: ISeries | undefined = undefined
+  rollToSeriesId: string | undefined = undefined
 ) => {
   const {
     settingsState: { diagnostics },
@@ -25,6 +26,8 @@ export const useLendHelpers = (
   const { userState } = useContext(UserContext);
   const { selectedBase } = userState;
   const { data: base } = useAsset(selectedBase?.id!);
+  const { data: series } = useSeriesEntity(seriesId);
+  const { data: rollToSeries } = useSeriesEntity(rollToSeriesId!);
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
@@ -48,7 +51,7 @@ export const useLendHelpers = (
   // estimated fyTokens received after rolling to a new series
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
-  const { apr: apy } = useApr(input, ActionType.LEND, series);
+  const { apr: apy } = useApr(input, ActionType.LEND, seriesId);
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
@@ -60,8 +63,8 @@ export const useLendHelpers = (
     if (series) {
       /* checks the protocol limits (max shares {converted to base} allowed in) */
       const _maxSharesIn = maxBaseIn(
-        series.sharesReserves,
-        series.fyTokenReserves,
+        series.sharesReserves.value,
+        series.fyTokenReserves.value,
         getTimeTillMaturity(series.maturity),
         series.ts,
         series.g1,
@@ -91,9 +94,9 @@ export const useLendHelpers = (
   useEffect(() => {
     if (series && !series.seriesIsMature) {
       const sharesValue = sellFYToken(
-        series.sharesReserves,
-        series.fyTokenReserves,
-        series.fyTokenBalance || ethers.constants.Zero,
+        series.sharesReserves.value,
+        series.fyTokenReserves.value,
+        series.fyTokenBalance.value || ethers.constants.Zero,
         getTimeTillMaturity(series.maturity),
         series.ts,
         series.g2,
@@ -106,8 +109,8 @@ export const useLendHelpers = (
       const baseValue = series.getBase(sharesValue);
 
       const _maxFyTokenIn = maxFyTokenIn(
-        series.sharesReserves,
-        series.fyTokenReserves,
+        series.sharesReserves.value,
+        series.fyTokenReserves.value,
         getTimeTillMaturity(series.maturity),
         series.ts,
         series.g2,
@@ -116,14 +119,14 @@ export const useLendHelpers = (
         series.mu
       );
 
-      const _maxBaseOut = series.getBase(maxBaseOut(series.sharesReserves));
+      const _maxBaseOut = series.getBase(maxBaseOut(series.sharesReserves.value));
 
       sharesValue.lte(ethers.constants.Zero)
         ? setFyTokenMarketValue('Low liquidity')
         : setFyTokenMarketValue(ethers.utils.formatUnits(baseValue, series.decimals));
 
       /* set max Closing */
-      if (baseValue.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(_maxFyTokenIn)) {
+      if (baseValue.lte(ethers.constants.Zero) && series.fyTokenBalance.value.gt(_maxFyTokenIn)) {
         setMaxClose(_maxBaseOut);
         setMaxClose_(ethers.utils.formatUnits(_maxBaseOut, series.decimals));
       } else if (baseValue.lte(ethers.constants.Zero)) {
@@ -136,10 +139,9 @@ export const useLendHelpers = (
     }
 
     if (series && series.seriesIsMature) {
-      const val = ethers.utils.formatUnits(series.fyTokenBalance!, series.decimals);
-      setFyTokenMarketValue(val);
-      setMaxClose_(val);
-      setMaxClose(series.fyTokenBalance!);
+      setFyTokenMarketValue(series.fyTokenBalance.formatted);
+      setMaxClose_(series.fyTokenBalance.formatted);
+      setMaxClose(series.fyTokenBalance.value!);
     }
   }, [getTimeTillMaturity, series]);
 
@@ -150,8 +152,8 @@ export const useLendHelpers = (
       const baseAmount = ethers.utils.parseUnits(cleanInput, series.decimals);
       const { sharesReserves, fyTokenReserves } = series;
       const val = sellBase(
-        sharesReserves,
-        fyTokenReserves,
+        sharesReserves.value,
+        fyTokenReserves.value,
         series.getShares(baseAmount), // convert base amount input to shares amount
         getTimeTillMaturity(series.maturity),
         series.ts,
@@ -169,8 +171,8 @@ export const useLendHelpers = (
   useEffect(() => {
     if (series && rollToSeries) {
       const _maxSharesIn = maxBaseIn(
-        rollToSeries.sharesReserves,
-        rollToSeries.fyTokenReserves,
+        rollToSeries.sharesReserves.value,
+        rollToSeries.fyTokenReserves.value,
         getTimeTillMaturity(rollToSeries.maturity),
         rollToSeries.ts,
         rollToSeries.g1,
@@ -183,11 +185,11 @@ export const useLendHelpers = (
       const _maxBaseIn = rollToSeries.getBase(_maxSharesIn);
 
       const _sharesValue = series.seriesIsMature
-        ? series.fyTokenBalance || ZERO_BN
+        ? series.fyTokenBalance.value || ZERO_BN
         : sellFYToken(
-            series.sharesReserves,
-            series.fyTokenReserves,
-            series.fyTokenBalance || ethers.constants.Zero,
+            series.sharesReserves.value,
+            series.fyTokenReserves.value,
+            series.fyTokenBalance.value || ethers.constants.Zero,
             getTimeTillMaturity(series.maturity),
             series.ts,
             series.g2,
@@ -220,8 +222,8 @@ export const useLendHelpers = (
 
         // estimate how much fyToken you can get given input (base), using the to series
         const _fyTokenValueOfInputOut = sellBase(
-          rollToSeries.sharesReserves,
-          rollToSeries.fyTokenReserves,
+          rollToSeries.sharesReserves.value,
+          rollToSeries.fyTokenReserves.value,
           rollToSeries.getShares(baseAmount),
           getTimeTillMaturity(rollToSeries.maturity),
           rollToSeries.ts,

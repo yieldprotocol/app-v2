@@ -18,18 +18,19 @@ import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAsset from '../useAsset';
 import useVault from '../useVault';
+import useSeriesEntity from '../useSeriesEntity';
 
 export const useAddCollateral = () => {
   const { mutate } = useSWRConfig();
   const { userState } = useContext(UserContext);
-  const { selectedIlk, seriesMap, selectedVault: vault, selectedSeries } = userState;
+  const { selectedIlk, selectedVault: vault, selectedSeries } = userState;
   const { address: account } = useAccount();
   const contracts = useContracts();
 
   const { key: vaultKey } = useVault(vault?.id);
   /* set the ilk based on if a vault has been selected or it's a new vault */
   const { data: ilk, key: ilkKey } = useAsset(vault ? vault?.ilkId! : selectedIlk?.id!);
-  const vaultSeries = seriesMap.get(vault?.seriesId!) || selectedSeries;
+  const { data: vaultSeries, key: vaultSeriesKey } = useSeriesEntity(vault?.seriesId!);
 
   const {
     historyActions: { updateVaultHistory },
@@ -136,6 +137,7 @@ export const useAddCollateral = () => {
     /* then update UI */
     mutate(ilkKey);
     mutate(vaultKey);
+    mutate(vaultSeriesKey);
     updateVaultHistory([vault!]);
   };
 

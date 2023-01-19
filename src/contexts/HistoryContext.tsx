@@ -17,7 +17,7 @@ import {
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { ZERO_BN } from '../utils/constants';
-import { Cauldron } from '../contracts';
+import { Cauldron, Pool__factory } from '../contracts';
 
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
@@ -26,6 +26,8 @@ import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contract
 import useTenderly from '../hooks/useTenderly';
 import { useAccount, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../hooks/useContracts';
+import useSeriesEntities from '../hooks/useSeriesEntities';
+import useAssets from '../hooks/useAssets';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -88,13 +90,13 @@ function historyReducer(state: any, action: any) {
 
 const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext);
-  const { seriesRootMap, assetRootMap } = chainState;
+  const { data: assetRootMap } = useAssets();
 
   const useTenderlyFork = false;
 
   const provider = useProvider();
   const contracts = useContracts();
+  const { data: seriesEntities } = useSeriesEntities();
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const { tenderlyStartBlock } = useTenderly();
@@ -183,7 +185,8 @@ const HistoryProvider = ({ children }: any) => {
       /* Get all the Liquidity history transactions */
       await Promise.all(
         seriesList.map(async (series) => {
-          const { poolContract, id: seriesId, decimals } = series;
+          const { id: seriesId, decimals, address } = series;
+          const poolContract = Pool__factory.connect(address, provider);
           // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
           const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
           const eventList = await poolContract.queryFilter(_liqFilter, lastSeriesUpdate);
@@ -234,8 +237,9 @@ const HistoryProvider = ({ children }: any) => {
       /* get all the trade historical transactions */
       await Promise.all(
         seriesList.map(async (series: ISeries) => {
-          const { poolContract, id: seriesId, baseId, decimals } = series;
-          const base = assetRootMap.get(baseId) as IAsset;
+          const { address, id: seriesId, baseId, decimals } = series;
+          const poolContract = Pool__factory.connect(address, provider);
+          const base = assetRootMap?.get(baseId) as IAsset;
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
           const eventList = await poolContract.queryFilter(_filter, lastSeriesUpdate);
@@ -302,7 +306,7 @@ const HistoryProvider = ({ children }: any) => {
   // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
   const _parsePourLogs = useCallback(
     (eventList: VaultPouredEvent[], contract: Cauldron, series: ISeries) => {
-      const base_ = assetRootMap.get(series?.baseId!);
+      const base_ = assetRootMap?.get(series?.baseId!);
 
       return Promise.all(
         eventList.map(async (e) => {
@@ -320,7 +324,7 @@ const HistoryProvider = ({ children }: any) => {
             : { bases: ZERO_BN, fyTokens: ZERO_BN };
 
           const date = (await provider.getBlock(blockNumber)).timestamp;
-          const ilk = assetRootMap.get(ilkId);
+          const ilk = assetRootMap?.get(ilkId);
 
           const actionCode = _inferTransactionType(art, ink);
           const tradeApr = calculateAPR(baseTraded.abs(), art.abs(), series?.maturity, date);
@@ -411,7 +415,7 @@ const HistoryProvider = ({ children }: any) => {
           const { blockNumber, transactionHash } = e;
           const { seriesId: toSeries, art } = e.args;
           const date = (await provider.getBlock(blockNumber)).timestamp;
-          const toSeries_ = seriesRootMap.get(toSeries) as ISeries;
+          const toSeries_ = seriesEntities?.get(toSeries) as ISeries;
           return {
             /* histItem base */
             blockNumber,
@@ -432,7 +436,7 @@ const HistoryProvider = ({ children }: any) => {
           } as IBaseHistItem;
         })
       ),
-    [provider, seriesRootMap]
+    [provider, seriesEntities]
   );
 
   const updateVaultHistory = useCallback(
@@ -444,7 +448,7 @@ const HistoryProvider = ({ children }: any) => {
         vaultList.map(async (vault) => {
           const { id: vaultId, seriesId } = vault;
           const vaultId32 = bytesToBytes32(vaultId, 12);
-          const series = seriesRootMap.get(seriesId) as ISeries;
+          const series = seriesEntities?.get(seriesId) as ISeries;
 
           const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
           const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
@@ -476,7 +480,7 @@ const HistoryProvider = ({ children }: any) => {
           vaultList.map((v) => v.id)
         );
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, lastVaultUpdate, seriesRootMap]
+    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, lastVaultUpdate, seriesEntities]
   );
 
   /* Exposed userActions */
