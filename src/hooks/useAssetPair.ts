@@ -15,11 +15,13 @@ export const useAssetPair = (base?: IAsset, collateral?: IAsset): IAssetPair | u
 
   useEffect(() => {
     if (base && collateral) {
+
       pairMap.has(base.proxyId + collateral.proxyId) && setAssetPair(pairMap.get(base.proxyId + collateral.proxyId));
       !pairMap.has(base.proxyId + collateral.proxyId) &&
         !pairLoading.includes(base.proxyId + collateral.proxyId) &&
         updateAssetPair(base.proxyId, collateral.proxyId);
     }
+    
   }, [base, collateral, pairMap, pairLoading]);
 
   return assetPair;

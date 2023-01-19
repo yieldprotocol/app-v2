@@ -71,11 +71,11 @@ const PriceProvider = ({ children }: any) => {
       const base = assetRootMap.get(baseId);
       const ilk = assetRootMap.get(ilkId);
 
-      console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
-
       /* if all the parts are there update the pairInfo */
+      if (Cauldron && PriceOracle && base && ilk && !priceState.pairLoading.includes(pairId)) {
 
-      if (Cauldron && PriceOracle && base && ilk) {
+        console.log('Getting Asset Pair Info: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6));
+        
         updateState({ type: PriceState.START_FETCH, payload: pairId });
 
         // /* Get debt params and spot ratios */
@@ -93,15 +93,7 @@ const PriceProvider = ({ children }: any) => {
             bytesToBytes32(baseId, 6),
             decimal18ToDecimalN(WAD_BN, ilk.decimals!)
           );
-          diagnostics &&
-            console.log(
-              'Price fetched:',
-              decimal18ToDecimalN(WAD_BN, ilk.decimals!).toString(),
-              ilkId,
-              'for',
-              price.toString(),
-              baseId
-            );
+
         } catch (error) {
           diagnostics &&
             console.log('Error getting pricing for: ', bytesToBytes32(baseId, 6), bytesToBytes32(ilkId, 6), error);
