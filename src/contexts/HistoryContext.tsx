@@ -27,6 +27,7 @@ import useTenderly from '../hooks/useTenderly';
 import { useAccount, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import useSeriesEntities from '../hooks/useSeriesEntities';
+import useAssets from '../hooks/useAssets';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -89,8 +90,7 @@ function historyReducer(state: any, action: any) {
 
 const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
-  const { chainState } = useContext(ChainContext);
-  const { assetRootMap } = chainState;
+  const { data: assetRootMap } = useAssets();
 
   const useTenderlyFork = false;
 
@@ -239,7 +239,7 @@ const HistoryProvider = ({ children }: any) => {
         seriesList.map(async (series: ISeries) => {
           const { address, id: seriesId, baseId, decimals } = series;
           const poolContract = Pool__factory.connect(address, provider);
-          const base = assetRootMap.get(baseId) as IAsset;
+          const base = assetRootMap?.get(baseId) as IAsset;
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
           const eventList = await poolContract.queryFilter(_filter, lastSeriesUpdate);
@@ -306,7 +306,7 @@ const HistoryProvider = ({ children }: any) => {
   // event VaultRolled(bytes12 indexed vaultId, bytes6 indexed seriesId, uint128 art);
   const _parsePourLogs = useCallback(
     (eventList: VaultPouredEvent[], contract: Cauldron, series: ISeries) => {
-      const base_ = assetRootMap.get(series?.baseId!);
+      const base_ = assetRootMap?.get(series?.baseId!);
 
       return Promise.all(
         eventList.map(async (e) => {
@@ -324,7 +324,7 @@ const HistoryProvider = ({ children }: any) => {
             : { bases: ZERO_BN, fyTokens: ZERO_BN };
 
           const date = (await provider.getBlock(blockNumber)).timestamp;
-          const ilk = assetRootMap.get(ilkId);
+          const ilk = assetRootMap?.get(ilkId);
 
           const actionCode = _inferTransactionType(art, ink);
           const tradeApr = calculateAPR(baseTraded.abs(), art.abs(), series?.maturity, date);

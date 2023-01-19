@@ -20,6 +20,7 @@ const useSeriesEntities = (seriesMap?: Map<string, ISeries>) => {
 
   // just attaches the fyToken balance for each series
   const _getSeriesEntities = useCallback(async () => {
+    console.log(`fetching series entities`);
     if (!Cauldron || !seriesMap) return;
 
     return [...seriesMap.values()].reduce(async (acc, seriesEntity) => {

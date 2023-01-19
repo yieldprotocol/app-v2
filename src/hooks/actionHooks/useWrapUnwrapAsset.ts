@@ -5,14 +5,12 @@ import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ICallData, LadleActions, IAsset, RoutedActions, IAssetRoot } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
+import useAsset from '../useAsset';
+import useAssets from '../useAssets';
 import { useChain } from '../useChain';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useWrapUnwrapAsset = () => {
-  const {
-    chainState: { assetRootMap },
-  } = useContext(ChainContext);
-
   const {
     settingsState: { unwrapTokens, diagnostics },
   } = useContext(SettingsContext);
@@ -21,6 +19,7 @@ export const useWrapUnwrapAsset = () => {
   const { data: signer } = useSigner();
   const { sign } = useChain();
   const contracts = useContracts();
+  const { data: assetRootMap } = useAssets();
 
   const wrapHandlerAbi = ['function wrap(address to)', 'function unwrap(address to)'];
 
@@ -39,7 +38,7 @@ export const useWrapUnwrapAsset = () => {
     /* NB! IF a wraphandler exists, we assume that it is Yield uses the wrapped version of the token */
     if (wrapHandlerAddress && value.gt(ZERO_BN)) {
       const wrapHandlerContract: Contract = new Contract(wrapHandlerAddress, wrapHandlerAbi, signer!);
-      const { assetContract } = assetRootMap.get(asset.id) as IAssetRoot; // note -> this is NOT the proxyID
+      const { assetContract } = assetRootMap?.get(asset.id) as IAssetRoot; // note -> this is NOT the proxyID
 
       diagnostics && console.log('Asset Contract to be signed for wrapping: ', assetContract.id);
 

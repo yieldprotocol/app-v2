@@ -113,6 +113,7 @@ export interface ISeriesDynamic extends ISeries {
   // user data
   poolTokens: Value;
   fyTokenBalance: Value;
+  currentValueInBase: Value;
 
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
@@ -229,11 +230,9 @@ export interface IVault {
   ilkId: string;
   owner: string;
   displayName: string;
-  decimals: number;
   isActive: boolean;
 
   seriesId: string;
-  series: ISeries | undefined;
 
   ink: Value;
   art: Value;

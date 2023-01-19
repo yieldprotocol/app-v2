@@ -1,10 +1,11 @@
-import { IAssetRoot, IStrategyRoot } from '../../types';
+import { EthersMulticall, MulticallService } from '@yield-protocol/ui-multicall';
+import { IAssetRoot } from '../../types';
 
 export enum ChainState {
   CHAIN_LOADED = 'chainLoaded',
-  ADD_ASSET = 'addAsset',
-  ADD_STRATEGY = 'addStrategy',
+  ASSETS = 'assets',
   CLEAR_MAPS = 'clearMaps',
+  MULTICALL = 'multicall',
 }
 
 export interface IChainContext {
@@ -14,8 +15,7 @@ export interface IChainContext {
 
 export interface IChainContextState {
   chainLoaded: number;
-  assetRootMap: Map<string, IAssetRoot>;
-  strategyRootMap: Map<string, IStrategyRoot>;
+  multicall: EthersMulticall | null;
 }
 
 export interface IChainContextActions {
@@ -27,18 +27,13 @@ type ChainLoadedAction = {
   payload: number;
 };
 
-type AddAssetAction = {
-  type: ChainState.ADD_ASSET;
-  payload: IAssetRoot;
-};
-
-type AddStrategyAction = {
-  type: ChainState.ADD_STRATEGY;
-  payload: IStrategyRoot;
-};
-
 type ClearMapsAction = {
   type: ChainState.CLEAR_MAPS;
 };
 
-export type ChainContextActions = ChainLoadedAction | AddAssetAction | AddStrategyAction | ClearMapsAction;
+type MulticallAction = {
+  type: ChainState.MULTICALL;
+  payload: EthersMulticall;
+};
+
+export type ChainContextActions = ChainLoadedAction | ClearMapsAction | MulticallAction;

@@ -14,17 +14,23 @@ import { calculateAPR, floorDecimal, sellFYToken, toBn } from '@yield-protocol/u
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { Provider } from '@wagmi/core';
+import { EthersMulticall, MulticallService } from '@yield-protocol/ui-multicall';
+
+const getTimeTillMaturity = (maturity: number, blockTimestamp: number) => (maturity - blockTimestamp).toString();
+const isMature = (maturity: number, blockTimestamp: number) => maturity - blockTimestamp <= 0;
 
 // gets a single series non-dynamic
 export const getSeriesEntity = async (
   provider: JsonRpcProvider | Provider,
   cauldron: Cauldron,
   chainId: number,
-  id: string
+  id: string,
+  multicall: EthersMulticall
 ): Promise<ISeries> => {
   const seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
   if (!cauldron) throw new Error('no cauldron detected');
 
+  console.log('fetching series entity inside lib with id: ', id);
   const seriesEntity = seriesMap.get(id);
   if (!seriesEntity) throw new Error(`no series with ${id} in series config`);
 
@@ -35,15 +41,15 @@ export const getSeriesEntity = async (
 
   const [{ maturity, baseId }, name, symbol, version, decimals, poolName, poolVersion, poolSymbol, baseAddress] =
     await Promise.all([
-      cauldron.series(id),
-      fyTokenContract.name(),
-      fyTokenContract.symbol(),
-      fyTokenContract.version(),
-      fyTokenContract.decimals(),
-      poolContract.name(),
-      poolContract.version(),
-      poolContract.symbol(),
-      poolContract.base(),
+      multicall.wrap(cauldron).series(id),
+      multicall.wrap(fyTokenContract).name(),
+      multicall.wrap(fyTokenContract).symbol(),
+      multicall.wrap(fyTokenContract).version(),
+      multicall.wrap(fyTokenContract).decimals(),
+      multicall.wrap(poolContract).name(),
+      multicall.wrap(poolContract).version(),
+      multicall.wrap(poolContract).symbol(),
+      multicall.wrap(poolContract).base(),
     ]);
 
   const seasonColorMap = [1].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
@@ -83,10 +89,15 @@ export const getSeriesEntity = async (
   };
 };
 
-export const getSeriesEntities = async (provider: JsonRpcProvider | Provider, cauldron: Cauldron, chainId: number) => {
+export const getSeriesEntities = async (
+  provider: JsonRpcProvider | Provider,
+  cauldron: Cauldron,
+  chainId: number,
+  multicall: EthersMulticall
+) => {
   const seriesMap = chainId === 1 ? SERIES_1 : SERIES_42161;
   return [...seriesMap.keys()].reduce(async (acc, id) => {
-    const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id);
+    const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id, multicall);
     return { ...(await acc), [id]: { ...seriesEntity } };
   }, Promise.resolve<{ [id: string]: ISeries }>({}));
 };
@@ -102,11 +113,12 @@ export const getSeriesEntitiesSSR = async () => {
       const provider = new JsonRpcProvider(
         chainId === 1 ? process.env.REACT_APP_RPC_URL_1 : process.env.REACT_APP_RPC_URL_42161
       );
+      const multicall = new MulticallService(provider).getMulticall(chainId);
       const cauldron = Cauldron__factory.connect(chainAddrs.Cauldron, provider);
 
       return {
         ...(await acc),
-        [chainId]: await getSeriesEntities(provider, cauldron, chainId),
+        [chainId]: await getSeriesEntities(provider, cauldron, chainId, multicall),
       };
     } catch (e) {
       return {
@@ -158,21 +170,22 @@ export const getSeriesEntityDynamic = async (
   cauldron: Cauldron,
   chainId: number,
   id: string,
-  account: string | undefined
+  account: string | undefined,
+  multicall: EthersMulticall
 ): Promise<ISeriesDynamic> => {
-  const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id);
+  const seriesEntity = await getSeriesEntity(provider, cauldron, chainId, id, multicall);
   const { maturity, baseId, decimals, poolAddress, baseAddress } = seriesEntity;
   const poolContract = Pool__factory.connect(seriesEntity.poolAddress, provider);
   const fyTokenContract = FYToken__factory.connect(seriesEntity.fyTokenAddress, provider);
 
   const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves, ts, g1, g2] = await Promise.all([
-    poolContract.getBaseBalance(),
-    poolContract.getFYTokenBalance(),
-    poolContract.totalSupply(),
-    fyTokenContract.balanceOf(poolAddress),
-    poolContract.ts(),
-    poolContract.g1(),
-    poolContract.g2(),
+    multicall.wrap(poolContract).getBaseBalance(),
+    multicall.wrap(poolContract).getFYTokenBalance(),
+    multicall.wrap(poolContract).totalSupply(),
+    multicall.wrap(fyTokenContract).balanceOf(poolAddress),
+    multicall.wrap(poolContract).ts(),
+    multicall.wrap(poolContract).g1(),
+    multicall.wrap(poolContract).g2(),
   ]);
 
   let sharesReserves: BigNumber;
@@ -183,11 +196,11 @@ export const getSeriesEntityDynamic = async (
 
   try {
     [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
-      poolContract.getSharesBalance(),
-      poolContract.getC(),
-      poolContract.mu(),
-      poolContract.getCurrentSharePrice(),
-      poolContract.sharesToken(),
+      multicall.wrap(poolContract).getSharesBalance(),
+      multicall.wrap(poolContract).getC(),
+      multicall.wrap(poolContract).mu(),
+      multicall.wrap(poolContract).getCurrentSharePrice(),
+      multicall.wrap(poolContract).sharesToken(),
     ]);
   } catch (error) {
     sharesReserves = baseReserves;
@@ -230,10 +243,10 @@ export const getSeriesEntityDynamic = async (
   try {
     // get pool init block
     const gmFilter = poolContract.filters.gm();
-    const gm = (await poolContract.queryFilter(gmFilter))[0];
+    const gm = (await multicall.wrap(poolContract).queryFilter(gmFilter))[0];
     startBlock = await gm.getBlock();
 
-    currentInvariant = await poolContract.invariant();
+    currentInvariant = await multicall.wrap(poolContract).invariant();
     initInvariant = await poolContract.invariant({ blockTag: startBlock.number });
   } catch (e) {
     console.log('Could not get current and init invariant for series', seriesEntity.id);
@@ -244,13 +257,30 @@ export const getSeriesEntityDynamic = async (
 
   if (account) {
     [poolTokens, fyTokenBalance] = await Promise.all([
-      poolContract.balanceOf(account),
-      fyTokenContract.balanceOf(account),
+      multicall.wrap(poolContract).balanceOf(account),
+      multicall.wrap(fyTokenContract).balanceOf(account),
     ]);
   } else {
     poolTokens = ethers.constants.Zero;
     fyTokenBalance = ethers.constants.Zero;
   }
+
+  const currentValue = isMature(seriesEntity.maturity, latestTimestamp)
+    ? fyTokenBalance
+    : sellFYToken(
+        sharesReserves,
+        fyTokenReserves,
+        fyTokenBalance,
+        getTimeTillMaturity(seriesEntity.maturity, latestTimestamp),
+        ts,
+        g2,
+        decimals,
+        c,
+        mu
+      );
+
+  const currValInBase =
+    currentValue.lte(ethers.constants.Zero) && fyTokenBalance.gt(ethers.constants.Zero) ? fyTokenBalance : currentValue;
 
   return {
     ...seriesEntity,
@@ -293,6 +323,10 @@ export const getSeriesEntityDynamic = async (
     fyTokenBalance: {
       value: fyTokenBalance,
       formatted: formatUnits(fyTokenBalance, decimals),
+    },
+    currentValueInBase: {
+      value: currValInBase,
+      formatted: formatUnits(currValInBase, decimals),
     },
   };
 };
