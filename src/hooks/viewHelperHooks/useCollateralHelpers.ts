@@ -21,7 +21,7 @@ export const useCollateralHelpers = (
   debtInput: string | undefined,
   collInput: string | undefined,
   vault: IVault | undefined,
-  assetPairInfo: IAssetPair | undefined
+  assetPairInfo: IAssetPair | undefined| null
 ) => {
   /* STATE FROM CONTEXT */
   const {
