@@ -33,8 +33,8 @@ export const useDashboardHelpers = () => {
   const pairMap: Map<string, IAssetPair> = new Map();
   const [assetId, setAssetId] = useState<any>();
 
-  const { data: ETHRates } = useAssetPair(assetMap.get(WETH), assetMap.get(assetId));
-  const { data: USDCRates } = useAssetPair(assetMap.get(USDC), assetMap.get(assetId));
+  const { assetPair: ETHRates } = useAssetPair(assetMap.get(WETH), assetMap.get(assetId));
+  const { assetPair: USDCRates } = useAssetPair(assetMap.get(USDC), assetMap.get(assetId));
 
   const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;
   const currencySettingDigits = 2;

@@ -71,7 +71,7 @@ const VaultPosition = () => {
     token: vaultIlk?.proxyId === WETH ? undefined : vaultIlk?.address as Address,
   });
 
-  const { data: assetPairInfo } = useAssetPair(vaultBase, vaultIlk);
+  const { assetPair: assetPairInfo } = useAssetPair(vaultBase, vaultIlk);
 
   /* TX info (for disabling buttons) */
   const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(

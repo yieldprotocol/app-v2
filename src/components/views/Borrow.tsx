@@ -91,7 +91,7 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const { data: assetPairInfo } = useAssetPair(selectedBase!, selectedIlk!);
+  const { assetPair: assetPairInfo } = useAssetPair(selectedBase!, selectedIlk!);
   const {
     collateralizationPercent,
     undercollateralized,
