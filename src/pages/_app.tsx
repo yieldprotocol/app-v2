@@ -11,7 +11,6 @@ const DynamicChainProvider = dynamic(() => import('../contexts/ChainContext'), {
 const DynamicSettingsProvider = dynamic(() => import('../contexts/SettingsContext'), { ssr: false });
 const DynamicUserProvider = dynamic(() => import('../contexts/UserContext'), { ssr: false });
 const DynamicTxProvider = dynamic(() => import('../contexts/TxContext'), { ssr: false });
-const DynamicPriceProvider = dynamic(() => import('../contexts/PriceContext'), { ssr: false });
 const DynamicHistoryProvider = dynamic(() => import('../contexts/HistoryContext'), { ssr: false });
 const DynamicLayout = dynamic(() => import('../components/Layout'), { ssr: false });
 
@@ -35,7 +34,6 @@ const App = ({ Component, pageProps }: AppProps) => {
     <DynamicSettingsProvider>
       <ProviderContext>
         <DynamicChainProvider>
-          <DynamicPriceProvider>
             <DynamicUserProvider>
               <DynamicTxProvider>
                 <DynamicHistoryProvider>
@@ -45,7 +43,6 @@ const App = ({ Component, pageProps }: AppProps) => {
                 </DynamicHistoryProvider>
               </DynamicTxProvider>
             </DynamicUserProvider>
-          </DynamicPriceProvider>
         </DynamicChainProvider>
       </ProviderContext>
     </DynamicSettingsProvider>

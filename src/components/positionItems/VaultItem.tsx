@@ -31,6 +31,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
       id: _vault?.id.slice(2),
     } as GA_Properties.position_opened);
   };
+  
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
   const {data: assetPairInfo} = useAssetPair(vaultBase, vaultIlk);
