@@ -5,9 +5,9 @@ import { Address, erc20ABI, useAccount, useContractReads } from 'wagmi';
 import { IAssetRoot } from '../types';
 
 export interface BalanceData {
-  id: string,
-  balance: BigNumber,
-  balance_: string,
+  id: string;
+  balance: BigNumber;
+  balance_: string;
 }
 
 /**
@@ -15,13 +15,12 @@ export interface BalanceData {
  * @returns assetMap values with balance added
  */
 
-const useBalances = (assetList: IAssetRoot[], enabled: boolean = false)  => {
-  
+const useBalances = (assetList: IAssetRoot[], enabled: boolean = false) => {
   const { address: account } = useAccount();
 
   // Data to read
   const contracts = useMemo(
-    () =>
+    () => !!account ? // if there is an account, get the balances, esle return empty array
       assetList.map((a: IAssetRoot) => {
         return {
           address: a.address as Address,
@@ -29,28 +28,33 @@ const useBalances = (assetList: IAssetRoot[], enabled: boolean = false)  => {
           functionName: 'balanceOf',
           abi: a.tokenIdentifier ? erc1155ABI : erc20ABI, // : a!.assetContract!.interface!.format()! as const,
         };
-      }),
+      }): [],
     [account, assetList]
   );
 
-  const formatData = (_data: BigNumber[]) =>  _data?.map((d: any, i:number) => { 
-    return {
-      id: assetList[i].id,     
-      balance: d || ethers.constants.Zero,
-      balance_: d ? formatUnits(d, assetList[i].decimals) : '0',
-    } as BalanceData
-  })
+  const formatData = (_data: BigNumber[]) =>
+    _data?.map((d: any, i: number) => {
+      return {
+        id: assetList[i].id,
+        balance: d || ethers.constants.Zero,
+        balance_: d ? formatUnits(d, assetList[i].decimals) : '0',
+      } as BalanceData;
+    });
 
-  const { data, isLoading, isFetched, refetch } = useContractReads({ 
-    contracts, 
-    enabled: false,
+  const {
+    data,
+    isLoading,
+    isFetched,
+    refetch,
+  } = useContractReads({
+    contracts,
+    enabled: false, // false so that the hook only runs on demand (when refetch() is called)
     select: (data: any[]): BalanceData[] => formatData(data),
-  }); // false so that the hook only runs on demand (when refetch() is called)
-  
-  isLoading && console.log( '::: Refetching Asset balances :::')
+  });
 
- return { data, isLoading, refetch }
+  isLoading && console.log('::: Refetching Asset balances :::');
 
+  return { data, isLoading, refetch };
 };
 
 export default useBalances;
