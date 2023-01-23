@@ -2,40 +2,42 @@ import { useContext, useEffect, useState } from 'react';
 import { IAsset, IAssetPair, IAssetRoot } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWRImmutable from 'swr/immutable';
-import useSWR from 'swr';
+import useSWR, { Middleware, SWRHook } from 'swr';
 import { useAccount, useChainId } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import { ORACLE_INFO } from '../config/oracles';
 import useContracts, { ContractNames } from './useContracts';
-import { UserContext } from '../contexts/UserContext';
+
+import { ENS, FRAX, USDC, WETH } from '../config/assets';
 
 // This hook is used to get the asset pair info for a given base and collateral
-export const useAssetPair = (base?: IAssetRoot, collateral?: IAssetRoot) => {
+export const useAssetPairs = (base?: string, collaterals: (string | undefined)[] = []) => {
   /* CONTEXT STATE */
   const {
-    userState: { assetMap },
-  } = useContext(UserContext);
+    chainState: { assetRootMap },
+  } = useContext(ChainContext);
 
   /* HOOKS */
   const chainId = useChainId();
   const contracts = useContracts();
   const Cauldron = contracts.get(ContractNames.CAULDRON);
 
-  /* GET PAIR INFO */
-  const getAssetPairGroup = async (base: IAssetRoot, ilkList: IAssetRoot[]): Promise<IAssetPair | null> => {
-    ilkList.map(() => {});
-    return null;
-  };
+  /* LOCAL STATE */
+  // const [_base, setBase] = useState<string| undefined>();
+  // // const [_collateral, setCollateral] = useState< ( string | undefined )[] | undefined>(collaterals);
+  // const [_collateral, setCollateral] = useState<string[]>([]);
+  // keep state up to date
+  // useEffect(()=>{ setBase(base) }, [base])
+  // useEffect(()=>{ setCollateral(collaterals) }, [collaterals])
 
   /* GET PAIR INFO */
   const getAssetPair = async ([baseId, ilkId]: [string, string]): Promise<IAssetPair | null> => {
     const oracleName = ORACLE_INFO.get(chainId)?.get(baseId)?.get(ilkId);
     const PriceOracle = contracts.get(oracleName!);
-
-    const _base = assetMap.get(baseId);
-    const _ilk = assetMap.get(ilkId);
+    const _base = assetRootMap.get(baseId);
+    const _ilk = assetRootMap.get(ilkId);
 
     /* if all the parts are there update the pairInfo */
     if (Cauldron && PriceOracle && _base && _ilk) {
@@ -79,43 +81,58 @@ export const useAssetPair = (base?: IAssetRoot, collateral?: IAssetRoot) => {
 
   // This function is used to generate the key for the useSWR hook
   const keyFunc = () => {
-    if (base && collateral) {
-      return [`${base.id + collateral.id}`];
+    if (base && collaterals[0]) {
+      return [base, collaterals[0]];
     }
-    // if (base && collateralList && collateralList.length > 1) {
-    //   collateralList.forEach(async ()=>{
-    //   })
-    // }
     return null;
   };
 
-  // This function is used to generate the key for the useSWR hook
-  const groupKeyFunc = () => {
-    // if ( base && collateral ) {
-    //   return [ `${base.id+ collateral.id}`]
-    // }
-    // if (base && collateralList && collateralList.length > 1) {
-    //   collateralList.forEach(async ()=>{
-    //   })
-    // }
-    return null;
+  const serialize: Middleware = (useSWRNext: SWRHook) => (key, fetcher, config) => {
+    
+    console.log(key);
+
+    [USDC,[WETH, ENS, FRAX]][1].forEach((a) => {
+      console.log(a)
+      
+      useSWRNext([a], getAssetPair, config);
+      useSWRNext([a], getAssetPair, config);
+      useSWRNext([a], getAssetPair, config);
+    });
+    
+    // // Serialize the key.
+    // const serializedKey = Array.isArray(key) ? JSON.stringify(key) : key;
+    // // Pass the serialized key, and unserialize it in fetcher.
+    // return useSWRNext(serializedKey, (k: any) => fetcher(...JSON.parse(k)), config);
+    return useSWRNext(keyFunc, getAssetPair, config);
+    
   };
 
-  const { data: assetPair, error } = useSWR(keyFunc, getAssetPair, {
+  const { data: pairInfo, error } = useSWR(keyFunc, getAssetPair, {
+    use: [serialize],
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
 
-  const { data: groupPairData, error: groupError } = useSWR(groupKeyFunc, getAssetPairGroup, {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  // function myMiddleware (useSWRNext) {
+  //   return (key, fetcher, config) => {
+  //     // Before hook runs...
+  //     // Handle the next middleware, or the `useSWR` hook if this is the last one.
+  //     const swr = useSWRNext(key, fetcher, config)
+  //     // After hook runs...
+  //     return swr
+  //   }
+  // }
+
+  // const { data: assetPairs, error: groupError } = useSWR(groupKeyFunc, getAssetPairGroup, {
+  //   revalidateIfStale: false,
+  //   revalidateOnFocus: false,
+  //   revalidateOnReconnect: false,
+  // });
 
   return {
-    assetPair,
-    isLoading: !assetPair && !error,
+    assetPairs: [pairInfo],
+    isLoading: !pairInfo && !error,
     key: keyFunc(),
   };
 };

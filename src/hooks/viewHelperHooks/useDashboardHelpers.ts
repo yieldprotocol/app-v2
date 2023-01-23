@@ -6,10 +6,10 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAssetPair, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { USDC, WETH } from '../../config/assets';
+import { DAI, USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAssetPair } from '../useAssetPair';
+import { useAssetPairs } from '../useAssetPair';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -33,8 +33,8 @@ export const useDashboardHelpers = () => {
   const pairMap: Map<string, IAssetPair> = new Map();
   const [assetId, setAssetId] = useState<any>();
 
-  const { assetPair: ETHRates } = useAssetPair(assetMap.get(WETH), assetMap.get(assetId));
-  const { assetPair: USDCRates } = useAssetPair(assetMap.get(USDC), assetMap.get(assetId));
+  // const { assetPairs: ETHRates } = useAssetPairs(WETH, [WETH, USDC, DAI]);
+  // const { assetPairs: USDCRates } = useAssetPairs(USDC, [WETH, USDC, DAI]);
 
   const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;
   const currencySettingDigits = 2;
@@ -154,8 +154,8 @@ export const useDashboardHelpers = () => {
       .forEach(async (assetId: string) => {
         // setAssetId(assetId);
         // const ETHRates = await getPairInfo(ETH, assetId);
-        !pairMap.has(WETH + assetId) && ETHRates && pairMap.set(WETH + assetId, ETHRates);
-        !pairMap.has(USDC + assetId) && USDCRates && pairMap.set(USDC + assetId, USDCRates);
+        // !pairMap.has(WETH + assetId) && ETHRates && pairMap.set(WETH + assetId, ETHRates);
+        // !pairMap.has(USDC + assetId) && USDCRates && pairMap.set(USDC + assetId, USDCRates);
       });
   }, [lendPositions, strategyPositions, vaultPositions]);
 
