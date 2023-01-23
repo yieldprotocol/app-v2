@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { IAsset, IAssetPair, IAssetRoot } from '../types';
 import { BigNumber, ethers } from 'ethers';
-import useSWRImmutable from 'swr/immutable';
 import useSWR, { Middleware, SWRHook } from 'swr';
 import { useAccount, useChainId } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
@@ -9,8 +8,6 @@ import { ChainContext } from '../contexts/ChainContext';
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import { ORACLE_INFO } from '../config/oracles';
 import useContracts, { ContractNames } from './useContracts';
-
-import { ENS, FRAX, USDC, WETH } from '../config/assets';
 
 // This hook is used to get the asset pair info for a given base and collateral
 export const useAssetPairs = (base?: string, collaterals: (string | undefined)[] = []) => {
@@ -80,51 +77,36 @@ export const useAssetPairs = (base?: string, collaterals: (string | undefined)[]
   };
 
   // This function is used to generate the key for the useSWR hook
-  const keyFunc = () => {
+  const pairKeyFn = () => {
     if (base && collaterals[0]) {
       return [base, collaterals[0]];
     }
     return null;
   };
 
-  const serialize: Middleware = (useSWRNext: SWRHook) => (key, fetcher, config) => {
-    
-    console.log(key);
-
-    [USDC,[WETH, ENS, FRAX]][1].forEach((a) => {
-      console.log(a)
-      
-      useSWRNext([a], getAssetPair, config);
-      useSWRNext([a], getAssetPair, config);
-      useSWRNext([a], getAssetPair, config);
-    });
-    
-    // // Serialize the key.
-    // const serializedKey = Array.isArray(key) ? JSON.stringify(key) : key;
-    // // Pass the serialized key, and unserialize it in fetcher.
-    // return useSWRNext(serializedKey, (k: any) => fetcher(...JSON.parse(k)), config);
-    return useSWRNext(keyFunc, getAssetPair, config);
-    
+  const groupKeyFn = () => {
+    if (base && collaterals) {
+      return [base, collaterals[0]];
+    }
+    return null;
   };
 
-  const { data: pairInfo, error } = useSWR(keyFunc, getAssetPair, {
-    use: [serialize],
+  // const serialize: Middleware = (useSWRNext: SWRHook) => (key, fetcher, config) => {
+  // :::: MIDDLEWARE EXAMPLE :::: Serialize the key.
+  // const serializedKey = Array.isArray(key) ? JSON.stringify(key) : key;
+  // // Pass the serialized key, and unserialize it in fetcher.
+  // return useSWRNext(serializedKey, (k: any) => fetcher(...JSON.parse(k)), config);
+  // };
+
+  const { data: pairInfo, error } = useSWR(pairKeyFn, getAssetPair, {
+    // use: [serialize],
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
 
-  // function myMiddleware (useSWRNext) {
-  //   return (key, fetcher, config) => {
-  //     // Before hook runs...
-  //     // Handle the next middleware, or the `useSWR` hook if this is the last one.
-  //     const swr = useSWRNext(key, fetcher, config)
-  //     // After hook runs...
-  //     return swr
-  //   }
-  // }
-
-  // const { data: assetPairs, error: groupError } = useSWR(groupKeyFunc, getAssetPairGroup, {
+  // const { data: assetGroupPairs, error: groupError } = useSWR([base, collaterals], getAssetPairGroup, {
+  //   use: [],
   //   revalidateIfStale: false,
   //   revalidateOnFocus: false,
   //   revalidateOnReconnect: false,
@@ -133,6 +115,6 @@ export const useAssetPairs = (base?: string, collaterals: (string | undefined)[]
   return {
     assetPairs: [pairInfo],
     isLoading: !pairInfo && !error,
-    key: keyFunc(),
+    // key: pairKeyFn(),
   };
 };
