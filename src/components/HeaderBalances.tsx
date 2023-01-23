@@ -31,7 +31,7 @@ const Balance = ({ image, balance, loading }: { image: any; balance: string; loa
 
 const YieldBalances = () => {
   const {
-    userState: { selectedBase, selectedIlk, selectedBaseBalance, selectedIlkBalance },
+    userState: { selectedBase, selectedIlk },
   } = useContext(UserContext);
 
   const { address: account } = useAccount();
@@ -50,14 +50,14 @@ const YieldBalances = () => {
           {selectedBase && selectedBase?.proxyId !== WETH && (
             <Balance
               image={selectedBase?.image}
-              balance={cleanValue(selectedBaseBalance?.formatted!, 2)}
+              balance={cleanValue(selectedBase.balance_ , 2)}
               loading={false}
             />
           )}
           {selectedIlk && path === 'borrow' && selectedIlk?.proxyId !== WETH && selectedBase?.id !== selectedIlk?.id && (
             <Balance
               image={selectedIlk?.image}
-              balance={cleanValue(selectedIlkBalance?.formatted!, 2)}
+              balance={cleanValue(selectedIlk.balance_, 2)}
               loading={false}
             />
           )}

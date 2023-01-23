@@ -18,7 +18,6 @@ import YieldMark from '../components/logos/YieldMark';
 // import { SERIES } from '../config/series';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
-import useDefaulProvider from '../hooks/useDefaultProvider';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 import { SERIES, ISeriesStatic, validateSeries } from '../config/series';
@@ -100,16 +99,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
-
-  /* STATIC DATA */
-  // /* Get the hardcoded strategy addresses */
-  // const STRATEGY_CONFIG = STRATEGIES.get(fallbackChainId);
-
-  // /* get asset map config */
-  // const ASSET_CONFIG = fallbackChainId === 1 ? ASSETS_1 : ASSETS_42161;
-
-  // /* get series map config */
-  // const SERIES_CONFIG =  SERIES.get(fallbackChainId);
 
   /* add on extra/calculated ASSET info and contract instances  (no async) */
   const _chargeAsset = useCallback(
@@ -388,6 +377,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
           console.log('Error getting Yield Protocol data.');
         })
         .finally(() => {
+          console.log( 'Yield Protocol Loaded : ', chainId )
           updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
         });
     },

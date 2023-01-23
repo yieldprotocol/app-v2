@@ -34,6 +34,8 @@ import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 import useFork from '../hooks/useFork';
 import { formatUnits, zeroPad } from 'ethers/lib/utils';
+import useBalances, { BalanceData } from '../hooks/useBalances';
+import { FaBalanceScale } from 'react-icons/fa';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -55,8 +57,6 @@ const initState: IUserContextState = {
   selectedVault: null,
   selectedStrategy: null,
 
-  selectedIlkBalance: null,
-  selectedBaseBalance: null,
 };
 
 const initActions: IUserContextActions = {
@@ -116,10 +116,6 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
     case UserState.SELECTED_BASE:
       return { ...state, selectedBase: action.payload };
 
-    case UserState.SELECTED_ILK_BALANCE:
-      return { ...state, selectedIlkBalance: action.payload };
-    case UserState.SELECTED_BASE_BALANCE:
-      return { ...state, selectedBaseBalance: action.payload };
 
     case UserState.SELECTED_STRATEGY:
       return { ...state, selectedStrategy: action.payload };
@@ -153,32 +149,17 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { startBlock } = useFork();
   const contracts = useContracts();
 
-  /* watch the selectedBase and selectedIlk */
   const {
-    data: baseBalance,
-    isLoading: baseLoading,
-    status: baseStatus,
-    refetch: refetchBase,
-  } = useBalance({
-    address: account,
-    token: userState.selectedBase?.address as Address,
-    enabled: !!account && userState.selectedBase !== null && chainId === chainLoaded,
-    cacheTime: 10_000,
-  });
+    // data: assetBalances,
+    // isLoading: assetsLoading,
+    // status: assetsStatus,
+    refetch: refetchAssetBalances,
+  } = useBalances(
+    Array.from(assetRootMap.values()),  // asset list : assetRoot[]
+    false // enabled : boolean false so that the hook only runs on demand (weh refetch() is called)
+  );
 
-  const {
-    data: ilkBalance,
-    isLoading: ilkLoading,
-    status: ilkStatus,
-    refetch: refetchIlk,
-  } = useBalance({
-    address: account,
-    token: userState.selectedIlk?.address as Address,
-    enabled: !!account && userState.selectedIlk !== null && chainId === chainLoaded,
-    cacheTime: 10_000,
-  });
-
-  /* TODO consider moving out of here ? */
+  /* TODO consider moving out of here? */
   const getPoolAPY = useCallback(
     async (sharesTokenAddr: string) => {
       const query = `
@@ -190,7 +171,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   `;
-
       interface EulerRes {
         eulerMarketStore: {
           markets: {
@@ -271,23 +251,28 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
+
     async (assetList: IAssetRoot[]) => {
+
       console.log('Updating assets...');
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
-      /* refetch the selected base ilk balances */
-      account && refetchBase();
-      account && refetchIlk();
-
+      /* refetch the asset balances */
+      const _assetBalances = (await refetchAssetBalances()).data as BalanceData[];
+      
       /**
-       * NOTE! this lock Below is just a place holder for if EVER async updates of assets are required.
+       * NOTE! this block Below is just a place holder for if EVER async updates of assets are required.
        * Those async fetches would go here.
        * */
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
-          const newAsset = {
+          // get the balance of the asset from the assetsBalance array
+          const { balance, balance_ } = _assetBalances.find((a:any)=> a.id === asset.id ) || { balance: ZERO_BN, balance_: '0' }
+          const newAsset = { 
             /* public data */
             ...asset,
+            balance, 
+            balance_
           };
           return newAsset as IAsset;
         })
@@ -496,7 +481,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ),
             ]);
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-            
+
             /* get rewards data */
             let rewardsPeriod: { start: number; end: number } | undefined;
             let rewardsRate: BigNumber | undefined;
@@ -761,20 +746,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       });
     }
   }, [userState.selectedSeries, userState.seriesMap]);
-
-  /* update selected asset balances */
-  useEffect(() => {
-    if (account) {
-      updateState({
-        type: UserState.SELECTED_BASE_BALANCE,
-        payload: baseBalance,
-      });
-      updateState({
-        type: UserState.SELECTED_ILK_BALANCE,
-        payload: ilkBalance,
-      });
-    }
-  }, [baseBalance, ilkBalance, account]);
 
   /* Exposed userActions */
   const userActions = {

@@ -17,7 +17,6 @@ export enum ContractNames {
 const useContracts = () => {
   const { addresses } = yieldEnv;
   const chainId = useChainId();
-  // const provider = useDefaultProvider();
   const provider = useProvider();
   const chainAddrs = (addresses as any)[chainId];  
   return useMemo(() => {
