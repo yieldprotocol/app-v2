@@ -27,6 +27,7 @@ export interface SeriesStaticInfo {
   
 }
 
+
 const USDC_2112 = '0x303230340000';
 const USDC_2203 = '0x303230350000';
 const USDC_2206 = '0x303230360000';

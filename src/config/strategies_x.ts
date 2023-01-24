@@ -1,6 +1,6 @@
 import { BaseProvider } from '@ethersproject/providers';
 import { Strategy__factory } from '../contracts';
-import { DAI, FRAX, USDC, WETH } from './assets';
+// import { DAI, FRAX, USDC, WETH } from '@yield-protocol/ui-core'
 
 export enum StrategyType {
   V1 = 'V1',
