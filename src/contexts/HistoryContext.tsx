@@ -101,9 +101,9 @@ const HistoryProvider = ({ children }: any) => {
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
   
-  const { startBlock } = useFork();
-  const lastSeriesUpdate = startBlock || 'earliest';
-  const lastVaultUpdate = startBlock || 'earliest';
+  // const { getForkStartBlock } = useFork();
+  // const lastSeriesUpdate = startBlock || 'earliest';
+  // const lastVaultUpdate = startBlock || 'earliest';
 
   const { address: account } = useAccount();
 
@@ -123,8 +123,9 @@ const HistoryProvider = ({ children }: any) => {
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
           const _transferOutFilter = strategyContract.filters.Transfer(account);
 
-          const inEventList = await strategyContract.queryFilter(_transferInFilter, lastSeriesUpdate); // originally 0
-          const outEventList = await strategyContract.queryFilter(_transferOutFilter, lastSeriesUpdate); // originally 0
+
+          const inEventList = await strategyContract.queryFilter(_transferInFilter, 'earliest'); 
+          const outEventList = await strategyContract.queryFilter(_transferOutFilter, 'earliest'); // originally 0
 
           const events = await Promise.all([
             ...inEventList.map(async (e: TransferEvent) => {
@@ -176,7 +177,7 @@ const HistoryProvider = ({ children }: any) => {
         );
     },
 
-    [account, diagnostics, provider, lastSeriesUpdate, useForkedEnv]
+    [account, diagnostics, provider, useForkedEnv]
   );
 
   /* update Pool Historical data */
@@ -190,7 +191,7 @@ const HistoryProvider = ({ children }: any) => {
           const { poolContract, id: seriesId, decimals } = series;
           // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
           const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
-          const eventList = await poolContract.queryFilter(_liqFilter, lastSeriesUpdate);
+          const eventList = await poolContract.queryFilter(_liqFilter, 'earliest');
 
           const liqLogs = await Promise.all(
             eventList.map(async (e: LiquidityEvent) => {
@@ -229,7 +230,7 @@ const HistoryProvider = ({ children }: any) => {
       diagnostics && console.log('Pool History updated.');
 
     },
-    [account, diagnostics, provider, lastSeriesUpdate, useForkedEnv]
+    [account, diagnostics, provider, useForkedEnv]
   );
 
   /* update Trading Historical data  */
@@ -243,7 +244,7 @@ const HistoryProvider = ({ children }: any) => {
           const base = assetRootMap.get(baseId) as IAsset;
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
-          const eventList = await poolContract.queryFilter(_filter, lastSeriesUpdate);
+          const eventList = await poolContract.queryFilter(_filter, 'earliest');
 
           const tradeLogs = await Promise.all(
             eventList
@@ -294,7 +295,7 @@ const HistoryProvider = ({ children }: any) => {
           seriesList.map((s) => s.id)
         );
     },
-    [account, assetRootMap, contracts, diagnostics, provider, lastSeriesUpdate, useForkedEnv]
+    [account, assetRootMap, contracts, diagnostics, provider, useForkedEnv]
   );
 
   /*  Updates VAULT history */
@@ -459,9 +460,9 @@ const HistoryProvider = ({ children }: any) => {
 
           /* get all the logs available */
           const [pourEventList, givenEventList, rolledEventList] = await Promise.all([
-            cauldronContract.queryFilter(pourFilter, lastVaultUpdate),
-            cauldronContract.queryFilter(givenFilter, lastVaultUpdate),
-            cauldronContract.queryFilter(rolledFilter, lastVaultUpdate),
+            cauldronContract.queryFilter(pourFilter, 'earliest'),
+            cauldronContract.queryFilter(givenFilter, 'earliest'),
+            cauldronContract.queryFilter(rolledFilter, 'earliest'),
           ]);
 
           /* parse/process the log information  */
@@ -483,7 +484,7 @@ const HistoryProvider = ({ children }: any) => {
           vaultList.map((v) => v.id)
         );
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, lastVaultUpdate, seriesRootMap, useForkedEnv]
+    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, seriesRootMap, useForkedEnv]
   );
 
   /* Exposed userActions */

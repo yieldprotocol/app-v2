@@ -8,7 +8,7 @@ import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
-import * as contracts from '../contracts';
+// import * as contracts from '../contracts';
 
 import { nameFromMaturity, getSeason, SeasonType, getSeriesAfterRollPosition } from '../utils/appUtils';
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
@@ -35,6 +35,7 @@ const initState: IChainContextState = {
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
+
 };
 
 const initActions: IChainContextActions = {

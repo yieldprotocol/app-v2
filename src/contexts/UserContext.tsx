@@ -143,7 +143,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { pathname } = useRouter();
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-  const { startBlock } = useFork();
+  const { getForkStartBlock } = useFork();
+  
   const contracts = useContracts();
 
   const {
@@ -698,7 +699,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics,
       isMature,
       seriesRootMap,
-      startBlock,
       useForkedEnv,
     ]
   );
