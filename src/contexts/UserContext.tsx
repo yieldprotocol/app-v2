@@ -377,7 +377,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const gmFilter = series.poolContract.filters.gm();
             const gm = await series.poolContract.queryFilter(gmFilter);
             poolStartBlock = await gm[0].getBlock();
-            console.log(startBlock);
+            console.log('poolStartBlock:', poolStartBlock.number)
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
           } catch (e) {
@@ -449,6 +449,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[], seriesList: ISeries[] = []) => {
+      
       console.log('Updating strategies...');
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
@@ -457,7 +458,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const _seriesList = seriesList.length ? seriesList : Array.from(userState.seriesMap.values());
 
+      console.log ( _seriesList )
       _publicData = await Promise.all(
+        
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
           const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
@@ -466,8 +469,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             _strategy.strategyContract.pool(),
           ]);
 
+    
+
           /* We check if the strategy has been supersecced by a v2 version */
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
+
 
           /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
@@ -479,7 +485,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ),
             ]);
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-
+         
             /* get rewards data */
             let rewardsPeriod: { start: number; end: number } | undefined;
             let rewardsRate: BigNumber | undefined;
@@ -494,6 +500,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsPeriod = { start, end };
               rewardsRate = rate;
               rewardsTokenAddress = rewardsToken;
+
             } catch (e) {
               diagnostics && console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
               rewardsPeriod = undefined;
