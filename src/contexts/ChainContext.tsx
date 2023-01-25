@@ -331,10 +331,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             const Strategy = contractTypes.Strategy__factory.connect(address, provider);
 
             // get Strategy created block using first StartPool event as Proxy
-            let startBlock: Block | undefined;
+            let stategyStartBlock: Block | undefined;
             const filter = Strategy.filters.PoolStarted();
             try {
-              startBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
+              stategyStartBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
             } catch (error) {
               console.log('Could not get start block for strategy', strategy.symbol);
             }
@@ -342,7 +342,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             const newStrategy: IStrategyRoot = _chargeStrategy({
               ...strategy,
               id: address,
-              startBlock,
+              startBlock: stategyStartBlock,
             });
 
             // update state

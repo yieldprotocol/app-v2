@@ -205,7 +205,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate);
+    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate) || [];
     const buildEventList = vaultsBuilt.map((x) => {
       const { vaultId: id, ilkId, seriesId } = x.args;
       const series = seriesRootMap.get(seriesId);
@@ -219,9 +219,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       };
     });
 
+
+
     /* Get a list of the vaults that were RECEIVED */
     const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-    const vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate);
+    const vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate) || [];
     const receivedEventsList = await Promise.all(
       vaultsReceived.map(async (x): Promise<IVaultRoot> => {
         const { vaultId: id } = x.args;
@@ -371,16 +373,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           let currentInvariant: BigNumber | undefined;
           let initInvariant: BigNumber | undefined;
-          let startBlock: Block | undefined;
+          let poolStartBlock: Block | undefined;
 
           try {
             // get pool init block
             const gmFilter = series.poolContract.filters.gm();
-            const gm = (await series.poolContract.queryFilter(gmFilter))[0];
-            startBlock = await gm.getBlock();
-
+            const gm = await series.poolContract.queryFilter(gmFilter);
+            poolStartBlock = await gm[0].getBlock();
+            console.log( startBlock )
             currentInvariant = await series.poolContract.invariant();
-            initInvariant = await series.poolContract.invariant({ blockTag: startBlock.number });
+            initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
           } catch (e) {
             diagnostics && console.log('Could not get current and init invariant for series', series.id);
           }
@@ -404,8 +406,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             sharesAddress,
             currentInvariant,
             initInvariant,
-            startBlock: startBlock!,
-            // ts: BigNumber.from(series.ts),
+            startBlock: poolStartBlock!,
           };
         })
       );
@@ -620,12 +621,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             await Promise.all([
               WitchV1.queryFilter(
                 Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                'earliest', // useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                useForkedEnv ? startBlock : 'earliest',
                 'latest'
               ),
               Witch.queryFilter(
                 Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                'earliest', // useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
+                useForkedEnv ? startBlock : 'earliest',
                 'latest'
               ),
             ])
