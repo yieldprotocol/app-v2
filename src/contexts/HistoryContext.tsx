@@ -92,14 +92,18 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const { seriesRootMap, assetRootMap } = chainState;
 
+  const {
+    settingsState: { useForkedEnv},
+  } = useContext(SettingsContext);
+
   const provider = useProvider();
   const contracts = useContracts();
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
-  const { startBlock } = useFork();
-
-  const lastSeriesUpdate = startBlock || 'earliest';
-  const lastVaultUpdate = startBlock || 'earliest';
+  
+  // const { getForkStartBlock } = useFork();
+  // const lastSeriesUpdate = startBlock || 'earliest';
+  // const lastVaultUpdate = startBlock || 'earliest';
 
   const { address: account } = useAccount();
 
@@ -113,14 +117,15 @@ const HistoryProvider = ({ children }: any) => {
       const liqHistMap = new Map<string, any[]>([]);
 
       /* Get all the Liquidity history transactions */
-      await Promise.all(
+      !useForkedEnv && await Promise.all(
         strategyList.map(async (strategy) => {
           const { strategyContract, id, decimals } = strategy;
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
           const _transferOutFilter = strategyContract.filters.Transfer(account);
 
-          const inEventList = await strategyContract.queryFilter(_transferInFilter, lastSeriesUpdate); // originally 0
-          const outEventList = await strategyContract.queryFilter(_transferOutFilter, lastSeriesUpdate); // originally 0
+
+          const inEventList = await strategyContract.queryFilter(_transferInFilter, 'earliest'); 
+          const outEventList = await strategyContract.queryFilter(_transferOutFilter, 'earliest'); // originally 0
 
           const events = await Promise.all([
             ...inEventList.map(async (e: TransferEvent) => {
@@ -172,20 +177,21 @@ const HistoryProvider = ({ children }: any) => {
         );
     },
 
-    [account, diagnostics, provider, lastSeriesUpdate]
+    [account, diagnostics, provider, useForkedEnv]
   );
 
   /* update Pool Historical data */
   const updatePoolHistory = useCallback(
     async (seriesList: ISeries[]) => {
+
       const liqHistMap = new Map<string, IHistItemPosition[]>([]);
       /* Get all the Liquidity history transactions */
-      await Promise.all(
+      !useForkedEnv && await Promise.all(
         seriesList.map(async (series) => {
           const { poolContract, id: seriesId, decimals } = series;
           // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
           const _liqFilter = poolContract.filters.Liquidity(null, null, account, null, null, null);
-          const eventList = await poolContract.queryFilter(_liqFilter, lastSeriesUpdate);
+          const eventList = await poolContract.queryFilter(_liqFilter, 'earliest');
 
           const liqLogs = await Promise.all(
             eventList.map(async (e: LiquidityEvent) => {
@@ -222,8 +228,9 @@ const HistoryProvider = ({ children }: any) => {
       );
       updateState({ type: HistoryState.POOL_HISTORY, payload: liqHistMap });
       diagnostics && console.log('Pool History updated.');
+
     },
-    [account, diagnostics, provider, lastSeriesUpdate]
+    [account, diagnostics, provider, useForkedEnv]
   );
 
   /* update Trading Historical data  */
@@ -231,13 +238,13 @@ const HistoryProvider = ({ children }: any) => {
     async (seriesList: ISeries[]) => {
       const tradeHistMap = new Map<string, IHistItemPosition[]>([]);
       /* get all the trade historical transactions */
-      await Promise.all(
+      !useForkedEnv && await Promise.all(
         seriesList.map(async (series: ISeries) => {
           const { poolContract, id: seriesId, baseId, decimals } = series;
           const base = assetRootMap.get(baseId) as IAsset;
           // event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
           const _filter = poolContract.filters.Trade(null, null, account, null, null);
-          const eventList = await poolContract.queryFilter(_filter, lastSeriesUpdate);
+          const eventList = await poolContract.queryFilter(_filter, 'earliest');
 
           const tradeLogs = await Promise.all(
             eventList
@@ -288,7 +295,7 @@ const HistoryProvider = ({ children }: any) => {
           seriesList.map((s) => s.id)
         );
     },
-    [account, assetRootMap, contracts, diagnostics, provider, lastSeriesUpdate]
+    [account, assetRootMap, contracts, diagnostics, provider, useForkedEnv]
   );
 
   /*  Updates VAULT history */
@@ -436,10 +443,12 @@ const HistoryProvider = ({ children }: any) => {
 
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
+
       const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
       const cauldronContract = contracts.get(ContractNames.CAULDRON) as Cauldron;
+
       /* Get all the Vault historical Pour transactions */
-      await Promise.all(
+      !useForkedEnv && await Promise.all(
         vaultList.map(async (vault) => {
           const { id: vaultId, seriesId } = vault;
           const vaultId32 = bytesToBytes32(vaultId, 12);
@@ -451,9 +460,9 @@ const HistoryProvider = ({ children }: any) => {
 
           /* get all the logs available */
           const [pourEventList, givenEventList, rolledEventList] = await Promise.all([
-            cauldronContract.queryFilter(pourFilter, lastVaultUpdate),
-            cauldronContract.queryFilter(givenFilter, lastVaultUpdate),
-            cauldronContract.queryFilter(rolledFilter, lastVaultUpdate),
+            cauldronContract.queryFilter(pourFilter, 'earliest'),
+            cauldronContract.queryFilter(givenFilter, 'earliest'),
+            cauldronContract.queryFilter(rolledFilter, 'earliest'),
           ]);
 
           /* parse/process the log information  */
@@ -475,7 +484,7 @@ const HistoryProvider = ({ children }: any) => {
           vaultList.map((v) => v.id)
         );
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, lastVaultUpdate, seriesRootMap]
+    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, seriesRootMap, useForkedEnv]
   );
 
   /* Exposed userActions */

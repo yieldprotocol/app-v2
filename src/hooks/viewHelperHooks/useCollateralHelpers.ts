@@ -38,7 +38,7 @@ export const useCollateralHelpers = (
   const { data: userIlkBalance } = useBalance({
     address: activeAccount,
     token: _selectedIlk?.proxyId === WETH ? undefined : _selectedIlk?.address as Address,
-    enabled: !!_selectedIlk && !!activeAccount,
+    enabled: !!_selectedIlk,
   });
 
   /* LOCAL STATE */

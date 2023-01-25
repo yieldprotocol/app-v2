@@ -8,7 +8,7 @@ import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
-import * as contracts from '../contracts';
+// import * as contracts from '../contracts';
 
 import { nameFromMaturity, getSeason, SeasonType, getSeriesAfterRollPosition } from '../utils/appUtils';
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
@@ -35,6 +35,7 @@ const initState: IChainContextState = {
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
+
 };
 
 const initActions: IChainContextActions = {
@@ -332,10 +333,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             const Strategy = contractTypes.Strategy__factory.connect(address, provider);
 
             // get Strategy created block using first StartPool event as Proxy
-            let startBlock: Block | undefined;
+            let stategyStartBlock: Block | undefined;
             const filter = Strategy.filters.PoolStarted();
             try {
-              startBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
+              stategyStartBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
             } catch (error) {
               console.log('Could not get start block for strategy', strategy.symbol);
             }
@@ -343,7 +344,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             const newStrategy: IStrategyRoot = _chargeStrategy({
               ...strategy,
               id: address,
-              startBlock,
+              startBlock: stategyStartBlock,
             });
 
             // update state
