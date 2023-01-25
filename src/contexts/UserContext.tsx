@@ -56,7 +56,6 @@ const initState: IUserContextState = {
   selectedBase: null, // initial base
   selectedVault: null,
   selectedStrategy: null,
-
 };
 
 const initActions: IUserContextActions = {
@@ -116,7 +115,6 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
     case UserState.SELECTED_BASE:
       return { ...state, selectedBase: action.payload };
 
-
     case UserState.SELECTED_STRATEGY:
       return { ...state, selectedStrategy: action.payload };
     default:
@@ -155,7 +153,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     // status: assetsStatus,
     refetch: refetchAssetBalances,
   } = useBalances(
-    Array.from(assetRootMap.values()),  // asset list : assetRoot[]
+    Array.from(assetRootMap.values()), // asset list : assetRoot[]
     false // enabled : boolean false so that the hook only runs on demand (weh refetch() is called)
   );
 
@@ -205,7 +203,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate) || [];
+    const vaultsBuilt = (await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate)) || [];
     const buildEventList = vaultsBuilt.map((x) => {
       const { vaultId: id, ilkId, seriesId } = x.args;
       const series = seriesRootMap.get(seriesId);
@@ -219,11 +217,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       };
     });
 
-
-
     /* Get a list of the vaults that were RECEIVED */
     const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-    const vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate) || [];
+    const vaultsReceived = (await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate)) || [];
     const receivedEventsList = await Promise.all(
       vaultsReceived.map(async (x): Promise<IVaultRoot> => {
         const { vaultId: id } = x.args;
@@ -253,15 +249,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
-
     async (assetList: IAssetRoot[]) => {
-
       console.log('Updating assets...');
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
       /* refetch the asset balances */
       const _assetBalances = (await refetchAssetBalances()).data as BalanceData[];
-      
+
       /**
        * NOTE! this block Below is just a place holder for if EVER async updates of assets are required.
        * Those async fetches would go here.
@@ -269,12 +263,15 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
           // get the balance of the asset from the assetsBalance array
-          const { balance, balance_ } = _assetBalances.find((a:any)=> a.id === asset.id ) || { balance: ZERO_BN, balance_: '0' }
-          const newAsset = { 
+          const { balance, balance_ } = _assetBalances.find((a: any) => a.id === asset.id) || {
+            balance: ZERO_BN,
+            balance_: '0',
+          };
+          const newAsset = {
             /* public data */
             ...asset,
-            balance, 
-            balance_
+            balance,
+            balance_,
           };
           return newAsset as IAsset;
         })
@@ -380,7 +377,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const gmFilter = series.poolContract.filters.gm();
             const gm = await series.poolContract.queryFilter(gmFilter);
             poolStartBlock = await gm[0].getBlock();
-            console.log( startBlock )
+            console.log(startBlock);
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
           } catch (e) {
@@ -617,22 +614,21 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           const isVaultMature = isMature(series.maturity);
 
-          const liquidationEvents = (
-            await Promise.all([
-              WitchV1.queryFilter(
-                Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                useForkedEnv ? startBlock : 'earliest',
-                'latest'
-              ),
-              Witch.queryFilter(
-                Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                useForkedEnv ? startBlock : 'earliest',
-                'latest'
-              ),
-            ])
-          ).flat();
-
-          const hasBeenLiquidated = liquidationEvents.length > 0;
+          const liquidationEvents = !useForkedEnv
+            ? await Promise.all([
+                WitchV1.queryFilter(
+                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
+                  useForkedEnv ? startBlock : 'earliest',
+                  'latest'
+                ),
+                Witch.queryFilter(
+                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
+                  useForkedEnv ? startBlock : 'earliest',
+                  'latest'
+                ),
+              ])
+            : [];
+          const hasBeenLiquidated = liquidationEvents.flat().length > 0;
 
           let accruedArt: BigNumber;
           let rateAtMaturity: BigNumber;
