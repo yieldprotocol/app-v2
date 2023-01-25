@@ -5,9 +5,9 @@ import { Address, erc20ABI, useAccount, useContractReads } from 'wagmi';
 import { IAssetRoot } from '../types';
 
 export interface BalanceData {
-  id: string,
-  balance: BigNumber,
-  balance_: string,
+  id: string;
+  balance: BigNumber;
+  balance_: string;
 }
 
 /**
@@ -15,42 +15,38 @@ export interface BalanceData {
  * @returns assetMap values with balance added
  */
 
-const useBalances = (assetList: IAssetRoot[], enabled: boolean = false)  => {
-  
+const useBalances = (assetList: IAssetRoot[], enabled: boolean = false) => {
   const { address: account } = useAccount();
 
   // Data to read
-  const contracts = useMemo(
-    () =>
-      assetList.map((a: IAssetRoot) => {
-        return {
-          address: a.address as Address,
-          args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
-          functionName: 'balanceOf',
-          abi: a.tokenIdentifier ? erc1155ABI : erc20ABI, // : a!.assetContract!.interface!.format()! as const,
-        };
-      }),
-    [account, assetList]
-  );
+  const contracts = useMemo(() => {
+    if (!account) return []; //return an empty array if no account
+    return assetList.map((a: IAssetRoot) => ({
+      address: a.address as Address,
+      args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
+      functionName: 'balanceOf',
+      abi: a.tokenIdentifier ? erc1155ABI : erc20ABI,
+    }));
+  }, [account, assetList]);
 
-  const formatData = (_data: BigNumber[]) =>  _data?.map((d: any, i:number) => { 
-    return {
-      id: assetList[i].id,     
-      balance: d || ethers.constants.Zero,
-      balance_: d ? formatUnits(d, assetList[i].decimals) : '0',
-    } as BalanceData
-  })
+  const formatData = (_data: BigNumber[]) =>
+    _data?.map((d: any, i: number) => {
+      return {
+        id: assetList[i].id,
+        balance: d || ethers.constants.Zero,
+        balance_: d ? formatUnits(d, assetList[i].decimals) : '0',
+      } as BalanceData;
+    });
 
-  const { data, isLoading, isFetched, refetch } = useContractReads({ 
-    contracts, 
+  const { data, isLoading, isFetched, refetch } = useContractReads({
+    contracts,
     enabled: false,
     select: (data: any[]): BalanceData[] => formatData(data),
   }); // false so that the hook only runs on demand (when refetch() is called)
-  
-  isLoading && console.log( '::: Refetching Asset balances :::')
 
- return { data, isLoading, refetch }
+  isLoading && console.log('::: Refetching Asset balances :::');
 
+  return { data, isLoading, refetch };
 };
 
 export default useBalances;

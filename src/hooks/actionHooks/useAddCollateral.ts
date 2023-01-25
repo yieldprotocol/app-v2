@@ -37,7 +37,7 @@ export const useAddCollateral = () => {
   });
   const { refetch: refetchIlkBal } = useBalance({
     address: account,
-    token: selectedIlk?.address as Address
+    token: selectedIlk?.address as Address,
   });
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {

@@ -35,7 +35,7 @@ export const useRepayDebt = () => {
   });
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
-    token: selectedBase?.id === WETH ? undefined : selectedBase?.address as Address
+    token: selectedBase?.id === WETH ? undefined : selectedBase?.address as Address,
   });
 
   const { addEth, removeEth } = useAddRemoveEth();

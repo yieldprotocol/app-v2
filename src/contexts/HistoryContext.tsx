@@ -92,12 +92,16 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const { seriesRootMap, assetRootMap } = chainState;
 
+  const {
+    settingsState: { useForkedEnv},
+  } = useContext(SettingsContext);
+
   const provider = useProvider();
   const contracts = useContracts();
 
   const [historyState, updateState] = useReducer(historyReducer, initState);
+  
   const { startBlock } = useFork();
-
   const lastSeriesUpdate = startBlock || 'earliest';
   const lastVaultUpdate = startBlock || 'earliest';
 
@@ -113,7 +117,7 @@ const HistoryProvider = ({ children }: any) => {
       const liqHistMap = new Map<string, any[]>([]);
 
       /* Get all the Liquidity history transactions */
-      await Promise.all(
+      !useForkedEnv && await Promise.all(
         strategyList.map(async (strategy) => {
           const { strategyContract, id, decimals } = strategy;
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
@@ -178,9 +182,10 @@ const HistoryProvider = ({ children }: any) => {
   /* update Pool Historical data */
   const updatePoolHistory = useCallback(
     async (seriesList: ISeries[]) => {
+
       const liqHistMap = new Map<string, IHistItemPosition[]>([]);
       /* Get all the Liquidity history transactions */
-      await Promise.all(
+      !useForkedEnv && await Promise.all(
         seriesList.map(async (series) => {
           const { poolContract, id: seriesId, decimals } = series;
           // event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
@@ -222,6 +227,7 @@ const HistoryProvider = ({ children }: any) => {
       );
       updateState({ type: HistoryState.POOL_HISTORY, payload: liqHistMap });
       diagnostics && console.log('Pool History updated.');
+
     },
     [account, diagnostics, provider, lastSeriesUpdate]
   );
@@ -231,7 +237,7 @@ const HistoryProvider = ({ children }: any) => {
     async (seriesList: ISeries[]) => {
       const tradeHistMap = new Map<string, IHistItemPosition[]>([]);
       /* get all the trade historical transactions */
-      await Promise.all(
+      !useForkedEnv && await Promise.all(
         seriesList.map(async (series: ISeries) => {
           const { poolContract, id: seriesId, baseId, decimals } = series;
           const base = assetRootMap.get(baseId) as IAsset;
@@ -436,10 +442,12 @@ const HistoryProvider = ({ children }: any) => {
 
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
+
       const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
       const cauldronContract = contracts.get(ContractNames.CAULDRON) as Cauldron;
+
       /* Get all the Vault historical Pour transactions */
-      await Promise.all(
+      !useForkedEnv && await Promise.all(
         vaultList.map(async (vault) => {
           const { id: vaultId, seriesId } = vault;
           const vaultId32 = bytesToBytes32(vaultId, 12);

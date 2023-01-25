@@ -25,7 +25,7 @@ import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { Address, useAccount, useBalance, useProvider, useSigner } from 'wagmi';
+import { useAccount, useProvider, useSigner } from 'wagmi';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';

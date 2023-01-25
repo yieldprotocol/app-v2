@@ -25,7 +25,10 @@ export const useClosePosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
   const { address: account } = useAccount();
-  const { refetch: refetchFyTokenBal } = useBalance({ address: account, token: selectedSeries?.address as Address });
+  const { refetch: refetchFyTokenBal } = useBalance({
+    address: account,
+    token: selectedSeries?.address as Address,
+  });
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
     token: selectedBase?.address as Address,

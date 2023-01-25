@@ -22,7 +22,7 @@ export const useRemoveCollateral = () => {
   const contracts = useContracts();
   const { refetch: refetchIlkBal } = useBalance({
     address: account,
-    token: selectedIlk?.address as Address
+    token: selectedIlk?.address as Address,
   }); 
 
   const {
