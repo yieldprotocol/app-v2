@@ -2,7 +2,6 @@ import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { mainnet, arbitrum } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
-import { publicProvider } from 'wagmi/providers/public';
 import { ReactNode, useContext } from 'react';
 import { SettingsContext } from './SettingsContext';
 
@@ -33,15 +32,17 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
   /* bring in all the settings in case we want to use them settings up the netwrok */
   const { settingsState } = useContext(SettingsContext);
   const { useForkedEnv, forkRpcUrl } = settingsState;
-  
-  console.log('Forked env: ', useForkedEnv, (useForkedEnv ? forkRpcUrl : '') )
+
+  /* console log whether usign fored env or not */
+  console.log('Using a forked env: ', useForkedEnv);
+  useForkedEnv && console.log('Fork url: ', forkRpcUrl);
 
   const chainConfig = !useForkedEnv
     ? // Production environment >
       [
-        alchemyProvider({ 
-          apiKey: process.env.ALCHEMY_MAINNET_KEY! 
-        }), 
+        alchemyProvider({
+          apiKey: process.env.ALCHEMY_MAINNET_KEY!,
+        }),
       ]
     : // Test/Dev environents (eg. tenderly) >
       [
@@ -58,7 +59,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
   const { chains, provider } = configureChains(
     [mainnet, arbitrum], // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
-    [ ...chainConfig] // , publicProvider() ] // defaults to public if all else fails
+    [...chainConfig] // , publicProvider() ] // defaults to public if all else fails
   );
 
   const connectors = connectorsForWallets([

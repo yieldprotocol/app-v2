@@ -25,7 +25,7 @@ import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { useAccount, useProvider, useSigner } from 'wagmi';
+import { useAccount, useProvider } from 'wagmi';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
@@ -139,7 +139,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const chainId = useChainId();
   const provider = useProvider();
   const { address: account } = useAccount();
-  const { data: sigsner, isError, isLoading } = useSigner();
 
   const { pathname } = useRouter();
 
@@ -484,6 +483,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             let rewardsTokenAddress: string | undefined;
 
             try {
+
               const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
                 _strategy.strategyContract.rewardsPerToken(),
                 _strategy.strategyContract.rewardsPeriod(),
@@ -492,11 +492,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsPeriod = { start, end };
               rewardsRate = rate;
               rewardsTokenAddress = rewardsToken;
+
             } catch (e) {
-              diagnostics && console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
+
+              console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
               rewardsPeriod = undefined;
               rewardsRate = undefined;
               rewardsTokenAddress = undefined;
+              
             }
 
             /* Decide if stragtegy should be 'active' */

@@ -176,7 +176,7 @@ const HistoryProvider = ({ children }: any) => {
         );
     },
 
-    [account, diagnostics, provider, lastSeriesUpdate]
+    [account, diagnostics, provider, lastSeriesUpdate, useForkedEnv]
   );
 
   /* update Pool Historical data */
@@ -229,7 +229,7 @@ const HistoryProvider = ({ children }: any) => {
       diagnostics && console.log('Pool History updated.');
 
     },
-    [account, diagnostics, provider, lastSeriesUpdate]
+    [account, diagnostics, provider, lastSeriesUpdate, useForkedEnv]
   );
 
   /* update Trading Historical data  */
@@ -294,7 +294,7 @@ const HistoryProvider = ({ children }: any) => {
           seriesList.map((s) => s.id)
         );
     },
-    [account, assetRootMap, contracts, diagnostics, provider, lastSeriesUpdate]
+    [account, assetRootMap, contracts, diagnostics, provider, lastSeriesUpdate, useForkedEnv]
   );
 
   /*  Updates VAULT history */
@@ -483,7 +483,7 @@ const HistoryProvider = ({ children }: any) => {
           vaultList.map((v) => v.id)
         );
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, lastVaultUpdate, seriesRootMap]
+    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, lastVaultUpdate, seriesRootMap, useForkedEnv]
   );
 
   /* Exposed userActions */
