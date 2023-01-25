@@ -377,7 +377,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const gmFilter = series.poolContract.filters.gm();
             const gm = await series.poolContract.queryFilter(gmFilter);
             poolStartBlock = await gm[0].getBlock();
-            console.log('poolStartBlock:', poolStartBlock.number)
+            console.log('poolStartBlock:', poolStartBlock.number);
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
           } catch (e) {
@@ -449,18 +449,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[], seriesList: ISeries[] = []) => {
-      
       console.log('Updating strategies...');
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
-      let _publicData: IStrategy[] = [];
-      let _accountData: IStrategy[] = [];
-
       const _seriesList = seriesList.length ? seriesList : Array.from(userState.seriesMap.values());
 
-      console.log ( _seriesList )
-      _publicData = await Promise.all(
-        
+      // let _publicData: IStrategy[] = [];
+      const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
           const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
@@ -469,11 +464,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             _strategy.strategyContract.pool(),
           ]);
 
-    
-
           /* We check if the strategy has been supersecced by a v2 version */
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
-
 
           /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
@@ -485,7 +477,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ),
             ]);
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
-         
+
             /* get rewards data */
             let rewardsPeriod: { start: number; end: number } | undefined;
             let rewardsRate: BigNumber | undefined;
@@ -500,7 +492,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsPeriod = { start, end };
               rewardsRate = rate;
               rewardsTokenAddress = rewardsToken;
-
             } catch (e) {
               diagnostics && console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
               rewardsPeriod = undefined;
@@ -543,36 +534,42 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       );
 
       /* Add in account specific data */
-      if (account) {
-        _accountData = await Promise.all(
-          _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
+      const _accountData = account
+        ? await Promise.all(
+            
+          _publicData.map( async (_strategy: IStrategy): Promise<IStrategy> => {
+              
             const [accountBalance, accountPoolBalance] = await Promise.all([
-              _strategy.strategyContract.balanceOf(account),
-              _strategy.currentSeries?.poolContract.balanceOf(account),
-            ]);
+                _strategy.strategyContract.balanceOf(account),
+                _strategy.currentSeries?.poolContract.balanceOf(account),
+              ]);
 
-            const stratConnected = _strategy.strategyContract.connect(signer!);
-            const accountRewards =
-              _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
-            const accountStrategyPercent = mulDecimal(
-              divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
-              '100'
-            );
+              // const stratConnected = _strategy.strategyContract.connect(signer!);
+              // const accountRewards =
+              //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
 
-            return {
-              ..._strategy,
-              accountBalance,
-              accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
-              accountPoolBalance,
-              accountStrategyPercent,
-              accountRewards: accountRewards,
-              accountRewards_: formatUnits(accountRewards, _strategy.decimals),
-            };
-          })
-        );
-      }
+              const accountRewards = ZERO_BN;
+              const accountStrategyPercent = mulDecimal(
+                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+                '100'
+              );
 
-      const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
+              return {
+                ..._strategy,
+                accountBalance,
+                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+                accountPoolBalance,
+                accountStrategyPercent,
+                accountRewards: accountRewards,
+                accountRewards_: formatUnits(accountRewards, _strategy.decimals),
+              };
+            })
+          )
+        : [];
+
+      console.log('Account data:');
+
+      const _combinedData = account ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
 
       /* combined account and public series data reduced into a single Map */
       const newStrategyMap = _combinedData.reduce((acc, item) => {
