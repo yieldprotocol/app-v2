@@ -7,13 +7,14 @@ const useFork = () => {
   const {
     settingsState: { useForkedEnv, forkRpcUrl },
   } = useContext(SettingsContext);
+
   const { address: account } = useAccount();
   const provider = new ethers.providers.JsonRpcProvider(forkRpcUrl);
 
-  const [startBlock, setStartBlock] = useState<number>();
+  const [ startBlock, setStartBlock ] = useState<number>();
 
   useEffect(()=>{
-    startBlock && console.log('fork start block: ',  startBlock)
+    startBlock && console.log('Fork start block: ',  startBlock)
   }, [startBlock])
 
   const fillEther = useCallback(async () => {
@@ -35,7 +36,9 @@ const useFork = () => {
         return 0;
       }
     };
+    
     if (useForkedEnv) getStartBlock();
+
   }, [useForkedEnv]);
 
   return {startBlock, fillEther };

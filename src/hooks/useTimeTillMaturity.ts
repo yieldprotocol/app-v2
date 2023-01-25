@@ -11,7 +11,6 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
 
   // block timestamp from network
   const [blockTimestamp, setBlockTimestamp] = useState<number>();
-
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
   const getTimeTillMaturity = useCallback(
@@ -30,7 +29,6 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
       try {
         // const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
         const { timestamp } = await provider.getBlock('latest');
-
         useForkedEnv && console.log( 'Forked Blockchain time: ', new Date(timestamp*1000).toLocaleDateString())
         setBlockTimestamp(timestamp);
       } catch (e) {
@@ -38,6 +36,7 @@ const useTimeTillMaturity = (useBlockchainTime = false) => {
       }
     };
     if (useForkedEnv || useBlockchainTime) getBlockTimestamp();
+
   }, [useForkedEnv, useBlockchainTime]);
 
   return { getTimeTillMaturity, isMature };

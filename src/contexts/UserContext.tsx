@@ -139,7 +139,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const chainId = useChainId();
   const provider = useProvider();
   const { address: account } = useAccount();
-  const { data: signer, isError, isLoading } = useSigner();
+  const { data: sigsner, isError, isLoading } = useSigner();
 
   const { pathname } = useRouter();
 
@@ -546,7 +546,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
               // const stratConnected = _strategy.strategyContract.connect(signer!);
               // const accountRewards =
-              //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
+              // _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
 
               const accountRewards = ZERO_BN;
               const accountStrategyPercent = mulDecimal(
@@ -566,8 +566,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             })
           )
         : [];
-
-      console.log('Account data:');
 
       const _combinedData = account ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
 
@@ -621,15 +619,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const liquidationEvents = !useForkedEnv
             ? await Promise.all([
                 WitchV1.queryFilter(
-                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                  useForkedEnv ? startBlock : 'earliest',
-                  'latest'
-                ),
+                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
                 Witch.queryFilter(
-                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                  useForkedEnv ? startBlock : 'earliest',
-                  'latest'
-                ),
+                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
               ])
             : [];
           const hasBeenLiquidated = liquidationEvents.flat().length > 0;
@@ -643,7 +635,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
 
             const RateOracle = contracts.get(oracleName!);
-            rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
+            rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
             [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
             [accruedArt] = rateAtMaturity.gt(ZERO_BN)
