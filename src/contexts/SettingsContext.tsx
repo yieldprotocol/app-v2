@@ -79,14 +79,7 @@ const SettingsProvider = ({ children }: { children: ReactNode }) => {
   /* LOCAL STATE */
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
-  /* watch & handle linked approval and effect appropriate settings */
-  useEffect(() => {
-    if (settingsState.approvalMethod === ApprovalType.SIG) {
-      updateState({ type: Settings.APPROVAL_MAX, payload: false });
-    }
-  }, [settingsState.approvalMethod]);
-
-  /* Update all settings in state based on localStorage */
+  /* Pre - Update all settings in state based on localStorage */
   useEffect(() => {
     if (typeof window !== 'undefined') {
       Object.values(Settings).forEach((setting) => {
@@ -103,6 +96,13 @@ const SettingsProvider = ({ children }: { children: ReactNode }) => {
       updateState({ type: Settings.APPROVAL_METHOD, payload: ApprovalType.TX });
     }
   }, [settingsState.useForkedEnv]);
+
+  /* Watch & handle linked approval and effect appropriate settings */
+  useEffect(() => {
+    if (settingsState.approvalMethod === ApprovalType.SIG) {
+      updateState({ type: Settings.APPROVAL_MAX, payload: false });
+    }
+  }, [settingsState.approvalMethod]);
 
   /* Exposed settings Actions for updating */
   const settingsActions: ISettingsContextActions = {

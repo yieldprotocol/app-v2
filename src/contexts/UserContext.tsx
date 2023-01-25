@@ -25,7 +25,7 @@ import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { Address, useAccount, useBalance, useProvider, useSigner } from 'wagmi';
+import { useAccount, useProvider } from 'wagmi';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
@@ -56,7 +56,6 @@ const initState: IUserContextState = {
   selectedBase: null, // initial base
   selectedVault: null,
   selectedStrategy: null,
-
 };
 
 const initActions: IUserContextActions = {
@@ -116,7 +115,6 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
     case UserState.SELECTED_BASE:
       return { ...state, selectedBase: action.payload };
 
-
     case UserState.SELECTED_STRATEGY:
       return { ...state, selectedStrategy: action.payload };
     default:
@@ -141,12 +139,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const chainId = useChainId();
   const provider = useProvider();
   const { address: account } = useAccount();
-  const { data: signer, isError, isLoading } = useSigner();
 
   const { pathname } = useRouter();
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-  const { startBlock } = useFork();
+  const { getForkStartBlock } = useFork();
+  
   const contracts = useContracts();
 
   const {
@@ -155,7 +153,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     // status: assetsStatus,
     refetch: refetchAssetBalances,
   } = useBalances(
-    Array.from(assetRootMap.values()),  // asset list : assetRoot[]
+    Array.from(assetRootMap.values()), // asset list : assetRoot[]
     false // enabled : boolean false so that the hook only runs on demand (weh refetch() is called)
   );
 
@@ -205,7 +203,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-    const vaultsBuilt = await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate);
+    const vaultsBuilt = (await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate)) || [];
     const buildEventList = vaultsBuilt.map((x) => {
       const { vaultId: id, ilkId, seriesId } = x.args;
       const series = seriesRootMap.get(seriesId);
@@ -221,7 +219,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     /* Get a list of the vaults that were RECEIVED */
     const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-    const vaultsReceived = await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate);
+    const vaultsReceived = (await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate)) || [];
     const receivedEventsList = await Promise.all(
       vaultsReceived.map(async (x): Promise<IVaultRoot> => {
         const { vaultId: id } = x.args;
@@ -251,15 +249,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
-
     async (assetList: IAssetRoot[]) => {
-
       console.log('Updating assets...');
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
       /* refetch the asset balances */
       const _assetBalances = (await refetchAssetBalances()).data as BalanceData[];
-      
+
       /**
        * NOTE! this block Below is just a place holder for if EVER async updates of assets are required.
        * Those async fetches would go here.
@@ -267,12 +263,15 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
           // get the balance of the asset from the assetsBalance array
-          const { balance, balance_ } = _assetBalances.find((a:any)=> a.id === asset.id ) || { balance: ZERO_BN, balance_: '0' }
-          const newAsset = { 
+          const { balance, balance_ } = _assetBalances.find((a: any) => a.id === asset.id) || {
+            balance: ZERO_BN,
+            balance_: '0',
+          };
+          const newAsset = {
             /* public data */
             ...asset,
-            balance, 
-            balance_
+            balance,
+            balance_,
           };
           return newAsset as IAsset;
         })
@@ -371,16 +370,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           let currentInvariant: BigNumber | undefined;
           let initInvariant: BigNumber | undefined;
-          let startBlock: Block | undefined;
+          let poolStartBlock: Block | undefined;
 
           try {
             // get pool init block
             const gmFilter = series.poolContract.filters.gm();
-            const gm = (await series.poolContract.queryFilter(gmFilter))[0];
-            startBlock = await gm.getBlock();
-
+            const gm = await series.poolContract.queryFilter(gmFilter);
+            poolStartBlock = await gm[0].getBlock();
+            console.log('poolStartBlock:', poolStartBlock.number);
             currentInvariant = await series.poolContract.invariant();
-            initInvariant = await series.poolContract.invariant({ blockTag: startBlock.number });
+            initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
           } catch (e) {
             diagnostics && console.log('Could not get current and init invariant for series', series.id);
           }
@@ -404,8 +403,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             sharesAddress,
             currentInvariant,
             initInvariant,
-            startBlock: startBlock!,
-            // ts: BigNumber.from(series.ts),
+            startBlock: poolStartBlock!,
           };
         })
       );
@@ -454,12 +452,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       console.log('Updating strategies...');
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
-      let _publicData: IStrategy[] = [];
-      let _accountData: IStrategy[] = [];
-
       const _seriesList = seriesList.length ? seriesList : Array.from(userState.seriesMap.values());
 
-      _publicData = await Promise.all(
+      // let _publicData: IStrategy[] = [];
+      const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
           const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
@@ -488,6 +484,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             let rewardsTokenAddress: string | undefined;
 
             try {
+
               const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
                 _strategy.strategyContract.rewardsPerToken(),
                 _strategy.strategyContract.rewardsPeriod(),
@@ -496,11 +493,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsPeriod = { start, end };
               rewardsRate = rate;
               rewardsTokenAddress = rewardsToken;
+
             } catch (e) {
-              diagnostics && console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
+
+              console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
               rewardsPeriod = undefined;
               rewardsRate = undefined;
               rewardsTokenAddress = undefined;
+              
             }
 
             /* Decide if stragtegy should be 'active' */
@@ -538,36 +538,40 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       );
 
       /* Add in account specific data */
-      if (account) {
-        _accountData = await Promise.all(
-          _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
+      const _accountData = account
+        ? await Promise.all(
+            
+          _publicData.map( async (_strategy: IStrategy): Promise<IStrategy> => {
+              
             const [accountBalance, accountPoolBalance] = await Promise.all([
-              _strategy.strategyContract.balanceOf(account),
-              _strategy.currentSeries?.poolContract.balanceOf(account),
-            ]);
+                _strategy.strategyContract.balanceOf(account),
+                _strategy.currentSeries?.poolContract.balanceOf(account),
+              ]);
 
-            const stratConnected = _strategy.strategyContract.connect(signer!);
-            const accountRewards =
-              _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
-            const accountStrategyPercent = mulDecimal(
-              divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
-              '100'
-            );
+              // const stratConnected = _strategy.strategyContract.connect(signer!);
+              // const accountRewards =
+              // _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
 
-            return {
-              ..._strategy,
-              accountBalance,
-              accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
-              accountPoolBalance,
-              accountStrategyPercent,
-              accountRewards: accountRewards,
-              accountRewards_: formatUnits(accountRewards, _strategy.decimals),
-            };
-          })
-        );
-      }
+              const accountRewards = ZERO_BN;
+              const accountStrategyPercent = mulDecimal(
+                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+                '100'
+              );
 
-      const _combinedData = _accountData.length ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
+              return {
+                ..._strategy,
+                accountBalance,
+                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
+                accountPoolBalance,
+                accountStrategyPercent,
+                accountRewards: accountRewards,
+                accountRewards_: formatUnits(accountRewards, _strategy.decimals),
+              };
+            })
+          )
+        : [];
+
+      const _combinedData = account ? _accountData : _publicData; // .filter( (s:IStrategy) => s.active) ; // filter out strategies with no current series
 
       /* combined account and public series data reduced into a single Map */
       const newStrategyMap = _combinedData.reduce((acc, item) => {
@@ -616,22 +620,15 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           const isVaultMature = isMature(series.maturity);
 
-          const liquidationEvents = (
-            await Promise.all([
-              WitchV1.queryFilter(
-                Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                'earliest', // useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
-                'latest'
-              ),
-              Witch.queryFilter(
-                Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null),
-                'earliest', // useTenderlyFork && tenderlyStartBlock ? tenderlyStartBlock : 'earliest',
-                'latest'
-              ),
-            ])
-          ).flat();
-
-          const hasBeenLiquidated = liquidationEvents.length > 0;
+          const liquidationEvents = !useForkedEnv
+            ? await Promise.all([
+                WitchV1.queryFilter(
+                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
+                Witch.queryFilter(
+                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
+              ])
+            : [];
+          const hasBeenLiquidated = liquidationEvents.flat().length > 0;
 
           let accruedArt: BigNumber;
           let rateAtMaturity: BigNumber;
@@ -642,7 +639,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
 
             const RateOracle = contracts.get(oracleName!);
-            rateAtMaturity = await Cauldron?.ratesAtMaturity(seriesId);
+            rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
             [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
             [accruedArt] = rateAtMaturity.gt(ZERO_BN)
@@ -702,7 +699,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics,
       isMature,
       seriesRootMap,
-      startBlock,
       useForkedEnv,
     ]
   );
