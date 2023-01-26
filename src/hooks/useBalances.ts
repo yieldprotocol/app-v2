@@ -19,15 +19,18 @@ const useBalances = (assetList: IAssetRoot[], enabled: boolean = false) => {
   const { address: account } = useAccount();
 
   // Data to read
-  const contracts = useMemo(() => {
-    if (!account) return []; //return an empty array if no account
-    return assetList.map((a: IAssetRoot) => ({
-      address: a.address as Address,
-      args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
-      functionName: 'balanceOf',
-      abi: a.tokenIdentifier ? erc1155ABI : erc20ABI,
-    }));
-  }, [account, assetList]);
+  const contracts = useMemo(
+    () => !!account ? // if there is an account, get the balances, esle return empty array
+      assetList.map((a: IAssetRoot) => {
+        return {
+          address: a.address as Address,
+          args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
+          functionName: 'balanceOf',
+          abi: a.tokenIdentifier ? erc1155ABI : erc20ABI, // : a!.assetContract!.interface!.format()! as const,
+        };
+      }): [],
+    [account, assetList]
+  );
 
   const formatData = (_data: BigNumber[]) =>
     _data?.map((d: any, i: number) => {
@@ -38,11 +41,17 @@ const useBalances = (assetList: IAssetRoot[], enabled: boolean = false) => {
       } as BalanceData;
     });
 
-  const { data, isLoading, isFetched, refetch } = useContractReads({
+  const {
+    data,
+    isLoading,
+    isFetched,
+    refetch,
+  } = useContractReads({
     contracts,
-    enabled: false,
+    enabled: false, // false so that the hook only runs on demand (when refetch() is called)
     select: (data: any[]): BalanceData[] => formatData(data),
-  }); // false so that the hook only runs on demand (when refetch() is called)
+  });
+
 
   isLoading && console.log('::: Refetching Asset balances :::');
 

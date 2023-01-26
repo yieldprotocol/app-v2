@@ -38,7 +38,7 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
-import { useAssetPair } from '../../hooks/useAssetPair';
+import { useAssetPairs } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
 import { useAccount, useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
@@ -66,12 +66,11 @@ const VaultPosition = () => {
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
 
+  const { assetPairs } = useAssetPairs(vaultBase?.id, [vaultIlk?.id]);
   const { data: ilkBal } = useBalance({
     address: account,
     token: vaultIlk?.proxyId === WETH ? undefined : vaultIlk?.address as Address,
   });
-
-  const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
 
   /* TX info (for disabling buttons) */
   const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(
@@ -142,23 +141,23 @@ const VaultPosition = () => {
     unhealthyCollatRatio,
     liquidationPrice_,
     minSafeCollatRatioPct,
-  } = useCollateralHelpers('0', '0', _selectedVault, assetPairInfo);
+  } = useCollateralHelpers('0', '0', _selectedVault, assetPairs[0]);
 
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
     `-${repayInput! || '0'}`,
     '0',
     _selectedVault,
-    assetPairInfo
+    assetPairs[0]
   );
 
   const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
-    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPairInfo);
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPairs[0]);
 
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
     _selectedVault,
-    assetPairInfo
+    assetPairs[0]
   );
 
   const {
@@ -175,7 +174,7 @@ const VaultPosition = () => {
     debtInBase,
     debtInBase_,
     rollProtocolLimited,
-  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
+  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairs[0], rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',

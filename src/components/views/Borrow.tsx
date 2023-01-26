@@ -44,7 +44,7 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
-import { useAssetPair } from '../../hooks/useAssetPair';
+import { useAssetPairs } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
@@ -91,7 +91,8 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const assetPairInfo = useAssetPair(selectedBase!, selectedIlk!);
+  const { assetPairs } = useAssetPairs(selectedBase?.id, [selectedIlk?.id]);
+
   const {
     collateralizationPercent,
     undercollateralized,
@@ -102,13 +103,13 @@ const Borrow = () => {
     minCollatRatioPct,
     totalCollateral_,
     liquidationPrice_,
-  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPairInfo);
+  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPairs[0]);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,
-    assetPairInfo,
+    assetPairs[0],
     selectedSeries
   );
 

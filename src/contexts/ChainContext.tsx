@@ -153,6 +153,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const _getAssets = async (chain: number) => {
+    
     /* handle caching */
     const cacheKey = `assets_${chain}`;
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
