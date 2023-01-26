@@ -35,7 +35,7 @@ export const UNI = '0x313000000000';
 export const yvUSDC = '0x303900000000';
 export const MKR = '0x313100000000';
 export const FRAX = '0x313800000000';
-export const RETH = '0xE03016000000';
+export const RETH = '0xe03016000000';
 
 /* Notional fCash assets */
 export const FDAI2203 = '0x313200000000';
