@@ -91,7 +91,7 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const { assetPairs } = useAssetPairs(selectedBase?.id, [selectedIlk?.id]);
+  const { assetPair } = useAssetPairs(selectedBase?.id, [selectedIlk?.id]);
 
   const {
     collateralizationPercent,
@@ -103,13 +103,13 @@ const Borrow = () => {
     minCollatRatioPct,
     totalCollateral_,
     liquidationPrice_,
-  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPairs[0]);
+  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPair);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,
-    assetPairs[0],
+    assetPair,
     selectedSeries
   );
 

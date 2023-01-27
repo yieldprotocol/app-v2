@@ -84,53 +84,24 @@ export const useAssetPairs = (base?: string, collaterals: (string | undefined)[]
     return null;
   };
 
-  const groupKeyFn = () => {
-    if (base && collaterals) {
-      return [base, collaterals[0]];
-    }
-    return null;
-  };
 
-  const getAssetPairGroup = async ([baseId, collaterals]: [string, (string | undefined)[]]) => {
-
-
-
-    return [] as IAssetPair[];
-  };
-
-
-  const getAllPairsMiddleWare: Middleware = (useSWRNext: SWRHook) => (key, fetcher, config) => {
-
-
-  // :::: MIDDLEWARE EXAMPLE :::: Serialize the key.
-  // const serializedKey = Array.isArray(key) ? JSON.stringify(key) : key;
-  // Pass the serialized key, and unserialize it in fetcher.
-  // return useSWRNext(serializedKey, (k: any) => fetcher(...JSON.parse(k)), config);
-
-  // if ( )
-  
-  return useSWRNext(key, fetcher, config);
-
-  };
-
-  const { data, error } = useSWR(pairKeyFn, getAssetPair, {
+  const { data: assetPair, error } = useSWR(pairKeyFn, getAssetPair, {
     // use: [serialize],
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
 
-  const { data: assetPairs, error: groupError } = useSWR([base, collaterals], getAssetPairGroup, {
-    use: [ getAllPairsMiddleWare ],
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-
+  // const { data: assetPairs, error: groupError } = useSWR([base, collaterals], getAssetPairGroup, {
+  //   use: [ getAllPairsMiddleWare ],
+  //   revalidateIfStale: false,
+  //   revalidateOnFocus: false,
+  //   revalidateOnReconnect: false,
+  // });
 
   return {
-    assetPairs: assetPairs,
-    isLoading: !assetPairs && !error,
+    assetPair,
+    isLoading: !assetPair && !error,
     // key: pairKeyFn(),
   };
 };

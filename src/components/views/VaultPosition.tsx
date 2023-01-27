@@ -66,7 +66,7 @@ const VaultPosition = () => {
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
 
-  const { assetPairs } = useAssetPairs(vaultBase?.id, [vaultIlk?.id]);
+  const { assetPair } = useAssetPairs(vaultBase?.id, [vaultIlk?.id]);
   const { data: ilkBal } = useBalance({
     address: account,
     token: vaultIlk?.proxyId === WETH ? undefined : vaultIlk?.address as Address,
@@ -141,23 +141,23 @@ const VaultPosition = () => {
     unhealthyCollatRatio,
     liquidationPrice_,
     minSafeCollatRatioPct,
-  } = useCollateralHelpers('0', '0', _selectedVault, assetPairs[0]);
+  } = useCollateralHelpers('0', '0', _selectedVault, assetPair);
 
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
     `-${repayInput! || '0'}`,
     '0',
     _selectedVault,
-    assetPairs[0]
+    assetPair
   );
 
   const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
-    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPairs[0]);
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPair);
 
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
     _selectedVault,
-    assetPairs[0]
+    assetPair
   );
 
   const {
@@ -174,7 +174,7 @@ const VaultPosition = () => {
     debtInBase,
     debtInBase_,
     rollProtocolLimited,
-  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairs[0], rollToSeries);
+  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPair, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
