@@ -8,7 +8,7 @@ import { useConnection } from '../hooks/useConnection';
 import yieldEnv from './yieldEnv.json';
 import * as contracts from '../contracts';
 import { IAssetRoot, IChainContextState, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { AssetStaticInfo, ASSETS_1, ASSETS_42161, ETH_BASED_ASSETS } from '../config/assets';
+import { AssetStaticInfo, ASSETS, ETH_BASED_ASSETS } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType, getSeriesAfterRollPosition } from '../utils/appUtils';
 
@@ -253,10 +253,10 @@ const ChainProvider = ({ children }: any) => {
       const STRATEGY_CONFIG = STRATEGIES.get(fallbackChainId);
 
       /* get asset map config */
-      const ASSET_CONFIG = fallbackChainId === 1 ? ASSETS_1 : ASSETS_42161;
+      const ASSET_CONFIG = ASSETS.get(fallbackChainId);
 
       /* get series map config */
-      const SERIES_CONFIG =  SERIES.get(fallbackChainId);
+      const SERIES_CONFIG = SERIES.get(fallbackChainId);
 
       /* add on extra/calculated ASSET info and contract instances  (no async) */
       const _chargeAsset = (asset: any) => {
@@ -342,7 +342,10 @@ const ChainProvider = ({ children }: any) => {
               }
             }
             /* checks & corrects the version for ERC20Permit/ DAI permit tokens */
-            if (AssetStaticInfo.tokenType === TokenType.ERC20_Permit || AssetStaticInfo.tokenType === TokenType.ERC20_DaiPermit) {
+            if (
+              AssetStaticInfo.tokenType === TokenType.ERC20_Permit ||
+              AssetStaticInfo.tokenType === TokenType.ERC20_DaiPermit
+            ) {
               const contract = contracts.ERC20Permit__factory.connect(AssetStaticInfo.assetAddress, fallbackProvider);
               try {
                 version = await contract.version();
@@ -392,12 +395,7 @@ const ChainProvider = ({ children }: any) => {
       };
 
       /* add on extra/calculated ASYNC series info and contract instances */
-      const _chargeSeries = (series: {
-        maturity: number;
-        baseId: string;
-        poolAddress: string;
-        address: string;
-      }) => {
+      const _chargeSeries = (series: { maturity: number; baseId: string; poolAddress: string; address: string }) => {
         /* contracts need to be added in again in when charging because the cached state only holds strings */
         const poolContract = contracts.Pool__factory.connect(series.poolAddress, fallbackProvider);
         const fyTokenContract = contracts.FYToken__factory.connect(series.address, fallbackProvider);
@@ -421,7 +419,6 @@ const ChainProvider = ({ children }: any) => {
           displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
           displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
 
-
           season,
           startColor,
           endColor,
@@ -436,34 +433,31 @@ const ChainProvider = ({ children }: any) => {
       };
 
       const _getSeries = async () => {
-
         let seriesList = Array.from(SERIES_CONFIG.values());
 
         // await validateSeries(fallbackProvider, addrs.Cauldron )
 
-        await Promise.all(seriesList.map(async (series:SeriesStaticInfo)=> { 
-          /* development get ts g1 g2 values */ 
-          if (false) {
-            const poolContract = Pool__factory.connect(series.poolAddress, fallbackProvider);
-            const [ts, g1, g2 ] = await Promise.all([
-              poolContract.ts(),
-              poolContract.g1(),
-              poolContract.g2(),
-            ]);
-            console.log( series.symbol, ts, g1,g2)
-          }
-          const seriesDefaults = {
-            ...series,
-            //version: series.version || '1',
-            poolVersion: series.poolVersion || '1',
-            // decimals: series.decimals || '18',
-          }
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(seriesDefaults) });
-        }))
+        await Promise.all(
+          seriesList.map(async (series: SeriesStaticInfo) => {
+            /* development get ts g1 g2 values */
+            if (false) {
+              const poolContract = Pool__factory.connect(series.poolAddress, fallbackProvider);
+              const [ts, g1, g2] = await Promise.all([poolContract.ts(), poolContract.g1(), poolContract.g2()]);
+              console.log(series.symbol, ts, g1, g2);
+            }
+            const seriesDefaults = {
+              ...series,
+              //version: series.version || '1',
+              poolVersion: series.poolVersion || '1',
+              // decimals: series.decimals || '18',
+            };
+            updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(seriesDefaults) });
+          })
+        );
 
         // log the new assets in the cache
         setCachedSeries(seriesList);
-        console.log('Yield Protocol Series data updated successfully.' );
+        console.log('Yield Protocol Series data updated successfully.');
       };
 
       /* Attach contract instance */
@@ -518,17 +512,15 @@ const ChainProvider = ({ children }: any) => {
       /**
        * LOAD the Series and Assets *
        * */
-      if ( cachedAssets.length === 0 ) {
+      if (cachedAssets.length === 0) {
         console.log('FIRST LOAD: Loading Asset and Strategies data ');
         // (async () => await validateStrategies(fallbackProvider) )();
         (async () => {
-          await Promise.all([ _getAssets(), _getSeries(), _getStrategies()]);
+          await Promise.all([_getAssets(), _getSeries(), _getStrategies()]);
           updateState({ type: ChainState.CHAIN_LOADING, payload: false });
           setLoadingFlag(false);
         })();
-        
       } else {
-
         cachedSeries.forEach(async (s: ISeriesRoot) => {
           updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s) });
         });

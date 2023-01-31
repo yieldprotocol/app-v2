@@ -719,9 +719,9 @@ const UserProvider = ({ children }: any) => {
 
             const stratConnected = _strategy.strategyContract.connect(signer);
             const accountRewards =
-              _strategy.rewardsRate.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
-            console.log( accountRewards.gt(ZERO_BN)? accountRewards.toString(): 'no rewards' )
-            
+              _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
+            console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
+
             const accountStrategyPercent = mulDecimal(
               divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
               '100'
