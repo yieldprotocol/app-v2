@@ -523,7 +523,7 @@ ASSETS.set(
       RETH,
       {
         assetAddress: '0xae78736Cd615f374D3085123A210448E74Fc6393',
-        joinAddress: '0x293cae8869ede5edb09ff14855e8218c620a49ef',
+        joinAddress: '0x6fb97c793f0d83cda7796f45a2bb697e73a045a8',
         version: '1',
         name: 'RocketPool ETH',
         decimals: 18, // how do i determine this?
