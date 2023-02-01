@@ -8,6 +8,7 @@ import FRAXMark from '../components/logos/FRAXMark';
 import LinkMark from '../components/logos/LinkMark';
 import MakerMark from '../components/logos/MakerMark';
 import NotionalMark from '../components/logos/NotionalMark';
+import REthMark from '../components/logos/REthMark';
 import StEthMark from '../components/logos/StEthMark';
 import TSTMark from '../components/logos/TSTMark';
 import UNIMark from '../components/logos/UNIMark';
@@ -38,16 +39,11 @@ const markMap = new Map([
   [
     'Crabv2',
     <Box key="crab">
-      {' '}
-      <Text size="1em">🦀</Text>{' '}
+      <Text size="1em">🦀</Text>
     </Box>,
   ],
   [
-    'rETH',
-    <Box key="crab">
-      {' '}
-      <Text size="1em">🚀</Text>{' '}
-    </Box>,
+    'rETH', <REthMark key="reth" />,
   ],
 ]);
 
