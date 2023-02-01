@@ -461,7 +461,7 @@ ASSETS.set(
         digitFormat: 2,
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563381925773313,
-        limitToSeries: ['0x0031FF00028B'],
+        limitToSeries: ['0x0031ff00028b'],
       },
     ],
     [
@@ -477,7 +477,7 @@ ASSETS.set(
         digitFormat: 2,
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844856902483969,
-        limitToSeries: ['0x0032FF00028B'],
+        limitToSeries: ['0x0032ff00028b'],
       },
     ],
     [
@@ -493,7 +493,7 @@ ASSETS.set(
         digitFormat: 6,
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 281906949062657,
-        limitToSeries: ['0x0030FF00028B'],
+        limitToSeries: ['0x0030ff00028b'],
       },
     ],
     [
