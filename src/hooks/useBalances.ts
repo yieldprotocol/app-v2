@@ -52,7 +52,6 @@ const useBalances = (assetList: IAssetRoot[], enabled: boolean = false) => {
     select: (data: any[]): BalanceData[] => formatData(data),
   });
 
-
   isLoading && console.log('::: Refetching Asset balances :::');
 
   return { data, isLoading, refetch };

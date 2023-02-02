@@ -16,12 +16,12 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { assetMap, seriesMap, strategiesLoading, selectedStrategy },
+    userState: { assetMap, strategiesLoading, selectedStrategy },
     userActions,
   } = useContext(UserContext);
 
   const base = assetMap?.get(strategy.baseId) || null;
-  const series = strategy.currentSeries || null; // seriesMap.get(strategy.currentSeries.id) || null;
+  const series = strategy.currentSeries || null;
 
   const isSelectedStrategy = strategy.id === selectedStrategy?.id;
 

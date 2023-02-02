@@ -34,7 +34,7 @@ export const useAddLiquidity = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap, selectedStrategy, selectedBase } = userState;
+  const { assetMap, selectedStrategy, selectedBase } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
 
   const { address: account } = useAccount();

@@ -126,7 +126,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   const { userState, userActions } = useContext(UserContext);
 
-  const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
+  const { selectedStrategy, selectedBase, strategiesLoading, strategyMap } = userState;
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
