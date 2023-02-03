@@ -1,6 +1,6 @@
 import { BaseProvider } from '@ethersproject/providers';
 import { Strategy__factory } from '../contracts';
-import { DAI, FRAX, USDC, WETH } from './assets';
+import { DAI, FRAX, USDC, WETH, USDT } from './assets';
 
 export enum StrategyType {
   V1 = 'V1',
@@ -132,13 +132,32 @@ STRATEGIES.set(1, [
     version: '1',
   },
   {
-    address: '0x4B010fA49E8b673D0682CDeFCF7834328076748C',
+    address: '0x4B010fA49E8b673D0682CDeFCF7834328076748C', // strategy
     type: StrategyType.V2,
     associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
     symbol: 'YSFRAX6MJD',
     baseId: FRAX,
     name: 'Yield Strategy FRAX 6M Jun Dec',
     decimals: 18,
+    version: '1',
+  },
+
+  {
+    address: '0x50ed6c3954ee5e30f00b06d31cb7c7d63dcf3d17',
+    type: StrategyType.V2,
+    symbol: 'YSUSDT6MJD', // from 0x78de61c02efe9205f23dc3c58812d0b2815ee15f
+    baseId: USDT,
+    name: 'Yield Strategy USDT 6M Jun Dec',
+    decimals: 6,
+    version: '1',
+  },
+  {
+    address: '0x4fc91d44f0ec53f09ff1c92fae8b1b00a24cb762',
+    type: StrategyType.V2,
+    symbol: 'YSUSDT6MJD', // from 0x78de61c02efe9205f23dc3c58812d0b2815ee15f
+    baseId: USDT,
+    name: 'Yield Strategy USDT 6M Mar Sep',
+    decimals: 6,
     version: '1',
   },
 ]);

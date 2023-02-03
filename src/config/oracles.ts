@@ -24,7 +24,8 @@ import {
   FDAI2209,
   FRAX,
   CVX3CRV,
-  CRAB
+  CRAB,
+  USDT,
 } from './assets';
 
 const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000';
@@ -153,7 +154,24 @@ fraxIlkOracle1.set(RATE, ACCUMULATOR_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(FRAX, fraxIlkOracle1);
 
+// USDT base
+const usdtIlkOracle1 = new Map<string, string>();
+usdtIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
+usdtIlkOracle1.set(DAI, CHAINLINK_MULTI_ORACLE);
+usdtIlkOracle1.set(USDC, CHAINLINK_MULTI_ORACLE);
+usdtIlkOracle1.set(WBTC, CHAINLINK_MULTI_ORACLE);
+usdtIlkOracle1.set(stETH, COMPOSITE_MULTI_ORACLE);
+usdtIlkOracle1.set(wstETH, COMPOSITE_MULTI_ORACLE);
+usdtIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
+usdtIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
+usdtIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
+usdtIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
+usdtIlkOracle1.set(CRAB, COMPOSITE_MULTI_ORACLE);
 
+/* rate */
+usdtIlkOracle1.set(RATE, COMPOUND_MULTI_ORACLE);
+
+CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDT, usdtIlkOracle1);
 
 /* chain id 42161, 421611 (aribtrum mainnet and arbitrum rinkeby use the same oracle contracts) */
 
@@ -206,7 +224,6 @@ ethIlkOracle421611.set(wstETH, CHAINLINK_USD_ORACLE);
 ethIlkOracle421611.set(RATE, ACCUMULATOR_ORACLE);
 
 CHAIN_ID_42161_ASSET_ORACLE_INFO.set(WETH, ethIlkOracle421611);
-
 
 ORACLE_INFO.set(1, CHAIN_ID_1_ASSET_ORACLE_INFO);
 ORACLE_INFO.set(42161, CHAIN_ID_42161_ASSET_ORACLE_INFO);

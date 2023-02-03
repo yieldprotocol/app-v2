@@ -67,7 +67,6 @@ export const useAddLiquidity = () => {
     const _series = strategy.currentSeries!;
     const _base = assetMap?.get(_series?.baseId!)!;
 
-
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
@@ -212,6 +211,8 @@ export const useAddLiquidity = () => {
       return []; // sends back an empty array [] if not eth base
     };
 
+    console.log('isEthBase', isEthBase);
+
     /**
      * BUILD CALL DATA ARRAY
      * */
@@ -237,8 +238,8 @@ export const useAddLiquidity = () => {
           strategy.address || account, // NOTE GOTCHA: receiver is _strategyAddress (if it exists) or else account
           account,
           fyTokenToBuy,
-          minRatio,
-          maxRatio,
+          ethers.constants.Zero,
+          MAX_256,
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: _series.poolContract,

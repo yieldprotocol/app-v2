@@ -59,10 +59,9 @@ export const useChain = () => {
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.MODULE) {
         if (call.fnName && call.targetContract) {
-
-          console.log('contract', call.targetContract ) 
-          console.log('fnName', call.fnName )
-          console.log('args', call.args ) 
+          console.log('contract', call.targetContract);
+          console.log('fnName', call.fnName);
+          console.log('args', call.args);
           const encodedFn = (call.targetContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
 
           if (call.operation === LadleActions.Fn.ROUTE)
@@ -89,7 +88,6 @@ export const useChain = () => {
 
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);
-    console.log('Batch value sent:', batchValue.toString());
 
     /* calculate the gas required */
     let gasEst: BigNumber;
@@ -238,7 +236,7 @@ export const useChain = () => {
         );
 
         const args = [
-          reqSig.target.address, 
+          reqSig.target.address,
           _spender,
           value,
           deadline,

@@ -57,9 +57,10 @@ export const FUSDC2303 = '0x323600000000';
 
 export const FETH2306 = '0x40301200028B';
 export const FDAI2306 = '0x40311200028B';
-export const FUSDC2306 = '0x40321200028B'; 
+export const FUSDC2306 = '0x40321200028B';
 
-export const CRAB = '0x333800000000'
+export const CRAB = '0x333800000000';
+export const USDT = '0x30a000000000';
 
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
@@ -434,7 +435,7 @@ ASSETS_1.set(FETH2306, {
   showToken: true,
   digitFormat: 6,
   tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 281906949062657,  
+  tokenIdentifier: 281906949062657,
   limitToSeries: ['0x0030FF00028B'],
 });
 
@@ -448,10 +449,29 @@ ASSETS_1.set(CRAB, {
   showToken: true,
   digitFormat: 2,
   tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303030380000','0x303030390000', '0x303130380000','0x303130390000','0x303230380000', '0x303230390000'],
+  limitToSeries: [
+    '0x303030380000',
+    '0x303030390000',
+    '0x303130380000',
+    '0x303130390000',
+    '0x303230380000',
+    '0x303230390000',
+  ],
   isYieldBase: false,
-}); 
+});
 
+ASSETS_1.set(USDT, {
+  assetAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+  joinAddress: '0x7412987ef9e04bc77325ae595eaabbc9f313f79c',
+  version: '1',
+  name: 'Tether',
+  decimals: 6,
+  symbol: 'USDT',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+  isYieldBase: true,
+});
 
 // ASSETS_1.set(CVX3CRV, {
 //   assetAddress: '',
@@ -516,4 +536,3 @@ ASSETS_42161.set(WETH, {
   joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
   isYieldBase: true,
 });
-

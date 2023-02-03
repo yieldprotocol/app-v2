@@ -144,7 +144,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { getForkStartBlock } = useFork();
-  
+
   const contracts = useContracts();
 
   const {
@@ -469,6 +469,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
+
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
@@ -484,7 +485,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             let rewardsTokenAddress: string | undefined;
 
             try {
-
               const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
                 _strategy.strategyContract.rewardsPerToken(),
                 _strategy.strategyContract.rewardsPeriod(),
@@ -493,14 +493,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsPeriod = { start, end };
               rewardsRate = rate;
               rewardsTokenAddress = rewardsToken;
-
             } catch (e) {
-
               console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
               rewardsPeriod = undefined;
               rewardsRate = undefined;
               rewardsTokenAddress = undefined;
-              
             }
 
             /* Decide if stragtegy should be 'active' */
@@ -540,10 +537,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /* Add in account specific data */
       const _accountData = account
         ? await Promise.all(
-            
-          _publicData.map( async (_strategy: IStrategy): Promise<IStrategy> => {
-              
-            const [accountBalance, accountPoolBalance] = await Promise.all([
+            _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
+              const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract.balanceOf(account),
                 _strategy.currentSeries?.poolContract.balanceOf(account),
               ]);
@@ -622,10 +617,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           const liquidationEvents = !useForkedEnv
             ? await Promise.all([
-                WitchV1.queryFilter(
-                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
-                Witch.queryFilter(
-                  Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
+                WitchV1.queryFilter(Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
+                Witch.queryFilter(Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
               ])
             : [];
           const hasBeenLiquidated = liquidationEvents.flat().length > 0;
@@ -690,17 +683,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics && console.log('Vaults updated successfully.');
       updateState({ type: UserState.VAULTS_LOADING, payload: false });
     },
-    [
-      _getVaults,
-      account,
-      assetRootMap,
-      chainId,
-      contracts,
-      diagnostics,
-      isMature,
-      seriesRootMap,
-      useForkedEnv,
-    ]
+    [_getVaults, account, assetRootMap, chainId, contracts, diagnostics, isMature, seriesRootMap, useForkedEnv]
   );
 
   /**
