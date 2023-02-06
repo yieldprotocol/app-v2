@@ -28,7 +28,7 @@ export const useLendHelpers = (
   const { userState } = useContext(UserContext);
   const { selectedBase } = userState;
 
-  const { data: seriesEntities } = useSeriesEntities();
+  const { data: seriesEntities } = useSeriesEntities(undefined);
   const { data: seriesEntity } = useSeriesEntities(series?.id);
 
   useEffect(() => {
