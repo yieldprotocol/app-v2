@@ -11,6 +11,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import { cleanValue } from '../../utils/appUtils';
 import { WETH } from '../../config/assets';
+import useSeriesEntities from '../useSeriesEntities';
 
 export const useLendHelpers = (
   series: ISeries | null,
@@ -26,6 +27,21 @@ export const useLendHelpers = (
 
   const { userState } = useContext(UserContext);
   const { selectedBase } = userState;
+
+  const { data: seriesEntities } = useSeriesEntities();
+  const { data: seriesEntity } = useSeriesEntities(series?.id);
+
+  useEffect(() => {
+    if (seriesEntity) {
+      console.log('🦄 ~ file: useLendHelpers.ts:38 ~ seriesEntity', seriesEntity);
+    }
+  });
+
+  useEffect(() => {
+    if (seriesEntities) {
+      console.log('🦄 ~ file: useLendHelpers.ts:45 ~ seriesEntities', seriesEntities);
+    }
+  }, [seriesEntities]);
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
@@ -53,7 +69,7 @@ export const useLendHelpers = (
   const { address: account } = useAccount();
   const { data } = useBalance({
     address: account,
-    token: selectedBase?.proxyId === WETH ? undefined : selectedBase?.address as Address,
+    token: selectedBase?.proxyId === WETH ? undefined : (selectedBase?.address as Address),
     enabled: !!activeAccount && !!selectedBase,
   });
   const userBaseBalance = data?.value || ethers.constants.Zero;

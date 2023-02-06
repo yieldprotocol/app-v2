@@ -24,7 +24,7 @@ export const useLend = () => {
   const { assetMap, selectedSeries, selectedBase } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { address: account } = useAccount();
-  
+
   const { refetch: refetchFyTokenBal } = useBalance({ address: account, token: selectedSeries?.address as Address });
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
