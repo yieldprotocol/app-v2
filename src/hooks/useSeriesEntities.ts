@@ -26,11 +26,11 @@ export const useSeriesEntities = (seriesId: string | undefined) => {
   // This function is used to generate the key for the main useSWR hook below
   const genKey = useCallback(() => {
     if (seriesId) {
-      return ['seriesEntities', chainId, seriesEntities, seriesId];
+      return [...DEFAULT_SWR_KEY, seriesEntities, seriesId];
     }
 
     return DEFAULT_SWR_KEY;
-  }, [DEFAULT_SWR_KEY, chainId, seriesEntities, seriesId]);
+  }, [DEFAULT_SWR_KEY, seriesEntities, seriesId]);
 
   // gets a specific series entity or all series entities if no seriesId is provided
   const main = async () => {
