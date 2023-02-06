@@ -13,6 +13,7 @@ export const useSeriesEntities = (seriesId: string | undefined) => {
 
   const getSeriesEntities = async () => {
     console.log('getting all series data');
+    // return getSeriesEntitiesStatic();
     const newMap = seriesRootMap;
     return newMap;
   };
@@ -37,6 +38,8 @@ export const useSeriesEntities = (seriesId: string | undefined) => {
     if (!seriesId) return seriesEntities;
 
     console.log('getting series entity data for series with id: ', seriesId);
+    // get dynamic series entity data
+    // return getSeriesEntityDynamic(seriesId);
     return seriesEntities?.has(seriesId) ? seriesEntities.get(seriesId) : undefined;
   };
 
