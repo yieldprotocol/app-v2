@@ -41,7 +41,7 @@ export const useSeriesEntities = (seriesId: string | undefined) => {
   };
 
   // main entry hook that returns either a specific series entity's data, or all series entities' data if no seriesId is provided
-  const { data, error } = useSWR(() => genKey(), main, {
+  const { data, error } = useSWR(genKey, main, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
