@@ -2,7 +2,6 @@ import { IAssetRoot, ISeriesRoot, IStrategyRoot } from '../../types';
 
 export enum ChainState {
   CHAIN_LOADED = 'chainLoaded',
-  ADD_SERIES = 'addSeries',
   ADD_ASSET = 'addAsset',
   ADD_STRATEGY = 'addStrategy',
   CLEAR_MAPS = 'clearMaps',
@@ -16,7 +15,6 @@ export interface IChainContext {
 export interface IChainContextState {
   chainLoaded: number;
   assetRootMap: Map<string, IAssetRoot>;
-  seriesRootMap: Map<string, ISeriesRoot>;
   strategyRootMap: Map<string, IStrategyRoot>;
 }
 
@@ -34,11 +32,6 @@ type AddAssetAction = {
   payload: IAssetRoot;
 };
 
-type AddSeriesAction = {
-  type: ChainState.ADD_SERIES;
-  payload: ISeriesRoot;
-};
-
 type AddStrategyAction = {
   type: ChainState.ADD_STRATEGY;
   payload: IStrategyRoot;
@@ -48,9 +41,4 @@ type ClearMapsAction = {
   type: ChainState.CLEAR_MAPS;
 };
 
-export type ChainContextActions =
-  | ChainLoadedAction
-  | AddAssetAction
-  | AddSeriesAction
-  | AddStrategyAction
-  | ClearMapsAction;
+export type ChainContextActions = ChainLoadedAction | AddAssetAction | AddStrategyAction | ClearMapsAction;

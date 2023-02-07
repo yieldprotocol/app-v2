@@ -10,12 +10,11 @@ import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
 import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 // import * as contracts from '../contracts';
 
-import { nameFromMaturity, getSeason, SeasonType, getSeriesAfterRollPosition } from '../utils/appUtils';
+import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
 
-// import { SERIES } from '../config/series';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
 import useContracts, { ContractNames } from '../hooks/useContracts';
@@ -33,9 +32,7 @@ const initState: IChainContextState = {
   chainLoaded: 0,
   /* rootMaps */
   assetRootMap: new Map<string, IAssetRoot>(),
-  seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
-
 };
 
 const initActions: IChainContextActions = {
@@ -153,7 +150,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const _getAssets = async (chain: number) => {
-    
     /* handle caching */
     const cacheKey = `assets_${chain}`;
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
@@ -247,50 +243,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     [provider]
   );
 
-  const _getSeries = useCallback(
-    async (chain: number) => {
-      /* Handle caching of series */
-      const cacheKey = `series_${chain}`;
-      const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-
-      if (cachedValues !== null && cachedValues.length) {
-        console.log('::: CACHE ::: Yield Protocol SERIES data retrieved ');
-        return cachedValues.forEach((s: ISeriesStatic) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, chain) });
-        });
-      }
-
-      const seriesMap = SERIES.get(chain);
-      let seriesList = Array.from(seriesMap!.values());
-      const newSeriesList: ISeriesStatic[] = [];
-
-      await Promise.all(
-        seriesList.map(async (series: ISeriesStatic) => {
-          if (false) {
-            // eg. development get ts g1 g2 values
-            const poolContract = Pool__factory.connect(series.poolAddress, provider);
-            const [ts, g1, g2] = await Promise.all([poolContract.ts(), poolContract.g1(), poolContract.g2()]);
-            console.log(series.symbol, ts, g1, g2);
-          }
-          /* Space to do some async stuff here if required... */
-          const newSeries = {
-            ...series,
-            // version: series.version || '1',
-            // poolVersion: series.poolVersion || '1',
-            // decimals: series.decimals || '18',
-          };
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries, chain) });
-          newSeriesList.push(newSeries);
-        })
-      ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
-
-      /* cache results */
-      newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
-      newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
-    },
-    [_chargeSeries, contracts, provider]
-  );
-
   /* Attach contract instance */
   const _chargeStrategy = useCallback(
     (strategy: any) => {
@@ -373,17 +325,17 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
         chain
       );
 
-      await Promise.all([_getAssets(chain), _getSeries(chain), _getStrategies(chain)])
+      await Promise.all([_getAssets(chain), _getStrategies(chain)])
         .catch(() => {
           toast.error('Error getting Yield Protocol data.');
           console.log('Error getting Yield Protocol data.');
         })
         .finally(() => {
-          console.log( 'Yield Protocol Loaded : ', chainId )
+          console.log('Yield Protocol Loaded : ', chainId);
           updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
         });
     },
-    [_getAssets, _getSeries, _getStrategies]
+    [_getAssets, _getStrategies, chainId]
   );
 
   /**
@@ -397,7 +349,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       location.reload();
     }
     setLastAppVersion(process.env.REACT_APP_VERSION);
-  }, [ lastAppVersion ]);
+  }, [lastAppVersion]);
 
   /* Hande getting protocol data on first load */
   useEffect(() => {
