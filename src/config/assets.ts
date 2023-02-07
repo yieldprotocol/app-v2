@@ -183,7 +183,7 @@ ASSETS.set(
         name: 'Staked Eth',
         decimals: 18,
         symbol: 'stETH',
-        showToken: false,
+        showToken: true,
         digitFormat: 6,
         tokenType: TokenType.ERC20_Permit,
         wrapHandlerAddresses: new Map([[1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1']]),
