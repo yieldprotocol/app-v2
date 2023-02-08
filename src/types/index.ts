@@ -1,6 +1,7 @@
 import { Block } from '@ethersproject/providers';
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import { ReactNode } from 'react';
+import { ISeriesStatic } from '../config/series';
 import { IChainContextActions } from '../contexts/types/chain';
 import { FYToken, Pool, Strategy } from '../contracts';
 
@@ -79,28 +80,12 @@ export interface ISignable {
   tokenType?: TokenType;
 }
 
-export interface ISeriesRoot extends ISignable {
+export interface ISeriesRoot extends ISignable, ISeriesStatic {
   id: string;
   displayName: string;
   displayNameMobile: string;
-  maturity: number;
-  showSeries: boolean;
-  decimals: number;
 
   fullDate: string;
-  fyTokenContract: FYToken;
-  
-  poolContract: Pool;
-  poolAddress: string;
-  poolName: string;
-  poolVersion: string; // for signing
-  poolSymbol: string; // for signing
-  ts: string;
-  g1: string;
-  g2: string;
-
-  // startBlock: Block; // pool init block
-  baseId: string;
 
   color: string;
   textColor: string;
@@ -110,8 +95,8 @@ export interface ISeriesRoot extends ISignable {
   oppStartColor: string;
   oppEndColor: string;
 
-  seriesMark: ReactNode;
-
+  seriesMark?: ReactNode;
+  seriesIsMature: boolean;
 }
 
 export enum TokenType {
@@ -239,7 +224,8 @@ export interface ISeries extends ISeriesRoot {
   initInvariant?: BigNumber;
   startBlock: Block;
 
-  // showSeries: boolean;
+  poolContract: Pool;
+  fyTokenContract: FYToken;
 }
 
 export interface IDummyVault extends IVaultRoot {}
@@ -268,7 +254,7 @@ export interface IVault extends IVaultRoot {
 export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
   active: boolean;
-  
+
   currentSeriesAddr?: string;
   currentPoolAddr?: string;
 
@@ -298,7 +284,7 @@ export interface IStrategy extends IStrategyRoot {
 
   accountRewards?: BigNumber;
   accountRewards_?: string;
-                
+
   rewardsTokenAddress?: string;
   rewardsRate?: BigNumber;
   rewardsPeriod?: { start: number; end: number };

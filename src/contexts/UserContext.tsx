@@ -36,17 +36,17 @@ import useFork from '../hooks/useFork';
 import { formatUnits, zeroPad } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import { FaBalanceScale } from 'react-icons/fa';
+import useSeriesEntities from '../hooks/useSeriesEntities';
+import { ISeriesStatic } from '../config/series';
 
 const initState: IUserContextState = {
   userLoading: false,
   /* Item maps */
   assetMap: new Map<string, IAsset>(),
-  seriesMap: new Map<string, ISeries>(),
   vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
 
   vaultsLoading: true,
-  seriesLoading: true,
   assetsLoading: true,
   strategiesLoading: true,
 
@@ -59,7 +59,6 @@ const initState: IUserContextState = {
 };
 
 const initActions: IUserContextActions = {
-  updateSeries: () => null,
   updateAssets: () => null,
   updateVaults: () => null,
   updateStrategies: () => null,
@@ -87,8 +86,6 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
 
     case UserState.VAULTS_LOADING:
       return { ...state, vaultsLoading: action.payload };
-    case UserState.SERIES_LOADING:
-      return { ...state, seriesLoading: action.payload };
     case UserState.ASSETS_LOADING:
       return { ...state, assetsLoading: action.payload };
     case UserState.STRATEGIES_LOADING:
@@ -96,8 +93,6 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
 
     case UserState.ASSETS:
       return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
-    case UserState.SERIES:
-      return { ...state, seriesMap: new Map([...state.seriesMap, ...action.payload]) };
     case UserState.VAULTS:
       return { ...state, vaultMap: new Map([...state.vaultMap, ...action.payload]) };
     case UserState.STRATEGIES:
@@ -125,7 +120,7 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
 const UserProvider = ({ children }: { children: ReactNode }) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext);
-  const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const { chainLoaded, assetRootMap, strategyRootMap } = chainState;
 
   const {
     settingsState: { diagnostics, useForkedEnv },
@@ -145,6 +140,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const { getForkStartBlock } = useFork();
 
+  const { data: seriesRootMap } = useSeriesEntities(undefined);
+
   const contracts = useContracts();
 
   const {
@@ -155,39 +152,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   } = useBalances(
     Array.from(assetRootMap.values()), // asset list : assetRoot[]
     false // enabled : boolean false so that the hook only runs on demand (weh refetch() is called)
-  );
-
-  /* TODO consider moving out of here? */
-  const getPoolAPY = useCallback(
-    async (sharesTokenAddr: string) => {
-      const query = `
-    query ($address: Bytes!) {
-      eulerMarketStore(id: "euler-market-store") {
-        markets(where:{eTokenAddress:$address}) {
-          supplyAPY
-         } 
-      }
-    }
-  `;
-      interface EulerRes {
-        eulerMarketStore: {
-          markets: {
-            supplyAPY: string;
-          }[];
-        };
-      }
-
-      try {
-        const {
-          eulerMarketStore: { markets },
-        } = await request<EulerRes>(EULER_SUPGRAPH_ENDPOINT, query, { address: sharesTokenAddr });
-        return ((+markets[0].supplyAPY * 100) / 1e27).toString();
-      } catch (error) {
-        diagnostics && console.log(`could not get pool apy for pool with shares token: ${sharesTokenAddr}`, error);
-        return undefined;
-      }
-    },
-    [diagnostics]
   );
 
   /* internal function for getting the users vaults */
@@ -206,7 +170,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const vaultsBuilt = (await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate)) || [];
     const buildEventList = vaultsBuilt.map((x) => {
       const { vaultId: id, ilkId, seriesId } = x.args;
-      const series = seriesRootMap.get(seriesId);
+      const series = seriesRootMap[seriesId];
       return {
         id,
         seriesId,
@@ -294,7 +258,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       console.log('Updating strategies...');
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
-      const _seriesList = seriesList.length ? seriesList : Array.from(userState.seriesMap.values());
+      const _seriesList = seriesList.length ? seriesList : Array.from(Object.values(seriesRootMap));
 
       // let _publicData: IStrategy[] = [];
       const _publicData = await Promise.all(
@@ -310,11 +274,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
 
           /* Attatch the current series (if any) */
-          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
+          const poolContract = contractTypes.Pool__factory.connect(currentPoolAddr, provider);
+          const currentSeries = _seriesList.find((s) => s.address === fyToken) as ISeries;
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
-              currentSeries.poolContract.totalSupply(),
-              currentSeries.poolContract.balanceOf(
+              poolContract.totalSupply(),
+              poolContract.balanceOf(
                 hasAnUpdatedVersion && _strategy.associatedStrategy ? _strategy.associatedStrategy : _strategy.address
               ),
             ]);
@@ -379,9 +344,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const _accountData = account
         ? await Promise.all(
             _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
+              const poolContract = contractTypes.Pool__factory.connect(_strategy.currentPoolAddr!, provider);
               const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract.balanceOf(account),
-                _strategy.currentSeries?.poolContract.balanceOf(account),
+                poolContract.balanceOf(account),
               ]);
 
               // const stratConnected = _strategy.strategyContract.connect(signer!);
@@ -421,7 +387,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       return newStrategyMap;
     },
-    [account, userState.seriesMap] // userState.strategyMap excluded on purpose
+    [account, seriesRootMap] // userState.strategyMap excluded on purpose
   );
 
   /* Updates the vaults with *user* data */
@@ -534,20 +500,19 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    *
    * */
   useEffect(() => {
-    if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
+    if (chainLoaded === chainId && assetRootMap.size) {
       updateAssets(Array.from(assetRootMap.values()));
-      updateSeries(Array.from(seriesRootMap.values()));
       account && updateVaults();
     }
-  }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateSeries, updateVaults]);
+  }, [account, assetRootMap, chainLoaded, chainId, updateAssets, updateVaults]);
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
-    if (chainLoaded === chainId && Array.from(userState.seriesMap?.values()!).length) {
+    if (chainLoaded === chainId && seriesRootMap) {
       /*  when series has finished loading,...load/reload strategy data */
       strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [strategyRootMap, userState.seriesMap, chainLoaded, chainId, updateStrategies]);
+  }, [strategyRootMap, seriesRootMap, chainLoaded, chainId, updateStrategies]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
@@ -559,17 +524,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    * Explicitly update selected series on series map changes
    * */
   useEffect(() => {
-    if (userState.selectedSeries && userState.seriesMap) {
+    if (userState.selectedSeries && seriesRootMap) {
       updateState({
         type: UserState.SELECTED_SERIES,
-        payload: userState.seriesMap.get(userState.selectedSeries.id)!,
+        payload: seriesRootMap[userState.selectedSeries.id],
       });
     }
-  }, [userState.selectedSeries, userState.seriesMap]);
+  }, [userState.selectedSeries, seriesRootMap]);
 
   /* Exposed userActions */
   const userActions = {
-    updateSeries,
     updateAssets,
     updateVaults,
     updateStrategies,

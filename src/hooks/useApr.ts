@@ -7,68 +7,67 @@ import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import useTimeTillMaturity from './useTimeTillMaturity';
+import useSeriesEntities, { SeriesEntitiesRoot } from './useSeriesEntities';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { seriesMap, selectedSeries, selectedBase } = userState;
+  const { selectedSeries } = userState;
 
   /* HOOKS */
-  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const _selectedSeries = series || selectedSeries;
+
+  const {
+    data: { seriesEntity },
+  } = useSeriesEntities(_selectedSeries?.id);
+
   /* Make sure there won't be an underflow */
   const _fallbackInput = ETH_BASED_ASSETS.includes(series?.baseId!) ? '0.01' : '1';
-  const _input = Number(input) === 0 ? _fallbackInput : cleanValue(input, _selectedSeries?.decimals);
+  const _input = Number(input) === 0 ? _fallbackInput : cleanValue(input, seriesEntity?.decimals);
 
   /* LOCAL STATE */
   const [apr, setApr] = useState<string | undefined>();
 
   useEffect(() => {
     let preview: ethers.BigNumber | Error = ethers.constants.Zero;
-    if (_selectedSeries) {
-      const baseAmount = ethers.utils.parseUnits(_input || _fallbackInput, _selectedSeries.decimals);
-      const { sharesReserves, fyTokenReserves } = _selectedSeries;
+    if (seriesEntity) {
+      const baseAmount = ethers.utils.parseUnits(_input || _fallbackInput, seriesEntity.decimals);
+      const { sharesReserves, fyTokenReserves } = seriesEntity;
 
       if (actionType === 'LEND')
         preview = sellBase(
           sharesReserves,
           fyTokenReserves,
-          _selectedSeries.getShares(baseAmount), // convert input from base to shares
-          getTimeTillMaturity(_selectedSeries.maturity),
-          _selectedSeries.ts,
-          _selectedSeries.g1,
-          _selectedSeries.decimals,
-          _selectedSeries.c,
-          _selectedSeries.mu
+          seriesEntity.getShares(baseAmount), // convert input from base to shares
+          getTimeTillMaturity(seriesEntity.maturity),
+          seriesEntity.ts,
+          seriesEntity.g1,
+          seriesEntity.decimals,
+          seriesEntity.c,
+          seriesEntity.mu
         );
 
       if (actionType === 'BORROW')
         preview = buyBase(
           sharesReserves,
           fyTokenReserves,
-          _selectedSeries.getShares(baseAmount), // convert input from base to shares
-          getTimeTillMaturity(_selectedSeries.maturity),
-          _selectedSeries.ts,
-          _selectedSeries.g2,
-          _selectedSeries.decimals,
-          _selectedSeries.c,
-          _selectedSeries.mu
+          seriesEntity.getShares(baseAmount), // convert input from base to shares
+          getTimeTillMaturity(seriesEntity.maturity),
+          seriesEntity.ts,
+          seriesEntity.g2,
+          seriesEntity.decimals,
+          seriesEntity.c,
+          seriesEntity.mu
         );
 
       // figure out what to do with negative apr on borrow for tv series
-      const _apr = calculateAPR(baseAmount, preview, _selectedSeries.maturity);
-      _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
+      const _apr = calculateAPR(baseAmount, preview, seriesEntity.maturity);
+      _apr ? setApr(cleanValue(_apr, 2)) : setApr(seriesEntity.apr);
     }
-  }, [_selectedSeries, _input, actionType, _fallbackInput, getTimeTillMaturity]);
+  }, [seriesEntity, _input, actionType, _fallbackInput, getTimeTillMaturity]);
 
-  /* Get the min APR from all the series */
-  const aprArray = Array.from(seriesMap?.values()!)
-    .filter((x: ISeries) => x.baseId === selectedBase?.proxyId)
-    .map((x: ISeries) => parseFloat(x.apr));
-  const minApr = aprArray.length && Math.min(...aprArray);
-  const maxApr = aprArray.length && Math.min(...aprArray);
-
-  return { apr, minApr, maxApr };
+  return { apr };
 };
