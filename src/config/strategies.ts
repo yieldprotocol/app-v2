@@ -254,11 +254,31 @@ STRATEGIES.set(42161, [
     type: StrategyType.V2,
     version: '1',
   },
+
+  {
+    address: '0xbd7a1069f56b1d4100202f72119e5cffb4bdfe38',
+    type: StrategyType.V2,
+    symbol: 'YSUSDT6MJD',
+    baseId: USDT,
+    name: 'Yield Strategy USDT 6M Jun Dec',
+    decimals: 6,
+    version: '1',
+  },
+  {
+    address: '0x067fb37dd51a4ef6fea0e006caf689db6c705812',
+    type: StrategyType.V2,
+    symbol: 'YSUSDT6MMS',
+    baseId: USDT,
+    name: 'Yield Strategy USDT 6M Mar Sep',
+    decimals: 6,
+    version: '1',
+  },
 ]);
 
 export default STRATEGIES;
 
 export const validateStrategies = async (provider: BaseProvider) => {
+  console.log('VALIDATING STRATEGIES');
   const preText = '### STRATEGY VALIDATION ERROR ### ';
   const chainId = (await provider.getNetwork()).chainId;
   const strategyList = STRATEGIES.get(chainId)!;

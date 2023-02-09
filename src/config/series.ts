@@ -1031,5 +1031,47 @@ SERIES.set(
         g2: '20496382304121724017',
       },
     ],
+
+    [
+      USDT_2306,
+      {
+        id: USDT_2306,
+        baseId: '0x30a000000000',
+        maturity: 1688137200,
+        name: 'FYUSDT2306',
+        symbol: 'FYUSDT2306',
+        address: '0x6eF79dF8EBd6E7cE4f24773a59Fd3F54D79857f3',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0x9F873e17a629718b71E8E8F4e40F795883841EFb',
+        poolName: 'FYUSDT2306 LP',
+        poolSymbol: 'FYUSDT2306LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    [
+      USDT_2303,
+      {
+        id: USDT_2303,
+        baseId: '0x30a000000000',
+        maturity: 1680274800,
+        name: 'FYUSDT2303',
+        symbol: 'FYUSDT2303',
+        address: '0x2E8F62e3620497DbA8A2D7A18EA8212215805F22',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0x53B0C1b8fEB4dEcdcc068367119110E20c3BCBD3',
+        poolName: 'FYUSDT2303 LP',
+        poolSymbol: 'FYUSDT2303LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
   ])
 );

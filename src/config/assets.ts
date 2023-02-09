@@ -516,7 +516,7 @@ ASSETS_42161.set(USDC, {
   digitFormat: 2,
   tokenType: TokenType.ERC20_Permit,
 
-  assetAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+  assetAddress: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
   joinAddress: '0x1229C71482E458fa2cd51d13eB157Bd2b5D5d1Ee',
   isYieldBase: true,
 });
@@ -534,5 +534,21 @@ ASSETS_42161.set(WETH, {
 
   assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
   joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
+  isYieldBase: true,
+});
+
+ASSETS_42161.set(USDT, {
+  version: '1',
+  name: 'Tether',
+  decimals: 6,
+  symbol: 'USDT',
+
+  displaySymbol: 'USDT',
+  showToken: true,
+  digitFormat: 2,
+  tokenType: TokenType.ERC20_,
+
+  assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+  joinAddress: '0x06aaF385809c7BC00698f1E266eD4C78d6b8ba75',
   isYieldBase: true,
 });
