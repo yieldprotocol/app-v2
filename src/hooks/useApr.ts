@@ -4,13 +4,13 @@ import { sellBase, buyBase, calculateAPR } from '@yield-protocol/ui-math';
 
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
-import { ActionType, ISeries } from '../types';
+import { ActionType, ISeries, ISeriesRoot } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import useTimeTillMaturity from './useTimeTillMaturity';
 import useSeriesEntities, { SeriesEntitiesRoot } from './useSeriesEntities';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
-export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
+export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | ISeriesRoot | null) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { selectedSeries } = userState;
@@ -18,11 +18,10 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const _selectedSeries = series || selectedSeries;
-
   const {
     data: { seriesEntity },
-  } = useSeriesEntities(_selectedSeries?.id);
+  } = useSeriesEntities(series?.id);
+  console.log('🦄 ~ file: useApr.ts:25 ~ useApr ~ seriesEntity', seriesEntity);
 
   /* Make sure there won't be an underflow */
   const _fallbackInput = ETH_BASED_ASSETS.includes(series?.baseId!) ? '0.01' : '1';

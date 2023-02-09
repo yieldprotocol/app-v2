@@ -9,7 +9,7 @@ import useSWR from 'swr';
 import { useChainId, useAccount } from 'wagmi';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { arbitrumColorMap, ethereumColorMap } from '../config/colors';
-import { ISeriesStatic, SERIES } from '../config/series';
+import { SERIES } from '../config/series';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { FYToken__factory, Pool__factory } from '../contracts';
 import { ISeries, ISeriesRoot } from '../types';
@@ -300,11 +300,11 @@ export const useSeriesEntities = (seriesId: string | undefined) => {
 
   // gets a specific series entity or all series entities if no seriesId is provided
   const main = async () => {
-    if (!seriesId) return seriesEntities;
+    if (!seriesId) return undefined;
 
     console.log('getting series entity data for series with id: ', seriesId);
     // get dynamic series entity data
-    return seriesEntities![seriesId] ? getSeriesEntity(seriesEntities!, seriesId) : undefined;
+    return getSeriesEntity(seriesEntities!, seriesId);
   };
 
   // main entry hook that returns either a specific series entity's data, or all series entities' data if no seriesId is provided
@@ -315,7 +315,7 @@ export const useSeriesEntities = (seriesId: string | undefined) => {
   });
 
   return {
-    data: { seriesEntities: data, seriesEntity: data } as SeriesEntitiesData,
+    data: { seriesEntities, seriesEntity: data },
     error,
     isLoading: !data && !error,
     genKey,

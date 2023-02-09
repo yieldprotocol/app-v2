@@ -137,10 +137,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const { pathname } = useRouter();
 
-  const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const { isMature } = useTimeTillMaturity();
   const { getForkStartBlock } = useFork();
 
-  const { data: seriesRootMap } = useSeriesEntities(undefined);
+  const {
+    data: { seriesEntities: seriesRootMap },
+  } = useSeriesEntities(undefined);
 
   const contracts = useContracts();
 
@@ -170,7 +172,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const vaultsBuilt = (await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate)) || [];
     const buildEventList = vaultsBuilt.map((x) => {
       const { vaultId: id, ilkId, seriesId } = x.args;
-      const series = seriesRootMap[seriesId];
+      const series = seriesRootMap![seriesId];
       return {
         id,
         seriesId,
@@ -188,7 +190,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       vaultsReceived.map(async (x): Promise<IVaultRoot> => {
         const { vaultId: id } = x.args;
         const { ilkId, seriesId } = await Cauldron.vaults(id);
-        const series = seriesRootMap.get(seriesId);
+        const series = seriesRootMap![seriesId];
         return {
           id,
           seriesId,
@@ -258,7 +260,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       console.log('Updating strategies...');
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
-      const _seriesList = seriesList.length ? seriesList : Array.from(Object.values(seriesRootMap));
+      const _seriesList = seriesList.length ? seriesList : Array.from(Object.values(seriesRootMap!));
 
       // let _publicData: IStrategy[] = [];
       const _publicData = await Promise.all(
@@ -417,7 +419,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
-          const series = seriesRootMap.get(seriesId);
+          const series = seriesRootMap![seriesId];
           if (!series) return;
 
           const isVaultMature = isMature(series.maturity);

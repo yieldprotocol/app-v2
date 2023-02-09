@@ -16,6 +16,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 import useSeriesEntities from '../../hooks/useSeriesEntities';
 import { ISeriesStatic } from '../../config/series';
+import YieldMark from '../logos/YieldMark';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -82,25 +83,25 @@ const AprText = ({
   const { apr } = useApr(_inputValue, actionType, series);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
-  const sharesIn = maxBaseIn(
-    series.sharesReserves,
-    series.fyTokenReserves,
-    getTimeTillMaturity(series.maturity),
-    series.ts,
-    series.g1,
-    series.decimals,
-    series.c,
-    series.mu
-  );
+  // const sharesIn = maxBaseIn(
+  //   series.sharesReserves,
+  //   series.fyTokenReserves,
+  //   getTimeTillMaturity(series.maturity),
+  //   series.ts,
+  //   series.g1,
+  //   series.decimals,
+  //   series.c,
+  //   series.mu
+  // );
 
-  useEffect(() => {
-    if (!series?.seriesIsMature && _inputValue)
-      actionType === ActionType.LEND
-        ? setLimitHit(series.getShares(ethers.utils.parseUnits(_inputValue, series.decimals)).gt(sharesIn)) // lending max
-        : setLimitHit(
-            series.getShares(ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(series.sharesReserves)
-          ); // borrow max
-  }, [_inputValue, actionType, series, sharesIn]);
+  // useEffect(() => {
+  //   if (!series?.seriesIsMature && _inputValue)
+  //     actionType === ActionType.LEND
+  //       ? setLimitHit(series.getShares(ethers.utils.parseUnits(_inputValue, series.decimals)).gt(sharesIn)) // lending max
+  //       : setLimitHit(
+  //           series.getShares(ethers.utils.parseUnits(_inputValue, series?.decimals)).gt(series.sharesReserves)
+  //         ); // borrow max
+  // }, [_inputValue, actionType, series, sharesIn]);
 
   return (
     <>
@@ -136,7 +137,10 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   const { userState, userActions } = useContext(UserContext);
   const { selectedSeries, selectedBase, selectedVault } = userState;
 
-  const { data: seriesMap, isLoading: seriesMapLoading } = useSeriesEntities(undefined);
+  const {
+    data: { seriesEntities: seriesMap },
+    isLoading: seriesMapLoading,
+  } = useSeriesEntities(undefined);
 
   const [localSeries, setLocalSeries] = useState<ISeries | ISeriesRoot | null>();
   const [options, setOptions] = useState<ISeriesRoot[]>([]);
@@ -155,7 +159,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   const optionExtended = (_series: ISeries | ISeriesRoot | undefined) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small" align="center">
-      <Box align="center">{_series?.seriesMark}</Box>
+      <Box align="center">
+        <YieldMark colors={[_series?.startColor!, _series?.endColor!]} />
+      </Box>
       {optionText(_series)}
       {_series?.seriesIsMature && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
@@ -170,7 +176,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(Object.values(seriesMap) as ISeriesRoot[]);
+    const opts = Array.from(Object.values(seriesMap!));
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts.filter((_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature);
@@ -291,7 +297,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                           : undefined,
                     }}
                   >
-                    {series.seriesMark}
+                    <YieldMark colors={[series.startColor, series.endColor]} />
                   </Avatar>
 
                   <Box>

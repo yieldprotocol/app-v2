@@ -6,7 +6,6 @@ const useDefaultProvider = () => {
   const { chains } = useNetwork();
   const provider = useProvider();
 
-  console.log( chains )
   const url = chains[0].rpcUrls.default['http'][0];
 
   return useMemo(() => provider ?? new JsonRpcProvider(url), [chains, provider]);
