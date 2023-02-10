@@ -256,7 +256,7 @@ STRATEGIES.set(42161, [
   },
 
   {
-    address: '0xbd7a1069f56b1d4100202f72119e5cffb4bdfe38',
+    address: '0x861509A3fA7d87FaA0154AAE2CB6C1f92639339A',
     type: StrategyType.V2,
     symbol: 'YSUSDT6MJD',
     baseId: USDT,
@@ -265,7 +265,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    address: '0x067fb37dd51a4ef6fea0e006caf689db6c705812',
+    address: '0xfe2aba5ba890af0ee8b6f2d488b1f85c9e7c5643',
     type: StrategyType.V2,
     symbol: 'YSUSDT6MMS',
     baseId: USDT,

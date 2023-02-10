@@ -549,6 +549,6 @@ ASSETS_42161.set(USDT, {
   tokenType: TokenType.ERC20_,
 
   assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
-  joinAddress: '0x06aaF385809c7BC00698f1E266eD4C78d6b8ba75',
+  joinAddress: '0xcb60Bd598bf48be1E24262E8BF1e3703FECA3470',
   isYieldBase: true,
 });
