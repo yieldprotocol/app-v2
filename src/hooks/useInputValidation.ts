@@ -18,7 +18,7 @@ export const useInputValidation = (
   const { assetMap, selectedSeries, selectedBase, activeAccount } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap.get(series?.baseId!) || selectedBase;
-  const { maxLend_ } = useLendHelpers(_selectedSeries, input);
+  const { protocolLimited } = useLendHelpers(_selectedSeries, input);
 
   /* LOCAL STATE */
   const [inputError, setInputError] = useState<string | null>();
@@ -30,7 +30,6 @@ export const useInputValidation = (
       const _inputAsFloat = parseFloat(input);
       const aboveMax: boolean = !!limits[1] && _inputAsFloat > parseFloat(limits[1].toString());
       const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
-      const lendMaxReached: boolean = parseFloat(cleanValue(maxLend_, 2)) < _inputAsFloat;
 
       // General input validation here:
       if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT) {
@@ -86,8 +85,8 @@ export const useInputValidation = (
           break;
 
         case ActionCodes.LEND:
-          aboveMax && setInputError('Amount exceeds available balance');
-          lendMaxReached && setInputError('Amount exceeds the maximum you can lend');
+          aboveMax && !protocolLimited && setInputError('Amount exceeds available balance');
+          aboveMax && protocolLimited && setInputError('Amount exceeds the maximum you can lend');
           belowMin && setInputError('Amount should be expressed as a positive value');
           break;
 
