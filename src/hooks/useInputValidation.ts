@@ -3,7 +3,6 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries, IUserContext, IUserContextState, IVault } from '../types';
 import { useLendHelpers } from './viewHelperHooks/useLendHelpers';
-import { cleanValue } from '../utils/appUtils';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
