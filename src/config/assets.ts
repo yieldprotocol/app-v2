@@ -73,7 +73,7 @@ export const CONVEX_BASED_ASSETS = [
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
-export const ASSETS = new Map<number, Map<string, AssetStaticInfo>>();
+export const ASSETS = new Map<number, Map<string, AssetStaticInfo>>(); // new nested map
 
 ASSETS.set(
   1,
