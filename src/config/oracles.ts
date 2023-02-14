@@ -26,7 +26,6 @@ import {
   CVX3CRV,
   CRAB,
   USDT,
-  RETH,
 } from './assets';
 
 const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000';
@@ -64,7 +63,6 @@ usdcIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 usdcIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
 
 usdcIlkOracle1.set(CRAB, COMPOSITE_MULTI_ORACLE);
-usdcIlkOracle1.set(RETH, COMPOSITE_MULTI_ORACLE);
 
 /* notional additions */
 usdcIlkOracle1.set(FUSDC2203, NOTIONAL_MULTI_ORACLE);
@@ -95,7 +93,6 @@ daiIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 daiIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 daiIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(CRAB, COMPOSITE_MULTI_ORACLE);
-daiIlkOracle1.set(RETH, COMPOSITE_MULTI_ORACLE);
 
 /* notional additions */
 daiIlkOracle1.set(FDAI2203, NOTIONAL_MULTI_ORACLE);
@@ -127,7 +124,6 @@ wethIlkOracle1.set(yvUSDC, YEARNVAULT_MULTI_ORACLE);
 wethIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 wethIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(CRAB, COMPOSITE_MULTI_ORACLE);
-wethIlkOracle1.set(RETH, COMPOSITE_MULTI_ORACLE);
 
 /* notional additions */
 wethIlkOracle1.set(FETH2212, NOTIONAL_MULTI_ORACLE);
@@ -152,7 +148,6 @@ fraxIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 fraxIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
 
 fraxIlkOracle1.set(CRAB, COMPOSITE_MULTI_ORACLE);
-fraxIlkOracle1.set(RETH, COMPOSITE_MULTI_ORACLE);
 
 /* rate */
 fraxIlkOracle1.set(RATE, ACCUMULATOR_ORACLE);

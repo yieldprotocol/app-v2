@@ -6,10 +6,9 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-// import * as contracts from '../contracts';
-import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { AssetStaticInfo, ASSETS, ETH_BASED_ASSETS } from '../config/assets';
+import { ASSETS_1, ASSETS_42161 } from '../config/assets';
+// import * as contracts from '../contracts';
 
 import { nameFromMaturity, getSeason, SeasonType, getSeriesAfterRollPosition } from '../utils/appUtils';
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
@@ -110,7 +109,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
       let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
 
-      const assetMap = ASSETS.get(chain)!;
+      const assetMap = chain === 1 ? ASSETS_1 : ASSETS_42161;
 
       switch (asset.tokenType) {
         case TokenType.ERC20_:
@@ -165,7 +164,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       });
     }
 
-    const assetMap = ASSETS.get(chain)!;
+    const assetMap = chain === 1 ? ASSETS_1 : ASSETS_42161;
 
     const newAssetList: any[] = [];
     await Promise.all(

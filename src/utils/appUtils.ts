@@ -226,7 +226,7 @@ export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
 
 export const getSeriesAfterRollPosition = (receipt: ContractReceipt | undefined, seriesMap: Map<string, ISeries>) => {
   if (!receipt) return '';
-  const poolAddress = receipt.events![receipt.events?.length! - 1].address;
+  const poolAddress = receipt.events![10].address;
   const series = [...seriesMap.values()].find((s) => s.poolAddress === poolAddress);
   return series?.id! || '';
 };
