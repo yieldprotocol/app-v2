@@ -8,6 +8,7 @@ import FRAXMark from '../components/logos/FRAXMark';
 import LinkMark from '../components/logos/LinkMark';
 import MakerMark from '../components/logos/MakerMark';
 import NotionalMark from '../components/logos/NotionalMark';
+import REthMark from '../components/logos/REthMark';
 import StEthMark from '../components/logos/StEthMark';
 import TSTMark from '../components/logos/TSTMark';
 import UNIMark from '../components/logos/UNIMark';
@@ -30,13 +31,20 @@ const markMap = new Map([
   ['UNI', <UNIMark key="uni" />],
   ['yvUSDC', <YVUSDCMark key="yvusdc" />],
   ['MKR', <MakerMark key="mkr" />],
-  ['Notional', <NotionalMark key='not' />],
+  ['Notional', <NotionalMark key="not" />],
   ['Cvx3Crv Mock', <CVX3CRVMark key="cvx3crv mock" />],
   ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],
   // ['Crabv2', <CRABMark key="crab" />],
-  ['Crabv2', <Box key="crab"> <Text size='1em'>🦀</Text> </Box>],
-
+  [
+    'Crabv2',
+    <Box key="crab">
+      <Text size="1em">🦀</Text>
+    </Box>,
+  ],
+  [
+    'rETH', <REthMark key="reth" />,
+  ],
 ]);
 
 export default markMap;

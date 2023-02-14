@@ -464,6 +464,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             _strategy.strategyContract.pool(),
           ]);
 
+          // const stratConnected = _strategy.strategyContract.connect(signer);
+          // const accountRewards =
+          //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
+          // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
+
+          // const accountStrategyPercent = mulDecimal(
+          //   divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+          //   '100'
+          // );
+
           /* We check if the strategy has been supersecced by a v2 version */
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
 
@@ -609,6 +619,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
+
 
           const series = seriesRootMap.get(seriesId);
           if (!series) return;
