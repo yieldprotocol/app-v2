@@ -33,6 +33,7 @@ export const UNI = '0x313000000000';
 export const yvUSDC = '0x303900000000';
 export const MKR = '0x313100000000';
 export const FRAX = '0x313800000000';
+export const RETH = '0xe03016000000';
 
 /* Notional fCash assets */
 export const FDAI2203 = '0x313200000000';
@@ -72,483 +73,567 @@ export const CONVEX_BASED_ASSETS = [
 export const ETH_BASED_ASSETS = ['WETH', 'ETH', WETH];
 export const IGNORE_BASE_ASSETS = ['ENS'];
 
-export const ASSETS_42161 = new Map<string, AssetStaticInfo>();
+export const ASSETS = new Map<number, Map<string, AssetStaticInfo>>();
 
-export const ASSETS_1 = new Map<string, AssetStaticInfo>();
+ASSETS.set(
+  1,
+  new Map([
+    [
+      DAI,
+      {
+        assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        joinAddress: '0x4fE92119CDf873Cf8826F4E6EcfD4E578E3D44Dc',
+        version: '1',
+        name: 'Dai stable coin',
+        decimals: 18,
+        symbol: 'DAI',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_DaiPermit,
+        isYieldBase: true,
+      },
+    ],
+    [
+      USDC,
+      {
+        assetAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        joinAddress: '0x0d9A1A773be5a83eEbda23bf98efB8585C3ae4f4',
+        version: '1',
+        name: 'USDC Stable coin',
+        decimals: 6,
+        symbol: 'USDC',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_Permit,
+        isYieldBase: true,
+      },
+    ],
+    [
+      WBTC,
+      {
+        assetAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+        joinAddress: '0x00De0AEFcd3069d88f85b4F18b144222eaAb92Af',
+        version: '1',
+        name: 'Wrapped Bitcoin',
+        decimals: 18,
+        symbol: 'WBTC',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC20_,
+      },
+    ],
+    [
+      ENS,
+      {
+        assetAddress: '0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72',
+        joinAddress: '0x5AAfd8F0bfe3e1e6bAE781A6641096317D762969',
+        version: '1',
+        name: 'Ethereum Naming Service',
+        decimals: 18,
+        symbol: 'ENS',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_Permit,
+      },
+    ],
+    [
+      WETH,
+      {
+        assetAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        joinAddress: '0x3bDb887Dc46ec0E964Df89fFE2980db0121f0fD0',
+        version: '1',
+        name: 'Wrapped Ether',
+        decimals: 18,
+        symbol: 'WETH',
+        displaySymbol: 'ETH',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC20_,
+        isYieldBase: true,
+      },
+    ],
+    [
+      wstETH,
+      {
+        assetAddress: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+        joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
+        version: '1',
+        name: 'Wrapped Staked Ether',
+        decimals: 18,
+        symbol: 'wstETH',
+        displaySymbol: 'wstETH',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC20_Permit,
+        wrapHandlerAddresses: new Map([]),
+        unwrapHandlerAddresses: new Map([
+          [1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1'],
+          [4, '0x64BA0F1D2E5479BF132936328e8c533c95646fE8'],
+          [5, '0x9f65A6c2b2F12117573323443C8C2290f4C1e675'],
+        ]),
+      },
+    ],
+    [
+      stETH,
+      {
+        assetAddress: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
+        joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
+        version: '1',
+        name: 'Staked Eth',
+        decimals: 18,
+        symbol: 'stETH',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC20_Permit,
+        wrapHandlerAddresses: new Map([[1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1']]),
+        unwrapHandlerAddresses: new Map([]),
+        proxyId: wstETH,
+      },
+    ],
+    [
+      LINK,
+      {
+        assetAddress: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
+        joinAddress: '0xbDaBb91cDbDc252CBfF3A707819C5f7Ec2B92833',
+        version: '1',
+        name: 'ChainLink',
+        decimals: 18,
+        symbol: 'LINK',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_,
+      },
+    ],
+    [
+      yvUSDC,
+      {
+        assetAddress: '0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE',
+        joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
+        version: '1',
+        name: 'Yearn Vault USDC',
+        decimals: 18,
+        symbol: 'yvUSDC',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_,
+        limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000', '0x303230380000', '0x303230390000'],
+      },
+    ],
+    [
+      UNI,
+      {
+        assetAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
+        joinAddress: '0x41567f6A109f5bdE283Eb5501F21e3A0bEcbB779',
+        version: '1',
+        name: 'Uniswap token',
+        decimals: 18,
+        symbol: 'UNI',
+        showToken: true,
+        digitFormat: 4,
+        tokenType: TokenType.ERC20_Permit,
+      },
+    ],
+    [
+      FRAX,
+      {
+        assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+        joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
+        version: '1',
+        name: 'frax',
+        decimals: 18,
+        symbol: 'FRAX',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_,
+        limitToSeries: [],
+        isYieldBase: true,
+      },
+    ],
+    [
+      FDAI2203,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0xb8d37d6Fcbc6882480633aBF3682b1D4ae2aB124',
+        version: '1',
+        name: 'fDAI2203',
+        decimals: 8,
+        symbol: 'FDAI2203',
+        showToken: false,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 563371972493313,
+        limitToSeries: ['0x303130350000'],
+        wrapHandlerAddresses: new Map([]),
+        unwrapHandlerAddresses: new Map([]),
+      },
+    ],
+    [
+      FUSDC2203,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x4970B046565BEE1DE8308E41BD22d0061A251911',
 
-ASSETS_1.set(DAI, {
-  assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-  joinAddress: '0x4fE92119CDf873Cf8826F4E6EcfD4E578E3D44Dc',
-  version: '1',
-  name: 'Dai stable coin',
-  decimals: 18,
-  symbol: 'DAI',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_DaiPermit,
-  isYieldBase: true,
-});
+        version: '1',
+        name: 'fUSDC2203',
+        decimals: 8,
+        symbol: 'FUSDC2203',
+        showToken: false,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 844846949203969,
+        limitToSeries: ['0x303230350000'],
+      },
+    ],
+    [
+      FDAI2206,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x9f41f9eE1A7B24b6B016a7e61a4161A0CFCf5987',
 
-ASSETS_1.set(USDC, {
-  assetAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  joinAddress: '0x0d9A1A773be5a83eEbda23bf98efB8585C3ae4f4',
-  version: '1',
-  name: 'USDC Stable coin',
-  decimals: 6,
-  symbol: 'USDC',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_Permit,
-  isYieldBase: true,
-});
+        version: '1',
+        name: 'fDAI2206',
+        decimals: 8,
+        symbol: 'FDAI2206',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 563373963149313,
+        limitToSeries: ['0x303130360000'],
+      },
+    ],
+    [
+      FUSDC2206,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x62DdD41F8A65B03746656D85b6B2539aE42e23e8',
 
-ASSETS_1.set(WBTC, {
-  assetAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-  joinAddress: '0x00De0AEFcd3069d88f85b4F18b144222eaAb92Af',
-  version: '1',
-  name: 'Wrapped Bitcoin',
-  decimals: 18,
-  symbol: 'WBTC',
-  showToken: true,
-  digitFormat: 6,
-  tokenType: TokenType.ERC20_,
-});
+        version: '1',
+        name: 'fUSDC2206',
+        decimals: 8,
+        symbol: 'FUSDC2206',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 844848939859969,
+        limitToSeries: ['0x303230360000'],
+      },
+    ],
+    [
+      FDAI2209,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x399bA81A1f1Ed0221c39179C50d4d4Bc85C3F3Ab',
 
-ASSETS_1.set(ENS, {
-  assetAddress: '0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72',
-  joinAddress: '0x5AAfd8F0bfe3e1e6bAE781A6641096317D762969',
-  version: '1',
-  name: 'Ethereum Naming Service',
-  decimals: 18,
-  symbol: 'ENS',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_Permit,
-});
+        version: '1',
+        name: 'fDAI2209',
+        decimals: 8,
+        symbol: 'FDAI2209',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 563375953805313,
+        limitToSeries: ['0x303130370000'],
+      },
+    ],
+    [
+      FUSDC2209,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x0Bfd3B8570A4247157c5468861d37dA55AAb9B4b',
+        version: '1',
+        name: 'fUSDC2209',
+        decimals: 8,
+        symbol: 'FUSDC2209',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 844850930515969,
+        limitToSeries: ['0x303230370000'],
+      },
+    ],
+    [
+      FETH2212,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0xe888E0403e3e992fDbB473650547428e90F9DDFC',
+        version: '1',
+        name: 'Notional fCash ETH Dec 22',
+        decimals: 8,
+        symbol: 'fETH2212',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 281902967750657,
+        limitToSeries: ['0x303030380000'],
+      },
+    ],
+    [
+      FETH2303,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0xC4cb2489a845384277564613A0906f50dD66e482',
+        version: '1',
+        name: 'Notional fCash ETH March 23',
+        decimals: 8,
+        symbol: 'fETH2303',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 281904958406657,
+        limitToSeries: ['0x303030390000'],
+      },
+    ],
+    [
+      FUSDC2212,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0xA9078E573EC536c4066A5E89F715553Ed67B13E0',
+        version: '1',
+        name: 'Notional fCash USDC Dec 22',
+        decimals: 8,
+        symbol: 'fUSDC2212',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 844852921171969,
+        limitToSeries: ['0x303230380000'],
+      },
+    ],
+    [
+      FUSDC2303,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x3FdDa15EccEE67248048a560ab61Dd2CdBDeA5E6',
+        version: '1',
+        name: 'Notional fCash USDC March 23',
+        decimals: 8,
+        symbol: 'fUSDC2303',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 844854911827969,
+        limitToSeries: ['0x303230390000'],
+      },
+    ],
+    [
+      FDAI2212,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x83e99A843607CfFFC97A3acA15422aC672a463eF',
+        version: '1',
+        name: 'Notional fCash DAI Dec 22',
+        decimals: 8,
+        symbol: 'fDAI2212',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 563377944461313,
+        limitToSeries: ['0x303130380000'],
+      },
+    ],
+    [
+      FDAI2303,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0xE6A63e2166fcEeB447BFB1c0f4f398083214b7aB',
+        version: '1',
+        name: 'Notional fCash DAI March 23',
+        decimals: 8,
+        symbol: 'fDAI2303',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 563379935117313,
+        limitToSeries: ['0x303130390000'],
+      },
+    ],
+    [
+      FDAI2306,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0xe295111049A6665b35C054e3D0e896816bD12b2C',
+        version: '1',
+        name: 'Notional fCash DAI June 23',
+        decimals: 8,
+        symbol: 'fDAI2306',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 563381925773313,
+        limitToSeries: ['0x0031ff00028b'],
+      },
+    ],
+    [
+      FUSDC2306,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x53B0C1b8fEB4dEcdcc068367119110E20c3BCBD3',
+        version: '1',
+        name: 'Notional fCash USDC June 23',
+        decimals: 8,
+        symbol: 'fUSDC2306',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 844856902483969,
+        limitToSeries: ['0x0032ff00028b'],
+      },
+    ],
+    [
+      FETH2306,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x067Fb37Dd51a4eF6Fea0E006CaF689Db6c705812',
+        version: '1',
+        name: 'Notional fCash ETH June 23',
+        decimals: 8,
+        symbol: 'fETH2306',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 281906949062657,
+        limitToSeries: ['0x0030ff00028b'],
+      },
+    ],
+    [
+      CRAB,
+      {
+        assetAddress: '0x3B960E47784150F5a63777201ee2B15253D713e8',
+        joinAddress: '0xc76a01d18463d7aebea574a34b7d70d8aab389b2',
+        version: '1',
+        name: 'Crab Strategy v2',
+        decimals: 18,
+        symbol: 'Crabv2',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_,
+        isYieldBase: false,
+      },
+    ],
+    [
+      RETH,
+      {
+        assetAddress: '0xae78736Cd615f374D3085123A210448E74Fc6393',
+        joinAddress: '0x6fb97c793f0d83cda7796f45a2bb697e73a045a8',
+        version: '1',
+        name: 'RocketPool ETH',
+        decimals: 18, // how do i determine this?
+        symbol: 'rETH',
+        showToken: true,
+        digitFormat: 6, // how do i determine this?
+        tokenType: TokenType.ERC20_,
+      },
+    ],
+    [
+      USDT,
+      {
+        assetAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        joinAddress: '0x7412987ef9e04bc77325ae595eaabbc9f313f79c',
+        version: '1',
+        name: 'Tether',
+        decimals: 6,
+        symbol: 'USDT',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_,
+        isYieldBase: true,
+      },
+    ],
+    // [
+    //   CVX3CRV,
+    //   {
+    //     assetAddress: '',
+    //     joinAddress: '',
+    //     version: '1',
+    //     name: 'cvx3crv',
+    //     decimals: 18,
+    //     symbol: 'cvx3crv',
+    //     showToken: false,
+    //     digitFormat: 2,
+    //     tokenType: TokenType.ERC20_,
+    //     limitToSeries: [
+    //       '0x303130360000', // june dai
+    //       '0x303130370000', // sept dai
+    //       '0x303230370000', // sept usdc
+    //       '0x303230360000', // june usdc
+    //     ],
+    //   }
+    // ]
+  ])
+);
 
-ASSETS_1.set(WETH, {
-  assetAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  joinAddress: '0x3bDb887Dc46ec0E964Df89fFE2980db0121f0fD0',
-  version: '1',
-  name: 'Wrapped Ether',
-  decimals: 18,
-  symbol: 'WETH',
-  displaySymbol: 'ETH',
-  showToken: true,
-  digitFormat: 6,
-  tokenType: TokenType.ERC20_,
-  isYieldBase: true,
-});
+ASSETS.set(
+  42161,
+  new Map([
+    [
+      DAI,
+      {
+        version: '2',
+        name: 'Dai stable coin',
+        decimals: 18,
+        symbol: 'DAI',
 
-ASSETS_1.set(wstETH, {
-  assetAddress: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
-  joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
-  version: '1',
-  name: 'Wrapped Staked Ether',
-  decimals: 18,
-  symbol: 'wstETH',
-  displaySymbol: 'wstETH',
-  showToken: true,
-  digitFormat: 6,
-  tokenType: TokenType.ERC20_Permit,
-  wrapHandlerAddresses: new Map([]),
-  unwrapHandlerAddresses: new Map([
-    [1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1'],
-    [4, '0x64BA0F1D2E5479BF132936328e8c533c95646fE8'],
-    [5, '0x9f65A6c2b2F12117573323443C8C2290f4C1e675'],
-  ]),
-});
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_Permit,
 
-ASSETS_1.set(stETH, {
-  assetAddress: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
-  joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
-  version: '1',
-  name: 'Staked Eth',
-  decimals: 18,
-  symbol: 'stETH',
-  showToken: false,
-  digitFormat: 6,
-  tokenType: TokenType.ERC20_Permit,
-  wrapHandlerAddresses: new Map([[1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1']]),
-  unwrapHandlerAddresses: new Map([]),
-  proxyId: wstETH,
-});
+        assetAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+        joinAddress: '0xc31cce4fFA203d8F8D865b6cfaa4F36AD77E9810',
+        isYieldBase: true,
+      },
+    ],
+    [
+      USDC,
+      {
+        version: '1',
+        name: 'USDC Stable coin',
+        decimals: 6,
+        symbol: 'USDC',
 
-ASSETS_1.set(LINK, {
-  assetAddress: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
-  joinAddress: '0xbDaBb91cDbDc252CBfF3A707819C5f7Ec2B92833',
-  version: '1',
-  name: 'ChainLink',
-  decimals: 18,
-  symbol: 'LINK',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_,
-});
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_Permit,
 
-ASSETS_1.set(yvUSDC, {
-  assetAddress: '0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE',
-  joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
-  version: '1',
-  name: 'Yearn Vault USDC',
-  decimals: 18,
-  symbol: 'yvUSDC',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_,
-  limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000', '0x303230380000', '0x303230390000'],
-});
+        assetAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+        joinAddress: '0x1229C71482E458fa2cd51d13eB157Bd2b5D5d1Ee',
+        isYieldBase: true,
+      },
+    ],
+    [
+      WETH,
+      {
+        version: '1',
+        name: 'Wrapped Ether',
+        decimals: 18,
+        symbol: 'WETH',
 
-ASSETS_1.set(UNI, {
-  assetAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
-  joinAddress: '0x41567f6A109f5bdE283Eb5501F21e3A0bEcbB779',
-  version: '1',
-  name: 'Uniswap token',
-  decimals: 18,
-  symbol: 'UNI',
-  showToken: true,
-  digitFormat: 4,
-  tokenType: TokenType.ERC20_Permit,
-});
+        displaySymbol: 'ETH',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC20_,
 
-ASSETS_1.set(FRAX, {
-  assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
-  joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
-  version: '1',
-  name: 'frax',
-  decimals: 18,
-  symbol: 'FRAX',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_,
-  limitToSeries: [],
-  isYieldBase: true,
-});
+        assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+        joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
+        isYieldBase: true,
+      },
+    ],
+    [
+      USDT,
+      {
+        version: '1',
+        name: 'Tether',
+        decimals: 6,
+        symbol: 'USDT',
 
-ASSETS_1.set(FDAI2203, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0xb8d37d6Fcbc6882480633aBF3682b1D4ae2aB124',
-  version: '1',
-  name: 'fDAI2203',
-  decimals: 8,
-  symbol: 'FDAI2203',
-  showToken: false,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 563371972493313,
-  limitToSeries: ['0x303130350000'],
-  wrapHandlerAddresses: new Map([]),
-  unwrapHandlerAddresses: new Map([]),
-});
+        displaySymbol: 'USDT',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_,
 
-ASSETS_1.set(FUSDC2203, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x4970B046565BEE1DE8308E41BD22d0061A251911',
-
-  version: '1',
-  name: 'fUSDC2203',
-  decimals: 8,
-  symbol: 'FUSDC2203',
-  showToken: false,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844846949203969,
-  limitToSeries: ['0x303230350000'],
-});
-
-ASSETS_1.set(FDAI2206, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x9f41f9eE1A7B24b6B016a7e61a4161A0CFCf5987',
-
-  version: '1',
-  name: 'fDAI2206',
-  decimals: 8,
-  symbol: 'FDAI2206',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 563373963149313,
-  limitToSeries: ['0x303130360000'],
-});
-
-ASSETS_1.set(FUSDC2206, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x62DdD41F8A65B03746656D85b6B2539aE42e23e8',
-
-  version: '1',
-  name: 'fUSDC2206',
-  decimals: 8,
-  symbol: 'FUSDC2206',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844848939859969,
-  limitToSeries: ['0x303230360000'],
-});
-
-ASSETS_1.set(FDAI2209, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x399bA81A1f1Ed0221c39179C50d4d4Bc85C3F3Ab',
-
-  version: '1',
-  name: 'fDAI2209',
-  decimals: 8,
-  symbol: 'FDAI2209',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 563375953805313,
-  limitToSeries: ['0x303130370000'],
-});
-
-ASSETS_1.set(FUSDC2209, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x0Bfd3B8570A4247157c5468861d37dA55AAb9B4b',
-  version: '1',
-  name: 'fUSDC2209',
-  decimals: 8,
-  symbol: 'FUSDC2209',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844850930515969,
-  limitToSeries: ['0x303230370000'],
-});
-
-ASSETS_1.set(FETH2212, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0xe888E0403e3e992fDbB473650547428e90F9DDFC',
-  version: '1',
-  name: 'Notional fCash ETH Dec 22',
-  decimals: 8,
-  symbol: 'fETH2212',
-  showToken: true,
-  digitFormat: 6,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 281902967750657,
-  limitToSeries: ['0x303030380000'],
-});
-
-ASSETS_1.set(FETH2303, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0xC4cb2489a845384277564613A0906f50dD66e482',
-  version: '1',
-  name: 'Notional fCash ETH March 23',
-  decimals: 8,
-  symbol: 'fETH2303',
-  showToken: true,
-  digitFormat: 6,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 281904958406657,
-  limitToSeries: ['0x303030390000'],
-});
-
-ASSETS_1.set(FUSDC2212, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0xA9078E573EC536c4066A5E89F715553Ed67B13E0',
-  version: '1',
-  name: 'Notional fCash USDC Dec 22',
-  decimals: 8,
-  symbol: 'fUSDC2212',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844852921171969,
-  limitToSeries: ['0x303230380000'],
-});
-
-ASSETS_1.set(FUSDC2303, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x3FdDa15EccEE67248048a560ab61Dd2CdBDeA5E6',
-  version: '1',
-  name: 'Notional fCash USDC March 23',
-  decimals: 8,
-  symbol: 'fUSDC2303',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844854911827969,
-  limitToSeries: ['0x303230390000'],
-});
-
-ASSETS_1.set(FDAI2212, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x83e99A843607CfFFC97A3acA15422aC672a463eF',
-  version: '1',
-  name: 'Notional fCash DAI Dec 22',
-  decimals: 8,
-  symbol: 'fDAI2212',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 563377944461313,
-  limitToSeries: ['0x303130380000'],
-});
-
-ASSETS_1.set(FDAI2303, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0xE6A63e2166fcEeB447BFB1c0f4f398083214b7aB',
-  version: '1',
-  name: 'Notional fCash DAI March 23',
-  decimals: 8,
-  symbol: 'fDAI2303',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 563379935117313,
-  limitToSeries: ['0x303130390000'],
-});
-
-ASSETS_1.set(FDAI2306, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0xe295111049A6665b35C054e3D0e896816bD12b2C',
-  version: '1',
-  name: 'Notional fCash DAI June 23',
-  decimals: 8,
-  symbol: 'fDAI2306',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 563381925773313,
-  limitToSeries: ['0x0031FF00028B'],
-});
-ASSETS_1.set(FUSDC2306, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x53B0C1b8fEB4dEcdcc068367119110E20c3BCBD3',
-  version: '1',
-  name: 'Notional fCash USDC June 23',
-  decimals: 8,
-  symbol: 'fUSDC2306',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 844856902483969,
-  limitToSeries: ['0x0032FF00028B'],
-});
-ASSETS_1.set(FETH2306, {
-  assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  joinAddress: '0x067Fb37Dd51a4eF6Fea0E006CaF689Db6c705812',
-  version: '1',
-  name: 'Notional fCash ETH June 23',
-  decimals: 8,
-  symbol: 'fETH2306',
-  showToken: true,
-  digitFormat: 6,
-  tokenType: TokenType.ERC1155_,
-  tokenIdentifier: 281906949062657,
-  limitToSeries: ['0x0030FF00028B'],
-});
-
-ASSETS_1.set(CRAB, {
-  assetAddress: '0x3B960E47784150F5a63777201ee2B15253D713e8',
-  joinAddress: '0xc76a01d18463d7aebea574a34b7d70d8aab389b2',
-  version: '1',
-  name: 'Crab Strategy v2',
-  decimals: 18,
-  symbol: 'Crabv2',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_,
-  limitToSeries: [
-    '0x303030380000',
-    '0x303030390000',
-    '0x303130380000',
-    '0x303130390000',
-    '0x303230380000',
-    '0x303230390000',
-  ],
-  isYieldBase: false,
-});
-
-ASSETS_1.set(USDT, {
-  assetAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-  joinAddress: '0x7412987ef9e04bc77325ae595eaabbc9f313f79c',
-  version: '1',
-  name: 'Tether',
-  decimals: 6,
-  symbol: 'USDT',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_,
-  isYieldBase: true,
-});
-
-// ASSETS_1.set(CVX3CRV, {
-//   assetAddress: '',
-//   joinAddress: '',
-//   version: '1',
-//   name: 'cvx3crv',
-//   decimals: 18,
-//   symbol: 'cvx3crv',
-//   showToken: false,
-//   digitFormat: 2,
-//   tokenType: TokenType.ERC20_,
-//   limitToSeries: [
-//     '0x303130360000', // june dai
-//     '0x303130370000', // sept dai
-//     '0x303230370000', // sept usdc
-//     '0x303230360000', // june usdc
-//   ],
-// });
-
-ASSETS_42161.set(DAI, {
-  version: '2',
-  name: 'Dai stable coin',
-  decimals: 18,
-  symbol: 'DAI',
-
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_Permit,
-
-  assetAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
-  joinAddress: '0xc31cce4fFA203d8F8D865b6cfaa4F36AD77E9810',
-  isYieldBase: true,
-});
-
-ASSETS_42161.set(USDC, {
-  version: '1',
-  name: 'USDC Stable coin',
-  decimals: 6,
-  symbol: 'USDC',
-
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_Permit,
-
-  assetAddress: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-  joinAddress: '0x1229C71482E458fa2cd51d13eB157Bd2b5D5d1Ee',
-  isYieldBase: true,
-});
-
-ASSETS_42161.set(WETH, {
-  version: '1',
-  name: 'Wrapped Ether',
-  decimals: 18,
-  symbol: 'WETH',
-
-  displaySymbol: 'ETH',
-  showToken: true,
-  digitFormat: 6,
-  tokenType: TokenType.ERC20_,
-
-  assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-  joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
-  isYieldBase: true,
-});
-
-ASSETS_42161.set(USDT, {
-  version: '1',
-  name: 'Tether',
-  decimals: 6,
-  symbol: 'USDT',
-
-  displaySymbol: 'USDT',
-  showToken: true,
-  digitFormat: 2,
-  tokenType: TokenType.ERC20_,
-
-  assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
-  joinAddress: '0xcb60Bd598bf48be1E24262E8BF1e3703FECA3470',
-  isYieldBase: true,
-});
+        assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+        joinAddress: '0xcb60Bd598bf48be1E24262E8BF1e3703FECA3470',
+        isYieldBase: true,
+      },
+    ],
+  ])
+);
