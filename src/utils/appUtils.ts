@@ -233,7 +233,9 @@ export const getSeriesAfterRollPosition = (receipt: ContractReceipt | undefined,
 
 export const getStrategyAddrFromReceipt = (receipt: ContractReceipt | undefined, action: ActionCodes) => {
   if (!receipt) return '';
-  return action === ActionCodes.ADD_LIQUIDITY ? receipt.events![15].address : receipt.events![0].address;
+  return action === ActionCodes.ADD_LIQUIDITY
+    ? receipt.events![receipt.events?.length! - 1].address
+    : receipt.events![0].address;
 };
 
 export const formatStrategyName = (name: string) => {
