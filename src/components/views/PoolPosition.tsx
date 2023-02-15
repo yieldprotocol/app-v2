@@ -1,14 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Tip } from 'grommet';
-import {
-  FiArrowRight,
-  FiChevronDown,
-  FiClock,
-  FiSlash,
-  FiStar,
-  FiZap,
-} from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiSlash, FiStar, FiZap } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -58,7 +51,7 @@ const PoolPosition = () => {
 
   const { address: activeAccount } = useAccount();
 
-  const _selectedStrategy = selectedStrategy || strategyMap?.get(idFromUrl as string);
+  const _selectedStrategy = selectedStrategy || strategyMap?.get((idFromUrl as string).toLowerCase());
 
   const selectedSeries = _selectedStrategy?.currentSeries;
   const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
@@ -247,7 +240,6 @@ const PoolPosition = () => {
 
                     {lpReturns && +lpReturns.blendedAPY! > 0 && (
                       <InfoBite
-
                         textSize="small"
                         label="Variable APY"
                         icon={<FiZap />}
@@ -283,21 +275,21 @@ const PoolPosition = () => {
                     )}
 
                     {selectedStrategy?.accountRewards?.gt(ZERO_BN) && selectedStrategy?.rewardsTokenAddress && (
-                      <Box direction="row" gap="large" justify='between'>
+                      <Box direction="row" gap="large" justify="between">
                         <InfoBite
                           label="Claimable Rewards"
                           value={`${cleanValue(selectedStrategy?.accountRewards_, 6)} ETH`}
                           icon={<FiStar />}
                           loading={seriesLoading}
                         />
-                        {actionActive.index !== 2 &&  (
+                        {actionActive.index !== 2 && (
                           <GeneralButton
                             action={() => handleSetActionActive({ text: 'Claim Rewards', index: 2 })}
                             // action={handleClaim}
                             background="background"
                           >
-                            <Text size="xsmall" textAlign='center'>
-                              <MdShortcut />  Go to Claim rewards
+                            <Text size="xsmall" textAlign="center">
+                              <MdShortcut /> Go to Claim rewards
                             </Text>
                           </GeneralButton>
                         )}
