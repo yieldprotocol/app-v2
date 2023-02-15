@@ -569,7 +569,7 @@ ASSETS.set(
       DAI,
       {
         version: '2',
-        name: 'Dai stable coin',
+        name: 'Dai Stablecoin',
         decimals: 18,
         symbol: 'DAI',
 
@@ -621,7 +621,7 @@ ASSETS.set(
       USDT,
       {
         version: '1',
-        name: 'Tether',
+        name: 'Tether USD',
         decimals: 6,
         symbol: 'USDT',
 
