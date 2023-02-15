@@ -478,7 +478,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
 
           /* Attatch the current series (if any) */
-          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
+          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address.toLowerCase() === fyToken.toLowerCase());
 
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
@@ -619,7 +619,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
-
 
           const series = seriesRootMap.get(seriesId);
           if (!series) return;
