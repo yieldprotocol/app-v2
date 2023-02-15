@@ -528,7 +528,7 @@ ASSETS.set(
       USDT,
       {
         assetAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        joinAddress: '0x7412987ef9e04bc77325ae595eaabbc9f313f79c',
+        joinAddress: '0x62E53931a07d8679Fb73e543459D1D9f4159F244',
         version: '1',
         name: 'Tether',
         decimals: 6,
