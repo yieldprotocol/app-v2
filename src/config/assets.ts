@@ -628,7 +628,7 @@ ASSETS.set(
         displaySymbol: 'USDT',
         showToken: true,
         digitFormat: 2,
-        tokenType: TokenType.ERC20_,
+        tokenType: TokenType.ERC20_Permit,
 
         assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
         joinAddress: '0xcb60Bd598bf48be1E24262E8BF1e3703FECA3470',
