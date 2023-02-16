@@ -170,6 +170,7 @@ usdtIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 usdtIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 usdtIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
 usdtIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
+usdtIlkOracle1.set(RETH, COMPOSITE_MULTI_ORACLE);
 
 /* rate */
 usdtIlkOracle1.set(RATE, ACCUMULATOR_ORACLE);
