@@ -13,7 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, IVault, ProcessStage, TxState } from '../../types';
+import { ActionCodes, ActionType, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
@@ -21,7 +21,7 @@ import ActiveTransaction from '../ActiveTransaction';
 
 import { cleanValue, getTxCode, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
-import YieldInfo from '../YieldInfo';
+import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
 import { Gauge } from '../Gauge';
 import InfoBite from '../InfoBite';
@@ -40,36 +40,30 @@ import InputInfoWrap from '../wraps/InputInfoWrap';
 import ColorText from '../texts/ColorText';
 import { useProcess } from '../../hooks/useProcess';
 
-import { ChainContext } from '../../contexts/ChainContext';
 import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
-import YieldNavigation from '../YieldNavigation';
+import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
-import { useAssetPair } from '../../hooks/useAssetPair';
+import { useAssetPairs } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
-import useTenderly from '../../hooks/useTenderly';
+import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
+import useContracts from '../../hooks/useContracts';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  useTenderly();
 
   const { logAnalyticsEvent } = useAnalytics();
 
   /* STATE FROM CONTEXT */
-  const {
-    chainState: {
-      contractMap,
-      connection: { chainId },
-    },
-  } = useContext(ChainContext);
-  const { userState, userActions }: { userState: IUserContextState; userActions: any } = useContext(
-    UserContext
-  ) as IUserContext;
-  const { activeAccount, assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } = userState;
   const { setSelectedIlk } = userActions;
+
+  const { address: activeAccount } = useAccount();
+  const contracts = useContracts();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -89,16 +83,16 @@ const Borrow = () => {
 
   const [disclaimerChecked, setDisclaimerChecked] = useState<boolean>(false);
 
+  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
-
-  const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const assetPairInfo = useAssetPair(selectedBase!, selectedIlk!);
+  const { assetPair } = useAssetPairs(selectedBase?.id, [selectedIlk?.id]);
+
   const {
     collateralizationPercent,
     undercollateralized,
@@ -109,13 +103,13 @@ const Borrow = () => {
     minCollatRatioPct,
     totalCollateral_,
     liquidationPrice_,
-  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPairInfo);
+  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPair);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,
-    assetPairInfo,
+    assetPair,
     selectedSeries
   );
 
@@ -145,15 +139,13 @@ const Borrow = () => {
       view: GA_View.BORROW,
       series_id: selectedSeries?.name!,
       action_code: ActionCodes.BORROW,
-      supporting_collateral: selectedIlk.symbol,
+      supporting_collateral: selectedIlk?.symbol,
     } as GA_Properties.transaction_initiated);
   };
 
-
-
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
-    _stepPosition === 0 && setSelectedIlk(assetMap.get('0x303000000000')!);
+    _stepPosition === 0 && setSelectedIlk(selectedIlk || assetMap?.get('0x303000000000')!);
     setStepPosition(_stepPosition);
     logAnalyticsEvent(GA_Event.next_step_clicked, {
       view: GA_View.BORROW,
@@ -162,7 +154,7 @@ const Borrow = () => {
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
-    actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral);
+    actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral!);
     actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
@@ -241,7 +233,7 @@ const Borrow = () => {
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
     if (selectedBase && selectedSeries && selectedIlk) {
-      const arr: IVault[] = Array.from(vaultMap.values()) as IVault[];
+      const arr: IVault[] = Array.from(vaultMap?.values()!) as IVault[];
       const _matchingVaults = arr.filter(
         (v: IVault) =>
           v.ilkId === selectedIlk.proxyId &&
@@ -253,10 +245,18 @@ const Borrow = () => {
     }
   }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
 
-  /* reset the selected vault, and get limits on every component change */
+  /* handle selected vault */
   useEffect(() => {
+    if (matchingVaults && matchingVaults.length > 0) {
+      return setVaultToUse(matchingVaults[0]);
+    }
+
+    if (selectedVault) {
+      return setVaultToUse(selectedVault);
+    }
+
     setVaultToUse(undefined);
-  }, [selectedIlk, selectedBase, selectedSeries]);
+  }, [matchingVaults, selectedVault]);
 
   useEffect(() => {
     if (
@@ -264,17 +264,17 @@ const Borrow = () => {
       borrowProcess?.tx.status === TxState.SUCCESSFUL &&
       !vaultToUse
     ) {
-      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contractMap)!);
+      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contracts)!);
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
-  }, [borrowProcess, contractMap, resetInputs, vaultToUse]);
+  }, [borrowProcess, contracts, resetInputs, vaultToUse]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
         {!mobile && (
           <PanelWrap basis="30%">
-            <YieldNavigation sideNavigation={true} />
+            <Navigation sideNavigation={true} />
             <VaultSelector />
           </PanelWrap>
         )}
@@ -326,7 +326,7 @@ const Borrow = () => {
                   ) : (
                     <SectionWrap
                       title={
-                        seriesMap.size > 0
+                        selectedBase
                           ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
                           : ''
                       }
@@ -360,9 +360,6 @@ const Borrow = () => {
 
             {stepPosition === 1 && ( // ADD COLLATERAL
               <>
-                {/* <Box style={{ position: 'absolute', left:'-20px' }} pad="small">
-                  <BackButton action={() => setStepPosition(0)} />
-                </Box> */}
                 <Box background="gradient-transparent" round={{ corner: 'top', size: 'xsmall' }} pad="medium">
                   <BackButton action={() => handleNavAction(0)} />
                   <Box pad="medium" direction="row" justify="between" round="small">
@@ -403,7 +400,7 @@ const Borrow = () => {
                             Liquidation when
                           </Text>
                           <Text size={mobile ? 'xsmall' : 'small'}>
-                            1 {selectedIlk.symbol} = {liquidationPrice_} {selectedBase.symbol}
+                            1 {selectedIlk?.symbol} = {liquidationPrice_} {selectedBase?.symbol}
                           </Text>
                         </Box>
                       )}
@@ -451,7 +448,7 @@ const Borrow = () => {
 
                     <Box flex={false}>
                       {matchingVaults.length > 0 && (
-                        <SectionWrap title="Add to an exisiting vault" disabled={matchingVaults.length < 1}>
+                        <SectionWrap title="Choose Vault to Use" disabled={matchingVaults.length < 1}>
                           <VaultDropSelector
                             vaults={matchingVaults}
                             handleSelect={(option: any) => setVaultToUse(option.id ? option : undefined)}
@@ -549,7 +546,7 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
-                  {vaultToUse && <VaultItem vault={vaultMap.get(vaultToUse.id)!} condensed index={1} />}
+                  {vaultToUse && <VaultItem vault={vaultMap?.get(vaultToUse.id)!} condensed index={1} />}
                   {!vaultToUse && newVaultId && (
                     <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
                   )}

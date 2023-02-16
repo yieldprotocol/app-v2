@@ -1,26 +1,19 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, sellBase } from '@yield-protocol/ui-math';
+import { calculateSlippage, MAX_256, sellBase } from '@yield-protocol/ui-math';
 
-import { ETH_BASED_ASSETS } from '../../config/assets';
-import { ChainContext } from '../../contexts/ChainContext';
+import { ETH_BASED_ASSETS, USDT } from '../../config/assets';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-} from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { Address, useAccount, useBalance } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
+import useChainId from '../useChainId';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -28,15 +21,17 @@ export const useLend = () => {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap, selectedSeries, selectedBase } = userState;
   const { updateSeries, updateAssets } = userActions;
+  const { address: account } = useAccount();
+  const chainId = useChainId();
+
+  const { refetch: refetchFyTokenBal } = useBalance({ address: account, token: selectedSeries?.address as Address });
+  const { refetch: refetchBaseBal } = useBalance({
+    address: account,
+    token: selectedBase?.address as Address,
+  });
 
   const {
     historyActions: { updateTradeHistory },
@@ -45,16 +40,17 @@ export const useLend = () => {
   const { sign, transact } = useChain();
   const { addEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const contracts = useContracts();
 
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
 
-    const base = assetMap.get(series.baseId)!;
+    const base = assetMap?.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base?.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base?.decimals) : ethers.constants.Zero;
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const _inputAsFyToken = sellBase(
       series.sharesReserves,
@@ -71,7 +67,7 @@ export const useLend = () => {
     const _inputAsFyTokenWithSlippage = calculateSlippage(_inputAsFyToken, slippageTolerance.toString(), true);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(_input);
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress!)).gte(_input);
 
     /* ETH is used as a base */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
@@ -81,7 +77,7 @@ export const useLend = () => {
         {
           target: base,
           spender: 'LADLE',
-          amount: _input,
+          amount: base.id === USDT && chainId !== 42161 ? MAX_256 : _input, // USDT allowance when non-zero needs to be set to 0 explicitly before settting to a non-zero amount; instead of having multiple approvals, we approve max from the outset on mainnet
           ignoreIf: alreadyApproved === true,
         },
       ],
@@ -111,6 +107,8 @@ export const useLend = () => {
     ];
 
     await transact(calls, txCode);
+    refetchBaseBal();
+    refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);
     updateTradeHistory([series]);

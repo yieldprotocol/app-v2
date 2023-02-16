@@ -3,13 +3,12 @@ import Link from 'next/link';
 import { useContext } from 'react';
 import styled, { CSSProperties } from 'styled-components';
 import { Box, ThemeContext, ResponsiveContext, Text } from 'grommet';
-import NavText from './texts/NavText';
-import { ChainContext } from '../contexts/ChainContext';
 import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { ISettingsContext } from '../types';
+import { useAccount } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
+import NavText from './texts/NavText';
 
 const StyledLink = styled.div`
   text-decoration: none;
@@ -33,25 +32,33 @@ const StyledLink = styled.div`
   }
 `;
 
+const StyledText = styled(Text)`
+  font-family: 'Raleway';
+  /* background: -webkit-linear-gradient(#7255bd, #d95948);
+  background: ${(props) => props.color};
+  background: -webkit-linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(2px 2px 2px #ddd);  */
+`;
+
 interface IYieldNavigationProps {
   sideNavigation?: boolean;
   callbackFn?: any;
 }
 
-const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
+const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
 
   const [height] = useWindowSize();
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
+
+  const { isConnected } = useAccount();
+
   const {
     settingsState: { darkMode },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const theme = useContext<any>(ThemeContext);
   const textColor = theme.global.colors.text;
@@ -66,7 +73,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
     { label: 'BORROW', to: '/borrow' },
     { label: 'LEND', to: '/lend' },
     { label: 'POOL', to: '/pool' },
-    { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
+    { label: 'DASHBOARD', to: '/dashboard', disabled: !isConnected },
   ];
 
   const handleViewChange = (toView: string) => {
@@ -89,7 +96,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
 
   return (
     <>
-      {!mobile && !sideNavigation && height > 800 && (
+      {!mobile && !sideNavigation && height! > 800 && (
         <Box
           direction={mobile ? 'column' : 'row'}
           gap="2em"
@@ -108,7 +115,7 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
         </Box>
       )}
 
-      {!mobile && sideNavigation && height < 800 ? (
+      {!mobile && sideNavigation && height! < 800 ? (
         <Box pad={{ vertical: '3em' }} direction="column" gap="small">
           {linksArr.map((x) => (!x.disabled ? <NavLink link={x} key={x.label} /> : null))}
         </Box>
@@ -119,6 +126,6 @@ const YieldNavigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) 
   );
 };
 
-YieldNavigation.defaultProps = { sideNavigation: false, callbackFn: () => null };
+Navigation.defaultProps = { sideNavigation: false, callbackFn: () => null };
 
-export default YieldNavigation;
+export default Navigation;

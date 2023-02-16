@@ -4,11 +4,13 @@ import { maxBaseIn, maxBaseOut, maxFyTokenIn, sellBase, sellFYToken } from '@yie
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ActionType, ISeries, IUserContext } from '../../types';
+import { ActionType, ISeries } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { Address, useAccount, useBalance } from 'wagmi';
 import { cleanValue } from '../../utils/appUtils';
+import { WETH } from '../../config/assets';
 
 export const useLendHelpers = (
   series: ISeries | null,
@@ -20,13 +22,12 @@ export const useLendHelpers = (
   } = useContext(SettingsContext);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { address: activeAccount } = useAccount();
 
-  const { userState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedBase } = userState;
+  const { userState } = useContext(UserContext);
+  const { selectedBase } = userState;
 
   /* clean to prevent underflow */
-  const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(ethers.constants.Zero);
-
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
   const [maxLend_, setMaxLend_] = useState<string>();
 
@@ -49,22 +50,20 @@ export const useLendHelpers = (
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
-
-  useEffect(() => {
-    if (activeAccount) {
-      (async () => {
-        // user base available when rolling is the user's from series lend position balance
-        const usersMaxBase = await selectedBase?.getBalance(activeAccount);
-        usersMaxBase && setUserBaseBalance(usersMaxBase);
-      })();
-    }
-  }, [activeAccount, selectedBase, series]);
+  const { address: account } = useAccount();
+  const { data } = useBalance({
+    address: account,
+    token: selectedBase?.proxyId === WETH ? undefined : selectedBase?.address as Address,
+    enabled: !!activeAccount && !!selectedBase,
+  });
+  const userBaseBalance = data?.value || ethers.constants.Zero;
+  const userBaseBalance_ = data?.formatted;
 
   /* set maxLend based on either max user or max protocol */
   useEffect(() => {
     if (!series && selectedBase) {
       setMaxLend(userBaseBalance);
-      setMaxLend_(ethers.utils.formatUnits(userBaseBalance, selectedBase.decimals).toString());
+      setMaxLend_(userBaseBalance_);
     }
 
     if (series) {
@@ -95,7 +94,7 @@ export const useLendHelpers = (
         setProtocolLimited(true);
       }
     }
-  }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity]);
+  }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity, userBaseBalance_]);
 
   /* Sets max close and current market value of fyTokens held in base tokens */
   useEffect(() => {

@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { FiSlash } from 'react-icons/fi';
 
 import styled from 'styled-components';
-import { ISettingsContext, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -81,7 +81,7 @@ const StrategySelectItem = ({
           </Box>
         </Box>
 
-        {strategy.rewardsRate.gt(ZERO_BN) && (
+        {strategy.rewardsRate!.gt(ZERO_BN) && (
           <Box
             round
             background="red"
@@ -90,12 +90,12 @@ const StrategySelectItem = ({
             elevation="small"
           >
             <Text size="small" color="white" textAlign="center">
-              +{returns.rewardsAPY}%
+              +{returns?.rewardsAPY}%
             </Text>
           </Box>
         )}
 
-        {returns.blendedAPY && (
+        {returns?.blendedAPY && (
           <Box fill align="end">
             <Avatar
               background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
@@ -103,7 +103,7 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small">{(+returns.blendedAPY - +returns.rewardsAPY).toFixed(1)}%</Text>
+              <Text size="small">{(+returns.blendedAPY - +returns.rewardsAPY!).toFixed(1)}%</Text>
             </Avatar>
           </Box>
         )}
@@ -122,18 +122,16 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  const { userState, userActions } = useContext(UserContext);
 
   const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
   const [options, setOptions] = useState<IStrategy[]>([]);
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(strategyMap.values()) as IStrategy[];
+    const opts = Array.from(strategyMap?.values()!);
     const filteredOpts = opts
       .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
       .filter((_st) => _st.currentSeries?.showSeries && _st.active)
@@ -153,19 +151,17 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     }
   };
 
-
   /* Auto select a default strategy  */
   useEffect(() => {
     /* if strategy already selected, no need to set explicitly again */
     if (selectedStrategy) return;
-
     const opts: IStrategy[] = Array.from(strategyMap.values())
       .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
       .filter((_st) => _st.currentSeries?.showSeries && _st.active)
       .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
 
     /* select strategy with rewards */
-    const strategyWithRewards = opts.find((s) => s.rewardsRate.gt(ZERO_BN));
+    const strategyWithRewards = opts.find((s) => s.rewardsRate?.gt(ZERO_BN));
     if (strategyWithRewards) {
       userActions.setSelectedStrategy(strategyWithRewards);
       return;
@@ -182,13 +178,14 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   return (
     <Box>
+      {!selectedBase && <Skeleton width={180} />}
       {strategiesLoading && (
         <>
-          <Skeleton width={180} />
           <CardSkeleton />
           <CardSkeleton />
         </>
       )}
+
       {!strategiesLoading && (
         <Box gap="small">
           {options.map((o: IStrategy) => {
@@ -203,6 +200,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
                 selected={selected}
                 displayName={displayName}
                 returns={returns}
+                // apy={returns.blendedAPY}
                 // extra={ returns.}
               />
             );

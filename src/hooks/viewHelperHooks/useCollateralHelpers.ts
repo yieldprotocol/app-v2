@@ -9,29 +9,37 @@ import {
 } from '@yield-protocol/ui-math';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IAssetPair, IUserContext, IVault } from '../../types';
+import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { Address, useAccount, useBalance } from 'wagmi';
+import { WETH } from '../../config/assets';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
   debtInput: string | undefined,
   collInput: string | undefined,
   vault: IVault | undefined,
-  assetPairInfo: IAssetPair | undefined
+  assetPairInfo: IAssetPair | undefined| null
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { activeAccount, selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
-  } = useContext(UserContext) as IUserContext;
+    userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
+  } = useContext(UserContext);
+
+  const _selectedBase = vault ? assetMap?.get(vault.baseId) : selectedBase;
+  const _selectedIlk = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
+  const _selectedSeries = vault ? seriesMap?.get(vault.seriesId) : selectedSeries;
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
-
-  const _selectedBase = vault ? assetMap.get(vault.baseId) : selectedBase;
-  const _selectedIlk = vault ? assetMap.get(vault.ilkId) : selectedIlk;
-  const _selectedSeries = vault ? seriesMap.get(vault.seriesId) : selectedSeries;
+  const { address: activeAccount } = useAccount();
+  const { data: userIlkBalance } = useBalance({
+    address: activeAccount,
+    token: _selectedIlk?.proxyId === WETH ? undefined : _selectedIlk?.address as Address,
+    enabled: !!_selectedIlk,
+  });
 
   /* LOCAL STATE */
   const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
@@ -87,7 +95,7 @@ export const useCollateralHelpers = (
             _selectedBase?.digitFormat
           )
         : cleanValue(
-            calcLiquidationPrice(totalCollateral_, totalDebt_, assetPairInfo.minRatio),
+            calcLiquidationPrice(totalCollateral_!, totalDebt_!, assetPairInfo.minRatio),
             _selectedBase?.digitFormat
           );
 
@@ -97,12 +105,8 @@ export const useCollateralHelpers = (
 
   /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {
-    activeAccount &&
-      (async () => {
-        const _max = await _selectedIlk?.getBalance(activeAccount);
-        _max && setMaxCollateral(ethers.utils.formatUnits(_max, _selectedIlk.decimals)?.toString());
-      })();
-  }, [activeAccount, _selectedIlk, setMaxCollateral]);
+    setMaxCollateral(userIlkBalance?.formatted);
+  }, [userIlkBalance?.formatted]);
 
   /* handle changes to input values */
   useEffect(() => {
@@ -124,7 +128,7 @@ export const useCollateralHelpers = (
         ? buyBase(
             _selectedSeries.sharesReserves,
             _selectedSeries.fyTokenReserves,
-            _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase.decimals)),
+            _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase?.decimals)),
             getTimeTillMaturity(_selectedSeries.maturity),
             _selectedSeries.ts,
             _selectedSeries.g2,

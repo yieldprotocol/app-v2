@@ -1,4 +1,4 @@
-import { TokenType } from '../types';
+import { TokenType, TokenRole } from '../types';
 
 export interface AssetStaticInfo {
   assetAddress: string;
@@ -11,17 +11,18 @@ export interface AssetStaticInfo {
   showToken: boolean; // Display/hide the token on the UI
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
 
+  tokenRoles: TokenRole[]
+
   // optionals
-  isYieldBase?: boolean;
+  // isYieldBase?: boolean;
+  
   tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
   displaySymbol?: string; // override for symbol display
   limitToSeries?: string[];
   wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
   unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
-  proxyId?: string;
+  proxyId?: string; // associated token (eg. )
 }
-
-export const UNKNOWN = '0x000000000000';
 
 export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
@@ -63,6 +64,7 @@ export const FDAI2306 = '0x40311200028B';
 export const FUSDC2306 = '0x40321200028B';
 
 export const CRAB = '0x333800000000';
+export const USDT = '0x30a000000000';
 
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
@@ -85,13 +87,13 @@ ASSETS.set(
         assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         joinAddress: '0x4fE92119CDf873Cf8826F4E6EcfD4E578E3D44Dc',
         version: '1',
-        name: 'Dai stable coin',
+        name: 'Dai Stablecoin',
         decimals: 18,
         symbol: 'DAI',
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_DaiPermit,
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -100,13 +102,13 @@ ASSETS.set(
         assetAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         joinAddress: '0x0d9A1A773be5a83eEbda23bf98efB8585C3ae4f4',
         version: '1',
-        name: 'USDC Stable coin',
+        name: 'USD Coin',
         decimals: 6,
         symbol: 'USDC',
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_Permit,
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -115,12 +117,13 @@ ASSETS.set(
         assetAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
         joinAddress: '0x00De0AEFcd3069d88f85b4F18b144222eaAb92Af',
         version: '1',
-        name: 'Wrapped Bitcoin',
-        decimals: 18,
+        name: 'Wrapped BTC',
+        decimals: 8,
         symbol: 'WBTC',
         showToken: true,
         digitFormat: 6,
-        tokenType: TokenType.ERC20_,
+        tokenType: TokenType.ERC20_Permit,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -129,12 +132,13 @@ ASSETS.set(
         assetAddress: '0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72',
         joinAddress: '0x5AAfd8F0bfe3e1e6bAE781A6641096317D762969',
         version: '1',
-        name: 'Ethereum Naming Service',
+        name: 'Ethereum Name Service',
         decimals: 18,
         symbol: 'ENS',
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_Permit,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -150,7 +154,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 6,
         tokenType: TokenType.ERC20_,
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -159,7 +163,7 @@ ASSETS.set(
         assetAddress: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
         joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
         version: '1',
-        name: 'Wrapped Staked Ether',
+        name: 'Wrapped liquid staked Ether 2.0',
         decimals: 18,
         symbol: 'wstETH',
         displaySymbol: 'wstETH',
@@ -172,6 +176,7 @@ ASSETS.set(
           [4, '0x64BA0F1D2E5479BF132936328e8c533c95646fE8'],
           [5, '0x9f65A6c2b2F12117573323443C8C2290f4C1e675'],
         ]),
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -180,7 +185,7 @@ ASSETS.set(
         assetAddress: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
         joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
         version: '1',
-        name: 'Staked Eth',
+        name: 'Liquid staked Ether 2.0',
         decimals: 18,
         symbol: 'stETH',
         showToken: true,
@@ -189,6 +194,7 @@ ASSETS.set(
         wrapHandlerAddresses: new Map([[1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1']]),
         unwrapHandlerAddresses: new Map([]),
         proxyId: wstETH,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -197,12 +203,13 @@ ASSETS.set(
         assetAddress: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
         joinAddress: '0xbDaBb91cDbDc252CBfF3A707819C5f7Ec2B92833',
         version: '1',
-        name: 'ChainLink',
+        name: 'ChainLink Token',
         decimals: 18,
         symbol: 'LINK',
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -211,13 +218,14 @@ ASSETS.set(
         assetAddress: '0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE',
         joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
         version: '1',
-        name: 'Yearn Vault USDC',
+        name: 'USDC yVault',
         decimals: 18,
         symbol: 'yvUSDC',
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
         limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000', '0x303230380000', '0x303230390000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -226,12 +234,13 @@ ASSETS.set(
         assetAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
         joinAddress: '0x41567f6A109f5bdE283Eb5501F21e3A0bEcbB779',
         version: '1',
-        name: 'Uniswap token',
+        name: 'Uniswap',
         decimals: 18,
         symbol: 'UNI',
         showToken: true,
         digitFormat: 4,
         tokenType: TokenType.ERC20_Permit,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -240,14 +249,15 @@ ASSETS.set(
         assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
         joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
         version: '1',
-        name: 'frax',
+        name: 'Frax',
         decimals: 18,
         symbol: 'FRAX',
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
         limitToSeries: [],
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
+
       },
     ],
     [
@@ -266,6 +276,7 @@ ASSETS.set(
         limitToSeries: ['0x303130350000'],
         wrapHandlerAddresses: new Map([]),
         unwrapHandlerAddresses: new Map([]),
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -273,7 +284,6 @@ ASSETS.set(
       {
         assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
         joinAddress: '0x4970B046565BEE1DE8308E41BD22d0061A251911',
-
         version: '1',
         name: 'fUSDC2203',
         decimals: 8,
@@ -283,6 +293,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844846949203969,
         limitToSeries: ['0x303230350000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -300,6 +311,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563373963149313,
         limitToSeries: ['0x303130360000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -307,7 +319,6 @@ ASSETS.set(
       {
         assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
         joinAddress: '0x62DdD41F8A65B03746656D85b6B2539aE42e23e8',
-
         version: '1',
         name: 'fUSDC2206',
         decimals: 8,
@@ -317,6 +328,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844848939859969,
         limitToSeries: ['0x303230360000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -324,7 +336,6 @@ ASSETS.set(
       {
         assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
         joinAddress: '0x399bA81A1f1Ed0221c39179C50d4d4Bc85C3F3Ab',
-
         version: '1',
         name: 'fDAI2209',
         decimals: 8,
@@ -334,6 +345,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563375953805313,
         limitToSeries: ['0x303130370000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -350,6 +362,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844850930515969,
         limitToSeries: ['0x303230370000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -366,6 +379,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 281902967750657,
         limitToSeries: ['0x303030380000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -382,6 +396,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 281904958406657,
         limitToSeries: ['0x303030390000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -398,6 +413,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844852921171969,
         limitToSeries: ['0x303230380000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -414,6 +430,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844854911827969,
         limitToSeries: ['0x303230390000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -430,6 +447,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563377944461313,
         limitToSeries: ['0x303130380000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -446,6 +464,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563379935117313,
         limitToSeries: ['0x303130390000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -462,6 +481,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563381925773313,
         limitToSeries: ['0x0031ff00028b'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -478,6 +498,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844856902483969,
         limitToSeries: ['0x0032ff00028b'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -494,6 +515,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 281906949062657,
         limitToSeries: ['0x0030ff00028b'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -508,7 +530,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
-        isYieldBase: false,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -517,34 +539,30 @@ ASSETS.set(
         assetAddress: '0xae78736Cd615f374D3085123A210448E74Fc6393',
         joinAddress: '0x6fb97c793f0d83cda7796f45a2bb697e73a045a8',
         version: '1',
-        name: 'RocketPool ETH',
-        decimals: 18, // how do i determine this?
+        name: 'Rocket Pool ETH',
+        decimals: 18,
         symbol: 'rETH',
         showToken: true,
-        digitFormat: 6, // how do i determine this?
+        digitFormat: 6,
         tokenType: TokenType.ERC20_,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
-    // [
-    //   CVX3CRV,
-    //   {
-    //     assetAddress: '',
-    //     joinAddress: '',
-    //     version: '1',
-    //     name: 'cvx3crv',
-    //     decimals: 18,
-    //     symbol: 'cvx3crv',
-    //     showToken: false,
-    //     digitFormat: 2,
-    //     tokenType: TokenType.ERC20_,
-    //     limitToSeries: [
-    //       '0x303130360000', // june dai
-    //       '0x303130370000', // sept dai
-    //       '0x303230370000', // sept usdc
-    //       '0x303230360000', // june usdc
-    //     ],
-    //   }
-    // ]
+    [
+      USDT,
+      {
+        assetAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        joinAddress: '0x62E53931a07d8679Fb73e543459D1D9f4159F244',
+        version: '1',
+        name: 'Tether USD',
+        decimals: 6,
+        symbol: 'USDT',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_,
+        tokenRoles: [TokenRole.BASE],
+      },
+    ],
   ])
 );
 
@@ -555,7 +573,7 @@ ASSETS.set(
       DAI,
       {
         version: '2',
-        name: 'Dai stable coin',
+        name: 'Dai Stablecoin',
         decimals: 18,
         symbol: 'DAI',
 
@@ -565,14 +583,14 @@ ASSETS.set(
 
         assetAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
         joinAddress: '0xc31cce4fFA203d8F8D865b6cfaa4F36AD77E9810',
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
       USDC,
       {
         version: '1',
-        name: 'USDC Stable coin',
+        name: 'USD Coin (Arb1)',
         decimals: 6,
         symbol: 'USDC',
 
@@ -582,7 +600,7 @@ ASSETS.set(
 
         assetAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
         joinAddress: '0x1229C71482E458fa2cd51d13eB157Bd2b5D5d1Ee',
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -596,11 +614,29 @@ ASSETS.set(
         displaySymbol: 'ETH',
         showToken: true,
         digitFormat: 6,
-        tokenType: TokenType.ERC20_,
+        tokenType: TokenType.ERC20_Permit,
 
         assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
+      },
+    ],
+    [
+      USDT,
+      {
+        version: '1',
+        name: 'Tether USD',
+        decimals: 6,
+        symbol: 'USDT',
+
+        displaySymbol: 'USDT',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_Permit,
+
+        assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+        joinAddress: '0xcb60Bd598bf48be1E24262E8BF1e3703FECA3470',
+        tokenRoles: [TokenRole.BASE],
       },
     ],
   ])

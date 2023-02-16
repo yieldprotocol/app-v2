@@ -4,45 +4,40 @@ import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  IVault,
-  ActionCodes,
-  LadleActions,
-  ISeries,
-  IAsset,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-} from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, ISeries, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
 
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ChainContext } from '../../contexts/ChainContext';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { Address, useAccount, useBalance } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
 
 export const useBorrow = () => {
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
-  const { activeAccount: account, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
+  const { address: account } = useAccount();
+  const contracts = useContracts();
+
+  const { refetch: refetchIlkBal } = useBalance({
+    address: account,
+    token: selectedIlk?.address as Address,
+  });
+  const { refetch: refetchBaseBal } = useBalance({
+    address: account,
+    token: selectedBase?.address as Address,
+  });
 
   const { addEth, removeEth } = useAddRemoveEth();
 
@@ -56,22 +51,22 @@ export const useBorrow = () => {
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
-    const series: ISeries = vault ? seriesMap.get(vault.seriesId)! : selectedSeries!;
-    const base: IAsset = assetMap.get(series.baseId)!;
+    const series: ISeries = vault ? seriesMap?.get(vault.seriesId)! : selectedSeries!;
+    const base: IAsset = assetMap?.get(series.baseId)!;
 
-    const ilkToUse: IAsset = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk?.proxyId)!; // note: we use the wrapped version if required
+    const ilkToUse: IAsset = vault ? assetMap?.get(vault.ilkId)! : assetMap?.get(selectedIlk?.proxyId!)!; // note: we use the wrapped version if required
 
     /* is ETH  used as collateral */
-    const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.proxyId);
+    const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!);
     /* is ETH being Borrowed   */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* is convex-type collateral */
-    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId);
-    const ConvexLadleModuleContract = contractMap.get('ConvexLadleModule') as ConvexLadleModule;
+    const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
+    const ConvexLadleModuleContract = contracts.get(ContractNames.CONVEX_LADLE_MODULE) as ConvexLadleModule;
 
     /* parse inputs  (clean down to base/ilk decimals so that there is never an underlow)  */
     const cleanInput = cleanValue(input, base.decimals);
@@ -90,7 +85,7 @@ export const useBorrow = () => {
       series.c,
       series.mu
     );
-    const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance);
+    const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance.toString());
 
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
     const _allowance = await ilkToUse.getAllowance(account!, ilkToUse.joinAddress);
@@ -175,7 +170,9 @@ export const useBorrow = () => {
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)
     */
-    updateVaults([]);
+    if (selectedSeries?.baseId !== WETH) refetchBaseBal();
+    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
+    updateVaults();
     updateAssets([base, ilkToUse, selectedIlk!]);
     updateSeries([series]);
   };

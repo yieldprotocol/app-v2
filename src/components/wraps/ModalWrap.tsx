@@ -6,8 +6,8 @@ import MainViewWrap from './MainViewWrap';
 import PanelWrap from './PanelWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ISeries, IUserContextState } from '../../types';
-import YieldHeader from '../YieldHeader';
+import { ISeries } from '../../types';
+import Header from '../Header';
 import YieldMobileMenu from '../YieldMobileMenu';
 
 interface IModalWrap {
@@ -21,9 +21,9 @@ function ModalWrap({ children, series }: IModalWrap) {
 
   const {
     userState: { selectedSeries, seriesMap },
-  }: { userState: IUserContextState } = useContext(UserContext);
+  } = useContext(UserContext);
 
-  const _series: ISeries = series! || seriesMap.get(selectedSeries?.id!);
+  const _series = series! || seriesMap?.get(selectedSeries?.id!);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
@@ -59,7 +59,7 @@ function ModalWrap({ children, series }: IModalWrap) {
 
         {mobile && (
           <Box>
-            <YieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+            <Header actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
             {menuLayerOpen ? <YieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} /> : children}
           </Box>
         )}

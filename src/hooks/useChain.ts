@@ -1,15 +1,18 @@
 import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import { signDaiPermit, signERC2612Permit } from 'eth-permit';
 import { useContext } from 'react';
-import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 
-import { ApprovalType, ICallData, ISettingsContext, ISignData, LadleActions, TokenType } from '../types';
+import { ApprovalType, ICallData, ISignData, LadleActions, TokenType } from '../types';
 import { MAX_256, ZERO_BN } from '../utils/constants';
 
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { useAccount, useNetwork, useSigner } from 'wagmi';
+import useContracts, { ContractNames } from './useContracts';
+import { ISettingsContext } from '../contexts/types/settings';
+import { ChainContext } from '../contexts/ChainContext';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -23,17 +26,16 @@ export const useChain = () => {
   const {
     settingsState: { approveMax, forceTransactions, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
-  
-  const {
-    chainState: {
-      connection: { account, provider, chainId },
-      contractMap,
-    },
-  } = useContext(ChainContext);
 
   const {
     txActions: { handleTx, handleSign, handleTxWillFail },
   } = useContext(TxContext);
+
+  /* wagmi connection stuff */
+  const { address: account } = useAccount();
+  const { chain } = useNetwork();
+  const { data: signer, isError, isLoading } = useSigner();
+  const contracts = useContracts();
 
   const approvalMethod = useApprovalMethod();
 
@@ -45,10 +47,8 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
-    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
-
     /* Set the router contract instance, ladle by default */
-    const _contract: Contract = contractMap.get('Ladle').connect(signer) as Ladle;
+    const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call: ICallData) => !call.ignoreIf);
@@ -59,10 +59,9 @@ export const useChain = () => {
       /* 'pre-encode' routed calls if required */
       if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.MODULE) {
         if (call.fnName && call.targetContract) {
-
-          console.log('contract', call.targetContract ) 
-          console.log('fnName', call.fnName )
-          console.log('args', call.args ) 
+          console.log('contract', call.targetContract);
+          console.log('fnName', call.fnName);
+          console.log('args', call.args);
           const encodedFn = (call.targetContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
 
           if (call.operation === LadleActions.Fn.ROUTE)
@@ -89,7 +88,6 @@ export const useChain = () => {
 
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);
-    console.log('Batch value sent:', batchValue.toString());
 
     /* calculate the gas required */
     let gasEst: BigNumber;
@@ -121,12 +119,11 @@ export const useChain = () => {
    * @returns { Promise<ICallData[]> }
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
-    const signer = account ? provider.getSigner(account) : provider.getSigner(0);
-    // const signer = provider.getSigner(0);
+    if (!signer) throw new Error('no signer');
 
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
-      const _ladleAddr = contractMap.get('Ladle').address;
+      const _ladleAddr = contracts.get(ContractNames.LADLE)?.address;
       if (ethers.utils.isAddress(spender)) {
         return spender;
       }
@@ -146,29 +143,32 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Spender', _spender);
         diagnostics && console.log('Sign: Amount', _amount?.toString());
 
+        console.log(signer);
+
         /* Request the signature if using DaiType permit style */
-        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chainId !== 42161) {
+        if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chain?.id !== 42161) {
           // dai in arbitrum uses regular permits
           const { v, r, s, nonce, expiry, allowed } = await handleSign(
             /* We are pass over the generated signFn and sigData to the signatureHandler for tracking/tracing/fallback handling */
             () =>
               signDaiPermit(
-                provider,
+                signer,
                 /* build domain */
                 {
                   name: reqSig.target.name,
                   version: reqSig.target.version,
-                  chainId,
+                  chainId: chain?.id!,
                   verifyingContract: reqSig.target.address,
                 },
-                account,
-                _spender
+                account!,
+                _spender!
               ),
             /* This is the function  to call if using fallback Dai approvals */
             () =>
               handleTx(
                 /* get an ERC20 contract instance. This is only used in the case of fallback tx (when signing is not available) */
-                () => ERC20Permit__factory.connect(reqSig.target.address, signer).approve(_spender, _amount as string),
+                () =>
+                  ERC20Permit__factory.connect(reqSig.target.address, signer!).approve(_spender!, _amount as string),
                 txCode,
                 true
               ),
@@ -198,20 +198,21 @@ export const useChain = () => {
           Or else - if not DAI-BASED, request the signature using ERC2612 Permit style
           (handleSignature() wraps the sign function for in app tracking and tracing )
         */
+
         const { v, r, s, value, deadline } = await handleSign(
           () =>
             signERC2612Permit(
-              provider,
+              signer,
               /* build domain */
               reqSig.domain || {
                 // uses custom domain if provided, else use created Domain
                 name: reqSig.target.name,
                 version: reqSig.target.version,
-                chainId,
+                chainId: chain?.id!,
                 verifyingContract: reqSig.target.address,
               },
-              account,
-              _spender,
+              account!,
+              _spender!,
               _amount
             ),
           /* this is the function for if using fallback approvals */
@@ -219,9 +220,9 @@ export const useChain = () => {
             handleTx(
               /* get an ERC20 or ERC1155 contract instance. Used in the case of fallback tx (when signing is not available) or token is ERC1155 */
               (reqSig.target as any).setAllowance
-                ? () => ERC1155__factory.connect(reqSig.target.address, signer).setApprovalForAll(_spender, true)
+                ? () => ERC1155__factory.connect(reqSig.target.address, signer!).setApprovalForAll(_spender!, true)
                 : () =>
-                    ERC20Permit__factory.connect(reqSig.target.address, signer).approve(_spender, _amount as string),
+                    ERC20Permit__factory.connect(reqSig.target.address, signer!).approve(_spender!, _amount as string),
               txCode,
               true
             ),
@@ -234,10 +235,8 @@ export const useChain = () => {
             : ApprovalType.TX
         );
 
-        console.log(v < 27 ? v + 27 : v);
-
         const args = [
-          reqSig.target.address, 
+          reqSig.target.address,
           _spender,
           value,
           deadline,

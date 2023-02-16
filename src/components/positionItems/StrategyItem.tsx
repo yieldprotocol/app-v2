@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 
-import { ActionType, IStrategy, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { ActionType, IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { formatStrategyName, nFormatter } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -18,10 +18,11 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   const {
     userState: { assetMap, seriesMap, strategiesLoading, selectedStrategy },
     userActions,
-  }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
-  const base = assetMap.get(strategy.baseId) || null;
+  const base = assetMap?.get(strategy.baseId) || null;
   const series = strategy.currentSeries || null; // seriesMap.get(strategy.currentSeries.id) || null;
+
   const isSelectedStrategy = strategy.id === selectedStrategy?.id;
 
   const handleSelect = (_series: IStrategy) => {
@@ -56,7 +57,6 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
                 Tokens:
               </Text>
               <Text weight={450} size="xsmall">
-                {/* Tokens:  {cleanValue(series.poolTokens_, 2)} */}
                 {strategiesLoading && isSelectedStrategy ? (
                   <SkeletonWrap width={30} />
                 ) : (

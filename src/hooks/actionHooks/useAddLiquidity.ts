@@ -1,13 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import {
-  calcPoolRatios,
-  calculateSlippage,
-  fyTokenForMint,
-  MAX_256,
-  splitLiquidity,
-  ZERO_BN,
-} from '@yield-protocol/ui-math';
+import { calcPoolRatios, calculateSlippage, fyTokenForMint, MAX_256, splitLiquidity } from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
@@ -21,10 +14,6 @@ import {
   IStrategy,
   AddLiquidityType,
   IVault,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  ISettingsContext,
 } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN } from '../../utils/constants';
@@ -33,24 +22,25 @@ import { useChain } from '../useChain';
 
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { ChainContext } from '../../contexts/ChainContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { ETH_BASED_ASSETS, USDT, WETH } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { Address, useAccount, useBalance } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
+import useChainId from '../useChainId';
 
 export const useAddLiquidity = () => {
   const {
     settingsState: { slippageTolerance },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-  const { activeAccount: account, assetMap, seriesMap } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap, seriesMap, selectedStrategy, selectedBase } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
+
+  const { address: account } = useAccount();
+  const chainId = useChainId();
+  const contracts = useContracts();
 
   const { sign, transact } = useChain();
   const {
@@ -59,6 +49,14 @@ export const useAddLiquidity = () => {
 
   const { addEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { refetch: refetchBaseBal } = useBalance({
+    address: account,
+    token: selectedBase?.address as Address,
+  });
+  const { refetch: refetchStrategyBal } = useBalance({
+    address: account,
+    token: selectedStrategy?.address as Address,
+  });
 
   const addLiquidity = async (
     input: string,
@@ -67,11 +65,11 @@ export const useAddLiquidity = () => {
     matchingVault: IVault | undefined = undefined
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
-    // const _series: ISeries = seriesMap.get(strategy.currentSeries.id)!;
-    const _series: ISeries = strategy.currentSeries;
-    const _base: IAsset = assetMap.get(_series?.baseId!)!;
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const _series = strategy.currentSeries!;
+    const _base = assetMap?.get(_series?.baseId!)!;
+
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const matchingVaultId: string | undefined = matchingVault ? matchingVault.id : undefined;
     const cleanInput = cleanValue(input, _base?.decimals!);
@@ -92,7 +90,7 @@ export const useAddLiquidity = () => {
     cachedFyTokenReserves.eq(totalSupply) && console.log('EDGE-CASE WARNING: CachedRealReserves are 0.');
 
     /* if approveMax, check if signature is still required */
-    const alreadyApproved = (await _base.getAllowance(account!, ladleAddress)).gte(_input);
+    const alreadyApproved = (await _base.getAllowance(account!, ladleAddress!)).gte(_input);
 
     /* if ethBase */
     const isEthBase = ETH_BASED_ASSETS.includes(_base.proxyId);
@@ -198,7 +196,7 @@ export const useAddLiquidity = () => {
         {
           target: _base,
           spender: 'LADLE',
-          amount: _input,
+          amount: _base.id === USDT && chainId !== 42161 ? MAX_256 : _input, // USDT allowance when non-zero needs to be set to 0 explicitly before settting to a non-zero amount; instead of having multiple approvals, we approve max from the outset on mainnet
           ignoreIf: alreadyApproved === true,
         },
       ],
@@ -214,6 +212,8 @@ export const useAddLiquidity = () => {
         return [...addEth(fyTokenToBorrowWithSlippage, _base.joinAddress), ...addEth(baseToPool, _series.poolAddress)];
       return []; // sends back an empty array [] if not eth base
     };
+
+    console.log('isEthBase', isEthBase);
 
     /**
      * BUILD CALL DATA ARRAY
@@ -240,8 +240,8 @@ export const useAddLiquidity = () => {
           strategy.address || account, // NOTE GOTCHA: receiver is _strategyAddress (if it exists) or else account
           account,
           fyTokenToBuy,
-          minRatio,
-          maxRatio,
+          ethers.constants.Zero,
+          MAX_256,
         ] as RoutedActions.Args.MINT_WITH_BASE,
         fnName: RoutedActions.Fn.MINT_WITH_BASE,
         targetContract: _series.poolContract,
@@ -305,11 +305,13 @@ export const useAddLiquidity = () => {
     ];
 
     await transact(calls, txCode);
+    if (selectedBase?.proxyId !== WETH) refetchBaseBal();
+    refetchStrategyBal();
     updateSeries([_series]);
     updateAssets([_base]);
     updateStrategies([strategy]);
     updateStrategyHistory([strategy]);
-    updateVaults([]);
+    updateVaults();
   };
 
   return addLiquidity;

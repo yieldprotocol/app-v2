@@ -3,44 +3,30 @@ import { useContext } from 'react';
 import { buyBase, calculateSlippage, sellBase } from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
-import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  IAsset,
-  IChainContext,
-  ISettingsContext,
-} from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
+import { useAccount } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
   const router = useRouter();
   const {
     settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext) as IChainContext;
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap } = userState;
+  const { updateSeries, updateAssets } = userActions;
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
-  const { updateSeries, updateAssets, setSelectedSeries } = userActions;
+  const { address: account } = useAccount();
+  const contracts = useContracts();
 
   const {
     historyActions: { updateTradeHistory },
@@ -58,11 +44,11 @@ export const useRollPosition = () => {
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
-    const base: IAsset = assetMap.get(fromSeries.baseId)!;
+    const base: IAsset = assetMap?.get(fromSeries.baseId)!;
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     // estimate how much fyToken you could sell given the input (base), using the from series
     const _fyTokenValueOfInputIn = fromSeries.seriesIsMature
@@ -114,7 +100,7 @@ export const useRollPosition = () => {
         formatUnits(_minimumFYTokenReceived, toSeries.decimals)
       );
 
-    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress)).gte(_input);
+    const alreadyApproved = (await fromSeries.fyTokenContract.allowance(account!, ladleAddress!)).gte(_input);
 
     const permitCallData: ICallData[] = await sign(
       [

@@ -1,22 +1,20 @@
 import { useContext, useEffect, useState } from 'react';
+import { useProvider } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 
 export const useBlockNum = () => {
-  const {
-    chainState: {
-      connection: { fallbackProvider },
-    },
-  } = useContext(ChainContext);
+
+  const provider = useProvider();
 
   const [blockNum, setBlockNum] = useState<string | null>(null);
 
   useEffect(() => {
-    if (fallbackProvider) {
+    if (provider) {
       (async () => {
-        setBlockNum((await fallbackProvider.getBlockNumber()).toString());
+        setBlockNum((await provider.getBlockNumber()).toString());
       })();
     }
-  }, [fallbackProvider]);
+  }, [provider]);
 
   return blockNum;
 };

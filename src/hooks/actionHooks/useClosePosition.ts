@@ -3,26 +3,18 @@ import { useContext } from 'react';
 import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
 import { ETH_BASED_ASSETS } from '../../config/assets';
-import { ChainContext } from '../../contexts/ChainContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  RoutedActions,
-  IUserContextState,
-  IUserContext,
-  IUserContextActions,
-} from '../../types';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { ONE_BN } from '../../utils/constants';
 
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { Address, useAccount, useBalance } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -30,14 +22,18 @@ export const useClosePosition = () => {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const {
-    chainState: { contractMap },
-  } = useContext(ChainContext);
-
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap, selectedSeries, selectedBase } = userState;
+  const { address: account } = useAccount();
+  const { refetch: refetchFyTokenBal } = useBalance({
+    address: account,
+    token: selectedSeries?.address as Address,
+  });
+  const { refetch: refetchBaseBal } = useBalance({
+    address: account,
+    token: selectedBase?.address as Address,
+  });
+  const contracts = useContracts();
   const { updateSeries, updateAssets } = userActions;
   const {
     historyActions: { updateTradeHistory },
@@ -53,12 +49,13 @@ export const useClosePosition = () => {
     getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
-    const base = assetMap.get(series.baseId)!;
+    const base = assetMap?.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
     const { address, poolAddress, seriesIsMature } = series;
-    const ladleAddress = contractMap.get('Ladle').address;
+    // const ladleAddress = contractMap.get('Ladle').address;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     /* assess how much fyToken is needed to buy base amount (input) */
     /* after maturity, fytoken === base (input) value */
@@ -83,7 +80,7 @@ export const useClosePosition = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress)).gte(_fyTokenValueOfInput);
+    const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress!)).gte(_fyTokenValueOfInput);
 
     const permitCallData: ICallData[] = await sign(
       [
@@ -143,6 +140,8 @@ export const useClosePosition = () => {
       ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
     ];
     await transact(calls, txCode);
+    refetchBaseBal();
+    refetchFyTokenBal();
     updateSeries([series]);
     updateAssets([base]);
     updateTradeHistory([series]);

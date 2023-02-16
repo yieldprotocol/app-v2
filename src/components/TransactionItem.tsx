@@ -9,6 +9,7 @@ import { getPositionPath } from '../utils/appUtils';
 import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { useColorScheme } from '../hooks/useColorScheme';
+import useContracts from '../hooks/useContracts';
 
 interface ITransactionItem {
   tx: any;
@@ -26,12 +27,13 @@ const StyledBox = styled(Box)`
 
 const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
-    chainState: { contractMap, seriesRootMap },
+    chainState: { seriesRootMap },
   } = useContext(ChainContext);
   const {
     txActions: { updateTxStage },
   } = useContext(TxContext);
   const colorScheme = useColorScheme();
+  const contracts = useContracts();
   const theme = useContext<any>(ThemeContext);
   const { text: textColor, success, error } = theme.global.colors;
 
@@ -42,9 +44,9 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
 
   /* get position link for viewing position */
   useEffect(() => {
-    const path = getPositionPath(txCode, receipt, contractMap, seriesRootMap);
+    const path = getPositionPath(txCode, receipt, contracts, seriesRootMap);
     path && setLink(path);
-  }, [receipt, contractMap, seriesRootMap, txCode]);
+  }, [receipt, contracts, seriesRootMap, txCode]);
 
   return (
     <Box

@@ -1,16 +1,15 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Grid, Text, TextInput } from 'grommet';
 import { FiPercent } from 'react-icons/fi';
-import { cleanValue } from '../../utils/appUtils';
-import { Settings, SettingsContext } from '../../contexts/SettingsContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import BoxWrap from '../wraps/BoxWrap';
-import { ISettingsContext } from '../../types';
+import { Settings } from '../../contexts/types/settings';
 
 const SlippageSetting = () => {
   const {
     settingsState: { slippageTolerance },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const tolerances: number[] = [0.001, 0.005, 0.01];
   const customTolerance = !tolerances.includes(slippageTolerance);
@@ -25,10 +24,11 @@ const SlippageSetting = () => {
   );
 
   /* Sets the slippage tolerance on input */
-  useEffect(() => {
-    const _slippageTolerance = validateInput(Number(cleanValue(input, 4)) / 100);
-    updateSetting(Settings.SLIPPAGE_TOLERANCE, _slippageTolerance);
-  }, [input]); // purpose ignore updateSetting
+  // TODO figure out why this is breaking things?
+  // useEffect(() => {
+  //   const _slippageTolerance = validateInput(Number(cleanValue(input, 4)) / 100);
+  //   updateSetting(Settings.SLIPPAGE_TOLERANCE, _slippageTolerance);
+  // }, [input]); // purpose ignore updateSetting
 
   /* handle slection - clear input on slection of preset */
   const handlePresetChange = (slippage: number) => {

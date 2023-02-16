@@ -1,13 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { ISettingsContext } from '../types';
 
 /* Hook for using a color scheme provided by user autotheme or darkMode settings */
 export const useColorScheme = () => {
   const [colorScheme, setColorScheme] = useState<'light' | 'dark'>('light');
   const {
     settingsState: { autoTheme, darkMode },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   useEffect(() => {
     if (autoTheme && typeof window !== 'undefined') {

@@ -3,7 +3,8 @@ import Switch from 'react-switch';
 
 import { Box, Text } from 'grommet';
 import { FiMoon, FiSun } from 'react-icons/fi';
-import { Settings, SettingsContext } from '../../contexts/SettingsContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { Settings } from '../../contexts/types/settings';
 
 const ThemeSettings = () => {
   const {

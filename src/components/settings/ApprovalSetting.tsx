@@ -1,26 +1,23 @@
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
 import Switch from 'react-switch';
-import { ApprovalType, ISettingsContext } from '../../types';
-import { Settings, SettingsContext } from '../../contexts/SettingsContext';
-import { ChainContext } from '../../contexts/ChainContext';
+import { ApprovalType } from '../../types';
+import { SettingsContext } from '../../contexts/SettingsContext';
+import { useAccount } from 'wagmi';
+import { Settings } from '../../contexts/types/settings';
 
 const AdvancedSetting = () => {
-  const {
-    chainState: {
-      connection: { connectionName },
-    },
-  } = useContext(ChainContext);
+  const { connector } = useAccount();
 
   const {
-    settingsState: { approvalMethod, approveMax, useTenderlyFork },
+    settingsState: { approvalMethod, approveMax, useForkedEnv },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={connectionName === 'metamask' && !useTenderlyFork ? undefined : 'text-xweak'}>
+        <Text size="small" color={connector?.name === 'MetaMask' && !useForkedEnv ? undefined : 'text-xweak'}>
           Use Approval by Transactions
         </Text>
         <Switch
@@ -37,12 +34,12 @@ const AdvancedSetting = () => {
           }
           handleDiameter={20}
           borderRadius={20}
-          disabled={connectionName !== 'metamask' || useTenderlyFork}
+          disabled={connector?.name === 'MetaMask' || useForkedEnv}
         />
       </Box>
 
       <Box direction="row" justify="between">
-        <Text size="small" color={approvalMethod === ApprovalType.TX && !useTenderlyFork ? undefined : 'text-xweak'}>
+        <Text size="small" color={approvalMethod === ApprovalType.TX && !useForkedEnv ? undefined : 'text-xweak'}>
           Approve Max
         </Text>
         <Switch
@@ -55,7 +52,7 @@ const AdvancedSetting = () => {
           checkedIcon={false}
           handleDiameter={20}
           borderRadius={20}
-          disabled={!(approvalMethod === ApprovalType.TX) || useTenderlyFork}
+          disabled={!(approvalMethod === ApprovalType.TX) || useForkedEnv}
         />
       </Box>
     </Box>

@@ -1,19 +1,23 @@
 import { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, ResponsiveContext, Select, Text } from 'grommet';
-
 import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
-
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
-import { IAsset, IUserContext, IUserContextActions, IUserContextState } from '../../types';
+import { IAsset, TokenRole } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
-import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
+import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useBalances from '../../hooks/useBalances';
+
+import { TokenKind } from 'graphql/language/tokenKind';
+
+import { ORACLE_INFO } from '../../config/oracles';
+import useChainId from '../../hooks/useChainId';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -37,16 +41,27 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     settingsState: { showWrappedTokens, diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-  const { assetMap, activeAccount, selectedIlk, selectedBase, selectedSeries } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
-
   const { logAnalyticsEvent } = useAnalytics();
+  const chainId = useChainId();
+  const oracleInfo = ORACLE_INFO.get(chainId);
+
+  const {
+    data: assetsBalance,
+    isLoading: assetsLoading,
+    // status: assetsStatus,
+    refetch: refetchAssets,
+  } = useBalances(
+    Array.from(assetMap.values()), // assetRoot[]
+    !!selectCollateral // enabled boolean
+  );
+
+  // console.log( assetsBalance )
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -83,34 +98,33 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   /* update options on any changes */
   useEffect(() => {
     const opts = Array.from(assetMap.values())
-      .filter((a) => a.showToken) // filter based on whether wrapped tokens are shown or not
+      .filter((a) => a?.showToken) // filter based on whether wrapped tokens are shown or not
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
     const filteredOptions = selectCollateral
       ? opts
+          .filter((a) => a.tokenRoles.includes(TokenRole.COLLATERAL)) // filter based on whether wrapped tokens are shown or not
           .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
-      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
+      : opts.filter((a) => a.tokenRoles.includes(TokenRole.BASE)).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
-    const sortedOptions = selectCollateral
-      ? filteredOptions.sort((a, b) => (a.balance && a.balance.lt(b.balance) ? 1 : -1))
-      : filteredOptions;
+    setOptions(filteredOptions);
 
-    setOptions(sortedOptions);
-  }, [assetMap, selectCollateral, selectedSeries, selectedBase, activeAccount, showWrappedTokens]);
+  }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap]);
+
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
-    if (Array.from(assetMap.values()).length) {
-      !selectedBase && setSelectedBase(assetMap.get(WETH)!);
-      !selectedIlk && setSelectedIlk(assetMap.get(WETH)!);
+    if (Array.from(assetMap?.values()!).length) {
+      !selectedBase && setSelectedBase(assetMap?.get(USDC)!);
+      !selectedIlk && setSelectedIlk(assetMap?.get(WETH)!);
     }
   }, [assetMap, selectedBase, selectedIlk, setSelectedBase, setSelectedIlk]);
 
   /* make sure ilk (collateral) never matches baseId */
   useEffect(() => {
     if (selectedIlk?.proxyId === selectedBase?.proxyId) {
-      const firstNotBaseIlk = options.find((asset: IAsset) => asset.proxyId !== selectedIlk?.proxyId);
+      const firstNotBaseIlk = options.find((asset) => asset.proxyId !== selectedIlk?.proxyId);
       setSelectedIlk(firstNotBaseIlk!);
     }
   }, [options, selectedIlk, selectedBase, setSelectedIlk]);
@@ -118,7 +132,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   /* set ilk to be USDC if ETH base */
   useEffect(() => {
     if (selectedBase?.proxyId === WETH || selectedBase?.id === WETH) {
-      setSelectedIlk(assetMap.get(USDC)|| null);
+      setSelectedIlk(assetMap?.get(USDC) || null);
     }
   }, [assetMap, selectedBase, setSelectedIlk]);
 
@@ -141,7 +155,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           name="assetSelect"
           placeholder="Select Asset"
           options={options}
-          // value={selectCollateral ? selectedIlk! : selectedBase!}
           labelKey={(x: IAsset | undefined) => optionText(x)}
           valueLabel={
             <Box pad={mobile ? 'medium' : { vertical: '0.55em', horizontal: 'small' }}>
@@ -151,7 +164,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           icon={isModal ? <FiMoreVertical /> : <FiChevronDown />}
           onChange={({ option }: any) => handleSelect(option)}
           disabled={
-            (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
+            (false &&
+              selectCollateral &&
+              options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
             (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
           }
           size="small"

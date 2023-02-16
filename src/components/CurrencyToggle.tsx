@@ -1,14 +1,14 @@
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { Settings, SettingsContext } from '../contexts/SettingsContext';
-import { ISettingsContext } from '../types';
+import { SettingsContext } from '../contexts/SettingsContext';
+import { Settings } from '../contexts/types/settings';
 import { USDC, WETH } from '../config/assets';
 
 const CurrencyToggle = () => {
   const {
     settingsState: { dashCurrency },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   return (
     <Box direction="row" align="center" justify="center">

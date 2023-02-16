@@ -11,13 +11,13 @@ import InfoBite from '../InfoBite';
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import SectionWrap from '../wraps/SectionWrap';
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, AddLiquidityType, IUserContext, IUserContextState, ProcessStage, TxState } from '../../types';
+import { ActionCodes, AddLiquidityType, ProcessStage, TxState } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import StrategyPositionSelector from '../selectors/StrategyPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
-import YieldInfo from '../YieldInfo';
+import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
 import NextButton from '../buttons/NextButton';
 import TransactButton from '../buttons/TransactButton';
@@ -31,8 +31,9 @@ import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import { useProcess } from '../../hooks/useProcess';
 import StrategyItem from '../positionItems/StrategyItem';
 
-import YieldNavigation from '../YieldNavigation';
+import Navigation from '../Navigation';
 import Line from '../elements/Line';
+import { useAccount } from 'wagmi';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
@@ -44,8 +45,10 @@ function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedBase, selectedStrategy, strategyMap } = userState;
+  const { userState } = useContext(UserContext);
+  const { selectedBase, selectedStrategy, strategyMap } = userState;
+
+  const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
@@ -79,22 +82,22 @@ function Pool() {
     setPoolDisabled(true);
     /* this is simply a check that we don't add to a v1 strategy that has a v2 verison) */
     console.log('Strategy: ', selectedStrategy);
-    if (selectedStrategy.type === StrategyType.V1 && selectedStrategy.associatedStrategy) {
+    if (selectedStrategy?.type === StrategyType.V1 && selectedStrategy.associatedStrategy) {
       console.log('config error: Trying to add to an old strategy');
       toast.warning('Trying to add Liquidity to an old Strategy version. Please refresh your browser and try again.');
       return;
     }
 
     addLiquidity(
-      poolInput,
-      selectedStrategy,
+      poolInput!,
+      selectedStrategy!,
       canBuyAndPool ? AddLiquidityType.BUY : AddLiquidityType.BORROW,
       matchingVault
     );
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries.name,
+      series_id: selectedStrategy?.currentSeries?.name,
       action_code: ActionCodes.ADD_LIQUIDITY,
     } as GA_Properties.transaction_initiated);
   };
@@ -135,11 +138,11 @@ function Pool() {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap basis="30%">
-          <YieldNavigation sideNavigation={true} />
+          <Navigation sideNavigation={true} />
           <StrategyPositionSelector />
         </PanelWrap>
       )}
-      
+
       <CenterPanelWrap series={selectedStrategy?.currentSeries}>
         <Box id="topsection">
           {stepPosition === 0 && (
@@ -185,7 +188,7 @@ function Pool() {
 
                 <SectionWrap
                   title={
-                    strategyMap.size > 0
+                    selectedBase
                       ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                           selectedBase && '-based'
                         } strategy:`
@@ -306,7 +309,7 @@ function Pool() {
             poolProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View strategy Position: </Text>
-                <StrategyItem strategy={strategyMap.get(selectedStrategy?.id!)!} index={0} condensed />
+                <StrategyItem strategy={strategyMap?.get(selectedStrategy?.id!)!} index={0} condensed />
               </Box>
             )}
         </Box>

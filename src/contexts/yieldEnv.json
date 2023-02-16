@@ -11,10 +11,10 @@
       "CompositeMultiOracle": "0xA81414a544D0bd8a28257F4038D3D24B08Dd9Bb4",
       "YearnVaultMultiOracle": "0xC597E9cA52Afc13F7F5EDdaC9e53DEF569236016",
       "NotionalMultiOracle": "0x660bB2F1De01AacA46FCD8004e852234Cf65F3fb",
-      "AccumulatorMultiOracle": "0x95750d6F5fba4ed1cc4Dc42D2c01dFD3DB9a11eC",
-      "crabOracle": "0x35d753A30a750C0291CD86baEDef7d27d55879F9",
       
-      "transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
+      "AccumulatorOracle": "0x95750d6F5fba4ed1cc4Dc42D2c01dFD3DB9a11eC",
+      
+      "Transfer1155Module": "0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06",
       "WrapEtherModule": "0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA",
       "ConvexLadleModule": "0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6"   
     },
@@ -24,10 +24,10 @@
       "Ladle": "0x16E25cf364CeCC305590128335B8f327975d0560",
       "ChainlinkUSDOracle": "0x30e042468e333Fde8E52Dd237673D7412045D2AC",
       "AccumulatorOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
-      "AccumulatorMultiOracle": "0x0ad9Ef93673B6081c0c3b753CcaaBDdd8d2e7848",
       "Witch": "0x08173D0885B00BDD640aaE57D05AbB74cd00d669",
       "WitchV2": "0x07c2c74811cb14a5003c3ccff7ec436d504fffb6",
       "WrapEtherModule": "0x4cd01ed221d6d198e2656c16c32803bf78134568"
     }
   }
 }
+
