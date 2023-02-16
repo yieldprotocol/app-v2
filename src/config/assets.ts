@@ -590,7 +590,7 @@ ASSETS.set(
         displaySymbol: 'ETH',
         showToken: true,
         digitFormat: 6,
-        tokenType: TokenType.ERC20_,
+        tokenType: TokenType.ERC20_Permit,
 
         assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
