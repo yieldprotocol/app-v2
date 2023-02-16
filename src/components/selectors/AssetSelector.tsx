@@ -4,7 +4,7 @@ import { Box, ResponsiveContext, Select, Text } from 'grommet';
 import { FiChevronDown, FiMoreVertical } from 'react-icons/fi';
 import styled from 'styled-components';
 import Skeleton from '../wraps/SkeletonWrap';
-import { IAsset } from '../../types';
+import { IAsset, TokenRole } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { WETH, USDC, IGNORE_BASE_ASSETS } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -13,6 +13,7 @@ import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useBalances from '../../hooks/useBalances';
+import { TokenKind } from 'graphql/language/tokenKind';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -96,11 +97,13 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
     const filteredOptions = selectCollateral
       ? opts
+          .filter((a) => a.tokenRoles.includes(TokenRole.COLLATERAL)) // filter based on whether wrapped tokens are shown or not
           .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
-      : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
+      : opts.filter((a) => a.tokenRoles.includes(TokenRole.BASE)).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
     setOptions(filteredOptions);
+
   }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
