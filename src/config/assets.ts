@@ -84,7 +84,7 @@ ASSETS.set(
         assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         joinAddress: '0x4fE92119CDf873Cf8826F4E6EcfD4E578E3D44Dc',
         version: '1',
-        name: 'Dai stable coin',
+        name: 'Dai Stablecoin',
         decimals: 18,
         symbol: 'DAI',
         showToken: true,
@@ -99,7 +99,7 @@ ASSETS.set(
         assetAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         joinAddress: '0x0d9A1A773be5a83eEbda23bf98efB8585C3ae4f4',
         version: '1',
-        name: 'USDC Stable coin',
+        name: 'USD Coin',
         decimals: 6,
         symbol: 'USDC',
         showToken: true,
@@ -114,7 +114,7 @@ ASSETS.set(
         assetAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
         joinAddress: '0x00De0AEFcd3069d88f85b4F18b144222eaAb92Af',
         version: '1',
-        name: 'Wrapped Bitcoin',
+        name: 'Wrapped BTC',
         decimals: 8,
         symbol: 'WBTC',
         showToken: true,
@@ -128,7 +128,7 @@ ASSETS.set(
         assetAddress: '0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72',
         joinAddress: '0x5AAfd8F0bfe3e1e6bAE781A6641096317D762969',
         version: '1',
-        name: 'Ethereum Naming Service',
+        name: 'Ethereum Name Service',
         decimals: 18,
         symbol: 'ENS',
         showToken: true,
@@ -158,7 +158,7 @@ ASSETS.set(
         assetAddress: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
         joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
         version: '1',
-        name: 'Wrapped Staked Ether',
+        name: 'Wrapped liquid staked Ether 2.0',
         decimals: 18,
         symbol: 'wstETH',
         displaySymbol: 'wstETH',
@@ -179,7 +179,7 @@ ASSETS.set(
         assetAddress: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
         joinAddress: '0x5364d336c2d2391717bD366b29B6F351842D7F82',
         version: '1',
-        name: 'Staked Eth',
+        name: 'Liquid staked Ether 2.0',
         decimals: 18,
         symbol: 'stETH',
         showToken: true,
@@ -196,7 +196,7 @@ ASSETS.set(
         assetAddress: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
         joinAddress: '0xbDaBb91cDbDc252CBfF3A707819C5f7Ec2B92833',
         version: '1',
-        name: 'ChainLink',
+        name: 'ChainLink Token',
         decimals: 18,
         symbol: 'LINK',
         showToken: true,
@@ -210,7 +210,7 @@ ASSETS.set(
         assetAddress: '0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE',
         joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
         version: '1',
-        name: 'Yearn Vault USDC',
+        name: 'USDC yVault',
         decimals: 18,
         symbol: 'yvUSDC',
         showToken: true,
@@ -225,7 +225,7 @@ ASSETS.set(
         assetAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
         joinAddress: '0x41567f6A109f5bdE283Eb5501F21e3A0bEcbB779',
         version: '1',
-        name: 'Uniswap token',
+        name: 'Uniswap',
         decimals: 18,
         symbol: 'UNI',
         showToken: true,
@@ -239,7 +239,7 @@ ASSETS.set(
         assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
         joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
         version: '1',
-        name: 'frax',
+        name: 'Frax',
         decimals: 18,
         symbol: 'FRAX',
         showToken: true,
@@ -516,11 +516,11 @@ ASSETS.set(
         assetAddress: '0xae78736Cd615f374D3085123A210448E74Fc6393',
         joinAddress: '0x6fb97c793f0d83cda7796f45a2bb697e73a045a8',
         version: '1',
-        name: 'RocketPool ETH',
-        decimals: 18, // how do i determine this?
+        name: 'Rocket Pool ETH',
+        decimals: 18,
         symbol: 'rETH',
         showToken: true,
-        digitFormat: 6, // how do i determine this?
+        digitFormat: 6,
         tokenType: TokenType.ERC20_,
       },
     ],
@@ -530,7 +530,7 @@ ASSETS.set(
         assetAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         joinAddress: '0x62E53931a07d8679Fb73e543459D1D9f4159F244',
         version: '1',
-        name: 'Tether',
+        name: 'Tether USD',
         decimals: 6,
         symbol: 'USDT',
         showToken: true,
@@ -539,26 +539,6 @@ ASSETS.set(
         isYieldBase: true,
       },
     ],
-    // [
-    //   CVX3CRV,
-    //   {
-    //     assetAddress: '',
-    //     joinAddress: '',
-    //     version: '1',
-    //     name: 'cvx3crv',
-    //     decimals: 18,
-    //     symbol: 'cvx3crv',
-    //     showToken: false,
-    //     digitFormat: 2,
-    //     tokenType: TokenType.ERC20_,
-    //     limitToSeries: [
-    //       '0x303130360000', // june dai
-    //       '0x303130370000', // sept dai
-    //       '0x303230370000', // sept usdc
-    //       '0x303230360000', // june usdc
-    //     ],
-    //   }
-    // ]
   ])
 );
 
@@ -586,7 +566,7 @@ ASSETS.set(
       USDC,
       {
         version: '1',
-        name: 'USDC Stable coin',
+        name: 'USD Coin (Arb1)',
         decimals: 6,
         symbol: 'USDC',
 
