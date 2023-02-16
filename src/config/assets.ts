@@ -115,7 +115,7 @@ ASSETS.set(
         joinAddress: '0x00De0AEFcd3069d88f85b4F18b144222eaAb92Af',
         version: '1',
         name: 'Wrapped Bitcoin',
-        decimals: 18,
+        decimals: 8,
         symbol: 'WBTC',
         showToken: true,
         digitFormat: 6,
