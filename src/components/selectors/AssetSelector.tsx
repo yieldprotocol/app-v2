@@ -14,11 +14,6 @@ import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useBalances from '../../hooks/useBalances';
 
-import { TokenKind } from 'graphql/language/tokenKind';
-
-import { ORACLE_INFO } from '../../config/oracles';
-import useChainId from '../../hooks/useChainId';
-
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
   isModal?: boolean;
@@ -48,8 +43,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
-  const chainId = useChainId();
-  const oracleInfo = ORACLE_INFO.get(chainId);
 
   const {
     data: assetsBalance,
@@ -106,12 +99,12 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           .filter((a) => a.tokenRoles.includes(TokenRole.COLLATERAL)) // filter based on whether wrapped tokens are shown or not
           .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
-      : opts.filter((a) => a.tokenRoles.includes(TokenRole.BASE)).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
+      : opts
+          .filter((a) => a.tokenRoles.includes(TokenRole.BASE))
+          .filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
     setOptions(filteredOptions);
-
   }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap]);
-
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
