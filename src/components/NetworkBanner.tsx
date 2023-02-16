@@ -33,7 +33,7 @@ const NetworkBanner = () => {
   if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.gt(ZERO_BN))) return null;
 
   return SHOWABLE_CHAINS.includes(chain.id) && show ? (
-    <StyledBox pad="small" background={{ opacity: 0.9 }} round gap="small">
+    <StyledBox pad="small" background={{ color: chain.iconBackground, opacity: 0.9 }} round gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {chain.name}</Box>
         <Button onClick={() => setShow(false)}>
