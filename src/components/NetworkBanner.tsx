@@ -30,7 +30,7 @@ const NetworkBanner = () => {
   const [show, setShow] = useState<boolean>(true);
   const currentChainInfo = chain;
 
-  const backgroundColor = (chain as Chain).iconBackground
+  const backgroundColor = (chain as Chain)?.iconBackground || '#1F2937'
 
   const ethBalance = assetMap?.get(WETH)?.balance;
 
