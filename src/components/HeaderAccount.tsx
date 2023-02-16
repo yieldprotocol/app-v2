@@ -39,7 +39,7 @@ const HeaderAccount = () => {
 
   const { address: account } = useAccount({
     onConnect({ address, connector, isReconnected }) {
-      console.log('Connected: ', { address, connector, isReconnected })
+      console.log('Connected: ', { address, connector, isReconnected });
     },
   });
 
@@ -55,10 +55,9 @@ const HeaderAccount = () => {
     <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      { !mobile && <HeaderBalances /> }
+      {!mobile && <HeaderBalances />}
 
-      {account 
-      && (
+      {account && (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
@@ -75,7 +74,7 @@ const HeaderAccount = () => {
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        {assetsLoading && <Skeleton circle height={20} width={20} />}
+                        {!ethBalance && <Skeleton circle height={20} width={20} />}
                         {ethBalance && (
                           <Box height="20px" width="20px">
                             <EthMark />
@@ -96,14 +95,14 @@ const HeaderAccount = () => {
           </StyledBox>
         </Box>
       )}
-      
-      { !account && (
+
+      {!account && (
         // !!openConnectModal && (
-          <GeneralButton action={() => !!openConnectModal && openConnectModal() } background="gradient-transparent">
-            <Text size="small" color="text">
-              Connect Wallet
-            </Text>
-          </GeneralButton>
+        <GeneralButton action={() => !!openConnectModal && openConnectModal()} background="gradient-transparent">
+          <Text size="small" color="text">
+            Connect Wallet
+          </Text>
+        </GeneralButton>
       )}
     </Box>
   );
