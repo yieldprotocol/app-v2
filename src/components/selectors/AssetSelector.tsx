@@ -13,6 +13,8 @@ import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useBalances from '../../hooks/useBalances';
+import { ORACLE_INFO } from '../../config/oracles';
+import useChainId from '../../hooks/useChainId';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -43,6 +45,8 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
+  const chainId = useChainId();
+  const oracleInfo = ORACLE_INFO.get(chainId);
 
   const {
     data: assetsBalance,
@@ -98,10 +102,19 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       ? opts
           .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
           .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
+          .filter((a) => oracleInfo?.get(selectedBase?.id!)?.has(a.id)) // only show assets that have an oracle for the selected base
       : opts.filter((a) => a.isYieldBase).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
 
     setOptions(filteredOptions);
-  }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap]);
+  }, [
+    selectCollateral,
+    selectedBase?.proxyId,
+    selectedSeries,
+    showWrappedTokens,
+    assetMap,
+    selectedBase?.id,
+    oracleInfo,
+  ]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
@@ -154,7 +167,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           icon={isModal ? <FiMoreVertical /> : <FiChevronDown />}
           onChange={({ option }: any) => handleSelect(option)}
           disabled={
-            (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
+            (false &&
+              selectCollateral &&
+              options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
             (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
           }
           size="small"
