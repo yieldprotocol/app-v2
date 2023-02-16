@@ -143,8 +143,6 @@ const Borrow = () => {
     } as GA_Properties.transaction_initiated);
   };
 
-
-
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {
     _stepPosition === 0 && setSelectedIlk(selectedIlk || assetMap?.get('0x303000000000')!);
@@ -328,7 +326,7 @@ const Borrow = () => {
                   ) : (
                     <SectionWrap
                       title={
-                        seriesMap?.size! > 0
+                        selectedBase
                           ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
                           : ''
                       }
