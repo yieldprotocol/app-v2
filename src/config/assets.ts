@@ -1,4 +1,4 @@
-import { TokenType } from '../types';
+import { TokenType, TokenRole } from '../types';
 
 export interface AssetStaticInfo {
   assetAddress: string;
@@ -11,8 +11,11 @@ export interface AssetStaticInfo {
   showToken: boolean; // Display/hide the token on the UI
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
 
+  tokenRoles: TokenRole[]
+
   // optionals
-  isYieldBase?: boolean;
+  // isYieldBase?: boolean;
+  
   tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
   displaySymbol?: string; // override for symbol display
   limitToSeries?: string[];
@@ -90,7 +93,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_DaiPermit,
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -105,7 +108,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_Permit,
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -119,7 +122,8 @@ ASSETS.set(
         symbol: 'WBTC',
         showToken: true,
         digitFormat: 6,
-        tokenType: TokenType.ERC20_,
+        tokenType: TokenType.ERC20_Permit,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -134,6 +138,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_Permit,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -149,7 +154,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 6,
         tokenType: TokenType.ERC20_,
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -171,6 +176,7 @@ ASSETS.set(
           [4, '0x64BA0F1D2E5479BF132936328e8c533c95646fE8'],
           [5, '0x9f65A6c2b2F12117573323443C8C2290f4C1e675'],
         ]),
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -188,6 +194,7 @@ ASSETS.set(
         wrapHandlerAddresses: new Map([[1, '0x491aB93faa921C8E634F891F96512Be14fD3DbB1']]),
         unwrapHandlerAddresses: new Map([]),
         proxyId: wstETH,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -202,6 +209,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -217,6 +225,7 @@ ASSETS.set(
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
         limitToSeries: ['0x303230350000', '0x303230360000', '0x303230370000', '0x303230380000', '0x303230390000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -231,6 +240,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 4,
         tokenType: TokenType.ERC20_Permit,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -246,7 +256,8 @@ ASSETS.set(
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
         limitToSeries: [],
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
+
       },
     ],
     [
@@ -265,6 +276,7 @@ ASSETS.set(
         limitToSeries: ['0x303130350000'],
         wrapHandlerAddresses: new Map([]),
         unwrapHandlerAddresses: new Map([]),
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -272,7 +284,6 @@ ASSETS.set(
       {
         assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
         joinAddress: '0x4970B046565BEE1DE8308E41BD22d0061A251911',
-
         version: '1',
         name: 'fUSDC2203',
         decimals: 8,
@@ -282,6 +293,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844846949203969,
         limitToSeries: ['0x303230350000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -299,6 +311,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563373963149313,
         limitToSeries: ['0x303130360000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -306,7 +319,6 @@ ASSETS.set(
       {
         assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
         joinAddress: '0x62DdD41F8A65B03746656D85b6B2539aE42e23e8',
-
         version: '1',
         name: 'fUSDC2206',
         decimals: 8,
@@ -316,6 +328,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844848939859969,
         limitToSeries: ['0x303230360000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -323,7 +336,6 @@ ASSETS.set(
       {
         assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
         joinAddress: '0x399bA81A1f1Ed0221c39179C50d4d4Bc85C3F3Ab',
-
         version: '1',
         name: 'fDAI2209',
         decimals: 8,
@@ -333,6 +345,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563375953805313,
         limitToSeries: ['0x303130370000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -349,6 +362,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844850930515969,
         limitToSeries: ['0x303230370000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -365,6 +379,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 281902967750657,
         limitToSeries: ['0x303030380000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -381,6 +396,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 281904958406657,
         limitToSeries: ['0x303030390000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -397,6 +413,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844852921171969,
         limitToSeries: ['0x303230380000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -413,6 +430,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844854911827969,
         limitToSeries: ['0x303230390000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -429,6 +447,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563377944461313,
         limitToSeries: ['0x303130380000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -445,6 +464,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563379935117313,
         limitToSeries: ['0x303130390000'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -461,6 +481,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 563381925773313,
         limitToSeries: ['0x0031ff00028b'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -477,6 +498,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 844856902483969,
         limitToSeries: ['0x0032ff00028b'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -493,6 +515,7 @@ ASSETS.set(
         tokenType: TokenType.ERC1155_,
         tokenIdentifier: 281906949062657,
         limitToSeries: ['0x0030ff00028b'],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -507,7 +530,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
-        isYieldBase: false,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -522,6 +545,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 6,
         tokenType: TokenType.ERC20_,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -536,7 +560,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE],
       },
     ],
   ])
@@ -559,7 +583,7 @@ ASSETS.set(
 
         assetAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
         joinAddress: '0xc31cce4fFA203d8F8D865b6cfaa4F36AD77E9810',
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -576,7 +600,7 @@ ASSETS.set(
 
         assetAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
         joinAddress: '0x1229C71482E458fa2cd51d13eB157Bd2b5D5d1Ee',
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -594,7 +618,7 @@ ASSETS.set(
 
         assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
     [
@@ -612,7 +636,7 @@ ASSETS.set(
 
         assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
         joinAddress: '0xcb60Bd598bf48be1E24262E8BF1e3703FECA3470',
-        isYieldBase: true,
+        tokenRoles: [TokenRole.BASE],
       },
     ],
   ])

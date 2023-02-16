@@ -122,6 +122,10 @@ export enum TokenType {
   ERC1155_,
   ERC720_,
 }
+export enum TokenRole {
+  BASE,
+  COLLATERAL,
+}
 
 export interface IAssetStaticInfo {
   assetAddress: string;
@@ -134,8 +138,8 @@ export interface IAssetStaticInfo {
   version: string;
   symbol: string;
   decimals: number;
-  isYieldBase?: boolean;
 
+  tokenRoles: TokenRole[];
   showToken: boolean; // Display/hide the token on the UI
 
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
