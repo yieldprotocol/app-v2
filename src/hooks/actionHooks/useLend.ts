@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, sellBase } from '@yield-protocol/ui-math';
+import { calculateSlippage, MAX_256, sellBase } from '@yield-protocol/ui-math';
 
-import { ETH_BASED_ASSETS } from '../../config/assets';
+import { ETH_BASED_ASSETS, USDT } from '../../config/assets';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -13,6 +13,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useChainId from '../useChainId';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -24,7 +25,8 @@ export const useLend = () => {
   const { assetMap, selectedSeries, selectedBase } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { address: account } = useAccount();
-  
+  const chainId = useChainId();
+
   const { refetch: refetchFyTokenBal } = useBalance({ address: account, token: selectedSeries?.address as Address });
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -75,7 +77,7 @@ export const useLend = () => {
         {
           target: base,
           spender: 'LADLE',
-          amount: _input,
+          amount: base.id === USDT && chainId !== 42161 ? MAX_256 : _input, // USDT allowance when non-zero needs to be set to 0 explicitly before settting to a non-zero amount; instead of having multiple approvals, we approve max from the outset on mainnet
           ignoreIf: alreadyApproved === true,
         },
       ],

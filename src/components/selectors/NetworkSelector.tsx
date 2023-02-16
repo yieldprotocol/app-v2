@@ -1,6 +1,5 @@
 import { Box, Text } from 'grommet';
-import { useAccount, useNetwork } from 'wagmi';
-import { useChainModal, useConnectModal, ConnectButton as Connect } from '@rainbow-me/rainbowkit';
+import { ConnectButton as Connect } from '@rainbow-me/rainbowkit';
 import GeneralButton from '../buttons/GeneralButton';
 import { ComponentPropsWithoutRef } from 'react';
 import Image from 'next/image';

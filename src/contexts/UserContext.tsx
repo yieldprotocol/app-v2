@@ -263,7 +263,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
           // get the balance of the asset from the assetsBalance array
-          const { balance, balance_ } = _assetBalances.find((a: any) => a.id === asset.id) || {
+          const { balance, balance_ } = _assetBalances.find((a) => a.id.toLowerCase() === asset.id.toLowerCase()) || {
             balance: ZERO_BN,
             balance_: '0',
           };
@@ -464,11 +464,21 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             _strategy.strategyContract.pool(),
           ]);
 
+          // const stratConnected = _strategy.strategyContract.connect(signer);
+          // const accountRewards =
+          //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
+          // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
+
+          // const accountStrategyPercent = mulDecimal(
+          //   divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+          //   '100'
+          // );
+
           /* We check if the strategy has been supersecced by a v2 version */
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
 
           /* Attatch the current series (if any) */
-          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
+          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address.toLowerCase() === fyToken.toLowerCase());
 
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([

@@ -143,18 +143,18 @@ STRATEGIES.set(1, [
   },
 
   {
-    address: '0x50ed6c3954ee5e30f00b06d31cb7c7d63dcf3d17',
+    address: '0x428e229ac5bc52a2e07c379b2f486fefefd674b1',
     type: StrategyType.V2,
-    symbol: 'YSUSDT6MJD', // from 0x78de61c02efe9205f23dc3c58812d0b2815ee15f
+    symbol: 'YSUSDT6MJD',
     baseId: USDT,
     name: 'Yield Strategy USDT 6M Jun Dec',
     decimals: 6,
     version: '1',
   },
   {
-    address: '0x4fc91d44f0ec53f09ff1c92fae8b1b00a24cb762',
+    address: '0xf708005cee17b2c5fe1a01591e32ad6183a12eae',
     type: StrategyType.V2,
-    symbol: 'YSUSDT6MJD', // from 0x78de61c02efe9205f23dc3c58812d0b2815ee15f
+    symbol: 'YSUSDT6MMS',
     baseId: USDT,
     name: 'Yield Strategy USDT 6M Mar Sep',
     decimals: 6,
@@ -256,7 +256,7 @@ STRATEGIES.set(42161, [
   },
 
   {
-    address: '0x861509A3fA7d87FaA0154AAE2CB6C1f92639339A',
+    address: '0x861509a3fa7d87faa0154aae2cb6c1f92639339a',
     type: StrategyType.V2,
     symbol: 'YSUSDT6MJD',
     baseId: USDT,
