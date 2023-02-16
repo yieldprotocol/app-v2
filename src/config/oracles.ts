@@ -177,7 +177,7 @@ usdtIlkOracle1.set(RATE, ACCUMULATOR_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDT, usdtIlkOracle1);
 
-/* chain id 42161, 421611 (aribtrum mainnet and arbitrum rinkeby use the same oracle contracts) */
+/* chain id 42161 */
 
 // USDC base
 const usdcIlkOracle421611 = new Map<string, string>();
@@ -195,7 +195,6 @@ usdcIlkOracle421611.set(MKR, CHAINLINK_USD_ORACLE);
 
 usdcIlkOracle421611.set(RATE, ACCUMULATOR_ORACLE);
 
-// usdcIlkOracle421611.set(RATE, ACCUMLATOR_ORACLE);
 CHAIN_ID_42161_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle421611);
 
 // DAI base
