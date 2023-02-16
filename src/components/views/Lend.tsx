@@ -189,7 +189,7 @@ const Lend = () => {
                   ) : (
                     <SectionWrap
                       title={
-                        seriesMap?.size! > 0
+                        selectedBase
                           ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                               selectedBase && '-based'
                             } maturity date:`

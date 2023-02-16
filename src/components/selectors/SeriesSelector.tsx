@@ -211,7 +211,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
-      {seriesLoading && <Skeleton width={180} />}
+      {!selectedBase && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select
