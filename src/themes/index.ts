@@ -71,7 +71,7 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
       background: {
-        dark: '#111111',
+        dark: '#222222',
         light: '#FFFFFF',
       },
       hoverBackground: {

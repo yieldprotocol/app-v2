@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { ISeries, IStrategy, IUserContext } from '../types';
+import { ISeries, IStrategy } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import {
   ONE_DEC as ONE,
@@ -96,7 +96,7 @@ const useStrategyReturns = (
 ): IStrategyReturns => {
   const {
     userState: { selectedStrategy },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   const strategy_ = strategy || selectedStrategy;
   const series = strategy_?.currentSeries;
@@ -226,7 +226,7 @@ const useStrategyReturns = (
     const marketInterestRate = calcInterestRate(
       series.sharesReserves,
       series.fyTokenReserves,
-      series.ts,
+      BigNumber.from(series.ts),
       series.mu
     ).mul(100); // interest rate is formatted in decimal (.1) so multiply by 100 to get percent
     const fyTokenPrice = getFyTokenPrice(series, input);
@@ -242,7 +242,7 @@ const useStrategyReturns = (
   const getRewardsAPY = (strategy: IStrategy, input: string): number => {
     /// console.log( strategy.rewardsRate.toString() ) ;
 
-    if (!strategy.rewardsPeriod || strategy.rewardsRate.lte(ZERO_BN)) return 0;
+    if (!strategy.rewardsPeriod || strategy.rewardsRate?.lte(ZERO_BN)) return 0;
 
     const { start, end } = strategy.rewardsPeriod;
 
@@ -252,12 +252,12 @@ const useStrategyReturns = (
     const timeRemaining = end - NOW;
     // console.log(timeRemaining.toString(), 'seconds remaining');
 
-    const weiRemaining = BigNumber.from(timeRemaining).mul(strategy.rewardsRate);
+    const weiRemaining = BigNumber.from(timeRemaining).mul(strategy.rewardsRate!);
     const ethRemaining = formatEther(weiRemaining);
     // console.log(ethRemaining, 'eth remaining to be distributed');
 
     const currentTotalSupply = strategy.strategyTotalSupply;
-    const currentTotalEthSupply = formatEther(currentTotalSupply);
+    const currentTotalEthSupply = formatEther(currentTotalSupply!);
     // console.log(currentTotalEthSupply, 'current total ETH strategy supply');
 
     const inputAsPropOfPool = +input / (+currentTotalEthSupply + +input);
@@ -267,7 +267,7 @@ const useStrategyReturns = (
     const rewardsEarned =  Math.min( +ethRemaining * inputAsPropOfPool, +ethRemaining )
     // console.log('if adding input: ', +input, 'your returns will be  ', rewardsEarned);
 
-    const newEst = +calculateAPR(input.toString(), (+input + rewardsEarned).toString(), end, start);
+    const newEst = +calculateAPR(input.toString(), (+input + rewardsEarned).toString(), end, start)!;
     // console.log('New APY estimate: ', newEst);
 
     return isNaN(newEst) ? 0 : newEst;

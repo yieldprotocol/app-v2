@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { FiX } from 'react-icons/fi';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { IAsset } from '../../types';
+import { cleanValue } from '../../utils/appUtils';
 import Line from '../elements/Line';
 import Logo from '../logos/Logo';
 import BoxWrap from '../wraps/BoxWrap';
@@ -45,7 +46,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
         <Box width="550px">
           <Box overflow="auto" height={{ max: '600px' }} pad={{ vertical: 'small', horizontal: 'large' }} gap="small">
             {assets
-              .sort((a, b) => parseInt(b.balance_, 10) - parseInt(a.balance_, 10))
+              .sort((a, b) => (a.balance?.lt(b.balance!) ? 1 : -1))
               .map((a) => (
                 <Button
                   key={a.id}
@@ -73,7 +74,7 @@ const AssetSelectModal = ({ assets, handleSelect, open, setOpen }: IAssetSelectM
                         </Text>
                       </Box>
                     </Box>
-                    <Text size="small">{a.balance_}</Text>
+                    <Text size="small">{cleanValue(a.balance_, a.digitFormat)}</Text>
                   </BoxWrap>
                 </Button>
               ))}

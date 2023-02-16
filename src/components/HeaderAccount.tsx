@@ -1,18 +1,17 @@
 import { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
-import { FiSettings } from 'react-icons/fi';
-import Skeleton from './wraps/SkeletonWrap';
-import { ChainContext } from '../contexts/ChainContext';
-import { abbreviateHash } from '../utils/appUtils';
-import YieldAvatar from './YieldAvatar';
-import SidebarSettings from './Sidebar';
-import EthMark from './logos/EthMark';
+import Sidebar from './Sidebar';
 import { UserContext } from '../contexts/UserContext';
-import { WETH } from '../config/assets';
-import SettingsBalances from './SettingsBalances';
-import { useEns } from '../hooks/useEns';
+import { useAccount, useBalance, useEnsName } from 'wagmi';
+import { FiSettings } from 'react-icons/fi';
+import Skeleton from 'react-loading-skeleton';
+import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import GeneralButton from './buttons/GeneralButton';
+import EthMark from './logos/EthMark';
+import YieldAvatar from './YieldAvatar';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import HeaderBalances from './HeaderBalances';
 
 const StyledText = styled(Text)`
   svg,
@@ -32,36 +31,34 @@ const StyledBox = styled(Box)`
   }
 `;
 
-const YieldAccount = (props: any) => {
+const HeaderAccount = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const {
-    chainState: {
-      connection: { account },
+
+  const { data: ensName } = useEnsName();
+  const { openConnectModal } = useConnectModal();
+
+  const { address: account } = useAccount({
+    onConnect({ address, connector, isReconnected }) {
+      console.log('Connected: ', { address, connector, isReconnected });
     },
-  } = useContext(ChainContext);
+  });
+
+  const { data: ethBalance } = useBalance({ address: account });
 
   const {
-    userState: { assetMap, assetsLoading },
+    userState: { assetsLoading },
   } = useContext(UserContext);
 
-  const { ensName } = useEns();
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-  const [connectOpen, setConnectOpen] = useState<boolean>(false);
-
-  const ethBalance = assetMap.get(WETH)?.balance_;
 
   return (
-    <>
-      <SidebarSettings
-        settingsOpen={settingsOpen}
-        setSettingsOpen={setSettingsOpen}
-        connectOpen={connectOpen}
-        setConnectOpen={setConnectOpen}
-      />
+    <Box gap="medium" direction="row">
+      <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      {account ? (
+      {!mobile && <HeaderBalances />}
+
+      {account && (
         <Box direction="row" gap="xsmall" align="center">
-          {!mobile && <SettingsBalances />}
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
               <Box>
@@ -71,13 +68,13 @@ const YieldAccount = (props: any) => {
               <Box direction="row" align="center" gap="small">
                 <Box>
                   <Text color="text" size="small">
-                    {ensName || abbreviateHash(account, 5)}
+                    {ensName || abbreviateHash(account!, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        {assetsLoading && <Skeleton circle height={20} width={20} />}
+                        {!ethBalance && <Skeleton circle height={20} width={20} />}
                         {ethBalance && (
                           <Box height="20px" width="20px">
                             <EthMark />
@@ -85,7 +82,7 @@ const YieldAccount = (props: any) => {
                         )}
                       </StyledText>
                       <StyledText size="small" color="text">
-                        {assetsLoading ? <Skeleton width={40} /> : ethBalance}
+                        {cleanValue(ethBalance?.formatted, 2) || <Skeleton width={40} />}
                       </StyledText>
                     </Box>
                   </Box>
@@ -97,15 +94,18 @@ const YieldAccount = (props: any) => {
             )}
           </StyledBox>
         </Box>
-      ) : (
-        <GeneralButton action={() => setConnectOpen(true)} background="gradient-transparent">
+      )}
+
+      {!account && (
+        // !!openConnectModal && (
+        <GeneralButton action={() => !!openConnectModal && openConnectModal()} background="gradient-transparent">
           <Text size="small" color="text">
             Connect Wallet
           </Text>
         </GeneralButton>
       )}
-    </>
+    </Box>
   );
 };
 
-export default YieldAccount;
+export default HeaderAccount;

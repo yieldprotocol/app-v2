@@ -12,14 +12,14 @@ import { cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, IUserContextState, ProcessStage, TxState } from '../../types';
+import { ActionCodes, ActionType, ProcessStage, TxState } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 
 import PositionSelector from '../selectors/LendPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
-import YieldInfo from '../YieldInfo';
+import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
 
 import NextButton from '../buttons/NextButton';
@@ -38,8 +38,9 @@ import LendItem from '../positionItems/LendItem';
 
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
-import YieldNavigation from '../YieldNavigation';
+import Navigation from '../Navigation';
 import Line from '../elements/Line';
+import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
@@ -48,8 +49,10 @@ const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedSeries, selectedBase, seriesMap } = userState;
+  const { userState } = useContext(UserContext);
+  const { selectedSeries, selectedBase, seriesMap } = userState;
+
+  const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -77,7 +80,7 @@ const Lend = () => {
     lend(lendInput, selectedSeries!);
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries.name,
+      series_id: selectedSeries?.name,
       action_code: ActionCodes.LEND,
     } as GA_Properties.transaction_initiated);
   };
@@ -120,7 +123,7 @@ const Lend = () => {
     <MainViewWrap>
       {!mobile && (
         <PanelWrap basis="30%">
-          <YieldNavigation sideNavigation={true} />
+          <Navigation sideNavigation={true} />
           <PositionSelector actionType={ActionType.LEND} />
         </PanelWrap>
       )}
@@ -186,7 +189,7 @@ const Lend = () => {
                   ) : (
                     <SectionWrap
                       title={
-                        seriesMap.size > 0
+                        selectedBase
                           ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                               selectedBase && '-based'
                             } maturity date:`
@@ -264,7 +267,7 @@ const Lend = () => {
               <Box pad="large" gap="small">
                 <Text size="small"> View position: </Text>
                 <LendItem
-                  series={seriesMap.get(selectedSeries?.id!)!}
+                  series={seriesMap?.get(selectedSeries?.id!)!}
                   index={0}
                   actionType={ActionType.LEND}
                   condensed

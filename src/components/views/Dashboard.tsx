@@ -3,18 +3,20 @@ import styled from 'styled-components';
 import { Box, ResponsiveContext, Text } from 'grommet';
 import Skeleton from '../wraps/SkeletonWrap';
 import { ChainContext } from '../../contexts/ChainContext';
-import { ActionType, ISettingsContext, IUserContextState } from '../../types';
-import YieldInfo from '../YieldInfo';
+import { ActionType } from '../../types';
+import YieldInfo from '../FooterInfo';
 import DashboardBalanceSummary from '../DashboardBalanceSummary';
 import MainViewWrap from '../wraps/MainViewWrap';
 import PanelWrap from '../wraps/PanelWrap';
 
 import DashboardPositionList from '../DashboardPositionList';
 import CurrencyToggle from '../CurrencyToggle';
-import { Settings, SettingsContext } from '../../contexts/SettingsContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
+import { useAccount } from 'wagmi';
+import { Settings } from '../../contexts/types/settings';
 
 const StyledBox = styled(Box)`
   * {
@@ -32,18 +34,17 @@ const Dashboard = () => {
   const {
     settingsState: { dashHideVaults, dashHideLendPositions, dashHidePoolPositions },
     settingsActions: { updateSetting },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
     userState: { vaultsLoading, seriesLoading, strategiesLoading },
-  }: { userState: IUserContextState } = useContext(UserContext);
+  } = useContext(UserContext);
 
   const {
-    chainState: {
-      connection: { account },
-      chainLoading,
-    },
+    chainState: { chainLoaded },
   } = useContext(ChainContext);
+
+  const { address:account, isConnected } = useAccount();
 
   const {
     vaultPositions,
@@ -64,7 +65,7 @@ const Dashboard = () => {
         margin={{ top: 'xlarge' }}
         basis={mobile ? undefined : '60%'}
       >
-        {!account && !chainLoading && (
+        {!account && chainLoaded && (
           <Box width={mobile ? '100%' : undefined} align='center' fill='horizontal' >
             <Text size='small' >No Wallet Connected.</Text>
         </Box>
@@ -103,7 +104,10 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Lend Positions</Text>
-                <Box onClick={() => updateSetting(Settings.DASH_HIDE_LEND_POSITIONS, !dashHideLendPositions)} pad="xsmall">
+                <Box
+                  onClick={() => updateSetting(Settings.DASH_HIDE_LEND_POSITIONS, !dashHideLendPositions)}
+                  pad="xsmall"
+                >
                   {dashHideLendPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show positions
@@ -131,7 +135,10 @@ const Dashboard = () => {
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
                 <Text size="medium">Liquidity </Text>
-                <Box onClick={() => updateSetting(Settings.DASH_HIDE_POOL_POSITIONS, !dashHidePoolPositions)} pad="xsmall">
+                <Box
+                  onClick={() => updateSetting(Settings.DASH_HIDE_POOL_POSITIONS, !dashHidePoolPositions)}
+                  pad="xsmall"
+                >
                   {dashHidePoolPositions ? (
                     <Text size="xsmall" color="text-weak">
                       show positions
@@ -165,7 +172,7 @@ const Dashboard = () => {
       {!mobile && (
         <PanelWrap right>
           {/* <Box /> */}
-          {account && (
+          {isConnected && (
             <Box
               // margin={{ top: '30%' }}
               margin={{ top: 'xlarge' }}

@@ -2,23 +2,23 @@ import { formatUnits } from 'ethers/lib/utils';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { TxContext } from '../../contexts/TxContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, IAsset, IStrategy, IUserContext } from '../../types';
-import { useConnection } from '../useConnection';
+import { ActionCodes, IAsset, IStrategy} from '../../types';
+
+import { useSigner, useAccount } from 'wagmi';
 
 const useClaimRewards = (strategy: IStrategy | undefined) => {
-  const {
-    connectionState: { provider },
-  } = useConnection();
-  const { userState, userActions } = useContext(UserContext) as IUserContext;
-  const { activeAccount: account, assetMap } = userState;
+
+  const { data: signer, isError, isLoading } = useSigner();
+  const { address:account } = useAccount();
+
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap } = userState;
   const { updateAssets, updateStrategies } = userActions;
   const {
     txActions: { handleTx },
   } = useContext(TxContext);
 
   const asset = assetMap.get(strategy?.baseId!);
-
-  const signer = provider?.getSigner(account!);
 
   const [accruedRewards, setAccruedRewards] = useState<string>();
   const [rewardsToken, setRewardsToken] = useState<IAsset>();

@@ -1,56 +1,49 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
+import { calculateSlippage, maxBaseIn, MAX_256, sellBase } from '@yield-protocol/ui-math';
 
-import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  ICallData,
-  IVault,
-  ISeries,
-  ActionCodes,
-  LadleActions,
-  IAsset,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  RoutedActions,
-} from '../../types';
+import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { ChainContext } from '../../contexts/ChainContext';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, USDT, WETH } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
+import useContracts, { ContractNames } from '../useContracts';
+import { removeUndefined } from 'grommet/utils';
+import useChainId from '../useChainId';
 
 export const useRepayDebt = () => {
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
 
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
-  const { activeAccount: account, seriesMap, assetMap } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { seriesMap, assetMap, selectedIlk, selectedBase } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
-
-  const {
-    chainState: {
-      contractMap,
-      connection: { chainId },
-      provider,
-    },
-  } = useContext(ChainContext);
+  const { address: account } = useAccount();
+  const { chain } = useNetwork();
+  const provider = useProvider();
+  const contracts = useContracts();
+  const { refetch: refetchIlkBal } = useBalance({
+    address: account,
+    token: selectedIlk?.address as Address,
+  });
+  const { refetch: refetchBaseBal } = useBalance({
+    address: account,
+    token: selectedBase?.id === WETH ? undefined : selectedBase?.address as Address,
+  });
 
   const { addEth, removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const chainId = useChainId();
 
   /**
    * REPAY FN
@@ -61,10 +54,10 @@ export const useRepayDebt = () => {
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
-    const ladleAddress = contractMap.get('Ladle').address;
-    const series: ISeries = seriesMap.get(vault.seriesId)!;
-    const base: IAsset = assetMap.get(vault.baseId)!;
-    const ilk: IAsset = assetMap.get(vault.ilkId)!;
+    const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
+    const series: ISeries = seriesMap?.get(vault.seriesId)!;
+    const base: IAsset = assetMap?.get(vault.baseId)!;
+    const ilk: IAsset = assetMap?.get(vault.ilkId)!;
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
@@ -131,18 +124,19 @@ export const useRepayDebt = () => {
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
     /* Check if already approved */
-    const alreadyApproved = (await base.getAllowance(account!, ladleAddress)).gte(amountToTransfer);
+    const alreadyApproved = (await base.getAllowance(account!, ladleAddress!)).gte(amountToTransfer);
 
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
     const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];
 
+    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100)
     const permitCallData: ICallData[] = await sign(
       [
         {
           // before maturity
           target: base,
           spender: 'LADLE',
-          amount: amountToTransfer.mul(110).div(100), // generous approval permits on repayment we can refine at a later stage
+          amount: approveAmount, // generous approval permits on repayment we can refine at a later stage
           ignoreIf: alreadyApproved === true,
         },
       ],
@@ -155,8 +149,8 @@ export const useRepayDebt = () => {
     /* Address to send the funds to either ladle (if eth is used as collateral) or account */
     const reclaimToAddress = () => {
       if (isEthCollateral) return ladleAddress;
-      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chainId))
-        return ilk.unwrapHandlerAddresses?.get(chainId); // if there is somethign to unwrap
+      if (unwrapAssetCallData.length && ilk.unwrapHandlerAddresses?.has(chain?.id!))
+        return ilk.unwrapHandlerAddresses?.get(chain?.id!); // if there is somethign to unwrap
       return account;
     };
 
@@ -218,6 +212,8 @@ export const useRepayDebt = () => {
       ...unwrapAssetCallData,
     ];
     await transact(calls, txCode);
+    if (selectedBase?.proxyId !== WETH) refetchBaseBal();
+    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
     updateSeries([series]);

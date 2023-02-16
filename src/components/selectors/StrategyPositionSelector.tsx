@@ -3,17 +3,20 @@ import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
-import { IStrategy, IUserContext, IUserContextState } from '../../types';
+import { IStrategy } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
+import { useAccount } from 'wagmi';
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
 
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount, strategyMap, selectedBase } = userState;
+  const { userState } = useContext(UserContext);
+  const { strategyMap, selectedBase } = userState;
+
+  const { address: activeAccount } = useAccount();
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
@@ -25,7 +28,7 @@ function StrategyPositionSelector() {
   useEffect(() => {
 
     /* only if veiwing the main screen (not when modal is showing) */
-    const _allPositions: IStrategy[] = Array.from(strategyMap.values())
+    const _allPositions: IStrategy[] = Array.from(strategyMap?.values()!)
       /* filter by positive strategy balances */
       .filter((_strategy: IStrategy) => _strategy.accountBalance?.gt(ZERO_BN) || _strategy.accountRewards?.gt(ZERO_BN) )
       .sort((_strategyA: IStrategy, _strategyB: IStrategy) =>

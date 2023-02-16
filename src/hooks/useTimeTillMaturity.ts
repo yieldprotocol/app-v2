@@ -1,44 +1,44 @@
-import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { ChainContext } from '../contexts/ChainContext';
-import { IChainContext } from '../types';
+import { useProvider } from 'wagmi';
+import { SettingsContext } from '../contexts/SettingsContext';
+import useFork from './useFork';
 
 const useTimeTillMaturity = (useBlockchainTime = false) => {
-  const {
-    chainState: {
-      connection: { useTenderlyFork },
-    },
-  } = useContext(ChainContext) as IChainContext;
-
-  // block timestamp from network
-  const [blockTimestamp, setBlockTimestamp] = useState<number>();
+  
+  const { isFork, forkTimestamp } = useFork();
 
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
   const getTimeTillMaturity = useCallback(
-    (maturity: number) => (blockTimestamp ? maturity - blockTimestamp : maturity - NOW).toString(),
-    [NOW, blockTimestamp]
+   (maturity: number) =>  {
+      if (isFork && forkTimestamp) return (maturity - forkTimestamp).toString();
+      return (maturity - NOW).toString();
+    },
+    [NOW, isFork]
   );
 
   const isMature = useCallback(
-    (maturity: number) => (blockTimestamp ? maturity - blockTimestamp <= 0 : maturity - NOW <= 0),
-    [NOW, blockTimestamp]
+    (maturity: number) => {
+      if (isFork && forkTimestamp) return maturity - forkTimestamp <= 0;
+      return maturity - NOW <= 0;
+    },
+    [NOW, isFork]
   );
 
-  // try to get the latest block timestamp when we are using tenderly, or when explicitly requested
-  useEffect(() => {
-    const getBlockTimestamp = async () => {
-      try {
-        const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
-        const { timestamp } = await tenderlyProvider.getBlock('latest');
-        setBlockTimestamp(timestamp);
-      } catch (e) {
-        console.log('error getting latest tenderly timestamp', e);
-      }
-    };
-
-    if (useTenderlyFork || useBlockchainTime) getBlockTimestamp();
-  }, [useTenderlyFork, useBlockchainTime]);
+  // // try to get the latest block timestamp when we are using forked env ( eg. tenderly ), or when explicitly requested
+  // useEffect(() => {
+  //   const getBlockTimestamp = async () => {
+  //     try {
+  //       // const tenderlyProvider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_JSON_RPC_URL);
+  //       const { timestamp } = await provider.getBlock('latest');
+  //       useForkedEnv && console.log( 'Forked Blockchain time: ', new Date(timestamp*1000).toLocaleDateString())
+  //       setBlockTimestamp(timestamp);
+  //     } catch (e) {
+  //       console.log('Error getting latest timestamp', e);
+  //     }
+  //   };
+  //   if (useForkedEnv || useBlockchainTime) getBlockTimestamp();
+  // }, [useForkedEnv, useBlockchainTime]);
 
   return { getTimeTillMaturity, isMature };
 };

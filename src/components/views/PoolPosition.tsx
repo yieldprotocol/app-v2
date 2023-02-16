@@ -1,14 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CheckBox, ResponsiveContext, Select, Text, TextInput, Tip } from 'grommet';
-import {
-  FiArrowRight,
-  FiChevronDown,
-  FiClock,
-  FiSlash,
-  FiStar,
-  FiZap,
-} from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiSlash, FiStar, FiZap } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -16,7 +9,7 @@ import { abbreviateHash, cleanValue, formatStrategyName, getTxCode, nFormatter }
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, IUserContext, ProcessStage } from '../../types';
+import { ActionCodes, ActionType, ProcessStage } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import InfoBite from '../InfoBite';
 import ActiveTransaction from '../ActiveTransaction';
@@ -35,6 +28,7 @@ import { useProcess } from '../../hooks/useProcess';
 import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
+import { useAccount } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useClaimRewards from '../../hooks/actionHooks/useClaimRewards';
@@ -52,13 +46,15 @@ const PoolPosition = () => {
   const {
     userState,
     userActions: { setSelectedStrategy },
-  } = useContext(UserContext) as IUserContext;
-  const { activeAccount, selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
+  } = useContext(UserContext);
+  const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
-  const _selectedStrategy = selectedStrategy || strategyMap.get(idFromUrl as string);
+  const { address: activeAccount } = useAccount();
+
+  const _selectedStrategy = selectedStrategy || strategyMap?.get((idFromUrl as string).toLowerCase());
 
   const selectedSeries = _selectedStrategy?.currentSeries;
-  const selectedBase = assetMap.get(_selectedStrategy?.baseId!);
+  const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
 
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
@@ -178,7 +174,7 @@ const PoolPosition = () => {
   }, [selectedStrategy, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
   useEffect(() => {
-    const _strategy = strategyMap.get(idFromUrl as string) || null;
+    const _strategy = strategyMap?.get(idFromUrl as string) || null;
     idFromUrl && setSelectedStrategy(_strategy);
   }, [idFromUrl, setSelectedStrategy, strategyMap]);
 
@@ -279,21 +275,21 @@ const PoolPosition = () => {
                     )}
 
                     {selectedStrategy?.accountRewards?.gt(ZERO_BN) && selectedStrategy?.rewardsTokenAddress && (
-                      <Box direction="row" gap="large" justify='between'>
+                      <Box direction="row" gap="large" justify="between">
                         <InfoBite
                           label="Claimable Rewards"
                           value={`${cleanValue(selectedStrategy?.accountRewards_, 6)} ETH`}
                           icon={<FiStar />}
                           loading={seriesLoading}
                         />
-                        {actionActive.index !== 2 &&  (
+                        {actionActive.index !== 2 && (
                           <GeneralButton
                             action={() => handleSetActionActive({ text: 'Claim Rewards', index: 2 })}
                             // action={handleClaim}
                             background="background"
                           >
-                            <Text size="xsmall" textAlign='center'>
-                              <MdShortcut />  Go to Claim rewards
+                            <Text size="xsmall" textAlign="center">
+                              <MdShortcut /> Go to Claim rewards
                             </Text>
                           </GeneralButton>
                         )}

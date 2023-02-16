@@ -5,7 +5,6 @@ import { FiPlus, FiMinus } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
-import { IUserContext } from '../types';
 
 interface IDashboardBalance {
   debt: string;
@@ -21,7 +20,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   const { green, red } = theme.global.colors;
   const {
     userState: { vaultsLoading, seriesLoading, strategiesLoading },
-  } = useContext(UserContext) as IUserContext;
+  } = useContext(UserContext);
 
   const [totalBalance, setTotalBalance] = useState<number>();
 

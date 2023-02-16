@@ -7,14 +7,7 @@ import styled from 'styled-components';
 
 import { maxBaseIn } from '@yield-protocol/ui-math';
 
-import {
-  ActionType,
-  ISeries,
-  ISettingsContext,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-} from '../../types';
+import { ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
@@ -79,7 +72,7 @@ const AprText = ({
   inputValue: string;
   series: ISeries;
   actionType: ActionType;
-  color: string;
+  color: string | undefined;
 }) => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
@@ -137,11 +130,8 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   const {
     settingsState: { diagnostics },
-  } = useContext(SettingsContext) as ISettingsContext;
-
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
+  } = useContext(SettingsContext);
+  const { userState, userActions } = useContext(UserContext);
   const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
@@ -175,7 +165,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(seriesMap.values());
+    const opts = Array.from(seriesMap?.values()!);
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts
@@ -190,7 +180,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       filteredOpts = opts
         .filter((_series) => _series.baseId === selectedSeries?.baseId && !_series.seriesIsMature) // only use selected series' base
         .filter((_series) => _series.id !== selectedSeries?.id) // filter out current globally selected series
-        .filter((_series) => _series.maturity > selectedSeries?.maturity); // prevent rolling positions to an earlier maturity
+        .filter((_series) => _series.maturity > selectedSeries?.maturity!); // prevent rolling positions to an earlier maturity
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
@@ -221,7 +211,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
-      {seriesLoading && <Skeleton width={180} />}
+      {!selectedBase && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select
@@ -232,7 +222,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
             name="seriesSelect"
             placeholder="Select Series"
             options={options}
-            value={_selectedSeries!}
+            value={_selectedSeries || undefined}
             labelKey={(x: any) => optionText(x)}
             icon={<FiChevronDown />}
             valueLabel={

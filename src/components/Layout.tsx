@@ -10,12 +10,14 @@ import { useColorScheme } from '../hooks/useColorScheme';
 import { yieldTheme } from '../themes';
 
 // get dynaimc imports for applicable components (to account for non-ssr)
-const DynamicYieldHeader = dynamic(() => import('./YieldHeader'), { ssr: false });
+const DynamicYieldHeader = dynamic(() => import('./Header'), { ssr: false });
 const DynamicYieldMobileMenu = dynamic(() => import('./YieldMobileMenu'), { ssr: false });
 const DynamicNetworkBanner = dynamic(() => import('./NetworkBanner'), { ssr: false });
 const DynamicNetworkError = dynamic(() => import('./NetworkError'), { ssr: false });
 const DynamicTransactionWidget = dynamic(() => import('./TransactionWidget'), { ssr: false });
 const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ssr: false });
+
+const DynamicSanctionedAddressError = dynamic(() => import('./SanctionedAddressError'), { ssr: false });
 
 interface ILayout {
   children?: ReactNode;
@@ -56,6 +58,7 @@ const Layout = ({ children }: ILayout) => {
           <DynamicTransactionWidget />
           <DynamicNetworkError />
           <DynamicTransactionError />
+          <DynamicSanctionedAddressError />
           <ToastContainer position="top-right" />
           <Box overflow="hidden">
             {menuLayerOpen && <DynamicYieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}

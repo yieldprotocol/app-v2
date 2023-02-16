@@ -1,9 +1,9 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
-import { ChainContext } from '../../contexts/ChainContext';
-import SidebarSettings from '../Sidebar';
 import { useColorScheme } from '../../hooks/useColorScheme';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 
 const StyledButton: any = styled(Button)`
   -webkit-transition: transform 0.2s ease-in-out;
@@ -47,15 +47,8 @@ const StyledButton: any = styled(Button)`
 function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const theme = useColorScheme();
-
-  const {
-    chainState: {
-      connection: { account },
-    },
-  } = useContext(ChainContext);
-
-  const [connectOpen, setConnectOpen] = useState<boolean>(false);
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  const { openConnectModal } = useConnectModal();
+  const { address } = useAccount();
 
   return mobile ? (
     <Layer position="bottom" background="background" modal={false} responsive={false} full="horizontal" animate={false}>
@@ -71,7 +64,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
         pad={pad ? { horizontal: 'large', vertical: 'medium', bottom: 'large' } : undefined}
         alignSelf="end"
       >
-        {account ? (
+        {address ? (
           children
         ) : (
           <StyledButton
@@ -82,16 +75,10 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
                 Connect Wallet
               </Text>
             }
-            onClick={() => setConnectOpen(true)}
+            onClick={openConnectModal}
           />
         )}
       </Box>
-      <SidebarSettings
-        connectOpen={connectOpen}
-        setConnectOpen={setConnectOpen}
-        setSettingsOpen={setSettingsOpen}
-        settingsOpen={settingsOpen}
-      />
     </>
   );
 }

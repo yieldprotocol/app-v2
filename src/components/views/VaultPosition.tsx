@@ -10,15 +10,7 @@ import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/a
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
 import InfoBite from '../InfoBite';
-import {
-  ActionCodes,
-  ActionType,
-  ISeries,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  ProcessStage,
-} from '../../types';
+import { ActionCodes, ActionType, ISeries, ProcessStage } from '../../types';
 
 import ActionButtonWrap from '../wraps/ActionButtonWrap';
 import SectionWrap from '../wraps/SectionWrap';
@@ -46,10 +38,13 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
-import { useAssetPair } from '../../hooks/useAssetPair';
+import { useAssetPairs } from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
+import { useAccount, useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
+import { WETH } from '../../config/assets';
+import { Address } from '@wagmi/core';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,20 +54,23 @@ const VaultPosition = () => {
   const { id: idFromUrl } = router.query;
 
   /* STATE FROM CONTEXT */
-  const { userState, userActions }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(
-    UserContext
-  ) as IUserContext;
-
-  const { activeAccount: account, assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
+  const { userState, userActions } = useContext(UserContext);
+  const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
-  const _selectedVault = vaultMap.get(idFromUrl as string);
+  const { address: account } = useAccount();
 
-  const vaultBase = assetMap.get(_selectedVault?.baseId!);
-  const vaultIlk = assetMap.get(_selectedVault?.ilkId!);
-  const vaultSeries = seriesMap.get(_selectedVault?.seriesId!);
+  const _selectedVault = vaultMap?.get(idFromUrl as string);
 
-  const assetPairInfo = useAssetPair(vaultBase, vaultIlk);
+  const vaultBase = assetMap?.get(_selectedVault?.baseId!);
+  const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
+  const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
+
+  const { assetPair } = useAssetPairs(vaultBase?.id, [vaultIlk?.id]);
+  const { data: ilkBal } = useBalance({
+    address: account,
+    token: vaultIlk?.proxyId === WETH ? undefined : vaultIlk?.address as Address,
+  });
 
   /* TX info (for disabling buttons) */
   const { txProcess: repayProcess, resetProcess: resetRepayProcess } = useProcess(
@@ -143,23 +141,23 @@ const VaultPosition = () => {
     unhealthyCollatRatio,
     liquidationPrice_,
     minSafeCollatRatioPct,
-  } = useCollateralHelpers('0', '0', _selectedVault, assetPairInfo);
+  } = useCollateralHelpers('0', '0', _selectedVault, assetPair);
 
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
     `-${repayInput! || '0'}`,
     '0',
     _selectedVault,
-    assetPairInfo
+    assetPair
   );
 
   const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
-    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPairInfo);
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPair);
 
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
     _selectedVault,
-    assetPairInfo
+    assetPair
   );
 
   const {
@@ -176,7 +174,7 @@ const VaultPosition = () => {
     debtInBase,
     debtInBase_,
     rollProtocolLimited,
-  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPairInfo, rollToSeries);
+  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPair, rollToSeries);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
@@ -217,7 +215,7 @@ const VaultPosition = () => {
   const handleRepay = () => {
     if (repayDisabled) return;
     setRepayDisabled(true);
-    repay(_selectedVault, repayInput?.toString(), reclaimCollateral);
+    repay(_selectedVault!, repayInput?.toString(), reclaimCollateral);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
@@ -229,7 +227,7 @@ const VaultPosition = () => {
   const handleRoll = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollDebt(_selectedVault, rollToSeries);
+    rollDebt(_selectedVault!, rollToSeries!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
@@ -242,7 +240,7 @@ const VaultPosition = () => {
     if (action === 'REMOVE') {
       if (removeCollateralDisabled) return;
       setRemoveCollateralDisabled(true);
-      removeCollateral(_selectedVault, removeCollatInput);
+      removeCollateral(_selectedVault!, removeCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
@@ -329,9 +327,9 @@ const VaultPosition = () => {
 
   useEffect(() => {
     /* set global series, base and ilk */
-    const _series = seriesMap.get(_selectedVault?.seriesId!) || null;
-    const _base = assetMap.get(_selectedVault?.baseId!) || null;
-    const _ilk = assetMap.get(_selectedVault?.ilkId!) || null;
+    const _series = seriesMap?.get(_selectedVault?.seriesId!) || null;
+    const _base = assetMap?.get(_selectedVault?.baseId!) || null;
+    const _ilk = assetMap?.get(_selectedVault?.ilkId!) || null;
 
     // handle using ilk
     const _ilkToUse = _ilk; // use the unwrapped token if applicable
@@ -526,7 +524,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRepayInput(cleanValue(event.target.value, vaultBase?.decimals))
                             }
-                            icon={<Logo image={vaultBase.image} />}
+                            icon={<Logo image={vaultBase?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.REPAY)}
@@ -537,7 +535,7 @@ const VaultPosition = () => {
 
                         {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
-                            {maxRepay.eq(userBaseBalance) ? (
+                            {maxRepay.eq(userBaseBalance!) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
                                 Use {vaultBase?.displaySymbol!} balance ({cleanValue(userBaseBalance_, 2)})
                               </Text>
@@ -684,7 +682,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setAddCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                            icon={<Logo image={vaultIlk.image} />}
+                            icon={<Logo image={vaultIlk?.image} />}
                           />
                           <MaxButton
                             // disabled={removeCollatInput}
@@ -697,7 +695,7 @@ const VaultPosition = () => {
                         {!addCollatInput ? (
                           <InputInfoWrap action={() => setAddCollatInput(maxCollateral)}>
                             <Text size="xsmall" color="text-weak">
-                              Use {vaultIlk?.displaySymbol!} balance ({vaultIlk?.balance_!} {vaultIlk?.displaySymbol!})
+                              Use {vaultIlk?.displaySymbol!} balance ({ilkBal?.formatted!} {vaultIlk?.displaySymbol!})
                             </Text>
                           </InputInfoWrap>
                         ) : (
@@ -741,7 +739,7 @@ const VaultPosition = () => {
                             onChange={(event: any) =>
                               setRemoveCollatInput(cleanValue(event.target.value, vaultIlk?.decimals))
                             }
-                            icon={<Logo image={vaultIlk.image} />}
+                            icon={<Logo image={vaultIlk?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.REMOVE_COLLATERAL)}

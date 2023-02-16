@@ -13,29 +13,24 @@ import { FaDiscord as Discord } from 'react-icons/fa';
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import NetworkSelector from './selectors/NetworkSelector';
-import { IChainContext } from '../types';
-import { CHAIN_INFO } from '../config/chainData';
+import { useNetwork } from 'wagmi';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
 
-const YieldInfo = () => {
+const FooterInfo = () => {
   const {
-    chainState: {
-      connection: { fallbackChainId },
-      appVersion,
-    },
     chainActions: { exportContractAddresses },
-  } = useContext(ChainContext) as IChainContext;
+  } = useContext(ChainContext);
 
-  const connectedChain = CHAIN_INFO.get(fallbackChainId!);
+  const { chain } = useNetwork();
   const handleExternal = (destination: string) => {};
 
   return (
     <Box gap="small" align="end" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
       <Box alignSelf="end">
         <Text size="xsmall" color="text-weak">
-          App version: v{appVersion}
+          App version: v{process.env.REACT_APP_VERSION}
         </Text>
       </Box>
       <Box direction="row" gap={IconGap}>
@@ -113,21 +108,9 @@ const YieldInfo = () => {
         </BoxWrap>
       </Box>
 
-      {connectedChain && (
-        <Box align="end" gap="xsmall">
-          <Box gap="xsmall" justify="end" flex elevation="xsmall" pad="xsmall" round>
-            <NetworkSelector />
-          </Box>
-        </Box>
-      )}
-
-      {/* <Box align='center'>
-        <Text size="xsmall"> NOTICE:</Text>
-        <Text size="xsmall"> We are aware of a few UI issues, in particular related to the December pools. </Text>
-        <Text size="xsmall"> If you are having any difficulties, please check back shortly.</Text>
-      </Box> */}
+      <NetworkSelector />
     </Box>
   );
 };
 
-export default YieldInfo;
+export default FooterInfo;

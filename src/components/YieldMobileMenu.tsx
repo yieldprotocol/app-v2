@@ -3,7 +3,7 @@ import { Box, Header, Layer, ResponsiveContext, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 
 import YieldMark from './logos/YieldMark';
-import YieldNavigation from './YieldNavigation';
+import Navigation from './Navigation';
 
 interface ILayerProps {
   toggleMenu: () => void;
@@ -33,7 +33,7 @@ const YieldMobileMenu = ({ toggleMenu, callback }: ILayerProps) => {
               </Box>
             </Box>
           </Header>
-          <YieldNavigation callbackFn={() => toggleMenu()} />
+          <Navigation callbackFn={() => toggleMenu()} />
         </Box>
       </Box>
     </Layer>

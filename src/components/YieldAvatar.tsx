@@ -3,7 +3,7 @@ import multiavatar from '@multiavatar/multiavatar';
 import { Avatar, Box, Image } from 'grommet';
 
 import { useColorScheme } from '../hooks/useColorScheme';
-import { useEns } from '../hooks/useEns';
+import { useEnsAvatar } from 'wagmi';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -15,19 +15,20 @@ const StyledBox = styled(Box)`
 `;
 
 function YieldAvatar(props: any) {
+
+  const { data } = useEnsAvatar();
   const colorScheme = useColorScheme();
-  const { ensAvatarUrl } = useEns();
-  const _avatar = multiavatar(props.address.concat(21));
+  const _avatar = multiavatar(props.address?.concat(21));
   const _size = props.size.toString().concat('em');
 
   return (
     <StyledBox>
-      <Avatar border={{ color: colorScheme === 'dark' ? '#FFF' : '#000' }} size={_size || '2em'}>
-        <Box width="100%" height="100%" pad={ensAvatarUrl ? undefined : '2px'}>
+      <Avatar border={props.noBorder ? undefined : { color: colorScheme === 'dark' ? '#FFF' : '#000' }} size={_size || '2em'}>
+        <Box width="100%" height="100%" pad={data ? undefined : '2px'}>
           {
             // eslint-disable-next-line react/no-danger
-            ensAvatarUrl ? (
-              <Image src={ensAvatarUrl} alt="ens-avatar" />
+            data ? (
+              <Image src={data} alt="ens-avatar" />
             ) : (
               <span dangerouslySetInnerHTML={{ __html: _avatar }} />
             )

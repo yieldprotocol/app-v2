@@ -1,16 +1,9 @@
-import { useContext } from 'react';
-import { ChainContext } from '../contexts/ChainContext';
 import { GA_Event, GA_View } from '../types/analytics';
 import { useRouter } from 'next/router';
-import { IChainContext } from '../types/index';
+import useChainId from './useChainId';
 
 const useAnalytics = () => {
-  /* get the chainId */
-  const {
-    chainState: {
-      connection: { chainId },
-    },
-  } = useContext(ChainContext) as IChainContext;
+  const chainId = useChainId();
 
   /* get path from router */
   const { asPath } = useRouter();

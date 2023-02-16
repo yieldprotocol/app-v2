@@ -4,21 +4,12 @@ import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import {
-  IPriceContext,
-  ISeries,
-  ISettingsContext,
-  IStrategy,
-  IUserContext,
-  IUserContextActions,
-  IUserContextState,
-  IVault,
-} from '../../types';
+import { IAssetPair, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { USDC, WETH } from '../../config/assets';
+import { DAI, USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
-import { PriceContext } from '../../contexts/PriceContext';
 import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useAssetPairs } from '../useAssetPair';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -32,18 +23,18 @@ export const useDashboardHelpers = () => {
   /* STATE FROM CONTEXT */
   const {
     settingsState: { dashHideEmptyVaults, dashHideInactiveVaults, dashCurrency },
-  } = useContext(SettingsContext) as ISettingsContext;
+  } = useContext(SettingsContext);
 
   const {
-    userState: { vaultMap, seriesMap, strategyMap },
-  }: { userState: IUserContextState; userActions: IUserContextActions } = useContext(UserContext) as IUserContext;
-
-  const { priceState, priceActions } = useContext(PriceContext) as IPriceContext;
+    userState: { assetMap, vaultMap, seriesMap, strategyMap },
+  } = useContext(UserContext);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const pairMap: Map<string, IAssetPair> = new Map();
+  const [assetId, setAssetId] = useState<any>();
 
-  const { pairMap } = priceState;
-  const { updateAssetPair } = priceActions;
+  // const { assetPairs: ETHRates } = useAssetPairs(WETH, [WETH, USDC, DAI]);
+  // const { assetPairs: USDCRates } = useAssetPairs(USDC, [WETH, USDC, DAI]);
 
   const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;
   const currencySettingDigits = 2;
@@ -60,7 +51,7 @@ export const useDashboardHelpers = () => {
 
   /* set vault positions */
   useEffect(() => {
-    const _vaultPositions = Array.from(vaultMap.values())
+    const _vaultPositions = Array.from(vaultMap?.values()!)
       .filter((vault) => (dashHideInactiveVaults ? vault.isActive : true))
       .filter((vault) => (dashHideEmptyVaults ? vault.ink.gt(ZERO_BN) || vault.accruedArt.gt(ZERO_BN) : true))
       .filter((vault) => vault.baseId !== vault.ilkId)
@@ -70,21 +61,22 @@ export const useDashboardHelpers = () => {
 
   /* set lend positions */
   useEffect(() => {
-    const _lendPositions: ILendPosition[] = Array.from(seriesMap.values())
+    const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
       .map((_series) => {
-        const currentValue = _series.seriesIsMature && _series.fyTokenBalance
-          ? _series.fyTokenBalance
-          : sellFYToken(
-              _series.sharesReserves,
-              _series.fyTokenReserves,
-              _series.fyTokenBalance || ethers.constants.Zero,
-              getTimeTillMaturity(_series.maturity),
-              _series.ts,
-              _series.g2,
-              _series.decimals,
-              _series.c,
-              _series.mu
-          );
+        const currentValue =
+          _series.seriesIsMature && _series.fyTokenBalance
+            ? _series.fyTokenBalance
+            : sellFYToken(
+                _series.sharesReserves,
+                _series.fyTokenReserves,
+                _series.fyTokenBalance || ethers.constants.Zero,
+                getTimeTillMaturity(_series.maturity),
+                _series.ts,
+                _series.g2,
+                _series.decimals,
+                _series.c,
+                _series.mu
+              );
         const currentValue_ =
           currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
             ? _series.fyTokenBalance_
@@ -100,7 +92,7 @@ export const useDashboardHelpers = () => {
 
   /* set strategy positions */
   useEffect(() => {
-    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap.values())
+    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap?.values()!)
       .map((_strategy) => {
         if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
         // const currentStrategySeries = seriesMap.get(_strategy.currentSeries.id);
@@ -112,7 +104,7 @@ export const useDashboardHelpers = () => {
           currentStrategySeries?.sharesReserves!,
           currentStrategySeries?.fyTokenReserves!,
           currentStrategySeries?.totalSupply!,
-          getTimeTillMaturity(currentStrategySeries?.maturity)!,
+          getTimeTillMaturity(currentStrategySeries?.maturity!),
           currentStrategySeries?.ts!,
           currentStrategySeries?.g2!,
           currentStrategySeries?.decimals!,
@@ -121,8 +113,8 @@ export const useDashboardHelpers = () => {
         );
         const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
           ? ethers.utils.formatUnits(
-              currentStrategySeries.getBase(fyTokenToShares).add(currentStrategySeries.getBase(sharesReceived)), // add shares received to fyTokenToShares (in base)
-              currentStrategySeries.decimals
+              currentStrategySeries?.getBase(fyTokenToShares).add(currentStrategySeries?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
+              currentStrategySeries?.decimals
             )
           : _strategy.accountBalance_; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
 
@@ -144,7 +136,7 @@ export const useDashboardHelpers = () => {
     [pairMap]
   );
 
-  /* get pairInfo */
+  /* Get pairInfo for each  */
   useEffect(() => {
     /* get list of unique assets used */
     const assetsUsedList = [
@@ -155,14 +147,19 @@ export const useDashboardHelpers = () => {
         ...strategyPositions.map((p) => p.baseId),
       ]),
     ];
+
     /* update asset pair if they don't exist already */
-    assetsUsedList.forEach(async (asset: string) => {
-      !pairMap.has(USDC + asset) && updateAssetPair(USDC, asset);
-      !pairMap.has(WETH + asset) && updateAssetPair(WETH, asset);
-    });
+    assetsUsedList
+      .filter((id: string) => id !== USDC && id !== WETH)
+      .forEach(async (assetId: string) => {
+        // setAssetId(assetId);
+        // const ETHRates = await getPairInfo(ETH, assetId);
+        // !pairMap.has(WETH + assetId) && ETHRates && pairMap.set(WETH + assetId, ETHRates);
+        // !pairMap.has(USDC + assetId) && USDCRates && pairMap.set(USDC + assetId, USDCRates);
+      });
   }, [lendPositions, strategyPositions, vaultPositions]);
 
-  /* everytime the pairmap changes, get the  new values / totals */
+  /* Everytime the pairmap changes, get the  new values/totals */
   useEffect(() => {
     /* calc total debt */
     const _debts = vaultPositions.map((position) =>
@@ -181,8 +178,10 @@ export const useDashboardHelpers = () => {
     setTotalCollateral(
       cleanValue(_collateral.reduce((sum, collateral) => sum + collateral, 0).toFixed(), currencySettingDigits)
     );
+  }, [convertValue, currencySettingAssetId, pairMap, vaultPositions]);
 
-    /* calc total collateral */
+  useEffect(() => {
+    /* calc total lending */
     const _lendBalances = lendPositions.map((position) =>
       pairMap.has(currencySettingAssetId + position.baseId)
         ? convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
@@ -191,17 +190,20 @@ export const useDashboardHelpers = () => {
     setTotalLendBalance(
       cleanValue(_lendBalances.reduce((sum, lent) => sum + lent, 0).toFixed(), currencySettingDigits)
     );
+  }, [convertValue, currencySettingAssetId, lendPositions, pairMap]);
 
-    /* calc total collateral */
+  useEffect(() => {
+    /* calc total strategies */
     const _strategyBalances = strategyPositions.map((position) =>
       pairMap.has(currencySettingAssetId + position.baseId)
         ? convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
         : 0
     );
     setTotalStrategyBalance(
-      cleanValue(_strategyBalances.reduce((sum, loaned) => sum + loaned, 0).toString(), currencySettingDigits)
+      cleanValue(_strategyBalances.reduce((sum, val) => sum + val, 0).toString(), currencySettingDigits)
     );
-  }, [convertValue, currencySettingAssetId, lendPositions, pairMap, strategyPositions, vaultPositions]);
+
+  }, [convertValue, currencySettingAssetId, pairMap, strategyPositions]);
 
   return {
     vaultPositions,

@@ -1,6 +1,7 @@
 import { Block } from '@ethersproject/providers';
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import { ReactNode } from 'react';
+import { IChainContextActions } from '../contexts/types/chain';
 import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
@@ -56,15 +57,6 @@ export interface IHistoryContextActions {
   updateTradeHistory: (seriesList: ISeries[]) => Promise<void>;
 }
 
-export interface IChainContextActions {
-  connect: (connection: string) => void;
-  disconnect: () => void;
-  isConnected: (connection: string) => void;
-  useTenderly: (shouldUse: boolean) => void;
-
-  exportContractAddresses: () => void;
-}
-
 export interface IPriceContextState {
   pairMap: Map<string, IAssetPair>;
   pairLoading: string[];
@@ -79,81 +71,12 @@ export interface IPriceContext {
   priceActions: IPriceContextActions;
 }
 
-export interface IUserContext {
-  userState: IUserContextState;
-  userActions: IUserContextActions;
-}
-
-export interface IUserContextState {
-  userLoading: boolean;
-  activeAccount: string | null;
-
-  assetMap: Map<string, IAsset>;
-  seriesMap: Map<string, ISeries>;
-  vaultMap: Map<string, IVault>;
-  strategyMap: Map<string, IStrategy>;
-
-  vaultsLoading: boolean;
-  seriesLoading: boolean;
-  assetsLoading: boolean;
-  strategiesLoading: boolean;
-
-  selectedSeries: ISeries | null;
-  selectedIlk: IAsset | null;
-  selectedBase: IAsset | null;
-  selectedVault: IVault | null;
-  selectedStrategy: IStrategy | null;
-}
-
-export interface IUserContextActions {
-  updateVaults: (vaultList: IVault[]) => void;
-  updateSeries: (seriesList: ISeries[]) => void;
-  updateAssets: (assetList: IAsset[]) => void;
-  updateStrategies: (strategyList: IStrategy[]) => void;
-
-  setSelectedSeries: (series: ISeries | null) => void;
-  setSelectedIlk: (ilk: IAsset | null) => void;
-  setSelectedBase: (base: IAsset | null) => void;
-  setSelectedVault: (vault: IVault | IDummyVault | null) => void;
-  setSelectedStrategy: (strategy: IStrategy | null) => void;
-}
-
-export interface ISettingsContext {
-  settingsState: ISettingsContextState;
-  settingsActions: { updateSetting: (setting: string, value: string | number | boolean) => void };
-}
-export interface ISettingsContextState {
-  /* User Settings ( getting from the cache first ) */
-  slippageTolerance: number;
-  darkMode: boolean;
-  autoTheme: boolean;
-  forceTransactions: boolean;
-  approvalMethod: ApprovalType;
-  approveMax: boolean;
-  disclaimerChecked: boolean;
-  powerUser: boolean;
-  diagnostics: boolean;
-  /* Token wrapping */
-  showWrappedTokens: boolean;
-  unwrapTokens: boolean;
-
-  useTenderlyFork: boolean;
-
-  /* DashSettings */
-  dashHideEmptyVaults: boolean;
-  dashHideInactiveVaults: boolean;
-  dashHideVaults: boolean;
-  dashHideLendPositions: boolean;
-  dashHidePoolPositions: boolean;
-  dashCurrency: string;
-}
-
 export interface ISignable {
   name: string;
   version: string;
   address: string;
   symbol: string;
-  tokenType: TokenType;
+  tokenType?: TokenType;
 }
 
 export interface ISeriesRoot extends ISignable {
@@ -162,6 +85,7 @@ export interface ISeriesRoot extends ISignable {
   displayNameMobile: string;
   maturity: number;
   showSeries: boolean;
+  decimals: number;
 
   fullDate: string;
   fyTokenContract: FYToken;
@@ -171,14 +95,11 @@ export interface ISeriesRoot extends ISignable {
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
+  ts: string;
+  g1: string;
+  g2: string;
 
-  startBlock: Block; // pool init block
-
-  decimals: number;
-  ts: BigNumber;
-  g1: BigNumber;
-  g2: BigNumber;
-
+  // startBlock: Block; // pool init block
   baseId: string;
 
   color: string;
@@ -186,7 +107,6 @@ export interface ISeriesRoot extends ISignable {
   startColor: string;
   endColor: string;
 
-  oppositeColor: string;
   oppStartColor: string;
   oppEndColor: string;
 
@@ -202,20 +122,24 @@ export enum TokenType {
   ERC1155_,
   ERC720_,
 }
+export enum TokenRole {
+  BASE,
+  COLLATERAL,
+}
 
 export interface IAssetStaticInfo {
   assetAddress: string;
   joinAddress: string;
 
-  tokenType: TokenType;
+  tokenType?: TokenType;
   tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
 
   name: string;
   version: string;
   symbol: string;
   decimals: number;
-  isYieldBase?: boolean;
 
+  tokenRoles: TokenRole[];
   showToken: boolean; // Display/hide the token on the UI
 
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
@@ -246,9 +170,12 @@ export interface IAssetRoot extends IAssetStaticInfo, ISignable {
   proxyId: string; // id to use throughout app when referencing an asset id; uses the unwrapped asset id when the asset is wrapped (i.e: wstETH is the proxy id for stETH)
 
   // baked in token fns
-  getBalance: (account: string) => Promise<BigNumber>;
   getAllowance: (account: string, spender: string) => Promise<BigNumber>;
   setAllowance?: (spender: string) => Promise<BigNumber | void>;
+}
+export interface IAsset extends IAssetRoot {
+  balance: BigNumber;
+  balance_: string;
 }
 
 export interface IAssetPair {
@@ -273,7 +200,7 @@ export interface IStrategyRoot extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
-  startBlock?: Block;
+  startBlock: Block;
   type: 'V1' | 'V2';
   associatedStrategy?: string;
 }
@@ -311,14 +238,12 @@ export interface ISeries extends ISeriesRoot {
   mu: BigNumber | undefined;
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
+
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
-  // startBlock?: Block;
-}
+  startBlock: Block;
 
-export interface IAsset extends IAssetRoot {
-  balance: BigNumber;
-  balance_: string;
+  // showSeries: boolean;
 }
 
 export interface IDummyVault extends IVaultRoot {}
@@ -327,6 +252,7 @@ export interface IVault extends IVaultRoot {
 
   isWitchOwner: boolean;
   hasBeenLiquidated: boolean;
+  isVaultMature: boolean;
 
   isActive: boolean;
   ink: BigNumber;
@@ -341,16 +267,14 @@ export interface IVault extends IVaultRoot {
   rate_: string;
 
   accruedArt_: string;
-  // liquidationPrice_: string;
 }
 
 export interface IStrategy extends IStrategyRoot {
-  
-  currentSeriesAddr: string;
-  currentPoolAddr: string;
-
   currentSeries: ISeries | undefined;
   active: boolean;
+  
+  currentSeriesAddr?: string;
+  currentPoolAddr?: string;
 
   initInvariant?: BigNumber;
   currentInvariant?: BigNumber;
@@ -490,8 +414,6 @@ export enum AddLiquidityType {
   BUY = 'BUY',
   BORROW = 'BORROW',
 }
-
-export enum ContractNames {}
 
 export enum YieldColors {
   SUCCESS = 'success',

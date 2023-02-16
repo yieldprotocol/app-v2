@@ -2,10 +2,11 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, ISettingsContext, IUserContext, IUserContextState, IVault } from '../../types';
+import { IAsset, ISeries, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { useAccount } from 'wagmi';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -15,12 +16,14 @@ interface IVaultFilter {
 
 function VaultPositionSelector(target: any) {
   /* STATE FROM CONTEXT */
-
   const {
     settingsState: { dashHideInactiveVaults },
-  } = useContext(SettingsContext) as ISettingsContext;
-  const { userState }: { userState: IUserContextState } = useContext(UserContext) as IUserContext;
-  const { activeAccount: account, vaultMap, selectedSeries, selectedBase } = userState;
+  } = useContext(SettingsContext);
+  const {
+    userState: { vaultMap, selectedSeries, selectedBase },
+  } = useContext(UserContext);
+
+  const { isConnected } = useAccount();
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);
@@ -31,13 +34,14 @@ function VaultPositionSelector(target: any) {
 
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
-      const _filteredVaults: IVault[] = Array.from(vaultMap.values())
-        .filter((vault: IVault) => !dashHideInactiveVaults || vault.isActive)
-        .filter((vault: IVault) => (base ? vault.baseId === base.proxyId : true))
-        .filter((vault: IVault) => (series ? vault.seriesId === series.id : true))
-        .filter((vault: IVault) => (ilk ? vault.ilkId === ilk.proxyId : true))
-        .filter((vault: IVault) => vault.baseId !== vault.ilkId)
-        .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
+      if (!vaultMap) return;
+      const _filteredVaults = Array.from(vaultMap.values())
+        .filter((vault) => !dashHideInactiveVaults || vault.isActive)
+        .filter((vault) => (base ? vault.baseId === base.proxyId : true))
+        .filter((vault) => (series ? vault.seriesId === series.id : true))
+        .filter((vault) => (ilk ? vault.ilkId === ilk.proxyId : true))
+        .filter((vault) => vault.baseId !== vault.ilkId)
+        .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
     },
@@ -46,16 +50,19 @@ function VaultPositionSelector(target: any) {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
-    const _allVaults: IVault[] = (Array.from(vaultMap.values()) as IVault[])
+    if (!vaultMap) return;
+    const _allVaults = Array.from(vaultMap.values())
       // filter out vaults that have same base and ilk (borrow and pool liquidity positions)
-      .filter((vault: IVault) => vault.baseId !== vault.ilkId)
+      .filter((vault) => vault.baseId !== vault.ilkId)
 
       // sorting by debt balance
-      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
+      .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1))
       // sorting to prioritize active vaults
       // eslint-disable-next-line no-nested-ternary
-      .sort((vaultA: IVault, vaultB: IVault) => (vaultA.isActive === vaultB.isActive ? 0 : vaultA.isActive ? -1 : 1));
+      .sort((vaultA, vaultB) => (vaultA.isActive === vaultB.isActive ? 0 : vaultA.isActive ? -1 : 1));
+
     setAllVaults(_allVaults);
+
     if (selectedBase) {
       handleFilter({ base: selectedBase, series: undefined, ilk: undefined });
     }
@@ -70,9 +77,9 @@ function VaultPositionSelector(target: any) {
 
   return (
     <>
-      {account && (
+      {isConnected && (
         <Box justify="end" fill>
-          {account && allVaults.length > 0 && (
+          {isConnected && allVaults.length > 0 && (
             <Box gap="small">
               <Box
                 animation="fadeIn"
