@@ -142,7 +142,7 @@ function Pool() {
           <StrategyPositionSelector />
         </PanelWrap>
       )}
-      
+
       <CenterPanelWrap series={selectedStrategy?.currentSeries}>
         <Box id="topsection">
           {stepPosition === 0 && (
@@ -188,7 +188,7 @@ function Pool() {
 
                 <SectionWrap
                   title={
-                    strategyMap?.size! > 0
+                    selectedBase
                       ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                           selectedBase && '-based'
                         } strategy:`
