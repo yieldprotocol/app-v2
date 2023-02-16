@@ -11,11 +11,11 @@ export interface AssetStaticInfo {
   showToken: boolean; // Display/hide the token on the UI
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
 
-  tokenRoles: TokenRole[]
+  tokenRoles: TokenRole[];
 
   // optionals
   // isYieldBase?: boolean;
-  
+
   tokenIdentifier?: number | string; // used for identifying tokens in a multitoken contract
   displaySymbol?: string; // override for symbol display
   limitToSeries?: string[];
@@ -123,7 +123,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 6,
         tokenType: TokenType.ERC20_Permit,
-        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [
@@ -257,7 +257,6 @@ ASSETS.set(
         tokenType: TokenType.ERC20_,
         limitToSeries: [],
         tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
-
       },
     ],
     [
