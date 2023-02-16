@@ -6,6 +6,8 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import { ZERO_BN } from '../utils/constants';
 import { useNetwork } from 'wagmi';
+import { Chain } from '@rainbow-me/rainbowkit'
+
 
 // list of chain id's in which the banner should show
 const SHOWABLE_CHAINS = [421611, 42161];
@@ -28,12 +30,14 @@ const NetworkBanner = () => {
   const [show, setShow] = useState<boolean>(true);
   const currentChainInfo = chain;
 
+  const backgroundColor = (chain as Chain).iconBackground
+
   const ethBalance = assetMap?.get(WETH)?.balance;
 
   if (!ethBalance || !currentChainInfo || (ethBalance && ethBalance.gt(ZERO_BN))) return null;
 
   return SHOWABLE_CHAINS.includes(chain.id) && show ? (
-    <StyledBox pad="small" background={{ color: chain.iconBackground, opacity: 0.9 }} round gap="small">
+    <StyledBox pad="small" background={{ color: backgroundColor, opacity: 0.9 }} round gap="small">
       <Box direction="row" justify="between">
         <Box>Yield on {chain.name}</Box>
         <Button onClick={() => setShow(false)}>
