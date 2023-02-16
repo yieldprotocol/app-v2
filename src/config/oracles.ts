@@ -86,7 +86,7 @@ daiIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(DAI, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(USDC, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(WBTC, CHAINLINK_MULTI_ORACLE);
-daiIlkOracle1.set(stETH, COMPOSITE_MULTI_ORACLE);
+daiIlkOracle1.set(stETH, CHAINLINK_MULTI_ORACLE);
 daiIlkOracle1.set(wstETH, COMPOSITE_MULTI_ORACLE);
 daiIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 daiIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
@@ -118,7 +118,7 @@ wethIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(DAI, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(USDC, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(WBTC, CHAINLINK_MULTI_ORACLE);
-wethIlkOracle1.set(stETH, COMPOSITE_MULTI_ORACLE);
+wethIlkOracle1.set(stETH, CHAINLINK_MULTI_ORACLE);
 wethIlkOracle1.set(wstETH, COMPOSITE_MULTI_ORACLE);
 wethIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 wethIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
@@ -144,7 +144,7 @@ fraxIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
 fraxIlkOracle1.set(DAI, CHAINLINK_MULTI_ORACLE);
 fraxIlkOracle1.set(USDC, CHAINLINK_MULTI_ORACLE);
 fraxIlkOracle1.set(WBTC, CHAINLINK_MULTI_ORACLE);
-fraxIlkOracle1.set(stETH, COMPOSITE_MULTI_ORACLE);
+fraxIlkOracle1.set(stETH, CHAINLINK_MULTI_ORACLE);
 fraxIlkOracle1.set(wstETH, COMPOSITE_MULTI_ORACLE);
 fraxIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 fraxIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
@@ -165,20 +165,19 @@ usdtIlkOracle1.set(WETH, CHAINLINK_MULTI_ORACLE);
 usdtIlkOracle1.set(DAI, CHAINLINK_MULTI_ORACLE);
 usdtIlkOracle1.set(USDC, CHAINLINK_MULTI_ORACLE);
 usdtIlkOracle1.set(WBTC, CHAINLINK_MULTI_ORACLE);
-usdtIlkOracle1.set(stETH, COMPOSITE_MULTI_ORACLE);
 usdtIlkOracle1.set(wstETH, COMPOSITE_MULTI_ORACLE);
 usdtIlkOracle1.set(ENS, COMPOSITE_MULTI_ORACLE);
 usdtIlkOracle1.set(LINK, CHAINLINK_MULTI_ORACLE);
 usdtIlkOracle1.set(UNI, CHAINLINK_MULTI_ORACLE);
-usdtIlkOracle1.set(MKR, COMPOSITE_MULTI_ORACLE);
-usdtIlkOracle1.set(CRAB, COMPOSITE_MULTI_ORACLE);
+usdtIlkOracle1.set(FRAX, CHAINLINK_MULTI_ORACLE);
+usdtIlkOracle1.set(RETH, COMPOSITE_MULTI_ORACLE);
 
 /* rate */
-usdtIlkOracle1.set(RATE, COMPOUND_MULTI_ORACLE);
+usdtIlkOracle1.set(RATE, ACCUMULATOR_ORACLE);
 
 CHAIN_ID_1_ASSET_ORACLE_INFO.set(USDT, usdtIlkOracle1);
 
-/* chain id 42161, 421611 (aribtrum mainnet and arbitrum rinkeby use the same oracle contracts) */
+/* chain id 42161 */
 
 // USDC base
 const usdcIlkOracle421611 = new Map<string, string>();
@@ -196,7 +195,6 @@ usdcIlkOracle421611.set(MKR, CHAINLINK_USD_ORACLE);
 
 usdcIlkOracle421611.set(RATE, ACCUMULATOR_ORACLE);
 
-// usdcIlkOracle421611.set(RATE, ACCUMLATOR_ORACLE);
 CHAIN_ID_42161_ASSET_ORACLE_INFO.set(USDC, usdcIlkOracle421611);
 
 // DAI base

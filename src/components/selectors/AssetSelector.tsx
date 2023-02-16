@@ -13,7 +13,11 @@ import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useBalances from '../../hooks/useBalances';
+
 import { TokenKind } from 'graphql/language/tokenKind';
+
+import { ORACLE_INFO } from '../../config/oracles';
+import useChainId from '../../hooks/useChainId';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -44,6 +48,8 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
+  const chainId = useChainId();
+  const oracleInfo = ORACLE_INFO.get(chainId);
 
   const {
     data: assetsBalance,
@@ -106,6 +112,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap]);
 
+
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
     if (Array.from(assetMap?.values()!).length) {
@@ -157,7 +164,9 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           icon={isModal ? <FiMoreVertical /> : <FiChevronDown />}
           onChange={({ option }: any) => handleSelect(option)}
           disabled={
-            (selectCollateral && options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
+            (false &&
+              selectCollateral &&
+              options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
             (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
           }
           size="small"
