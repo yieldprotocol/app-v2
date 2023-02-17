@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from 'react';
-import { IAsset, IAssetPair, IAssetRoot } from '../types';
+import { useContext } from 'react';
+import { IAssetPair } from '../types';
 import { BigNumber, ethers } from 'ethers';
-import useSWR, { Middleware, SWRHook } from 'swr';
-import { useAccount, useChainId } from 'wagmi';
+import useSWR from 'swr';
+import { useChainId } from 'wagmi';
 import { ChainContext } from '../contexts/ChainContext';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
@@ -20,14 +20,6 @@ export const useAssetPairs = (base?: string, collaterals: (string | undefined)[]
   const chainId = useChainId();
   const contracts = useContracts();
   const Cauldron = contracts.get(ContractNames.CAULDRON);
-
-  /* LOCAL STATE */
-  // const [_base, setBase] = useState<string| undefined>();
-  // // const [_collateral, setCollateral] = useState< ( string | undefined )[] | undefined>(collaterals);
-  // const [_collateral, setCollateral] = useState<string[]>([]);
-  // keep state up to date
-  // useEffect(()=>{ setBase(base) }, [base])
-  // useEffect(()=>{ setCollateral(collaterals) }, [collaterals])
 
   /* GET PAIR INFO */
   const getAssetPair = async ([baseId, ilkId]: [string, string]): Promise<IAssetPair | null> => {
@@ -84,7 +76,6 @@ export const useAssetPairs = (base?: string, collaterals: (string | undefined)[]
     return null;
   };
 
-
   const { data: assetPair, error } = useSWR(pairKeyFn, getAssetPair, {
     // use: [serialize],
     revalidateIfStale: false,
@@ -92,16 +83,8 @@ export const useAssetPairs = (base?: string, collaterals: (string | undefined)[]
     revalidateOnReconnect: false,
   });
 
-  // const { data: assetPairs, error: groupError } = useSWR([base, collaterals], getAssetPairGroup, {
-  //   use: [ getAllPairsMiddleWare ],
-  //   revalidateIfStale: false,
-  //   revalidateOnFocus: false,
-  //   revalidateOnReconnect: false,
-  // });
-
   return {
     assetPair,
     isLoading: !assetPair && !error,
-    // key: pairKeyFn(),
   };
 };
