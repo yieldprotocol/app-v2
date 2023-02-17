@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { IAssetPair } from '../types';
+import { useCallback, useContext, useMemo } from 'react';
+import { IAsset, IAssetPair } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWR from 'swr';
 import { useProvider } from 'wagmi';
@@ -9,13 +9,16 @@ import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-
 import useContracts, { ContractNames } from './useContracts';
 import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
 import { toast } from 'react-toastify';
+import useChainId from './useChainId';
+import { UserContext } from '../contexts/UserContext';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
-const useAssetPair = (baseId?: string, ilkId?: string) => {
+const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   /* CONTEXT STATE */
   const {
-    chainState: { assetRootMap },
-  } = useContext(ChainContext);
+    userState: { assetMap },
+  } = useContext(UserContext);
+  const chainId = useChainId();
 
   /* HOOKS */
   const provider = useProvider();
@@ -24,8 +27,8 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
 
   /* GET PAIR INFO */
   const getAssetPair = async (baseId: string, ilkId: string): Promise<IAssetPair | undefined> => {
-    const _base = assetRootMap.get(baseId);
-    const _ilk = assetRootMap.get(ilkId);
+    const _base = assetMap.get(baseId);
+    const _ilk = assetMap.get(ilkId);
 
     if (!_base || !_ilk) {
       return undefined;
@@ -75,13 +78,37 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
   };
 
   // This function is used to generate the key for the useSWR hook
-  const genKey = (baseId: string, ilkId: string) => {
-    return ['assetPair', baseId, ilkId];
-  };
+  const genKey = useCallback(
+    (baseId: string, ilkId: string) => {
+      return ['assetPair', chainId, baseId, ilkId];
+    },
+    [chainId]
+  );
 
   const { data, error } = useSWR(
     baseId && ilkId ? () => genKey(baseId, ilkId) : null,
     () => getAssetPair(baseId!, ilkId!),
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  const getSeriesEntityIlks = async () => {
+    if (!seriesId) return undefined;
+    // get cauldron addIlk events for this series id
+    const addIlkEvents = await Cauldron.queryFilter(Cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)));
+    return addIlkEvents.reduce((acc, { args: { ilkId } }) => {
+      const asset = assetMap.get(ilkId.toLowerCase());
+      if (!asset) return acc;
+      return [...acc, asset];
+    }, [] as IAsset[]);
+  };
+
+  const { data: validIlks, error: validIlksError } = useSWR(
+    seriesId ? ['seriesIlks', chainId, seriesId] : null,
+    getSeriesEntityIlks,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
@@ -94,6 +121,8 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
     error,
     isLoading: !data && !error,
     genKey,
+    validIlks,
+    validIlksLoading: !validIlks && !validIlksError,
   };
 };
 
