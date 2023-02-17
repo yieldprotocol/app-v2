@@ -20,7 +20,7 @@ import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategy
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
+import { EULER_SUPGRAPH_ENDPOINT, RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { ORACLE_INFO } from '../config/oracles';
@@ -638,12 +638,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           let rate: BigNumber;
 
           if (isVaultMature) {
-            const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-            const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
+            const rateOracleAddr = await Cauldron.lendingOracles(vault.baseId);
+            const RateOracle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider); // using compount multi here, but all rate oracles follow the same func sig methodology
 
-            const RateOracle = contracts.get(oracleName!);
             rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-            [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+            [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
             [accruedArt] = rateAtMaturity.gt(ZERO_BN)
               ? calcAccruedDebt(rate, rateAtMaturity, art)
@@ -693,7 +692,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics && console.log('Vaults updated successfully.');
       updateState({ type: UserState.VAULTS_LOADING, payload: false });
     },
-    [_getVaults, account, assetRootMap, chainId, contracts, diagnostics, isMature, seriesRootMap, useForkedEnv]
+    [_getVaults, account, assetRootMap, contracts, diagnostics, isMature, provider, seriesRootMap, useForkedEnv]
   );
 
   /**
