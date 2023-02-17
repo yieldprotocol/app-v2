@@ -35,7 +35,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
 
-  const { assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
+  const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPair, undefined);
 
   return (
