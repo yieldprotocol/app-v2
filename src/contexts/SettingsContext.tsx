@@ -1,4 +1,5 @@
 import { createContext, Dispatch, ReactNode, useEffect, useReducer } from 'react';
+import { USDC } from '../config/assets';
 import { ApprovalType } from '../types';
 import { ISettingsContextActions, ISettingsContextState, Settings, SettingsContextAction } from './types/settings';
 
@@ -42,7 +43,7 @@ const initState: ISettingsContextState = {
   dashHideVaults: false,
   dashHideLendPositions: false,
   dashHidePoolPositions: false,
-  dashCurrency: 'USDC',
+  dashCurrency: USDC,
 
   useForkedEnv: false,
   forkRpcUrl:
