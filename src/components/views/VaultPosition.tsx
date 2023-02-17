@@ -66,7 +66,7 @@ const VaultPosition = () => {
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
 
-  const { assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
+  const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { data: ilkBal } = useBalance({
     address: account,
     token: vaultIlk?.proxyId === WETH ? undefined : (vaultIlk?.address as Address),

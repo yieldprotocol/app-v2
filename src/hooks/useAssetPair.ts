@@ -8,6 +8,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts, { ContractNames } from './useContracts';
 import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
+import { toast } from 'react-toastify';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string) => {
@@ -31,9 +32,9 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
     }
 
     const [oracleAddr] = await Cauldron.spotOracles(baseId, ilkId);
-    console.log('🦄 ~ file: useAssetPair.ts:34 ~ getAssetPair ~ oracleAddr', oracleAddr);
 
     if (oracleAddr === ethers.constants.AddressZero) {
+      toast.error('No oracle set for this asset pair');
       throw new Error(`no oracle set for base: ${baseId} and ilk: ${ilkId}}`);
     }
 
@@ -78,7 +79,7 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
     return ['assetPair', baseId, ilkId];
   };
 
-  const { data: assetPair, error } = useSWR(
+  const { data, error } = useSWR(
     baseId && ilkId ? () => genKey(baseId, ilkId) : null,
     () => getAssetPair(baseId!, ilkId!),
     {
@@ -89,8 +90,9 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
   );
 
   return {
-    assetPair,
-    isLoading: !assetPair && !error,
+    data,
+    error,
+    isLoading: !data && !error,
     genKey,
   };
 };
