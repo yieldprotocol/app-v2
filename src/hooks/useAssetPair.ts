@@ -7,7 +7,6 @@ import { useProvider } from 'wagmi';
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts, { ContractNames } from './useContracts';
 import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
-import { toast } from 'react-toastify';
 import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
 
@@ -36,7 +35,6 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     const [oracleAddr] = await Cauldron.spotOracles(baseId, ilkId);
 
     if (oracleAddr === ethers.constants.AddressZero) {
-      toast.error('No oracle set for this asset pair');
       throw new Error(`no oracle set for base: ${baseId} and ilk: ${ilkId}}`);
     }
 
@@ -119,6 +117,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     data,
     error,
     isLoading: !data && !error,
+    getAssetPair,
     genKey,
     validIlks,
     validIlksLoading: !validIlks && !validIlksError,
