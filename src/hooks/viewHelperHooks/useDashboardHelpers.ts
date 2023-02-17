@@ -138,9 +138,12 @@ export const useDashboardHelpers = () => {
         try {
           pair = await getAssetPair(toAssetId, fromAssetId);
         } catch (e) {
-          console.log('trying to get USDT pair instead of USDC');
-          if (fromAssetId === USDT) return Number(value);
-          pair = await getAssetPair(USDT, fromAssetId);
+          console.log('trying to get USDT pair instead of USDC if toAssetId is USDC');
+          // check if toAsset is USDC, if not, then currency setting is ETH and this won't make sense
+          if (toAssetId === USDC) {
+            if (fromAssetId === USDT) return Number(value);
+            pair = await getAssetPair(USDT, fromAssetId);
+          }
         } finally {
           pair = undefined;
         }
