@@ -276,7 +276,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       );
 
       const newAssetsMap = updatedAssets.reduce((acc, item) => {
-        return acc.set(item.id, item);
+        return acc.set(item.id.toLowerCase(), item);
       }, new Map() as Map<string, IAsset>);
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
