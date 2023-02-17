@@ -35,13 +35,15 @@ const useFork = () => {
   }, [provider, useForkedEnv]);
 
   const fillEther = useCallback(async () => {
-    try {
-      const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
-      await (provider as any).send('tenderly_addBalance', transactionParameters);
-    } catch (e) {
-      console.log('Could not fill eth on Tenderly fork');
+    if (useForkedEnv) {
+      try {
+        const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
+        await provider.send('tenderly_addBalance', transactionParameters);
+      } catch (e) {
+        console.log('Could not fill eth on Tenderly fork');
+      }
     }
-  }, [account, provider]);
+  }, [account, provider, useForkedEnv]);
 
   const { data: forkTimestamp } = useSWRImmutable(useForkedEnv ? 'forkTimestamp' : null, getForkTimestamp);
   const { data: forkStartBlock } = useSWRImmutable(useForkedEnv ? 'forkStartBlock' : null, getForkStartBlock);
