@@ -23,7 +23,6 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT, RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
-import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import { useAccount, useProvider } from 'wagmi';
 
@@ -33,9 +32,8 @@ import useChainId from '../hooks/useChainId';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 import useFork from '../hooks/useFork';
-import { formatUnits, zeroPad } from 'ethers/lib/utils';
+import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
-import { FaBalanceScale } from 'react-icons/fa';
 
 const initState: IUserContextState = {
   userLoading: false,

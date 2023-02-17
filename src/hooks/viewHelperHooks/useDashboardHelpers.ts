@@ -9,7 +9,7 @@ import { cleanValue } from '../../utils/appUtils';
 import { DAI, USDC, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAssetPairs } from '../useAssetPair';
+import useAssetPair from '../useAssetPair';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -32,9 +32,6 @@ export const useDashboardHelpers = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const pairMap: Map<string, IAssetPair> = new Map();
   const [assetId, setAssetId] = useState<any>();
-
-  // const { assetPairs: ETHRates } = useAssetPairs(WETH, [WETH, USDC, DAI]);
-  // const { assetPairs: USDCRates } = useAssetPairs(USDC, [WETH, USDC, DAI]);
 
   const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;
   const currencySettingDigits = 2;
@@ -202,7 +199,6 @@ export const useDashboardHelpers = () => {
     setTotalStrategyBalance(
       cleanValue(_strategyBalances.reduce((sum, val) => sum + val, 0).toString(), currencySettingDigits)
     );
-
   }, [convertValue, currencySettingAssetId, pairMap, strategyPositions]);
 
   return {

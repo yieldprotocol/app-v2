@@ -38,7 +38,7 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
-import { useAssetPairs } from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
 import { useAccount, useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
@@ -66,10 +66,10 @@ const VaultPosition = () => {
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
 
-  const { assetPair } = useAssetPairs(vaultBase?.id, [vaultIlk?.id]);
+  const { assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { data: ilkBal } = useBalance({
     address: account,
-    token: vaultIlk?.proxyId === WETH ? undefined : vaultIlk?.address as Address,
+    token: vaultIlk?.proxyId === WETH ? undefined : (vaultIlk?.address as Address),
   });
 
   /* TX info (for disabling buttons) */

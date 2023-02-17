@@ -89,7 +89,7 @@ export interface ISeriesRoot extends ISignable {
 
   fullDate: string;
   fyTokenContract: FYToken;
-  
+
   poolContract: Pool;
   poolAddress: string;
   poolName: string;
@@ -111,7 +111,6 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-
 }
 
 export enum TokenType {
@@ -163,7 +162,6 @@ export interface IAssetRoot extends IAssetStaticInfo, ISignable {
 
   digitFormat: number;
   assetContract: Contract;
-  oracleContract: Contract;
 
   isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;
@@ -181,7 +179,6 @@ export interface IAsset extends IAssetRoot {
 export interface IAssetPair {
   baseId: string;
   ilkId: string;
-  oracle: string;
 
   baseDecimals: number;
   limitDecimals: number;
@@ -272,7 +269,7 @@ export interface IVault extends IVaultRoot {
 export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
   active: boolean;
-  
+
   currentSeriesAddr?: string;
   currentPoolAddr?: string;
 
@@ -302,7 +299,7 @@ export interface IStrategy extends IStrategyRoot {
 
   accountRewards?: BigNumber;
   accountRewards_?: string;
-                
+
   rewardsTokenAddress?: string;
   rewardsRate?: BigNumber;
   rewardsPeriod?: { start: number; end: number };
