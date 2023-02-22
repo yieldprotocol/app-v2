@@ -218,7 +218,7 @@ ASSETS.set(
         joinAddress: '0x403ae7384E89b086Ea2935d5fAFed07465242B38',
         version: '1',
         name: 'USDC yVault',
-        decimals: 18,
+        decimals: 6,
         symbol: 'yvUSDC',
         showToken: true,
         digitFormat: 2,
