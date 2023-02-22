@@ -84,9 +84,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
     const filteredOptions = selectCollateral
-      ? opts
-          .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
-          .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
+      ? opts.filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
       : opts
           .filter((a) => a.tokenRoles.includes(TokenRole.BASE))
           .filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId!));
@@ -124,6 +122,13 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
       setSelectedIlk(assetMap?.get(USDC) || null);
     }
   }, [assetMap, selectedBase, setSelectedIlk]);
+
+  /* make sure ilk is valid */
+  useEffect(() => {
+    if (selectCollateral && !validIlks?.map((a) => a.proxyId)?.includes(selectedIlk?.proxyId!)) {
+      setSelectedIlk(validIlks![0]);
+    }
+  }, [selectCollateral, selectedIlk?.proxyId, setSelectedIlk, validIlks]);
 
   return (
     <StyledBox
