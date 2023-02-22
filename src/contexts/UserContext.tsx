@@ -320,7 +320,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-            sharesAddress = assetRootMap.get(series.baseId)!.address;
+            sharesAddress = assetRootMap.get(series.baseId)?.address;
             diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
