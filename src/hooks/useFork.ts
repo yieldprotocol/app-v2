@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { MdNorthWest } from 'react-icons/md';
-import { useAccount, useProvider } from 'wagmi';
+import { useAccount} from 'wagmi';
 import { SettingsContext } from '../contexts/SettingsContext';
 
 const useFork = () => {
