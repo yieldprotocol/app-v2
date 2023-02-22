@@ -85,7 +85,8 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const { data: assetPair, error: assetPairError } = useAssetPair(selectedBase?.id, selectedIlk?.id);
+  const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
+  const { validIlks } = useAssetPair(undefined, undefined, selectedSeries?.id);
 
   const {
     collateralizationPercent,
@@ -262,6 +263,13 @@ const Borrow = () => {
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [borrowProcess, contracts, resetInputs, vaultToUse]);
+
+  /* make sure ilk is valid */
+  useEffect(() => {
+    if (validIlks) {
+      !validIlks.map((a) => a.proxyId)?.includes(selectedIlk?.proxyId!) && setSelectedIlk(validIlks[0]);
+    }
+  }, [selectedIlk?.proxyId, setSelectedIlk, validIlks]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">

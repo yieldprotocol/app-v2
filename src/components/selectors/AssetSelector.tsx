@@ -123,13 +123,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     }
   }, [assetMap, selectedBase, setSelectedIlk]);
 
-  /* make sure ilk is valid */
-  useEffect(() => {
-    if (selectCollateral && !validIlks?.map((a) => a.proxyId)?.includes(selectedIlk?.proxyId!)) {
-      setSelectedIlk(validIlks![0]);
-    }
-  }, [selectCollateral, selectedIlk?.proxyId, setSelectedIlk, validIlks]);
-
   return (
     <StyledBox
       fill="horizontal"
