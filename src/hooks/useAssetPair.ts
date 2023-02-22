@@ -9,6 +9,7 @@ import useContracts, { ContractNames } from './useContracts';
 import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
 import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
+import { stETH, wstETH } from '../config/assets';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
@@ -99,7 +100,11 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     return addIlkEvents.reduce((acc, { args: { ilkId } }) => {
       const asset = assetMap.get(ilkId.toLowerCase());
       if (!asset) return acc;
-      return [...acc, asset];
+
+      // handle/add stETH if wstETH; it's wrapped to wstETH by default and doesn't have an addIlk event
+      return asset.id.toLowerCase() === wstETH.toLowerCase()
+        ? [...acc, asset, assetMap.get(stETH.toLowerCase())!]
+        : [...acc, asset];
     }, [] as IAsset[]);
   };
 
