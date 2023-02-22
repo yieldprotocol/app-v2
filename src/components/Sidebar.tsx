@@ -1,40 +1,29 @@
-import { useContext, useState } from 'react';
-import { Box, Collapsible, Layer, ResponsiveContext, Tip, Text } from 'grommet';
+import { useContext } from 'react';
+import { Box,  Layer, ResponsiveContext, Tip, Text } from 'grommet';
 
-import { FiEye, FiLogOut } from 'react-icons/fi';
+import { FiEye } from 'react-icons/fi';
 import { useAccountModal } from '@rainbow-me/rainbowkit';
-
-
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import BackButton from './buttons/BackButton';
 import GeneralButton from './buttons/GeneralButton';
 import ApprovalSetting from './settings/ApprovalSetting';
 import NetworkSetting from './settings/NetworkSetting';
 import SlippageSetting from './settings/SlippageSetting';
-import ForkedEnvSetting from './settings/ForkedEnvSetting';
 import ThemeSetting from './settings/ThemeSetting';
 import UnwrapSetting from './settings/UnwrapSetting';
-import TransactionItem from './TransactionItem';
 import BoxWrap from './wraps/BoxWrap';
 import CopyWrap from './wraps/CopyWrap';
 import YieldAvatar from './YieldAvatar';
-import { useAccount, useDisconnect, useEnsName, useNetwork } from 'wagmi';
-import { TxContext } from '../contexts/TxContext';
+import { useAccount,useEnsName, useNetwork } from 'wagmi';
 import { FaWallet } from 'react-icons/fa';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
-  const [transactionsOpen, setTransactionsOpen] = useState<boolean>(false);
-
-  const {
-    txState: { transactions },
-  } = useContext(TxContext);
 
   const { chain } = useNetwork();
   const { address, connector } = useAccount();
   const { data: ensName } = useEnsName();
 
-  const { disconnect } = useDisconnect();
   const { openAccountModal } = useAccountModal();
 
   const handleResetApp = () => {
@@ -145,7 +134,6 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           <ApprovalSetting />
           <UnwrapSetting />
           <SlippageSetting />
-          {process.env.ENV === 'development' && <ForkedEnvSetting />}
         </Box>
 
         <Box pad="medium" gap="small" flex={false}>
@@ -174,28 +162,6 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
             </Tip>
           </GeneralButton>
         </Box>
-
-        {/* <Box
-          margin={{ top: 'auto' }}
-          pad="medium"
-          gap="small"
-          background="gradient-transparent"
-          round={{ size: 'xsmall', corner: 'top' }}
-        >
-          <Box align="center" direction="row" justify="between" onClick={() => setTransactionsOpen(!transactionsOpen)}>
-            <Text size="small">Recent Transactions</Text>
-            {transactionsOpen ? <FiChevronDown size="1.25rem" /> : <FiChevronUp size="1.25rem" />}
-          </Box>
-
-          <Collapsible open={transactionsOpen}>
-            {!transactions.size && <Text size="xsmall">Your transactions will appear here...</Text>}
-            <Box>
-              {[...transactions.values()].map((tx: any) => (
-                <TransactionItem tx={tx} key={tx.tx.hash} wide={true} />
-              ))}
-            </Box>
-          </Collapsible>
-        </Box> */}
       </Box>
     </Layer>
   ) : null;
