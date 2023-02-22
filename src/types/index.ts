@@ -144,8 +144,6 @@ export interface IAssetStaticInfo {
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
   displaySymbol?: string; // override for symbol display
 
-  limitToSeries?: string[];
-
   wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
   unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
   proxyId?: string;
