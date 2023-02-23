@@ -12,11 +12,12 @@ import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAccountPlus from '../useAccountPlus';
 
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, assetMap } = userState;
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
