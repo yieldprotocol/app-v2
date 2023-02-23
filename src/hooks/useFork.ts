@@ -5,14 +5,14 @@ import { SettingsContext } from '../contexts/SettingsContext';
 
 const useFork = () => {
   const {
-    settingsState: { useForkedEnv, forkRpcUrl },
+    settingsState: { useForkedEnv, forkEnvUrl },
   } = useContext(SettingsContext);
 
   const { address: account } = useAccount();
-  const provider = new ethers.providers.JsonRpcProvider(forkRpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(forkEnvUrl);
 
   /* From settings */
-  const [forkUrl, setForkUrl] = useState<string>(forkRpcUrl);
+  const [forkUrl, setForkUrl] = useState<string>(forkEnvUrl);
   const [isFork, setIsFork] = useState<boolean>(useForkedEnv);
 
   const [forkStartBlock, setForkStartBlock] = useState<number>();
@@ -56,11 +56,11 @@ const useFork = () => {
 
   useEffect(()=>{
     setIsFork(useForkedEnv);
-    setForkUrl(forkRpcUrl);
-  },[useForkedEnv, forkRpcUrl])
+    setForkUrl(forkEnvUrl);
+  },[useForkedEnv, forkEnvUrl])
 
   useEffect(()=>{
-    if (useForkedEnv && forkRpcUrl) {
+    if (useForkedEnv && forkEnvUrl) {
       getForkTimestamp();
       getForkStartBlock();
     }

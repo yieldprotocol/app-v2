@@ -1,16 +1,15 @@
-import { Box, Keyboard, Layer, Text } from 'grommet';
+import { Box, Layer, Text } from 'grommet';
 import React, { useCallback, useEffect } from 'react';
 import SupportSettings from './settings/SupportSettings';
-import ModalWrap from './wraps/ModalWrap';
 
-function SupportModal() {
+function SupportSideBar() {
   const [show, setShow] = React.useState(false);
+  
   const handleKeyPress = useCallback((event: any) => {
     if (event.altKey === true) {
       event.key === 'ß' && setShow(true);
     }
-  }, []);
-
+  }, []); 
   useEffect(() => {
     // attach the event listener
     document.addEventListener('keydown', handleKeyPress);
@@ -28,7 +27,7 @@ function SupportModal() {
           responsive={true}
           full="vertical"
           position="right"
-          style={{ minWidth: '400px', maxWidth: '400px' }}
+          style={{ minWidth: '600px', maxWidth: '600px' }}
           onClickOutside={() => setShow(false)}
           onEsc={() => setShow(false)}
         >
@@ -48,4 +47,4 @@ function SupportModal() {
   );
 }
 
-export default SupportModal;
+export default SupportSideBar;

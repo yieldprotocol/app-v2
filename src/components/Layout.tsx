@@ -8,7 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import { deepMerge } from 'grommet/utils';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { yieldTheme } from '../themes';
-import SupportModal from './SupportModal';
+import SupportModal from './SupportSideBar';
 
 // get dynaimc imports for applicable components (to account for non-ssr)
 const DynamicYieldHeader = dynamic(() => import('./Header'), { ssr: false });

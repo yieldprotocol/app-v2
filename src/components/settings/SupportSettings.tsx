@@ -1,5 +1,5 @@
-import { Box, Text, TextInput } from 'grommet';
-import { useContext } from 'react';
+import { Box, Button, Text, TextInput } from 'grommet';
+import { useContext, useState } from 'react';
 import Switch from 'react-switch';
 import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -10,12 +10,16 @@ import GeneralButton from '../buttons/GeneralButton';
 
 const SupportSettings = () => {
   const {
-    settingsState: { useForkedEnv },
+    settingsState: { useForkedEnv, forkEnvUrl, useMockedUser, mockUserAddress },
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
   const account = useAccount();
   const { fillEther } = useFork();
+
+  const [ forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
+
+  const [ mockAddressInput, setMockAddressInput] = useState<string>(mockUserAddress );
 
   const handleResetApp = () => {
     clearCachedItems([]);
@@ -39,6 +43,7 @@ const SupportSettings = () => {
             checkedIcon={false}
             onChange={(val: boolean) => {
               updateSetting(Settings.USE_FORKED_ENV, val);
+              updateSetting(Settings.FORK_ENV_URL, forkUrlInput);
               window.location.reload();
             }}
             handleDiameter={20}
@@ -51,15 +56,16 @@ const SupportSettings = () => {
             Parameter: Fork URL
           </Text>
           <TextInput
-            placeholder="Enter amount"
-            value={process.env.NEXT_PUBLIC_FORK_URL}
-            onChange={(event: any) => console.log(event)}
+            value={ forkUrlInput }
+            onChange={ (e: any) => setForkUrlInput(e.target.value)  }
             size="xsmall"
           />
         </Box>
 
-        <GeneralButton action={fillEther} background="background">
+        <GeneralButton action={()=>console.log('filling ether')} background="background"  >
+          <Button  plain disabled={!useForkedEnv} onClick={fillEther}>
           <Text size="xsmall">Action: Fill ETH on Fork</Text>
+          </Button>
         </GeneralButton>
       </Box>
 
@@ -70,13 +76,14 @@ const SupportSettings = () => {
           </Text>
           <Switch
             width={55}
-            checked={useForkedEnv}
+            checked={useMockedUser}
             offColor="#BFDBFE"
             onColor="#60A5FA"
             uncheckedIcon={false}
             checkedIcon={false}
             onChange={(val: boolean) => {
-              console.log('Mocking User');
+              updateSetting(Settings.USE_MOCKED_USER, val);
+              updateSetting(Settings.MOCK_USER_ADDRESS, mockAddressInput);
               window.location.reload();
             }}
             handleDiameter={20}
@@ -89,9 +96,8 @@ const SupportSettings = () => {
             Parameter: Mock User Address
           </Text>
           <TextInput
-            placeholder="Enter amount"
-            value={account.address}
-            onChange={(event: any) => console.log(event)}
+            value={mockAddressInput}
+            onChange={(event: any) => setMockAddressInput(event.target.value)}
             size="xsmall"
           />
         </Box>

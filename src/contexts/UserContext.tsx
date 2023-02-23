@@ -290,7 +290,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
+
     async (seriesList: ISeriesRoot[]): Promise<Map<string, ISeries>> => {
+
       updateState({ type: UserState.SERIES_LOADING, payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];
@@ -705,7 +707,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
       updateAssets(Array.from(assetRootMap.values()));
-      updateSeries(Array.from(seriesRootMap.values()));
+      // updateSeries(Array.from(seriesRootMap.values()));
       account && updateVaults();
     }
   }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateSeries, updateVaults]);
