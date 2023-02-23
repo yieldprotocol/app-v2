@@ -13,6 +13,7 @@ import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import HeaderBalances from './HeaderBalances';
 import useAccountPlus from '../hooks/useAccountPlus';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledText = styled(Text)`
   svg,
@@ -43,6 +44,8 @@ const HeaderAccount = () => {
   const { data: ethBalance } = useBalance({ address: account });
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
+  const { settingsState : {useMockedUser} } = useContext(SettingsContext);
+
   return (
     <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
@@ -59,7 +62,7 @@ const HeaderAccount = () => {
             ) : (
               <Box direction="row" align="center" gap="small">
                 <Box>
-                  <Text color="text" size="small">
+                  <Text color={ useMockedUser ? "red": "text" } size="small">
                     {ensName || abbreviateHash(account!, 5)}
                   </Text>
 
