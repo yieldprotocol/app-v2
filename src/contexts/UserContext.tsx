@@ -707,7 +707,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
       updateAssets(Array.from(assetRootMap.values()));
-      // updateSeries(Array.from(seriesRootMap.values()));
+      updateSeries(Array.from(seriesRootMap.values()));
       account && updateVaults();
     }
   }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateSeries, updateVaults]);
