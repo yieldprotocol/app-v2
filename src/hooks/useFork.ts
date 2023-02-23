@@ -2,13 +2,14 @@ import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useAccount} from 'wagmi';
 import { SettingsContext } from '../contexts/SettingsContext';
+import useAccountPlus from './useAccountPlus';
 
 const useFork = () => {
   const {
     settingsState: { useForkedEnv, forkEnvUrl },
   } = useContext(SettingsContext);
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const provider = new ethers.providers.JsonRpcProvider(forkEnvUrl);
 
   /* From settings */

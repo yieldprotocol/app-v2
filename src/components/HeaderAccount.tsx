@@ -12,6 +12,7 @@ import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import HeaderBalances from './HeaderBalances';
+import useAccountPlus from '../hooks/useAccountPlus';
 
 const StyledText = styled(Text)`
   svg,
@@ -37,18 +38,9 @@ const HeaderAccount = () => {
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
 
-  const { address: account } = useAccount({
-    onConnect({ address, connector, isReconnected }) {
-      console.log('Connected: ', { address, connector, isReconnected });
-    },
-  });
+  const { address: account } = useAccountPlus();
 
   const { data: ethBalance } = useBalance({ address: account });
-
-  const {
-    userState: { assetsLoading },
-  } = useContext(UserContext);
-
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   return (

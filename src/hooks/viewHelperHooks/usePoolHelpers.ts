@@ -21,6 +21,7 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useBalance, Address } from 'wagmi';
 import { WETH } from '../../config/assets';
+import useAccountPlus from '../useAccountPlus';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -39,7 +40,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { data: baseBalance } = useBalance({
     address: account,
     token: selectedBase?.proxyId === WETH ? undefined : (selectedBase?.address as Address),

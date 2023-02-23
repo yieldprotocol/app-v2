@@ -13,6 +13,7 @@ import { useAccount, useNetwork, useSigner } from 'wagmi';
 import useContracts, { ContractNames } from './useContracts';
 import { ISettingsContext } from '../contexts/types/settings';
 import { ChainContext } from '../contexts/ChainContext';
+import useAccountPlus from './useAccountPlus';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -32,7 +33,7 @@ export const useChain = () => {
   } = useContext(TxContext);
 
   /* wagmi connection stuff */
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
   const { data: signer, isError, isLoading } = useSigner();
   const contracts = useContracts();

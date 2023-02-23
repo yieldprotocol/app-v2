@@ -16,12 +16,13 @@ import CopyWrap from './wraps/CopyWrap';
 import YieldAvatar from './YieldAvatar';
 import { useAccount,useEnsName, useNetwork } from 'wagmi';
 import { FaWallet } from 'react-icons/fa';
+import useAccountPlus from '../hooks/useAccountPlus';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { chain } = useNetwork();
-  const { address, connector } = useAccount();
+  const { address, connector } = useAccountPlus();
   const { data: ensName } = useEnsName();
 
   const { openAccountModal } = useAccountModal();

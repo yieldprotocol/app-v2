@@ -11,6 +11,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import { cleanValue } from '../../utils/appUtils';
 import { WETH } from '../../config/assets';
+import useAccountPlus from '../useAccountPlus';
 
 export const useLendHelpers = (
   series: ISeries | null,
@@ -22,7 +23,7 @@ export const useLendHelpers = (
   } = useContext(SettingsContext);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   const { userState } = useContext(UserContext);
   const { selectedBase } = userState;
@@ -50,7 +51,7 @@ export const useLendHelpers = (
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
   const { apr: apy } = useApr(input, ActionType.LEND, series);
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { data } = useBalance({
     address: account,
     token: selectedBase?.proxyId === WETH ? undefined : selectedBase?.address as Address,

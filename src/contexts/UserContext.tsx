@@ -36,6 +36,7 @@ import useFork from '../hooks/useFork';
 import { formatUnits, zeroPad } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import { FaBalanceScale } from 'react-icons/fa';
+import useAccountPlus from '../hooks/useAccountPlus';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -138,7 +139,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const provider = useProvider();
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
 
   const { pathname } = useRouter();
 

@@ -50,7 +50,7 @@ const initState: ISettingsContextState = {
 
   /* Mock a particular user */
   useMockedUser: false,
-  mockUserAddress: '0x0000000',
+  mockUserAddress: '0x1Bd3Abb6ef058408734EA01cA81D325039cd7bcA',
 
 };
 

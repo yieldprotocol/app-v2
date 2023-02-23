@@ -4,6 +4,7 @@ import Switch from 'react-switch';
 import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { Settings } from '../../contexts/types/settings';
+import useAccountPlus from '../../hooks/useAccountPlus';
 import useFork from '../../hooks/useFork';
 import { clearCachedItems } from '../../utils/appUtils';
 import GeneralButton from '../buttons/GeneralButton';
@@ -14,7 +15,7 @@ const SupportSettings = () => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
-  const account = useAccount();
+  // const account = useAccountPlus();
   const { fillEther } = useFork();
 
   const [ forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);

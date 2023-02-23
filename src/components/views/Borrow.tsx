@@ -51,6 +51,7 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -62,7 +63,7 @@ const Borrow = () => {
   const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } = userState;
   const { setSelectedIlk } = userActions;
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
   const contracts = useContracts();
 
   /* LOCAL STATE */

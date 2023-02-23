@@ -9,7 +9,7 @@ export const useApprovalMethod = (): ApprovalType => {
     settingsState: { approvalMethod },
   } = useContext(SettingsContext);
 
-  const { connector: activeConnector, isConnected } = useAccount()
+  const { connector: activeConnector } = useAccount()
 
   const [approvalMethodToUse, setApprovalMethodToUse] = useState<ApprovalType>(ApprovalType.SIG);
 

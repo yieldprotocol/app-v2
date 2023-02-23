@@ -44,6 +44,7 @@ import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -52,7 +53,7 @@ const Lend = () => {
   const { userState } = useContext(UserContext);
   const { selectedSeries, selectedBase, seriesMap } = userState;
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);

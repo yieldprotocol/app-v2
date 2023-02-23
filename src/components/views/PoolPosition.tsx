@@ -36,6 +36,7 @@ import useStrategyReturns from '../../hooks/useStrategyReturns';
 import GeneralButton from '../buttons/GeneralButton';
 import { MdShortcut } from 'react-icons/md';
 import { ZERO_BN } from '@yield-protocol/ui-math';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -49,7 +50,7 @@ const PoolPosition = () => {
   } = useContext(UserContext);
   const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   const _selectedStrategy = selectedStrategy || strategyMap?.get((idFromUrl as string).toLowerCase());
 
