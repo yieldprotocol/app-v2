@@ -29,11 +29,11 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { useColorScheme } from '../hooks/useColorScheme';
 
 const ProviderContext = ({ children }: { children: ReactNode }) => {
-  /* bring in all the settings in case we want to use them settings up the netwrok */
+  /* bring in all the settings, in case we want to use them when setting up the network */
   const { settingsState } = useContext(SettingsContext);
   const { useForkedEnv, forkEnvUrl } = settingsState;
 
-  /* console log whether usign fored env or not */
+  /* console log whether using forked env or not */
   console.log('Using a forked env: ', useForkedEnv);
   useForkedEnv && console.log('Fork url: ', forkEnvUrl);
 
@@ -53,14 +53,10 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
         }),
       ];
 
-  // const { settingsState } = useContext(SettingsContext);
   const colorTheme = useColorScheme();
 
   // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
-  const { chains, provider } = configureChains(
-    defaultChains, // [chain.mainnet, chain.arbitrum, chain.localhost, chain.foundry],
-    [...chainConfig] // , publicProvider() ] // defaults to public if all else fails
-  );
+  const { chains, provider } = configureChains(defaultChains, [...chainConfig]);
 
   const connectors = connectorsForWallets([
     {
@@ -150,7 +146,3 @@ const myLightTheme: Theme = {
     modalMobile: '...',
   },
 };
-
-function generateColorFromAddress(address: string) {
-  throw new Error('Function not implemented.');
-}

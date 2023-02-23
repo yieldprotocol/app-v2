@@ -13,7 +13,6 @@ import SupportModal from './SupportSideBar';
 // get dynaimc imports for applicable components (to account for non-ssr)
 const DynamicYieldHeader = dynamic(() => import('./Header'), { ssr: false });
 const DynamicYieldMobileMenu = dynamic(() => import('./YieldMobileMenu'), { ssr: false });
-const DynamicNetworkBanner = dynamic(() => import('./NetworkBanner'), { ssr: false });
 const DynamicNetworkError = dynamic(() => import('./NetworkError'), { ssr: false });
 const DynamicTransactionWidget = dynamic(() => import('./TransactionWidget'), { ssr: false });
 const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ssr: false });
@@ -56,7 +55,7 @@ const Layout = ({ children }: ILayout) => {
         <Box fill background="background">
           <SupportModal />
           <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
-          <DynamicNetworkBanner />
+          <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
           <DynamicTransactionWidget />
           <DynamicNetworkError />
           <DynamicTransactionError />
