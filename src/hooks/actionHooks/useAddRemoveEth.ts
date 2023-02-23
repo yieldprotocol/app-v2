@@ -3,10 +3,11 @@ import { useAccount } from 'wagmi';
 import { ICallData, LadleActions } from '../../types';
 import { ModuleActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
+import useAccountPlus from '../useAccountPlus';
 import useContracts, { ContractNames } from '../useContracts';
 
 export const useAddRemoveEth = () => {
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const contracts = useContracts();
   const WrapEtherModuleContract = contracts.get(ContractNames.WRAP_ETHER_MODULE);
 

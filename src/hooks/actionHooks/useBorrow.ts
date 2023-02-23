@@ -18,6 +18,7 @@ import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAccountPlus from '../useAccountPlus';
 
 export const useBorrow = () => {
   const {
@@ -27,7 +28,7 @@ export const useBorrow = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const contracts = useContracts();
 
   const { refetch: refetchIlkBal } = useBalance({

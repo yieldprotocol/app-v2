@@ -15,12 +15,13 @@ import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAccountPlus from '../useAccountPlus';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const contracts = useContracts();
 
   const {

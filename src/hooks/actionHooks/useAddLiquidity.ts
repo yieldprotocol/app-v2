@@ -28,6 +28,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useChainId from '../useChainId';
+import useAccountPlus from '../useAccountPlus';
 
 export const useAddLiquidity = () => {
   const {
@@ -38,7 +39,7 @@ export const useAddLiquidity = () => {
   const { assetMap, seriesMap, selectedStrategy, selectedBase } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const chainId = useChainId();
   const contracts = useContracts();
 
