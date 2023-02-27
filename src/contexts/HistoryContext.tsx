@@ -124,7 +124,6 @@ const HistoryProvider = ({ children }: any) => {
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
           const _transferOutFilter = strategyContract.filters.Transfer(account);
 
-
           const inEventList = await strategyContract.queryFilter(_transferInFilter, 'earliest'); 
           const outEventList = await strategyContract.queryFilter(_transferOutFilter, 'earliest'); // originally 0
 

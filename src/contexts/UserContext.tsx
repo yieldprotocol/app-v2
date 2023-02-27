@@ -139,6 +139,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const provider = useProvider();
+  
   const { address: account } = useAccountPlus();
 
   const { pathname } = useRouter();
@@ -200,7 +201,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const cachedVaultList = (cachedVaults ?? []) as IVaultRoot[];
 
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
-    const lastVaultUpdate = JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
+    // get the latest available vault ( either from the local storage or from the forkStart)
+    const lastVaultUpdate = useForkedEnv ? await getForkStartBlock() : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
