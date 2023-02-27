@@ -12,6 +12,7 @@ export enum ContractNames {
   LADLE = 'Ladle',
   WRAP_ETHER_MODULE = 'WrapEtherModule',
   CONVEX_LADLE_MODULE = 'ConvexLadleModule',
+  ASSERT = 'Assert'
 }
 
 const useContracts = () => {
