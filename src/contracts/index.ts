@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccumulatorOracle } from "./AccumulatorOracle";
+export type { Assert } from "./Assert";
 export type { Cauldron } from "./Cauldron";
 export type { ChainlinkMultiOracle } from "./ChainlinkMultiOracle";
 export type { ChainlinkUSDOracle } from "./ChainlinkUSDOracle";
@@ -28,6 +29,7 @@ export type { WrapEtherModule } from "./WrapEtherModule";
 export type { YearnVaultMultiOracle } from "./YearnVaultMultiOracle";
 
 export { AccumulatorOracle__factory } from "./factories/AccumulatorOracle__factory";
+export { Assert__factory } from "./factories/Assert__factory";
 export { Cauldron__factory } from "./factories/Cauldron__factory";
 export { ChainlinkMultiOracle__factory } from "./factories/ChainlinkMultiOracle__factory";
 export { ChainlinkUSDOracle__factory } from "./factories/ChainlinkUSDOracle__factory";
