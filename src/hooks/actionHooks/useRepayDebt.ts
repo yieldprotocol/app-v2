@@ -18,6 +18,7 @@ import useContracts, { ContractNames } from '../useContracts';
 import { removeUndefined } from 'grommet/utils';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import { AssertActions, useAssert } from './useAssert';
 
 export const useRepayDebt = () => {
   const {
@@ -37,7 +38,7 @@ export const useRepayDebt = () => {
   });
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
-    token: selectedBase?.id === WETH ? undefined : selectedBase?.address as Address,
+    token: selectedBase?.id === WETH ? undefined : (selectedBase?.address as Address),
   });
 
   const { addEth, removeEth } = useAddRemoveEth();
@@ -45,6 +46,8 @@ export const useRepayDebt = () => {
   const { sign, transact } = useChain();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const chainId = useChainId();
+
+  const { assert, encodeBalanceCall } = useAssert();
 
   /**
    * REPAY FN
@@ -130,7 +133,7 @@ export const useRepayDebt = () => {
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
     const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];
 
-    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100)
+    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100);
     const permitCallData: ICallData[] = await sign(
       [
         {
@@ -154,6 +157,14 @@ export const useRepayDebt = () => {
         return ilk.unwrapHandlerAddresses?.get(chain?.id!); // if there is somethign to unwrap
       return account;
     };
+
+    /* Add in an Assert call : Ilk Balance increases by vault ilk (collateral) amount */
+    const assertCallData: ICallData[] = assert(
+      ilk.address,
+      encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
+      AssertActions.Fn.ASSERT_GE,
+      ilk.balance.add(vault.ink)
+    );
 
     const calls: ICallData[] = [
       ...permitCallData,
@@ -211,6 +222,8 @@ export const useRepayDebt = () => {
       },
       ...removeEthCallData,
       ...unwrapAssetCallData,
+
+      ...assertCallData,
     ];
     await transact(calls, txCode);
     if (selectedBase?.proxyId !== WETH) refetchBaseBal();
