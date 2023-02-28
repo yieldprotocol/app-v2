@@ -7,18 +7,18 @@ import useContracts, { ContractNames } from '../useContracts';
 
 export namespace AssertActions {
   export enum Fn {
-    ASSERT_GT = 'assertGt',
-    ASSERT_LT = 'assertLt',
-    ASSERT_EQ_REL = 'assertEqRel',
-    ASSERT_EQ_ABS = 'assertEqAbs',
-    ASSERT_GE = 'assertGe',
-    ASSERT_LE = 'assertLe',
+    ASSERT_GT = 'assertGt(address,bytes,uint)',
+    ASSERT_LT = 'assertLt(address,bytes,uint,uint256)',
+    ASSERT_EQ_REL = 'assertEqRel(address,bytes,uint,uint256)',
+    ASSERT_EQ_ABS = 'assertEqAbs(address,bytes,uint,uint256)',
+    ASSERT_GE = 'assertGe(address,bytes,uint)',
+    ASSERT_LE = 'assertLe(address,bytes,uint)',
   }
   export namespace Args {
     export type ASSERT_GT = [actualTarget: string, bytes: any, expected: BigNumberish];
     export type ASSERT_LT = [actualTarget: string, bytes: any, expected: BigNumberish];
     export type ASSERT_EQ_REL = [actualTarget: string, bytes: any, expected: BigNumberish, relative: BigNumberish];
-    export type ASSERT_EQ_ABS = [actualTarget: string, bytes: any, expected: BigNumberish];
+    export type ASSERT_EQ_ABS = [actualTarget: string, bytes: any, expected: BigNumberish, absolute: BigNumberish];
     export type ASSERT_GE = [actualTarget: string, bytes: any, expected: BigNumberish];
     export type ASSERT_LE = [actualTarget: string, bytes: any, expected: BigNumberish];
   }
@@ -30,15 +30,15 @@ export const useAssert = () => {
   const { address: account } = useAccount();
 
   const encodeBalanceCall = (address: string, tokenIdentifier: string | number | undefined = undefined) => {
-
-    const mock = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
     if (address) {
       const abi = tokenIdentifier ? erc1155ABI : erc20ABI;
       const args = tokenIdentifier ? [account, tokenIdentifier] : [account];
-      const assetContract = new Contract(address, abi);
-      return assetContract.interface.encodeFunctionData('balanceOf', args);
+      const assetContract_ = new Contract(address, abi);
+      return assetContract_.interface.encodeFunctionData('balanceOf', args);
     }
-    return '0x';
+    /* if no address provided, assume the balance is the native balance and get the users ETH balance via a multicall2 contract */
+    const contract_ = new Contract("0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",multiCallFragment);
+    return contract_.interface.encodeFunctionData('getEthBalance', [account]); // this calls the helper contract -> because we are looking for an ETH/Native balance;
   };
 
   const assert = (
@@ -50,7 +50,7 @@ export const useAssert = () => {
     return [
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [address, encodedCallBytes, expectedVal] as AssertActions.Args.ASSERT_GT,
+        args: [address, encodedCallBytes, expectedVal],
         fnName: assertFn,
         targetContract: AssertContract,
         ignoreIf: false,
@@ -61,6 +61,16 @@ export const useAssert = () => {
   /* if there is a destination 'to' then use the ladle module (wrapEtherModule) */
   return { assert, encodeBalanceCall };
 };
+
+const multiCallFragment = [
+  {
+    inputs: [{ internalType: 'address', name: 'addr', type: 'address' }],
+    name: 'getEthBalance',
+    outputs: [{ internalType: 'uint256', name: 'balance', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];
 
 const erc1155ABI = [
   {
