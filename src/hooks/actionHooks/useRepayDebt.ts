@@ -13,9 +13,8 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
+import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
-import { removeUndefined } from 'grommet/utils';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
 import { AssertActions, useAssert } from './useAssert';
@@ -168,7 +167,6 @@ export const useRepayDebt = () => {
 
     const calls: ICallData[] = [
       ...permitCallData,
-
       /* Reqd. when we have a wrappedBase */
       // ...wrapAssetCallData
 

@@ -1,5 +1,5 @@
 import { BigNumber, BigNumberish, Contract, ethers } from 'ethers';
-import { erc20ABI, useAccount } from 'wagmi';
+import { erc20ABI, useAccount, useNetwork } from 'wagmi';
 import { IAsset, ICallData, LadleActions } from '../../types';
 import { RoutedActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
@@ -29,7 +29,7 @@ export const useAssert = () => {
   const contracts = useContracts();
   const AssertContract = contracts.get(ContractNames.ASSERT);
   const { address: account } = useAccount();
-  const chainId = useChainId();
+  const {chain} = useNetwork();
 
   const encodeBalanceCall = (address: string, tokenIdentifier: string | number | undefined = undefined) => {
     if (address) {
@@ -38,8 +38,8 @@ export const useAssert = () => {
       const assetContract_ = new Contract(address, abi);
       return assetContract_.interface.encodeFunctionData('balanceOf', args);
     }
-    /* if no address provided, assume the balance is the native balance and get the users ETH balance via a multicall2 contract */
-    const contract_ = new Contract(chainId === 1 ? "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696": "0x842eC2c7D803033Edf55E478F461FC547Bc54EB2",  multiCallFragment);
+    /* if no address provided, assume the balance is the native balance and get the users ETH balance via a multical3 contract */
+    const contract_ = new Contract(chain?.contracts?.multicall3?.address!,  multiCallFragment);
     return contract_.interface.encodeFunctionData('getEthBalance', [account]); // this calls the helper contract -> because we are looking for an ETH/Native balance;
   };
 
