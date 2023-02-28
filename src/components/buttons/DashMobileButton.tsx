@@ -1,10 +1,11 @@
 import { useRouter } from 'next/router';
 import { Box, Text } from 'grommet';
 import { useAccount } from 'wagmi';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 function DashMobileButton({ transparent }: { transparent?: boolean }) {
   const router = useRouter();
-  const {isConnected} = useAccount();
+  const {isConnected} = useAccountPlus();
 
   return isConnected ? (
     <Box

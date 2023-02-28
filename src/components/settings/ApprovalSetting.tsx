@@ -5,9 +5,10 @@ import { ApprovalType } from '../../types';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAccount } from 'wagmi';
 import { Settings } from '../../contexts/types/settings';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 const AdvancedSetting = () => {
-  const { connector } = useAccount();
+  const { connector } = useAccountPlus();
 
   const {
     settingsState: { approvalMethod, approveMax, useForkedEnv },

@@ -36,6 +36,7 @@ import useFork from '../hooks/useFork';
 import { formatUnits, zeroPad } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import { FaBalanceScale } from 'react-icons/fa';
+import useAccountPlus from '../hooks/useAccountPlus';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -138,7 +139,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const provider = useProvider();
-  const { address: account } = useAccount();
+  
+  const { address: account } = useAccountPlus();
 
   const { pathname } = useRouter();
 
@@ -199,7 +201,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const cachedVaultList = (cachedVaults ?? []) as IVaultRoot[];
 
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
-    const lastVaultUpdate = JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
+    // get the latest available vault ( either from the local storage or from the forkStart)
+    const lastVaultUpdate = useForkedEnv ? await getForkStartBlock() : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
@@ -290,7 +293,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
+
     async (seriesList: ISeriesRoot[]): Promise<Map<string, ISeries>> => {
+
       updateState({ type: UserState.SERIES_LOADING, payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];

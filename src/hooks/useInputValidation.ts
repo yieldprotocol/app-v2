@@ -4,6 +4,7 @@ import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
 import { useLendHelpers } from './viewHelperHooks/useLendHelpers';
 import { ActionCodes, ISeries, IVault } from '../types';
+import useAccountPlus from './useAccountPlus';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -20,7 +21,7 @@ export const useInputValidation = (
   const _selectedBase = assetMap?.get(series?.baseId!) || selectedBase;
   const { protocolLimited } = useLendHelpers(_selectedSeries, input);
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   /* LOCAL STATE */
   const [inputError, setInputError] = useState<string | null>();

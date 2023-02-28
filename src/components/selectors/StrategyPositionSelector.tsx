@@ -9,6 +9,7 @@ import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
 import { useAccount } from 'wagmi';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 function StrategyPositionSelector() {
   /* STATE FROM CONTEXT */
@@ -16,7 +17,7 @@ function StrategyPositionSelector() {
   const { userState } = useContext(UserContext);
   const { strategyMap, selectedBase } = userState;
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   const [allPositions, setAllPositions] = useState<IStrategy[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);

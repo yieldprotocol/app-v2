@@ -14,6 +14,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useChainId from '../useChainId';
+import useAccountPlus from '../useAccountPlus';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -24,7 +25,7 @@ export const useLend = () => {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
   const { updateSeries, updateAssets } = userActions;
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const chainId = useChainId();
 
   const { refetch: refetchFyTokenBal } = useBalance({ address: account, token: selectedSeries?.address as Address });

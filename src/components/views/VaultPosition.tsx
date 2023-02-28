@@ -45,6 +45,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import { WETH } from '../../config/assets';
 import { Address } from '@wagmi/core';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -58,7 +59,7 @@ const VaultPosition = () => {
   const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
 
   const _selectedVault = vaultMap?.get(idFromUrl as string);
 

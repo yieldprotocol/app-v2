@@ -1,19 +1,19 @@
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { MdNorthWest } from 'react-icons/md';
-import { useAccount, useProvider } from 'wagmi';
+import { useAccount} from 'wagmi';
 import { SettingsContext } from '../contexts/SettingsContext';
+import useAccountPlus from './useAccountPlus';
 
 const useFork = () => {
   const {
-    settingsState: { useForkedEnv, forkRpcUrl },
+    settingsState: { useForkedEnv, forkEnvUrl },
   } = useContext(SettingsContext);
 
-  const { address: account } = useAccount();
-  const provider = new ethers.providers.JsonRpcProvider(forkRpcUrl);
+  const { address: account } = useAccountPlus();
+  const provider = new ethers.providers.JsonRpcProvider(forkEnvUrl);
 
   /* From settings */
-  const [forkUrl, setForkUrl] = useState<string>(forkRpcUrl);
+  const [forkUrl, setForkUrl] = useState<string>(forkEnvUrl);
   const [isFork, setIsFork] = useState<boolean>(useForkedEnv);
 
   const [forkStartBlock, setForkStartBlock] = useState<number>();
@@ -57,11 +57,11 @@ const useFork = () => {
 
   useEffect(()=>{
     setIsFork(useForkedEnv);
-    setForkUrl(forkRpcUrl);
-  },[useForkedEnv, forkRpcUrl])
+    setForkUrl(forkEnvUrl);
+  },[useForkedEnv, forkEnvUrl])
 
   useEffect(()=>{
-    if (useForkedEnv && forkRpcUrl) {
+    if (useForkedEnv && forkEnvUrl) {
       getForkTimestamp();
       getForkStartBlock();
     }

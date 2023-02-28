@@ -27,6 +27,7 @@ import { useAccount, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 
 import useFork from '../hooks/useFork';
+import useAccountPlus from '../hooks/useAccountPlus';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -105,7 +106,7 @@ const HistoryProvider = ({ children }: any) => {
   // const lastSeriesUpdate = startBlock || 'earliest';
   // const lastVaultUpdate = startBlock || 'earliest';
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
 
   const {
     settingsState: { diagnostics },
@@ -122,7 +123,6 @@ const HistoryProvider = ({ children }: any) => {
           const { strategyContract, id, decimals } = strategy;
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
           const _transferOutFilter = strategyContract.filters.Transfer(account);
-
 
           const inEventList = await strategyContract.queryFilter(_transferInFilter, 'earliest'); 
           const outEventList = await strategyContract.queryFilter(_transferOutFilter, 'earliest'); // originally 0

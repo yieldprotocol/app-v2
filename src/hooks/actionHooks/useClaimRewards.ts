@@ -5,11 +5,12 @@ import { UserContext } from '../../contexts/UserContext';
 import { ActionCodes, IAsset, IStrategy} from '../../types';
 
 import { useSigner, useAccount } from 'wagmi';
+import useAccountPlus from '../useAccountPlus';
 
 const useClaimRewards = (strategy: IStrategy | undefined) => {
 
   const { data: signer, isError, isLoading } = useSigner();
-  const { address:account } = useAccount();
+  const { address:account } = useAccountPlus();
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap } = userState;

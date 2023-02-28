@@ -15,6 +15,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAccountPlus from '../useAccountPlus';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -24,7 +25,7 @@ export const useClosePosition = () => {
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { refetch: refetchFyTokenBal } = useBalance({
     address: account,
     token: selectedSeries?.address as Address,
