@@ -13,7 +13,9 @@ import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ModuleActions } from '../../types/operations';
+import { AssertActions, useAssert } from './useAssert';
+
+import { ModuleActions, RoutedActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
@@ -44,6 +46,8 @@ export const useBorrow = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+
+  const { assert, encodeBalanceCall } = useAssert();
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -117,6 +121,14 @@ export const useBorrow = () => {
       txCode
     );
 
+    /* Add in an Assert call */
+    const assertCallData: ICallData[] = assert(
+      base.address,
+      encodeBalanceCall(base.address, base.tokenIdentifier),
+      AssertActions.Fn.ASSERT_GE,
+      base.balance.add(_input)
+    );
+
     /* if ETH is being borrowed, send the borrowed tokens (WETH) to ladle for unwrapping */
     const serveToAddress = () => {
       if (isEthBase) return ladleAddress;
@@ -160,7 +172,10 @@ export const useBorrow = () => {
         args: [vaultId, serveToAddress(), _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
         ignoreIf: false,
       },
+      
       ...removeEthCallData,
+
+      ...assertCallData,
     ];
 
     /* finally, handle the transaction */

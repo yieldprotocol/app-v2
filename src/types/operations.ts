@@ -95,7 +95,8 @@ export namespace RoutedActions {
     UNWRAP = 'unwrap',
 
     CHECKPOINT = 'checkpoint', // convex
-    ASSERT= 'assert'
+
+    // ASSERT = 'assert',
   }
 
   export namespace Args {
@@ -121,7 +122,7 @@ export namespace RoutedActions {
 
     export type CHECKPOINT = [vaultOwner: string];
 
-    export type ASSERT = [];
+    // export type ASSERT = [];
   }
 }
 
