@@ -4,7 +4,6 @@ import { Box, Collapsible, Layer, ResponsiveContext, Tip, Text } from 'grommet';
 import { FiEye, FiLogOut } from 'react-icons/fi';
 import { useAccountModal } from '@rainbow-me/rainbowkit';
 
-
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import BackButton from './buttons/BackButton';
 import GeneralButton from './buttons/GeneralButton';
@@ -58,7 +57,6 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
         width={mobile ? undefined : '400px'}
         background="lightBackground"
         elevation="xlarge"
-        justify="between"
         style={{ overflow: 'auto' }}
       >
         <Box flex={false}>
@@ -134,13 +132,13 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           {!mobile && (
             <Box background="gradient-transparent" flex={false}>
               <Box pad="medium" background="gradient-transparent">
-                  <NetworkSetting />
+                <NetworkSetting />
               </Box>
             </Box>
           )}
         </Box>
 
-        <Box pad="medium" gap="medium" flex={false} style={{ overflow: 'auto' }}>
+        <Box pad={{ top: 'xsmall', horizontal: 'medium' }} gap="medium" flex={false} style={{ overflow: 'auto' }}>
           <ThemeSetting />
           <ApprovalSetting />
           <UnwrapSetting />
