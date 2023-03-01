@@ -1,15 +1,17 @@
 import { ethers } from 'ethers';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 import { IAssetPair, ISeries, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
-import { DAI, USDC, WETH } from '../../config/assets';
+import { USDC, USDT, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { useAssetPairs } from '../useAssetPair';
+import useAssetPair from '../useAssetPair';
+import { unstable_serialize, useSWRConfig } from 'swr';
+import { toast } from 'react-toastify';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -20,21 +22,19 @@ interface IStrategyPosition extends IStrategy {
 }
 
 export const useDashboardHelpers = () => {
+  const { cache, mutate } = useSWRConfig();
+
   /* STATE FROM CONTEXT */
   const {
     settingsState: { dashHideEmptyVaults, dashHideInactiveVaults, dashCurrency },
   } = useContext(SettingsContext);
 
   const {
-    userState: { assetMap, vaultMap, seriesMap, strategyMap },
+    userState: { vaultMap, seriesMap, strategyMap },
   } = useContext(UserContext);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const pairMap: Map<string, IAssetPair> = new Map();
-  const [assetId, setAssetId] = useState<any>();
-
-  // const { assetPairs: ETHRates } = useAssetPairs(WETH, [WETH, USDC, DAI]);
-  // const { assetPairs: USDCRates } = useAssetPairs(USDC, [WETH, USDC, DAI]);
+  const { getAssetPair, genKey: genAssetPairKey } = useAssetPair();
 
   const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;
   const currencySettingDigits = 2;
@@ -125,85 +125,87 @@ export const useDashboardHelpers = () => {
     setStrategyPositions(_strategyPositions);
   }, [strategyMap, seriesMap, getTimeTillMaturity]);
 
-  /* get a single position's ink or art in dai or eth (input the asset id): value can be art, ink, fyToken, or pooToken balances */
+  /* get a single position's ink or art in usdc or eth (input the asset id): value can be art, ink, fyToken, or poolToken balances */
   const convertValue = useCallback(
-    (toAssetId: string = USDC, fromAssetId: string, value: string) => {
-      const pair = pairMap.get(toAssetId + fromAssetId);
-      return (
-        Number(ethers.utils.formatUnits(pair?.pairPrice || ethers.constants.Zero, pair?.baseDecimals)) * Number(value)
-      );
+    async (toAssetId: string = USDC, fromAssetId: string, value: string) => {
+      if (+value === 0) return 0;
+      if (toAssetId === fromAssetId) return Number(value);
+
+      const pairKey = unstable_serialize(genAssetPairKey(toAssetId, fromAssetId));
+      let pair = cache.get(pairKey)?.data as IAssetPair | undefined;
+
+      if (!pair) {
+        try {
+          pair = await getAssetPair(toAssetId, fromAssetId);
+        } catch (e) {
+          console.log('trying to get USDT pair instead of USDC if toAssetId is USDC');
+          // check if toAsset is USDC, if not, then currency setting is ETH and this won't make sense
+          if (toAssetId === USDC) {
+            if (fromAssetId === USDT) return Number(value);
+            pair = await getAssetPair(USDT, fromAssetId);
+          }
+        } finally {
+          pair = undefined;
+        }
+        mutate(pairKey, pair);
+      }
+
+      if (!pair) return 0;
+
+      return Number(ethers.utils.formatUnits(pair.pairPrice, pair.baseDecimals)) * Number(value);
     },
-    [pairMap]
+    [cache, genAssetPairKey, getAssetPair, mutate]
   );
 
-  /* Get pairInfo for each  */
   useEffect(() => {
-    /* get list of unique assets used */
-    const assetsUsedList = [
-      ...new Set([
-        ...vaultPositions.map((v) => v.baseId),
-        ...vaultPositions.map((v) => v.ilkId),
-        ...lendPositions.map((p) => p.baseId),
-        ...strategyPositions.map((p) => p.baseId),
-      ]),
-    ];
+    (async () => {
+      /* calc total debt */
+      const _debts = await Promise.all(
+        vaultPositions.map(async (position) =>
+          position.isActive ? await convertValue(currencySettingAssetId, position.baseId, position.accruedArt_) : 0
+        )
+      );
+      setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toFixed(), currencySettingDigits));
 
-    /* update asset pair if they don't exist already */
-    assetsUsedList
-      .filter((id: string) => id !== USDC && id !== WETH)
-      .forEach(async (assetId: string) => {
-        // setAssetId(assetId);
-        // const ETHRates = await getPairInfo(ETH, assetId);
-        // !pairMap.has(WETH + assetId) && ETHRates && pairMap.set(WETH + assetId, ETHRates);
-        // !pairMap.has(USDC + assetId) && USDCRates && pairMap.set(USDC + assetId, USDCRates);
-      });
-  }, [lendPositions, strategyPositions, vaultPositions]);
-
-  /* Everytime the pairmap changes, get the  new values/totals */
-  useEffect(() => {
-    /* calc total debt */
-    const _debts = vaultPositions.map((position) =>
-      pairMap.has(currencySettingAssetId + position.baseId) && position.isActive
-        ? convertValue(currencySettingAssetId, position.baseId, position.accruedArt_)
-        : 0
-    );
-    setTotalDebt(cleanValue(_debts.reduce((sum, debt) => sum + debt, 0).toFixed(), currencySettingDigits));
-
-    /* calc total collateral */
-    const _collateral = vaultPositions.map((position) =>
-      pairMap.has(currencySettingAssetId + position.ilkId) && position.isActive
-        ? convertValue(currencySettingAssetId, position.ilkId, position.ink_)
-        : 0
-    );
-    setTotalCollateral(
-      cleanValue(_collateral.reduce((sum, collateral) => sum + collateral, 0).toFixed(), currencySettingDigits)
-    );
-  }, [convertValue, currencySettingAssetId, pairMap, vaultPositions]);
+      /* calc total collateral */
+      const _collateral = await Promise.all(
+        vaultPositions.map(async (position) =>
+          position.isActive ? await convertValue(currencySettingAssetId, position.ilkId, position.ink_) : 0
+        )
+      );
+      setTotalCollateral(
+        cleanValue(_collateral.reduce((sum, collateral) => sum + collateral, 0).toFixed(), currencySettingDigits)
+      );
+    })();
+  }, [convertValue, currencySettingAssetId, vaultPositions]);
 
   useEffect(() => {
-    /* calc total lending */
-    const _lendBalances = lendPositions.map((position) =>
-      pairMap.has(currencySettingAssetId + position.baseId)
-        ? convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
-        : 0
-    );
-    setTotalLendBalance(
-      cleanValue(_lendBalances.reduce((sum, lent) => sum + lent, 0).toFixed(), currencySettingDigits)
-    );
-  }, [convertValue, currencySettingAssetId, lendPositions, pairMap]);
+    (async () => {
+      /* calc total lending */
+      const _lendBalances = await Promise.all(
+        lendPositions.map(
+          async (position) => await convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
+        )
+      );
+      setTotalLendBalance(
+        cleanValue(_lendBalances.reduce((sum, lent) => sum + lent, 0).toFixed(), currencySettingDigits)
+      );
+    })();
+  }, [convertValue, currencySettingAssetId, lendPositions]);
 
   useEffect(() => {
-    /* calc total strategies */
-    const _strategyBalances = strategyPositions.map((position) =>
-      pairMap.has(currencySettingAssetId + position.baseId)
-        ? convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
-        : 0
-    );
-    setTotalStrategyBalance(
-      cleanValue(_strategyBalances.reduce((sum, val) => sum + val, 0).toString(), currencySettingDigits)
-    );
-
-  }, [convertValue, currencySettingAssetId, pairMap, strategyPositions]);
+    (async () => {
+      /* calc total strategies */
+      const _strategyBalances = await Promise.all(
+        strategyPositions.map(
+          async (position) => await convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
+        )
+      );
+      setTotalStrategyBalance(
+        cleanValue(_strategyBalances.reduce((sum, val) => sum + val, 0).toString(), currencySettingDigits)
+      );
+    })();
+  }, [convertValue, currencySettingAssetId, strategyPositions]);
 
   return {
     vaultPositions,
