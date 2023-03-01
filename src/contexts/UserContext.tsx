@@ -148,6 +148,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const contracts = useContracts();
 
+  const {getForkStartBlock}  = useFork();
+
   const {
     // data: assetBalances,
     // isLoading: assetsLoading,
