@@ -21,7 +21,7 @@
 
 //   const getForkTimestamp = useCallback(async () => {
 //     if (!provider) return undefined;
-    
+
 //         try {
 //       const { timestamp } = await provider.getBlock('latest');
 //       useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
@@ -44,7 +44,7 @@
 //       }
 //     }
 //   }, [account, provider, useForkedEnv]);
-  
+
 //   const { data: forkTimestamp } = useSWRImmutable(useForkedEnv ? 'forkTimestamp' : null, getForkTimestamp);
 
 //   return {
@@ -53,16 +53,12 @@
 //     getForkTimestamp,
 //     forkTimestamp,
 //   };
-  
+
 // /** master code */
 
 // };
 
-
-
-
 // export default useFork;
-
 
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -87,12 +83,12 @@ const useFork = () => {
     try {
       const num = await (provider as any).send('tenderly_getForkBlockNumber', []);
       const sBlock = +num.toString();
-      // setForkStartBlock(sBlock);
+      setForkStartBlock(sBlock);
       console.log('Fork start block: ', sBlock);
       return sBlock;
     } catch (e) {
       console.log('Could not get tenderly start block: ', e);
-      // setForkStartBlock(undefined);
+      setForkStartBlock(undefined);
       return 0;
     }
   };
@@ -100,16 +96,16 @@ const useFork = () => {
   const getForkTimestamp = async () => {
     try {
       const { timestamp } = await provider.getBlock('latest');
-      useForkedEnv && console.log( 'Updated Forked Blockchain time: ', new Date(timestamp*1000))
-      // setForkTimestamp(timestamp);
-      return timestamp
+      useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
+      setForkTimestamp(timestamp);
+      return timestamp;
     } catch (e) {
       console.log('Error getting latest timestamp', e);
-      // setForkTimestamp(undefined);
+      setForkTimestamp(undefined);
       // return timestamp;
     }
   };
-  
+
   const fillEther = useCallback(async () => {
     try {
       const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
@@ -119,25 +115,18 @@ const useFork = () => {
     }
   }, [account]);
 
-  useEffect(()=>{
-    useForkedEnv && setForkUrl(forkEnvUrl)
-  },[useForkedEnv, forkEnvUrl])
+  useEffect(() => {
+    useForkedEnv && setForkUrl(forkEnvUrl);
+  }, [useForkedEnv, forkEnvUrl]);
 
-  useEffect(()=>{
-
+  useEffect(() => {
     if (useForkedEnv && forkEnvUrl) {
-      (async( ) => {
-        setForkTimestamp( await getForkTimestamp());
-        setForkStartBlock( await getForkStartBlock() );
-      })();
+      getForkTimestamp();
+      getForkStartBlock();
     }
-
-  },[useForkedEnv,forkEnvUrl])
+  }, [useForkedEnv, forkEnvUrl]);
 
   return { useForkedEnv, getForkStartBlock, fillEther, forkUrl, getForkTimestamp, forkTimestamp, forkStartBlock };
 };
 
 export default useFork;
-
-
-
