@@ -303,11 +303,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
 
-          let sharesReserves: BigNumber | undefined;
-          let c: BigNumber | undefined;
-          let mu: BigNumber | undefined;
-          let currentSharePrice: BigNumber | undefined;
-          let sharesAddress: string | undefined;
+          let sharesReserves: BigNumber;
+          let c: BigNumber|undefined;
+          let mu: BigNumber|undefined;
+          let currentSharePrice: BigNumber;
+          let sharesAddress: string;
 
           try {
             [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
@@ -320,7 +320,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-            sharesAddress = assetRootMap.get(series.baseId)?.address;
+            sharesAddress = assetRootMap.get(series.baseId)?.address!;
             diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
