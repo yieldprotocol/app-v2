@@ -48,7 +48,6 @@
 //   const { data: forkTimestamp } = useSWRImmutable(useForkedEnv ? 'forkTimestamp' : null, getForkTimestamp);
 
 //   return {
-//     isFork: useForkedEnv,
 //     fillEther,
 //     forkUrl,
 //     getForkTimestamp,
@@ -67,7 +66,6 @@
 
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { useAccount} from 'wagmi';
 import { SettingsContext } from '../contexts/SettingsContext';
 import useAccountPlus from './useAccountPlus';
 
@@ -81,7 +79,6 @@ const useFork = () => {
 
   /* From settings */
   const [forkUrl, setForkUrl] = useState<string>(forkEnvUrl);
-  const [isFork, setIsFork] = useState<boolean>(useForkedEnv);
 
   const [forkStartBlock, setForkStartBlock] = useState<number>();
   const [forkTimestamp, setForkTimestamp] = useState<number>();
@@ -123,18 +120,21 @@ const useFork = () => {
   }, [account]);
 
   useEffect(()=>{
-    setIsFork(useForkedEnv);
-    setForkUrl(forkEnvUrl);
+    useForkedEnv && setForkUrl(forkEnvUrl)
   },[useForkedEnv, forkEnvUrl])
 
   useEffect(()=>{
-    if (useForkedEnv && forkEnvUrl) {
-      getForkTimestamp();
-      getForkStartBlock();
-    }
-  },[])
 
-  return { isFork, getForkStartBlock, fillEther, forkUrl, getForkTimestamp, forkTimestamp, forkStartBlock };
+    if (useForkedEnv && forkEnvUrl) {
+      (async( ) => {
+        setForkTimestamp( await getForkTimestamp());
+        setForkStartBlock( await getForkStartBlock() );
+      })();
+    }
+
+  },[useForkedEnv,forkEnvUrl])
+
+  return { useForkedEnv, getForkStartBlock, fillEther, forkUrl, getForkTimestamp, forkTimestamp, forkStartBlock };
 };
 
 export default useFork;

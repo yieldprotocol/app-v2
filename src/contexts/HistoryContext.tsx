@@ -26,8 +26,8 @@ import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contract
 import { useAccount, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 
-import useFork from '../hooks/useFork';
 import useAccountPlus from '../hooks/useAccountPlus';
+import useFork from '../hooks/useFork';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -93,15 +93,15 @@ const HistoryProvider = ({ children }: any) => {
   const { chainState } = useContext(ChainContext);
   const { seriesRootMap, assetRootMap } = chainState;
 
-  const {
-    settingsState: { useForkedEnv },
-  } = useContext(SettingsContext);
+  // const {
+  //   settingsState: { useForkedEnv, forkStartBlock },
+  // } = useContext( SettingsContext );
+
+  const { useForkedEnv, forkStartBlock } = useFork();
 
   const provider = useProvider();
   const contracts = useContracts();
-
   const [historyState, updateState] = useReducer(historyReducer, initState);
-
   const { address: account } = useAccountPlus();
 
   const {
@@ -286,6 +286,7 @@ const HistoryProvider = ({ children }: any) => {
             tradeHistMap.set(seriesId, tradeLogs);
           })
         ));
+      
       updateState({ type: HistoryState.TRADE_HISTORY, payload: tradeHistMap });
       diagnostics &&
         console.log(
