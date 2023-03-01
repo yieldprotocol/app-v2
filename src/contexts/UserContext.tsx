@@ -374,7 +374,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const gmFilter = series.poolContract.filters.gm();
             const gm = await series.poolContract.queryFilter(gmFilter);
             poolStartBlock = await gm[0].getBlock();
-            console.log('poolStartBlock:', poolStartBlock.number);
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
           } catch (e) {
