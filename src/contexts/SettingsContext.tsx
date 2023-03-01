@@ -1,4 +1,5 @@
 import { createContext, Dispatch, ReactNode, useEffect, useReducer } from 'react';
+import { USDC } from '../config/assets';
 import { ApprovalType } from '../types';
 import { ISettingsContextActions, ISettingsContextState, Settings, SettingsContextAction } from './types/settings';
 
@@ -42,11 +43,11 @@ const initState: ISettingsContextState = {
   dashHideVaults: false,
   dashHideLendPositions: false,
   dashHidePoolPositions: false,
-  dashCurrency: 'USDC',
+  dashCurrency: USDC,
 
   useForkedEnv: false,
   forkRpcUrl:
-    process.env.REACT_APP_DEFAULT_FORK_RPC_URL || process.env.REACT_APP_LOCALHOST_RPC_URL || 'http://127.0.0.1:8545', //  'https://rpc.tenderly.co/fork/4dd2a1bc-1745-49a7-ba5f-8912eb7a04a0',
+    process.env.REACT_APP_DEFAULT_FORK_RPC_URL || process.env.REACT_APP_LOCALHOST_RPC_URL || 'http://127.0.0.1:8545',
 };
 
 const initActions: ISettingsContextActions = {
