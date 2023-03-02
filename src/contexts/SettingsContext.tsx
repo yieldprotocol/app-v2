@@ -41,7 +41,7 @@ const initState: ISettingsContextState = {
   /* development settings */
 
   /* Always force transctions to the chain -> even if they will likely fail */
-  forceTransactions: false,
+  forceTransactions: true,
   /* Show diagnostic messages in the console */
   diagnostics: false,
   /* use a forked network */
