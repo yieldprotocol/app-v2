@@ -44,7 +44,7 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
-import { useAssetPairs } from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
 import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
@@ -70,12 +70,6 @@ const Borrow = () => {
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [stepPosition, setStepPosition] = useState<number>(0);
 
-  // renderId for user flow traking (analytics)
-  // const [renderId, setRenderId] = useState<string>();
-  // useEffect(() => {
-  //   setRenderId(new Date().getTime().toString(36));
-  // }, []);
-
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
 
@@ -92,7 +86,8 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
-  const { assetPair } = useAssetPairs(selectedBase?.id, [selectedIlk?.id]);
+  const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
+  const { validIlks } = useAssetPair(undefined, undefined, selectedSeries?.id);
 
   const {
     collateralizationPercent,
@@ -269,6 +264,13 @@ const Borrow = () => {
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [borrowProcess, contracts, resetInputs, vaultToUse]);
+
+  /* make sure ilk is valid */
+  useEffect(() => {
+    if (validIlks) {
+      !validIlks.map((a) => a.proxyId)?.includes(selectedIlk?.proxyId!) && setSelectedIlk(validIlks[0]);
+    }
+  }, [selectedIlk?.proxyId, setSelectedIlk, validIlks]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">

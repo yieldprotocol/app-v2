@@ -36,7 +36,6 @@ const initState: IChainContextState = {
   assetRootMap: new Map<string, IAssetRoot>(),
   seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
-
 };
 
 const initActions: IChainContextActions = {
@@ -69,7 +68,7 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
     case ChainState.ADD_ASSET:
       return {
         ...state,
-        assetRootMap: new Map(state.assetRootMap.set(action.payload.id, action.payload)),
+        assetRootMap: new Map(state.assetRootMap.set(action.payload.id.toLowerCase(), action.payload)),
       };
 
     case ChainState.ADD_STRATEGY:
@@ -154,7 +153,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const _getAssets = async (chain: number) => {
-    
     /* handle caching */
     const cacheKey = `assets_${chain}`;
     const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
@@ -380,7 +378,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
           console.log('Error getting Yield Protocol data.');
         })
         .finally(() => {
-          console.log( 'Yield Protocol Loaded : ', chainId )
+          console.log('Yield Protocol Loaded : ', chainId);
           updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
         });
     },
@@ -398,7 +396,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       location.reload();
     }
     setLastAppVersion(process.env.REACT_APP_VERSION);
-  }, [ lastAppVersion ]);
+  }, [lastAppVersion]);
 
   /* Hande getting protocol data on first load */
   useEffect(() => {

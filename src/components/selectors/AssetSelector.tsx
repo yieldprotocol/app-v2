@@ -12,6 +12,7 @@ import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useAssetPair from '../../hooks/useAssetPair';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -42,6 +43,8 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
+
+  const { validIlks, validIlksLoading } = useAssetPair(undefined, undefined, selectedSeries?.id);
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -77,21 +80,26 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = Array.from(assetMap.values())
-      .filter((a) => a?.showToken) // filter based on whether wrapped tokens are shown or not
+    const opts = (selectCollateral ? validIlks! : Array.from(assetMap.values()))
+      .filter((a) => a.showToken)
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
     const filteredOptions = selectCollateral
-      ? opts
-          .filter((a) => a.tokenRoles.includes(TokenRole.COLLATERAL)) // filter based on whether wrapped tokens are shown or not
-          .filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
-          .filter((a) => (a.limitToSeries?.length ? a.limitToSeries.includes(selectedSeries!.id) : true)) // if there is a limitToSeries list (length > 0 ) then only show asset if list has the seriesSelected.
-      : opts.filter((a) => a.tokenRoles.includes(TokenRole.BASE)).filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId));
+      ? opts.filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
+      : opts
+          .filter((a) => a.tokenRoles.includes(TokenRole.BASE))
+          .filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId!));
 
     setOptions(filteredOptions);
-
-  }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap]);
-
+  }, [
+    selectCollateral,
+    selectedBase?.proxyId,
+    selectedSeries,
+    showWrappedTokens,
+    assetMap,
+    validIlks,
+    validIlksLoading,
+  ]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {

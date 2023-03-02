@@ -20,10 +20,9 @@ import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategy
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { EULER_SUPGRAPH_ENDPOINT, ZERO_BN } from '../utils/constants';
+import { EULER_SUPGRAPH_ENDPOINT, RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
-import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import { useAccount, useProvider } from 'wagmi';
 
@@ -33,10 +32,11 @@ import useChainId from '../hooks/useChainId';
 import useContracts, { ContractNames } from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 import useFork from '../hooks/useFork';
-import { formatUnits, zeroPad } from 'ethers/lib/utils';
+import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import { FaBalanceScale } from 'react-icons/fa';
 import useAccountPlus from '../hooks/useAccountPlus';
+
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -145,9 +145,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { pathname } = useRouter();
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-  const { getForkStartBlock } = useFork();
 
   const contracts = useContracts();
+
+  const {getForkStartBlock}  = useFork();
 
   const {
     // data: assetBalances,
@@ -281,7 +282,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       );
 
       const newAssetsMap = updatedAssets.reduce((acc, item) => {
-        return acc.set(item.id, item);
+        return acc.set(item.id.toLowerCase(), item);
       }, new Map() as Map<string, IAsset>);
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
@@ -311,11 +312,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             series.fyTokenContract.balanceOf(series.poolAddress),
           ]);
 
-          let sharesReserves: BigNumber | undefined;
-          let c: BigNumber | undefined;
-          let mu: BigNumber | undefined;
-          let currentSharePrice: BigNumber | undefined;
-          let sharesAddress: string | undefined;
+          let sharesReserves: BigNumber;
+          let c: BigNumber|undefined;
+          let mu: BigNumber|undefined;
+          let currentSharePrice: BigNumber;
+          let sharesAddress: string;
 
           try {
             [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
@@ -328,7 +329,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           } catch (error) {
             sharesReserves = baseReserves;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-            sharesAddress = assetRootMap.get(series.baseId)!.address;
+            sharesAddress = assetRootMap.get(series.baseId)?.address!;
             diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
           }
 
@@ -382,7 +383,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const gmFilter = series.poolContract.filters.gm();
             const gm = await series.poolContract.queryFilter(gmFilter);
             poolStartBlock = await gm[0].getBlock();
-            console.log('poolStartBlock:', poolStartBlock.number);
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
           } catch (e) {
@@ -643,12 +643,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           let rate: BigNumber;
 
           if (isVaultMature) {
-            const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-            const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
+            const rateOracleAddr = await Cauldron.lendingOracles(vault.baseId);
+            const RateOracle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider); // using compount multi here, but all rate oracles follow the same func sig methodology
 
-            const RateOracle = contracts.get(oracleName!);
             rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-            [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+            [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
             [accruedArt] = rateAtMaturity.gt(ZERO_BN)
               ? calcAccruedDebt(rate, rateAtMaturity, art)
@@ -698,7 +697,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics && console.log('Vaults updated successfully.');
       updateState({ type: UserState.VAULTS_LOADING, payload: false });
     },
-    [_getVaults, account, assetRootMap, chainId, contracts, diagnostics, isMature, seriesRootMap, useForkedEnv]
+    [_getVaults, account, assetRootMap, contracts, diagnostics, isMature, provider, seriesRootMap, useForkedEnv]
   );
 
   /**

@@ -1,4 +1,5 @@
 import { createContext, Dispatch, ReactNode, useEffect, useReducer } from 'react';
+import { USDC } from '../config/assets';
 import { ApprovalType } from '../types';
 import { ISettingsContextActions, ISettingsContextState, Settings, SettingsContextAction } from './types/settings';
 
@@ -35,7 +36,7 @@ const initState: ISettingsContextState = {
   dashHideVaults: false,
   dashHideLendPositions: false,
   dashHidePoolPositions: false,
-  dashCurrency: 'USDC',
+  dashCurrency: USDC,
 
   /* development settings */
 
@@ -51,7 +52,6 @@ const initState: ISettingsContextState = {
   /* Mock a particular user */
   useMockedUser: false,
   mockUserAddress: '0x1Bd3Abb6ef058408734EA01cA81D325039cd7bcA',
-
 };
 
 const initActions: ISettingsContextActions = {
