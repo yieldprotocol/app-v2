@@ -26,6 +26,7 @@ import { useAccount, useProvider, useBalance, Address } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import { Strategy__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
+import useAccountPlus from '../useAccountPlus';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -54,7 +55,7 @@ is Mature?        N     +--------+
 export const useRemoveLiquidity = () => {
 
   const provider = useProvider();
-  const {address:account} = useAccount();
+  const {address:account} = useAccountPlus();
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;

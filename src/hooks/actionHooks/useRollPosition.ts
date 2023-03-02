@@ -13,6 +13,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
+import useAccountPlus from '../useAccountPlus';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
@@ -25,7 +26,7 @@ export const useRollPosition = () => {
   const { assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const contracts = useContracts();
 
   const {

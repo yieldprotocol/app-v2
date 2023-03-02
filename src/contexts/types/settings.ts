@@ -20,7 +20,10 @@ export enum Settings {
   DASH_CURRENCY = 'dashCurrency',
 
   USE_FORKED_ENV = 'useForkedEnv',
-  FORK_RPC_URL = 'forkRpcUrl',
+  FORK_ENV_URL = 'forkEnvUrl',
+
+  USE_MOCKED_USER = 'useMockedUser',
+  MOCK_USER_ADDRESS = 'mockUserAddress',
 }
 
 export interface ISettingsContext {
@@ -29,20 +32,21 @@ export interface ISettingsContext {
 }
 
 export interface ISettingsContextActions {
-  updateSetting: (setting: Settings, value: string | number | boolean) => void;
+  updateSetting: (setting: Settings, value: string | number | boolean ) => void;
 }
+export type SettingsContextAction = { type: Settings; payload: string | number | boolean };
 
 export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */
   slippageTolerance: number;
   darkMode: boolean;
   autoTheme: boolean;
-  forceTransactions: boolean;
+
   approvalMethod: ApprovalType;
   approveMax: boolean;
   disclaimerChecked: boolean;
   powerUser: boolean;
-  diagnostics: boolean;
+
   /* Token wrapping */
   showWrappedTokens: boolean;
   unwrapTokens: boolean;
@@ -55,8 +59,15 @@ export interface ISettingsContextState {
   dashHidePoolPositions: boolean;
   dashCurrency: string;
 
+  /* developer setttings */
+  forceTransactions: boolean;
+  diagnostics: boolean;
+
   useForkedEnv: boolean;
-  forkRpcUrl: string;
+  forkEnvUrl: string;
+
+  useMockedUser: boolean;
+  mockUserAddress: `0x${string}`;
+
 }
 
-export type SettingsContextAction = { type: Settings; payload: string | number | boolean };

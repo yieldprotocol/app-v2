@@ -17,6 +17,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
 import { useAccount } from 'wagmi';
 import { Settings } from '../../contexts/types/settings';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 const StyledBox = styled(Box)`
   * {
@@ -44,7 +45,7 @@ const Dashboard = () => {
     chainState: { chainLoaded },
   } = useContext(ChainContext);
 
-  const { address:account, isConnected } = useAccount();
+  const { address:account, isConnected } = useAccountPlus();
 
   const {
     vaultPositions,

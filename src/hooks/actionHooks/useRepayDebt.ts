@@ -17,6 +17,7 @@ import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi'
 import useContracts, { ContractNames } from '../useContracts';
 import { removeUndefined } from 'grommet/utils';
 import useChainId from '../useChainId';
+import useAccountPlus from '../useAccountPlus';
 
 export const useRepayDebt = () => {
   const {
@@ -26,7 +27,7 @@ export const useRepayDebt = () => {
   const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap, selectedIlk, selectedBase } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
