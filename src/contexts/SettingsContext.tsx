@@ -13,12 +13,8 @@ const initState: ISettingsContextState = {
   /* Set the slippage tolerance to a particular % */
   slippageTolerance: 0.001,
 
-  /* Show diagnostic messages in the console */
-  diagnostics: false,
-
   /* Color theme */
   darkMode: false,
-
   /* Set color theme based on system */
   autoTheme: true,
 
@@ -27,9 +23,6 @@ const initState: ISettingsContextState = {
 
   /* Is the user a 'power user' - future access to advanced settings/features */
   powerUser: false,
-
-  /* Always force transctions to the chain -> even if they will likely fail */
-  forceTransactions: false,
 
   /* Show wrapped tokens */
   showWrappedTokens: true,
@@ -45,9 +38,20 @@ const initState: ISettingsContextState = {
   dashHidePoolPositions: false,
   dashCurrency: USDC,
 
+  /* development settings */
+
+  /* Always force transctions to the chain -> even if they will likely fail */
+  forceTransactions: false,
+  /* Show diagnostic messages in the console */
+  diagnostics: false,
+  /* use a forked network */
   useForkedEnv: false,
-  forkRpcUrl:
+  forkEnvUrl:
     process.env.REACT_APP_DEFAULT_FORK_RPC_URL || process.env.REACT_APP_LOCALHOST_RPC_URL || 'http://127.0.0.1:8545',
+
+  /* Mock a particular user */
+  useMockedUser: false,
+  mockUserAddress: '0x1Bd3Abb6ef058408734EA01cA81D325039cd7bcA',
 };
 
 const initActions: ISettingsContextActions = {

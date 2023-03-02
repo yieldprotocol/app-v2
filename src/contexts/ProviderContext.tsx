@@ -31,11 +31,11 @@ import { useColorScheme } from '../hooks/useColorScheme';
 const ProviderContext = ({ children }: { children: ReactNode }) => {
   /* bring in all the settings, in case we want to use them when setting up the network */
   const { settingsState } = useContext(SettingsContext);
-  const { useForkedEnv, forkRpcUrl } = settingsState;
+  const { useForkedEnv, forkEnvUrl } = settingsState;
 
   /* console log whether using forked env or not */
   console.log('Using a forked env: ', useForkedEnv);
-  useForkedEnv && console.log('Fork url: ', forkRpcUrl);
+  useForkedEnv && console.log('Fork url: ', forkEnvUrl);
 
   const chainConfig = !useForkedEnv
     ? // Production environment >
@@ -48,7 +48,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
       [
         jsonRpcProvider({
           rpc: (chain) => ({
-            http: forkRpcUrl,
+            http: forkEnvUrl,
           }),
         }),
       ];

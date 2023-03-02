@@ -10,6 +10,7 @@ import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
 import { useAccount } from 'wagmi';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -21,7 +22,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   const { userState } = useContext(UserContext);
   const { seriesMap, selectedSeries, selectedBase } = userState;
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
