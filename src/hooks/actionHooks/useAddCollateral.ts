@@ -16,6 +16,7 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import { useAssert, AssertActions } from './useAssert';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -32,6 +33,8 @@ export const useAddCollateral = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
+  const { assert, encodeBalanceCall } = useAssert();
+
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
     token: selectedBase?.address as Address,
@@ -46,7 +49,7 @@ export const useAddCollateral = () => {
     const vaultId = vault?.id || BLANK_VAULT;
 
     /* set the ilk based on if a vault has been selected or it's a new vault */
-    const ilk: IAsset | null | undefined = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
+    const ilk: IAsset | null | undefined = vault ? assetMap?.get(vault.ilkId)! : selectedIlk!;
     const base: IAsset | null | undefined = vault ? assetMap?.get(vault.baseId) : selectedBase;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
@@ -59,6 +62,11 @@ export const useAddCollateral = () => {
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.proxyId!);
+    /* pour destination based on ilk/asset is an eth asset variety */
+    const pourToAddress = () => {
+      if (isEthCollateral) return ladleAddress;
+      return account;
+    };
 
     /* is convex-type collateral */
     const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
@@ -92,11 +100,13 @@ export const useAddCollateral = () => {
       selectedIlk?.proxyId
     );
 
-    /* pour destination based on ilk/asset is an eth asset variety */
-    const pourToAddress = () => {
-      if (isEthCollateral) return ladleAddress;
-      return account;
-    };
+    /* Add in an Assert call : collateral(ilk) increases by input amount */
+    const assertCallData: ICallData[] = assert(
+      ilk.address,
+      encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
+      AssertActions.Fn.ASSERT_GE,
+      ilk.balance.add(_input)
+    );
 
     /**
      * BUILD CALL DATA ARRAY
@@ -132,6 +142,9 @@ export const useAddCollateral = () => {
         args: [vaultId, pourToAddress(), _input, ethers.constants.Zero] as LadleActions.Args.POUR,
         ignoreIf: false, // never ignore
       },
+
+      /* handle any assert at end of tx */
+      ...assertCallData,
     ];
 
     /* TRANSACT */

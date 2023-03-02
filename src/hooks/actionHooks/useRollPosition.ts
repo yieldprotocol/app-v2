@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { buyBase, calculateSlippage, sellBase } from '@yield-protocol/ui-math';
+import { buyBase, calculateSlippage, sellBase, WAD_BN } from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import { AssertActions, useAssert } from './useAssert';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
@@ -35,6 +36,8 @@ export const useRollPosition = () => {
 
   const { sign, transact } = useChain();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+
+  const { assert, encodeBalanceCall } = useAssert();
 
   /**
    * Transfer fyToken to the "from" pool to sell for base, then send base to "to" pool and sell base for fyToken
@@ -115,6 +118,15 @@ export const useRollPosition = () => {
       txCode
     );
 
+    /* Add in an Assert call : new fyToken balance within 10% (up or down) of old position.  */
+    const assertCallData: ICallData[] = assert(
+      toSeries.address,
+      encodeBalanceCall(toSeries.address, undefined),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      fromSeries.fyTokenBalance!,
+      WAD_BN.mul('10') // 10% relative tolerance
+    );
+
     /* Reciever of transfer (based on maturity) the series maturity */
     const transferToAddress = () => {
       if (fromSeries.seriesIsMature) return fromSeries.address;
@@ -161,6 +173,8 @@ export const useRollPosition = () => {
         targetContract: toSeries.poolContract,
         ignoreIf: !fromSeries.seriesIsMature,
       },
+
+      ...assertCallData,
     ];
 
     const res = (await transact(calls, txCode)) as Promise<ethers.ContractReceipt | null> | void;

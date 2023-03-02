@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+import { buyBase, calculateSlippage, WAD_BN } from '@yield-protocol/ui-math';
 
 import { ETH_BASED_ASSETS } from '../../config/assets';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -16,6 +16,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import { AssertActions, useAssert } from './useAssert';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -43,6 +44,8 @@ export const useClosePosition = () => {
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+
+  const { assert, encodeBalanceCall } = useAssert();
 
   const closePosition = async (
     input: string | undefined,
@@ -80,6 +83,19 @@ export const useClosePosition = () => {
     /* if ethBase */
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
+    /* Set the transferTo address based on series maturity */
+    const transferToAddress = () => {
+      if (seriesIsMature) return address;
+      return poolAddress;
+    };
+
+    /* receiver based on whether base is ETH (- or wrapped Base) */
+    const receiverAddress = () => {
+      if (isEthBase) return ladleAddress;
+      // if ( unwrapping) return unwrapHandlerAddress;
+      return account;
+    };
+
     /* if approveMAx, check if signature is required */
     const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress!)).gte(_fyTokenValueOfInput);
 
@@ -97,18 +113,14 @@ export const useClosePosition = () => {
 
     const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
 
-    /* Set the transferTo address based on series maturity */
-    const transferToAddress = () => {
-      if (seriesIsMature) return address;
-      return poolAddress;
-    };
-
-    /* receiver based on whether base is ETH (- or wrapped Base) */
-    const receiverAddress = () => {
-      if (isEthBase) return ladleAddress;
-      // if ( unwrapping) return unwrapHandlerAddress;
-      return account;
-    };
+    /* Add in an Assert call : base Balance increases up to 10% of fyToken balance */
+    const assertCallData: ICallData[] = assert(
+      base.address,
+      encodeBalanceCall(base.address, base.tokenIdentifier),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      base.balance.add(series.fyTokenBalance!),
+      WAD_BN.mul('10') // 10% relative tolerance
+    );
 
     const calls: ICallData[] = [
       ...permitCallData,
@@ -139,6 +151,8 @@ export const useClosePosition = () => {
       },
 
       ...removeEthCallData, // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
+
+      ...assertCallData,
     ];
     await transact(calls, txCode);
     refetchBaseBal();

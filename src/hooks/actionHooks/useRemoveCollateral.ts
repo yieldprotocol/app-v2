@@ -13,6 +13,7 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import { AssertActions, useAssert } from './useAssert';
 
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -24,7 +25,7 @@ export const useRemoveCollateral = () => {
   const { refetch: refetchIlkBal } = useBalance({
     address: account,
     token: selectedIlk?.address as Address,
-  }); 
+  });
 
   const {
     historyActions: { updateVaultHistory },
@@ -34,6 +35,7 @@ export const useRemoveCollateral = () => {
   const { transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
+  const { assert, encodeBalanceCall } = useAssert();
 
   const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
     /* generate the txCode for tx tracking and tracing */
@@ -66,6 +68,14 @@ export const useRemoveCollateral = () => {
       if (unwrapCallData.length) return unwrapHandlerAddress; // if there is something to unwrap
       return account;
     };
+    
+    /* Add in an Assert call : collateral(ilk) decreases by input amount */
+    const assertCallData: ICallData[] = assert(
+      ilk.address,
+      encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
+      AssertActions.Fn.ASSERT_GE,
+      ilk.balance.sub(_input)
+    );
 
     const calls: ICallData[] = [
       /* convex-type collateral; ensure checkpoint before giving collateral back to account */
@@ -88,6 +98,8 @@ export const useRemoveCollateral = () => {
       },
       ...removeEthCallData,
       ...unwrapCallData,
+
+      ...assertCallData,
     ];
 
     await transact(calls, txCode);

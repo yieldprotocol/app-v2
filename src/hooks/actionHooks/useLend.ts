@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, MAX_256, sellBase } from '@yield-protocol/ui-math';
+import { calculateSlippage, MAX_256, sellBase, WAD_BN } from '@yield-protocol/ui-math';
 
 import { ETH_BASED_ASSETS, USDT } from '../../config/assets';
 import { HistoryContext } from '../../contexts/HistoryContext';
@@ -15,6 +15,7 @@ import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import { AssertActions, useAssert } from './useAssert';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -42,6 +43,8 @@ export const useLend = () => {
   const { addEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const contracts = useContracts();
+
+  const { assert, encodeBalanceCall } = useAssert();
 
   const lend = async (input: string | undefined, series: ISeries) => {
     /* generate the reproducible txCode for tx tracking and tracing */
@@ -90,6 +93,15 @@ export const useLend = () => {
       return [];
     };
 
+    /* Add in an Assert call : fyToken balance is 10% higher than what they inputed (as fyTokens) */
+    const assertCallData: ICallData[] = assert(
+      series.fyTokenContract.address,
+      encodeBalanceCall(series.fyTokenContract.address, undefined),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      series.fyTokenBalance!.add(_inputAsFyToken),
+      WAD_BN.mul('10') // 10% relative tolerance
+    );
+
     const calls: ICallData[] = [
       ...permitCallData,
       ...addEthCallData(),
@@ -105,6 +117,7 @@ export const useLend = () => {
         targetContract: series.poolContract,
         ignoreIf: false,
       },
+      ...assertCallData,
     ];
 
     await transact(calls, txCode);

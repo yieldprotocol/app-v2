@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, maxBaseIn, MAX_256, sellBase } from '@yield-protocol/ui-math';
+import { calculateSlippage, maxBaseIn, MAX_256, sellBase, WAD_BN } from '@yield-protocol/ui-math';
 
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
@@ -11,7 +11,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
-import { ConvexJoin__factory } from '../../contracts';
+import { Cauldron, ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
@@ -47,6 +47,7 @@ export const useRepayDebt = () => {
   const chainId = useChainId();
 
   const { assert, encodeBalanceCall } = useAssert();
+  const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
 
   /**
    * REPAY FN
@@ -157,13 +158,24 @@ export const useRepayDebt = () => {
       return account;
     };
 
-    /* Add in an Assert call : Ilk Balance increases by vault ilk (collateral) amount */
-    const assertCallData: ICallData[] = assert(
-      ilk.address,
-      encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
-      AssertActions.Fn.ASSERT_GE,
-      ilk.balance.add(vault.ink)
-    );
+    /** Add in an Assert call :
+     * - Users ilk balance increases by ilk amount> if repaying all debt AND removing all collateral
+     * - vault debt reduced by input amount > if repaying part debt
+     */
+    const assertCallData: ICallData[] = reclaimCollateral
+      ? assert(
+          ilk.address,
+          encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
+          AssertActions.Fn.ASSERT_GE,
+          ilk.balance.add(vault.ink)
+        )
+      : assert(
+          cauldron.address,
+          cauldron.interface.encodeFunctionData('balances', [vault.id]),
+          AssertActions.Fn.ASSERT_EQ_REL,
+          vault.accruedArt.sub(_input),
+          WAD_BN.mul('10') // 10% relative tolerance
+        );
 
     const calls: ICallData[] = [
       ...permitCallData,
