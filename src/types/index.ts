@@ -108,7 +108,8 @@ export interface ISeriesRoot extends ISignable {
   oppStartColor: string;
   oppEndColor: string;
 
-  apr: string;
+  borrowAPR: string;
+  lendAPR: string;
   feeAPY: string;
   poolSharesAPY: string;
   ts: string;
@@ -116,6 +117,12 @@ export interface ISeriesRoot extends ISignable {
   g2: string;
   c: string;
   mu: string;
+
+  fyTokenBalance: BigNumber;
+  fyTokenBalance_: string;
+
+  poolContract: Pool;
+  fyTokenContract: FYToken;
 }
 
 export enum TokenType {
@@ -216,18 +223,8 @@ export interface IVaultRoot {
 
 export interface ISeries extends ISeriesRoot {
   sharesReserves: BigNumber;
-  sharesReserves_: string;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
-  totalSupply: BigNumber;
-  totalSupply_: string;
-
-  poolTokens?: BigNumber | undefined;
-  poolTokens_?: string | undefined;
-  fyTokenBalance?: BigNumber | undefined;
-  fyTokenBalance_?: string | undefined;
-
-  poolPercent?: string | undefined;
 
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
