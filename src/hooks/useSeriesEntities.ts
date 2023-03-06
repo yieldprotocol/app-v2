@@ -32,10 +32,10 @@ interface GraphSeriesEntitiesRes {
         g2: string;
         mu: string;
         c: string;
-        currentSharePrice: string;
         sharesToken: string;
-        borrowAPY: number;
-        feeAPY: number;
+        borrowAPR: number;
+        lendAPR: number;
+        feeAPR: number;
       }[];
       name: string;
       decimals: number;
@@ -44,12 +44,13 @@ interface GraphSeriesEntitiesRes {
   }[];
 }
 
-export const useSeriesEntities = (seriesId?: string) => {
+export const useSeriesEntities = (seriesId: string | null | undefined) => {
   const chainId = useChainId();
   const provider = useProvider();
   const { address: account } = useAccount();
   const { subgraphUrl } = useSubgraph();
   const DEFAULT_SWR_KEY = useMemo(() => ['seriesEntities', chainId], [chainId]);
+  const seasonColorMap = [1, 4, 5, 42].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
 
   const getPoolSharesAPY = useCallback(async (sharesTokenAddr: string) => {
     const query = `
@@ -80,111 +81,121 @@ export const useSeriesEntities = (seriesId?: string) => {
     }
   }, []);
 
-  const getSeriesEntities = useCallback(
-    async (chain: number): Promise<Map<string, ISeriesRoot>> => {
-      const query = gql`
-        {
-          seriesEntities {
+  const getSeriesEntities = useCallback(async (): Promise<Map<string, ISeriesRoot>> => {
+    const query = gql`
+      {
+        seriesEntities {
+          id
+          maturity
+          matured
+          baseAsset {
             id
-            maturity
-            matured
-            baseAsset {
+            assetId
+          }
+          fyToken {
+            id
+            decimals
+            symbol
+            pools {
               id
-              assetId
-            }
-            fyToken {
-              id
-              decimals
-              symbol
-              pools {
-                id
-                ts
-                g1
-                g2
-                mu
-                c
-                currentSharePrice
-                sharesToken
-                borrowAPY
-                feeAPY
-              }
+              ts
+              g1
+              g2
+              mu
+              c
+              sharesToken
+              borrowAPR
+              lendAPR
+              feeAPR
             }
           }
         }
-      `;
-      const { seriesEntities } = await request<GraphSeriesEntitiesRes>(subgraphUrl, query);
+      }
+    `;
+    const { seriesEntities } = await request<GraphSeriesEntitiesRes>(subgraphUrl, query);
 
-      return seriesEntities.reduce(async (acc, seriesEntity) => {
-        const {
-          id,
-          maturity,
-          matured: seriesIsMature,
-          baseAsset: { assetId: baseId, id: baseAddress },
-          fyToken,
-        } = seriesEntity;
-        const { id: fyTokenAddress, decimals: fyTokenDecimals, symbol: fyTokenSymbol } = fyToken;
-        const { id: poolAddress, sharesToken, borrowAPY, feeAPY, ts, g1, g2, c, mu } = fyToken.pools[0];
-        const poolSymbol = `${fyTokenSymbol}LP`;
-        const poolVersion = '1';
-        const poolName = `${fyTokenSymbol} LP`;
+    return seriesEntities.reduce(async (acc, seriesEntity) => {
+      const {
+        id,
+        maturity,
+        matured: seriesIsMature,
+        baseAsset: { assetId: baseId, id: baseAddress },
+        fyToken,
+      } = seriesEntity;
+      const { id: fyTokenAddress, decimals: fyTokenDecimals, symbol: fyTokenSymbol } = fyToken;
+      const { id: poolAddress, sharesToken, borrowAPR, lendAPR, feeAPR, ts, g1, g2, c, mu } = fyToken.pools[0];
+      const poolSymbol = `${fyTokenSymbol}LP`;
+      const poolVersion = '1';
+      const poolName = `${fyTokenSymbol} LP`;
 
-        const seasonColorMap = [1, 4, 5, 42].includes(chain) ? ethereumColorMap : arbitrumColorMap;
-        const season = getSeason(maturity);
-        const oppSeason = (_season: SeasonType) => getSeason(maturity + 23670000);
-        const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
-        const [oppStartColor, oppEndColor] = seasonColorMap.get(oppSeason(season))!;
+      const season = getSeason(maturity);
+      const oppSeason = (_season: SeasonType) => getSeason(maturity + 23670000);
+      const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
+      const [oppStartColor, oppEndColor] = seasonColorMap.get(oppSeason(season))!;
 
-        const data: ISeriesRoot = {
-          name: poolName,
-          version: poolVersion, // TODO: should be fyToken version for signing
-          address: fyTokenAddress, // for signing
-          symbol: fyTokenSymbol,
-          id,
-          maturity,
-          seriesIsMature,
-          showSeries: true,
-          decimals: fyTokenDecimals,
+      const poolContract = Pool__factory.connect(poolAddress, provider);
+      const fyTokenContract = FYToken__factory.connect(fyTokenAddress, provider);
 
-          fullDate: format(new Date(maturity * 1000), 'dd MMMM yyyy'),
-          displayName: format(new Date(maturity * 1000), 'dd MMM yyyy'),
-          displayNameMobile: `${nameFromMaturity(maturity, 'MMM yyyy')}`,
+      let fyTokenBalance = ethers.constants.Zero;
+      if (account) {
+        fyTokenBalance = await fyTokenContract.balanceOf(account);
+      }
 
-          poolAddress,
-          poolName,
-          poolVersion,
-          poolSymbol,
+      const data: ISeriesRoot = {
+        name: poolName,
+        version: poolVersion, // TODO: should be fyToken version for signing
+        address: fyTokenAddress, // for signing
+        symbol: fyTokenSymbol,
+        id,
+        maturity,
+        seriesIsMature,
+        showSeries: true,
+        decimals: fyTokenDecimals,
 
-          baseId,
-          baseAddress,
-          sharesTokenAddress: sharesToken,
-          fyTokenAddress,
+        fullDate: format(new Date(maturity * 1000), 'dd MMMM yyyy'),
+        displayName: format(new Date(maturity * 1000), 'dd MMM yyyy'),
+        displayNameMobile: `${nameFromMaturity(maturity, 'MMM yyyy')}`,
 
-          color: `linear-gradient(${startColor}, ${endColor})`,
-          textColor,
-          startColor,
-          endColor,
+        poolAddress,
+        poolName,
+        poolVersion,
+        poolSymbol,
 
-          oppStartColor,
-          oppEndColor,
+        baseId,
+        baseAddress,
+        sharesTokenAddress: sharesToken,
+        fyTokenAddress,
 
-          apr: borrowAPY.toString(),
-          feeAPY: feeAPY.toString(),
-          poolSharesAPY: await getPoolSharesAPY(sharesToken),
+        color: `linear-gradient(${startColor}, ${endColor})`,
+        textColor,
+        startColor,
+        endColor,
 
-          ts,
-          g1,
-          g2,
-          c,
-          mu,
-        };
+        oppStartColor,
+        oppEndColor,
 
-        return (await acc).set(id, data);
-      }, Promise.resolve(new Map<string, ISeriesRoot>()));
-    },
-    [getPoolSharesAPY, subgraphUrl]
-  );
+        borrowAPR: borrowAPR.toString(),
+        lendAPR: lendAPR.toString(),
+        feeAPY: feeAPR.toString(),
+        poolSharesAPY: sharesToken === baseAddress ? '0' : await getPoolSharesAPY(sharesToken),
 
-  const { data: seriesEntities } = useSWR(DEFAULT_SWR_KEY, getSeriesEntities, {
+        ts,
+        g1,
+        g2,
+        c,
+        mu,
+        poolContract,
+        fyTokenContract,
+
+        fyTokenBalance,
+        fyTokenBalance_: formatUnits(fyTokenBalance, fyTokenDecimals),
+      };
+
+      return (await acc).set(id.toLowerCase(), data);
+    }, Promise.resolve(new Map<string, ISeriesRoot>()));
+  }, [account, getPoolSharesAPY, provider, seasonColorMap, subgraphUrl]);
+
+  const { data: seriesEntities, error: seriesEntitiesError } = useSWR(DEFAULT_SWR_KEY, getSeriesEntities, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -198,21 +209,20 @@ export const useSeriesEntities = (seriesId?: string) => {
 
   // gets a specific series entity
   const getSeriesEntity = async (seriesId: string | undefined): Promise<ISeries | undefined> => {
-    if (!seriesId) return undefined;
+    if (!seriesId || !seriesEntities) return undefined;
 
     console.log('getting series entity data for series with id: ', seriesId);
-    const seriesEntity = seriesEntities?.get(seriesId);
+    const seriesEntity = seriesEntities.get(seriesId);
 
     if (!seriesEntity) return undefined;
 
-    const poolContract = Pool__factory.connect(seriesEntity.poolAddress, provider);
-    const fyTokenContract = FYToken__factory.connect(seriesEntity.fyTokenAddress, provider);
+    const { poolContract, fyTokenContract, decimals, poolAddress } = seriesEntity;
 
-    const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
+    const [baseReserves, fyTokenReserves, fyTokenRealReserves, fyTokenBalance] = await Promise.all([
       poolContract.getBaseBalance(),
       poolContract.getFYTokenBalance(),
-      poolContract.totalSupply(),
-      fyTokenContract.balanceOf(seriesEntity.poolAddress),
+      fyTokenContract.balanceOf(poolAddress),
+      account ? fyTokenContract.balanceOf(account) : ethers.constants.Zero,
     ]);
 
     let sharesReserves: BigNumber | undefined;
@@ -225,7 +235,7 @@ export const useSeriesEntities = (seriesId?: string) => {
       ]);
     } catch (e) {
       sharesReserves = baseReserves;
-      currentSharePrice = parseUnits('1', seriesEntity.decimals);
+      currentSharePrice = parseUnits('1', decimals);
     }
 
     // convert base amounts to shares amounts (baseAmount is wad)
@@ -244,32 +254,14 @@ export const useSeriesEntities = (seriesId?: string) => {
           .div(10 ** seriesEntity.decimals)
       );
 
-    let poolTokens = ethers.constants.Zero;
-    let fyTokenBalance = ethers.constants.Zero;
-
-    if (account) {
-      [poolTokens, fyTokenBalance] = await Promise.all([
-        poolContract.balanceOf(account),
-        fyTokenContract.balanceOf(account),
-      ]);
-    }
-
     // get dynamic series entity data
     const data: ISeries = {
       ...seriesEntity,
       sharesReserves,
-      sharesReserves_: formatUnits(sharesReserves, seriesEntity.decimals),
       fyTokenReserves,
       fyTokenRealReserves,
-      totalSupply,
-      totalSupply_: formatUnits(totalSupply, seriesEntity.decimals),
-
-      poolTokens,
-      poolTokens_: formatUnits(poolTokens, seriesEntity.decimals),
       fyTokenBalance,
-      fyTokenBalance_: formatUnits(fyTokenBalance, seriesEntity.decimals),
-
-      poolPercent: mulDecimal(divDecimal(poolTokens, totalSupply), '100'),
+      fyTokenBalance_: formatUnits(fyTokenBalance, decimals),
 
       getShares,
       getBase,
@@ -287,6 +279,8 @@ export const useSeriesEntities = (seriesId?: string) => {
   return {
     seriesEntities: {
       data: seriesEntities,
+      error: seriesEntitiesError,
+      isLoading: !seriesEntities && !seriesEntitiesError,
     },
     seriesEntity: {
       data,
