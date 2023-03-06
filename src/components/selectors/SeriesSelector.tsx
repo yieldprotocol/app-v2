@@ -7,13 +7,15 @@ import styled from 'styled-components';
 
 import { maxBaseIn } from '@yield-protocol/ui-math';
 
-import { ActionType, ISeries } from '../../types';
+import { ActionType, ISeries, ISeriesRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
+import YieldMark from '../logos/YieldMark';
 
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
@@ -70,7 +72,7 @@ const AprText = ({
   color,
 }: {
   inputValue: string;
-  series: ISeries;
+  series: ISeriesRoot | ISeries;
   actionType: ActionType;
   color: string | undefined;
 }) => {
@@ -132,25 +134,25 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
-  const [localSeries, setLocalSeries] = useState<ISeries | null>();
-  const [options, setOptions] = useState<ISeries[]>([]);
+  const { selectedSeries, selectedBase, seriesLoading, selectedVault } = userState;
+  const {
+    seriesEntities: { data: seriesMap },
+  } = useSeriesEntities();
+  const [localSeries, setLocalSeries] = useState<ISeriesRoot | null>();
+  const [options, setOptions] = useState<ISeriesRoot[]>([]);
 
   const _selectedSeries = selectSeriesLocally ? localSeries : selectedSeries;
 
   /* prevent underflow */
   const _inputValue = cleanValue(inputValue, _selectedSeries?.decimals);
 
-  const optionText = (_series: ISeries | undefined) => {
-    if (_series) {
-      return `${mobile ? _series.displayNameMobile : _series.displayName}`;
-    }
-    return 'Select a maturity';
-  };
+  const optionText = (_series: ISeriesRoot) => `${mobile ? _series.displayNameMobile : _series.displayName}`;
 
-  const optionExtended = (_series: ISeries | undefined) => (
+  const optionExtended = (_series: ISeriesRoot) => (
     <Box fill="horizontal" direction="row" justify="between" gap="small" align="center">
-      <Box align="center">{_series?.seriesMark}</Box>
+      <Box align="center">
+        <YieldMark colors={[_series.startColor, _series.endColor]} />
+      </Box>
       {optionText(_series)}
       {_series?.seriesIsMature && (
         <Box round="large" border pad={{ horizontal: 'small' }}>
@@ -165,15 +167,14 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    const opts = Array.from(seriesMap?.values()!);
+    if (!seriesMap) return;
+
+    const opts = Array.from(seriesMap.values());
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts
       .filter((s) => s.showSeries)
-      .filter(
-        (_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature
-        // !ignoredSeries?.includes(_series.baseId)
-      );
+      .filter((_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature);
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {

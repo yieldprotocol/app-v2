@@ -86,21 +86,19 @@ export interface ISeriesRoot extends ISignable {
   maturity: number;
   showSeries: boolean;
   decimals: number;
+  seriesIsMature: boolean;
 
   fullDate: string;
-  fyTokenContract: FYToken;
-  
-  poolContract: Pool;
+  fyTokenAddress: string;
+
   poolAddress: string;
   poolName: string;
   poolVersion: string; // for signing
   poolSymbol: string; // for signing
-  ts: string;
-  g1: string;
-  g2: string;
 
-  // startBlock: Block; // pool init block
   baseId: string;
+  baseAddress: string;
+  sharesTokenAddress: string;
 
   color: string;
   textColor: string;
@@ -110,8 +108,14 @@ export interface ISeriesRoot extends ISignable {
   oppStartColor: string;
   oppEndColor: string;
 
-  seriesMark: ReactNode;
-
+  apr: string;
+  feeAPY: string;
+  poolSharesAPY: string;
+  ts: string;
+  g1: string;
+  g2: string;
+  c: string;
+  mu: string;
 }
 
 export enum TokenType {
@@ -211,14 +215,12 @@ export interface IVaultRoot {
 }
 
 export interface ISeries extends ISeriesRoot {
-  apr: string;
   sharesReserves: BigNumber;
   sharesReserves_: string;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
   totalSupply: BigNumber;
   totalSupply_: string;
-  sharesAddress: string;
 
   poolTokens?: BigNumber | undefined;
   poolTokens_?: string | undefined;
@@ -226,20 +228,9 @@ export interface ISeries extends ISeriesRoot {
   fyTokenBalance_?: string | undefined;
 
   poolPercent?: string | undefined;
-  poolAPY?: string;
-  seriesIsMature: boolean;
 
-  // Yieldspace TV
-  c: BigNumber | undefined;
-  mu: BigNumber | undefined;
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
-
-  currentInvariant?: BigNumber;
-  initInvariant?: BigNumber;
-  startBlock: Block;
-
-  // showSeries: boolean;
 }
 
 export interface IDummyVault extends IVaultRoot {}
@@ -268,7 +259,7 @@ export interface IVault extends IVaultRoot {
 export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
   active: boolean;
-  
+
   currentSeriesAddr?: string;
   currentPoolAddr?: string;
 
@@ -298,7 +289,7 @@ export interface IStrategy extends IStrategyRoot {
 
   accountRewards?: BigNumber;
   accountRewards_?: string;
-                
+
   rewardsTokenAddress?: string;
   rewardsRate?: BigNumber;
   rewardsPeriod?: { start: number; end: number };
