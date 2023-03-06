@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+import { buyBase, calculateSlippage, WAD_BN } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -126,8 +126,9 @@ export const useBorrow = () => {
     const assertCallData: ICallData[] = assert(
       base.address,
       encodeBalanceCall(base.address, base.tokenIdentifier),
-      AssertActions.Fn.ASSERT_GE,
-      base.balance.add(_input)
+      AssertActions.Fn.ASSERT_EQ_REL, // relative here 
+      base.balance.add(_input),
+      WAD_BN
     );
 
     /* if ETH is being borrowed, send the borrowed tokens (WETH) to ladle for unwrapping */
