@@ -53,8 +53,8 @@ const USDC_2306 = '0x0032ff00028b';
 const DAI_2306 = '0x0031ff00028b';
 const WETH_2306 = '0x0030ff00028b';
 const FRAX_2306 = '0x0138ff00028b';
-const USDT_2306 = '0x00A0FF00028B';
-const USDT_2303 = '0x00A0FF000288';
+const USDT_2306 = '0x00a0ff00028b';
+const USDT_2303 = '0x00a0ff000288';
 
 export const validateSeries = async (provider: BaseProvider, cauldronAddress: string) => {
   const preText = '### SERIES SET VALIDATION ERROR ### ';
