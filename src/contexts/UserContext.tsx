@@ -24,7 +24,7 @@ import { EULER_SUPGRAPH_ENDPOINT, RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { useAccount, useProvider } from 'wagmi';
+import { useProvider } from 'wagmi';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
@@ -34,7 +34,6 @@ import { IUserContextActions, IUserContextState, UserContextAction, UserState } 
 import useFork from '../hooks/useFork';
 import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
-import { FaBalanceScale } from 'react-icons/fa';
 import useAccountPlus from '../hooks/useAccountPlus';
 
 
@@ -601,7 +600,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[] = []) => {
-      console.log('Updating vaults...');
+      console.log('Updating vaults ...', account);
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
       let _vaults: IVaultRoot[] | undefined = vaultList;
@@ -616,6 +615,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         _vaults = await _getVaults();
       }
 
+      /* if fetching vaults fails */
       if (!_vaults) return;
 
       const updatedVaults = await Promise.all(
