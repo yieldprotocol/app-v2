@@ -114,8 +114,8 @@ export interface ISeriesRoot extends ISignable {
   ts: string;
   g1: string;
   g2: string;
-  c: string;
-  mu: string;
+  c?: string;
+  mu?: string;
 
   fyTokenBalance: BigNumber;
   fyTokenBalance_: string;

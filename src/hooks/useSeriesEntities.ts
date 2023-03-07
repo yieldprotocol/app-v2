@@ -30,8 +30,8 @@ interface GraphSeriesEntitiesRes {
         ts: string;
         g1: string;
         g2: string;
-        mu: string;
-        c: string;
+        mu: string | null;
+        c: string | null;
         sharesToken: string;
         borrowAPR: number;
         lendAPR: number;
@@ -182,8 +182,8 @@ export const useSeriesEntities = (seriesId?: string | null) => {
         ts,
         g1,
         g2,
-        c,
-        mu,
+        c: c ?? undefined,
+        mu: mu ?? undefined,
         poolContract,
         fyTokenContract,
 
