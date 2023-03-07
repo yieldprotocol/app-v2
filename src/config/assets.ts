@@ -550,6 +550,25 @@ ASSETS.set(
         tokenRoles: [TokenRole.BASE],
       },
     ],
+
+    [
+      SPCDAI2307,
+      {
+        version: '1',
+        name: '1st July 2023 cDAI Sense Principal Token, A10',
+        decimals: 8,
+        symbol: 'sP-cDAI:01-07-2023:10',
+
+        displaySymbol: 'SPCDAI2307',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_Permit,
+
+        assetAddress: '0x9C5eDebb6fE50C9447828A30a2414c061C74Cd77',
+        joinAddress: '0x9c6AB6915A94E33D1B1ec9d631246c479B8188bC',
+        tokenRoles: [TokenRole.COLLATERAL],
+      },
+    ],
   ])
 );
 
@@ -627,23 +646,5 @@ ASSETS.set(
       },
     ],
 
-    [
-      SPCDAI2307,
-      {
-        version: '1',
-        name: '1st July 2023 cDAI Sense Principal Token, A10',
-        decimals: 8,
-        symbol: 'sP-cDAI:01-07-2023:10',
-
-        displaySymbol: 'SPCDAI2307',
-        showToken: true,
-        digitFormat: 2,
-        tokenType: TokenType.ERC20_Permit,
-
-        assetAddress: '0x9C5eDebb6fE50C9447828A30a2414c061C74Cd77',
-        joinAddress: '0x9c6AB6915A94E33D1B1ec9d631246c479B8188bC',
-        tokenRoles: [TokenRole.COLLATERAL],
-      },
-    ],
   ])
 );
