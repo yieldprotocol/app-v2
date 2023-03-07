@@ -67,9 +67,7 @@ export const FDAI2306 = '0x40311200028B';
 export const FUSDC2306 = '0x40321200028B';
 
 /* Sense Pts */
-export const SPCDAI2307 = "0x40311700028C";
-
-
+export const SPCDAI2307 = "0x40311700028c";
 
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
@@ -550,7 +548,6 @@ ASSETS.set(
         tokenRoles: [TokenRole.BASE],
       },
     ],
-
     [
       SPCDAI2307,
       {
