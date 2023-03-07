@@ -36,7 +36,7 @@ const initState: IUserContextState = {
   strategiesLoading: true,
 
   /* Current User selections */
-  selectedSeries: null,
+  selectedSeriesId: null,
   selectedIlk: null, // initial ilk
   selectedBase: null, // initial base
   selectedVault: null,
@@ -49,7 +49,7 @@ const initActions: IUserContextActions = {
   updateStrategies: () => null,
   setSelectedVault: () => null,
   setSelectedIlk: () => null,
-  setSelectedSeries: () => null,
+  setSelectedSeriesId: () => null,
   setSelectedBase: () => null,
   setSelectedStrategy: () => null,
 };
@@ -88,8 +88,8 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
 
     case UserState.SELECTED_VAULT:
       return { ...state, selectedVault: action.payload };
-    case UserState.SELECTED_SERIES:
-      return { ...state, selectedSeries: action.payload };
+    case UserState.SELECTED_SERIES_ID:
+      return { ...state, selectedSeriesId: action.payload };
     case UserState.SELECTED_ILK:
       return { ...state, selectedIlk: action.payload };
     case UserState.SELECTED_BASE:
@@ -504,18 +504,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     pathname && userState.vaultMap?.has(vaultId) && setVaultFromUrl(vaultId);
   }, [pathname, userState.vaultMap]);
 
-  /**
-   * Explicitly update selected series on series map changes
-   * */
-  useEffect(() => {
-    if (userState.selectedSeries && seriesMap) {
-      updateState({
-        type: UserState.SELECTED_SERIES,
-        payload: seriesMap.get(userState.selectedSeries.id)!,
-      });
-    }
-  }, [userState.selectedSeries, seriesMap]);
-
   /* Exposed userActions */
   const userActions = {
     updateAssets,
@@ -530,8 +518,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       (asset: IAsset | null) => updateState({ type: UserState.SELECTED_ILK, payload: asset! }),
       []
     ),
-    setSelectedSeries: useCallback(
-      (series: ISeries | ISeriesRoot | null) => updateState({ type: UserState.SELECTED_SERIES, payload: series }),
+    setSelectedSeriesId: useCallback(
+      (seriesId: string | null) => updateState({ type: UserState.SELECTED_SERIES_ID, payload: seriesId }),
       []
     ),
     setSelectedBase: useCallback(
