@@ -13,12 +13,12 @@ import { ISeries, ISeriesRoot } from '../types';
 import { getSeason, nameFromMaturity, SeasonType } from '../utils/appUtils';
 import { EULER_SUPGRAPH_ENDPOINT } from '../utils/constants';
 import useSubgraph from './useSubgraph';
+import useTimeTillMaturity from './useTimeTillMaturity';
 
 interface GraphSeriesEntitiesRes {
   seriesEntities: {
     id: string;
     maturity: number;
-    matured: boolean;
     baseAsset: {
       assetId: string;
       id: string;
@@ -49,6 +49,7 @@ export const useSeriesEntities = (seriesId?: string | null) => {
   const provider = useProvider();
   const { address: account } = useAccount();
   const { subgraphUrl } = useSubgraph();
+  const { isMature } = useTimeTillMaturity();
   const DEFAULT_SWR_KEY = useMemo(() => ['seriesEntities', chainId], [chainId]);
   const seasonColorMap = [1, 4, 5, 42].includes(chainId) ? ethereumColorMap : arbitrumColorMap;
 
@@ -87,7 +88,6 @@ export const useSeriesEntities = (seriesId?: string | null) => {
         seriesEntities {
           id
           maturity
-          matured
           baseAsset {
             id
             assetId
@@ -118,7 +118,6 @@ export const useSeriesEntities = (seriesId?: string | null) => {
       const {
         id,
         maturity,
-        matured: seriesIsMature,
         baseAsset: { assetId: baseId, id: baseAddress },
         fyToken,
       } = seriesEntity;
@@ -148,7 +147,7 @@ export const useSeriesEntities = (seriesId?: string | null) => {
         symbol: fyTokenSymbol,
         id,
         maturity,
-        seriesIsMature,
+        seriesIsMature: isMature(maturity),
         showSeries: true,
         decimals: fyTokenDecimals,
 
@@ -193,7 +192,7 @@ export const useSeriesEntities = (seriesId?: string | null) => {
 
       return (await acc).set(id.toLowerCase(), data);
     }, Promise.resolve(new Map<string, ISeriesRoot>()));
-  }, [account, getPoolSharesAPY, provider, seasonColorMap, subgraphUrl]);
+  }, [account, getPoolSharesAPY, isMature, provider, seasonColorMap, subgraphUrl]);
 
   const { data: seriesEntities, error: seriesEntitiesError } = useSWR(DEFAULT_SWR_KEY, getSeriesEntities, {
     revalidateIfStale: false,
