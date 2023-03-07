@@ -13,6 +13,7 @@ import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAssetPair from '../../hooks/useAssetPair';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -37,13 +38,16 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
+  const { assetMap, selectedIlk, selectedBase, selectedSeriesId } = userState;
+  const {
+    seriesEntity: { data: selectedSeriesEntity },
+  } = useSeriesEntities();
 
-  const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
+  const { setSelectedIlk, setSelectedBase, setSelectedSeriesId, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
-  const { validIlks, validIlksLoading } = useAssetPair(undefined, undefined, selectedSeries?.id);
+  const { validIlks, validIlksLoading } = useAssetPair(undefined, undefined, selectedSeriesId!);
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -67,7 +71,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     } else {
       diagnostics && console.log('Base selected: ', asset.id);
       setSelectedBase(asset);
-      setSelectedSeries(null);
+      setSelectedSeriesId(null);
 
       setSelectedStrategy(null);
 
@@ -86,19 +90,11 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     const filteredOptions = selectCollateral
       ? opts.filter((a) => a.proxyId !== selectedBase?.proxyId) // show all available collateral assets if the user is not connected except selectedBase
       : opts
-          .filter((a) => a.tokenRoles.includes(TokenRole.BASE))
+          .filter((a) => a.tokenRoles?.includes(TokenRole.BASE))
           .filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId!));
 
     setOptions(filteredOptions);
-  }, [
-    selectCollateral,
-    selectedBase?.proxyId,
-    selectedSeries,
-    showWrappedTokens,
-    assetMap,
-    validIlks,
-    validIlksLoading,
-  ]);
+  }, [selectCollateral, selectedBase?.proxyId, showWrappedTokens, assetMap, validIlks, validIlksLoading]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
@@ -154,7 +150,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
             (false &&
               selectCollateral &&
               options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
-            (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
+            (selectCollateral ? selectedSeriesEntity?.seriesIsMature || !selectedSeriesEntity : undefined)
           }
           size="small"
           // eslint-disable-next-line react/no-children-prop
