@@ -23,6 +23,7 @@ export interface AssetStaticInfo {
   proxyId?: string; // associated token (eg. )
 }
 
+/* Singleton Assets */
 export const WETH = '0x303000000000';
 export const DAI = '0x303100000000';
 export const USDC = '0x303200000000';
@@ -36,6 +37,9 @@ export const yvUSDC = '0x303900000000';
 export const MKR = '0x313100000000';
 export const FRAX = '0x313800000000';
 export const RETH = '0xe03016000000';
+
+export const CRAB = '0x333800000000';
+export const USDT = '0x30a000000000';
 
 /* Notional fCash assets */
 export const FDAI2203 = '0x313200000000';
@@ -62,8 +66,10 @@ export const FETH2306 = '0x40301200028B';
 export const FDAI2306 = '0x40311200028B';
 export const FUSDC2306 = '0x40321200028B';
 
-export const CRAB = '0x333800000000';
-export const USDT = '0x30a000000000';
+/* Sense Pts */
+export const SPCDAI2307 = "0x40311700028C";
+
+
 
 export const CONVEX_BASED_ASSETS = [
   'CVX3CRV',
@@ -618,6 +624,25 @@ ASSETS.set(
         assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
         joinAddress: '0xcb60Bd598bf48be1E24262E8BF1e3703FECA3470',
         tokenRoles: [TokenRole.BASE],
+      },
+    ],
+
+    [
+      SPCDAI2307,
+      {
+        version: '1',
+        name: '1st July 2023 cDAI Sense Principal Token, A10',
+        decimals: 8,
+        symbol: 'sP-cDAI:01-07-2023:10',
+
+        displaySymbol: 'SPCDAI2307',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC20_Permit,
+
+        assetAddress: '0x9C5eDebb6fE50C9447828A30a2414c061C74Cd77',
+        joinAddress: '0x9c6AB6915A94E33D1B1ec9d631246c479B8188bC',
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
   ])
