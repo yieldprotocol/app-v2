@@ -133,8 +133,8 @@ export enum TokenType {
   ERC720_,
 }
 export enum TokenRole {
-  BASE,
-  COLLATERAL,
+  BASE = 'BASE',
+  COLLATERAL = 'COLLATERAL',
 }
 
 export interface IAssetStaticInfo {
