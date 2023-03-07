@@ -13,32 +13,35 @@ import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../useAccountPlus';
+import useSeriesEntities from '../useSeriesEntities';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
   debtInput: string | undefined,
   collInput: string | undefined,
   vault: IVault | undefined,
-  assetPairInfo: IAssetPair | undefined| null
+  assetPairInfo: IAssetPair | undefined | null
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
+    userState: { selectedBase, selectedIlk, selectedSeriesId, assetMap },
   } = useContext(UserContext);
 
   const _selectedBase = vault ? assetMap?.get(vault.baseId) : selectedBase;
   const _selectedIlk = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
-  const _selectedSeries = vault ? seriesMap?.get(vault.seriesId) : selectedSeries;
+  const {
+    seriesEntity: { data: _selectedSeries },
+  } = useSeriesEntities(vault ? vault.seriesId : selectedSeriesId);
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { address: activeAccount } = useAccountPlus();
   const { data: userIlkBalance } = useBalance({
     address: activeAccount,
-    token: _selectedIlk?.proxyId === WETH ? undefined : _selectedIlk?.address as Address,
+    token: _selectedIlk?.proxyId === WETH ? undefined : (_selectedIlk?.address as Address),
     enabled: !!_selectedIlk,
   });
 
