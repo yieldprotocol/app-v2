@@ -37,8 +37,6 @@ const markMap = new Map([
   ['Cvx3Crv Mock', <CVX3CRVMark key="cvx3crv mock" />],
   ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],
-
-  ['SENSE', <SenseMark key="sense" />],
   // ['Crabv2', <CRABMark key="crab" />],
   [
     'Crabv2',
@@ -49,6 +47,7 @@ const markMap = new Map([
   [
     'rETH', <REthMark key="reth" />,
   ],
+  ['SPCDAI2307', <SenseMark key="sense" />],
 ]);
 
 export default markMap;
