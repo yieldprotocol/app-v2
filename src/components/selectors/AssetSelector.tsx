@@ -77,7 +77,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
     }
   };
 
-  /* update options on any changes */
+  /* Update options on any changes */
   useEffect(() => {
     const opts = (selectCollateral && validIlks ? validIlks : Array.from(assetMap.values()))
       .filter((a) => a.showToken)
