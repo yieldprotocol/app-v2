@@ -1,6 +1,5 @@
 import { Block } from '@ethersproject/providers';
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
-import { ReactNode } from 'react';
 import { IChainContextActions } from '../contexts/types/chain';
 import { FYToken, Pool, Strategy } from '../contracts';
 
@@ -133,6 +132,10 @@ export enum TokenType {
   ERC1155_,
   ERC720_,
 }
+export enum TokenRole {
+  BASE,
+  COLLATERAL,
+}
 
 export interface IAssetStaticInfo {
   assetAddress: string;
@@ -145,14 +148,12 @@ export interface IAssetStaticInfo {
   version: string;
   symbol: string;
   decimals: number;
-  isYieldBase?: boolean;
 
+  tokenRoles: TokenRole[];
   showToken: boolean; // Display/hide the token on the UI
 
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
   displaySymbol?: string; // override for symbol display
-
-  limitToSeries?: string[];
 
   wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
   unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
@@ -170,7 +171,6 @@ export interface IAssetRoot extends IAssetStaticInfo, ISignable {
 
   digitFormat: number;
   assetContract: Contract;
-  oracleContract: Contract;
 
   isWrappedToken: boolean; // Note: this is if is a token used in wrapped form by the yield protocol (except ETH - which is handled differently)
   wrappingRequired: boolean;
@@ -188,7 +188,6 @@ export interface IAsset extends IAssetRoot {
 export interface IAssetPair {
   baseId: string;
   ilkId: string;
-  oracle: string;
 
   baseDecimals: number;
   limitDecimals: number;

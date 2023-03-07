@@ -7,6 +7,7 @@ import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAccount } from 'wagmi';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -23,7 +24,7 @@ function VaultPositionSelector(target: any) {
     userState: { vaultMap, selectedSeries, selectedBase },
   } = useContext(UserContext);
 
-  const { isConnected } = useAccount();
+  const { isConnected } = useAccountPlus();
 
   /* LOCAL STATE */
   const [showAllVaults, setShowAllVaults] = useState<boolean>(false);

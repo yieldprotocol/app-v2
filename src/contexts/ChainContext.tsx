@@ -6,9 +6,10 @@ import { useCachedState } from '../hooks/generalHooks';
 
 import yieldEnv from './yieldEnv.json';
 import * as contractTypes from '../contracts';
-import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { ASSETS_1, ASSETS_42161 } from '../config/assets';
 // import * as contracts from '../contracts';
+import * as contracts from '../contracts';
+import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
+import { AssetStaticInfo, ASSETS, ETH_BASED_ASSETS } from '../config/assets';
 
 import { nameFromMaturity, getSeason, SeasonType, getSeriesAfterRollPosition } from '../utils/appUtils';
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
@@ -67,7 +68,7 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
     case ChainState.ADD_ASSET:
       return {
         ...state,
-        assetRootMap: new Map(state.assetRootMap.set(action.payload.id, action.payload)),
+        assetRootMap: new Map(state.assetRootMap.set(action.payload.id.toLowerCase(), action.payload)),
       };
 
     case ChainState.ADD_STRATEGY:
@@ -108,7 +109,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       let getAllowance: (acc: string, spender: string, asset?: string) => Promise<BigNumber>;
       let setAllowance: ((spender: string) => Promise<BigNumber | void>) | undefined;
 
-      const assetMap = chain === 1 ? ASSETS_1 : ASSETS_42161;
+      const assetMap = ASSETS.get(chain)!;
 
       switch (asset.tokenType) {
         case TokenType.ERC20_:
@@ -162,7 +163,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       });
     }
 
-    const assetMap = chain === 1 ? ASSETS_1 : ASSETS_42161;
+    const assetMap = ASSETS.get(chain)!;
 
     const newAssetList: any[] = [];
     await Promise.all(

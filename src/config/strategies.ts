@@ -1,6 +1,6 @@
 import { BaseProvider } from '@ethersproject/providers';
 import { Strategy__factory } from '../contracts';
-import { DAI, FRAX, USDC, WETH } from './assets';
+import { DAI, FRAX, USDC, WETH, USDT } from './assets';
 
 export enum StrategyType {
   V1 = 'V1',
@@ -132,13 +132,32 @@ STRATEGIES.set(1, [
     version: '1',
   },
   {
-    address: '0x4B010fA49E8b673D0682CDeFCF7834328076748C',
+    address: '0x4B010fA49E8b673D0682CDeFCF7834328076748C', // strategy
     type: StrategyType.V2,
     associatedStrategy: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A',
     symbol: 'YSFRAX6MJD',
     baseId: FRAX,
     name: 'Yield Strategy FRAX 6M Jun Dec',
     decimals: 18,
+    version: '1',
+  },
+
+  {
+    address: '0x428e229ac5bc52a2e07c379b2f486fefefd674b1',
+    type: StrategyType.V2,
+    symbol: 'YSUSDT6MJD',
+    baseId: USDT,
+    name: 'Yield Strategy USDT 6M Jun Dec',
+    decimals: 6,
+    version: '1',
+  },
+  {
+    address: '0xf708005cee17b2c5fe1a01591e32ad6183a12eae',
+    type: StrategyType.V2,
+    symbol: 'YSUSDT6MMS',
+    baseId: USDT,
+    name: 'Yield Strategy USDT 6M Mar Sep',
+    decimals: 6,
     version: '1',
   },
 ]);
@@ -235,11 +254,31 @@ STRATEGIES.set(42161, [
     type: StrategyType.V2,
     version: '1',
   },
+
+  {
+    address: '0x861509a3fa7d87faa0154aae2cb6c1f92639339a',
+    type: StrategyType.V2,
+    symbol: 'YSUSDT6MJD',
+    baseId: USDT,
+    name: 'Yield Strategy USDT 6M Jun Dec',
+    decimals: 6,
+    version: '1',
+  },
+  {
+    address: '0xfe2aba5ba890af0ee8b6f2d488b1f85c9e7c5643',
+    type: StrategyType.V2,
+    symbol: 'YSUSDT6MMS',
+    baseId: USDT,
+    name: 'Yield Strategy USDT 6M Mar Sep',
+    decimals: 6,
+    version: '1',
+  },
 ]);
 
 export default STRATEGIES;
 
 export const validateStrategies = async (provider: BaseProvider) => {
+  console.log('VALIDATING STRATEGIES');
   const preText = '### STRATEGY VALIDATION ERROR ### ';
   const chainId = (await provider.getNetwork()).chainId;
   const strategyList = STRATEGIES.get(chainId)!;

@@ -12,6 +12,8 @@ import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import HeaderBalances from './HeaderBalances';
+import useAccountPlus from '../hooks/useAccountPlus';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledText = styled(Text)`
   svg,
@@ -37,28 +39,20 @@ const HeaderAccount = () => {
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
 
-  const { address: account } = useAccount({
-    onConnect({ address, connector, isReconnected }) {
-      console.log('Connected: ', { address, connector, isReconnected })
-    },
-  });
+  const { address: account } = useAccountPlus();
 
   const { data: ethBalance } = useBalance({ address: account });
-
-  const {
-    userState: { assetsLoading },
-  } = useContext(UserContext);
-
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+
+  const { settingsState : {useMockedUser} } = useContext(SettingsContext);
 
   return (
     <Box gap="medium" direction="row">
       <Sidebar settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      { !mobile && <HeaderBalances /> }
+      {!mobile && <HeaderBalances />}
 
-      {account 
-      && (
+      {account && (
         <Box direction="row" gap="xsmall" align="center">
           <StyledBox round onClick={() => setSettingsOpen(true)} pad="xsmall" justify="center">
             {mobile ? (
@@ -68,14 +62,14 @@ const HeaderAccount = () => {
             ) : (
               <Box direction="row" align="center" gap="small">
                 <Box>
-                  <Text color="text" size="small">
+                  <Text color={ useMockedUser ? "red": "text" } size="small">
                     {ensName || abbreviateHash(account!, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        {assetsLoading && <Skeleton circle height={20} width={20} />}
+                        {!ethBalance && <Skeleton circle height={20} width={20} />}
                         {ethBalance && (
                           <Box height="20px" width="20px">
                             <EthMark />
@@ -96,14 +90,14 @@ const HeaderAccount = () => {
           </StyledBox>
         </Box>
       )}
-      
-      { !account && (
+
+      {!account && (
         // !!openConnectModal && (
-          <GeneralButton action={() => !!openConnectModal && openConnectModal() } background="gradient-transparent">
-            <Text size="small" color="text">
-              Connect Wallet
-            </Text>
-          </GeneralButton>
+        <GeneralButton action={() => !!openConnectModal && openConnectModal()} background="gradient-transparent">
+          <Text size="small" color="text">
+            Connect Wallet
+          </Text>
+        </GeneralButton>
       )}
     </Box>
   );

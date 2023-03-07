@@ -8,11 +8,11 @@ import { ToastContainer } from 'react-toastify';
 import { deepMerge } from 'grommet/utils';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { yieldTheme } from '../themes';
+import SupportModal from './SupportSideBar';
 
 // get dynaimc imports for applicable components (to account for non-ssr)
 const DynamicYieldHeader = dynamic(() => import('./Header'), { ssr: false });
 const DynamicYieldMobileMenu = dynamic(() => import('./YieldMobileMenu'), { ssr: false });
-const DynamicNetworkBanner = dynamic(() => import('./NetworkBanner'), { ssr: false });
 const DynamicNetworkError = dynamic(() => import('./NetworkError'), { ssr: false });
 const DynamicTransactionWidget = dynamic(() => import('./TransactionWidget'), { ssr: false });
 const DynamicTransactionError = dynamic(() => import('./TransactionError'), { ssr: false });
@@ -53,8 +53,9 @@ const Layout = ({ children }: ILayout) => {
       {/* Please be patient while we fix a pending issue. */}
       <Grommet theme={deepMerge(base, yieldTheme) as any} themeMode={colorScheme} full>
         <Box fill background="background">
-          <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />       
-          <DynamicNetworkBanner />
+          <SupportModal />
+          <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
+          <DynamicYieldHeader actionList={[() => setMenuLayerOpen(!menuLayerOpen)]} />
           <DynamicTransactionWidget />
           <DynamicNetworkError />
           <DynamicTransactionError />
@@ -63,6 +64,7 @@ const Layout = ({ children }: ILayout) => {
           <Box overflow="hidden">
             {menuLayerOpen && <DynamicYieldMobileMenu toggleMenu={() => setMenuLayerOpen(!menuLayerOpen)} />}
           </Box>
+
           {children}
         </Box>
       </Grommet>

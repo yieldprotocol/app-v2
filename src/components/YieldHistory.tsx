@@ -26,6 +26,8 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
   const [histLoading, setHistLoading] = useState<boolean>(true);
 
   useEffect(() => {
+
+
     if (view.includes('VAULT')) {
       vaultHistory.has(seriesOrVault.id)
         ? setHistList(vaultHistory.get(seriesOrVault.id))
@@ -51,7 +53,7 @@ const YieldHistory = ({ seriesOrVault, view }: IYieldHistory) => {
         ? setHistList(tradeHistory.get(seriesOrVault.id))
         : (async () => {
             setHistLoading(true);
-            await updateTradeHistory([seriesOrVault]);
+             await updateTradeHistory([seriesOrVault]);
             setHistLoading(false);
           })();
     }

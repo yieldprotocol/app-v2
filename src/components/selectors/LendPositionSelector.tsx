@@ -9,8 +9,8 @@ import { IAsset, ISeries, ISeriesRoot } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
-import { useAccount } from 'wagmi';
 import useSeriesEntities from '../../hooks/useSeriesEntities';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -20,12 +20,13 @@ interface IPositionFilter {
 function LendPositionSelector() {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { selectedSeries, selectedBase } = userState;
+  const { selectedSeriesId, selectedBase } = userState;
   const {
     seriesEntities: { data: seriesMap },
   } = useSeriesEntities();
+  const selectedSeries = seriesMap?.get(selectedSeriesId!);
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   const [allPositions, setAllPositions] = useState<ISeriesRoot[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
@@ -63,8 +64,8 @@ function LendPositionSelector() {
     setAllPositions(_allPositions);
 
     if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
-    if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
-  }, [selectedBase, selectedSeries, handleFilter, seriesMap]);
+    if (selectedBase && selectedSeriesId) handleFilter({ base: selectedBase, series: selectedSeries });
+  }, [selectedBase, selectedSeries, handleFilter, seriesMap, selectedSeriesId]);
 
   useEffect(() => {
     allPositions.length <= 5 && setShowAllPositions(true);

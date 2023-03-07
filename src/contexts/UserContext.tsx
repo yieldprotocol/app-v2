@@ -10,11 +10,10 @@ import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategy
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
-import { ZERO_BN } from '../utils/constants';
+import { RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ORACLE_INFO } from '../config/oracles';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { useAccount, useProvider } from 'wagmi';
+import { useProvider } from 'wagmi';
 
 import useChainId from '../hooks/useChainId';
 import useContracts, { ContractNames } from '../hooks/useContracts';
@@ -23,6 +22,7 @@ import useFork from '../hooks/useFork';
 import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import useSeriesEntities from '../hooks/useSeriesEntities';
+import useAccountPlus from '../hooks/useAccountPlus';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -121,13 +121,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const provider = useProvider();
-  const { address: account } = useAccount();
+
+  const { address: account } = useAccountPlus();
 
   const { pathname } = useRouter();
 
   const { isMature } = useTimeTillMaturity();
 
   const contracts = useContracts();
+
+  const { getForkStartBlock } = useFork();
 
   const {
     // data: assetBalances,
@@ -148,7 +151,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const cachedVaultList = (cachedVaults ?? []) as IVaultRoot[];
 
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
-    const lastVaultUpdate = JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
+    // get the latest available vault ( either from the local storage or from the forkStart)
+    const lastVaultUpdate = useForkedEnv
+      ? await getForkStartBlock()
+      : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
@@ -212,7 +218,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
           // get the balance of the asset from the assetsBalance array
-          const { balance, balance_ } = _assetBalances.find((a: any) => a.id === asset.id) || {
+          const { balance, balance_ } = _assetBalances.find((a) => a.id.toLowerCase() === asset.id.toLowerCase()) || {
             balance: ZERO_BN,
             balance_: '0',
           };
@@ -227,7 +233,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       );
 
       const newAssetsMap = updatedAssets.reduce((acc, item) => {
-        return acc.set(item.id, item);
+        return acc.set(item.id.toLowerCase(), item);
       }, new Map() as Map<string, IAsset>);
 
       updateState({ type: UserState.ASSETS, payload: newAssetsMap });
@@ -255,11 +261,22 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             _strategy.strategyContract.pool(),
           ]);
 
+          // const stratConnected = _strategy.strategyContract.connect(signer);
+          // const accountRewards =
+          //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
+          // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
+
+          // const accountStrategyPercent = mulDecimal(
+          //   divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+          //   '100'
+          // );
+
           /* We check if the strategy has been supersecced by a v2 version */
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
 
           /* Attatch the current series (if any) */
-          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address === fyToken) as ISeries;
+          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address.toLowerCase() === fyToken.toLowerCase());
+
           if (currentSeries) {
             const poolContract = contractTypes.Pool__factory.connect(currentPoolAddr, provider);
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
@@ -377,7 +394,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[] = []) => {
-      console.log('Updating vaults...');
+      console.log('Updating vaults ...', account);
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
       let _vaults: IVaultRoot[] | undefined = vaultList;
@@ -392,6 +409,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         _vaults = await _getVaults();
       }
 
+      /* if fetching vaults fails */
       if (!_vaults) return;
 
       const updatedVaults = await Promise.all(
@@ -419,12 +437,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           let rate: BigNumber;
 
           if (isVaultMature) {
-            const RATE = '0x5241544500000000000000000000000000000000000000000000000000000000'; // bytes for 'RATE'
-            const oracleName = ORACLE_INFO.get(chainId)?.get(vault.baseId)?.get(RATE);
+            const rateOracleAddr = await Cauldron.lendingOracles(vault.baseId);
+            const RateOracle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider); // using compount multi here, but all rate oracles follow the same func sig methodology
 
-            const RateOracle = contracts.get(oracleName!);
             rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-            [rate] = await RateOracle?.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+            [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
             [accruedArt] = rateAtMaturity.gt(ZERO_BN)
               ? calcAccruedDebt(rate, rateAtMaturity, art)
@@ -474,7 +491,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics && console.log('Vaults updated successfully.');
       updateState({ type: UserState.VAULTS_LOADING, payload: false });
     },
-    [_getVaults, account, assetRootMap, chainId, contracts, diagnostics, isMature, seriesRootMap, useForkedEnv]
+    [_getVaults, account, assetRootMap, contracts, diagnostics, isMature, provider, seriesRootMap, useForkedEnv]
   );
 
   /**

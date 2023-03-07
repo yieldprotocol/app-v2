@@ -132,14 +132,14 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeries, selectedBase } = userState;
+  const { selectedSeriesId, selectedBase } = userState;
   const {
     seriesEntities: { data: seriesMap },
   } = useSeriesEntities();
   const [localSeries, setLocalSeries] = useState<ISeriesRoot | null>();
   const [options, setOptions] = useState<ISeriesRoot[]>([]);
 
-  const _selectedSeries = selectSeriesLocally ? localSeries : selectedSeries;
+  const _selectedSeries = selectSeriesLocally ? localSeries : seriesMap?.get(selectedSeriesId!);
 
   /* prevent underflow */
   const _inputValue = cleanValue(inputValue, _selectedSeries?.decimals);
@@ -178,25 +178,25 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
       filteredOpts = opts
-        .filter((s) => s.baseId === selectedSeries?.baseId && !s.seriesIsMature) // only use selected series' base
-        .filter((s) => s.id !== selectedSeries?.id) // filter out current globally selected series
-        .filter((s) => s.maturity > selectedSeries?.maturity!); // prevent rolling positions to an earlier maturity
+        .filter((s) => s.baseId === _selectedSeries?.baseId && !s.seriesIsMature) // only use selected series' base
+        .filter((s) => s.id !== _selectedSeries?.id) // filter out current globally selected series
+        .filter((s) => s.maturity > _selectedSeries?.maturity!); // prevent rolling positions to an earlier maturity
     }
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
   }, [
     selectSeriesLocally,
     selectedBase?.proxyId,
-    selectedSeries?.baseId,
-    selectedSeries?.id,
-    selectedSeries?.maturity,
+    _selectedSeries?.baseId,
+    _selectedSeries?.id,
+    _selectedSeries?.maturity,
     seriesMap,
   ]);
 
   const handleSelect = (_series: ISeriesRoot) => {
     if (!selectSeriesLocally) {
       diagnostics && console.log('Series selected globally: ', _series.id);
-      userActions.setSelectedSeries(_series);
+      userActions.setSelectedSeriesId(_series.id);
     } else {
       /* used for passing a selected series to the parent component */
       diagnostics && console.log('Series set locally: ', _series.id);
@@ -209,6 +209,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   return (
     <>
+      {!selectedBase && <Skeleton width={180} />}
       {!cardLayout && (
         <InsetBox background={mobile ? 'hoverBackground' : undefined}>
           <Select

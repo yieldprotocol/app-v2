@@ -9,6 +9,7 @@ import { useAccount } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
 import NavText from './texts/NavText';
+import useAccountPlus from '../hooks/useAccountPlus';
 
 const StyledLink = styled.div`
   text-decoration: none;
@@ -54,7 +55,7 @@ const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
 
   const [height] = useWindowSize();
 
-  const { isConnected } = useAccount();
+  const { isConnected } = useAccountPlus();
 
   const {
     settingsState: { darkMode },

@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, maxBaseIn, sellBase } from '@yield-protocol/ui-math';
+import { calculateSlippage, maxBaseIn, MAX_256, sellBase } from '@yield-protocol/ui-math';
 
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, USDT, WETH } from '../../config/assets';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
@@ -16,6 +16,8 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import { removeUndefined } from 'grommet/utils';
+import useChainId from '../useChainId';
+import useAccountPlus from '../useAccountPlus';
 
 export const useRepayDebt = () => {
   const {
@@ -25,7 +27,7 @@ export const useRepayDebt = () => {
   const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap, selectedIlk, selectedBase } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
@@ -42,6 +44,7 @@ export const useRepayDebt = () => {
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
+  const chainId = useChainId();
 
   /**
    * REPAY FN
@@ -127,13 +130,14 @@ export const useRepayDebt = () => {
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
     const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];
 
+    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100)
     const permitCallData: ICallData[] = await sign(
       [
         {
           // before maturity
           target: base,
           spender: 'LADLE',
-          amount: amountToTransfer.mul(110).div(100), // generous approval permits on repayment we can refine at a later stage
+          amount: approveAmount, // generous approval permits on repayment we can refine at a later stage
           ignoreIf: alreadyApproved === true,
         },
       ],

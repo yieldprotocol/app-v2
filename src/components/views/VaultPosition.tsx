@@ -38,13 +38,14 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
-import { useAssetPairs } from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/useAssetPair';
 import Logo from '../logos/Logo';
 import { useAccount, useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import { WETH } from '../../config/assets';
 import { Address } from '@wagmi/core';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -58,7 +59,7 @@ const VaultPosition = () => {
   const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
 
   const _selectedVault = vaultMap?.get(idFromUrl as string);
 
@@ -66,7 +67,7 @@ const VaultPosition = () => {
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
 
-  const { assetPair } = useAssetPairs(vaultBase?.id, [vaultIlk?.id]);
+  const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { data: ilkBal } = useBalance({
     address: account,
     token: vaultIlk?.proxyId === WETH ? undefined : (vaultIlk?.address as Address),

@@ -21,6 +21,7 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useBalance, Address } from 'wagmi';
 import { WETH } from '../../config/assets';
+import useAccountPlus from '../useAccountPlus';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -33,16 +34,16 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
   } = useContext(UserContext);
 
   const strategy = selectedStrategy;
-  const strategySeries = selectedStrategy?.currentSeries
+  const strategySeries = selectedStrategy?.currentSeries;
 
   const strategyBase = assetMap?.get(strategy ? strategy.baseId : selectedBase?.proxyId!);
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { data: baseBalance } = useBalance({
     address: account,
-    token: selectedBase?.proxyId === WETH ? undefined : selectedBase?.address  as Address,
+    token: selectedBase?.proxyId === WETH ? undefined : (selectedBase?.address as Address),
     enabled: !!selectedBase,
   });
 
@@ -157,13 +158,15 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
     }
   }, [_input, strategySeries, removeLiquidityView, slippageTolerance, diagnostics, getTimeTillMaturity]);
 
-  /* Set Max Pool > effectively user balance */
+  /* Set max pool to user balance */
   useEffect(() => {
-    if (!removeLiquidityView) {
+    if (!removeLiquidityView && baseBalance) {
       /* Checks asset selection and sets the max available value */
-      setMaxPool(baseBalance?.formatted);
+      return setMaxPool(baseBalance.formatted);
     }
-  }, [baseBalance?.formatted, removeLiquidityView]);
+
+    setMaxPool('0');
+  }, [baseBalance, removeLiquidityView]);
 
   /**
    * Remove Liquidity specific section

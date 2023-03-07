@@ -3,6 +3,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useMemo } from 'react';
 import { Address, erc20ABI, useAccount, useContractReads } from 'wagmi';
 import { IAssetRoot } from '../types';
+import useAccountPlus from './useAccountPlus';
 
 export interface BalanceData {
   id: string;
@@ -16,7 +17,7 @@ export interface BalanceData {
  */
 
 const useBalances = (assetList: IAssetRoot[], enabled: boolean = false) => {
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
 
   // Data to read
   const contracts = useMemo(

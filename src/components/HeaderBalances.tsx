@@ -9,6 +9,7 @@ import Skeleton from './wraps/SkeletonWrap';
 import Logo from './logos/Logo';
 import { useAccount } from 'wagmi';
 import { cleanValue } from '../utils/appUtils';
+import useAccountPlus from '../hooks/useAccountPlus';
 
 const StyledText = styled(Text)`
   svg,
@@ -31,10 +32,12 @@ const Balance = ({ image, balance, loading }: { image: any; balance: string; loa
 
 const YieldBalances = () => {
   const {
-    userState: { selectedBase, selectedIlk },
+    userState: { selectedBase, selectedIlk, assetMap },
   } = useContext(UserContext);
+  const baseBal = assetMap.get(selectedBase?.id!)?.balance_;
+  const ilkBal = assetMap.get(selectedIlk?.id!)?.balance_;
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { pathname } = useRouter();
   const [path, setPath] = useState<string>();
 
@@ -48,19 +51,14 @@ const YieldBalances = () => {
       {account && (
         <Box pad="small" justify="center" align="start" gap="xsmall">
           {selectedBase && selectedBase?.proxyId !== WETH && (
-            <Balance
-              image={selectedBase?.image}
-              balance={cleanValue(selectedBase.balance_ , 2)}
-              loading={false}
-            />
+            <Balance image={selectedBase?.image} balance={cleanValue(baseBal, 2)} loading={false} />
           )}
-          {selectedIlk && path === 'borrow' && selectedIlk?.proxyId !== WETH && selectedBase?.id !== selectedIlk?.id && (
-            <Balance
-              image={selectedIlk?.image}
-              balance={cleanValue(selectedIlk.balance_, 2)}
-              loading={false}
-            />
-          )}
+          {selectedIlk &&
+            path === 'borrow' &&
+            selectedIlk?.proxyId !== WETH &&
+            selectedBase?.id !== selectedIlk?.id && (
+              <Balance image={selectedIlk?.image} balance={cleanValue(ilkBal, 2)} loading={false} />
+            )}
         </Box>
       )}
     </>

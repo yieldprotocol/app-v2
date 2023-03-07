@@ -151,10 +151,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     }
   };
 
-
   /* Auto select a default strategy  */
   useEffect(() => {
-
     /* if strategy already selected, no need to set explicitly again */
     if (selectedStrategy) return;
     const opts: IStrategy[] = Array.from(strategyMap.values())
@@ -180,9 +178,9 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   return (
     <Box>
+      {!selectedBase && <Skeleton width={180} />}
       {strategiesLoading && (
         <>
-          <Skeleton width={180} />
           <CardSkeleton />
           <CardSkeleton />
         </>
@@ -209,7 +207,6 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
           })}
         </Box>
       )}
-
     </Box>
   );
 };

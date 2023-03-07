@@ -2,7 +2,9 @@ import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
+import { useLendHelpers } from './viewHelperHooks/useLendHelpers';
 import { ActionCodes, ISeries, IVault } from '../types';
+import useAccountPlus from './useAccountPlus';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -17,8 +19,9 @@ export const useInputValidation = (
   const { assetMap, selectedSeries, selectedBase } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap?.get(series?.baseId!) || selectedBase;
+  const { protocolLimited } = useLendHelpers(_selectedSeries, input);
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   /* LOCAL STATE */
   const [inputError, setInputError] = useState<string | null>();
@@ -30,6 +33,7 @@ export const useInputValidation = (
       const _inputAsFloat = parseFloat(input);
       const aboveMax: boolean = !!limits[1] && _inputAsFloat > parseFloat(limits[1].toString());
       const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
+      const aboveUserBalance: boolean = aboveMax && !protocolLimited
 
       // General input validation here:
       if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT) {
@@ -85,7 +89,8 @@ export const useInputValidation = (
           break;
 
         case ActionCodes.LEND:
-          aboveMax && setInputError('Amount exceeds the maximum you can lend');
+          aboveUserBalance && setInputError('Amount exceeds available balance');
+          protocolLimited && setInputError('Amount exceeds the maximum you can lend');
           belowMin && setInputError('Amount should be expressed as a positive value');
           break;
 

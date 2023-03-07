@@ -40,6 +40,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import { StrategyType } from '../../config/strategies';
 import { toast } from 'react-toastify';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -48,7 +49,7 @@ function Pool() {
   const { userState } = useContext(UserContext);
   const { selectedBase, selectedStrategy, strategyMap } = userState;
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);
@@ -142,7 +143,7 @@ function Pool() {
           <StrategyPositionSelector />
         </PanelWrap>
       )}
-      
+
       <CenterPanelWrap series={selectedStrategy?.currentSeries}>
         <Box id="topsection">
           {stepPosition === 0 && (
@@ -188,7 +189,7 @@ function Pool() {
 
                 <SectionWrap
                   title={
-                    strategyMap?.size! > 0
+                    selectedBase
                       ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                           selectedBase && '-based'
                         } strategy:`

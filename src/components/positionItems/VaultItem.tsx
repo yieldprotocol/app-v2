@@ -9,7 +9,7 @@ import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
-import { useAssetPairs } from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/useAssetPair';
 import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
@@ -40,7 +40,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
 
-  const { assetPair } = useAssetPairs(vaultBase?.id, [vaultIlk?.id]);
+  const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { debtInBase_ } = useBorrowHelpers(undefined, vault, assetPair, undefined);
 
   return (

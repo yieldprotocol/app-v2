@@ -4,6 +4,7 @@ import { AppProps } from 'next/app';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
+import SupportModal from '../components/SupportSideBar';
 
 const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
 

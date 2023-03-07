@@ -1,7 +1,7 @@
 import { BaseProvider } from '@ethersproject/providers';
 import { Cauldron__factory, FYToken__factory, Pool__factory } from '../contracts';
 
-const commonProperties = { version: '1', poolVersion: '1', decimals: 18 }
+const commonProperties = { version: '1', poolVersion: '1', decimals: 18 };
 
 export interface ISeriesStatic {
   id: string;
@@ -18,7 +18,7 @@ export interface ISeriesStatic {
   poolName: string;
   poolSymbol: string;
   poolVersion: string;
-  
+
   ts: string;
   g1: string;
   g2: string;
@@ -53,19 +53,19 @@ const USDC_2306 = '0x0032ff00028b';
 const DAI_2306 = '0x0031ff00028b';
 const WETH_2306 = '0x0030ff00028b';
 const FRAX_2306 = '0x0138ff00028b';
+const USDT_2306 = '0x00a0ff00028b';
+const USDT_2303 = '0x00a0ff000288';
 
 export const validateSeries = async (provider: BaseProvider, cauldronAddress: string) => {
   const preText = '### SERIES SET VALIDATION ERROR ### ';
   const chainId = (await provider.getNetwork()).chainId;
-  
-  const seriesList = SERIES.get(chainId)!;  // TODO throw if not available
+
+  const seriesList = SERIES.get(chainId)!; // TODO throw if not available
 
   seriesList.forEach(async (s: ISeriesStatic) => {
     const poolContract = Pool__factory.connect(s.poolAddress, provider);
     const fyTokenContract = FYToken__factory.connect(s.address, provider);
     const cauldron = Cauldron__factory.connect(cauldronAddress, provider);
-
-    console.log( chainId, cauldronAddress)
 
     try {
       const { maturity, baseId } = await cauldron.series(s.id);
@@ -87,7 +87,21 @@ export const validateSeries = async (provider: BaseProvider, cauldronAddress: st
           poolContract.base(),
         ]);
 
-      console.table([name, maturity, baseId, symbol, version, decimals, poolName, poolVersion, poolSymbol, ts, g1, g2, baseAddress])
+      console.table([
+        name,
+        maturity,
+        baseId,
+        symbol,
+        version,
+        decimals,
+        poolName,
+        poolVersion,
+        poolSymbol,
+        ts,
+        g1,
+        g2,
+        baseAddress,
+      ]);
 
       s.symbol !== symbol && console.log(preText, s.address, ': symbol mismatch');
       s.name !== name && console.log(preText, s.address, ': name mismatch');
@@ -614,6 +628,46 @@ SERIES.set(
         g2: '20496382304121724017',
       },
     ],
+    [
+      USDT_2306,
+      {
+        id: USDT_2306,
+        baseId: '0x30a000000000',
+        maturity: 1688137200,
+        name: 'FYUSDT2306',
+        symbol: 'FYUSDT2306',
+        address: '0xa0e4b17042f20d9badbda9961c2d0987c90f6439',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xb4dbec738ffe47981d337c02cb5746e456ecd505',
+        poolName: 'FYUSDT2306 LP',
+        poolSymbol: 'FYUSDT2306LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+    [
+      USDT_2303,
+      {
+        id: USDT_2303,
+        baseId: '0x30a000000000',
+        maturity: 1680274800,
+        name: 'FYUSDT2303',
+        symbol: 'FYUSDT2303',
+        address: '0x8a6ff4c631816888444807541578ab8465edddc2',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0x7472df92ae587f97939de92bdfc23dbacd8a3816',
+        poolName: 'FYUSDT2303 LP',
+        poolSymbol: 'FYUSDT2303LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
   ])
 );
 
@@ -707,7 +761,7 @@ SERIES.set(
         version: '1',
         poolAddress: '0x8C8A448FD8d3e44224d97146B25F4DeC425af309',
         poolName: 'FYUSDC2206 LP',
-        poolSymbol: 'FYUSDC2206LP',        
+        poolSymbol: 'FYUSDC2206LP',
         poolVersion: '1',
         ts: '23381681843',
         g1: '13835058055282163712',
@@ -965,14 +1019,56 @@ SERIES.set(
         maturity: 1688137200,
         name: 'FYUSDC2306',
         symbol: 'FYUSDC2306',
-        address: '0xCbB7Eba13F9E1d97B2138F588f5CA2F5167F06cc',
+        address: '0xcbb7eba13f9e1d97b2138f588f5ca2f5167f06cc',
         decimals: 6,
         version: '1',
-        poolAddress: '0x536edc2a3dB3BFE558Cae74cEDCcD30F07F7121b',
+        poolAddress: '0x536edc2a3db3bfe558cae74cedccd30f07f7121b',
         poolName: 'FYUSDC2306 LP',
         poolSymbol: 'FYUSDC2306LP',
         poolVersion: '1',
         ts: '10628037201',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    [
+      USDT_2306,
+      {
+        id: USDT_2306,
+        baseId: '0x30a000000000',
+        maturity: 1688137200,
+        name: 'FYUSDT2306',
+        symbol: 'FYUSDT2306',
+        address: '0x035072cb2912daab7b578f468bd6f0d32a269e32',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xc6078e090641cC32b05a7F3F102F272A4Ee19867',
+        poolName: 'FYUSDT2306 LP',
+        poolSymbol: 'FYUSDT2306LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    [
+      USDT_2303,
+      {
+        id: USDT_2303,
+        baseId: '0x30a000000000',
+        maturity: 1680274800,
+        name: 'FYUSDT2303',
+        symbol: 'FYUSDT2303',
+        address: '0xc24da474a71c44d2b644089020ba255908ada6e1',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xb268E2C85861B74ec75fe728Ae40D9A2308AD9Bb',
+        poolName: 'FYUSDT2303 LP',
+        poolSymbol: 'FYUSDT2303LP',
+        poolVersion: '1',
+        ts: '16701201316',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
       },

@@ -44,14 +44,14 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
-import { useAssetPairs } from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
-import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useSeriesEntities from '../../hooks/useSeriesEntities';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -66,18 +66,12 @@ const Borrow = () => {
     seriesEntity: { data: selectedSeries },
   } = useSeriesEntities(selectedSeriesId);
 
-  const { address: activeAccount } = useAccount();
+  const { address: activeAccount } = useAccountPlus();
   const contracts = useContracts();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [stepPosition, setStepPosition] = useState<number>(0);
-
-  // renderId for user flow traking (analytics)
-  // const [renderId, setRenderId] = useState<string>();
-  // useEffect(() => {
-  //   setRenderId(new Date().getTime().toString(36));
-  // }, []);
 
   const [borrowInput, setBorrowInput] = useState<string>('');
   const [collatInput, setCollatInput] = useState<string>('');
@@ -95,7 +89,8 @@ const Borrow = () => {
   const borrow = useBorrow();
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeriesId);
 
-  const { assetPair } = useAssetPairs(selectedBase?.id, [selectedIlk?.id]);
+  const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
+  const { validIlks } = useAssetPair(undefined, undefined, selectedSeries?.id);
 
   const {
     collateralizationPercent,
@@ -273,6 +268,13 @@ const Borrow = () => {
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [borrowProcess, contracts, resetInputs, vaultToUse]);
 
+  /* make sure ilk is valid */
+  useEffect(() => {
+    if (validIlks) {
+      !validIlks.map((a) => a.proxyId)?.includes(selectedIlk?.proxyId!) && setSelectedIlk(validIlks[0]);
+    }
+  }, [selectedIlk?.proxyId, setSelectedIlk, validIlks]);
+
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
       <MainViewWrap>
@@ -330,7 +332,7 @@ const Borrow = () => {
                   ) : (
                     <SectionWrap
                       title={
-                        seriesMap?.size! > 0
+                        selectedBase
                           ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
                           : ''
                       }

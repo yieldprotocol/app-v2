@@ -17,7 +17,7 @@ export const ETH_BYTES = ethers.utils.formatBytes32String('ETH-A');
 export const CHAI_BYTES = ethers.utils.formatBytes32String('CHAI');
 
 export const CHI = ethers.utils.formatBytes32String('chi');
-export const RATE = ethers.utils.formatBytes32String('rate');
+export const RATE = ethers.utils.formatBytes32String('RATE');
 
 export const BLANK_ADDRESS = ethers.constants.AddressZero;
 export const BLANK_VAULT = '0x000000000000000000000000';

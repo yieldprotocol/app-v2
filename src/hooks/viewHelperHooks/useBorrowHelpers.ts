@@ -15,9 +15,10 @@ import { IVault, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
 import useSeriesEntities from '../useSeriesEntities';
+import useAccountPlus from '../useAccountPlus';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -48,7 +49,7 @@ export const useBorrowHelpers = (
   const vaultBase = assetMap.get(vault?.baseId!);
   const vaultIlk = assetMap.get(vault?.ilkId!);
 
-  const { address: account } = useAccount();
+  const { address: account } = useAccountPlus();
   const { data: baseBalance } = useBalance({
     address: account,
     token: vaultBase?.proxyId === WETH ? undefined : (vaultBase?.address as Address),
