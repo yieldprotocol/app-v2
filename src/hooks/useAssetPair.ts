@@ -34,10 +34,12 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     }
 
     const [oracleAddr] = await Cauldron.spotOracles(baseId, ilkId);
+    console.log(`Oracle for ${_base.symbol} -> ${_ilk.symbol} :::  ${oracleAddr}` )
 
     if (oracleAddr === ethers.constants.AddressZero) {
-      throw new Error(`no oracle set for base: ${baseId} and ilk: ${ilkId}}`);
+      throw new Error(`no oracle set for ${_base.symbol} and ${_ilk.symbol}`);
     }
+
 
     const oracleContract = CompositeMultiOracle__factory.connect(oracleAddr, provider); // using the composite multi oracle but all oracles should have the same interface
 

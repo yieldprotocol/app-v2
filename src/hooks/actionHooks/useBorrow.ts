@@ -16,7 +16,7 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 
@@ -56,9 +56,9 @@ export const useBorrow = () => {
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
     const series: ISeries = vault ? seriesMap?.get(vault.seriesId)! : selectedSeries!;
-    const base: IAsset = assetMap?.get(series.baseId)!;
+    const base: IAsset = assetMap.get(series.baseId)!;
 
-    const ilkToUse: IAsset = vault ? assetMap?.get(vault.ilkId)! : assetMap?.get(selectedIlk?.proxyId!)!; // note: we use the wrapped version if required
+    const ilkToUse: IAsset = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk?.proxyId!)!; // note: we use the wrapped version if required
 
     /* is ETH  used as collateral */
     const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!);
