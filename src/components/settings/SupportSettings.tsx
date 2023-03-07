@@ -16,7 +16,7 @@ const SupportSettings = () => {
   } = useContext(SettingsContext);
 
   // const account = useAccountPlus();
-  const { fillEther } = useFork();
+  const { fillEther, createNewFork } = useFork();
 
   const [ forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
 
@@ -66,6 +66,12 @@ const SupportSettings = () => {
         <GeneralButton action={()=>console.log('filling ether')} background="background"  >
           <Button  plain disabled={!useForkedEnv} onClick={fillEther}>
           <Text size="xsmall">Action: Fill ETH on Fork</Text>
+          </Button>
+        </GeneralButton>
+
+        <GeneralButton action={()=>null} background="background"  >
+          <Button plain disabled={false} onClick={()=>createNewFork()}>
+          <Text size="xsmall">Action: Create New Fork</Text>
           </Button>
         </GeneralButton>
       </Box>

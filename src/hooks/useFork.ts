@@ -65,6 +65,9 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
 import useAccountPlus from './useAccountPlus';
 
+import axios from 'axios';
+import useChainId from './useChainId';
+
 const useFork = () => {
   const {
     settingsState: { useForkedEnv, forkEnvUrl },
@@ -72,12 +75,36 @@ const useFork = () => {
 
   const { address: account } = useAccountPlus();
   const provider = new ethers.providers.JsonRpcProvider(forkEnvUrl);
+  const chainId = useChainId();
 
   /* From settings */
   const [forkUrl, setForkUrl] = useState<string>(forkEnvUrl);
 
   const [forkStartBlock, setForkStartBlock] = useState<number>();
   const [forkTimestamp, setForkTimestamp] = useState<number>();
+
+  const createNewFork = async () => {
+
+    console.log(process.env.TENDERLY_PROJECT, process.env.TENDERLY_USER )
+
+    // const TENDERLY_FORK_API = `https://tenderly.co/api/v2/project/${process.env.TENDERLY_PROJECT}/forks`;
+    const TENDERLY_FORK_API = `http://api.tenderly.co/api/v1/account/me/project/yield_v2/fork`;
+
+    console.log( TENDERLY_FORK_API  )
+
+    const resp = await axios.post(
+      TENDERLY_FORK_API,
+      { network_id: "1", block_number: 16776329 },
+      {
+        headers: {
+          'X-Access-Key': process.env.TENDERLY_ACCESS_KEY as string,
+        },
+      }
+    );
+
+    console.log(resp);
+    return resp;
+  };
 
   const getForkStartBlock = async () => {
     try {
@@ -126,7 +153,16 @@ const useFork = () => {
     }
   }, [useForkedEnv, forkEnvUrl]);
 
-  return { useForkedEnv, getForkStartBlock, fillEther, forkUrl, getForkTimestamp, forkTimestamp, forkStartBlock };
+  return {
+    useForkedEnv,
+    getForkStartBlock,
+    fillEther,
+    forkUrl,
+    getForkTimestamp,
+    forkTimestamp,
+    forkStartBlock,
+    createNewFork,
+  };
 };
 
 export default useFork;
