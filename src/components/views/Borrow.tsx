@@ -46,11 +46,12 @@ import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
 import { useAssetPairs } from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,8 +60,11 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } = userState;
+  const { assetMap, vaultMap, selectedSeriesId, selectedIlk, selectedBase, selectedVault } = userState;
   const { setSelectedIlk } = userActions;
+  const {
+    seriesEntity: { data: selectedSeries },
+  } = useSeriesEntities(selectedSeriesId);
 
   const { address: activeAccount } = useAccount();
   const contracts = useContracts();
@@ -89,7 +93,7 @@ const Borrow = () => {
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
-  const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeriesId);
 
   const { assetPair } = useAssetPairs(selectedBase?.id, [selectedIlk?.id]);
 
@@ -109,19 +113,21 @@ const Borrow = () => {
     borrowInput,
     vaultToUse,
     assetPair,
-    selectedSeries.id
+    selectedSeriesId
   );
 
   /* input validation hooks */
-  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, [
+  const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries!, [
     minDebt_,
     maxDebt_,
   ]);
 
-  const { inputError: collatInputError } = useInputValidation(collatInput, ActionCodes.ADD_COLLATERAL, selectedSeries, [
-    Number(minCollateral_) - Number(vaultToUse?.ink_),
-    maxCollateral,
-  ]);
+  const { inputError: collatInputError } = useInputValidation(
+    collatInput,
+    ActionCodes.ADD_COLLATERAL,
+    selectedSeries!,
+    [Number(minCollateral_) - Number(vaultToUse?.ink_), maxCollateral]
+  );
 
   /* TX info (for disabling buttons) */
   const { txProcess: borrowProcess, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeries?.id!);
@@ -154,7 +160,6 @@ const Borrow = () => {
 
   const handleMaxAction = (actionCode: ActionCodes) => {
     actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral!);
-    actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
       action_code: actionCode,

@@ -1,4 +1,4 @@
-import { divDecimal, mulDecimal, toBn } from '@yield-protocol/ui-math';
+import { toBn } from '@yield-protocol/ui-math';
 import { format } from 'date-fns';
 import Decimal from 'decimal.js';
 import { BigNumber, ethers } from 'ethers';
@@ -44,7 +44,7 @@ interface GraphSeriesEntitiesRes {
   }[];
 }
 
-export const useSeriesEntities = (seriesId: string | null | undefined) => {
+export const useSeriesEntities = (seriesId?: string | null) => {
   const chainId = useChainId();
   const provider = useProvider();
   const { address: account } = useAccount();
@@ -208,7 +208,7 @@ export const useSeriesEntities = (seriesId: string | null | undefined) => {
   );
 
   // gets a specific series entity
-  const getSeriesEntity = async (seriesId: string | undefined): Promise<ISeries | undefined> => {
+  const getSeriesEntity = async (seriesId: string | null | undefined): Promise<ISeries | undefined> => {
     if (!seriesId || !seriesEntities) return undefined;
 
     console.log('getting series entity data for series with id: ', seriesId);

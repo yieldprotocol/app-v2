@@ -28,20 +28,9 @@ export const useLendHelpers = (
   const { userState } = useContext(UserContext);
   const { selectedBase } = userState;
 
-  const { data: seriesEntities } = useSeriesEntities(undefined);
-  const { data: seriesEntity } = useSeriesEntities(series?.id);
-
-  useEffect(() => {
-    if (seriesEntity) {
-      console.log('🦄 ~ file: useLendHelpers.ts:38 ~ seriesEntity', seriesEntity);
-    }
-  });
-
-  useEffect(() => {
-    if (seriesEntities) {
-      console.log('🦄 ~ file: useLendHelpers.ts:45 ~ seriesEntities', seriesEntities);
-    }
-  }, [seriesEntities]);
+  const {
+    seriesEntity: { data: seriesEntity },
+  } = useSeriesEntities(series?.id);
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
@@ -65,7 +54,7 @@ export const useLendHelpers = (
   // estimated fyTokens received after rolling to a new series
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
-  const { apr: apy } = useApr(input, ActionType.LEND, series);
+  const { apr: apy } = useApr(input, ActionType.LEND, seriesEntity?.id!);
   const { address: account } = useAccount();
   const { data } = useBalance({
     address: account,
