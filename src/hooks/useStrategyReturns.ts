@@ -121,25 +121,28 @@ const useStrategyReturns = (
    *
    * @returns {number} fyToken price in base, where 1 is at par with base
    */
-  const getFyTokenPrice = (series: ISeries, input: string): number => {
-    if (series) {
-      const input_ = parseUnits(cleanValue(input, series.decimals), series.decimals);
-      const sharesOut = sellFYToken(
-        series.sharesReserves,
-        series.fyTokenReserves,
-        input_,
-        getTimeTillMaturity(series.maturity),
-        series.ts,
-        series.g2,
-        series.decimals,
-        series.c,
-        series.mu
-      );
-      const baseValOfInput = series.getBase(sharesOut);
-      return +baseValOfInput / +input_;
-    }
-    return 1;
-  };
+  const getFyTokenPrice = useCallback(
+    (series: ISeries, input: string): number => {
+      if (series) {
+        const input_ = parseUnits(cleanValue(input, series.decimals), series.decimals);
+        const sharesOut = sellFYToken(
+          series.sharesReserves,
+          series.fyTokenReserves,
+          input_,
+          getTimeTillMaturity(series.maturity),
+          series.ts,
+          series.g2,
+          series.decimals,
+          series.c,
+          series.mu
+        );
+        const baseValOfInput = series.getBase(sharesOut);
+        return +baseValOfInput / +input_;
+      }
+      return 1;
+    },
+    [getTimeTillMaturity]
+  );
 
   /**
    * Calculate the total base value of the pool
@@ -147,14 +150,17 @@ const useStrategyReturns = (
    *
    * @returns {number} total base value of pool
    */
-  const getPoolBaseValue = (series: ISeries, input: string): number => {
-    if (!series) return 0;
+  const getPoolBaseValue = useCallback(
+    (series: ISeries, input: string): number => {
+      if (!series) return 0;
 
-    const fyTokenPrice = getFyTokenPrice(series, input);
-    const sharesBaseVal = +series.getBase(series.sharesReserves);
-    const fyTokenBaseVal = +series.fyTokenRealReserves * fyTokenPrice;
-    return sharesBaseVal + fyTokenBaseVal;
-  };
+      const fyTokenPrice = getFyTokenPrice(series, input);
+      const sharesBaseVal = +series.getBase(series.sharesReserves);
+      const fyTokenBaseVal = +series.fyTokenRealReserves * fyTokenPrice;
+      return sharesBaseVal + fyTokenBaseVal;
+    },
+    [getFyTokenPrice]
+  );
 
   /**
    * Calculates estimated blended apy from shares portion of pool
