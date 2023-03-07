@@ -13,16 +13,21 @@ import { useAssetPairs } from '../../hooks/useAssetPair';
 import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { seriesMap, vaultsLoading, selectedVault, assetMap },
+    userState: { vaultsLoading, selectedVault, assetMap },
     userActions,
   } = useContext(UserContext);
   const { setSelectedVault } = userActions;
+
+  const {
+    seriesEntities: { data: seriesEntities, loading: seriesEntitiesLoading },
+  } = useSeriesEntities(vault.seriesId);
 
   const handleSelect = (_vault: IVault) => {
     setSelectedVault(_vault);
@@ -31,7 +36,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
       id: _vault?.id.slice(2),
     } as GA_Properties.position_opened);
   };
-  
+
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
 
@@ -59,7 +64,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
           {vault.isActive ? (
             <Box direction="column" width={condensed ? '6rem' : undefined}>
               <Text weight={450} size="xsmall">
-                {seriesMap?.get(vault.seriesId)?.displayName}
+                {seriesEntitiesLoading ? <SkeletonWrap /> : seriesEntities?.get(vault.seriesId)?.displayName!}
               </Text>
               <Box direction="row" gap="xsmall">
                 <Text weight={450} size="xsmall">
