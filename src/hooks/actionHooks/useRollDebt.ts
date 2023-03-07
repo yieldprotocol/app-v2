@@ -55,7 +55,7 @@ export const useRollDebt = () => {
         args: [vault.id, toSeries.id, vault.ilkId] as LadleActions.Args.TWEAK,
         ignoreIf: hasDebt,
       },
-      // ...assertCallData,
+      ...assertCallData,
     ];
     await transact(calls, txCode);
     updateVaults([vault]);
