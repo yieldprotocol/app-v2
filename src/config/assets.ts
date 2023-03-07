@@ -562,7 +562,7 @@ ASSETS.set(
         tokenType: TokenType.ERC20_Permit,
 
         assetAddress: '0x9C5eDebb6fE50C9447828A30a2414c061C74Cd77',
-        joinAddress: '0x9c6AB6915A94E33D1B1ec9d631246c479B8188bC',
+        joinAddress: '0xe00b1d8198d4076192e658f3a7aa13a4032326ac',
         tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
