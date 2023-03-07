@@ -11,6 +11,8 @@ import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useStrategyReturns, { IReturns } from '../../hooks/useStrategyReturns';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
+import YieldMark from '../logos/YieldMark';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -50,32 +52,37 @@ const StrategySelectItem = ({
   handleClick: (strategy: IStrategy) => void;
   returns?: IReturns;
 }) => {
+  const {
+    seriesEntities: { data: seriesEntities },
+  } = useSeriesEntities();
+  const strategySeries = seriesEntities?.get(strategy.currentSeriesId!);
+
   return (
     <StyledBox
       key={strategy.address}
       round="large"
-      background={selected ? strategy.currentSeries?.color : '#00000007'}
+      background={selected ? strategySeries?.color : '#00000007'}
       elevation="xsmall"
       onClick={handleClick}
     >
       <Box pad="small" width="small" direction="row" gap="small" fill>
         <Box direction="row" gap="small" fill>
           <Avatar
-            background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
+            background={selected ? 'background' : strategySeries?.endColor.toString().concat('20')}
             style={{
-              boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
+              boxShadow: `inset 1px 1px 2px ${strategySeries?.endColor.toString().concat('69')}`,
             }}
           >
-            {strategy.currentSeries?.seriesMark || <FiSlash />}
+            {<YieldMark colors={[strategySeries?.startColor!, strategySeries?.endColor!]} /> || <FiSlash />}
           </Avatar>
           <Box align="center" fill="vertical" justify="center">
             <Box direction="row">
-              <Text size="small" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
+              <Text size="small" color={selected ? strategySeries?.textColor : 'text-weak'}>
                 {formatStrategyName(strategy.name!)}
               </Text>
             </Box>
 
-            <Text size="xsmall" color={selected ? strategy.currentSeries?.textColor : 'text-weak'}>
+            <Text size="xsmall" color={selected ? strategySeries?.textColor : 'text-weak'}>
               Rolling {displayName}
             </Text>
           </Box>
@@ -98,9 +105,9 @@ const StrategySelectItem = ({
         {returns?.blendedAPY && (
           <Box fill align="end">
             <Avatar
-              background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
+              background={selected ? 'background' : strategySeries?.endColor.toString().concat('20')}
               style={{
-                boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
+                boxShadow: `inset 1px 1px 2px ${strategySeries?.endColor.toString().concat('69')}`,
               }}
             >
               <Text size="small">{(+returns.blendedAPY - +returns.rewardsAPY!).toFixed(1)}%</Text>
@@ -123,6 +130,9 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
+  const {
+    seriesEntities: { data: seriesEntities },
+  } = useSeriesEntities();
 
   const { userState, userActions } = useContext(UserContext);
 
@@ -134,18 +144,23 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     const opts = Array.from(strategyMap?.values()!);
     const filteredOpts = opts
       .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
-      .filter((_st) => _st.currentSeries?.showSeries && _st.active)
-      .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
-      .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
+      .filter((_st) => seriesEntities?.get(_st.currentSeriesId!)?.showSeries && _st.active)
+      .filter(
+        (_st) => _st.baseId === selectedBase?.proxyId && !seriesEntities?.get(_st.currentSeriesId!)?.seriesIsMature
+      )
+      .sort(
+        (a, b) =>
+          seriesEntities?.get(a.currentSeriesId!)?.maturity! - seriesEntities?.get(b.currentSeriesId!)?.maturity!
+      );
     setOptions(filteredOpts);
-  }, [selectedBase, strategyMap, selectedStrategy]);
+  }, [selectedBase, strategyMap, selectedStrategy, seriesEntities]);
 
   const handleSelect = (_strategy: IStrategy) => {
     console.log('SELECTED: ', _strategy.address, 'VERSION: ', _strategy.type);
     if (_strategy.active) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy);
-      userActions.setSelectedSeries(_strategy.currentSeries!);
+      userActions.setSelectedSeriesId(_strategy.currentSeriesId!);
     } else {
       toast.info('Strategy coming soon');
     }
@@ -157,8 +172,10 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     if (selectedStrategy) return;
     const opts: IStrategy[] = Array.from(strategyMap.values())
       .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
-      .filter((_st) => _st.currentSeries?.showSeries && _st.active)
-      .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
+      .filter((_st) => seriesEntities?.get(_st.currentSeriesId!)?.showSeries && _st.active)
+      .filter(
+        (_st) => _st.baseId === selectedBase?.proxyId && !seriesEntities?.get(_st.currentSeriesId!)?.seriesIsMature
+      );
 
     /* select strategy with rewards */
     const strategyWithRewards = opts.find((s) => s.rewardsRate?.gt(ZERO_BN));
@@ -189,7 +206,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
       {!strategiesLoading && (
         <Box gap="small">
           {options.map((o: IStrategy) => {
-            const displayName = o.currentSeries?.displayName!;
+            const displayName = seriesEntities?.get(o.currentSeriesId!)?.displayName!;
             const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
             const selected = selectedStrategy?.address === o.address;
             return (
@@ -200,8 +217,6 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
                 selected={selected}
                 displayName={displayName}
                 returns={returns}
-                // apy={returns.blendedAPY}
-                // extra={ returns.}
               />
             );
           })}

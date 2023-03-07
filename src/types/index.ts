@@ -253,7 +253,8 @@ export interface IVault extends IVaultRoot {
 }
 
 export interface IStrategy extends IStrategyRoot {
-  currentSeries: ISeries | undefined;
+  currentSeriesId: string | null | undefined;
+
   active: boolean;
 
   currentSeriesAddr?: string;

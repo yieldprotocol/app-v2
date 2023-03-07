@@ -275,9 +275,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
 
           /* Attatch the current series (if any) */
-          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address.toLowerCase() === fyToken.toLowerCase());
+          const currentSeriesId = _seriesList.find((s) => s.address.toLowerCase() === fyToken.toLowerCase())?.id;
 
-          if (currentSeries) {
+          if (currentSeriesId) {
             const poolContract = contractTypes.Pool__factory.connect(currentPoolAddr, provider);
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               poolContract.totalSupply(),
@@ -322,7 +322,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               strategyPoolPercent,
 
               currentSeriesAddr: fyToken,
-              currentSeries,
+              currentSeriesId,
 
               currentPoolAddr,
 
@@ -336,7 +336,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           /* Else return an 'EMPTY' strategy */
           return {
             ..._strategy,
-            currentSeries: undefined,
+            currentSeriesId: undefined,
             active: false,
           };
         })
@@ -345,15 +345,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /* Add in account specific data */
       const _accountData = account
         ? await Promise.all(
-            _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
+            _publicData.map(async (_strategy): Promise<IStrategy> => {
+              const poolContract = contractTypes.Pool__factory.connect(_strategy.currentPoolAddr!, provider);
+
               const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract.balanceOf(account),
-                _strategy.currentSeries?.poolContract.balanceOf(account),
+                poolContract.balanceOf(account),
               ]);
-
-              // const stratConnected = _strategy.strategyContract.connect(signer!);
-              // const accountRewards =
-              // _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
 
               const accountRewards = ZERO_BN;
               const accountStrategyPercent = mulDecimal(

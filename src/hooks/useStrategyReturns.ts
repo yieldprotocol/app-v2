@@ -16,6 +16,7 @@ import {
 import { formatEther, parseUnits } from 'ethers/lib/utils';
 import { UserContext } from '../contexts/UserContext';
 import useTimeTillMaturity from './useTimeTillMaturity';
+import useSeriesEntities from './useSeriesEntities';
 
 export interface IReturns {
   sharesBlendedAPY?: string;
@@ -99,9 +100,11 @@ const useStrategyReturns = (
   } = useContext(UserContext);
 
   const strategy_ = strategy || selectedStrategy;
-  const series = strategy_?.currentSeries;
+  const {
+    seriesEntity: { data: seriesEntity },
+  } = useSeriesEntities(strategy?.currentSeriesId);
 
-  const inputToUse = cleanValue(!input || +input === 0 ? '1' : input, series?.decimals!);
+  const inputToUse = cleanValue(!input || +input === 0 ? '1' : input, seriesEntity?.decimals!);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
