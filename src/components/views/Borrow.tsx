@@ -107,10 +107,9 @@ const Borrow = () => {
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
-    collatInput,
     vaultToUse,
     assetPair,
-    selectedSeries
+    selectedSeries.id
   );
 
   /* input validation hooks */
@@ -142,8 +141,6 @@ const Borrow = () => {
       supporting_collateral: selectedIlk?.symbol,
     } as GA_Properties.transaction_initiated);
   };
-
-
 
   /** Interaction handlers */
   const handleNavAction = (_stepPosition: number) => {

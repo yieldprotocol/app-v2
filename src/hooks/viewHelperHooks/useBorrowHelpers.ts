@@ -24,7 +24,7 @@ export const useBorrowHelpers = (
   input: string | undefined,
   vault: IVault | undefined,
   assetPairInfo: IAssetPair | null | undefined,
-  futureSeriesId: string | null = null // Future or rollToSeries id
+  futureSeriesId: string | undefined | null = null // Future or rollToSeries id
 ) => {
   /* STATE FROM CONTEXT */
   const {

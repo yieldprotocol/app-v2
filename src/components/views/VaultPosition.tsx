@@ -69,7 +69,7 @@ const VaultPosition = () => {
   const { assetPair } = useAssetPairs(vaultBase?.id, [vaultIlk?.id]);
   const { data: ilkBal } = useBalance({
     address: account,
-    token: vaultIlk?.proxyId === WETH ? undefined : vaultIlk?.address as Address,
+    token: vaultIlk?.proxyId === WETH ? undefined : (vaultIlk?.address as Address),
   });
 
   /* TX info (for disabling buttons) */
@@ -174,7 +174,7 @@ const VaultPosition = () => {
     debtInBase,
     debtInBase_,
     rollProtocolLimited,
-  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPair, rollToSeries);
+  } = useBorrowHelpers(repayInput, _selectedVault, assetPair, rollToSeries?.id);
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',
