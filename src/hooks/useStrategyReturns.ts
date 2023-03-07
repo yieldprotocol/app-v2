@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ISeries, IStrategy } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import {
@@ -100,7 +100,7 @@ const useStrategyReturns = (
 
   const strategy_ = strategy || selectedStrategy;
   const series = strategy_?.currentSeries;
-  
+
   const inputToUse = cleanValue(!input || +input === 0 ? '1' : input, series?.decimals!);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
@@ -122,8 +122,8 @@ const useStrategyReturns = (
    * @returns {number} fyToken price in base, where 1 is at par with base
    */
   const getFyTokenPrice = (series: ISeries, input: string): number => {
-    if (series) {  
-      const input_ = parseUnits(cleanValue(input,series.decimals ), series.decimals);
+    if (series) {
+      const input_ = parseUnits(cleanValue(input, series.decimals), series.decimals);
       const sharesOut = sellFYToken(
         series.sharesReserves,
         series.fyTokenReserves,
@@ -160,182 +160,106 @@ const useStrategyReturns = (
    * Calculates estimated blended apy from shares portion of pool
    * @returns {number} shares apy of pool
    */
-  const getSharesAPY = (series: ISeries, input: string): number => {
-    const poolBaseValue = getPoolBaseValue(series, input);
+  const getSharesAPY = useCallback(
+    (series: ISeries, input: string): number => {
+      const poolBaseValue = getPoolBaseValue(series, input);
 
-    if (series.poolAPY) {
-      const sharesBaseVal = +series.getBase(series.sharesReserves);
-      const sharesValRatio = sharesBaseVal / poolBaseValue;
-      return +series.poolAPY * sharesValRatio;
-    }
-    return 0;
-  };
-
-  /**
-   * Caculate (estimate) how much fees are accrued to LP's using invariant func
-   * Use the current and init invariant results from global context and fallback to manual calculation if unavailable
-   * @returns {number}
-   */
-  const getFeesAPY = (series: ISeries, initSeries: ISeries | undefined): number => {
-    let currentInvariant = series.currentInvariant;
-    let initInvariant = series.initInvariant;
-
-    if ((!series.currentInvariant || !series.initInvariant) && series.startBlock) {
-      if (!initSeries) return 0;
-
-      currentInvariant = invariant(
-        series.sharesReserves,
-        series.fyTokenReserves,
-        series.totalSupply,
-        getTimeTillMaturity(series.maturity),
-        series.ts,
-        series.g2,
-        series.decimals,
-        series.c,
-        series.mu
-      );
-
-      initInvariant = invariant(
-        initSeries.sharesReserves,
-        initSeries.fyTokenReserves,
-        initSeries.totalSupply,
-        (series.maturity - series.startBlock.timestamp).toString(),
-        initSeries.ts,
-        initSeries.g2,
-        series.decimals,
-        initSeries.c,
-        series.mu
-      );
-    }
-
-    // get apy estimate
-    if (initInvariant && currentInvariant && series.startBlock) {
-      const res = calculateAPR(initInvariant, currentInvariant, NOW, series.startBlock.timestamp);
-      return !isNaN(+res!) ? +res! : 0;
-    }
-
-    return 0;
-  };
+      if (series.poolSharesAPY) {
+        const sharesBaseVal = +series.getBase(series.sharesReserves);
+        const sharesValRatio = sharesBaseVal / poolBaseValue;
+        return +series.poolSharesAPY * sharesValRatio;
+      }
+      return 0;
+    },
+    [getPoolBaseValue]
+  );
 
   /**
    * Calculate (estimate) how much interest would be captured by LP position using market rates and fyToken proportion of the pool
    * @returns {number} estimated fyToken interest from LP position
    */
-  const getFyTokenAPY = (series: ISeries, input: string): number => {
-    if (!series) return 0;
-    const marketInterestRate = calcInterestRate(
-      series.sharesReserves,
-      series.fyTokenReserves,
-      BigNumber.from(series.ts),
-      series.mu
-    ).mul(100); // interest rate is formatted in decimal (.1) so multiply by 100 to get percent
-    const fyTokenPrice = getFyTokenPrice(series, input);
-    const poolBaseValue = getPoolBaseValue(series, input);
-    const fyTokenValRatio = (+series.fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
-    return +marketInterestRate * fyTokenValRatio;
-  };
+  const getFyTokenAPY = useCallback(
+    (series: ISeries, input: string): number => {
+      if (!series) return 0;
+      const marketInterestRate = calcInterestRate(
+        series.sharesReserves,
+        series.fyTokenReserves,
+        BigNumber.from(series.ts),
+        series.mu
+      ).mul(100); // interest rate is formatted in decimal (.1) so multiply by 100 to get percent
+      const fyTokenPrice = getFyTokenPrice(series, input);
+      const poolBaseValue = getPoolBaseValue(series, input);
+      const fyTokenValRatio = (+series.fyTokenRealReserves * fyTokenPrice) / poolBaseValue;
+      return +marketInterestRate * fyTokenValRatio;
+    },
+    [getFyTokenPrice, getPoolBaseValue]
+  );
 
   /**
    * Calculate (estimate) how much rewards token is accrued by strategy position
    * @returns {number} estimated rewards apy from strategy
    */
-  const getRewardsAPY = (strategy: IStrategy, input: string): number => {
-    /// console.log( strategy.rewardsRate.toString() ) ;
+  const getRewardsAPY = useCallback(
+    (strategy: IStrategy, input: string): number => {
+      /// console.log( strategy.rewardsRate.toString() ) ;
 
-    if (!strategy.rewardsPeriod || strategy.rewardsRate?.lte(ZERO_BN)) return 0;
+      if (!strategy.rewardsPeriod || strategy.rewardsRate?.lte(ZERO_BN)) return 0;
 
-    const { start, end } = strategy.rewardsPeriod;
+      const { start, end } = strategy.rewardsPeriod;
 
-    // assess if outside of rewards period
-    if (NOW < start || NOW > end) return 0;
+      // assess if outside of rewards period
+      if (NOW < start || NOW > end) return 0;
 
-    const timeRemaining = end - NOW;
-    // console.log(timeRemaining.toString(), 'seconds remaining');
+      const timeRemaining = end - NOW;
+      // console.log(timeRemaining.toString(), 'seconds remaining');
 
-    const weiRemaining = BigNumber.from(timeRemaining).mul(strategy.rewardsRate!);
-    const ethRemaining = formatEther(weiRemaining);
-    // console.log(ethRemaining, 'eth remaining to be distributed');
+      const weiRemaining = BigNumber.from(timeRemaining).mul(strategy.rewardsRate!);
+      const ethRemaining = formatEther(weiRemaining);
+      // console.log(ethRemaining, 'eth remaining to be distributed');
 
-    const currentTotalSupply = strategy.strategyTotalSupply;
-    const currentTotalEthSupply = formatEther(currentTotalSupply!);
-    // console.log(currentTotalEthSupply, 'current total ETH strategy supply');
+      const currentTotalSupply = strategy.strategyTotalSupply;
+      const currentTotalEthSupply = formatEther(currentTotalSupply!);
+      // console.log(currentTotalEthSupply, 'current total ETH strategy supply');
 
-    const inputAsPropOfPool = +input / (+currentTotalEthSupply + +input);
-    // console.log('input ETH:', input);
-    // console.log('input as proportion of pool:', inputAsPropOfPool);
+      const inputAsPropOfPool = +input / (+currentTotalEthSupply + +input);
+      // console.log('input ETH:', input);
+      // console.log('input as proportion of pool:', inputAsPropOfPool);
 
-    const rewardsEarned =  Math.min( +ethRemaining * inputAsPropOfPool, +ethRemaining )
-    // console.log('if adding input: ', +input, 'your returns will be  ', rewardsEarned);
+      const rewardsEarned = Math.min(+ethRemaining * inputAsPropOfPool, +ethRemaining);
+      // console.log('if adding input: ', +input, 'your returns will be  ', rewardsEarned);
 
-    const newEst = +calculateAPR(input.toString(), (+input + rewardsEarned).toString(), end, start)!;
-    // console.log('New APY estimate: ', newEst);
+      const newEst = +calculateAPR(input.toString(), (+input + rewardsEarned).toString(), end, start)!;
+      // console.log('New APY estimate: ', newEst);
 
-    return isNaN(newEst) ? 0 : newEst;
-  };
+      return isNaN(newEst) ? 0 : newEst;
+    },
+    [NOW]
+  );
 
-  /* TODO  fix this*/
-  const totalAPYBackward = (strategy: IStrategy, digits: number = 2) => {
-    const series = strategy.currentSeries;
-    if (!series || !strategy_) return;
-
-    const strategyLpBalance = +strategy_?.strategyPoolBalance!;
-    const strategyTotalSupply = +strategy_?.strategyTotalSupply!;
-    const poolTotalSupply = +series.totalSupply;
-
-    const poolBaseValue_ = getPoolBaseValue(series, '1');
-    if (!poolBaseValue_) return;
-
-    const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
-
-    const value = strategyLpBalSupplyRatio * (poolBaseValue_ / poolTotalSupply);
-    const apy = calculateAPR('1', value.toString(), NOW, strategy_.startBlock?.timestamp);
-
-    return cleanValue(apy, digits);
-  };
-
-  // get the init series data to use the invariant function
-  useEffect(() => {
-    (async () => {
+  const calcStrategyReturns = useCallback(
+    (strategy: IStrategy | null, input: string) => {
+      if (!strategy) return;
+      const series = strategy.currentSeries;
       if (!series) return;
-      const { poolContract, currentInvariant, initInvariant } = series;
-      if (!currentInvariant || !initInvariant) {
-        const [sharesReserves, fyTokenReserves, totalSupply, ts, g2, c] = await Promise.all([
-          poolContract.getSharesBalance(),
-          poolContract.getFYTokenBalance(),
-          poolContract.totalSupply(),
-          poolContract.ts(),
-          poolContract.g2(),
-          poolContract.getC(),
-        ]);
-        setInitSeries({ sharesReserves, fyTokenReserves, totalSupply, ts, g2, c });
-      }
-    })();
-  }, [series]);
+      const sharesAPY = getSharesAPY(series, input);
+      const fyTokenAPY = getFyTokenAPY(series, input);
+      const rewardsAPY = getRewardsAPY(strategy, input);
 
-  const calcStrategyReturns = (strategy: IStrategy | null, input: string) => {
+      return {
+        feesAPY: cleanValue(series.feeAPY.toString(), digits),
+        sharesAPY: cleanValue(series.poolSharesAPY, digits),
+        sharesBlendedAPY: cleanValue(sharesAPY.toString(), digits),
+        fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
+        rewardsAPY: cleanValue(rewardsAPY.toString(), digits),
+        blendedAPY: cleanValue((sharesAPY + series.feeAPY + fyTokenAPY + rewardsAPY).toString(), digits),
+      };
+    },
+    [digits, getFyTokenAPY, getRewardsAPY, getSharesAPY]
+  );
 
-    if (!strategy) return;
-    const series = strategy.currentSeries;
-    if (!series) return;
-    const sharesAPY = getSharesAPY(series, input);
-    const feesAPY = getFeesAPY(series, undefined);
-    const fyTokenAPY = getFyTokenAPY(series, input);
-    const rewardsAPY = getRewardsAPY(strategy, input);
-
-    return {
-      feesAPY: cleanValue(feesAPY.toString(), digits),
-      sharesAPY: cleanValue(series.poolAPY, digits),
-      sharesBlendedAPY: cleanValue(sharesAPY.toString(), digits),
-      fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
-      rewardsAPY: cleanValue(rewardsAPY.toString(), digits),
-      blendedAPY: cleanValue((sharesAPY + feesAPY + fyTokenAPY + rewardsAPY).toString(), digits),
-    };
-  };
-
-  // const returns = calcStrategyReturns(selectedStrategy!, inputToUse);
-  useEffect(()=> {
-      setLpReturns( calcStrategyReturns(selectedStrategy!, inputToUse) );
-  },[inputToUse, selectedStrategy])
+  useEffect(() => {
+    setLpReturns(calcStrategyReturns(selectedStrategy!, inputToUse));
+  }, [calcStrategyReturns, inputToUse, selectedStrategy]);
 
   return {
     returns,
