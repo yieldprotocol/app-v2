@@ -11,7 +11,7 @@ import {
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IVault, ISeries, IAssetPair } from '../../types';
+import { IVault, IAssetPair } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
@@ -22,7 +22,6 @@ import useSeriesEntities from '../useSeriesEntities';
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
   input: string | undefined,
-  collateralInput: string | undefined,
   vault: IVault | undefined,
   assetPairInfo: IAssetPair | null | undefined,
   futureSeriesId: string | null = null // Future or rollToSeries id
