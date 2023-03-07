@@ -4,68 +4,67 @@ import { Box, Button, Text } from 'grommet';
 
 import { UserContext } from '../../contexts/UserContext';
 
-import { ActionType, IAsset, ISeries } from '../../types';
+import { IAsset, ISeries, ISeriesRoot } from '../../types';
 
 import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
 import { useAccount } from 'wagmi';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 interface IPositionFilter {
   base: IAsset | undefined;
-  series: ISeries | undefined;
+  series: ISeries | ISeriesRoot | undefined;
 }
 
-function PositionSelector({ actionType }: { actionType: ActionType }) {
+function LendPositionSelector() {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { seriesMap, selectedSeries, selectedBase } = userState;
+  const { selectedSeries, selectedBase } = userState;
+  const {
+    seriesEntities: { data: seriesMap },
+  } = useSeriesEntities();
 
   const { address: activeAccount } = useAccount();
 
-  const [allPositions, setAllPositions] = useState<ISeries[]>([]);
+  const [allPositions, setAllPositions] = useState<ISeriesRoot[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
 
   const [currentFilter, setCurrentFilter] = useState<IPositionFilter>();
   const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
-  const [filteredSeries, setFilteredSeries] = useState<ISeries[]>([]);
+  const [filteredSeries, setFilteredSeries] = useState<ISeriesRoot[]>([]);
 
   const handleFilter = useCallback(
     ({ base, series }: IPositionFilter) => {
+      if (!seriesMap) return;
+
       /* filter all positions by base if base is selected */
-      const _filteredSeries: ISeries[] = Array.from(seriesMap?.values()!)
+      const _filteredSeries = Array.from(seriesMap.values())
         /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (base ? _series.baseId === base.proxyId : true))
-        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
+        .filter((_series) => _series.fyTokenBalance.gt(ZERO_BN))
+        .filter((_series) => (base ? _series.baseId === base.proxyId : true))
+        .filter((_series) => (series ? _series.id === series.id : true));
       setCurrentFilter({ base, series });
       setFilterLabels([base?.symbol, series?.displayNameMobile]);
       setFilteredSeries(_filteredSeries);
     },
-    [seriesMap, actionType]
+    [seriesMap]
   );
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
-    /* only if veiwing the main screen (not when modal is showing) */
-    // if (!showPositionModal) {
-    const _allPositions: ISeries[] = Array.from(seriesMap?.values()!)
+    if (!seriesMap) return;
+
+    /* only if viewing the main screen (not when modal is showing) */
+    const _allPositions = Array.from(seriesMap.values())
       /* filter by positive balances on either pool tokens or fyTokens */
-      .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
-        actionType === 'LEND' && _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
-      )
-      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
-        actionType === 'POOL' && _seriesA.poolTokens?.lt(_seriesB.poolTokens!) ? 1 : -1
-      );
+      .filter((_series) => _series.fyTokenBalance.gt(ZERO_BN))
+      .sort((_seriesA, _seriesB) => (_seriesA.fyTokenBalance.gt(_seriesB.fyTokenBalance) ? 1 : -1));
     setAllPositions(_allPositions);
 
     if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
     if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
-    // }
-  }, [selectedBase, selectedSeries, handleFilter, seriesMap, actionType]);
+  }, [selectedBase, selectedSeries, handleFilter, seriesMap]);
 
   useEffect(() => {
     allPositions.length <= 5 && setShowAllPositions(true);
@@ -94,8 +93,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
               </Text>
             )}
 
-            {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-              <LendItem series={x} actionType={actionType} index={i} key={x.id} />
+            {(!showAllPositions ? filteredSeries : allPositions).map((x, i) => (
+              <LendItem seriesId={x.id} index={i} key={x.id} />
             ))}
           </ListWrap>
 
@@ -163,4 +162,4 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   );
 }
 
-export default PositionSelector;
+export default LendPositionSelector;
