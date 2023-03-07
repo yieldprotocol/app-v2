@@ -26,7 +26,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   const { setSelectedVault } = userActions;
 
   const {
-    seriesEntities: { data: seriesEntities, loading: seriesEntitiesLoading },
+    seriesEntities: { data: seriesEntities, isLoading: seriesEntitiesLoading },
   } = useSeriesEntities(vault.seriesId);
 
   const handleSelect = (_vault: IVault) => {
