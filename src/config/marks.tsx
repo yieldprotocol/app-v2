@@ -17,6 +17,8 @@ import USDTMark from '../components/logos/USDTMark';
 import WBTCMark from '../components/logos/WBTCMark';
 import YVUSDCMark from '../components/logos/YVUSDCMark';
 
+import SenseMark from '../components/logos/SenseMark';
+
 const markMap = new Map([
   ['DAI', <DaiMark key="dai" />],
   ['USDC', <USDCMark key="usdc" />],
@@ -35,6 +37,8 @@ const markMap = new Map([
   ['Cvx3Crv Mock', <CVX3CRVMark key="cvx3crv mock" />],
   ['cvx3Crv', <CVX3CRVMark key="cvx3crv" />],
   ['FRAX', <FRAXMark key="frax" />],
+
+  ['SENSE', <SenseMark key="sense" />],
   // ['Crabv2', <CRABMark key="crab" />],
   [
     'Crabv2',
