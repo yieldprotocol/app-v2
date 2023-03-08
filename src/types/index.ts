@@ -114,8 +114,7 @@ export interface ISeriesRoot extends ISignable {
   ts: string;
   g1: string;
   g2: string;
-  c?: string;
-  mu?: string;
+  mu?: BigNumber | string | undefined;
 
   fyTokenBalance: BigNumber;
   fyTokenBalance_: string;
@@ -224,6 +223,7 @@ export interface ISeries extends ISeriesRoot {
   sharesReserves: BigNumber;
   fyTokenReserves: BigNumber;
   fyTokenRealReserves: BigNumber;
+  c?: BigNumber | string | undefined;
 
   getShares: (baseAmount: BigNumber) => BigNumber;
   getBase: (sharesAmount: BigNumber) => BigNumber;
