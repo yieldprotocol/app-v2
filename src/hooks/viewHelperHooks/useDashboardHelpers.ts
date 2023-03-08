@@ -1,19 +1,19 @@
 import { ethers } from 'ethers';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { IAssetPair, ISeries, IStrategy, IVault } from '../../types';
+import { IAssetPair, ISeriesRoot, IStrategy, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { USDC, USDT, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import useAssetPair from '../useAssetPair';
 import { unstable_serialize, useSWRConfig } from 'swr';
-import { toast } from 'react-toastify';
+import useSeriesEntities from '../useSeriesEntities';
 
-interface ILendPosition extends ISeries {
+interface ILendPosition extends ISeriesRoot {
   currentValue_: string | undefined;
 }
 
@@ -30,8 +30,13 @@ export const useDashboardHelpers = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { vaultMap, seriesMap, strategyMap },
+    userState: { vaultMap, strategyMap },
   } = useContext(UserContext);
+  const {
+    seriesEntities: { data: seriesEntities },
+    getSeriesEntity,
+    genKey: genSeriesEntityKey,
+  } = useSeriesEntities();
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { getAssetPair, genKey: genAssetPairKey } = useAssetPair();
@@ -61,34 +66,40 @@ export const useDashboardHelpers = () => {
 
   /* set lend positions */
   useEffect(() => {
-    const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
-      .map((_series) => {
-        const currentValue =
-          _series.seriesIsMature && _series.fyTokenBalance
-            ? _series.fyTokenBalance
-            : sellFYToken(
-                _series.sharesReserves,
-                _series.fyTokenReserves,
-                _series.fyTokenBalance || ethers.constants.Zero,
-                getTimeTillMaturity(_series.maturity),
-                _series.ts,
-                _series.g2,
-                _series.decimals,
-                _series.c,
-                _series.mu
-              );
+    if (!seriesEntities) return;
+    (async () => {
+      const filteredSeriesEntities = Array.from(seriesEntities.values()).filter((s) => s.fyTokenBalance.gt(ZERO_BN));
+      const _lendPositions = await filteredSeriesEntities.reduce(async (acc, _s) => {
+        const s = await getSeriesEntity(_s.id);
+        const key = unstable_serialize(genSeriesEntityKey(_s.id));
+        mutate(key, s);
+
+        if (!s) return acc;
+
+        const currentValue = s.seriesIsMature
+          ? s.fyTokenBalance
+          : sellFYToken(
+              s.sharesReserves,
+              s.fyTokenReserves,
+              s.fyTokenBalance,
+              getTimeTillMaturity(s.maturity),
+              s.ts,
+              s.g2,
+              s.decimals,
+              s.c,
+              s.mu
+            );
         const currentValue_ =
-          currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
-            ? _series.fyTokenBalance_
-            : ethers.utils.formatUnits(currentValue, _series.decimals);
-        return { ..._series, currentValue_ };
-      })
-      .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
-      .sort((_seriesA: ILendPosition, _seriesB: ILendPosition) =>
-        _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
-      );
-    setLendPositions(_lendPositions);
-  }, [getTimeTillMaturity, seriesMap]);
+          currentValue.lte(ethers.constants.Zero) && s.fyTokenBalance.gt(ethers.constants.Zero)
+            ? s.fyTokenBalance_
+            : ethers.utils.formatUnits(currentValue, s.decimals);
+        return [...(await acc), { ...s, currentValue_ }];
+      }, Promise.resolve([] as ILendPosition[]));
+      const sorted = _lendPositions.sort((a, b) => (a.fyTokenBalance.gt(b.fyTokenBalance) ? 1 : -1));
+
+      setLendPositions(sorted);
+    })();
+  }, [genSeriesEntityKey, getSeriesEntity, getTimeTillMaturity, lendPositions, mutate, seriesEntities]);
 
   /* set strategy positions */
   useEffect(() => {
@@ -123,7 +134,7 @@ export const useDashboardHelpers = () => {
       .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
       .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
     setStrategyPositions(_strategyPositions);
-  }, [strategyMap, seriesMap, getTimeTillMaturity]);
+  }, [strategyMap, getTimeTillMaturity]);
 
   /* get a single position's ink or art in usdc or eth (input the asset id): value can be art, ink, fyToken, or poolToken balances */
   const convertValue = useCallback(
