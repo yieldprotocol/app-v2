@@ -28,7 +28,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
     let preview: ethers.BigNumber | Error = ethers.constants.Zero;
 
     if (seriesEntity) {
-      const { poolSymbol, sharesReserves, fyTokenReserves, ts, g1, g2, decimals, c, mu, maturity, getShares } =
+      const { sharesReserves, fyTokenReserves, ts, g1, g2, decimals, c, mu, maturity, getShares, borrowAPR, lendAPR } =
         seriesEntity;
 
       const baseAmount = ethers.utils.parseUnits(_input || _fallbackInput, decimals);
@@ -62,9 +62,9 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
       }
       // figure out what to do with negative apr on borrow for tv series
       const _apr = calculateAPR(baseAmount, preview, maturity);
-      _apr ? setApr(cleanValue(_apr, 2)) : setApr(apr);
+      _apr ? setApr(cleanValue(_apr, 2)) : setApr(actionType === ActionType.LEND ? lendAPR : borrowAPR);
     }
-  }, [_fallbackInput, _input, actionType, apr, getTimeTillMaturity, seriesEntity]);
+  }, [_fallbackInput, _input, actionType, getTimeTillMaturity, seriesEntity]);
 
   return { apr };
 };
