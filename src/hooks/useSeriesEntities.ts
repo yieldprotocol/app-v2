@@ -4,10 +4,11 @@ import Decimal from 'decimal.js';
 import { BigNumber, ethers } from 'ethers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils.js';
 import request, { gql } from 'graphql-request';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 import { useAccount, useChainId, useProvider } from 'wagmi';
 import { arbitrumColorMap, ethereumColorMap } from '../config/colors';
+import { UserContext } from '../contexts/UserContext';
 import { FYToken__factory, Pool__factory } from '../contracts';
 import { ISeries, ISeriesRoot } from '../types';
 import { getSeason, nameFromMaturity, SeasonType } from '../utils/appUtils';
@@ -48,6 +49,7 @@ export const useSeriesEntities = (seriesId?: string | null) => {
   // const { cache } = useSWRConfig();
   const chainId = useChainId();
   const provider = useProvider();
+
   const { address: account } = useAccount();
   const { subgraphUrl } = useSubgraph();
   const { isMature } = useTimeTillMaturity();
@@ -301,6 +303,7 @@ export const useSeriesEntities = (seriesId?: string | null) => {
     },
     getSeriesEntity,
     genKey,
+    selectedSeries: seriesEntities?.get(seriesId!),
   };
 };
 
