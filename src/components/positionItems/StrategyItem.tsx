@@ -10,6 +10,7 @@ import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; index: number; condensed?: boolean }) {
   const router = useRouter();
@@ -21,13 +22,16 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   } = useContext(UserContext);
 
   const base = assetMap?.get(strategy.baseId) || null;
-  const series = strategy.currentSeries || null;
+  const {
+    seriesEntities: { data: seriesEntities },
+  } = useSeriesEntities(strategy.currentSeriesId!);
+  const seriesEntity = seriesEntities?.get(strategy.currentSeriesId!);
 
   const isSelectedStrategy = strategy.id === selectedStrategy?.id;
 
   const handleSelect = (_series: IStrategy) => {
     userActions.setSelectedBase(base);
-    userActions.setSelectedSeries(series);
+    userActions.setSelectedSeriesId(seriesEntity?.id!);
     userActions.setSelectedStrategy(strategy);
     router.push(`/poolposition/${strategy.address}`);
     logAnalyticsEvent(GA_Event.position_opened, {
@@ -38,7 +42,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   return (
     <ItemWrap action={() => handleSelect(strategy)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={strategy.currentSeries!} condensed={condensed} actionType={ActionType.POOL} />
+        <PositionAvatar position={seriesEntity!} condensed={condensed} actionType={ActionType.POOL} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
@@ -48,7 +52,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
             <Text weight={900} size="small">
               {formatStrategyName(strategy.name)}
             </Text>
-            <Text size="xsmall">Rolling: {strategy.currentSeries?.fullDate}</Text>
+            <Text size="xsmall">Rolling: {seriesEntity?.fullDate}</Text>
           </Box>
 
           <Box justify="center" width={'6rem'}>
