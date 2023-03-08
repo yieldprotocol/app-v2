@@ -13,7 +13,7 @@ import useAssetPair from '../useAssetPair';
 import { unstable_serialize, useSWRConfig } from 'swr';
 import useSeriesEntities from '../useSeriesEntities';
 
-interface ILendPosition extends ISeriesRoot {
+export interface ILendPosition extends ISeriesRoot {
   currentValue_: string | undefined;
 }
 

@@ -18,6 +18,7 @@ import { formatValue } from '../../utils/appUtils';
 import { useAccount } from 'wagmi';
 import { Settings } from '../../contexts/types/settings';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 const StyledBox = styled(Box)`
   * {
@@ -38,14 +39,18 @@ const Dashboard = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { vaultsLoading, seriesLoading, strategiesLoading },
+    userState: { vaultsLoading, strategiesLoading },
   } = useContext(UserContext);
 
   const {
     chainState: { chainLoaded },
   } = useContext(ChainContext);
 
-  const { address:account, isConnected } = useAccountPlus();
+  const {
+    seriesEntities: { isLoading: seriesEntitiesLoading },
+  } = useSeriesEntities();
+
+  const { address: account, isConnected } = useAccountPlus();
 
   const {
     vaultPositions,
@@ -67,11 +72,11 @@ const Dashboard = () => {
         basis={mobile ? undefined : '60%'}
       >
         {!account && chainLoaded && (
-          <Box width={mobile ? '100%' : undefined} align='center' fill='horizontal' >
-            <Text size='small' >No Wallet Connected.</Text>
-        </Box>
+          <Box width={mobile ? '100%' : undefined} align="center" fill="horizontal">
+            <Text size="small">No Wallet Connected.</Text>
+          </Box>
         )}
-        
+
         {account && (
           <Box width={mobile ? '100%' : undefined} gap="large">
             <Box gap="medium">
@@ -121,7 +126,7 @@ const Dashboard = () => {
                 </Box>
               </Box>
 
-              {seriesLoading ? (
+              {seriesEntitiesLoading ? (
                 <Skeleton width={mobile ? 300 : undefined} count={1} height={40} />
               ) : (
                 <DashboardPositionList

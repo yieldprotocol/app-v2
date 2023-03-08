@@ -1,5 +1,6 @@
 import { Box, Text } from 'grommet';
 import styled from 'styled-components';
+import { ILendPosition } from '../hooks/viewHelperHooks/useDashboardHelpers';
 
 import { ActionType, ISeries, IStrategy, IVault } from '../types';
 import DashboardPositionListItem from './DashboardPositionListItem';
@@ -15,7 +16,7 @@ interface IDashPosition {
   lendBalance?: string | null;
   strategyBalance?: string | null;
   actionType: ActionType;
-  positions: (ISeries | IVault | IStrategy)[];
+  positions: (ISeries | IVault | IStrategy | ILendPosition)[];
   showList: boolean;
 }
 
@@ -42,7 +43,7 @@ const DashboardPositionList = ({
           No suggested positions
         </Text>
       )}
-      {positions.map((position: ISeries | IVault | IStrategy, i: number) => (
+      {positions.map((position, i) => (
         <DashboardPositionListItem item={position} index={i} actionType={actionType} key={position.id} />
       ))}
     </StyledBox>
