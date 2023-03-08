@@ -8,14 +8,14 @@ import { ActionType, ISeries } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useApr } from '../useApr';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import { cleanValue } from '../../utils/appUtils';
 import { WETH } from '../../config/assets';
 import useSeriesEntities from '../useSeriesEntities';
 import useAccountPlus from '../useAccountPlus';
 
 export const useLendHelpers = (
-  series: ISeries | null,
+  seriesId: string,
   input: string | undefined,
   rollToSeries: ISeries | undefined = undefined
 ) => {
@@ -30,8 +30,8 @@ export const useLendHelpers = (
   const { selectedBase } = userState;
 
   const {
-    seriesEntity: { data: seriesEntity },
-  } = useSeriesEntities(series?.id);
+    seriesEntity: { data: series },
+  } = useSeriesEntities(seriesId);
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);
@@ -55,7 +55,7 @@ export const useLendHelpers = (
   // estimated fyTokens received after rolling to a new series
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
-  const { apr: apy } = useApr(input, ActionType.LEND, seriesEntity?.id!);
+  const { apr: apy } = useApr(input, ActionType.LEND, seriesId);
   const { address: account } = useAccountPlus();
   const { data } = useBalance({
     address: account,

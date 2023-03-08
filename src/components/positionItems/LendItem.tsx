@@ -26,23 +26,25 @@ function LendItem({
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { assetMap, selectedSeries, selectedBase },
+    userState: { assetMap, selectedSeriesId, selectedBase },
     userActions,
   } = useContext(UserContext);
   const {
-    seriesEntity: { data: seriesEntity },
+    seriesEntities: { data: seriesEntities },
   } = useSeriesEntities(seriesId);
-  const { fyTokenMarketValue } = useLendHelpers(seriesEntity!, '0');
+
+  const seriesEntity = seriesEntities?.get(seriesId);
+
+  const { fyTokenMarketValue } = useLendHelpers(seriesId, '0');
   const seriesBase = assetMap?.get(seriesEntity?.baseId!);
-  const isSelectedBaseAndSeries =
-    seriesEntity?.baseId === seriesBase?.proxyId && seriesEntity?.id === selectedSeries?.id;
+  const isSelectedBaseAndSeries = seriesEntity?.baseId === seriesBase?.proxyId && seriesEntity?.id === selectedSeriesId;
 
   const handleSelect = (_series: ISeriesRoot) => {
     userActions.setSelectedBase(selectedBase);
-    userActions.setSelectedSeries(_series);
+    userActions.setSelectedSeriesId(_series.id);
     router.push(`/lendposition/${_series.id}`);
     logAnalyticsEvent(GA_Event.position_opened, {
-      id: selectedSeries?.name,
+      id: seriesEntity?.name,
     } as GA_Properties.position_opened);
   };
 
