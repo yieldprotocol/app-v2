@@ -9,6 +9,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ISeries } from '../../types';
 import Header from '../Header';
 import YieldMobileMenu from '../YieldMobileMenu';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 interface IModalWrap {
   children: any;
@@ -20,10 +21,10 @@ function ModalWrap({ children, series }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    userState: { selectedSeries, seriesMap },
+    userState: { selectedSeriesId },
   } = useContext(UserContext);
 
-  const _series = series! || seriesMap?.get(selectedSeries?.id!);
+  const { selectedSeries: seriesEntity } = useSeriesEntities(series ? series.id : selectedSeriesId);
 
   /* LOCAL STATE */
   const [menuLayerOpen, setMenuLayerOpen] = useState<boolean>(false);
@@ -32,7 +33,7 @@ function ModalWrap({ children, series }: IModalWrap) {
     <Keyboard onEsc={() => router.back()}>
       <Layer
         full
-        background={`linear-gradient( 45deg ,  ${_series?.startColor.toString()} , ${_series?.endColor
+        background={`linear-gradient( 45deg ,  ${seriesEntity?.startColor.toString()} , ${seriesEntity?.endColor
           ?.toString()
           .concat('80')} )`}
         animation="fadeIn"
