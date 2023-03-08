@@ -129,6 +129,9 @@ const VaultPosition = () => {
   );
 
   /* HOOK FNS */
+  const {
+    seriesEntity: { data: rollToSeriesEntity },
+  } = useSeriesEntities(rollToSeries?.id);
   const repay = useRepayDebt();
   const rollDebt = useRollDebt();
 
@@ -231,7 +234,7 @@ const VaultPosition = () => {
   const handleRoll = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollDebt(_selectedVault!, rollToSeries!);
+    rollDebt(_selectedVault!, rollToSeriesEntity!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
