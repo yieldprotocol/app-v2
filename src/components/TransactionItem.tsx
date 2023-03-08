@@ -6,10 +6,10 @@ import { FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { ProcessStage, TxState } from '../types';
 import EtherscanButton from './buttons/EtherscanButton';
 import { getPositionPath } from '../utils/appUtils';
-import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { useColorScheme } from '../hooks/useColorScheme';
 import useContracts from '../hooks/useContracts';
+import useSeriesEntities from '../hooks/useSeriesEntities';
 
 interface ITransactionItem {
   tx: any;
@@ -27,8 +27,8 @@ const StyledBox = styled(Box)`
 
 const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
-    chainState: { seriesRootMap },
-  } = useContext(ChainContext);
+    seriesEntities: { data: seriesEntities },
+  } = useSeriesEntities();
   const {
     txActions: { updateTxStage },
   } = useContext(TxContext);
@@ -44,9 +44,9 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
 
   /* get position link for viewing position */
   useEffect(() => {
-    const path = getPositionPath(txCode, receipt, contracts, seriesRootMap);
+    const path = getPositionPath(txCode, receipt, contracts, seriesEntities);
     path && setLink(path);
-  }, [receipt, contracts, seriesRootMap, txCode]);
+  }, [receipt, contracts, txCode, seriesEntities]);
 
   return (
     <Box
