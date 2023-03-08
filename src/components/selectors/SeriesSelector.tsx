@@ -173,7 +173,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     let filteredOpts = opts
       .filter((s) => s.showSeries)
       .filter((s) => s.baseId === selectedBase?.proxyId && !s.seriesIsMature);
-    console.log('🦄 ~ file: SeriesSelector.tsx:176 ~ useEffect ~ filteredOpts:', filteredOpts);
 
     /* if within a position, filter out appropriate series based on selected vault or selected series */
     if (selectSeriesLocally) {
