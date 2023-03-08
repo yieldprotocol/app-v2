@@ -5,6 +5,7 @@ import { FiPlus, FiMinus } from 'react-icons/fi';
 import Skeleton from './wraps/SkeletonWrap';
 import { formatValue } from '../utils/appUtils';
 import { UserContext } from '../contexts/UserContext';
+import useSeriesEntities from '../hooks/useSeriesEntities';
 
 interface IDashboardBalance {
   debt: string;
@@ -19,8 +20,11 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
   const theme = useContext(ThemeContext);
   const { green, red } = theme.global.colors;
   const {
-    userState: { vaultsLoading, seriesLoading, strategiesLoading },
+    userState: { vaultsLoading, strategiesLoading },
   } = useContext(UserContext);
+  const {
+    seriesEntities: { isLoading: seriesEntitiesLoading },
+  } = useSeriesEntities();
 
   const [totalBalance, setTotalBalance] = useState<number>();
 
@@ -33,7 +37,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
       <Box gap="small">
         <Box direction="row-responsive" justify="between">
           <Text size="small">Total Lent:</Text>
-          {seriesLoading ? (
+          {seriesEntitiesLoading ? (
             <Skeleton width={50} />
           ) : (
             <Box direction="row" gap="medium">
@@ -94,7 +98,7 @@ const DashboardBalanceSummary = ({ debt, collateral, lendBalance, poolBalance, d
 
       <Box direction="row-responsive" justify="between" margin={{ top: 'medium' }} border={{ side: 'top' }}>
         <Text size="medium">Total:</Text>
-        {vaultsLoading || seriesLoading || strategiesLoading ? (
+        {vaultsLoading || seriesEntitiesLoading || strategiesLoading ? (
           <Skeleton width={50} />
         ) : (
           <Box direction="row" gap="medium">
