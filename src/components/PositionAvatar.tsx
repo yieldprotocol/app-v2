@@ -4,8 +4,9 @@ import { FiClock } from 'react-icons/fi';
 import { MdAutorenew } from 'react-icons/md';
 import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
-import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
+import { IVault, ISeries, IAsset, IStrategy, ActionType, ISeriesRoot } from '../types';
 import Logo from './logos/Logo';
+import useSeriesEntities from '../hooks/useSeriesEntities';
 
 const Outer = styled(Box)`
   position: relative;
@@ -31,7 +32,7 @@ function PositionAvatar({
   condensed,
   actionType,
 }: {
-  position: IVault | ISeries | IStrategy;
+  position: IVault | ISeries | IStrategy | ISeriesRoot;
   actionType: ActionType;
   condensed?: boolean;
 }) {
@@ -39,11 +40,14 @@ function PositionAvatar({
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { assetMap, seriesMap } = userState;
+  const { assetMap } = userState;
+  const {
+    seriesEntities: { data: seriesMap },
+  } = useSeriesEntities();
 
   const base: IAsset | undefined = assetMap?.get(position?.baseId!); // same for both series and vaults
   const vault: IVault | undefined = isVault ? (position as IVault) : undefined;
-  const series: ISeries | undefined = vault ? seriesMap?.get(vault.seriesId!) : (position as ISeries);
+  const series = vault ? seriesMap?.get(vault.seriesId!) : (position as ISeriesRoot);
 
   const ilk: IAsset | undefined = vault && assetMap?.get(vault.ilkId); // doesn't exist on series
   const baseImageSize = condensed ? '20px' : '24px';
