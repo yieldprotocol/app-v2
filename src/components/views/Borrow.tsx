@@ -52,6 +52,7 @@ import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useSeriesEntities from '../../hooks/useSeriesEntities';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import { formatUnits } from 'ethers/lib/utils.js';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -347,7 +348,11 @@ const Borrow = () => {
                     <Text size="xsmall" color="text-weak">
                       Max borrow is{' '}
                       <Text size="small" color="text-weak">
-                        {cleanValue(selectedSeries?.sharesReserves_!, 2)} {selectedBase?.displaySymbol}
+                        {cleanValue(
+                          formatUnits(selectedSeries.getBase(selectedSeries.sharesReserves), selectedSeries.decimals),
+                          2
+                        )}{' '}
+                        {selectedBase?.displaySymbol}
                       </Text>{' '}
                       (limited by protocol liquidity)
                     </Text>
