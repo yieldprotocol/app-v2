@@ -15,11 +15,11 @@ const useAccountPlus = () => {
   const [ userData, setUserData ] = useState<any>({address:undefined});
 
   useEffect(() => {
-    if (useMockedUser === true) {
+    if (useMockedUser === true && mockUserAddress !== undefined ) {
       console.log('useAccountPlus >>>  mockUser: ' + mockUserAddress);
       setUserData({ ...data, address: mockUserAddress, isConnected: true, connector: undefined, mocked: true });
-    } 
-  }, [useMockedUser]);
+    }
+  }, [useMockedUser, mockUserAddress]);
 
   return (useMockedUser === true ? userData : data);
   

@@ -20,7 +20,7 @@ const SupportSettings = () => {
 
   const [ forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
 
-  const [ mockAddressInput, setMockAddressInput] = useState<string>(mockUserAddress );
+  const [ mockAddressInput, setMockAddressInput] = useState<string|undefined>(mockUserAddress);
 
   const handleResetApp = () => {
     clearCachedItems([]);
@@ -96,9 +96,11 @@ const SupportSettings = () => {
             uncheckedIcon={false}
             checkedIcon={false}
             onChange={(val: boolean) => {
-              updateSetting(Settings.USE_MOCKED_USER, val);
-              updateSetting(Settings.MOCK_USER_ADDRESS, mockAddressInput);
-              window.location.reload();
+              if (mockAddressInput) {
+                updateSetting(Settings.USE_MOCKED_USER, val);
+                updateSetting(Settings.MOCK_USER_ADDRESS, mockAddressInput);
+                window.location.reload();
+              }
             }}
             handleDiameter={20}
             borderRadius={20}
