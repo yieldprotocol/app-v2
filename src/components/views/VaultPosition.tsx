@@ -117,7 +117,7 @@ const VaultPosition = () => {
   const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
   const [removeCollatInput, setRemoveCollatInput] = useState<any>(undefined);
 
-  const [rollToSeries, setRollToSeries] = useState<ISeries | undefined>(undefined);
+  const [rollToSeries, setRollToSeries] = useState<ISeries | ISeriesRoot | undefined>(undefined);
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
