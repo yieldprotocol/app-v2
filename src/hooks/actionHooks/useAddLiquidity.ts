@@ -29,6 +29,7 @@ import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import useSeriesEntities from '../useSeriesEntities';
 
 export const useAddLiquidity = () => {
   const {
@@ -37,8 +38,11 @@ export const useAddLiquidity = () => {
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedStrategy, selectedBase } = userState;
-  const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
+  const { updateVaults, updateAssets, updateStrategies } = userActions;
 
+  const {
+    seriesEntity: { data: seriesEntity },
+  } = useSeriesEntities(selectedStrategy?.currentSeriesId);
   const { address: account } = useAccountPlus();
   const chainId = useChainId();
   const contracts = useContracts();
@@ -67,7 +71,9 @@ export const useAddLiquidity = () => {
   ) => {
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
 
-    const _series = strategy.currentSeries!;
+    const _series = seriesEntity;
+    if (!_series) throw new Error('Series not found');
+
     const _base = assetMap?.get(_series?.baseId!)!;
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
@@ -308,7 +314,6 @@ export const useAddLiquidity = () => {
     await transact(calls, txCode);
     if (selectedBase?.proxyId !== WETH) refetchBaseBal();
     refetchStrategyBal();
-    updateSeries([_series]);
     updateAssets([_base]);
     updateStrategies([strategy]);
     updateStrategyHistory([strategy]);
