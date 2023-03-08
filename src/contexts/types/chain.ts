@@ -16,7 +16,6 @@ export interface IChainContext {
 export interface IChainContextState {
   chainLoaded: number;
   assetRootMap: Map<string, IAssetRoot>;
-  seriesRootMap: Map<string, ISeriesRoot>;
   strategyRootMap: Map<string, IStrategyRoot>;
 }
 
