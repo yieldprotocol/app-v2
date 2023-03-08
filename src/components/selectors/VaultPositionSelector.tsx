@@ -2,16 +2,16 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../contexts/UserContext';
-import { IAsset, ISeries, IVault } from '../../types';
+import { IAsset, ISeries, ISeriesRoot, IVault } from '../../types';
 import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount } from 'wagmi';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 interface IVaultFilter {
   base: IAsset | undefined;
-  series: ISeries | undefined;
+  series: ISeries | ISeriesRoot | undefined;
   ilk: IAsset | undefined;
 }
 
@@ -21,9 +21,10 @@ function VaultPositionSelector(target: any) {
     settingsState: { dashHideInactiveVaults },
   } = useContext(SettingsContext);
   const {
-    userState: { vaultMap, selectedSeries, selectedBase },
+    userState: { vaultMap, selectedBase, selectedSeriesId },
   } = useContext(UserContext);
 
+  const { selectedSeries } = useSeriesEntities(selectedSeriesId);
   const { isConnected } = useAccountPlus();
 
   /* LOCAL STATE */
@@ -67,10 +68,10 @@ function VaultPositionSelector(target: any) {
     if (selectedBase) {
       handleFilter({ base: selectedBase, series: undefined, ilk: undefined });
     }
-    if (selectedBase && selectedSeries) {
+    if (selectedBase && selectedSeriesId) {
       handleFilter({ base: selectedBase, series: selectedSeries, ilk: undefined });
     }
-  }, [vaultMap, selectedBase, selectedSeries, handleFilter]);
+  }, [vaultMap, selectedBase, selectedSeries, handleFilter, selectedSeriesId]);
 
   useEffect(() => {
     allVaults.length <= 5 && setShowAllVaults(true);
