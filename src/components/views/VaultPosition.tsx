@@ -10,7 +10,7 @@ import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/a
 import { UserContext } from '../../contexts/UserContext';
 import InputWrap from '../wraps/InputWrap';
 import InfoBite from '../InfoBite';
-import { ActionCodes, ActionType, ISeries, ProcessStage } from '../../types';
+import { ActionCodes, ActionType, ISeries, ISeriesRoot, ProcessStage } from '../../types';
 
 import ActionButtonWrap from '../wraps/ActionButtonWrap';
 import SectionWrap from '../wraps/SectionWrap';
@@ -46,6 +46,7 @@ import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import { WETH } from '../../config/assets';
 import { Address } from '@wagmi/core';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -56,8 +57,8 @@ const VaultPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
-  const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
+  const { assetMap, vaultMap, vaultsLoading } = userState;
+  const { setSelectedBase, setSelectedIlk, setSelectedSeriesId, setSelectedVault } = userActions;
 
   const { address: account } = useAccountPlus();
 
@@ -65,7 +66,9 @@ const VaultPosition = () => {
 
   const vaultBase = assetMap?.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
-  const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
+  const {
+    seriesEntity: { data: vaultSeries },
+  } = useSeriesEntities(_selectedVault?.seriesId);
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { data: ilkBal } = useBalance({
@@ -328,26 +331,26 @@ const VaultPosition = () => {
 
   useEffect(() => {
     /* set global series, base and ilk */
-    const _series = seriesMap?.get(_selectedVault?.seriesId!) || null;
+    const _series = vaultSeries || null;
     const _base = assetMap?.get(_selectedVault?.baseId!) || null;
     const _ilk = assetMap?.get(_selectedVault?.ilkId!) || null;
 
     // handle using ilk
     const _ilkToUse = _ilk; // use the unwrapped token if applicable
 
-    _selectedVault && setSelectedSeries(_series);
+    _selectedVault && setSelectedSeriesId(_series?.id!);
     _selectedVault && setSelectedBase(_base);
     _selectedVault && setSelectedIlk(_ilkToUse!);
     _selectedVault && setSelectedVault(_selectedVault);
   }, [
     vaultMap,
     _selectedVault,
-    seriesMap,
     assetMap,
-    setSelectedSeries,
     setSelectedBase,
     setSelectedIlk,
     setSelectedVault,
+    vaultSeries,
+    setSelectedSeriesId,
   ]);
 
   useEffect(() => {
@@ -624,7 +627,7 @@ const VaultPosition = () => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }}>
                         <SeriesSelector
-                          selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                          selectSeriesLocally={(series: ISeriesRoot) => setRollToSeries(series)}
                           actionType={ActionType.BORROW}
                           cardLayout={false}
                         />
