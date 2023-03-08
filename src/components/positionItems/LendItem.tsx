@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries, ISeriesRoot } from '../../types';
+import { ActionType, ISeriesRoot } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -12,16 +12,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useSeriesEntities from '../../hooks/useSeriesEntities';
 
-function LendItem({
-  seriesId,
-  index,
-  condensed,
-}: {
-  seriesId: string;
-  index: number;
-  actionType: ActionType;
-  condensed?: boolean;
-}) {
+function LendItem({ seriesId, index, condensed }: { seriesId: string; index: number; condensed?: boolean }) {
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
 
