@@ -17,7 +17,7 @@ import useAccountPlus from '../useAccountPlus';
 export const useLendHelpers = (
   seriesId: string | null,
   input: string | undefined,
-  rollToSeries: ISeries | undefined = undefined
+  rollToSeriesId: string | undefined = undefined
 ) => {
   const {
     settingsState: { diagnostics },
@@ -32,6 +32,9 @@ export const useLendHelpers = (
   const {
     seriesEntity: { data: series },
   } = useSeriesEntities(seriesId);
+  const {
+    seriesEntity: { data: rollToSeries },
+  } = useSeriesEntities(rollToSeriesId);
 
   /* clean to prevent underflow */
   const [maxLend, setMaxLend] = useState<BigNumber>(ethers.constants.Zero);

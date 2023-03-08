@@ -10,7 +10,7 @@ import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
-import { ActionCodes, ActionType, ISeries, ProcessStage } from '../../types';
+import { ActionCodes, ActionType, ISeries, ISeriesRoot, ProcessStage } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import InfoBite from '../InfoBite';
 import ActiveTransaction from '../ActiveTransaction';
@@ -31,6 +31,7 @@ import ExitButton from '../buttons/ExitButton';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -40,9 +41,13 @@ const LendPosition = () => {
   /* STATE FROM CONTEXT */
   const {
     userState,
-    userActions: { setSelectedSeries, setSelectedBase },
+    userActions: { setSelectedSeriesId, setSelectedBase },
   } = useContext(UserContext);
-  const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
+  const { selectedSeriesId, assetMap } = userState;
+  const {
+    seriesEntity: { data: selectedSeries, isLoading: seriesLoading },
+    seriesEntities: { data: seriesEntities },
+  } = useSeriesEntities(selectedSeriesId);
 
   const selectedBase = assetMap?.get(selectedSeries?.baseId!);
 
@@ -62,17 +67,20 @@ const LendPosition = () => {
   const [stepPosition, setStepPosition] = useState<number[]>(initialStepperState);
   const [closeInput, setCloseInput] = useState<string | undefined>();
   const [rollInput, setRollInput] = useState<string | undefined>();
-  const [rollToSeries, setRollToSeries] = useState<ISeries | undefined>();
+  const [rollToSeries, setRollToSeries] = useState<ISeries | ISeriesRoot | undefined>();
 
   const [closeDisabled, setCloseDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
   /* Close helpers */
-  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput, rollToSeries!);
+  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeriesId, closeInput, rollToSeries?.id);
+  const {
+    seriesEntity: { data: rollToSeriesEntity },
+  } = useSeriesEntities(rollToSeries?.id);
 
   /* Roll helpers */
-  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeries!, rollInput, rollToSeries!);
+  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeriesId, rollInput, rollToSeries?.id);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();
@@ -82,20 +90,20 @@ const LendPosition = () => {
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
-    selectedSeries?.id!
+    selectedSeriesId!
   );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_POSITION,
-    selectedSeries?.id!
+    selectedSeriesId!
   );
 
   /* input validation hooks */
-  const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries, [
+  const { inputError: closeError } = useInputValidation(closeInput, ActionCodes.CLOSE_POSITION, selectedSeries!, [
     0,
     maxClose_,
   ]);
 
-  const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries, [
+  const { inputError: rollError } = useInputValidation(rollInput, ActionCodes.ROLL_POSITION, selectedSeries!, [
     0,
     maxRoll_,
   ]);
@@ -132,7 +140,7 @@ const LendPosition = () => {
   const handleRollPosition = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollPosition(rollInput, selectedSeries!, rollToSeries!);
+    rollPosition(rollInput, selectedSeries!, rollToSeriesEntity!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
@@ -186,13 +194,13 @@ const LendPosition = () => {
   }, [closeProcess?.stage, resetInputs, rollProcess?.stage]);
 
   useEffect(() => {
-    const _series = seriesMap?.get(idFromUrl as string) || null;
+    const _series = seriesEntities?.get(idFromUrl as string) || null;
     const _base = assetMap?.get(_series?.baseId!);
     if (idFromUrl) {
-      setSelectedSeries(_series);
+      setSelectedSeriesId(_series?.id!);
       setSelectedBase(_base!);
     }
-  }, [idFromUrl, seriesMap, setSelectedSeries, assetMap, setSelectedBase]);
+  }, [idFromUrl, assetMap, setSelectedBase, seriesEntities, setSelectedSeriesId]);
 
   return (
     <>
@@ -343,7 +351,7 @@ const LendPosition = () => {
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }} gap="small">
                         <SeriesSelector
-                          selectSeriesLocally={(series: ISeries) => setRollToSeries(series)}
+                          selectSeriesLocally={(series: ISeriesRoot) => setRollToSeries(series)}
                           actionType={ActionType.LEND}
                           cardLayout={false}
                         />
