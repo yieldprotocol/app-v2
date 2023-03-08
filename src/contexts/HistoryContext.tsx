@@ -28,6 +28,7 @@ import useContracts, { ContractNames } from '../hooks/useContracts';
 
 import useAccountPlus from '../hooks/useAccountPlus';
 import useFork from '../hooks/useFork';
+import useSeriesEntities from '../hooks/useSeriesEntities';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -91,7 +92,10 @@ function historyReducer(state: any, action: any) {
 const HistoryProvider = ({ children }: any) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext);
-  const { seriesRootMap, assetRootMap } = chainState;
+  const { assetRootMap } = chainState;
+  const {
+    seriesEntities: { data: seriesEntities },
+  } = useSeriesEntities();
 
   const { useForkedEnv, forkStartBlock } = useFork();
 
@@ -115,8 +119,14 @@ const HistoryProvider = ({ children }: any) => {
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
           const _transferOutFilter = strategyContract.filters.Transfer(account);
 
-          const inEventList = await strategyContract.queryFilter(_transferInFilter, useForkedEnv ? forkStartBlock : 'earliest');
-          const outEventList = await strategyContract.queryFilter(_transferOutFilter, useForkedEnv ? forkStartBlock : 'earliest'); // originally 0
+          const inEventList = await strategyContract.queryFilter(
+            _transferInFilter,
+            useForkedEnv ? forkStartBlock : 'earliest'
+          );
+          const outEventList = await strategyContract.queryFilter(
+            _transferOutFilter,
+            useForkedEnv ? forkStartBlock : 'earliest'
+          ); // originally 0
 
           const events = await Promise.all([
             ...inEventList.map(async (e: TransferEvent) => {
@@ -407,7 +417,7 @@ const HistoryProvider = ({ children }: any) => {
           const { blockNumber, transactionHash } = e;
           const { seriesId: toSeries, art } = e.args;
           const date = (await provider.getBlock(blockNumber)).timestamp;
-          const toSeries_ = seriesRootMap.get(toSeries) as ISeries;
+          const toSeries_ = seriesEntities?.get(toSeries) as ISeries;
           return {
             /* histItem base */
             blockNumber,
@@ -428,7 +438,7 @@ const HistoryProvider = ({ children }: any) => {
           } as IBaseHistItem;
         })
       ),
-    [provider, seriesRootMap]
+    [provider, seriesEntities]
   );
 
   const updateVaultHistory = useCallback(
@@ -441,7 +451,7 @@ const HistoryProvider = ({ children }: any) => {
         vaultList.map(async (vault) => {
           const { id: vaultId, seriesId } = vault;
           const vaultId32 = bytesToBytes32(vaultId, 12);
-          const series = seriesRootMap.get(seriesId) as ISeries;
+          const series = seriesEntities?.get(seriesId) as ISeries;
 
           const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
           const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
@@ -473,7 +483,16 @@ const HistoryProvider = ({ children }: any) => {
           vaultList.map((v) => v.id)
         );
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, seriesRootMap, useForkedEnv, forkStartBlock]
+    [
+      contracts,
+      diagnostics,
+      seriesEntities,
+      useForkedEnv,
+      forkStartBlock,
+      _parsePourLogs,
+      _parseGivenLogs,
+      _parseRolledLogs,
+    ]
   );
 
   /* Exposed userActions */
