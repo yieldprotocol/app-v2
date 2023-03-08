@@ -157,7 +157,7 @@ const SupportSettings = () => {
           />
         </Box>
 
-      <Box gap="medium">
+      <Box gap="medium" direction='row' justify='between'>
         <Text color="text" weight={'bolder'}>
             App Reset
           </Text>
