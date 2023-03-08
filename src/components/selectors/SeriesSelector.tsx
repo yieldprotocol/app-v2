@@ -82,7 +82,7 @@ const AprText = ({
   const _inputValue = cleanValue(inputValue || '0', series?.decimals);
   const parsedInputValue = ethers.utils.parseUnits(_inputValue, series?.decimals);
   const { apr } = useApr(_inputValue, actionType, series?.id!);
-  const { maxLend } = useLendHelpers(series!, inputValue);
+  const { maxLend } = useLendHelpers(seriesId, inputValue);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   useEffect(() => {
