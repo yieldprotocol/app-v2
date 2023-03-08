@@ -1,5 +1,5 @@
 import { Box, Button, Text, TextInput } from 'grommet';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Switch from 'react-switch';
 import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
@@ -15,11 +15,12 @@ const SupportSettings = () => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
+  const {address} = useAccount();
+
   // const account = useAccountPlus();
   const { fillEther, createNewFork } = useFork();
 
   const [ forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
-
   const [ mockAddressInput, setMockAddressInput] = useState<string|undefined>(mockUserAddress);
 
   const handleResetApp = () => {
@@ -36,7 +37,19 @@ const SupportSettings = () => {
     window.location.reload();
   };
 
+  const [allowSupport, setAllowSupport] = useState<boolean>(false);
+  useEffect(()=>{
+    const allowList = process.env.ALLOWED_SUPPORT_ADDRESSES ? process.env.ALLOWED_SUPPORT_ADDRESSES.split(','):[];    
+    if (address && allowList.includes(address)) {
+      setAllowSupport(true);
+    } else {
+      setAllowSupport(false);
+    }
+  },[address])
+
   return (
+    <>
+    {allowSupport ? (
     <Box gap="large">
       <Box gap="medium">
         <Box direction="row" justify="between">
@@ -167,7 +180,13 @@ const SupportSettings = () => {
         </GeneralButton>
       </Box>
 
-    </Box>
+    </Box>)
+    : <Box pad='small' gap='small'>
+       <Text size='large'>Support Access Denied</Text> 
+       <Text size='xsmall'> Please ensure you are connected with a recognised support wallet. Contact the development team if you believe you require access. </Text>
+       </Box>
+  }
+  </>
   );
 };
 

@@ -9,7 +9,7 @@ import { useNetwork, useProvider } from 'wagmi';
 
 const useFork = () => {
   const {
-    settingsState: { useForkedEnv, forkEnvUrl },
+    settingsState: { useForkedEnv, forkEnvUrl, diagnostics },
   } = useContext(SettingsContext);
 
   const { address: account } = useAccountPlus();
@@ -56,7 +56,7 @@ const useFork = () => {
   const getForkTimestamp = async () => {
     try {
       const { timestamp } = await forkProvider.getBlock('latest');
-      useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
+      diagnostics && useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
       setForkTimestamp(timestamp);
       return timestamp;
     } catch (e) {

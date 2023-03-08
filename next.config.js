@@ -20,6 +20,8 @@ const nextConfig = {
     TENDERLY_USER: process.env.TENDERLY_USER,
     TENDERLY_PROJECT: process.env.TENDERLY_PROJECT,
     TENDERLY_ACCESS_KEY: process.env.TENDERLY_ACCESS_KEY,
+
+    ALLOWED_SUPPORT_ADDRESSES: process.env.ALLOWED_SUPPORT_ADDRESSES,
   },
   async redirects() {
     return [
