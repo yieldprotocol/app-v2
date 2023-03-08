@@ -1,65 +1,3 @@
-// import { ethers } from 'ethers';
-
-// import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
-// import { useAccount} from 'wagmi';
-// import { SettingsContext } from '../contexts/SettingsContext';
-// import useAccountPlus from './useAccountPlus';
-// import useSWRImmutable from 'swr/immutable';
-
-// /** master code */
-
-// const useFork = () => {
-//   const {
-//     settingsState: { useForkedEnv, forkEnvUrl: forkUrl },
-//   } = useContext(SettingsContext);
-
-//   const { address: account } = useAccount();
-//   const provider = useMemo(
-//     () => (useForkedEnv ? new ethers.providers.JsonRpcProvider(forkUrl) : undefined),
-//     [forkUrl, useForkedEnv]
-//   );
-
-//   const getForkTimestamp = useCallback(async () => {
-//     if (!provider) return undefined;
-
-//         try {
-//       const { timestamp } = await provider.getBlock('latest');
-//       useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
-//       return timestamp;
-//     } catch (e) {
-//       console.log('Error getting latest timestamp', e);
-//       return undefined;
-//     }
-//   }, [provider, useForkedEnv]);
-
-//   const fillEther = useCallback(async () => {
-//     if (!provider) return;
-
-//     if (useForkedEnv) {
-//       try {
-//         const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
-//         await provider.send('tenderly_addBalance', transactionParameters);
-//       } catch (e) {
-//         console.log('Could not fill eth on Tenderly fork');
-//       }
-//     }
-//   }, [account, provider, useForkedEnv]);
-
-//   const { data: forkTimestamp } = useSWRImmutable(useForkedEnv ? 'forkTimestamp' : null, getForkTimestamp);
-
-//   return {
-//     fillEther,
-//     forkUrl,
-//     getForkTimestamp,
-//     forkTimestamp,
-//   };
-
-// /** master code */
-
-// };
-
-// export default useFork;
-
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
@@ -67,6 +5,7 @@ import useAccountPlus from './useAccountPlus';
 
 import axios from 'axios';
 import useChainId from './useChainId';
+import { useNetwork, useProvider } from 'wagmi';
 
 const useFork = () => {
   const {
@@ -74,7 +13,9 @@ const useFork = () => {
   } = useContext(SettingsContext);
 
   const { address: account } = useAccountPlus();
-  const provider = new ethers.providers.JsonRpcProvider(forkEnvUrl);
+  const provider = useProvider(); // currently connected provider
+  const forkProvider = new ethers.providers.JsonRpcProvider(forkEnvUrl); // fork provider
+  
   const chainId = useChainId();
 
   /* From settings */
@@ -83,33 +24,24 @@ const useFork = () => {
   const [forkStartBlock, setForkStartBlock] = useState<number>();
   const [forkTimestamp, setForkTimestamp] = useState<number>();
 
-  const createNewFork = async () => {
-
-    console.log(process.env.TENDERLY_PROJECT, process.env.TENDERLY_USER )
-
-    // const TENDERLY_FORK_API = `https://tenderly.co/api/v2/project/${process.env.TENDERLY_PROJECT}/forks`;
-    const TENDERLY_FORK_API = `http://api.tenderly.co/api/v1/account/me/project/yield_v2/fork`;
-
-    console.log( TENDERLY_FORK_API  )
-
+  const createNewFork = async (): Promise<string> => {
+    const TENDERLY_FORK_API = `http://api.tenderly.co/api/v1/account/${process.env.TENDERLY_USER}/project/${process.env.TENDERLY_PROJECT}/fork`;
+    const currentBlockNumber = await provider.getBlockNumber();
     const resp = await axios.post(
       TENDERLY_FORK_API,
-      { network_id: "1", block_number: 16776329 },
+      { network_id: chainId.toString(), block_number: currentBlockNumber },
       {
         headers: {
           'X-Access-Key': process.env.TENDERLY_ACCESS_KEY as string,
         },
       }
     );
-
-    console.log(resp);
-    return resp;
+    return `https://rpc.tenderly.co/fork/${resp.data.simulation_fork.id}`;
   };
-
 
   const getForkStartBlock = async () => {
     try {
-      const num = await (provider as any).send('tenderly_getForkBlockNumber', []);
+      const num = await (forkProvider as any).send('tenderly_getForkBlockNumber', []);
       const sBlock = +num.toString();
       setForkStartBlock(sBlock);
       console.log('Fork start block: ', sBlock);
@@ -123,7 +55,7 @@ const useFork = () => {
 
   const getForkTimestamp = async () => {
     try {
-      const { timestamp } = await provider.getBlock('latest');
+      const { timestamp } = await forkProvider.getBlock('latest');
       useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
       setForkTimestamp(timestamp);
       return timestamp;
@@ -137,7 +69,7 @@ const useFork = () => {
   const fillEther = useCallback(async () => {
     try {
       const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
-      await (provider as any).send('tenderly_addBalance', transactionParameters);
+      await (forkProvider as any).send('tenderly_addBalance', transactionParameters);
     } catch (e) {
       console.log('Could not fill eth on Tenderly fork');
     }

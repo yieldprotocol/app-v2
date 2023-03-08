@@ -11,7 +11,7 @@ import GeneralButton from '../buttons/GeneralButton';
 
 const SupportSettings = () => {
   const {
-    settingsState: { useForkedEnv, forkEnvUrl, useMockedUser, mockUserAddress },
+    settingsState: { useForkedEnv, forkEnvUrl, useMockedUser, mockUserAddress, diagnostics, forceTransactions },
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
@@ -26,6 +26,14 @@ const SupportSettings = () => {
     clearCachedItems([]);
     // eslint-disable-next-line no-restricted-globals
     location.reload();
+  };
+
+  const handleCreateFork = async () => {
+    const newForkUrl =  await createNewFork()
+    updateSetting(Settings.USE_FORKED_ENV, true);
+    updateSetting(Settings.FORK_ENV_URL, newForkUrl);
+    // eslint-disable-next-line no-restricted-globals
+    window.location.reload();
   };
 
   return (
@@ -69,11 +77,10 @@ const SupportSettings = () => {
           </Button>
         </GeneralButton>
 
-        <GeneralButton action={()=>null} background="background"  >
-          <Button plain disabled={false} onClick={()=>createNewFork()}>
-          <Text size="xsmall">Action: Create New Fork</Text>
-          </Button>
+        <GeneralButton action={()=>handleCreateFork()} background="background"  >
+          <Text size="xsmall">Action: Create and Use New Fork</Text>
         </GeneralButton>
+
       </Box>
 
       <Box gap="medium">
@@ -110,6 +117,44 @@ const SupportSettings = () => {
         </Box>
       </Box>
 
+      <Box direction="row" justify="between">
+          <Text color="text" weight={'bolder'}>
+            Force Transactions
+          </Text>
+          <Switch
+            width={55}
+            checked={forceTransactions}
+            offColor="#BFDBFE"
+            onColor="#60A5FA"
+            uncheckedIcon={false}
+            checkedIcon={false}
+            onChange={(val: boolean) => {
+              updateSetting(Settings.FORCE_TRANSACTIONS, val);
+            }}
+            handleDiameter={20}
+            borderRadius={20}
+          />
+        </Box>
+
+        <Box direction="row" justify="between">
+          <Text color="text" weight={'bolder'}>
+            Console Log Diagnostics 
+          </Text>
+          <Switch
+            width={55}
+            checked={diagnostics}
+            offColor="#BFDBFE"
+            onColor="#60A5FA"
+            uncheckedIcon={false}
+            checkedIcon={false}
+            onChange={(val: boolean) => {
+              updateSetting(Settings.DIAGNOSTICS, val);
+            }}
+            handleDiameter={20}
+            borderRadius={20}
+          />
+        </Box>
+
       <Box gap="medium">
         <Text color="text" weight={'bolder'}>
             App Reset
@@ -119,6 +164,7 @@ const SupportSettings = () => {
           <Text size="xsmall">Clear Cache and Reset</Text>
         </GeneralButton>
       </Box>
+
     </Box>
   );
 };
