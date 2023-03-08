@@ -13,13 +13,17 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import useSeriesEntities from '../useSeriesEntities';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
+  const { selectedBase, selectedIlk, selectedSeriesId, assetMap } = userState;
+  const {
+    seriesEntity: { data: selectedSeries },
+  } = useSeriesEntities(selectedSeriesId);
   const { updateAssets, updateVaults } = userActions;
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
