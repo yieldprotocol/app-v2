@@ -17,7 +17,7 @@ function DashboardPositionListItem({ item, index, actionType }: { item: any; ind
   return (
     <Box>
       {vaultMap?.has(item.id!) && <VaultItem vault={item!} index={index} condensed />}
-      {seriesMap?.has(item.id) && <LendItem seriesId={item.id} index={index} actionType={actionType} condensed />}
+      {seriesMap?.has(item.id) && <LendItem seriesId={item.id} index={index} condensed />}
       {strategyMap?.has(item.id) && <StrategyItem strategy={item!} index={index} condensed />}
     </Box>
   );
