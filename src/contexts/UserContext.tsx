@@ -105,7 +105,7 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
 const UserProvider = ({ children }: { children: ReactNode }) => {
   /* STATE FROM CONTEXT */
   const { chainState } = useContext(ChainContext);
-  const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
+  const { chainLoaded, assetRootMap, strategyRootMap } = chainState;
   const {
     seriesEntities: { data: seriesMap },
   } = useSeriesEntities();
@@ -161,7 +161,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const vaultsBuilt = (await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate)) || [];
     const buildEventList = vaultsBuilt.map((x) => {
       const { vaultId: id, ilkId, seriesId } = x.args;
-      const series = seriesRootMap.get(seriesId);
+      const series = seriesMap?.get(seriesId);
       return {
         id,
         seriesId,
@@ -179,7 +179,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       vaultsReceived.map(async (x): Promise<IVaultRoot> => {
         const { vaultId: id } = x.args;
         const { ilkId, seriesId } = await Cauldron.vaults(id);
-        const series = seriesRootMap.get(seriesId);
+        const series = seriesMap?.get(seriesId);
         return {
           id,
           seriesId,
@@ -200,7 +200,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
-  }, [account, chainId, contracts, provider, seriesRootMap]);
+  }, [account, chainId, contracts, seriesMap, useForkedEnv]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
@@ -386,7 +386,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       return newStrategyMap;
     },
-    [account, provider, seriesMap] // userState.strategyMap excluded on purpose
+    [account, seriesMap] // userState.strategyMap excluded on purpose
   );
 
   /* Updates the vaults with *user* data */
@@ -417,7 +417,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
-          const series = seriesRootMap.get(seriesId);
+          const series = seriesMap?.get(seriesId);
           if (!series) return;
 
           const isVaultMature = isMature(series.maturity);
@@ -489,7 +489,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       diagnostics && console.log('Vaults updated successfully.');
       updateState({ type: UserState.VAULTS_LOADING, payload: false });
     },
-    [_getVaults, account, assetRootMap, contracts, diagnostics, isMature, provider, seriesRootMap, useForkedEnv]
+    [_getVaults, account, assetRootMap, contracts, diagnostics, isMature, provider, seriesMap, useForkedEnv]
   );
 
   /**
@@ -499,11 +499,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    *
    * */
   useEffect(() => {
-    if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
+    if (chainLoaded === chainId && assetRootMap.size && seriesMap?.size) {
       updateAssets(Array.from(assetRootMap.values()));
       account && updateVaults();
     }
-  }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateVaults]);
+  }, [account, assetRootMap, chainLoaded, chainId, seriesMap?.size]);
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
@@ -511,7 +511,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /*  when series has finished loading,...load/reload strategy data */
       strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [strategyRootMap, seriesMap, chainLoaded, chainId, updateStrategies]);
+  }, [strategyRootMap, seriesMap, chainLoaded, chainId]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
