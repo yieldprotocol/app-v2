@@ -34,7 +34,6 @@ const initState: IChainContextState = {
   chainLoaded: 0,
   /* rootMaps */
   assetRootMap: new Map<string, IAssetRoot>(),
-  seriesRootMap: new Map<string, ISeriesRoot>(),
   strategyRootMap: new Map<string, IStrategyRoot>(),
 };
 
@@ -58,12 +57,6 @@ function chainReducer(state: IChainContextState, action: ChainContextActions): I
   switch (action.type) {
     case ChainState.CHAIN_LOADED:
       return { ...state, chainLoaded: action.payload };
-
-    case ChainState.ADD_SERIES:
-      return {
-        ...state,
-        seriesRootMap: new Map(state.seriesRootMap.set(action.payload.id, action.payload)),
-      };
 
     case ChainState.ADD_ASSET:
       return {
@@ -204,92 +197,6 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     newAssetList.length && console.log('Yield Protocol Asset data retrieved successfully.');
   };
 
-  /* add on extra/calculated ASYNC series info and contract instances */
-  const _chargeSeries = useCallback(
-    (series: ISeriesStatic, chain: number): ISeriesRoot => {
-      /* contracts need to be added in again in when charging because the cached state only holds strings */
-      const poolContract = contractTypes.Pool__factory.connect(series.poolAddress, provider);
-      const fyTokenContract = contractTypes.FYToken__factory.connect(series.address, provider);
-      const seasonColorMap = [1, 4, 5, 42].includes(chain) ? ethereumColorMap : arbitrumColorMap;
-      const season = getSeason(series.maturity);
-      const oppSeason = (_season: SeasonType) => getSeason(series.maturity + 23670000);
-      const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
-      const [oppStartColor, oppEndColor] = seasonColorMap.get(oppSeason(season))!;
-
-      /* some logic to decide if the series is shown or not */
-      const showSeries = true; // eg. series.maturity !== 1672412400;
-      // const poolVersion =  series.poolVersion || '1'
-
-      return {
-        ...series,
-
-        poolContract,
-        fyTokenContract,
-        showSeries,
-
-        fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
-        displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
-        displayNameMobile: `${nameFromMaturity(series.maturity, 'MMM yyyy')}`,
-
-        // season,
-        startColor,
-        endColor,
-        color: `linear-gradient(${startColor}, ${endColor})`,
-        textColor,
-
-        oppStartColor,
-        oppEndColor,
-
-        seriesMark: <YieldMark colors={[startColor, endColor]} />,
-      };
-    },
-    [provider]
-  );
-
-  const _getSeries = useCallback(
-    async (chain: number) => {
-      /* Handle caching of series */
-      const cacheKey = `series_${chain}`;
-      const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-
-      if (cachedValues !== null && cachedValues.length) {
-        console.log('::: CACHE ::: Yield Protocol SERIES data retrieved ');
-        return cachedValues.forEach((s: ISeriesStatic) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, chain) });
-        });
-      }
-
-      const seriesMap = SERIES.get(chain);
-      let seriesList = Array.from(seriesMap!.values());
-      const newSeriesList: ISeriesStatic[] = [];
-
-      await Promise.all(
-        seriesList.map(async (series: ISeriesStatic) => {
-          if (false) {
-            // eg. development get ts g1 g2 values
-            const poolContract = Pool__factory.connect(series.poolAddress, provider);
-            const [ts, g1, g2] = await Promise.all([poolContract.ts(), poolContract.g1(), poolContract.g2()]);
-            console.log(series.symbol, ts, g1, g2);
-          }
-          /* Space to do some async stuff here if required... */
-          const newSeries = {
-            ...series,
-            // version: series.version || '1',
-            // poolVersion: series.poolVersion || '1',
-            // decimals: series.decimals || '18',
-          };
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(newSeries, chain) });
-          newSeriesList.push(newSeries);
-        })
-      ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
-
-      /* cache results */
-      newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
-      newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
-    },
-    [_chargeSeries, contracts, provider]
-  );
-
   /* Attach contract instance */
   const _chargeStrategy = useCallback(
     (strategy: any) => {
@@ -372,17 +279,17 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
         chain
       );
 
-      await Promise.all([_getAssets(chain), _getSeries(chain), _getStrategies(chain)])
+      await Promise.all([_getAssets(chain), _getStrategies(chain)])
         .catch(() => {
           toast.error('Error getting Yield Protocol data.');
           console.log('Error getting Yield Protocol data.');
         })
         .finally(() => {
-          console.log('Yield Protocol Loaded : ', chainId);
-          updateState({ type: ChainState.CHAIN_LOADED, payload: chainId });
+          console.log('Yield Protocol Loaded : ', chain);
+          updateState({ type: ChainState.CHAIN_LOADED, payload: chain });
         });
     },
-    [_getAssets, _getSeries, _getStrategies]
+    [_getAssets, _getStrategies]
   );
 
   /**
@@ -414,14 +321,12 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
    */
   const exportContractAddresses = () => {
     const contractList = [...contracts].map(([v, k]) => [v, k.address]);
-    const seriesList = [...chainState.seriesRootMap].map(([v, k]) => [v, k.address]);
     const assetList = [...chainState.assetRootMap].map(([v, k]) => [v, k.address]);
     const strategyList = [...chainState.strategyRootMap].map(([v, k]) => [k.symbol, v]);
     const joinList = [...chainState.assetRootMap].map(([v, k]) => [v, k.joinAddress]);
 
     const res = JSON.stringify({
       contracts: contractList,
-      series: seriesList,
       assets: assetList,
       strategies: strategyList,
       joins: joinList,
