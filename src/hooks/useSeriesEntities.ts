@@ -5,7 +5,7 @@ import { BigNumber, ethers } from 'ethers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils.js';
 import request, { gql } from 'graphql-request';
 import { useCallback, useMemo } from 'react';
-import useSWR from 'swr';
+import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 import { useAccount, useChainId, useProvider } from 'wagmi';
 import { arbitrumColorMap, ethereumColorMap } from '../config/colors';
 import { FYToken__factory, Pool__factory } from '../contracts';
@@ -45,6 +45,7 @@ interface GraphSeriesEntitiesRes {
 }
 
 export const useSeriesEntities = (seriesId?: string | null) => {
+  // const { cache } = useSWRConfig();
   const chainId = useChainId();
   const provider = useProvider();
   const { address: account } = useAccount();
@@ -83,6 +84,8 @@ export const useSeriesEntities = (seriesId?: string | null) => {
   }, []);
 
   const getSeriesEntities = useCallback(async (): Promise<Map<string, ISeriesRoot>> => {
+    console.log('getting all series entities');
+
     const query = gql`
       {
         seriesEntities {
@@ -181,7 +184,6 @@ export const useSeriesEntities = (seriesId?: string | null) => {
         ts,
         g1,
         g2,
-        c: c ?? undefined,
         mu: mu ?? undefined,
         poolContract,
         fyTokenContract,
@@ -194,7 +196,11 @@ export const useSeriesEntities = (seriesId?: string | null) => {
     }, Promise.resolve(new Map<string, ISeriesRoot>()));
   }, [account, getPoolSharesAPY, isMature, provider, seasonColorMap, subgraphUrl]);
 
-  const { data: seriesEntities, error: seriesEntitiesError } = useSWR(DEFAULT_SWR_KEY, getSeriesEntities, {
+  const {
+    data: seriesEntities,
+    error: seriesEntitiesError,
+    isLoading: seriesEntitiesLoading,
+  } = useSWR(DEFAULT_SWR_KEY, getSeriesEntities, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -202,74 +208,81 @@ export const useSeriesEntities = (seriesId?: string | null) => {
 
   // This function is used to generate the key for the main useSWR hook below
   const genKey = useCallback(
-    (seriesId: string) => [...DEFAULT_SWR_KEY, seriesEntities, seriesId],
-    [DEFAULT_SWR_KEY, seriesEntities]
+    (seriesId: string) => [...DEFAULT_SWR_KEY, seriesEntities, seriesId, account],
+    [DEFAULT_SWR_KEY, seriesEntities, account]
   );
 
   // gets a specific series entity
-  const getSeriesEntity = async (seriesId: string | null | undefined): Promise<ISeries | undefined> => {
-    if (!seriesId || !seriesEntities) return undefined;
+  const getSeriesEntity = useCallback(
+    async (seriesId: string | null | undefined, shouldMutate = true): Promise<ISeries | undefined> => {
+      console.log('getting series entity for series with id: ', seriesId);
+      if (!seriesId || !seriesEntities) return undefined;
 
-    console.log('getting series entity data for series with id: ', seriesId);
-    const seriesEntity = seriesEntities.get(seriesId);
+      // // check if swr has seriesEntity in cache
+      // const swrKey = unstable_serialize(genKey(seriesId));
+      // const cachedStrategy = cache.get(swrKey) as ISeries | undefined;
 
-    if (!seriesEntity) return undefined;
+      // if (cachedStrategy && !shouldMutate) {
+      //   return cachedStrategy;
+      // }
 
-    const { poolContract, fyTokenContract, decimals, poolAddress } = seriesEntity;
+      console.log('getting series entity data for series with id: ', seriesId);
+      const seriesEntity = seriesEntities.get(seriesId);
 
-    const [baseReserves, fyTokenReserves, fyTokenRealReserves, fyTokenBalance] = await Promise.all([
-      poolContract.getBaseBalance(),
-      poolContract.getFYTokenBalance(),
-      fyTokenContract.balanceOf(poolAddress),
-      account ? fyTokenContract.balanceOf(account) : ethers.constants.Zero,
-    ]);
+      if (!seriesEntity) return undefined;
 
-    let sharesReserves: BigNumber | undefined;
-    let currentSharePrice: BigNumber;
+      const { poolContract, fyTokenContract, decimals, poolAddress } = seriesEntity;
 
-    try {
-      [sharesReserves, currentSharePrice] = await Promise.all([
-        poolContract.getSharesBalance(),
-        poolContract.getCurrentSharePrice(),
+      const [baseReserves, fyTokenReserves, fyTokenRealReserves, fyTokenBalance] = await Promise.all([
+        poolContract.getBaseBalance(),
+        poolContract.getFYTokenBalance(),
+        fyTokenContract.balanceOf(poolAddress),
+        account ? fyTokenContract.balanceOf(account) : ethers.constants.Zero,
       ]);
-    } catch (e) {
-      sharesReserves = baseReserves;
-      currentSharePrice = parseUnits('1', decimals);
-    }
 
-    // convert base amounts to shares amounts (baseAmount is wad)
-    const getShares = (baseAmount: BigNumber) =>
-      toBn(
-        new Decimal(baseAmount.toString())
-          .mul(10 ** seriesEntity.decimals)
-          .div(new Decimal(currentSharePrice.toString()))
-      );
+      let sharesReserves: BigNumber | undefined;
+      let currentSharePrice: BigNumber;
+      let c: BigNumber | undefined;
 
-    // convert shares amounts to base amounts
-    const getBase = (sharesAmount: BigNumber) =>
-      toBn(
-        new Decimal(sharesAmount.toString())
-          .mul(new Decimal(currentSharePrice.toString()))
-          .div(10 ** seriesEntity.decimals)
-      );
+      try {
+        [sharesReserves, currentSharePrice, c] = await Promise.all([
+          poolContract.getSharesBalance(),
+          poolContract.getCurrentSharePrice(),
+          poolContract.getC(),
+        ]);
+      } catch (e) {
+        sharesReserves = baseReserves;
+        currentSharePrice = parseUnits('1', decimals);
+      }
 
-    // get dynamic series entity data
-    const data: ISeries = {
-      ...seriesEntity,
-      sharesReserves,
-      fyTokenReserves,
-      fyTokenRealReserves,
-      fyTokenBalance,
-      fyTokenBalance_: formatUnits(fyTokenBalance, decimals),
+      // convert base amounts to shares amounts (baseAmount is wad)
+      const getShares = (baseAmount: BigNumber) =>
+        toBn(new Decimal(baseAmount.toString()).mul(10 ** decimals).div(new Decimal(currentSharePrice.toString())));
 
-      getShares,
-      getBase,
-    };
+      // convert shares amounts to base amounts
+      const getBase = (sharesAmount: BigNumber) =>
+        toBn(new Decimal(sharesAmount.toString()).mul(new Decimal(currentSharePrice.toString())).div(10 ** decimals));
 
-    return data;
-  };
+      // get dynamic series entity data
+      const data: ISeries = {
+        ...seriesEntity,
+        sharesReserves,
+        fyTokenReserves,
+        fyTokenRealReserves,
+        fyTokenBalance,
+        fyTokenBalance_: formatUnits(fyTokenBalance, decimals),
+        c,
 
-  const { data, error } = useSWR(seriesId ? () => genKey(seriesId) : null, () => getSeriesEntity(seriesId), {
+        getShares,
+        getBase,
+      };
+
+      return data;
+    },
+    [account, seriesEntities]
+  );
+
+  const { data, error, isLoading } = useSWR(seriesId ? () => genKey(seriesId) : null, () => getSeriesEntity(seriesId), {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -279,13 +292,14 @@ export const useSeriesEntities = (seriesId?: string | null) => {
     seriesEntities: {
       data: seriesEntities,
       error: seriesEntitiesError,
-      isLoading: !seriesEntities && !seriesEntitiesError,
+      isLoading: seriesEntitiesLoading,
     },
     seriesEntity: {
       data,
       error,
-      isLoading: !data && !error,
+      isLoading,
     },
+    getSeriesEntity,
     genKey,
   };
 };
