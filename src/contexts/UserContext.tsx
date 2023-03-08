@@ -5,7 +5,7 @@ import * as contractTypes from '../contracts';
 
 import { divDecimal, bytesToBytes32, mulDecimal, calcAccruedDebt } from '@yield-protocol/ui-math';
 
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
+import { IAssetRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
 
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
@@ -130,7 +130,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const contracts = useContracts();
 
-  const { getForkStartBlock } = useFork();
+  const { forkStartBlock } = useFork();
 
   const {
     // data: assetBalances,
@@ -153,7 +153,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
     // get the latest available vault ( either from the local storage or from the forkStart)
     const lastVaultUpdate = useForkedEnv
-      ? await getForkStartBlock()
+      ? forkStartBlock
       : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
@@ -200,7 +200,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
-  }, [account, chainId, contracts, seriesMap, useForkedEnv]);
+  }, [account, chainId, contracts, forkStartBlock, provider, seriesMap, useForkedEnv]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
@@ -503,7 +503,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       updateAssets(Array.from(assetRootMap.values()));
       account && updateVaults();
     }
-  }, [account, assetRootMap, chainLoaded, chainId, seriesMap?.size]);
+  }, [account, assetRootMap, chainLoaded, chainId, seriesMap?.size, updateAssets, updateVaults]);
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
@@ -511,7 +511,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /*  when series has finished loading,...load/reload strategy data */
       strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [strategyRootMap, seriesMap, chainLoaded, chainId]);
+  }, [strategyRootMap, seriesMap, chainLoaded, chainId, updateStrategies]);
 
   /* If the url references a series/vault...set that one as active */
   useEffect(() => {
