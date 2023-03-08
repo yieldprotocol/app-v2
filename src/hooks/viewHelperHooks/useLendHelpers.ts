@@ -15,7 +15,7 @@ import useSeriesEntities from '../useSeriesEntities';
 import useAccountPlus from '../useAccountPlus';
 
 export const useLendHelpers = (
-  seriesId: string,
+  seriesId: string | null,
   input: string | undefined,
   rollToSeries: ISeries | undefined = undefined
 ) => {

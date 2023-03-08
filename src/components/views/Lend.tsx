@@ -45,13 +45,17 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap } = userState;
+  const { selectedSeriesId, selectedBase } = userState;
+  const {
+    seriesEntity: { data: selectedSeries },
+  } = useSeriesEntities(selectedSeriesId);
 
   const { address: activeAccount } = useAccountPlus();
 
@@ -64,7 +68,7 @@ const Lend = () => {
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
+  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeriesId, lendInput);
   const lend = useLend();
 
   const { logAnalyticsEvent } = useAnalytics();
@@ -72,7 +76,7 @@ const Lend = () => {
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
 
   /* input validation hooks */
-  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
+  const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries!, [0, maxLend_]);
 
   /* LOCAL FNS */
   const handleLend = () => {
@@ -267,12 +271,7 @@ const Lend = () => {
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small"> View position: </Text>
-                <LendItem
-                  series={seriesMap?.get(selectedSeries?.id!)!}
-                  index={0}
-                  actionType={ActionType.LEND}
-                  condensed
-                />
+                <LendItem seriesId={selectedSeriesId!} index={0} condensed />
               </Box>
             )}
         </Box>
