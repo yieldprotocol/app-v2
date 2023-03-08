@@ -41,6 +41,7 @@ import { WETH } from '../../config/assets';
 import { StrategyType } from '../../config/strategies';
 import { toast } from 'react-toastify';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -48,6 +49,9 @@ function Pool() {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { selectedBase, selectedStrategy, strategyMap } = userState;
+  const {
+    seriesEntity: { data: seriesEntity },
+  } = useSeriesEntities(selectedStrategy?.currentSeriesId!);
 
   const { address: activeAccount } = useAccountPlus();
 
@@ -67,12 +71,10 @@ function Pool() {
   const { logAnalyticsEvent } = useAnalytics();
 
   /* input validation hooks */
-  const { inputError: poolError } = useInputValidation(
-    poolInput,
-    ActionCodes.ADD_LIQUIDITY,
-    selectedStrategy?.currentSeries || null,
-    [0, maxPool]
-  );
+  const { inputError: poolError } = useInputValidation(poolInput, ActionCodes.ADD_LIQUIDITY, seriesEntity || null, [
+    0,
+    maxPool,
+  ]);
 
   const { txProcess: poolProcess, resetProcess } = useProcess(ActionCodes.ADD_LIQUIDITY, selectedStrategy?.id!);
 
@@ -98,7 +100,7 @@ function Pool() {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries?.name,
+      series_id: seriesEntity?.name,
       action_code: ActionCodes.ADD_LIQUIDITY,
     } as GA_Properties.transaction_initiated);
   };
@@ -144,7 +146,7 @@ function Pool() {
         </PanelWrap>
       )}
 
-      <CenterPanelWrap series={selectedStrategy?.currentSeries}>
+      <CenterPanelWrap series={seriesEntity}>
         <Box id="topsection">
           {stepPosition === 0 && (
             <Box fill gap="large" height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>
