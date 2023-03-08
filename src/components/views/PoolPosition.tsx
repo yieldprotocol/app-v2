@@ -37,6 +37,7 @@ import GeneralButton from '../buttons/GeneralButton';
 import { MdShortcut } from 'react-icons/md';
 import { ZERO_BN } from '@yield-protocol/ui-math';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useSeriesEntities from '../../hooks/useSeriesEntities';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -48,13 +49,15 @@ const PoolPosition = () => {
     userState,
     userActions: { setSelectedStrategy },
   } = useContext(UserContext);
-  const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
+  const { selectedStrategy, strategyMap, assetMap } = userState;
 
   const { address: activeAccount } = useAccountPlus();
 
   const _selectedStrategy = selectedStrategy || strategyMap?.get((idFromUrl as string).toLowerCase());
 
-  const selectedSeries = _selectedStrategy?.currentSeries;
+  const {
+    seriesEntity: { data: selectedSeries, isLoading: seriesLoading },
+  } = useSeriesEntities(_selectedStrategy?.currentSeriesId);
   const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
 
   /* LOCAL STATE */
@@ -125,7 +128,7 @@ const PoolPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries?.name,
+      series_id: selectedSeries?.name,
       action_code: ActionCodes.REMOVE_LIQUIDITY,
     } as GA_Properties.transaction_initiated);
   };
@@ -137,7 +140,7 @@ const PoolPosition = () => {
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
-      series_id: selectedStrategy?.currentSeries?.name,
+      series_id: selectedSeries?.name,
       action_code: ActionCodes.CLAIM_REWARDS,
     } as GA_Properties.transaction_initiated);
   };
@@ -215,7 +218,7 @@ const PoolPosition = () => {
                   <Box gap="small">
                     <InfoBite
                       label="Next Roll Date"
-                      value={_selectedStrategy?.currentSeries?.fullDate.toString()!}
+                      value={selectedSeries?.fullDate.toString()!}
                       icon={<FiClock height="1em" />}
                     />
                     <InfoBite
@@ -230,7 +233,7 @@ const PoolPosition = () => {
                       loading={seriesLoading}
                     />
 
-                    {!_selectedStrategy.currentSeries && (
+                    {!selectedSeries && (
                       <InfoBite
                         label="Strategy is currently inactive"
                         value="Only token removal allowed"
