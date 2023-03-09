@@ -16,7 +16,7 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
-import { ContractNames } from '../../contexts/yieldEnv';
+import { ContractNames } from '../../config/yieldEnv';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);

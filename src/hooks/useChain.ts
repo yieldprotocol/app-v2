@@ -14,7 +14,7 @@ import useContracts from './useContracts';
 import { ISettingsContext } from '../contexts/types/settings';
 import { ChainContext } from '../contexts/ChainContext';
 import useAccountPlus from './useAccountPlus';
-import { ContractNames } from '../contexts/yieldEnv';
+import { ContractNames } from '../config/yieldEnv';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>

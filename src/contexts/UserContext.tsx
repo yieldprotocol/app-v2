@@ -35,7 +35,7 @@ import useFork from '../hooks/useFork';
 import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import useAccountPlus from '../hooks/useAccountPlus';
-import { ContractNames } from './yieldEnv';
+import { ContractNames } from '../config/yieldEnv';
 
 const initState: IUserContextState = {
   userLoading: false,

@@ -19,7 +19,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
-import { ContractNames } from '../../contexts/yieldEnv';
+import { ContractNames } from '../../config/yieldEnv';
 
 export const useBorrow = () => {
   const {
