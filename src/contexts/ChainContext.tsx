@@ -4,14 +4,11 @@ import { format } from 'date-fns';
 
 import { useCachedState } from '../hooks/generalHooks';
 
-import yieldEnv from './yieldEnv';
 import * as contractTypes from '../contracts';
-// import * as contracts from '../contracts';
-import * as contracts from '../contracts';
 import { IAssetRoot, ISeriesRoot, IStrategyRoot, TokenType } from '../types';
-import { AssetStaticInfo, ASSETS, ETH_BASED_ASSETS } from '../config/assets';
+import { ASSETS } from '../config/assets';
 
-import { nameFromMaturity, getSeason, SeasonType, getSeriesAfterRollPosition } from '../utils/appUtils';
+import { nameFromMaturity, getSeason, SeasonType } from '../utils/appUtils';
 import { ethereumColorMap, arbitrumColorMap } from '../config/colors';
 import markMap from '../config/marks';
 import YieldMark from '../components/logos/YieldMark';
@@ -21,9 +18,9 @@ import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
 import useContracts from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
-import { SERIES, ISeriesStatic, validateSeries } from '../config/series';
+import { SERIES, ISeriesStatic } from '../config/series';
 import { Block } from '@ethersproject/providers';
-import STRATEGIES, { validateStrategies } from '../config/strategies';
+import STRATEGIES from '../config/strategies';
 import { Pool__factory } from '../contracts';
 
 import { useProvider } from 'wagmi';
