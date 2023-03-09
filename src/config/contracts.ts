@@ -16,7 +16,7 @@ interface ContractAddresses {
   addresses: Map<number, Map<ContractNames, string>>;
 }
 
-const contracts: ContractAddresses = {
+const contractAddresses: ContractAddresses = {
   addresses: new Map([
     [
       1,
@@ -43,4 +43,4 @@ const contracts: ContractAddresses = {
   ]),
 };
 
-export default contracts;
+export default contractAddresses;
