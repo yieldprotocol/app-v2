@@ -10,10 +10,11 @@ import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { useAccount, useNetwork, useSigner } from 'wagmi';
-import useContracts, { ContractNames } from './useContracts';
+import useContracts from './useContracts';
 import { ISettingsContext } from '../contexts/types/settings';
 import { ChainContext } from '../contexts/ChainContext';
 import useAccountPlus from './useAccountPlus';
+import { ContractNames } from '../contexts/yieldEnv';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -48,6 +49,8 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
+    if (!contracts) return;
+
     /* Set the router contract instance, ladle by default */
     const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
 

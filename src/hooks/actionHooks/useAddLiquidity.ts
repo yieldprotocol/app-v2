@@ -26,9 +26,10 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS, USDT, WETH } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import { ContractNames } from '../../contexts/yieldEnv';
 
 export const useAddLiquidity = () => {
   const {
@@ -65,6 +66,8 @@ export const useAddLiquidity = () => {
     method: AddLiquidityType = AddLiquidityType.BUY,
     matchingVault: IVault | undefined = undefined
   ) => {
+    if (!contracts) return;
+
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
 
     const _series = strategy.currentSeries!;

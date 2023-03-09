@@ -10,9 +10,10 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
+import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import { ContractNames } from '../../contexts/yieldEnv';
 
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -24,7 +25,7 @@ export const useRemoveCollateral = () => {
   const { refetch: refetchIlkBal } = useBalance({
     address: account,
     token: selectedIlk?.address as Address,
-  }); 
+  });
 
   const {
     historyActions: { updateVaultHistory },
@@ -36,6 +37,8 @@ export const useRemoveCollateral = () => {
   const { unwrapAsset } = useWrapUnwrapAsset();
 
   const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
+    if (!contracts) return;
+
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 

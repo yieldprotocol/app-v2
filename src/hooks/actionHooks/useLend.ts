@@ -44,6 +44,8 @@ export const useLend = () => {
   const contracts = useContracts();
 
   const lend = async (input: string | undefined, series: ISeries) => {
+    if (!contracts) return;
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
 

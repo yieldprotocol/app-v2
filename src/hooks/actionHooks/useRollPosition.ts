@@ -11,9 +11,9 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
-import { useAccount } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import { ContractNames } from '../../contexts/yieldEnv';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
@@ -43,6 +43,8 @@ export const useRollPosition = () => {
    * @param toSeries the series fyToken is rolled to
    */
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
+    if (!contracts) return;
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
     const base: IAsset = assetMap?.get(fromSeries.baseId)!;

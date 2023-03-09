@@ -1,23 +1,25 @@
 import { BigNumber } from 'ethers';
-import { useAccount } from 'wagmi';
+import { ContractNames } from '../../contexts/yieldEnv';
 import { ICallData, LadleActions } from '../../types';
 import { ModuleActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
 import useAccountPlus from '../useAccountPlus';
-import useContracts, { ContractNames } from '../useContracts';
+import useContracts from '../useContracts';
 
 export const useAddRemoveEth = () => {
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
-  const WrapEtherModuleContract = contracts.get(ContractNames.WRAP_ETHER_MODULE);
+  const WrapEtherModuleContract = contracts?.get(ContractNames.WRAP_ETHER_MODULE);
 
   const addEth = (
     value: BigNumber,
     to: string | undefined = undefined,
     alternateEthAssetId: string | undefined = undefined
-  ): ICallData[] =>
+  ): ICallData[] => {
+    if (!WrapEtherModuleContract) throw new Error('WrapEtherModuleContract not found');
+
     /* if there is a destination 'to' then use the ladle module (wrapEtherModule) */
-    to
+    return to
       ? [
           {
             operation: LadleActions.Fn.MODULE,
@@ -37,6 +39,7 @@ export const useAddRemoveEth = () => {
             overrides: { value },
           },
         ];
+  };
 
   // NOTE: EXIT_ETHER sweeps all out of the ladle, so *value* is not important > it must just be bigger than zero to not be ignored
   const removeEth = (value: BigNumber, to: string | undefined = undefined): ICallData[] => [
