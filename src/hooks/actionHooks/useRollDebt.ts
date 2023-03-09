@@ -9,8 +9,8 @@ import { useChain } from '../useChain';
 /* Generic hook for chain transactions */
 export const useRollDebt = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap } = userState;
-  const { updateVaults, updateAssets, updateSeries } = userActions;
+  const { assetMap } = userState;
+  const { updateVaults, updateAssets } = userActions;
 
   const {
     historyActions: { updateVaultHistory },
@@ -18,11 +18,10 @@ export const useRollDebt = () => {
 
   const { transact } = useChain();
 
-  const rollDebt = async (vault: IVault, toSeries: ISeries) => {
+  const rollDebt = async (vault: IVault, fromSeries: ISeries, toSeries: ISeries) => {
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const base = assetMap?.get(vault.baseId);
     const hasDebt = vault.accruedArt.gt(ZERO_BN);
-    const fromSeries = seriesMap?.get(vault.seriesId);
 
     const calls: ICallData[] = [
       {
@@ -41,7 +40,6 @@ export const useRollDebt = () => {
     await transact(calls, txCode);
     updateVaults([vault]);
     updateAssets([base!]);
-    updateSeries([fromSeries!, toSeries]);
     updateVaultHistory([vault]);
   };
 

@@ -44,18 +44,19 @@ const StrategySelectItem = ({
   selected,
   displayName,
   handleClick,
-  returns,
+  input,
 }: {
   strategy: IStrategy;
   selected: boolean;
   displayName: string;
   handleClick: (strategy: IStrategy) => void;
-  returns?: IReturns;
+  input: string | undefined;
 }) => {
   const {
     seriesEntities: { data: seriesEntities },
   } = useSeriesEntities();
   const strategySeries = seriesEntities?.get(strategy.currentSeriesId!);
+  const { returns } = useStrategyReturns(input, strategy);
 
   return (
     <StyledBox
@@ -125,8 +126,6 @@ interface IStrategySelectorProps {
 }
 
 const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
-  const { calcStrategyReturns } = useStrategyReturns(inputValue);
-
   const {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
@@ -205,9 +204,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
       {!strategiesLoading && (
         <Box gap="small">
-          {options.map((o: IStrategy) => {
+          {options.map((o) => {
             const displayName = seriesEntities?.get(o.currentSeriesId!)?.displayName!;
-            const returns = calcStrategyReturns(o, inputValue && +inputValue !== 0 ? inputValue : '1');
             const selected = selectedStrategy?.address === o.address;
             return (
               <StrategySelectItem
@@ -216,7 +214,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
                 handleClick={() => handleSelect(o)}
                 selected={selected}
                 displayName={displayName}
-                returns={returns}
+                input={inputValue}
               />
             );
           })}

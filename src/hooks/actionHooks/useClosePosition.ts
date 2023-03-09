@@ -16,6 +16,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import useSeriesEntities from '../useSeriesEntities';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -24,7 +25,10 @@ export const useClosePosition = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, selectedSeries, selectedBase } = userState;
+  const { assetMap, selectedSeriesId, selectedBase } = userState;
+  const {
+    seriesEntity: { data: selectedSeries },
+  } = useSeriesEntities(selectedSeriesId);
   const { address: account } = useAccountPlus();
   const { refetch: refetchFyTokenBal } = useBalance({
     address: account,
@@ -35,7 +39,7 @@ export const useClosePosition = () => {
     token: selectedBase?.address as Address,
   });
   const contracts = useContracts();
-  const { updateSeries, updateAssets } = userActions;
+  const { updateAssets } = userActions;
   const {
     historyActions: { updateTradeHistory },
   } = useContext(HistoryContext);
@@ -143,7 +147,6 @@ export const useClosePosition = () => {
     await transact(calls, txCode);
     refetchBaseBal();
     refetchFyTokenBal();
-    updateSeries([series]);
     updateAssets([base]);
     updateTradeHistory([series]);
   };

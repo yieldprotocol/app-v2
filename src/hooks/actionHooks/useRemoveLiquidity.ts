@@ -53,9 +53,8 @@ is Mature?        N     +--------+
  */
 
 export const useRemoveLiquidity = () => {
-
   const provider = useProvider();
-  const {address:account} = useAccountPlus();
+  const { address: account } = useAccountPlus();
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
@@ -63,7 +62,7 @@ export const useRemoveLiquidity = () => {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedStrategy, selectedBase } = userState;
 
-  const { updateSeries, updateAssets, updateStrategies } = userActions;
+  const { updateAssets, updateStrategies } = userActions;
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
@@ -462,7 +461,6 @@ export const useRemoveLiquidity = () => {
 
     if (selectedBase?.proxyId !== WETH) refetchBaseBal();
     refetchStrategyBal();
-    updateSeries([series]);
     updateAssets([_base]);
     updateStrategies([_strategy]);
     updateStrategyHistory([_strategy]);

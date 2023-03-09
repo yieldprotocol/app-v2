@@ -13,11 +13,11 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
+import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
-import { removeUndefined } from 'grommet/utils';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import useSeriesEntities from '../useSeriesEntities';
 
 export const useRepayDebt = () => {
   const {
@@ -25,8 +25,11 @@ export const useRepayDebt = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { seriesMap, assetMap, selectedIlk, selectedBase } = userState;
-  const { updateVaults, updateAssets, updateSeries } = userActions;
+  const { assetMap, selectedIlk, selectedBase, selectedVault } = userState;
+  const { updateVaults, updateAssets } = userActions;
+  const {
+    seriesEntity: { data: seriesEntity },
+  } = useSeriesEntities(selectedVault?.seriesId);
   const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
   const provider = useProvider();
@@ -37,7 +40,7 @@ export const useRepayDebt = () => {
   });
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
-    token: selectedBase?.id === WETH ? undefined : selectedBase?.address as Address,
+    token: selectedBase?.id === WETH ? undefined : (selectedBase?.address as Address),
   });
 
   const { addEth, removeEth } = useAddRemoveEth();
@@ -56,7 +59,8 @@ export const useRepayDebt = () => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
-    const series: ISeries = seriesMap?.get(vault.seriesId)!;
+    const series = seriesEntity;
+    if (!series) throw new Error('Series not found');
     const base: IAsset = assetMap?.get(vault.baseId)!;
     const ilk: IAsset = assetMap?.get(vault.ilkId)!;
 
@@ -130,7 +134,7 @@ export const useRepayDebt = () => {
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
     const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];
 
-    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100)
+    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100);
     const permitCallData: ICallData[] = await sign(
       [
         {
@@ -217,7 +221,6 @@ export const useRepayDebt = () => {
     if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
-    updateSeries([series]);
   };
 
   return repay;

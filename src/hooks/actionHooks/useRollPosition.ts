@@ -11,7 +11,6 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
-import { useAccount } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 
@@ -24,7 +23,7 @@ export const useRollPosition = () => {
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap } = userState;
-  const { updateSeries, updateAssets } = userActions;
+  const { updateAssets } = userActions;
 
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
@@ -164,7 +163,6 @@ export const useRollPosition = () => {
     ];
 
     const res = (await transact(calls, txCode)) as Promise<ethers.ContractReceipt | null> | void;
-    updateSeries([fromSeries, toSeries]);
     updateAssets([base]);
     updateTradeHistory([fromSeries, toSeries]);
     res && router.replace(`/lendposition/${toSeries.id}`);

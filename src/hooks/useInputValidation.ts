@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
 import { useLendHelpers } from './viewHelperHooks/useLendHelpers';
 import { ActionCodes, ISeries, IVault } from '../types';
 import useAccountPlus from './useAccountPlus';
+import useSeriesEntities from './useSeriesEntities';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -16,10 +16,13 @@ export const useInputValidation = (
 ) => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { assetMap, selectedSeries, selectedBase } = userState;
-  const _selectedSeries = series || selectedSeries;
+  const { assetMap, selectedSeriesId, selectedBase } = userState;
+  const {
+    seriesEntity: { data: seriesEntity },
+  } = useSeriesEntities(selectedSeriesId);
+  const _selectedSeries = series || seriesEntity;
   const _selectedBase = assetMap?.get(series?.baseId!) || selectedBase;
-  const { protocolLimited } = useLendHelpers(_selectedSeries, input);
+  const { protocolLimited } = useLendHelpers(selectedSeriesId, input);
 
   const { address: activeAccount } = useAccountPlus();
 
@@ -33,7 +36,7 @@ export const useInputValidation = (
       const _inputAsFloat = parseFloat(input);
       const aboveMax: boolean = !!limits[1] && _inputAsFloat > parseFloat(limits[1].toString());
       const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
-      const aboveUserBalance: boolean = aboveMax && !protocolLimited
+      const aboveUserBalance: boolean = aboveMax && !protocolLimited;
 
       // General input validation here:
       if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT) {
@@ -107,7 +110,7 @@ export const useInputValidation = (
           break;
       }
     } else setInputError(null);
-  }, [actionCode, activeAccount, input, limits, _selectedBase?.symbol, _selectedSeries]);
+  }, [actionCode, activeAccount, input, limits, _selectedBase?.symbol, _selectedSeries, protocolLimited]);
 
   return {
     inputError,

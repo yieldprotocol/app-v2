@@ -4,7 +4,7 @@ import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, ISeries, IAsset } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IAsset } from '../../types';
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../utils/constants';
 
@@ -16,9 +16,10 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import useContracts, { ContractNames } from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import useSeriesEntities from '../useSeriesEntities';
 
 export const useBorrow = () => {
   const {
@@ -26,10 +27,13 @@ export const useBorrow = () => {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
-  const { updateVaults, updateAssets, updateSeries } = userActions;
+  const { selectedBase, selectedIlk, assetMap, selectedSeriesId } = userState;
+  const { updateVaults, updateAssets } = userActions;
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
+  const {
+    seriesEntity: { data: seriesEntity },
+  } = useSeriesEntities();
 
   const { refetch: refetchIlkBal } = useBalance({
     address: account,
@@ -48,14 +52,16 @@ export const useBorrow = () => {
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);
+    const txCode = getTxCode(ActionCodes.BORROW, selectedSeriesId!);
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
-    const series: ISeries = vault ? seriesMap?.get(vault.seriesId)! : selectedSeries!;
+    const series = seriesEntity;
+    if (!series) throw new Error('Series not found');
+
     const base: IAsset = assetMap?.get(series.baseId)!;
 
     const ilkToUse: IAsset = vault ? assetMap?.get(vault.ilkId)! : assetMap?.get(selectedIlk?.proxyId!)!; // note: we use the wrapped version if required
@@ -143,7 +149,7 @@ export const useBorrow = () => {
       /* If vault is null, build a new vault, else ignore */
       {
         operation: LadleActions.Fn.BUILD,
-        args: [selectedSeries?.id, ilkToUse.id, '0'] as LadleActions.Args.BUILD,
+        args: [selectedSeriesId, ilkToUse.id, '0'] as LadleActions.Args.BUILD,
         ignoreIf: !!vault,
       },
 
@@ -171,11 +177,10 @@ export const useBorrow = () => {
       If a vault was provided, update it only,
       else update ALL vaults (by passing an empty array)
     */
-    if (selectedSeries?.baseId !== WETH) refetchBaseBal();
+    if (seriesEntity?.baseId !== WETH) refetchBaseBal();
     if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateVaults();
     updateAssets([base, ilkToUse, selectedIlk!]);
-    updateSeries([series]);
   };
 
   return borrow;

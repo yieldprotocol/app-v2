@@ -234,7 +234,7 @@ const VaultPosition = () => {
   const handleRoll = () => {
     if (rollDisabled) return;
     setRollDisabled(true);
-    rollDebt(_selectedVault!, rollToSeriesEntity!);
+    rollDebt(_selectedVault!, vaultSeries!, rollToSeriesEntity!);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,

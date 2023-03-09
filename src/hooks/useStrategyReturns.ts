@@ -1,16 +1,14 @@
 import Decimal from 'decimal.js';
 import { BigNumber } from 'ethers';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { ISeries, IStrategy } from '../types';
+import { ISeries, ISeriesRoot, IStrategy } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import {
   ONE_DEC as ONE,
   SECONDS_PER_YEAR,
   sellFYToken,
   ZERO_DEC as ZERO,
-  invariant,
   calcInterestRate,
-  // secondsInOneYear,
   ZERO_BN,
 } from '@yield-protocol/ui-math';
 import { formatEther, parseUnits } from 'ethers/lib/utils';
@@ -28,7 +26,6 @@ export interface IReturns {
 }
 
 export interface IStrategyReturns {
-  calcStrategyReturns: (strategy: IStrategy, input: string) => IReturns;
   returns: IReturns;
 }
 
@@ -102,20 +99,12 @@ const useStrategyReturns = (
   const strategy_ = strategy || selectedStrategy;
   const {
     seriesEntity: { data: seriesEntity },
-  } = useSeriesEntities(strategy?.currentSeriesId);
+    seriesEntities: { data: seriesEntities },
+  } = useSeriesEntities(strategy_?.currentSeriesId);
 
   const inputToUse = cleanValue(!input || +input === 0 ? '1' : input, seriesEntity?.decimals!);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
-
-  const [initSeries, setInitSeries] = useState<{
-    sharesReserves: BigNumber;
-    fyTokenReserves: BigNumber;
-    totalSupply: BigNumber;
-    ts: BigNumber;
-    g2: BigNumber;
-    c: BigNumber;
-  }>();
 
   const [returns, setLpReturns] = useState<IReturns>();
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
@@ -245,29 +234,25 @@ const useStrategyReturns = (
     [NOW]
   );
 
-  const calcStrategyReturns = useCallback(
-    (strategy: IStrategy | null, input: string) => {
-      if (!strategy) return;
-      const series = strategy.currentSeries;
-      if (!series) return;
-      const sharesAPY = getSharesAPY(series, input);
-      const fyTokenAPY = getFyTokenAPY(series, input);
-      const rewardsAPY = getRewardsAPY(strategy, input);
+  const calcStrategyReturns = useCallback(() => {
+    if (!selectedStrategy || !seriesEntity) return;
 
-      return {
-        feesAPY: cleanValue(series.feeAPY.toString(), digits),
-        sharesAPY: cleanValue(series.poolSharesAPY, digits),
-        sharesBlendedAPY: cleanValue(sharesAPY.toString(), digits),
-        fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
-        rewardsAPY: cleanValue(rewardsAPY.toString(), digits),
-        blendedAPY: cleanValue((sharesAPY + series.feeAPY + fyTokenAPY + rewardsAPY).toString(), digits),
-      };
-    },
-    [digits, getFyTokenAPY, getRewardsAPY, getSharesAPY]
-  );
+    const sharesAPY = getSharesAPY(seriesEntity, inputToUse);
+    const fyTokenAPY = getFyTokenAPY(seriesEntity, inputToUse);
+    const rewardsAPY = getRewardsAPY(selectedStrategy, inputToUse);
+
+    return {
+      feesAPY: cleanValue(seriesEntity.feeAPY.toString(), digits),
+      sharesAPY: cleanValue(seriesEntity.poolSharesAPY, digits),
+      sharesBlendedAPY: cleanValue(sharesAPY.toString(), digits),
+      fyTokenAPY: cleanValue(fyTokenAPY.toString(), digits),
+      rewardsAPY: cleanValue(rewardsAPY.toString(), digits),
+      blendedAPY: cleanValue((sharesAPY + seriesEntity.feeAPY + fyTokenAPY + rewardsAPY).toString(), digits),
+    };
+  }, [digits, getFyTokenAPY, getRewardsAPY, getSharesAPY, inputToUse, selectedStrategy, seriesEntity]);
 
   useEffect(() => {
-    setLpReturns(calcStrategyReturns(selectedStrategy!, inputToUse));
+    setLpReturns(calcStrategyReturns());
   }, [calcStrategyReturns, inputToUse, selectedStrategy]);
 
   return {
