@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 
 import { useCachedState } from '../hooks/generalHooks';
 
-import yieldEnv from './yieldEnv.json';
+import yieldEnv from './yieldEnv';
 import * as contractTypes from '../contracts';
 // import * as contracts from '../contracts';
 import * as contracts from '../contracts';
@@ -19,7 +19,7 @@ import YieldMark from '../components/logos/YieldMark';
 // import { SERIES } from '../config/series';
 import { toast } from 'react-toastify';
 import useChainId from '../hooks/useChainId';
-import useContracts, { ContractNames } from '../hooks/useContracts';
+import useContracts from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 import { SERIES, ISeriesStatic, validateSeries } from '../config/series';
 import { Block } from '@ethersproject/providers';
@@ -287,7 +287,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
       newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
     },
-    [_chargeSeries, contracts, provider]
+    [_chargeSeries, provider]
   );
 
   /* Attach contract instance */
@@ -413,7 +413,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
    * functionality to export protocol addresses
    */
   const exportContractAddresses = () => {
-    const contractList = [...contracts].map(([v, k]) => [v, k.address]);
+    const contractList = [...contracts?.entries()!].map(([v, k]) => [v, k.address]);
     const seriesList = [...chainState.seriesRootMap].map(([v, k]) => [v, k.address]);
     const assetList = [...chainState.assetRootMap].map(([v, k]) => [v, k.address]);
     const strategyList = [...chainState.strategyRootMap].map(([v, k]) => [k.symbol, v]);
