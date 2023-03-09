@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import yieldEnv, { ContractNames } from '../contexts/yieldEnv';
+import yieldEnv, { ContractMap, ContractNames } from '../contexts/yieldEnv';
 import * as contractTypes from '../contracts';
 import useChainId from './useChainId';
 import { useProvider } from 'wagmi';
@@ -17,7 +17,7 @@ const useContracts = () => {
     return [...chainAddrs.keys()].reduce((contracts, name) => {
       const contract = (contractTypes as any)[`${name}__factory`].connect(chainAddrs.get(name), provider) as Contract;
       return contracts.set(name, contract);
-    }, new Map() as Map<ContractNames, Contract>);
+    }, new Map() as ContractMap);
   }, [chainAddrs, provider]);
 };
 
