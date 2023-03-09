@@ -1,7 +1,7 @@
 import { format, getMonth, subDays } from 'date-fns';
 import { Contract, ContractReceipt } from 'ethers';
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
-import { ContractMap, ContractNames } from '../config/yieldEnv';
+import { ContractMap, ContractNames } from '../config/contracts';
 
 import { ActionCodes, ISeries } from '../types';
 

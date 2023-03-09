@@ -13,7 +13,7 @@ import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
-import { ContractNames } from '../../config/yieldEnv';
+import { ContractNames } from '../../config/contracts';
 
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);

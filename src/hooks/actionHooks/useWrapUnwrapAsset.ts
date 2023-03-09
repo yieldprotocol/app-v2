@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { useNetwork, useSigner } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { ContractNames } from '../../config/yieldEnv';
+import { ContractNames } from '../../config/contracts';
 import { ICallData, LadleActions, IAsset, RoutedActions, IAssetRoot } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';

@@ -16,7 +16,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
-import { ContractNames } from '../../config/yieldEnv';
+import { ContractNames } from '../../config/contracts';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
