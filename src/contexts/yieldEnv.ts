@@ -1,3 +1,5 @@
+import { Contract } from 'ethers';
+
 export enum ContractNames {
   CAULDRON = 'Cauldron',
   WITCH = 'Witch',
@@ -7,6 +9,8 @@ export enum ContractNames {
   CONVEX_LADLE_MODULE = 'ConvexLadleModule',
   TRANSFER_1155_MODULE = 'Transfer1155Module',
 }
+
+export type ContractMap = Map<ContractNames, Contract>;
 
 interface YieldEnv {
   addresses: Map<number, Map<ContractNames, string>>;
