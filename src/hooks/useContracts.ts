@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import yieldEnv, { ContractMap } from '../config/contracts';
+import contractAddresses, { ContractMap } from '../config/contracts';
 import * as contractTypes from '../contracts';
 import useChainId from './useChainId';
 import { useProvider } from 'wagmi';
 import { Contract } from 'ethers';
 
 const useContracts = () => {
-  const { addresses } = yieldEnv;
+  const { addresses } = contractAddresses;
   const chainId = useChainId();
   const provider = useProvider();
   const chainAddrs = addresses.get(chainId);
