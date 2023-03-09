@@ -13,11 +13,11 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
-import { removeUndefined } from 'grommet/utils';
+import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
+import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import { ContractNames } from '../../contexts/yieldEnv';
 
 export const useRepayDebt = () => {
   const {
@@ -37,7 +37,7 @@ export const useRepayDebt = () => {
   });
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
-    token: selectedBase?.id === WETH ? undefined : selectedBase?.address as Address,
+    token: selectedBase?.id === WETH ? undefined : (selectedBase?.address as Address),
   });
 
   const { addEth, removeEth } = useAddRemoveEth();
@@ -53,6 +53,8 @@ export const useRepayDebt = () => {
    * @param reclaimCollateral
    */
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
+    if (!contracts) return;
+
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
@@ -130,7 +132,7 @@ export const useRepayDebt = () => {
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
     const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];
 
-    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100)
+    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100);
     const permitCallData: ICallData[] = await sign(
       [
         {
