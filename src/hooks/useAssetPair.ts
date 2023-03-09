@@ -10,7 +10,7 @@ import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
 import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
 import { stETH, wstETH } from '../config/assets';
-import { ContractNames } from '../contexts/yieldEnv';
+import { ContractNames } from '../config/yieldEnv';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {

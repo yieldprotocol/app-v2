@@ -28,7 +28,7 @@ import useContracts from '../hooks/useContracts';
 
 import useAccountPlus from '../hooks/useAccountPlus';
 import useFork from '../hooks/useFork';
-import { ContractNames } from './yieldEnv';
+import { ContractNames } from '../config/yieldEnv';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 

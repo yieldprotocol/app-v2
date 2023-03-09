@@ -13,7 +13,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
-import { ContractNames } from '../../contexts/yieldEnv';
+import { ContractNames } from '../../config/yieldEnv';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {

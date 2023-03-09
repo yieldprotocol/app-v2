@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import yieldEnv, { ContractMap } from '../contexts/yieldEnv';
+import yieldEnv, { ContractMap } from '../config/yieldEnv';
 import * as contractTypes from '../contracts';
 import useChainId from './useChainId';
 import { useProvider } from 'wagmi';
