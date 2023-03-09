@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { ContractNames } from '../../config/yieldEnv';
+import { ContractNames } from '../../config/contracts';
 import { ICallData, LadleActions } from '../../types';
 import { ModuleActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
