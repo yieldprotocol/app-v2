@@ -3,10 +3,11 @@ import { useContext } from 'react';
 import { useNetwork, useSigner } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
+import { ContractNames } from '../../contexts/yieldEnv';
 import { ICallData, LadleActions, IAsset, RoutedActions, IAssetRoot } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
-import useContracts, { ContractNames } from '../useContracts';
+import useContracts from '../useContracts';
 
 export const useWrapUnwrapAsset = () => {
   const {
@@ -30,6 +31,8 @@ export const useWrapUnwrapAsset = () => {
     txCode: string,
     to?: string | undefined // optional send destination : DEFAULT is assetJoin address
   ): Promise<ICallData[]> => {
+    if (!contracts) throw new Error('Contracts not found');
+
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     /* SET the destination address DEFAULTs to the assetJoin Address */
     const toAddress = to || asset.joinAddress;
