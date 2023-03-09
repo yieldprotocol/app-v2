@@ -103,38 +103,47 @@ export const useDashboardHelpers = () => {
 
   /* set strategy positions */
   useEffect(() => {
-    const _strategyPositions: IStrategyPosition[] = Array.from(strategyMap?.values()!)
-      .map((_strategy) => {
-        if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
-        // const currentStrategySeries = seriesMap.get(_strategy.currentSeries.id);
-        const currentStrategySeries = _strategy.currentSeries;
-        const [fyTokenToShares, sharesReceived] = strategyTokenValue(
-          _strategy?.accountBalance || ethers.constants.Zero,
-          _strategy?.strategyTotalSupply || ethers.constants.Zero,
-          _strategy?.strategyPoolBalance || ethers.constants.Zero,
-          currentStrategySeries?.sharesReserves!,
-          currentStrategySeries?.fyTokenReserves!,
-          currentStrategySeries?.totalSupply!,
-          getTimeTillMaturity(currentStrategySeries?.maturity!),
-          currentStrategySeries?.ts!,
-          currentStrategySeries?.g2!,
-          currentStrategySeries?.decimals!,
-          currentStrategySeries?.c,
-          currentStrategySeries?.mu
-        );
-        const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
-          ? ethers.utils.formatUnits(
-              currentStrategySeries?.getBase(fyTokenToShares).add(currentStrategySeries?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
-              currentStrategySeries?.decimals
-            )
-          : _strategy.accountBalance_; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
+    (async () => {
+      const strategies = Array.from(strategyMap?.values()!);
+      const filtered = strategies.filter((s) => s.accountBalance?.gt(ZERO_BN));
 
-        return { ..._strategy, currentValue_ };
-      })
-      .filter((_strategy) => _strategy.accountBalance?.gt(ZERO_BN))
-      .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
-    setStrategyPositions(_strategyPositions);
-  }, [strategyMap, getTimeTillMaturity]);
+      const _strategyPositions: IStrategyPosition[] = await Promise.all(
+        filtered.map(async (_strategy) => {
+          if (!_strategy.strategyPoolBalance) return { ..._strategy, currentValue_: _strategy.accountBalance_ };
+          // const currentStrategySeries = seriesMap.get(_strategy.currentSeries.id);
+          const currentStrategySeries = await getSeriesEntity(_strategy.currentSeriesId);
+          const [fyTokenToShares, sharesReceived] = strategyTokenValue(
+            _strategy?.accountBalance || ethers.constants.Zero,
+            _strategy?.strategyTotalSupply || ethers.constants.Zero,
+            _strategy?.strategyPoolBalance || ethers.constants.Zero,
+            currentStrategySeries?.sharesReserves!,
+            currentStrategySeries?.fyTokenReserves!,
+            currentStrategySeries?.totalSupply!,
+            getTimeTillMaturity(currentStrategySeries?.maturity!),
+            currentStrategySeries?.ts!,
+            currentStrategySeries?.g2!,
+            currentStrategySeries?.decimals!,
+            currentStrategySeries?.c,
+            currentStrategySeries?.mu
+          );
+          const currentValue_ = fyTokenToShares.gt(ethers.constants.Zero) // if we can sell all fyToken to shares
+            ? ethers.utils.formatUnits(
+                currentStrategySeries?.getBase(fyTokenToShares).add(currentStrategySeries?.getBase(sharesReceived))!, // add shares received to fyTokenToShares (in base)
+                currentStrategySeries?.decimals
+              )
+            : _strategy.accountBalance_; // if we can't sell all fyToken, just use account strategy token balance (rough estimate of current value)
+
+          return { ..._strategy, currentValue_ };
+        })
+      );
+
+      const sorted = _strategyPositions.sort((_strategyA, _strategyB) =>
+        _strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1
+      );
+
+      setStrategyPositions(sorted);
+    })();
+  }, [strategyMap, getTimeTillMaturity, getSeriesEntity]);
 
   /* get a single position's ink or art in usdc or eth (input the asset id): value can be art, ink, fyToken, or poolToken balances */
   const convertValue = useCallback(
