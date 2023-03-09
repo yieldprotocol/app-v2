@@ -160,7 +160,50 @@ STRATEGIES.set(1, [
     decimals: 6,
     version: '1',
   },
+  // NEWLY ADDED STRATEGIES jacob b
+  {
+    address: '0xa6dbc40c75037895dee8d2415f1ce9e0fb08cf49',
+    type: StrategyType.V2,
+    symbol: 'YSDAI6MMS',
+    baseId: DAI,
+    name: 'Yield Strategy DAI 6M Mar Sep',
+    decimals: 18,
+    version: '1',
+  },
+  {
+    address: '0x59e9db2c8995ceeaf6a9ad0896601a5d3289444e',
+    type: StrategyType.V2,
+    symbol: 'YSUSDC6MMS',
+    baseId: USDC,
+    name: 'Yield Strategy USDC 6M Mar Sep',
+    decimals: 6,
+    version: '1',
+  },
+  {
+    address: '0x11f30c6b1173ec6e0a6d622c8f17eef3dc593764',
+    type: StrategyType.V2,
+    symbol: 'YSETH6MMS',
+    baseId: WETH,
+    name: 'Yield Strategy ETH 6M Mar Sep',
+    decimals: 18,
+    version: '1',
+  },
+  {
+    address: '0x45a37d7a93416934ebf7ad85b35bcf39fcd68696',
+    type: StrategyType.V2,
+    symbol: 'YSFRAX6MMS',
+    baseId: FRAX,
+    name: 'Yield Strategy FRAX 6M Mar Sep',
+    decimals: 18,
+    version: '1',
+  },
 ]);
+
+// New strats
+// DAI 0xa6dbc40c75037895dee8d2415f1ce9e0fb08cf49 => pool: 0x8808510d380b6f96dd2e2d9980d370b098840916 , fyToken: 0x5e0f24ec7b948e8e589ec66c858a72a1c1b88217
+// USDC 0x59e9db2c8995ceeaf6a9ad0896601a5d3289444e => pool: 0x243118102406ea39e313568ed4c52e3b2c0e9ec1 , fyToken: 0x5eaf4e6160eda8222acf0ebcb52fbadb6b8bb1ad
+// ETH 0x11f30c6b1173ec6e0a6d622c8f17eef3dc593764 => pool: 0xc33ec597244008b058ad0811f144e5b2b85bc1e0 , fyToken: 0xac981e8d4b0d1e56d5b2d983ba0558d96c63ceaa
+// FRAX 0x45a37d7a93416934ebf7ad85b35bcf39fcd68696 => pool: 0x6d8ff80d3cfc38c376d6e8af9c2c9da88f9661f2  , fyToken: 0xeed224d35a39db18e6440d06f5bdb4a9ca94d44d
 
 STRATEGIES.set(42161, [
   {
