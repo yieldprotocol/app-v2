@@ -9,10 +9,9 @@ import { MAX_256, ZERO_BN } from '../utils/constants';
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useAccount, useNetwork, useSigner } from 'wagmi';
+import { useNetwork, useSigner } from 'wagmi';
 import useContracts from './useContracts';
 import { ISettingsContext } from '../contexts/types/settings';
-import { ChainContext } from '../contexts/ChainContext';
 import useAccountPlus from './useAccountPlus';
 import { ContractNames } from '../config/contracts';
 
