@@ -123,6 +123,7 @@ export const useChain = () => {
    */
   const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
     if (!signer) throw new Error('no signer');
+    if (!contracts) throw new Error('no contracts');
 
     /* Get the spender if not provided, defaults to ladle */
     const getSpender = (spender: 'LADLE' | string) => {
