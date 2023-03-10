@@ -125,7 +125,6 @@ const SupportSettings = () => {
         <Text color="text" weight={'bolder'}>
           App Reset
         </Text>
-
         <GeneralButton action={handleResetApp} background="background">
           <Text size="xsmall">Clear Cache and Reset</Text>
         </GeneralButton>
