@@ -33,7 +33,7 @@ const useFork = () => {
   }, [provider, useForkedEnv]);
 
   const getForkStartBlock = useCallback(async () => {
-    if (!useForkedEnv || !provider) return;
+    if (!useForkedEnv || !provider) return 'earliest';
 
     try {
       const num = await provider.send('tenderly_getForkBlockNumber', []);
