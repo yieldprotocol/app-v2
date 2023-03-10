@@ -14,6 +14,7 @@ import useContracts, { ContractNames } from './useContracts';
 import { ISettingsContext } from '../contexts/types/settings';
 import { ChainContext } from '../contexts/ChainContext';
 import useAccountPlus from './useAccountPlus';
+import useFork from './useFork';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -35,9 +36,10 @@ export const useChain = () => {
   /* wagmi connection stuff */
   const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
-  const { data: signer, isError, isLoading } = useSigner();
+  const { data: _signer, isError, isLoading } = useSigner();
   const contracts = useContracts();
-
+  const { provider: forkProvider, useForkedEnv } = useFork();
+  const signer = useForkedEnv ? forkProvider?.getSigner(account) : _signer;
   const approvalMethod = useApprovalMethod();
 
   /**
