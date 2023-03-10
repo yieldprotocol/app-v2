@@ -1,6 +1,6 @@
 import { WAD_BN } from '@yield-protocol/ui-math';
-import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { ContractNames } from '../../config/contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { UserContext } from '../../contexts/UserContext';
 import { Cauldron } from '../../contracts';
@@ -8,7 +8,7 @@ import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IHistoryContext 
 import { getTxCode } from '../../utils/appUtils';
 import { MAX_128, ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
-import useContracts, { ContractNames } from '../useContracts';
+import useContracts from '../useContracts';
 import { AssertActions, useAssert } from './useAssert';
 
 /* Generic hook for chain transactions */
@@ -25,9 +25,11 @@ export const useRollDebt = () => {
 
   const { assert, encodeBalanceCall } = useAssert();
   const contracts = useContracts();
-  const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
+    if (!contracts) return;
+
+    const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const base = assetMap?.get(vault.baseId);
     const hasDebt = vault.accruedArt.gt(ZERO_BN);
@@ -39,7 +41,7 @@ export const useRollDebt = () => {
       cauldron.interface.encodeFunctionData('balances', [vault.id]),
       AssertActions.Fn.ASSERT_EQ_REL,
       vault.accruedArt,
-      WAD_BN.mul('10'), // 10% relative tolerance
+      WAD_BN.mul('10') // 10% relative tolerance
     );
 
     const calls: ICallData[] = [
