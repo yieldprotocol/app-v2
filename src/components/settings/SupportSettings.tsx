@@ -1,10 +1,8 @@
 import { Box, Button, Text, TextInput } from 'grommet';
 import { useContext, useState } from 'react';
 import Switch from 'react-switch';
-import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { Settings } from '../../contexts/types/settings';
-import useAccountPlus from '../../hooks/useAccountPlus';
 import useFork from '../../hooks/useFork';
 import { clearCachedItems } from '../../utils/appUtils';
 import GeneralButton from '../buttons/GeneralButton';
@@ -15,7 +13,6 @@ const SupportSettings = () => {
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
-  // const account = useAccountPlus();
   const { fillEther } = useFork();
 
   const [forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
@@ -44,7 +41,7 @@ const SupportSettings = () => {
             checkedIcon={false}
             onChange={(val: boolean) => {
               updateSetting(Settings.USE_FORKED_ENV, val);
-              updateSetting(Settings.FORK_ENV_URL, forkUrlInput);
+              setForkUrlInput(forkEnvUrl);
               window.location.reload();
             }}
             handleDiameter={20}
@@ -56,7 +53,20 @@ const SupportSettings = () => {
           <Text color="text" size="small">
             Parameter: Fork URL
           </Text>
-          <TextInput value={forkUrlInput} onChange={(e: any) => setForkUrlInput(e.target.value)} size="xsmall" />
+          <TextInput value={forkUrlInput} onChange={(e) => setForkUrlInput(e.target.value)} size="xsmall" />
+          <GeneralButton
+            action={() => forkUrlInput !== forkEnvUrl && console.log(`changing fork url to: ${forkUrlInput}`)}
+            background="background"
+            disabled={!useForkedEnv || forkUrlInput === forkEnvUrl}
+          >
+            <Button
+              plain
+              disabled={!useForkedEnv || forkUrlInput === forkEnvUrl}
+              onClick={() => updateSetting(Settings.FORK_ENV_URL, forkUrlInput)}
+            >
+              <Text size="xsmall">Update URL</Text>
+            </Button>
+          </GeneralButton>
         </Box>
 
         <GeneralButton action={() => console.log('filling ether')} background="background">
