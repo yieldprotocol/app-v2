@@ -24,7 +24,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
   /* HOOKS */
   const provider = useDefaultProvider();
-  const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
+  const { useForkedEnv, provider: forkProvider, forkUrl, forkStartBlock } = useFork();
   const contracts = useContracts();
 
   /* GET PAIR INFO */
@@ -106,7 +106,10 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     const getIlkAddedEvents = async (provider: JsonRpcProvider | Provider, seriesId: string) => {
       const cauldron = contracts.get(ContractNames.CAULDRON)?.connect(provider) as Cauldron;
       try {
-        return await cauldron.queryFilter(cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)), 'earliest');
+        return await cauldron.queryFilter(
+          cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)),
+          useForkedEnv ? forkStartBlock : 'earliest'
+        );
       } catch (e) {
         console.log('error getting ilk added events: ', e);
         return [];
@@ -129,7 +132,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
         ? [...acc, asset, assetMap.get(stETH.toLowerCase())!]
         : [...acc, asset];
     }, [] as IAsset[]);
-  }, [assetMap, contracts, forkProvider, provider, seriesId, useForkedEnv]);
+  }, [assetMap, contracts, forkProvider, forkStartBlock, provider, seriesId, useForkedEnv]);
 
   const { data: validIlks, error: validIlksError } = useSWRImmutable(
     seriesId ? ['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId] : null,
