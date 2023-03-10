@@ -13,10 +13,11 @@ import { ONE_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { Address, useBalance } from 'wagmi';
+import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { AssertActions, useAssert } from './useAssert';
+import { ContractNames } from '../../config/contracts';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -52,13 +53,14 @@ export const useClosePosition = () => {
     series: ISeries,
     getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
+    if (!contracts) return;
+
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const base = assetMap?.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
 
     const { address, poolAddress, seriesIsMature } = series;
-    // const ladleAddress = contractMap.get('Ladle').address;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     /* assess how much fyToken is needed to buy base amount (input) */

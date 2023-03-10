@@ -10,10 +10,11 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { Address, useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
+import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { AssertActions, useAssert } from './useAssert';
+import { ContractNames } from '../../config/contracts';
 
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -38,6 +39,8 @@ export const useRemoveCollateral = () => {
   const { assert, encodeBalanceCall } = useAssert();
 
   const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
+    if (!contracts) return;
+
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
@@ -68,7 +71,7 @@ export const useRemoveCollateral = () => {
       if (unwrapCallData.length) return unwrapHandlerAddress; // if there is something to unwrap
       return account;
     };
-    
+
     /* Add in an Assert call : collateral(ilk) decreases by input amount */
     const assertCallData: ICallData[] = assert(
       ilk.address,

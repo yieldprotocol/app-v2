@@ -23,12 +23,13 @@ import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount, useProvider, useBalance, Address } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { useProvider, useBalance, Address } from 'wagmi';
+import useContracts from '../useContracts';
 import { Strategy__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
 import useAccountPlus from '../useAccountPlus';
 import { AssertActions, useAssert } from './useAssert';
+import { ContractNames } from '../../config/contracts';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -90,6 +91,8 @@ export const useRemoveLiquidity = () => {
   } = useContext(SettingsContext);
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
+    if (!contracts) return;
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
@@ -101,7 +104,6 @@ export const useRemoveLiquidity = () => {
       ? Strategy__factory.connect(_strategy.associatedStrategy, provider)
       : undefined;
 
-    // const ladleAddress = contractMap.get('Ladle').address;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
@@ -298,17 +300,19 @@ export const useRemoveLiquidity = () => {
       _base.address,
       encodeBalanceCall(_base.address, _base.tokenIdentifier),
       AssertActions.Fn.ASSERT_EQ_REL,
-      _base.balance!.add( series.getBase(_sharesReceived) ),
+      _base.balance!.add(series.getBase(_sharesReceived)),
       WAD_BN.mul('10') // 10% relative tolerance
     );
     /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
-    const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN) ? assert(
-      series.address,
-      encodeBalanceCall(series.address, undefined),
-      AssertActions.Fn.ASSERT_EQ_REL,
-      series.fyTokenBalance!.add(_fyTokenReceived),
-      WAD_BN.mul('10') // 10% relative tolerance
-    ) : [];
+    const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN)
+      ? assert(
+          series.address,
+          encodeBalanceCall(series.address, undefined),
+          AssertActions.Fn.ASSERT_EQ_REL,
+          series.fyTokenBalance!.add(_fyTokenReceived),
+          WAD_BN.mul('10') // 10% relative tolerance
+        )
+      : [];
 
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
     const calls: ICallData[] = [
@@ -468,7 +472,7 @@ export const useRemoveLiquidity = () => {
       },
 
       ...removeEthCallData,
-      
+
       ...assertCallData_base,
       ...assertCallData_fyToken,
     ];

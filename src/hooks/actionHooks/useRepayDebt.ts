@@ -14,9 +14,10 @@ import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { Cauldron, ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import { ContractNames } from '../../config/contracts';
 import { AssertActions, useAssert } from './useAssert';
 
 export const useRepayDebt = () => {
@@ -47,7 +48,6 @@ export const useRepayDebt = () => {
   const chainId = useChainId();
 
   const { assert, encodeBalanceCall } = useAssert();
-  const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
 
   /**
    * REPAY FN
@@ -56,6 +56,10 @@ export const useRepayDebt = () => {
    * @param reclaimCollateral
    */
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
+    if (!contracts) return;
+
+    const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
+
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;

@@ -6,17 +6,18 @@ import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext }
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { Address, useAccount, useBalance } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { Address, useBalance } from 'wagmi';
+import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { useAssert, AssertActions } from './useAssert';
+import { ContractNames } from '../../config/contracts';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -45,6 +46,8 @@ export const useAddCollateral = () => {
   });
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
+    if (!contracts) return;
+
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 

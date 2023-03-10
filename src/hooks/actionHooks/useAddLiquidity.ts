@@ -1,6 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { calcPoolRatios, calculateSlippage, fyTokenForMint, MAX_256, splitLiquidity, WAD_BN } from '@yield-protocol/ui-math';
+import {
+  calcPoolRatios,
+  calculateSlippage,
+  fyTokenForMint,
+  MAX_256,
+  splitLiquidity,
+  WAD_BN,
+} from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
@@ -25,11 +32,12 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS, USDT, WETH } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { Address, useBalance } from 'wagmi';
+import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
 import { AssertActions, useAssert } from './useAssert';
+import { ContractNames } from '../../config/contracts';
 
 export const useAddLiquidity = () => {
   const {
@@ -68,6 +76,8 @@ export const useAddLiquidity = () => {
     method: AddLiquidityType = AddLiquidityType.BUY,
     matchingVault: IVault | undefined = undefined
   ) => {
+    if (!contracts) return;
+
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
 
     const _series = strategy.currentSeries!;
