@@ -25,7 +25,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
   /* HOOKS */
   const provider = useProvider();
-  const { useForkedEnv, provider: forkProvider } = useFork();
+  const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
   const contracts = useContracts();
 
   /* GET PAIR INFO */
@@ -128,7 +128,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   }, [assetMap, contracts, forkProvider, provider, seriesId, useForkedEnv]);
 
   const { data: validIlks, error: validIlksError } = useSWRImmutable(
-    seriesId ? ['seriesIlks', chainId, useForkedEnv, seriesId] : null,
+    seriesId ? ['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId] : null,
     getSeriesEntityIlks
   );
 
