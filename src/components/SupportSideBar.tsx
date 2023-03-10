@@ -4,12 +4,12 @@ import SupportSettings from './settings/SupportSettings';
 
 function SupportSideBar() {
   const [show, setShow] = React.useState(false);
-  
+
   const handleKeyPress = useCallback((event: any) => {
     if (event.altKey === true) {
       event.key === 'ß' && setShow(true);
     }
-  }, []); 
+  }, []);
   useEffect(() => {
     // attach the event listener
     document.addEventListener('keydown', handleKeyPress);
@@ -32,7 +32,7 @@ function SupportSideBar() {
           onEsc={() => setShow(false)}
         >
           <Box fill width="400px" background="lightBackground" elevation="xlarge" style={{ overflow: 'auto' }}>
-            <Box pad={{ horizontal: 'medium', vertical: 'xlarge' }} background="gradient-transparent" gap="medium">
+            <Box pad={{ horizontal: 'medium', vertical: 'large' }} background="gradient-transparent" gap="medium">
               <Text size="large" color="text">
                 Support & Developer Toolbox
               </Text>
