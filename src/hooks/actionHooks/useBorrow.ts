@@ -16,9 +16,10 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ModuleActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { Address, useBalance } from 'wagmi';
+import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import { ContractNames } from '../../config/contracts';
 
 export const useBorrow = () => {
   const {
@@ -47,6 +48,8 @@ export const useBorrow = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
+    if (!contracts) return;
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);
     /* use the vault id provided OR 0 if new/ not provided */

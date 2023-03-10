@@ -22,11 +22,12 @@ import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { useAccount, useProvider, useBalance, Address } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { useProvider, useBalance, Address } from 'wagmi';
+import useContracts from '../useContracts';
 import { Strategy__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
 import useAccountPlus from '../useAccountPlus';
+import { ContractNames } from '../../config/contracts';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -53,9 +54,8 @@ is Mature?        N     +--------+
  */
 
 export const useRemoveLiquidity = () => {
-
   const provider = useProvider();
-  const {address:account} = useAccountPlus();
+  const { address: account } = useAccountPlus();
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
@@ -87,6 +87,8 @@ export const useRemoveLiquidity = () => {
   } = useContext(SettingsContext);
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
+    if (!contracts) return;
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
@@ -98,7 +100,6 @@ export const useRemoveLiquidity = () => {
       ? Strategy__factory.connect(_strategy.associatedStrategy, provider)
       : undefined;
 
-    // const ladleAddress = contractMap.get('Ladle').address;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
