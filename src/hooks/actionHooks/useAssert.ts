@@ -1,10 +1,9 @@
-import { BigNumber, BigNumberish, Bytes, BytesLike, Contract, ethers } from 'ethers';
+import { BigNumber, BigNumberish, BytesLike, Contract } from 'ethers';
 import { erc20ABI, useAccount, useNetwork } from 'wagmi';
 import { ContractNames } from '../../config/contracts';
-import { IAsset, ICallData, LadleActions } from '../../types';
-import { RoutedActions } from '../../types/operations';
+import { Assert, ERC1155__factory } from '../../contracts';
+import { ICallData, LadleActions } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
-import useChainId from '../useChainId';
 import useContracts from '../useContracts';
 
 export namespace AssertActions {
@@ -43,7 +42,7 @@ export const useAssert = () => {
 
   const encodeBalanceCall = (targetAddress: string, tokenIdentifier: string | number | undefined = undefined) => {
     if (targetAddress) {
-      const abi = tokenIdentifier ? erc1155ABI : erc20ABI;
+      const abi = tokenIdentifier ? ERC1155__factory.abi : erc20ABI;
       const args = tokenIdentifier ? [account, tokenIdentifier] : [account];
       const assetContract_ = new Contract(targetAddress, abi);
       return assetContract_.interface.encodeFunctionData('balanceOf', args);
@@ -55,7 +54,7 @@ export const useAssert = () => {
 
   const assert = (
     address: string,
-    encodedCallBytes: any,
+    encodedCallBytes: string,
     assertFn: AssertActions.Fn,
     expectedVal: BigNumber,
     relOrAbsVal: BigNumber = ZERO_BN,
@@ -63,7 +62,7 @@ export const useAssert = () => {
   ): ICallData[] => {
     if (!contracts) return [];
 
-    const AssertContract = contracts.get(ContractNames.ASSERT);
+    const AssertContract = contracts.get(ContractNames.ASSERT) as Assert;
 
     return [
       {
@@ -87,19 +86,6 @@ const multiCallFragment = [
     inputs: [{ internalType: 'address', name: 'addr', type: 'address' }],
     name: 'getEthBalance',
     outputs: [{ internalType: 'uint256', name: 'balance', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-];
-
-const erc1155ABI = [
-  {
-    inputs: [
-      { internalType: 'address', name: 'account', type: 'address' },
-      { internalType: 'uint256', name: 'id', type: 'uint256' },
-    ],
-    name: 'balanceOf',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
