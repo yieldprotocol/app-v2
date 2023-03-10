@@ -88,7 +88,7 @@ const SupportSettings = () => {
             onColor="#60A5FA"
             uncheckedIcon={false}
             checkedIcon={false}
-            onChange={(val: boolean) => {
+            onChange={(val) => {
               updateSetting(Settings.USE_MOCKED_USER, val);
               updateSetting(Settings.MOCK_USER_ADDRESS, mockAddressInput);
               window.location.reload();
@@ -102,12 +102,23 @@ const SupportSettings = () => {
           <Text color="text" size="small">
             Parameter: Mock User Address
           </Text>
-          <TextInput
-            value={mockAddressInput}
-            onChange={(event: any) => setMockAddressInput(event.target.value)}
-            size="xsmall"
-          />
+          <TextInput value={mockAddressInput} onChange={(e) => setMockAddressInput(e.target.value)} size="xsmall" />
         </Box>
+        <GeneralButton
+          action={() =>
+            mockAddressInput !== mockUserAddress && console.log(`changing mocked user to: ${mockAddressInput}`)
+          }
+          background="background"
+          disabled={!useForkedEnv || mockAddressInput === mockUserAddress}
+        >
+          <Button
+            plain
+            disabled={!mockUserAddress || mockAddressInput === mockUserAddress}
+            onClick={() => updateSetting(Settings.MOCK_USER_ADDRESS, mockAddressInput)}
+          >
+            <Text size="xsmall">Update User</Text>
+          </Button>
+        </GeneralButton>
       </Box>
 
       <Box gap="medium">
