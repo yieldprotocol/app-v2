@@ -18,9 +18,9 @@ const SupportSettings = () => {
   // const account = useAccountPlus();
   const { fillEther } = useFork();
 
-  const [ forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
+  const [forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
 
-  const [ mockAddressInput, setMockAddressInput] = useState<string>(mockUserAddress );
+  const [mockAddressInput, setMockAddressInput] = useState<string>(mockUserAddress);
 
   const handleResetApp = () => {
     clearCachedItems([]);
@@ -56,16 +56,12 @@ const SupportSettings = () => {
           <Text color="text" size="small">
             Parameter: Fork URL
           </Text>
-          <TextInput
-            value={ forkUrlInput }
-            onChange={ (e: any) => setForkUrlInput(e.target.value)  }
-            size="xsmall"
-          />
+          <TextInput value={forkUrlInput} onChange={(e: any) => setForkUrlInput(e.target.value)} size="xsmall" />
         </Box>
 
-        <GeneralButton action={()=>console.log('filling ether')} background="background"  >
-          <Button  plain disabled={!useForkedEnv} onClick={fillEther}>
-          <Text size="xsmall">Action: Fill ETH on Fork</Text>
+        <GeneralButton action={() => console.log('filling ether')} background="background">
+          <Button plain disabled={!useForkedEnv} onClick={fillEther}>
+            <Text size="xsmall">Action: Fill ETH on Fork</Text>
           </Button>
         </GeneralButton>
       </Box>
@@ -106,8 +102,8 @@ const SupportSettings = () => {
 
       <Box gap="medium">
         <Text color="text" weight={'bolder'}>
-            App Reset
-          </Text>
+          App Reset
+        </Text>
 
         <GeneralButton action={handleResetApp} background="background">
           <Text size="xsmall">Clear Cache and Reset</Text>
