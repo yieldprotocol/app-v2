@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, Contract, ethers } from 'ethers';
+import { BigNumber, BigNumberish, Bytes, BytesLike, Contract, ethers } from 'ethers';
 import { erc20ABI, useAccount, useNetwork } from 'wagmi';
 import { ContractNames } from '../../config/contracts';
 import { IAsset, ICallData, LadleActions } from '../../types';
@@ -17,12 +17,22 @@ export namespace AssertActions {
     ASSERT_LE = 'assertLe(address,bytes,uint)',
   }
   export namespace Args {
-    export type ASSERT_GT = [actualTarget: string, bytes: any, expected: BigNumberish];
-    export type ASSERT_LT = [actualTarget: string, bytes: any, expected: BigNumberish];
-    export type ASSERT_EQ_REL = [actualTarget: string, bytes: any, expected: BigNumberish, relative: BigNumberish];
-    export type ASSERT_EQ_ABS = [actualTarget: string, bytes: any, expected: BigNumberish, absolute: BigNumberish];
-    export type ASSERT_GE = [actualTarget: string, bytes: any, expected: BigNumberish];
-    export type ASSERT_LE = [actualTarget: string, bytes: any, expected: BigNumberish];
+    export type ASSERT_GT = [actualTarget: string, bytes: BytesLike, expected: BigNumberish];
+    export type ASSERT_LT = [actualTarget: string, bytes: BytesLike, expected: BigNumberish];
+    export type ASSERT_EQ_REL = [
+      actualTarget: string,
+      bytes: BytesLike,
+      expected: BigNumberish,
+      relative: BigNumberish
+    ];
+    export type ASSERT_EQ_ABS = [
+      actualTarget: string,
+      bytes: BytesLike,
+      expected: BigNumberish,
+      absolute: BigNumberish
+    ];
+    export type ASSERT_GE = [actualTarget: string, bytes: BytesLike, expected: BigNumberish];
+    export type ASSERT_LE = [actualTarget: string, bytes: BytesLike, expected: BigNumberish];
   }
 }
 
