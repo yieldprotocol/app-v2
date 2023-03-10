@@ -203,7 +203,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
     // get the latest available vault ( either from the local storage or from the forkStart)
     const lastVaultUpdate = useForkedEnv
-      ? forkStartBlock
+      ? forkStartBlock || 'earliest'
       : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
