@@ -37,7 +37,6 @@ import useBalances, { BalanceData } from '../hooks/useBalances';
 import { FaBalanceScale } from 'react-icons/fa';
 import useAccountPlus from '../hooks/useAccountPlus';
 
-
 const initState: IUserContextState = {
   userLoading: false,
   /* Item maps */
@@ -139,7 +138,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const provider = useProvider();
-  
+
   const { address: account } = useAccountPlus();
 
   const { pathname } = useRouter();
@@ -148,7 +147,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const contracts = useContracts();
 
-  const {getForkStartBlock}  = useFork();
+  const { forkStartBlock } = useFork();
 
   const {
     // data: assetBalances,
@@ -203,7 +202,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
     // get the latest available vault ( either from the local storage or from the forkStart)
-    const lastVaultUpdate = useForkedEnv ? await getForkStartBlock() : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
+    const lastVaultUpdate = useForkedEnv
+      ? forkStartBlock
+      : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
@@ -249,7 +250,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
-  }, [account, chainId, contracts, provider, seriesRootMap]);
+  }, [account, chainId, contracts, forkStartBlock, provider, seriesRootMap, useForkedEnv]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
@@ -294,9 +295,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
-
     async (seriesList: ISeriesRoot[]): Promise<Map<string, ISeries>> => {
-
       updateState({ type: UserState.SERIES_LOADING, payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];
@@ -313,8 +312,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           ]);
 
           let sharesReserves: BigNumber;
-          let c: BigNumber|undefined;
-          let mu: BigNumber|undefined;
+          let c: BigNumber | undefined;
+          let mu: BigNumber | undefined;
           let currentSharePrice: BigNumber;
           let sharesAddress: string;
 
