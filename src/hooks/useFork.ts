@@ -68,7 +68,6 @@ const useFork = () => {
   return {
     fillEther,
     forkUrl,
-    getForkTimestamp,
     forkTimestamp,
     provider,
     useForkedEnv,
