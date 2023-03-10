@@ -1,9 +1,8 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { IAsset, IAssetPair } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWR from 'swr';
 import useSWRImmutable from 'swr/immutable';
-import { useProvider } from 'wagmi';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts, { ContractNames } from './useContracts';
@@ -12,8 +11,8 @@ import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
 import { stETH, wstETH } from '../config/assets';
 import useFork from './useFork';
-import { IlkAddedEvent } from '../contracts/Cauldron';
 import { JsonRpcProvider, Provider } from '@ethersproject/providers';
+import useDefaultProvider from './useDefaultProvider';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
@@ -24,7 +23,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   const chainId = useChainId();
 
   /* HOOKS */
-  const provider = useProvider();
+  const provider = useDefaultProvider();
   const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
   const contracts = useContracts();
 
@@ -106,7 +105,12 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
     const getIlkAddedEvents = async (provider: JsonRpcProvider | Provider, seriesId: string) => {
       const cauldron = contracts.get(ContractNames.CAULDRON)?.connect(provider) as Cauldron;
-      return await cauldron.queryFilter(cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)), 'earliest');
+      try {
+        return await cauldron.queryFilter(cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)), 'earliest');
+      } catch (e) {
+        console.log('error getting ilk added events: ', e);
+        return [];
+      }
     };
 
     let ilkAddedEvents = new Set(await getIlkAddedEvents(provider, seriesId));
@@ -129,8 +133,15 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
   const { data: validIlks, error: validIlksError } = useSWRImmutable(
     seriesId ? ['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId] : null,
-    getSeriesEntityIlks
+    getSeriesEntityIlks,
+    {
+      shouldRetryOnError: false,
+    }
   );
+
+  useEffect(() => {
+    console.log(['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId]);
+  }, [chainId, forkUrl, seriesId, useForkedEnv]);
 
   return {
     data,
