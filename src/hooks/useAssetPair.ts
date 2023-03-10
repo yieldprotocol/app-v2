@@ -139,10 +139,6 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     }
   );
 
-  useEffect(() => {
-    console.log(['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId]);
-  }, [chainId, forkUrl, seriesId, useForkedEnv]);
-
   return {
     data,
     error,
