@@ -1,10 +1,11 @@
 import { BigNumber, BigNumberish, Contract, ethers } from 'ethers';
 import { erc20ABI, useAccount, useNetwork } from 'wagmi';
+import { ContractNames } from '../../config/contracts';
 import { IAsset, ICallData, LadleActions } from '../../types';
 import { RoutedActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
 import useChainId from '../useChainId';
-import useContracts, { ContractNames } from '../useContracts';
+import useContracts from '../useContracts';
 
 export namespace AssertActions {
   export enum Fn {
@@ -27,7 +28,6 @@ export namespace AssertActions {
 
 export const useAssert = () => {
   const contracts = useContracts();
-  const AssertContract = contracts.get(ContractNames.ASSERT);
   const { address: account } = useAccount();
   const { chain } = useNetwork();
 
@@ -51,6 +51,10 @@ export const useAssert = () => {
     relOrAbsVal: BigNumber = ZERO_BN,
     ignoreIf: boolean = false
   ): ICallData[] => {
+    if (!contracts) return [];
+
+    const AssertContract = contracts.get(ContractNames.ASSERT);
+
     return [
       {
         operation: LadleActions.Fn.ROUTE,
