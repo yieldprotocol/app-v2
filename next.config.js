@@ -16,6 +16,9 @@ const nextConfig = {
     ALCHEMY_ARBITRUM_KEY: process.env.ALCHEMY_ARBITRUM_KEY,
     ALCHEMY_MAINNET_KEY: process.env.ALCHEMY_MAINNET_KEY,
     ENV: process.env.NODE_ENV,
+
+    KILLSWITCH_ACTIVE: process.env.KILLSWITCH_ACTIVE,
+    KILLSWITCH_TEXT: process.env.KILLSWITCH_TEXT
   },
   async redirects() {
     return [

@@ -4,7 +4,7 @@ import { AppProps } from 'next/app';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
-import SupportModal from '../components/SupportSideBar';
+import KillSwitch from '../components/KillSwitch';
 
 const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
 
@@ -32,6 +32,7 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, []);
 
   return (
+    
     <DynamicSettingsProvider>
       <ProviderContext>
         <DynamicChainProvider>
@@ -39,7 +40,9 @@ const App = ({ Component, pageProps }: AppProps) => {
               <DynamicTxProvider>
                 <DynamicHistoryProvider>
                   <DynamicLayout>
+                  <KillSwitch>
                     <Component {...pageProps} />
+                    </KillSwitch>
                   </DynamicLayout>
                 </DynamicHistoryProvider>
               </DynamicTxProvider>
@@ -47,6 +50,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         </DynamicChainProvider>
       </ProviderContext>
     </DynamicSettingsProvider>
+
   );
 };
 
