@@ -18,7 +18,8 @@ const nextConfig = {
     ENV: process.env.NODE_ENV,
 
     KILLSWITCH_ACTIVE: process.env.KILLSWITCH_ACTIVE,
-    KILLSWITCH_TEXT: process.env.KILLSWITCH_TEXT
+    KILLSWITCH_TEXT: process.env.KILLSWITCH_TEXT,
+    KILLSWITCH_CHAIN: process.env.KILLSWITCH_CHAIN,
   },
   async redirects() {
     return [
