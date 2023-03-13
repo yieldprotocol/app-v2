@@ -32,25 +32,23 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, []);
 
   return (
-    
     <DynamicSettingsProvider>
       <ProviderContext>
         <DynamicChainProvider>
-            <DynamicUserProvider>
-              <DynamicTxProvider>
-                <DynamicHistoryProvider>
-                  <DynamicLayout>
+          <DynamicUserProvider>
+            <DynamicTxProvider>
+              <DynamicHistoryProvider>
+                <DynamicLayout>
                   <KillSwitch>
                     <Component {...pageProps} />
-                    </KillSwitch>
-                  </DynamicLayout>
-                </DynamicHistoryProvider>
-              </DynamicTxProvider>
-            </DynamicUserProvider>
+                  </KillSwitch>
+                </DynamicLayout>
+              </DynamicHistoryProvider>
+            </DynamicTxProvider>
+          </DynamicUserProvider>
         </DynamicChainProvider>
       </ProviderContext>
     </DynamicSettingsProvider>
-
   );
 };
 
