@@ -37,6 +37,12 @@ const SupportSettings = () => {
     window.location.reload();
   };
 
+  const handleFillEth = async () => {
+    const newForkUrl =  await fillEther()
+    // eslint-disable-next-line no-restricted-globals
+    window.location.reload();
+  };
+
   const [allowSupport, setAllowSupport] = useState<boolean>(false);
   useEffect(()=>{
     const allowList = process.env.ALLOWED_SUPPORT_ADDRESSES ? process.env.ALLOWED_SUPPORT_ADDRESSES.split(','):[];    
@@ -84,8 +90,8 @@ const SupportSettings = () => {
           />
         </Box>
 
-        <GeneralButton action={()=>console.log('filling ether')} background="background"  >
-          <Button  plain disabled={!useForkedEnv} onClick={fillEther}>
+        <GeneralButton action={()=>null} background="background"  >
+          <Button  plain disabled={!useForkedEnv} onClick={()=>handleCreateFork()}>
           <Text size="xsmall">Action: Fill ETH on Fork</Text>
           </Button>
         </GeneralButton>

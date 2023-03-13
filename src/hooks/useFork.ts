@@ -66,14 +66,15 @@ const useFork = () => {
     }
   };
 
-  const fillEther = useCallback(async () => {
+  const fillEther = async () => {
     try {
       const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
       await (forkProvider as any).send('tenderly_addBalance', transactionParameters);
+      console.log( 'Eth added to account: ', account )
     } catch (e) {
       console.log('Could not fill eth on Tenderly fork');
     }
-  }, [account]);
+  };
 
   useEffect(() => {
     useForkedEnv && setForkUrl(forkEnvUrl);

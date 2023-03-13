@@ -10,7 +10,7 @@ export const useApprovalMethod = (): ApprovalType => {
     settingsState: { approvalMethod, useMockedUser },
   } = useContext(SettingsContext);
 
-  const { connector: activeConnector } = useAccountPlus()
+  const { connector: activeConnector } = useAccountPlus();
   const [approvalMethodToUse, setApprovalMethodToUse] = useState<ApprovalType>(ApprovalType.SIG);
 
   useEffect(() => {

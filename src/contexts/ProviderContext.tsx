@@ -14,6 +14,7 @@ import {
   AvatarComponent,
   lightTheme,
 } from '@rainbow-me/rainbowkit';
+
 import {
   metaMaskWallet,
   walletConnectWallet,
@@ -88,7 +89,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
 
   const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
     <Text>
-      By connecting my allet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
+      By connecting my wallet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
       acknowledge I have read and understand the protocol{' '}
       <Link href="https://yieldprotocol.com/privacy/">Privacy Policy</Link>.
     </Text>
