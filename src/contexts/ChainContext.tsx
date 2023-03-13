@@ -90,8 +90,9 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   } = useContext(SettingsContext);
 
   /* HOOKS */
-  // const provider = useDefaulProvider();
-  const provider = useProvider();
+  const provider = useProvider({
+    chainId: 42161,
+  });
   const chainId = useChainId();
   const contracts = useContracts();
 
