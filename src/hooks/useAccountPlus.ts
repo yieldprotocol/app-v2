@@ -1,26 +1,21 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import { SettingsContext } from '../contexts/SettingsContext';
 
 /**
  * Uses the connected chain or the default network, to only be used when fetching data
- * @returns account when using mocked data, else simply the useAccount hook
+ * @returns mockUserAddress input when using mocked data, else simply the wagmi useAccount hook address
  */
 const useAccountPlus = () => {
-  const { settingsState } = useContext(SettingsContext);
-  const { mockUserAddress, useMockedUser } = settingsState;
+  const {
+    settingsState: { useMockedUser, mockUserAddress },
+  } = useContext(SettingsContext);
+  const { address } = useAccount();
 
-  const data = useAccount();
-  const [userData, setUserData] = useState<any>(data);
-
-  useEffect(() => {
-    if (useMockedUser === true && mockUserAddress != undefined) {
-      console.log('useAccountPlus hook >>>  Mocking User: ' + mockUserAddress);
-      setUserData({ ...data, address: mockUserAddress, connector: undefined });
-    }
-  }, [useMockedUser, mockUserAddress]);
-
-  return useMockedUser ? userData: data;
+  return useMemo(
+    () => (useMockedUser ? { address: mockUserAddress } : { address }),
+    [address, mockUserAddress, useMockedUser]
+  );
 };
 
 export default useAccountPlus;
