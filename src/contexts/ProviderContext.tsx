@@ -42,7 +42,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
     ? // Production environment >
       [
         alchemyProvider({
-          apiKey: process.env.ALCHEMY_MAINNET_KEY!,
+          apiKey: process.env.ALCHEMY_ARBITRUM_KEY!,
         }),
       ]
     : // Test/Dev environents (eg. tenderly) >

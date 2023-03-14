@@ -24,10 +24,11 @@ import { TransferEvent } from '../contracts/Strategy';
 import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 import { useAccount, useProvider } from 'wagmi';
-import useContracts, { ContractNames } from '../hooks/useContracts';
+import useContracts from '../hooks/useContracts';
 
 import useAccountPlus from '../hooks/useAccountPlus';
 import useFork from '../hooks/useFork';
+import { ContractNames } from '../config/contracts';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -115,8 +116,14 @@ const HistoryProvider = ({ children }: any) => {
           const _transferInFilter = strategyContract.filters.Transfer(null, account);
           const _transferOutFilter = strategyContract.filters.Transfer(account);
 
-          const inEventList = await strategyContract.queryFilter(_transferInFilter, useForkedEnv ? forkStartBlock : 'earliest');
-          const outEventList = await strategyContract.queryFilter(_transferOutFilter, useForkedEnv ? forkStartBlock : 'earliest'); // originally 0
+          const inEventList = await strategyContract.queryFilter(
+            _transferInFilter,
+            useForkedEnv ? forkStartBlock : 'earliest'
+          );
+          const outEventList = await strategyContract.queryFilter(
+            _transferOutFilter,
+            useForkedEnv ? forkStartBlock : 'earliest'
+          ); // originally 0
 
           const events = await Promise.all([
             ...inEventList.map(async (e: TransferEvent) => {
@@ -225,6 +232,8 @@ const HistoryProvider = ({ children }: any) => {
   /* update Trading Historical data  */
   const updateTradeHistory = useCallback(
     async (seriesList: ISeries[]) => {
+      if (!contracts) return;
+
       const tradeHistMap = new Map<string, IHistItemPosition[]>([]);
       /* get all the trade historical transactions */
       await Promise.all(
@@ -433,6 +442,8 @@ const HistoryProvider = ({ children }: any) => {
 
   const updateVaultHistory = useCallback(
     async (vaultList: IVault[]) => {
+      if (!contracts) return;
+
       const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
       const cauldronContract = contracts.get(ContractNames.CAULDRON) as Cauldron;
 
@@ -473,7 +484,16 @@ const HistoryProvider = ({ children }: any) => {
           vaultList.map((v) => v.id)
         );
     },
-    [_parseGivenLogs, _parsePourLogs, _parseRolledLogs, contracts, diagnostics, seriesRootMap, useForkedEnv, forkStartBlock]
+    [
+      _parseGivenLogs,
+      _parsePourLogs,
+      _parseRolledLogs,
+      contracts,
+      diagnostics,
+      seriesRootMap,
+      useForkedEnv,
+      forkStartBlock,
+    ]
   );
 
   /* Exposed userActions */

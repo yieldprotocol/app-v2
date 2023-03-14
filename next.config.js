@@ -22,6 +22,9 @@ const nextConfig = {
     TENDERLY_ACCESS_KEY: process.env.TENDERLY_ACCESS_KEY,
 
     ALLOWED_SUPPORT_ADDRESSES: process.env.ALLOWED_SUPPORT_ADDRESSES,
+    KILLSWITCH_ACTIVE: process.env.KILLSWITCH_ACTIVE,
+    KILLSWITCH_TEXT: process.env.KILLSWITCH_TEXT,
+    KILLSWITCH_CHAIN: process.env.KILLSWITCH_CHAIN,
   },
   async redirects() {
     return [

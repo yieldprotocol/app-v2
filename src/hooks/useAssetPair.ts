@@ -5,12 +5,13 @@ import useSWR from 'swr';
 import { useProvider } from 'wagmi';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
-import useContracts, { ContractNames } from './useContracts';
+import useContracts from './useContracts';
 import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
 import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
 import { stETH, wstETH } from '../config/assets';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { ContractNames } from '../config/contracts';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
@@ -28,10 +29,12 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   /* HOOKS */
   const provider = useProvider();
   const contracts = useContracts();
-  const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
+  const Cauldron = contracts?.get(ContractNames.CAULDRON) as Cauldron | undefined;
 
   /* GET PAIR INFO */
   const getAssetPair = async (baseId: string, ilkId: string): Promise<IAssetPair | undefined> => {
+    if (!Cauldron) return;
+
     const _base = assetMap.get(baseId);
     const _ilk = assetMap.get(ilkId);
 
@@ -100,7 +103,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   );
 
   const getSeriesEntityIlks = async () => {
-    if (!seriesId) return undefined;
+    if (!seriesId || !Cauldron) return undefined;
     // get cauldron addIlk events for this series id
     const addIlkEvents = await Cauldron.queryFilter(Cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)));
     return addIlkEvents.reduce((acc, { args: { ilkId } }) => {

@@ -1,6 +1,7 @@
 import { format, getMonth, subDays } from 'date-fns';
-import { ContractReceipt } from 'ethers';
+import { Contract, ContractReceipt } from 'ethers';
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
+import { ContractMap, ContractNames } from '../config/contracts';
 
 import { ActionCodes, ISeries } from '../types';
 
@@ -185,7 +186,12 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)})
     `;
 
-export const getPositionPath = (txCode: string, receipt: any, contractMap?: any, seriesMap?: any) => {
+export const getPositionPath = (
+  txCode: string,
+  receipt: any,
+  contractMap?: ContractMap | undefined,
+  seriesMap?: any
+) => {
   const action = txCode.split('_')[0];
   const positionId = txCode.split('_')[1];
 
@@ -217,10 +223,14 @@ export const getPositionPath = (txCode: string, receipt: any, contractMap?: any,
   }
 };
 
-export const getVaultIdFromReceipt = (receipt: any, contractMap: any) => {
-  if (!receipt) return '';
-  const cauldronAddr = contractMap?.get('Cauldron')?.address!;
-  const vaultIdHex = receipt.events.filter((e: any) => e.address === cauldronAddr)[0]?.topics[1]!;
+export const getVaultIdFromReceipt = (receipt: ContractReceipt | undefined, contractMap: ContractMap | undefined) => {
+  if (!receipt || !contractMap) return '';
+
+  const cauldron = contractMap.get(ContractNames.CAULDRON);
+  if (!cauldron) return '';
+
+  const cauldronAddr = cauldron.address;
+  const vaultIdHex = receipt.events?.filter((e) => e.address === cauldronAddr)[0]?.topics[1]!;
   return vaultIdHex?.slice(0, 26) || '';
 };
 

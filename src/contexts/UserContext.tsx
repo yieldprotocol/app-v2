@@ -28,13 +28,13 @@ import { useProvider } from 'wagmi';
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
-import useContracts, { ContractNames } from '../hooks/useContracts';
+import useContracts from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 import useFork from '../hooks/useFork';
 import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import useAccountPlus from '../hooks/useAccountPlus';
-
+import { ContractNames } from '../config/contracts';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -137,7 +137,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const provider = useProvider();
-  
+
   const { address: account } = useAccountPlus();
 
   const { pathname } = useRouter();
@@ -146,7 +146,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const contracts = useContracts();
 
-  const {getForkStartBlock}  = useFork();
+  const { getForkStartBlock } = useFork();
 
   const {
     // data: assetBalances,
@@ -193,6 +193,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(async () => {
+    if (!contracts) return;
+
     const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
 
     const cacheKey = `vaults_${account}_${chainId}`;
@@ -201,7 +203,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
     // get the latest available vault ( either from the local storage or from the forkStart)
-    const lastVaultUpdate = useForkedEnv ? await getForkStartBlock() : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
+    const lastVaultUpdate = useForkedEnv
+      ? await getForkStartBlock()
+      : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
     const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
@@ -292,9 +296,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* Updates the series with relevant *user* data */
   const updateSeries = useCallback(
-
     async (seriesList: ISeriesRoot[]): Promise<Map<string, ISeries>> => {
-
       updateState({ type: UserState.SERIES_LOADING, payload: true });
       let _publicData: ISeries[] = [];
       let _accountData: ISeries[] = [];
@@ -311,8 +313,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           ]);
 
           let sharesReserves: BigNumber;
-          let c: BigNumber|undefined;
-          let mu: BigNumber|undefined;
+          let c: BigNumber | undefined;
+          let mu: BigNumber | undefined;
           let currentSharePrice: BigNumber;
           let sharesAddress: string;
 
@@ -599,6 +601,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[] = []) => {
+      if (!contracts) return;
+
       console.log('Updating vaults ...', account);
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
