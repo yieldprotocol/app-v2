@@ -32,9 +32,9 @@ export interface ISettingsContext {
 }
 
 export interface ISettingsContextActions {
-  updateSetting: (setting: Settings, value: string | number | boolean ) => void;
+  updateSetting: (setting: Settings, value: string | number | boolean | undefined ) => void;
 }
-export type SettingsContextAction = { type: Settings; payload: string | number | boolean };
+export type SettingsContextAction = { type: Settings; payload: string | number | boolean | undefined };
 
 export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */

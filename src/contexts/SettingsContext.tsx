@@ -45,7 +45,7 @@ const initState: ISettingsContextState = {
 
   /* Show diagnostic messages in the console */
   diagnostics: false,
-  
+
   /* use a forked network */
   useForkedEnv: false,
   forkEnvUrl:
@@ -113,7 +113,7 @@ const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
   /* Exposed settings Actions for updating */
   const settingsActions: ISettingsContextActions = {
-    updateSetting: (setting: Settings, value: string | number | boolean) =>
+    updateSetting: (setting: Settings, value: string | number | boolean | undefined) =>
       updateState({ type: setting, payload: value }),
   };
 

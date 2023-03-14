@@ -1,6 +1,7 @@
 import { Box, Button, Text, TextInput } from 'grommet';
 import { useContext, useEffect, useState } from 'react';
 import Switch from 'react-switch';
+import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { Settings } from '../../contexts/types/settings';
 import useFork from '../../hooks/useFork';
