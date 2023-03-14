@@ -20,10 +20,6 @@ const useAccountPlus = () => {
     }
   }, [useMockedUser, mockUserAddress]);
 
-  useEffect(()=>{
-    console.log( userData )
-  },[userData])
-
   return useMockedUser ? userData: data;
 };
 
