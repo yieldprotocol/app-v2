@@ -18,10 +18,7 @@ const useFork = () => {
 
   const { address: account } = useAccountPlus();
   const { refetch } = useBalance({ address: account });
-  
-  const provider = useProvider(); // currently connected provider
-  const forkProvider = new ethers.providers.JsonRpcProvider(forkEnvUrl); // fork provider
-  
+    
   const chainId = useChainId();
   
   const provider = useMemo(
@@ -31,7 +28,7 @@ const useFork = () => {
   
     const createNewFork = async (): Promise<string> => {
     const TENDERLY_FORK_API = `http://api.tenderly.co/api/v1/account/${process.env.TENDERLY_USER}/project/${process.env.TENDERLY_PROJECT}/fork`;
-    const currentBlockNumber = await provider.getBlockNumber();
+    const currentBlockNumber = await provider?.getBlockNumber();
     const resp = await axios.post(
       TENDERLY_FORK_API,
       { network_id: chainId.toString(), block_number: currentBlockNumber },
@@ -110,7 +107,7 @@ const useFork = () => {
     forkTimestamp,
     forkStartBlock,
     createNewFork,
-
+    provider
   };
 };
 
