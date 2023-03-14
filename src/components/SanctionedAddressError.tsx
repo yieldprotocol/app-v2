@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Anchor, Box, Button, Collapsible, Layer, Text } from 'grommet';
 import { FiAlertCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useAccount, useDisconnect, useProvider } from 'wagmi';

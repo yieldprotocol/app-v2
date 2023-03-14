@@ -16,7 +16,6 @@ import {
 
 import Decimal from 'decimal.js';
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
-
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
@@ -24,18 +23,18 @@ import { EULER_SUPGRAPH_ENDPOINT, RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { useAccount, useProvider } from 'wagmi';
+import { useProvider } from 'wagmi';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
 import useChainId from '../hooks/useChainId';
-import useContracts, { ContractNames } from '../hooks/useContracts';
+import useContracts from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 import useFork from '../hooks/useFork';
 import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
-import { FaBalanceScale } from 'react-icons/fa';
 import useAccountPlus from '../hooks/useAccountPlus';
+import { ContractNames } from '../config/contracts';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -194,6 +193,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* internal function for getting the users vaults */
   const _getVaults = useCallback(async () => {
+    if (!contracts) return;
+
     const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
 
     const cacheKey = `vaults_${account}_${chainId}`;
@@ -600,7 +601,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the vaults with *user* data */
   const updateVaults = useCallback(
     async (vaultList: IVaultRoot[] = []) => {
-      console.log('Updating vaults...');
+      if (!contracts) return;
+
+      console.log('Updating vaults ...', account);
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
       let _vaults: IVaultRoot[] | undefined = vaultList;
@@ -615,6 +618,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         _vaults = await _getVaults();
       }
 
+      /* if fetching vaults fails */
       if (!_vaults) return;
 
       const updatedVaults = await Promise.all(

@@ -67,7 +67,7 @@ export interface ISettingsContextState {
   forkEnvUrl: string;
 
   useMockedUser: boolean;
-  mockUserAddress: `0x${string}`;
+  mockUserAddress: `0x${string}`| undefined;
 
 }
 

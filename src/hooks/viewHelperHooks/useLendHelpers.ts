@@ -85,6 +85,8 @@ export const useLendHelpers = (
       const _maxBaseIn = _maxSharesIn.lte(ethers.constants.Zero) ? ethers.constants.Zero : series.getBase(_maxSharesIn);
       diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
 
+      console.log(userBaseBalance.toString() , _maxBaseIn.toString())
+      
       if (userBaseBalance.lt(_maxBaseIn)) {
         setMaxLend(userBaseBalance);
         setMaxLend_(ethers.utils.formatUnits(userBaseBalance, series.decimals).toString());
@@ -92,8 +94,9 @@ export const useLendHelpers = (
       } else {
         setMaxLend(_maxBaseIn);
         setMaxLend_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
-        setProtocolLimited(true);
+        parseInt(input!) > 0 &&  setProtocolLimited(true);
       }
+
     }
   }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity, userBaseBalance_]);
 

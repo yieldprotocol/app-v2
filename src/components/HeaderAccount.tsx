@@ -44,7 +44,9 @@ const HeaderAccount = () => {
   const { data: ethBalance } = useBalance({ address: account });
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
-  const { settingsState : {useMockedUser} } = useContext(SettingsContext);
+  const {
+    settingsState: { useMockedUser },
+  } = useContext(SettingsContext);
 
   return (
     <Box gap="medium" direction="row">
@@ -62,19 +64,16 @@ const HeaderAccount = () => {
             ) : (
               <Box direction="row" align="center" gap="small">
                 <Box>
-                  <Text color={ useMockedUser ? "red": "text" } size="small">
+                  <Text color={useMockedUser ? 'red' : 'text'} size="small">
                     {ensName || abbreviateHash(account!, 5)}
                   </Text>
 
                   <Box direction="row" align="center" gap="small">
                     <Box direction="row" gap="xsmall" align="center">
                       <StyledText size="small" color="text">
-                        {!ethBalance && <Skeleton circle height={20} width={20} />}
-                        {ethBalance && (
-                          <Box height="20px" width="20px">
-                            <EthMark />
-                          </Box>
-                        )}
+                        <Box height="20px" width="20px">
+                          <EthMark />
+                        </Box>
                       </StyledText>
                       <StyledText size="small" color="text">
                         {cleanValue(ethBalance?.formatted, 2) || <Skeleton width={40} />}
