@@ -20,6 +20,7 @@ import { Address, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 export const useBorrow = () => {
   const {
@@ -47,8 +48,12 @@ export const useBorrow = () => {
   const { sign, transact } = useChain();
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
+  const {isActionAllowed} = useAllowAction();
+
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     if (!contracts) return;
+    if (!isActionAllowed(ActionCodes.BORROW)) return; // return if action is not allowed
+
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);

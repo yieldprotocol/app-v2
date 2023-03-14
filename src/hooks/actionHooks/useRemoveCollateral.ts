@@ -14,6 +14,7 @@ import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -35,9 +36,12 @@ export const useRemoveCollateral = () => {
   const { transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { unwrapAsset } = useWrapUnwrapAsset();
+  const { isActionAllowed } = useAllowAction();
 
   const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
     if (!contracts) return;
+    if (!isActionAllowed(ActionCodes.REMOVE_COLLATERAL)) return; // return if action is not allowed
+
 
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);

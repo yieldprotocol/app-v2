@@ -1,5 +1,6 @@
 import { BaseProvider } from '@ethersproject/providers';
 import { Cauldron__factory, FYToken__factory, Pool__factory } from '../contracts';
+import { ActionCodes } from '../types';
 
 const commonProperties = { version: '1', poolVersion: '1', decimals: 18 };
 
@@ -22,8 +23,10 @@ export interface ISeriesStatic {
   ts: string;
   g1: string;
   g2: string;
-}
 
+  allowActions?: (ActionCodes |'allow_none'|'allow_all')[];
+}
+ 
 const USDC_2112 = '0x303230340000';
 const USDC_2203 = '0x303230350000';
 const USDC_2206 = '0x303230360000';

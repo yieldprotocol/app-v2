@@ -49,7 +49,7 @@ export const useChain = () => {
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     if (!contracts) return;
-
+    
     /* Set the router contract instance, ladle by default */
     const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
 

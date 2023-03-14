@@ -239,6 +239,8 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
         oppEndColor,
 
         seriesMark: <YieldMark colors={[startColor, endColor]} />,
+
+        allowActions: series.allowActions || ['allow_all'], // default to allow all actions
       };
     },
     [provider]
