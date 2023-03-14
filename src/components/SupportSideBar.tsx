@@ -10,6 +10,7 @@ function SupportSideBar() {
       event.key === 'ß' && setShow(true);
     }
   }, []);
+
   useEffect(() => {
     // attach the event listener
     document.addEventListener('keydown', handleKeyPress);
