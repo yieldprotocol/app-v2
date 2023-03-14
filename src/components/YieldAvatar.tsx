@@ -15,23 +15,21 @@ const StyledBox = styled(Box)`
 `;
 
 function YieldAvatar(props: any) {
-
   const { data } = useEnsAvatar();
   const colorScheme = useColorScheme();
   const _avatar = multiavatar(props.address?.concat(21));
   const _size = props.size.toString().concat('em');
 
   return (
-    <StyledBox>
-      <Avatar border={props.noBorder ? undefined : { color: colorScheme === 'dark' ? '#FFF' : '#000' }} size={_size || '2em'}>
+    <StyledBox {...props}>
+      <Avatar
+        border={props.noBorder ? undefined : { color: colorScheme === 'dark' ? '#FFF' : '#000' }}
+        size={_size || '2em'}
+      >
         <Box width="100%" height="100%" pad={data ? undefined : '2px'}>
           {
             // eslint-disable-next-line react/no-danger
-            data ? (
-              <Image src={data} alt="ens-avatar" />
-            ) : (
-              <span dangerouslySetInnerHTML={{ __html: _avatar }} />
-            )
+            data ? <Image src={data} alt="ens-avatar" /> : <span dangerouslySetInnerHTML={{ __html: _avatar }} />
           }
         </Box>
       </Avatar>
