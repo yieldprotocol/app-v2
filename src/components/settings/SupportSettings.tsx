@@ -1,10 +1,8 @@
 import { Box, Button, Text, TextInput } from 'grommet';
 import { useContext, useEffect, useState } from 'react';
 import Switch from 'react-switch';
-import { useAccount } from 'wagmi';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { Settings } from '../../contexts/types/settings';
-import useAccountPlus from '../../hooks/useAccountPlus';
 import useFork from '../../hooks/useFork';
 import { clearCachedItems } from '../../utils/appUtils';
 import GeneralButton from '../buttons/GeneralButton';
@@ -22,6 +20,7 @@ const SupportSettings = () => {
 
   const [ forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
   const [ mockAddressInput, setMockAddressInput] = useState<string|undefined>(mockUserAddress);
+
 
   const handleResetApp = () => {
     clearCachedItems([]);
@@ -71,7 +70,7 @@ const SupportSettings = () => {
             checkedIcon={false}
             onChange={(val: boolean) => {
               updateSetting(Settings.USE_FORKED_ENV, val);
-              updateSetting(Settings.FORK_ENV_URL, forkUrlInput);
+              setForkUrlInput(forkEnvUrl);
               window.location.reload();
             }}
             handleDiameter={20}
@@ -83,16 +82,26 @@ const SupportSettings = () => {
           <Text color="text" size="small">
             Parameter: Fork URL
           </Text>
-          <TextInput
-            value={ forkUrlInput }
-            onChange={ (e: any) => setForkUrlInput(e.target.value)  }
-            size="xsmall"
-          />
+          <TextInput value={forkUrlInput} onChange={(e) => setForkUrlInput(e.target.value)} size="xsmall" />
+          <GeneralButton
+            action={() => forkUrlInput !== forkEnvUrl && console.log(`changing fork url to: ${forkUrlInput}`)}
+            background="background"
+            disabled={!useForkedEnv || forkUrlInput === forkEnvUrl}
+          >
+            <Button
+              plain
+              disabled={!useForkedEnv || forkUrlInput === forkEnvUrl}
+              onClick={() => updateSetting(Settings.FORK_ENV_URL, forkUrlInput)}
+            >
+              <Text size="xsmall">Update URL</Text>
+            </Button>
+          </GeneralButton>
         </Box>
 
         <GeneralButton action={()=>null} background="background"  >
           <Button  plain disabled={!useForkedEnv} onClick={()=>handleCreateFork()}>
           <Text size="xsmall">Action: Fill ETH on Fork</Text>
+
           </Button>
         </GeneralButton>
 
@@ -114,12 +123,14 @@ const SupportSettings = () => {
             onColor="#60A5FA"
             uncheckedIcon={false}
             checkedIcon={false}
+
             onChange={(val: boolean) => {
               if (mockAddressInput) {
                 updateSetting(Settings.USE_MOCKED_USER, val);
                 updateSetting(Settings.MOCK_USER_ADDRESS, mockAddressInput);
                 window.location.reload();
               }
+
             }}
             handleDiameter={20}
             borderRadius={20}
@@ -130,12 +141,23 @@ const SupportSettings = () => {
           <Text color="text" size="small">
             Parameter: Mock User Address
           </Text>
-          <TextInput
-            value={mockAddressInput}
-            onChange={(event: any) => setMockAddressInput(event.target.value)}
-            size="xsmall"
-          />
+          <TextInput value={mockAddressInput} onChange={(e) => setMockAddressInput(e.target.value)} size="xsmall" />
         </Box>
+        <GeneralButton
+          action={() =>
+            mockAddressInput !== mockUserAddress && console.log(`changing mocked user to: ${mockAddressInput}`)
+          }
+          background="background"
+          disabled={!useForkedEnv || mockAddressInput === mockUserAddress}
+        >
+          <Button
+            plain
+            disabled={!mockUserAddress || mockAddressInput === mockUserAddress}
+            onClick={() => updateSetting(Settings.MOCK_USER_ADDRESS, mockAddressInput)}
+          >
+            <Text size="xsmall">Update User</Text>
+          </Button>
+        </GeneralButton>
       </Box>
 
       <Box direction="row" justify="between">
@@ -178,9 +200,8 @@ const SupportSettings = () => {
 
       <Box gap="medium" direction='row' justify='between'>
         <Text color="text" weight={'bolder'}>
-            App Reset
-          </Text>
-
+          App Reset
+        </Text>
         <GeneralButton action={handleResetApp} background="background">
           <Text size="xsmall">Clear Cache and Reset</Text>
         </GeneralButton>
