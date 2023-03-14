@@ -61,13 +61,6 @@ const useFork = () => {
       const sBlock = +num.toString();
       console.log('Fork start block: ', sBlock);
       return sBlock;
-
-      /** from createFork
-      //const { timestamp } = await forkProvider.getBlock('latest');
-      //diagnostics && useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
-      //setForkTimestamp(timestamp);
-      //return timestamp;
-      */
     } catch (e) {
       console.log('Could not get tenderly start block: ', e);
       return 'earliest';
@@ -95,10 +88,8 @@ const useFork = () => {
 
   return {
     useForkedEnv,
-    getForkStartBlock,
     fillEther,
     forkUrl,
-    getForkTimestamp,
     forkTimestamp,
     forkStartBlock,
     createNewFork,
