@@ -11,10 +11,11 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
-import useContracts, { ContractNames } from '../useContracts';
+import { Address, useBalance } from 'wagmi';
+import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import { ContractNames } from '../../config/contracts';
 
 /* Lend Actions Hook */
 export const useLend = () => {
@@ -44,6 +45,8 @@ export const useLend = () => {
   const contracts = useContracts();
 
   const lend = async (input: string | undefined, series: ISeries) => {
+    if (!contracts) return;
+
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);
 

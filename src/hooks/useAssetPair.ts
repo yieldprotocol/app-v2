@@ -5,11 +5,12 @@ import useSWR from 'swr';
 import useSWRImmutable from 'swr/immutable';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
-import useContracts, { ContractNames } from './useContracts';
+import useContracts from './useContracts';
 import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
 import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
 import { stETH, wstETH } from '../config/assets';
+import { ContractNames } from '../config/contracts';
 
 import useFork from './useFork';
 import { JsonRpcProvider, Provider } from '@ethersproject/providers';
@@ -38,7 +39,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
   /* GET PAIR INFO */
   const getAssetPair = async (baseId: string, ilkId: string): Promise<IAssetPair | undefined> => {
-    const Cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
+    const Cauldron = contracts?.get(ContractNames.CAULDRON) as Cauldron;
 
     const _base = assetMap.get(baseId);
     const _ilk = assetMap.get(ilkId);
@@ -113,7 +114,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     console.log('getting series ilks for: ', seriesId);
 
     const getIlkAddedEvents = async (provider: JsonRpcProvider | Provider, seriesId: string) => {
-      const cauldron = contracts.get(ContractNames.CAULDRON)?.connect(provider) as Cauldron;
+      const cauldron = contracts?.get(ContractNames.CAULDRON)?.connect(provider) as Cauldron;
       try {
         return await cauldron.queryFilter(
           cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)),

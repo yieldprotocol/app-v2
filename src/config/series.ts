@@ -60,6 +60,7 @@ const FRAX_2306 = '0x0138ff00028b';
 
 const FRAX_2309 = '0x0138ff00028e';
 const USDT_2306 = '0x00a0ff00028b';
+
 const USDT_2303 = '0x00a0ff000288';
 const USDT_2309 = '0x00a0ff00028e';
 
