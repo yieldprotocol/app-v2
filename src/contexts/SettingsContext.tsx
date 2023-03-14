@@ -42,8 +42,10 @@ const initState: ISettingsContextState = {
 
   /* Always force transctions to the chain -> even if they will likely fail */
   forceTransactions: false,
+
   /* Show diagnostic messages in the console */
   diagnostics: false,
+  
   /* use a forked network */
   useForkedEnv: false,
   forkEnvUrl:
@@ -51,7 +53,7 @@ const initState: ISettingsContextState = {
 
   /* Mock a particular user */
   useMockedUser: false,
-  mockUserAddress: '0x1Bd3Abb6ef058408734EA01cA81D325039cd7bcA',
+  mockUserAddress: undefined,
 };
 
 const initActions: ISettingsContextActions = {

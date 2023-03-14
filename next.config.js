@@ -16,6 +16,12 @@ const nextConfig = {
     ALCHEMY_ARBITRUM_KEY: process.env.ALCHEMY_ARBITRUM_KEY,
     ALCHEMY_MAINNET_KEY: process.env.ALCHEMY_MAINNET_KEY,
     ENV: process.env.NODE_ENV,
+
+    TENDERLY_USER: process.env.TENDERLY_USER,
+    TENDERLY_PROJECT: process.env.TENDERLY_PROJECT,
+    TENDERLY_ACCESS_KEY: process.env.TENDERLY_ACCESS_KEY,
+
+    ALLOWED_SUPPORT_ADDRESSES: process.env.ALLOWED_SUPPORT_ADDRESSES,
   },
   async redirects() {
     return [

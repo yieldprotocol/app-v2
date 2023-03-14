@@ -10,9 +10,13 @@ import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
 import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
 import { stETH, wstETH } from '../config/assets';
+
 import useFork from './useFork';
 import { JsonRpcProvider, Provider } from '@ethersproject/providers';
 import useDefaultProvider from './useDefaultProvider';
+
+import { SettingsContext } from '../contexts/SettingsContext';
+
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
@@ -20,6 +24,11 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   const {
     userState: { assetMap },
   } = useContext(UserContext);
+
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const chainId = useChainId();
 
   /* HOOKS */
@@ -46,7 +55,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
     const oracleContract = CompositeMultiOracle__factory.connect(oracleAddr, provider); // using the composite multi oracle but all oracles should have the same interface
 
-    console.log('Getting Asset Pair Info: ', baseId, ilkId);
+    diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
 
     /* Get debt params and spot ratios */
     const [{ max, min, sum, dec }, { ratio }] = await Promise.all([

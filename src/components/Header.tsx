@@ -12,7 +12,6 @@ import YieldMark from './logos/YieldMark';
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
 import DashMobileButton from './buttons/DashMobileButton';
-import { useAccount } from 'wagmi';
 import useAccountPlus from '../hooks/useAccountPlus';
 
 const StyledAvatar = styled(Avatar)`
