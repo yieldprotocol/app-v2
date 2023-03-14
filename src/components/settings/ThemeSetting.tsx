@@ -8,14 +8,14 @@ import { Settings } from '../../contexts/types/settings';
 
 const ThemeSettings = () => {
   const {
-    settingsState: { darkMode, autoTheme },
+    settingsState: { darkMode },
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
   return (
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
-        <Text size="small" color={autoTheme ? 'text-xweak' : 'text'}>
+        <Text size="small" color={'text'}>
           Color Theme
         </Text>
         <Switch

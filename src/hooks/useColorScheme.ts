@@ -5,7 +5,7 @@ import { Settings } from '../contexts/types/settings';
 export const useColorScheme = () => {
   const [colorScheme, setColorScheme] = useState<'light' | 'dark'>('light');
   const {
-    settingsState: { autoTheme, darkMode },
+    settingsState: { darkMode },
     settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
@@ -14,32 +14,25 @@ export const useColorScheme = () => {
     const hasStoredDarkMode = storedDarkMode !== null;
     if (hasStoredDarkMode) {
       updateSetting(Settings.DARK_MODE, storedDarkMode === 'true');
-    } else if (autoTheme && typeof window !== 'undefined') {
-      // set initial dark mode
-      updateSetting(Settings.DARK_MODE, window.matchMedia('(prefers-color-scheme: dark)').matches);
+      setColorScheme(storedDarkMode === 'true' ? 'dark' : 'light');
+    } else if (typeof window !== 'undefined') {
+      const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      updateSetting(Settings.DARK_MODE, systemDarkMode);
+      setColorScheme(systemDarkMode ? 'dark' : 'light');
+
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         const newDarkMode = e.matches;
         updateSetting(Settings.DARK_MODE, newDarkMode);
-        autoTheme && setColorScheme(newDarkMode ? 'dark' : 'light');
-      });
-
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-        const newColorScheme = e.matches ? 'dark' : 'light';
-        autoTheme && setColorScheme(newColorScheme);
+        setColorScheme(newDarkMode ? 'dark' : 'light');
       });
     } else {
       updateSetting(Settings.DARK_MODE, false);
+      setColorScheme('light');
     }
-  }, [autoTheme]);
+  }, []);
 
   useEffect(() => {
-    const storedDarkMode = localStorage.getItem('darkMode');
-    const hasStoredDarkMode = storedDarkMode !== null;
-    if (hasStoredDarkMode) {
-      setColorScheme(storedDarkMode === 'true' ? 'dark' : 'light');
-    } else {
-      setColorScheme(darkMode ? 'dark' : 'light');
-    }
+    setColorScheme(darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
   return colorScheme;
