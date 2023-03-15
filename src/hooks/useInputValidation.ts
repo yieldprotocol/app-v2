@@ -33,7 +33,8 @@ export const useInputValidation = (
       const _inputAsFloat = parseFloat(input);
       const aboveMax: boolean = !!limits[1] && _inputAsFloat > parseFloat(limits[1].toString());
       const belowMin: boolean = !!limits[0] && _inputAsFloat < parseFloat(limits[0].toString());
-      const aboveUserBalance: boolean = aboveMax && !protocolLimited
+      const aboveUserBalance: boolean = aboveMax && !protocolLimited;
+      const aboveProtocolLendLimit: boolean = aboveMax && protocolLimited;
 
       // General input validation here:
       if (parseFloat(input) < 0 && actionCode !== ActionCodes.TRANSFER_VAULT) {
@@ -90,7 +91,7 @@ export const useInputValidation = (
 
         case ActionCodes.LEND:
           aboveUserBalance && setInputError('Amount exceeds available balance');
-          protocolLimited && setInputError('Amount exceeds the maximum you can lend');
+          aboveProtocolLendLimit && setInputError('Amount exceeds the maximum you can lend');
           belowMin && setInputError('Amount should be expressed as a positive value');
           break;
 
