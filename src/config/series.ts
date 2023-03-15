@@ -232,6 +232,7 @@ SERIES.set(
         ts: '12989823246',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
+        allowActions: [ActionCodes.REPAY],
       },
     ],
     [
@@ -400,6 +401,7 @@ SERIES.set(
         ts: '23381681843',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
+        allowActions: [ActionCodes.REPAY],
       },
     ],
     [
@@ -484,6 +486,7 @@ SERIES.set(
         ts: '10628037201',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
+        allowActions: [ActionCodes.REPAY],
       },
     ],
     [
@@ -567,6 +570,7 @@ SERIES.set(
         ts: '23381681843',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
+        allowActions: [ActionCodes.REPAY],
       },
     ],
 
@@ -588,6 +592,7 @@ SERIES.set(
         ts: '12989823246',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
+        allowActions: [ActionCodes.REPAY],
       },
     ],
 
@@ -609,6 +614,7 @@ SERIES.set(
         ts: '10628037201',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
+        allowActions: [ActionCodes.REPAY],
       },
     ],
 
