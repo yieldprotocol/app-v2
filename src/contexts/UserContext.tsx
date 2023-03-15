@@ -305,19 +305,25 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
+
           /* Get all the data simultanenously in a promise.all */
           const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getBaseBalance(),
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
-          ]);
+          ]).catch((e) => {
+            console.log('Series Error: ', series.id);
+            return [ZERO_BN, ZERO_BN, ZERO_BN, ZERO_BN];
+          }); // catch error and return 0 values if error with series
 
           let sharesReserves: BigNumber;
           let c: BigNumber | undefined;
           let mu: BigNumber | undefined;
           let currentSharePrice: BigNumber;
           let sharesAddress: string;
+
+          
 
           try {
             [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
