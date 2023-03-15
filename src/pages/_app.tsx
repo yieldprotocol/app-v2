@@ -32,8 +32,8 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, []);
 
   return (
-    <DynamicSettingsProvider>
-      <ProviderContext>
+    <ProviderContext>
+      <DynamicSettingsProvider>
         <DynamicChainProvider>
           <DynamicUserProvider>
             <DynamicTxProvider>
@@ -47,8 +47,8 @@ const App = ({ Component, pageProps }: AppProps) => {
             </DynamicTxProvider>
           </DynamicUserProvider>
         </DynamicChainProvider>
-      </ProviderContext>
-    </DynamicSettingsProvider>
+      </DynamicSettingsProvider>
+    </ProviderContext>
   );
 };
 
