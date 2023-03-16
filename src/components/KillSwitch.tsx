@@ -1,17 +1,15 @@
 import { Box, Layer, Text } from 'grommet';
 import React from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
-import { useChain } from '../hooks/useChain';
 import useChainId from '../hooks/useChainId';
 
 /* A kill switch is a way to disable the entire app. It is set in the .env file. ( AND next.config.js ) */
 const KillSwitch = (props: any) => {
+  const chainId = useChainId();
 
-  const chainId = useChainId(); 
-  
   return (
     <>
-      { ( process.env.KILLSWITCH_ACTIVE === 'true' && chainId === parseInt(process.env.KILLSWITCH_CHAIN!) )  ? (
+      {false && process.env.KILLSWITCH_ACTIVE === 'true' && chainId === parseInt(process.env.KILLSWITCH_CHAIN!) ? (
         <Layer>
           <Box background="white" pad="large" round="16px" gap="medium">
             <Box direction="row" gap="small" align="center">
@@ -32,10 +30,9 @@ const KillSwitch = (props: any) => {
                 Affects Chain:
               </Text>
               <Text size="xsmall" weight={'normal'}>
-                {parseInt(process.env.KILLSWITCH_CHAIN!) === 1 ? 'Ethereum Mainnet' : 'Arbitrum One' }
+                {parseInt(process.env.KILLSWITCH_CHAIN!) === 1 ? 'Ethereum Mainnet' : 'Arbitrum One'}
               </Text>
             </Box>
-         
           </Box>
         </Layer>
       ) : (

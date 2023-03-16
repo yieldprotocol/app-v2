@@ -4,7 +4,6 @@ import { AppProps } from 'next/app';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
-import KillSwitch from '../components/KillSwitch';
 
 const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
 
@@ -14,6 +13,7 @@ const DynamicUserProvider = dynamic(() => import('../contexts/UserContext'), { s
 const DynamicTxProvider = dynamic(() => import('../contexts/TxContext'), { ssr: false });
 const DynamicHistoryProvider = dynamic(() => import('../contexts/HistoryContext'), { ssr: false });
 const DynamicLayout = dynamic(() => import('../components/Layout'), { ssr: false });
+const DynamicKillSwitch = dynamic(() => import('../components/KillSwitch'), { ssr: false });
 
 declare global {
   interface Window {
@@ -39,9 +39,9 @@ const App = ({ Component, pageProps }: AppProps) => {
             <DynamicTxProvider>
               <DynamicHistoryProvider>
                 <DynamicLayout>
-                  <KillSwitch>
+                  <DynamicKillSwitch>
                     <Component {...pageProps} />
-                  </KillSwitch>
+                  </DynamicKillSwitch>
                 </DynamicLayout>
               </DynamicHistoryProvider>
             </DynamicTxProvider>

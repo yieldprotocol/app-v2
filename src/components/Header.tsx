@@ -12,7 +12,6 @@ import YieldMark from './logos/YieldMark';
 import BackButton from './buttons/BackButton';
 import { useColorScheme } from '../hooks/useColorScheme';
 import DashMobileButton from './buttons/DashMobileButton';
-import useAccountPlus from '../hooks/useAccountPlus';
 
 const StyledAvatar = styled(Avatar)`
   -webkit-transition: background 0.3s ease-in-out;
@@ -41,8 +40,6 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
   const colorScheme = useColorScheme();
   const isPositionPath = router.pathname.includes('position');
   const [yieldMarkhover, setYieldMarkHover] = useState<boolean>(false);
-
-  const { isConnected } = useAccountPlus();
 
   // eslint-disable-next-line react/display-name
   const YieldIcon = forwardRef(({ onClick, href }: any, ref: any) => (
@@ -97,7 +94,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
         <Box />
 
         <Box align="center" direction="row" gap="small">
-          {isConnected && mobile && router.pathname !== '/dashboard' && <DashMobileButton />}
+          {mobile && router.pathname !== '/dashboard' && <DashMobileButton />}
           <HeaderAccount />
         </Box>
       </Grid>

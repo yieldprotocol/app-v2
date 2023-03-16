@@ -8,14 +8,12 @@ import YieldInfo from '../FooterInfo';
 import DashboardBalanceSummary from '../DashboardBalanceSummary';
 import MainViewWrap from '../wraps/MainViewWrap';
 import PanelWrap from '../wraps/PanelWrap';
-
 import DashboardPositionList from '../DashboardPositionList';
 import CurrencyToggle from '../CurrencyToggle';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHelpers';
 import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
-import { useAccount } from 'wagmi';
 import { Settings } from '../../contexts/types/settings';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
@@ -45,7 +43,7 @@ const Dashboard = () => {
     chainState: { chainLoaded },
   } = useContext(ChainContext);
 
-  const { address:account, isConnected } = useAccountPlus();
+  const { address: account } = useAccountPlus();
 
   const {
     vaultPositions,
@@ -67,11 +65,11 @@ const Dashboard = () => {
         basis={mobile ? undefined : '60%'}
       >
         {!account && chainLoaded && (
-          <Box width={mobile ? '100%' : undefined} align='center' fill='horizontal' >
-            <Text size='small' >No Wallet Connected.</Text>
-        </Box>
+          <Box width={mobile ? '100%' : undefined} align="center" fill="horizontal">
+            <Text size="small">No Wallet Connected.</Text>
+          </Box>
         )}
-        
+
         {account && (
           <Box width={mobile ? '100%' : undefined} gap="large">
             <Box gap="medium">
@@ -172,14 +170,8 @@ const Dashboard = () => {
 
       {!mobile && (
         <PanelWrap right>
-          {/* <Box /> */}
-          {isConnected && (
-            <Box
-              // margin={{ top: '30%' }}
-              margin={{ top: 'xlarge' }}
-              fill="horizontal"
-              gap="medium"
-            >
+          {account && (
+            <Box margin={{ top: 'xlarge' }} fill="horizontal" gap="medium">
               <Box direction="row" justify="between">
                 <Text size="medium">Position Overview</Text>
                 <Box width="5rem" height="2rem">

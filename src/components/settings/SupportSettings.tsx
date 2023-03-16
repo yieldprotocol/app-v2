@@ -99,7 +99,7 @@ const SupportSettings = () => {
             </Box>
 
             <GeneralButton action={() => null} background="background">
-              <Button plain disabled={!useForkedEnv} onClick={() => handleCreateFork()}>
+              <Button plain disabled={!useForkedEnv} onClick={fillEther}>
                 <Text size="xsmall">Action: Fill ETH on Fork</Text>
               </Button>
             </GeneralButton>
