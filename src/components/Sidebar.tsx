@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { Box, Layer, ResponsiveContext, Tip, Text } from 'grommet';
 import { useAccountModal } from '@rainbow-me/rainbowkit';
+
 import { abbreviateHash, clearCachedItems } from '../utils/appUtils';
 import BackButton from './buttons/BackButton';
 import GeneralButton from './buttons/GeneralButton';
@@ -12,6 +13,8 @@ import UnwrapSetting from './settings/UnwrapSetting';
 import CopyWrap from './wraps/CopyWrap';
 import YieldAvatar from './YieldAvatar';
 import { useEnsName, useNetwork } from 'wagmi';
+import { FaWallet } from 'react-icons/fa';
+
 import useAccountPlus from '../hooks/useAccountPlus';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
@@ -44,7 +47,6 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
         width={mobile ? undefined : '400px'}
         background="lightBackground"
         elevation="xlarge"
-        justify="between"
         style={{ overflow: 'auto' }}
       >
         <Box flex={false}>
@@ -101,7 +103,7 @@ const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
           )}
         </Box>
 
-        <Box pad="medium" gap="medium" flex={false} style={{ overflow: 'auto' }}>
+        <Box pad={{ top: 'xsmall', horizontal: 'medium' }} gap="medium" flex={false} style={{ overflow: 'auto' }}>
           <ThemeSetting />
           <ApprovalSetting />
           <UnwrapSetting />

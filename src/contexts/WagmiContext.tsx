@@ -1,8 +1,7 @@
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
-import { ReactNode, useContext, useMemo } from 'react';
-import { SettingsContext } from './SettingsContext';
+import { ReactNode, useMemo } from 'react';
 import { defaultChains } from '../config/customChains';
 
 import {
@@ -29,34 +28,13 @@ import YieldAvatar from '../components/YieldAvatar';
 import '@rainbow-me/rainbowkit/styles.css';
 import { useColorScheme } from '../hooks/useColorScheme';
 
-const ProviderContext = ({ children }: { children: ReactNode }) => {
-  /* bring in all the settings, in case we want to use them when setting up the network */
-  const { settingsState } = useContext(SettingsContext);
-  const { useForkedEnv, forkEnvUrl } = settingsState;
+const WagmiContext = ({ children }: { children: ReactNode }) => {
 
-  /* console log whether using forked env or not */
-  console.log('Using a forked env: ', useForkedEnv);
-  useForkedEnv && console.log('Fork url: ', forkEnvUrl);
-
-  const chainConfig = useMemo(
-    () =>
-      !useForkedEnv
-        ? // Production environment >
-          [
-            alchemyProvider({
-              apiKey: process.env.ALCHEMY_MAINNET_KEY!,
-            }),
-          ]
-        : // Test/Dev environents (eg. tenderly) >
-          [
-            jsonRpcProvider({
-              rpc: (chain) => ({
-                http: forkEnvUrl,
-              }),
-            }),
-          ],
-    [forkEnvUrl, useForkedEnv]
-  );
+  const chainConfig = [
+    alchemyProvider({
+      apiKey: process.env.ALCHEMY_ARBITRUM_KEY!,
+    }),
+  ];
 
   const colorTheme = useColorScheme();
 
@@ -120,7 +98,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default ProviderContext;
+export default WagmiContext;
 
 const myDarkTheme: Theme = {
   ...darkTheme(),

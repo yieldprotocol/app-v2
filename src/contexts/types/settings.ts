@@ -6,7 +6,6 @@ export enum Settings {
   SLIPPAGE_TOLERANCE = 'slippageTolerance',
   DIAGNOSTICS = 'diagnostics',
   DARK_MODE = 'darkMode',
-  AUTO_THEME = 'autoTheme',
   DISCLAIMER_CHECKED = 'disclaimerChecked',
   POWER_USER = 'powerUser',
   FORCE_TRANSACTIONS = 'forceTransactions',
@@ -40,8 +39,6 @@ export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */
   slippageTolerance: number;
   darkMode: boolean;
-  autoTheme: boolean;
-
   approvalMethod: ApprovalType;
   approveMax: boolean;
   disclaimerChecked: boolean;
@@ -70,4 +67,3 @@ export interface ISettingsContextState {
   mockUserAddress: `0x${string}`| undefined;
 
 }
-

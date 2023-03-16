@@ -15,8 +15,6 @@ const initState: ISettingsContextState = {
 
   /* Color theme */
   darkMode: false,
-  /* Set color theme based on system */
-  autoTheme: false,
 
   /* Has the usage disclaimer been checked? */
   disclaimerChecked: false,
@@ -38,14 +36,14 @@ const initState: ISettingsContextState = {
   dashHidePoolPositions: false,
   dashCurrency: USDC,
 
-  /* development settings */
+  /* Development settings */
 
   /* Always force transctions to the chain -> even if they will likely fail */
   forceTransactions: false,
 
   /* Show diagnostic messages in the console */
   diagnostics: false,
-
+  
   /* use a forked network */
   useForkedEnv: false,
   forkEnvUrl:
@@ -71,6 +69,7 @@ const SettingsContext = createContext<{
 });
 
 function settingsReducer(state: ISettingsContextState, action: SettingsContextAction): ISettingsContextState {
+  
   /* Helper: if different from existing , update the state and cache */
   const cacheAndUpdate = (_action: SettingsContextAction) => {
     if (state[action.type] === _action.payload) {
@@ -83,6 +82,7 @@ function settingsReducer(state: ISettingsContextState, action: SettingsContextAc
 }
 
 const SettingsProvider = ({ children }: { children: ReactNode }) => {
+  
   /* LOCAL STATE */
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
