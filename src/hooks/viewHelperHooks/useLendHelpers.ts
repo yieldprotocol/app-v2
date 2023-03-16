@@ -84,8 +84,6 @@ export const useLendHelpers = (
       // make sure max shares in is greater than 0 and convert to base
       const _maxBaseIn = _maxSharesIn.lte(ethers.constants.Zero) ? ethers.constants.Zero : series.getBase(_maxSharesIn);
       diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
-
-      console.log(userBaseBalance.toString() , _maxBaseIn.toString())
       
       if (userBaseBalance.lt(_maxBaseIn)) {
         setMaxLend(userBaseBalance);
