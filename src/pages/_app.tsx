@@ -6,7 +6,7 @@ import '../styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 import KillSwitch from '../components/KillSwitch';
 
-const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
+const WagmiContext = dynamic(() => import('../contexts/WagmiContext'), { ssr: false });
 
 const DynamicChainProvider = dynamic(() => import('../contexts/ChainContext'), { ssr: false }); // this is set to true now
 const DynamicSettingsProvider = dynamic(() => import('../contexts/SettingsContext'), { ssr: false });
@@ -32,8 +32,8 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, []);
 
   return (
-    <DynamicSettingsProvider>
-      <ProviderContext>
+    <WagmiContext>
+      <DynamicSettingsProvider>
         <DynamicChainProvider>
           <DynamicUserProvider>
             <DynamicTxProvider>
@@ -47,8 +47,8 @@ const App = ({ Component, pageProps }: AppProps) => {
             </DynamicTxProvider>
           </DynamicUserProvider>
         </DynamicChainProvider>
-      </ProviderContext>
-    </DynamicSettingsProvider>
+      </DynamicSettingsProvider>
+    </WagmiContext>
   );
 };
 

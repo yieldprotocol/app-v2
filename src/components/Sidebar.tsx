@@ -15,7 +15,7 @@ import UnwrapSetting from './settings/UnwrapSetting';
 import BoxWrap from './wraps/BoxWrap';
 import CopyWrap from './wraps/CopyWrap';
 import YieldAvatar from './YieldAvatar';
-import { useAccount,useEnsName, useNetwork } from 'wagmi';
+import { useEnsName, useNetwork } from 'wagmi';
 import { FaWallet } from 'react-icons/fa';
 import useAccountPlus from '../hooks/useAccountPlus';
 
