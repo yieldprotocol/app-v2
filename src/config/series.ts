@@ -24,9 +24,9 @@ export interface ISeriesStatic {
   g1: string;
   g2: string;
 
-  allowActions?: (ActionCodes |'allow_none'|'allow_all')[];
+  allowActions?: (ActionCodes | 'allow_none' | 'allow_all')[];
 }
- 
+
 const USDC_2112 = '0x303230340000';
 const USDC_2203 = '0x303230350000';
 const USDC_2206 = '0x303230360000';
