@@ -27,19 +27,23 @@ import {
 import YieldAvatar from '../components/YieldAvatar';
 import '@rainbow-me/rainbowkit/styles.css';
 import { useColorScheme } from '../hooks/useColorScheme';
+import { useCachedState } from '../hooks/generalHooks';
+import { Settings } from './types/settings';
 
 const WagmiContext = ({ children }: { children: ReactNode }) => {
-
-  const chainConfig = [
-    alchemyProvider({
-      apiKey: process.env.ALCHEMY_ARBITRUM_KEY!,
-    }),
-  ];
-
+  const [useForkedEnv] = useCachedState(Settings.USE_FORKED_ENV, false);
+  const [forkEnvUrl] = useCachedState(Settings.FORK_ENV_URL, process.env.REACT_APP_DEFAULT_FORK_RPC_URL);
   const colorTheme = useColorScheme();
 
-  // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
-  const { chains, provider } = configureChains(defaultChains, [...chainConfig]);
+  const chainConfig = useMemo(
+    () =>
+      useForkedEnv
+        ? jsonRpcProvider({ rpc: () => ({ http: forkEnvUrl }) })
+        : alchemyProvider({ apiKey: process.env.ALCHEMY_ARBITRUM_KEY! }),
+    [forkEnvUrl, useForkedEnv]
+  );
+
+  const { chains, provider } = configureChains(defaultChains, [chainConfig]);
 
   const connectors = connectorsForWallets([
     {
