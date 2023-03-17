@@ -1,9 +1,7 @@
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
-import { useNetwork } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
 import { ActionCodes, ISeries } from '../types';
-import useChainId from './useChainId';
 
 /**
  * This function/hook is used to determine if a user is allowed to perform an action on a particular series.
@@ -12,7 +10,6 @@ import useChainId from './useChainId';
  * @returns boolean
  */
 const useAllowAction = () => {
-
   const { userState } = useContext(UserContext);
 
   const isActionAllowed = (action: ActionCodes, series?: ISeries): boolean => {
