@@ -6,7 +6,7 @@ import useChainId from './useChainId';
 const useDefaultProvider = () => {
   const chainId = useChainId();
 
-  return useMemo(() => new AlchemyProvider(chainId, process.env.ALCHEMY_MAINNET_KEY!), [chainId]);
+  return useMemo(() => new AlchemyProvider(chainId, process.env.ALCHEMY_ARBITRUM_KEY!), [chainId]);
 };
 
 export default useDefaultProvider;
