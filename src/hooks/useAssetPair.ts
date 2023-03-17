@@ -2,7 +2,6 @@ import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { IAsset, IAssetPair } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWR from 'swr';
-import useSWRImmutable from 'swr/immutable';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts from './useContracts';
@@ -110,12 +109,16 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
     console.log('getting series ilks for: ', seriesId);
 
-    const getIlkAddedEvents = async (provider: JsonRpcProvider | Provider, seriesId: string) => {
+    const getIlkAddedEvents = async (
+      provider: JsonRpcProvider | Provider,
+      seriesId: string,
+      fromBlock?: number | string
+    ) => {
       const cauldron = contracts?.get(ContractNames.CAULDRON)?.connect(provider) as Cauldron;
       try {
         return await cauldron.queryFilter(
           cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)),
-          useForkedEnv ? forkStartBlock : 'earliest'
+          fromBlock || 'earliest'
         );
       } catch (e) {
         console.log('error getting ilk added events: ', e);
@@ -127,7 +130,10 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
     // get cauldron ilkAdded events for this series id using fork env
     if (useForkedEnv && forkProvider) {
-      ilkAddedEvents = new Set([...ilkAddedEvents, ...(await getIlkAddedEvents(forkProvider, seriesId))]);
+      ilkAddedEvents = new Set([
+        ...ilkAddedEvents,
+        ...(await getIlkAddedEvents(forkProvider, seriesId, forkStartBlock)),
+      ]);
     }
 
     return [...ilkAddedEvents.values()].reduce((acc, { args: { ilkId } }) => {
@@ -141,11 +147,12 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     }, [] as IAsset[]);
   }, [assetMap, contracts, forkProvider, forkStartBlock, provider, seriesId, useForkedEnv]);
 
-  const { data: validIlks, error: validIlksError } = useSWRImmutable(
+  const { data: validIlks, error: validIlksError } = useSWR(
     seriesId ? ['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId] : null,
     getSeriesEntityIlks,
     {
       shouldRetryOnError: false,
+      revalidateOnFocus: false,
     }
   );
 
