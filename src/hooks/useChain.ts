@@ -87,10 +87,6 @@ export const useChain = () => {
       return _contract.interface.encodeFunctionData(call.operation as string, call.args);
     });
 
-    // const calldata = wrapEtherModule.interface.encodeFunctionData('wrap', [other, WAD])
-    // await ladle.ladle.moduleCall(wrapEtherModule.address, calldata, { value: WAD })
-    // expect(await weth.balanceOf(other)).to.equal(WAD)
-
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);
 
