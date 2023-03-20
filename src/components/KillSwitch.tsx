@@ -2,10 +2,17 @@ import { Box, Layer, Text } from 'grommet';
 import React from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
 import useChainId from '../hooks/useChainId';
+import GeneralButton from './buttons/GeneralButton';
+
+import {
+  useChainModal,
+} from '@rainbow-me/rainbowkit';
 
 /* A kill switch is a way to disable the entire app. It is set in the .env file. ( AND next.config.js ) */
 const KillSwitch = (props: any) => {
   const chainId = useChainId();
+
+  const {openChainModal} = useChainModal();
 
   return (
     <>
@@ -33,6 +40,7 @@ const KillSwitch = (props: any) => {
                 {parseInt(process.env.KILLSWITCH_CHAIN!) === 1 ? 'Ethereum Mainnet' : 'Arbitrum One'}
               </Text>
             </Box>
+            <GeneralButton onClick={openChainModal}> <Text size='xsmall'>Switch Network</Text> </GeneralButton>
           </Box>
         </Layer>
       ) : (
