@@ -16,8 +16,8 @@ const useAllowAction = () => {
     const seriesToUse = series || userState.selectedSeries;
 
     if (seriesToUse) {
-      if (seriesToUse.allowActions.includes('allow_all') || seriesToUse.allowActions.includes(action)) return true;
-      if (!seriesToUse.allowActions.includes(action) || seriesToUse.allowActions.includes('allow_none')) {
+      if (seriesToUse.allowActions.includes('allow_all') || seriesToUse.allowActions.includes(action)) {return true}
+      else {
         toast.warn(`Action not allowed on this series.`);
         return false;
       }
