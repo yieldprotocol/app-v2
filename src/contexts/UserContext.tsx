@@ -302,17 +302,19 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
-        seriesList.map(async (series): Promise<ISeries> => {      
+        seriesList.map(async (series): Promise<ISeries> => {
+          let baseReserves: BigNumber;
+          try {
+            baseReserves = await series.poolContract.getBaseBalance();
+          } catch (error) {
+            baseReserves = ZERO_BN;
+          }
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-            series.poolContract.getBaseBalance(),
+          const [fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
-          ]).catch((e) => {
-            console.log('Series Error: ', series.id);
-            return [ZERO_BN, ZERO_BN, ZERO_BN, ZERO_BN];
-          }); // catch error and return 0 values if error with series
+          ]);
 
           let sharesReserves: BigNumber;
           let c: BigNumber | undefined;
@@ -466,7 +468,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       // let _publicData: IStrategy[] = [];
       const _publicData = await Promise.all(
-
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
           const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
@@ -501,7 +502,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               console.log('Error getting current series data: ', _strategy.name);
               return [ZERO_BN, ZERO_BN];
             });
-            
+
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
 
             /* get rewards data */
@@ -567,9 +568,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 _strategy.strategyContract.balanceOf(account),
                 _strategy.currentSeries?.poolContract.balanceOf(account),
               ]).catch((e: any) => {
-              console.log('Error getting current account balance data: ', _strategy.name);
-              return [ZERO_BN, ZERO_BN];
-            });;
+                console.log('Error getting current account balance data: ', _strategy.name);
+                return [ZERO_BN, ZERO_BN];
+              });
 
               // const stratConnected = _strategy.strategyContract.connect(signer!);
               // const accountRewards =
