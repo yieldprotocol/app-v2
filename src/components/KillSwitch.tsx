@@ -40,7 +40,7 @@ const KillSwitch = (props: any) => {
                 {parseInt(process.env.KILLSWITCH_CHAIN!) === 1 ? 'Ethereum Mainnet' : 'Arbitrum One'}
               </Text>
             </Box>
-            <GeneralButton onClick={openChainModal}> <Text size='xsmall'>Switch Network</Text> </GeneralButton>
+            <GeneralButton action={openChainModal}> <Text size='xsmall'>Switch Network</Text> </GeneralButton>
           </Box>
         </Layer>
       ) : (
