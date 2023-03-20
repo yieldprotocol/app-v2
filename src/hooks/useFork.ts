@@ -1,132 +1,100 @@
-// import { ethers } from 'ethers';
-
-// import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
-// import { useAccount} from 'wagmi';
-// import { SettingsContext } from '../contexts/SettingsContext';
-// import useAccountPlus from './useAccountPlus';
-// import useSWRImmutable from 'swr/immutable';
-
-// /** master code */
-
-// const useFork = () => {
-//   const {
-//     settingsState: { useForkedEnv, forkEnvUrl: forkUrl },
-//   } = useContext(SettingsContext);
-
-//   const { address: account } = useAccount();
-//   const provider = useMemo(
-//     () => (useForkedEnv ? new ethers.providers.JsonRpcProvider(forkUrl) : undefined),
-//     [forkUrl, useForkedEnv]
-//   );
-
-//   const getForkTimestamp = useCallback(async () => {
-//     if (!provider) return undefined;
-
-//         try {
-//       const { timestamp } = await provider.getBlock('latest');
-//       useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
-//       return timestamp;
-//     } catch (e) {
-//       console.log('Error getting latest timestamp', e);
-//       return undefined;
-//     }
-//   }, [provider, useForkedEnv]);
-
-//   const fillEther = useCallback(async () => {
-//     if (!provider) return;
-
-//     if (useForkedEnv) {
-//       try {
-//         const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
-//         await provider.send('tenderly_addBalance', transactionParameters);
-//       } catch (e) {
-//         console.log('Could not fill eth on Tenderly fork');
-//       }
-//     }
-//   }, [account, provider, useForkedEnv]);
-
-//   const { data: forkTimestamp } = useSWRImmutable(useForkedEnv ? 'forkTimestamp' : null, getForkTimestamp);
-
-//   return {
-//     fillEther,
-//     forkUrl,
-//     getForkTimestamp,
-//     forkTimestamp,
-//   };
-
-// /** master code */
-
-// };
-
-// export default useFork;
-
+import axios from 'axios';
 import { ethers } from 'ethers';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
 import useAccountPlus from './useAccountPlus';
+import useSWRImmutable from 'swr/immutable';
+import { useBalance } from 'wagmi';
+import { toast } from 'react-toastify';
+import useChainId from './useChainId';
+import useDefaultProvider from './useDefaultProvider';
 
 const useFork = () => {
   const {
-    settingsState: { useForkedEnv, forkEnvUrl },
+    settingsState: { useForkedEnv, forkEnvUrl: forkUrl, diagnostics },
   } = useContext(SettingsContext);
 
   const { address: account } = useAccountPlus();
-  const provider = new ethers.providers.JsonRpcProvider(forkEnvUrl);
+  const { refetch } = useBalance({ address: account });
 
-  /* From settings */
-  const [forkUrl, setForkUrl] = useState<string>(forkEnvUrl);
+  const chainId = useChainId();
+  const defaultProvider = useDefaultProvider();
 
-  const [forkStartBlock, setForkStartBlock] = useState<number>();
-  const [forkTimestamp, setForkTimestamp] = useState<number>();
+  const provider = useMemo(
+    () => (useForkedEnv ? new ethers.providers.JsonRpcProvider(forkUrl) : undefined),
+    [forkUrl, useForkedEnv]
+  );
 
-  const getForkStartBlock = async () => {
+  const createNewFork = useCallback(async (): Promise<string> => {
+    const TENDERLY_FORK_API = `http://api.tenderly.co/api/v1/account/${process.env.TENDERLY_USER}/project/${process.env.TENDERLY_PROJECT}/fork`;
+    const currentBlockNumber = await defaultProvider.getBlockNumber();
+    const resp = await axios.post(
+      TENDERLY_FORK_API,
+      { network_id: chainId.toString(), block_number: currentBlockNumber },
+      {
+        headers: {
+          'X-Access-Key': process.env.TENDERLY_ACCESS_KEY as string,
+        },
+      }
+    );
+    return `https://rpc.tenderly.co/fork/${resp.data.simulation_fork.id}`;
+  }, [chainId, defaultProvider]);
+
+  const getForkTimestamp = useCallback(async () => {
+    if (!useForkedEnv || !provider) return;
+
     try {
-      const num = await (provider as any).send('tenderly_getForkBlockNumber', []);
+      const { timestamp } = await provider.getBlock('latest');
+      console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
+      return timestamp;
+    } catch (e) {
+      console.log('Error getting latest timestamp', e);
+      return undefined;
+    }
+  }, [provider, useForkedEnv]);
+
+  const getForkStartBlock = useCallback(async () => {
+    if (!useForkedEnv || !provider) return 'earliest';
+
+    try {
+      const num = await provider.send('tenderly_getForkBlockNumber', []);
       const sBlock = +num.toString();
-      setForkStartBlock(sBlock);
       console.log('Fork start block: ', sBlock);
       return sBlock;
     } catch (e) {
       console.log('Could not get tenderly start block: ', e);
-      setForkStartBlock(undefined);
-      return 0;
+      return 'earliest';
     }
-  };
-
-  const getForkTimestamp = async () => {
-    try {
-      const { timestamp } = await provider.getBlock('latest');
-      useForkedEnv && console.log('Updated Forked Blockchain time: ', new Date(timestamp * 1000));
-      setForkTimestamp(timestamp);
-      return timestamp;
-    } catch (e) {
-      console.log('Error getting latest timestamp', e);
-      setForkTimestamp(undefined);
-      // return timestamp;
-    }
-  };
+  }, [provider, useForkedEnv]);
 
   const fillEther = useCallback(async () => {
+    if (!provider || !useForkedEnv) return;
+
     try {
       const transactionParameters = [[account], ethers.utils.hexValue(BigInt('100000000000000000000'))];
-      await (provider as any).send('tenderly_addBalance', transactionParameters);
+      await provider.send('tenderly_addBalance', transactionParameters);
+      refetch();
+      toast.success('Filled eth on fork');
     } catch (e) {
       console.log('Could not fill eth on Tenderly fork');
     }
-  }, [account]);
+  }, [account, provider, refetch, useForkedEnv]);
 
-  useEffect(() => {
-    useForkedEnv && setForkUrl(forkEnvUrl);
-  }, [useForkedEnv, forkEnvUrl]);
+  const { data: forkTimestamp } = useSWRImmutable(useForkedEnv ? ['forkTimestamp', forkUrl] : null, getForkTimestamp); // don't run if not using forked env
+  const { data: forkStartBlock } = useSWRImmutable(
+    useForkedEnv ? ['forkStartBlock', forkUrl] : null,
+    getForkStartBlock
+  ); // don't run if not using forked env
 
-  useEffect(() => {
-    if (useForkedEnv && forkEnvUrl) {
-      getForkTimestamp();
-      getForkStartBlock();
-    }
-  }, [useForkedEnv, forkEnvUrl]);
-
-  return { useForkedEnv, getForkStartBlock, fillEther, forkUrl, getForkTimestamp, forkTimestamp, forkStartBlock };
+  return {
+    useForkedEnv,
+    fillEther,
+    forkUrl,
+    forkTimestamp,
+    forkStartBlock,
+    createNewFork,
+    provider,
+  };
 };
 
 export default useFork;

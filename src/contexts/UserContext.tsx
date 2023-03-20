@@ -16,7 +16,6 @@ import {
 
 import Decimal from 'decimal.js';
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
-
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
@@ -147,7 +146,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const contracts = useContracts();
 
-  const { getForkStartBlock } = useFork();
+  const { forkStartBlock } = useFork();
 
   const {
     // data: assetBalances,
@@ -205,7 +204,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
     // get the latest available vault ( either from the local storage or from the forkStart)
     const lastVaultUpdate = useForkedEnv
-      ? await getForkStartBlock()
+      ? forkStartBlock || 'earliest'
       : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
@@ -252,7 +251,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
-  }, [account, chainId, contracts, provider, seriesRootMap]);
+  }, [account, chainId, contracts, forkStartBlock, provider, seriesRootMap, useForkedEnv]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
@@ -382,7 +381,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           try {
             // get pool init block
             const gmFilter = series.poolContract.filters.gm();
-            const gm = await series.poolContract.queryFilter(gmFilter);
+            const gm = await series.poolContract.queryFilter(gmFilter, 'earliest');
             poolStartBlock = await gm[0].getBlock();
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });

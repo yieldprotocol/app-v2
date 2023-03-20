@@ -1,15 +1,12 @@
-import { JsonRpcProvider } from '@ethersproject/providers';
+import { AlchemyProvider } from '@ethersproject/providers';
 import { useMemo } from 'react';
-import { useNetwork, useProvider } from 'wagmi';
+import useChainId from './useChainId';
 
+// default provider always uses the non-fork provider and the non-fork chainId
 const useDefaultProvider = () => {
-  const { chains } = useNetwork();
-  const provider = useProvider();
+  const chainId = useChainId();
 
-  console.log( chains )
-  const url = chains[0].rpcUrls.default['http'][0];
-
-  return useMemo(() => provider ?? new JsonRpcProvider(url), [chains, provider]);
+  return useMemo(() => new AlchemyProvider(chainId, process.env.ALCHEMY_ARBITRUM_KEY!), [chainId]);
 };
 
 export default useDefaultProvider;

@@ -1,8 +1,7 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { IAsset, IAssetPair } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWR from 'swr';
-import { useProvider } from 'wagmi';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts from './useContracts';
@@ -11,6 +10,10 @@ import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
 import { stETH, wstETH } from '../config/assets';
 import { ContractNames } from '../config/contracts';
+import useFork from './useFork';
+import { JsonRpcProvider, Provider } from '@ethersproject/providers';
+import useDefaultProvider from './useDefaultProvider';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
@@ -18,16 +21,21 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   const {
     userState: { assetMap },
   } = useContext(UserContext);
+
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
+
   const chainId = useChainId();
 
   /* HOOKS */
-  const provider = useProvider();
+  const provider = useDefaultProvider();
+  const { useForkedEnv, provider: forkProvider, forkUrl, forkStartBlock } = useFork();
   const contracts = useContracts();
-  const Cauldron = contracts?.get(ContractNames.CAULDRON) as Cauldron | undefined;
 
   /* GET PAIR INFO */
   const getAssetPair = async (baseId: string, ilkId: string): Promise<IAssetPair | undefined> => {
-    if (!Cauldron) return;
+    const Cauldron = contracts?.get(ContractNames.CAULDRON) as Cauldron;
 
     const _base = assetMap.get(baseId);
     const _ilk = assetMap.get(ilkId);
@@ -44,7 +52,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
 
     const oracleContract = CompositeMultiOracle__factory.connect(oracleAddr, provider); // using the composite multi oracle but all oracles should have the same interface
 
-    console.log('Getting Asset Pair Info: ', baseId, ilkId);
+    diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
 
     /* Get debt params and spot ratios */
     const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
@@ -96,11 +104,39 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     }
   );
 
-  const getSeriesEntityIlks = async () => {
-    if (!seriesId || !Cauldron) return undefined;
-    // get cauldron addIlk events for this series id
-    const addIlkEvents = await Cauldron.queryFilter(Cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)));
-    return addIlkEvents.reduce((acc, { args: { ilkId } }) => {
+  const getSeriesEntityIlks = useCallback(async () => {
+    if (!seriesId) return undefined;
+
+    console.log('getting series ilks for: ', seriesId);
+
+    const getIlkAddedEvents = async (
+      provider: JsonRpcProvider | Provider,
+      seriesId: string,
+      fromBlock?: number | string
+    ) => {
+      const cauldron = contracts?.get(ContractNames.CAULDRON)?.connect(provider) as Cauldron;
+      try {
+        return await cauldron.queryFilter(
+          cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)),
+          fromBlock || 'earliest'
+        );
+      } catch (e) {
+        console.log('error getting ilk added events: ', e);
+        return [];
+      }
+    };
+
+    let ilkAddedEvents = new Set(await getIlkAddedEvents(provider, seriesId));
+
+    // get cauldron ilkAdded events for this series id using fork env
+    if (useForkedEnv && forkProvider) {
+      ilkAddedEvents = new Set([
+        ...ilkAddedEvents,
+        ...(await getIlkAddedEvents(forkProvider, seriesId, forkStartBlock)),
+      ]);
+    }
+
+    return [...ilkAddedEvents.values()].reduce((acc, { args: { ilkId } }) => {
       const asset = assetMap.get(ilkId.toLowerCase());
       if (!asset) return acc;
 
@@ -109,15 +145,14 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
         ? [...acc, asset, assetMap.get(stETH.toLowerCase())!]
         : [...acc, asset];
     }, [] as IAsset[]);
-  };
+  }, [assetMap, contracts, forkProvider, forkStartBlock, provider, seriesId, useForkedEnv]);
 
   const { data: validIlks, error: validIlksError } = useSWR(
-    seriesId ? ['seriesIlks', chainId, seriesId] : null,
+    seriesId ? ['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId] : null,
     getSeriesEntityIlks,
     {
-      revalidateIfStale: false,
+      shouldRetryOnError: false,
       revalidateOnFocus: false,
-      revalidateOnReconnect: false,
     }
   );
 
