@@ -466,6 +466,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       // let _publicData: IStrategy[] = [];
       const _publicData = await Promise.all(
+
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           /* Get all the data simultanenously in a promise.all */
           const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
@@ -565,7 +566,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract.balanceOf(account),
                 _strategy.currentSeries?.poolContract.balanceOf(account),
-              ]);
+              ]).catch((e: any) => {
+              console.log('Error getting current account balance data: ', _strategy.name);
+              return [ZERO_BN, ZERO_BN];
+            });;
 
               // const stratConnected = _strategy.strategyContract.connect(signer!);
               // const accountRewards =
