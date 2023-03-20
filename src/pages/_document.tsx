@@ -12,23 +12,6 @@ export default class MyDocument extends Document {
           <link rel="shortcut icon" href="/favicons/favicon.ico" />
         </Head>
         <body>
-          <script
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{
-              __html: `
-          function getColorScheme() {
-            if (JSON.parse(localStorage.getItem('autoTheme'))) {
-              return window.matchMedia('(prefers-color-scheme: dark)').matches
-                ? 'dark'
-                : 'light';
-            } else {
-              return JSON.parse(localStorage.getItem('darkMode')) ? 'dark' : 'light'
-            }
-          }
-          document.body.dataset.theme = getColorScheme();
-        `,
-            }}
-          />
           <Main />
           <NextScript />
         </body>

@@ -6,7 +6,6 @@ export enum Settings {
   SLIPPAGE_TOLERANCE = 'slippageTolerance',
   DIAGNOSTICS = 'diagnostics',
   DARK_MODE = 'darkMode',
-  AUTO_THEME = 'autoTheme',
   DISCLAIMER_CHECKED = 'disclaimerChecked',
   POWER_USER = 'powerUser',
   FORCE_TRANSACTIONS = 'forceTransactions',
@@ -32,16 +31,14 @@ export interface ISettingsContext {
 }
 
 export interface ISettingsContextActions {
-  updateSetting: (setting: Settings, value: string | number | boolean ) => void;
+  updateSetting: (setting: Settings, value: string | number | boolean | undefined ) => void;
 }
-export type SettingsContextAction = { type: Settings; payload: string | number | boolean };
+export type SettingsContextAction = { type: Settings; payload: string | number | boolean | undefined };
 
 export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */
   slippageTolerance: number;
   darkMode: boolean;
-  autoTheme: boolean;
-
   approvalMethod: ApprovalType;
   approveMax: boolean;
   disclaimerChecked: boolean;
@@ -67,7 +64,6 @@ export interface ISettingsContextState {
   forkEnvUrl: string;
 
   useMockedUser: boolean;
-  mockUserAddress: `0x${string}`;
+  mockUserAddress: `0x${string}`| undefined;
 
 }
-

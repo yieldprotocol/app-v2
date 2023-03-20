@@ -42,7 +42,7 @@ export const useBorrowHelpers = (
   const { address: account } = useAccountPlus();
   const { data: baseBalance } = useBalance({
     address: account,
-    token: vaultBase?.proxyId === WETH ? undefined : vaultBase?.address as Address,
+    token: vaultBase?.proxyId === WETH ? undefined : (vaultBase?.address as Address),
   });
 
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
@@ -164,9 +164,9 @@ export const useBorrowHelpers = (
       );
 
       const _minCollat = calculateMinCollateral(
-        assetPairInfo!.pairPrice,
+        assetPairInfo?.pairPrice!,
         newDebt,
-        assetPairInfo!.minRatio.toString(),
+        assetPairInfo?.minRatio.toString()!,
         undefined
       );
       diagnostics && console.log('min Collat of roll to series', _minCollat.toString());

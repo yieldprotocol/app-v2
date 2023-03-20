@@ -60,7 +60,8 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, vaultMap, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } = userState;
+  const { assetMap, vaultMap, vaultsLoading, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } =
+    userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccountPlus();
@@ -549,7 +550,9 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
-                  {vaultToUse && <VaultItem vault={vaultMap?.get(vaultToUse.id)!} condensed index={1} />}
+                  {vaultToUse && !vaultsLoading && (
+                    <VaultItem vault={vaultMap?.get(vaultToUse.id)!} condensed index={1} />
+                  )}
                   {!vaultToUse && newVaultId && (
                     <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
                   )}

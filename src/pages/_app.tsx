@@ -4,9 +4,8 @@ import { AppProps } from 'next/app';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
-import SupportModal from '../components/SupportSideBar';
 
-const ProviderContext = dynamic(() => import('../contexts/ProviderContext'), { ssr: false });
+const WagmiContext = dynamic(() => import('../contexts/WagmiContext'), { ssr: false });
 
 const DynamicChainProvider = dynamic(() => import('../contexts/ChainContext'), { ssr: false }); // this is set to true now
 const DynamicSettingsProvider = dynamic(() => import('../contexts/SettingsContext'), { ssr: false });
@@ -14,6 +13,7 @@ const DynamicUserProvider = dynamic(() => import('../contexts/UserContext'), { s
 const DynamicTxProvider = dynamic(() => import('../contexts/TxContext'), { ssr: false });
 const DynamicHistoryProvider = dynamic(() => import('../contexts/HistoryContext'), { ssr: false });
 const DynamicLayout = dynamic(() => import('../components/Layout'), { ssr: false });
+const DynamicKillSwitch = dynamic(() => import('../components/KillSwitch'), { ssr: false });
 
 declare global {
   interface Window {
@@ -32,21 +32,23 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, []);
 
   return (
-    <DynamicSettingsProvider>
-      <ProviderContext>
+    <WagmiContext>
+      <DynamicSettingsProvider>
         <DynamicChainProvider>
-            <DynamicUserProvider>
-              <DynamicTxProvider>
-                <DynamicHistoryProvider>
-                  <DynamicLayout>
+          <DynamicUserProvider>
+            <DynamicTxProvider>
+              <DynamicHistoryProvider>
+                <DynamicLayout>
+                  <DynamicKillSwitch>
                     <Component {...pageProps} />
-                  </DynamicLayout>
-                </DynamicHistoryProvider>
-              </DynamicTxProvider>
-            </DynamicUserProvider>
+                  </DynamicKillSwitch>
+                </DynamicLayout>
+              </DynamicHistoryProvider>
+            </DynamicTxProvider>
+          </DynamicUserProvider>
         </DynamicChainProvider>
-      </ProviderContext>
-    </DynamicSettingsProvider>
+      </DynamicSettingsProvider>
+    </WagmiContext>
   );
 };
 
