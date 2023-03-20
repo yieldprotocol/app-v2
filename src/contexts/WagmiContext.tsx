@@ -31,15 +31,17 @@ import { useCachedState } from '../hooks/generalHooks';
 import { Settings } from './types/settings';
 
 const WagmiContext = ({ children }: { children: ReactNode }) => {
+  const colorTheme = useColorScheme();
+
   const [useForkedEnv] = useCachedState(Settings.USE_FORKED_ENV, false);
   const [forkEnvUrl] = useCachedState(Settings.FORK_ENV_URL, process.env.REACT_APP_DEFAULT_FORK_RPC_URL);
-  const colorTheme = useColorScheme();
+  const defaultChainId = parseInt(process.env.REACT_APP_DEFAULT_CHAINID!)
 
   const chainConfig = useMemo(
     () =>
       useForkedEnv
         ? jsonRpcProvider({ rpc: () => ({ http: forkEnvUrl }) })
-        : alchemyProvider({ apiKey: process.env.ALCHEMY_ARBITRUM_KEY! }),
+        : alchemyProvider({ apiKey: defaultChainId === 1 ? process.env.ALCHEMY_MAINNET_KEY! : process.env.ALCHEMY_ARBITRUM_KEY!  }),
     [forkEnvUrl, useForkedEnv]
   );
 
