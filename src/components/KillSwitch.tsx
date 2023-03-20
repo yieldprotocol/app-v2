@@ -19,7 +19,7 @@ const KillSwitch = (props: any) => {
           <Box background="white" pad="large" round="16px" gap="medium">
             <Box direction="row" gap="small" align="center">
               <FiAlertCircle size="2em" />
-              <Text> Yield Protocol UI is temporarily disabled.</Text>
+              <Text>Yield Protocol UI is temporarily disabled.</Text>
             </Box>
             <Box direction="row" gap="small">
               <Text size="xsmall" weight={'bold'}>
