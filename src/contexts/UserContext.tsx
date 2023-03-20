@@ -426,7 +426,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const [poolTokens, fyTokenBalance] = await Promise.all([
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
-            ]);
+            ]).catch((e) => {
+              console.log('Error etting user balances: ', series.id);
+              return [ ZERO_BN, ZERO_BN ];
+            }); // catch error and return 0 values if error with series
 
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {

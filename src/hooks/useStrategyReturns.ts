@@ -105,15 +105,6 @@ const useStrategyReturns = (
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const [initSeries, setInitSeries] = useState<{
-    sharesReserves: BigNumber;
-    fyTokenReserves: BigNumber;
-    totalSupply: BigNumber;
-    ts: BigNumber;
-    g2: BigNumber;
-    c: BigNumber;
-  }>();
-
   const [returns, setLpReturns] = useState<IReturns>();
   const NOW = useMemo(() => Math.round(new Date().getTime() / 1000), []);
 
@@ -292,25 +283,6 @@ const useStrategyReturns = (
 
     return cleanValue(apy, digits);
   };
-
-  // get the init series data to use the invariant function
-  useEffect(() => {
-    (async () => {
-      if (!series) return;
-      const { poolContract, currentInvariant, initInvariant } = series;
-      if (!currentInvariant || !initInvariant) {
-        const [sharesReserves, fyTokenReserves, totalSupply, ts, g2, c] = await Promise.all([
-          poolContract.getSharesBalance(),
-          poolContract.getFYTokenBalance(),
-          poolContract.totalSupply(),
-          poolContract.ts(),
-          poolContract.g2(),
-          poolContract.getC(),
-        ]);
-        setInitSeries({ sharesReserves, fyTokenReserves, totalSupply, ts, g2, c });
-      }
-    })();
-  }, [series]);
 
   const calcStrategyReturns = (strategy: IStrategy | null, input: string) => {
 
