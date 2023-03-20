@@ -738,11 +738,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [strategyRootMap, userState.seriesMap, chainLoaded, chainId, updateStrategies]);
 
-  /* If the url references a series/vault...set that one as active */
-  useEffect(() => {
-    const vaultId = pathname.split('/')[2];
-    pathname && userState.vaultMap?.has(vaultId);
-  }, [pathname, userState.vaultMap]);
+  // /* If the url references a series/vault...set that one as active */
+  // useEffect(() => {
+  //   const vaultId = pathname.split('/')[2];
+  //   pathname && userState.vaultMap?.has(vaultId);
+  // }, [pathname, userState.vaultMap]);
 
   /**
    * Explicitly update selected series on series map changes

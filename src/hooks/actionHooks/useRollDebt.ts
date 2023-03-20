@@ -21,12 +21,13 @@ export const useRollDebt = () => {
   const { isActionAllowed } = useAllowAction();
 
   const rollDebt = async (vault: IVault, toSeries: ISeries) => {
+
+    if (!isActionAllowed(ActionCodes.ROLL_DEBT)) return; // return if action is not allowed
+
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const base = assetMap?.get(vault.baseId);
     const hasDebt = vault.accruedArt.gt(ZERO_BN);
     const fromSeries = seriesMap?.get(vault.seriesId);
-
-    if (!isActionAllowed(ActionCodes.ROLL_DEBT)) return; // return if action is not allowed
 
     const calls: ICallData[] = [
       {
