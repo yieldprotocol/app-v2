@@ -1,8 +1,7 @@
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
-import { ReactNode, useContext } from 'react';
-import { SettingsContext } from './SettingsContext';
+import { ReactNode, useMemo } from 'react';
 import { defaultChains } from '../config/customChains';
 
 import {
@@ -14,6 +13,7 @@ import {
   AvatarComponent,
   lightTheme,
 } from '@rainbow-me/rainbowkit';
+
 import {
   metaMaskWallet,
   walletConnectWallet,
@@ -27,36 +27,23 @@ import {
 import YieldAvatar from '../components/YieldAvatar';
 import '@rainbow-me/rainbowkit/styles.css';
 import { useColorScheme } from '../hooks/useColorScheme';
+import { useCachedState } from '../hooks/generalHooks';
+import { Settings } from './types/settings';
 
-const ProviderContext = ({ children }: { children: ReactNode }) => {
-  /* bring in all the settings, in case we want to use them when setting up the network */
-  const { settingsState } = useContext(SettingsContext);
-  const { useForkedEnv, forkEnvUrl } = settingsState;
-
-  /* console log whether using forked env or not */
-  console.log('Using a forked env: ', useForkedEnv);
-  useForkedEnv && console.log('Fork url: ', forkEnvUrl);
-
-  const chainConfig = !useForkedEnv
-    ? // Production environment >
-      [
-        alchemyProvider({
-          apiKey: process.env.ALCHEMY_ARBITRUM_KEY!,
-        }),
-      ]
-    : // Test/Dev environents (eg. tenderly) >
-      [
-        jsonRpcProvider({
-          rpc: (chain) => ({
-            http: forkEnvUrl,
-          }),
-        }),
-      ];
-
+const WagmiContext = ({ children }: { children: ReactNode }) => {
+  const [useForkedEnv] = useCachedState(Settings.USE_FORKED_ENV, false);
+  const [forkEnvUrl] = useCachedState(Settings.FORK_ENV_URL, process.env.REACT_APP_DEFAULT_FORK_RPC_URL);
   const colorTheme = useColorScheme();
 
-  // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
-  const { chains, provider } = configureChains(defaultChains, [...chainConfig]);
+  const chainConfig = useMemo(
+    () =>
+      useForkedEnv
+        ? jsonRpcProvider({ rpc: () => ({ http: forkEnvUrl }) })
+        : alchemyProvider({ apiKey: process.env.ALCHEMY_ARBITRUM_KEY! }),
+    [forkEnvUrl, useForkedEnv]
+  );
+
+  const { chains, provider } = configureChains(defaultChains, [chainConfig]);
 
   const connectors = connectorsForWallets([
     {
@@ -88,7 +75,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
 
   const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
     <Text>
-      By connecting my allet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
+      By connecting my wallet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
       acknowledge I have read and understand the protocol{' '}
       <Link href="https://yieldprotocol.com/privacy/">Privacy Policy</Link>.
     </Text>
@@ -115,7 +102,7 @@ const ProviderContext = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default ProviderContext;
+export default WagmiContext;
 
 const myDarkTheme: Theme = {
   ...darkTheme(),

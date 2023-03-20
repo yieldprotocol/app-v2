@@ -1,27 +1,39 @@
 import { useContext, useEffect, useState } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { Settings } from '../contexts/types/settings';
 
-/* Hook for using a color scheme provided by user autotheme or darkMode settings */
 export const useColorScheme = () => {
   const [colorScheme, setColorScheme] = useState<'light' | 'dark'>('light');
   const {
-    settingsState: { autoTheme, darkMode },
+    settingsState: { darkMode },
+    settingsActions: { updateSetting },
   } = useContext(SettingsContext);
 
   useEffect(() => {
-    if (autoTheme && typeof window !== 'undefined') {
-      window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? setColorScheme('dark')
-        : setColorScheme('light');
+    const storedDarkMode = localStorage.getItem('darkMode');
+    const hasStoredDarkMode = storedDarkMode !== null;
+    if (hasStoredDarkMode) {
+      updateSetting(Settings.DARK_MODE, storedDarkMode === 'true');
+      setColorScheme(storedDarkMode === 'true' ? 'dark' : 'light');
+    } else if (typeof window !== 'undefined') {
+      const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      updateSetting(Settings.DARK_MODE, systemDarkMode);
+      setColorScheme(systemDarkMode ? 'dark' : 'light');
 
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-        const newColorScheme = e.matches ? 'dark' : 'light';
-        autoTheme && setColorScheme(newColorScheme);
+        const newDarkMode = e.matches;
+        updateSetting(Settings.DARK_MODE, newDarkMode);
+        setColorScheme(newDarkMode ? 'dark' : 'light');
       });
     } else {
-      setColorScheme(darkMode ? 'dark' : 'light' || 'light');
+      updateSetting(Settings.DARK_MODE, false);
+      setColorScheme('light');
     }
-  }, [autoTheme, darkMode]);
+  }, []);
+
+  useEffect(() => {
+    setColorScheme(darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
   return colorScheme;
 };

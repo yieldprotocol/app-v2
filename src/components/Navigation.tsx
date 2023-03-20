@@ -5,7 +5,6 @@ import styled, { CSSProperties } from 'styled-components';
 import { Box, ThemeContext, ResponsiveContext, Text } from 'grommet';
 import { useWindowSize } from '../hooks/generalHooks';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useAccount } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
 import NavText from './texts/NavText';
@@ -48,14 +47,14 @@ interface IYieldNavigationProps {
   callbackFn?: any;
 }
 
-const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
+const Navigation = ({ sideNavigation }: IYieldNavigationProps) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
 
   const [height] = useWindowSize();
 
-  const { isConnected } = useAccountPlus();
+  const { address: account } = useAccountPlus();
 
   const {
     settingsState: { darkMode },
@@ -74,11 +73,10 @@ const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
     { label: 'BORROW', to: '/borrow' },
     { label: 'LEND', to: '/lend' },
     { label: 'POOL', to: '/pool' },
-    { label: 'DASHBOARD', to: '/dashboard', disabled: !isConnected },
+    { label: 'DASHBOARD', to: '/dashboard', disabled: !account },
   ];
 
   const handleViewChange = (toView: string) => {
-    // console.log(toView.slice(1));
     logAnalyticsEvent(GA_Event.view_changed, {
       toView: toView.slice(1),
     } as GA_Properties.view_changed);
@@ -127,6 +125,6 @@ const Navigation = ({ sideNavigation, callbackFn }: IYieldNavigationProps) => {
   );
 };
 
-Navigation.defaultProps = { sideNavigation: false, callbackFn: () => null };
+Navigation.defaultProps = { sideNavigation: false };
 
 export default Navigation;
