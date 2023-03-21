@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Text } from 'grommet';
 import { toast } from 'react-toastify';
-import { FiSlash } from 'react-icons/fi';
+import { FiAlertTriangle, FiSlash } from 'react-icons/fi';
 
 import styled from 'styled-components';
-import { IStrategy } from '../../types';
+import { ActionCodes, IStrategy } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { formatStrategyName } from '../../utils/appUtils';
 import Skeleton from '../wraps/SkeletonWrap';
@@ -89,9 +89,9 @@ const StrategySelectItem = ({
             style={{ position: 'absolute', marginTop: '-1em', marginLeft: '17em' }}
             elevation="small"
           >
-            <Text size="small" color="white" textAlign="center">
-              +{returns?.rewardsAPY}%
-            </Text>
+              <Text size="small" color="white" textAlign="center">
+                +{returns?.rewardsAPY}%
+              </Text>          
           </Box>
         )}
 
@@ -103,7 +103,14 @@ const StrategySelectItem = ({
                 boxShadow: `inset 1px 1px 2px ${strategy.currentSeries?.endColor.toString().concat('69')}`,
               }}
             >
-              <Text size="small">{(+returns.blendedAPY - +returns.rewardsAPY!).toFixed(1)}%</Text>
+              {strategy.currentSeries?.allowActions.includes('allow_all') ||
+              strategy.currentSeries?.allowActions.includes(ActionCodes.ADD_LIQUIDITY) ? (
+                <Text size="small">{(+returns.blendedAPY - +returns.rewardsAPY!).toFixed(1)}%</Text>
+              ) : (
+                <Text color="red">
+                  <FiAlertTriangle />
+                </Text>
+              )}
             </Avatar>
           </Box>
         )}
