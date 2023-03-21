@@ -13,6 +13,7 @@ import { FaDiscord as Discord } from 'react-icons/fa';
 import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import NetworkSelector from './selectors/NetworkSelector';
+import PublicNotification from './PublicNotification';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -25,7 +26,11 @@ const FooterInfo = () => {
   const handleExternal = (destination: string) => {};
 
   return (
+    <>
+    
     <Box gap="small" align="end" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
+
+      <Box width='50%' alignSelf="end"><PublicNotification /> </Box>
       <Box alignSelf="end">
         <Text size="xsmall" color="text-weak">
           App version: v{process.env.REACT_APP_VERSION}
@@ -108,6 +113,7 @@ const FooterInfo = () => {
 
       <NetworkSelector />
     </Box>
+    </>
   );
 };
 

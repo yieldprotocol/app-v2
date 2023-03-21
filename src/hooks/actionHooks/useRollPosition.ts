@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
@@ -35,6 +36,7 @@ export const useRollPosition = () => {
 
   const { sign, transact } = useChain();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { isActionAllowed } = useAllowAction();
 
   /**
    * Transfer fyToken to the "from" pool to sell for base, then send base to "to" pool and sell base for fyToken
@@ -44,6 +46,7 @@ export const useRollPosition = () => {
    */
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
     if (!contracts) return;
+    if (!isActionAllowed(ActionCodes.ROLL_POSITION)) return; // return if action is not allowed
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);

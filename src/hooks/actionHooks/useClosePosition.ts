@@ -17,6 +17,7 @@ import { Address, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 /* Lend Actions Hook */
 export const useClosePosition = () => {
@@ -44,6 +45,7 @@ export const useClosePosition = () => {
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { isActionAllowed } = useAllowAction();
 
   const closePosition = async (
     input: string | undefined,
@@ -51,6 +53,7 @@ export const useClosePosition = () => {
     getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
     if (!contracts) return;
+    if (!isActionAllowed(ActionCodes.CLOSE_POSITION)) return; // return if action is not allowed
 
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const base = assetMap?.get(series.baseId)!;
