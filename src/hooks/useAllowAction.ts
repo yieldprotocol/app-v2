@@ -18,7 +18,7 @@ const useAllowAction = () => {
     if (seriesToUse) {
       if (seriesToUse.allowActions.includes('allow_all') || seriesToUse.allowActions.includes(action)) {return true}
       else {
-        toast.warn(`Action not allowed on this series.`);
+        toast.warn(`Action temporarily not allowed on this series.`);
         return false;
       }
     }
