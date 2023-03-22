@@ -90,11 +90,11 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   } = useContext(SettingsContext);
 
   /* HOOKS */
-  const provider = useProvider({
-    chainId: 42161,
-  });
   const chainId = useChainId();
   const contracts = useContracts();
+  const provider = useProvider({
+    chainId: chainId,
+  });
 
   /* CACHED VARIABLES */
   const [lastAppVersion, setLastAppVersion] = useCachedState('lastAppVersion', '');
@@ -239,6 +239,8 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
         oppEndColor,
 
         seriesMark: <YieldMark colors={[startColor, endColor]} />,
+
+        allowActions: series.allowActions || ['allow_all'], // default to allow all actions
       };
     },
     [provider]

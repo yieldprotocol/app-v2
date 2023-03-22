@@ -33,7 +33,6 @@ import StrategyItem from '../positionItems/StrategyItem';
 
 import Navigation from '../Navigation';
 import Line from '../elements/Line';
-import { useAccount } from 'wagmi';
 import useStrategyReturns from '../../hooks/useStrategyReturns';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';

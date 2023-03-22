@@ -18,6 +18,7 @@ import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { useAssert, AssertActions } from './useAssert';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -35,6 +36,7 @@ export const useAddCollateral = () => {
   const { addEth } = useAddRemoveEth();
 
   const { assert, encodeBalanceCall } = useAssert();
+  const {isActionAllowed} = useAllowAction();
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -47,6 +49,7 @@ export const useAddCollateral = () => {
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
     if (!contracts) return;
+    if (!isActionAllowed(ActionCodes.ADD_COLLATERAL)) return; // return if action is not allowed
 
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;

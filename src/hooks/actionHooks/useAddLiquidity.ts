@@ -38,6 +38,7 @@ import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
 import { AssertActions, useAssert } from './useAssert';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 export const useAddLiquidity = () => {
   const {
@@ -56,6 +57,8 @@ export const useAddLiquidity = () => {
   const {
     historyActions: { updateStrategyHistory },
   } = useContext(HistoryContext);
+
+  const {isActionAllowed} = useAllowAction();
 
   const { addEth } = useAddRemoveEth();
   const { assert, encodeBalanceCall } = useAssert();
@@ -77,6 +80,7 @@ export const useAddLiquidity = () => {
     matchingVault: IVault | undefined = undefined
   ) => {
     if (!contracts) return;
+    if (!isActionAllowed(ActionCodes.ADD_LIQUIDITY)) return; // return if action is not allowed
 
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
 

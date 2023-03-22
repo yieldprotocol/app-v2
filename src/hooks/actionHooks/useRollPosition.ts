@@ -15,6 +15,7 @@ import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { AssertActions, useAssert } from './useAssert';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
@@ -36,6 +37,7 @@ export const useRollPosition = () => {
 
   const { sign, transact } = useChain();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { isActionAllowed } = useAllowAction();
 
   const { assert, encodeBalanceCall } = useAssert();
 
@@ -47,6 +49,7 @@ export const useRollPosition = () => {
    */
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
     if (!contracts) return;
+    if (!isActionAllowed(ActionCodes.ROLL_POSITION)) return; // return if action is not allowed
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);

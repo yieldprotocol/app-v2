@@ -30,6 +30,7 @@ import { StrategyType } from '../../config/strategies';
 import useAccountPlus from '../useAccountPlus';
 import { AssertActions, useAssert } from './useAssert';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -69,6 +70,7 @@ export const useRemoveLiquidity = () => {
   const { sign, transact } = useChain();
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
+  const { isActionAllowed } = useAllowAction();
 
   const { assert, encodeBalanceCall } = useAssert();
 
@@ -92,6 +94,8 @@ export const useRemoveLiquidity = () => {
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
     if (!contracts) return;
+    if (!isActionAllowed(ActionCodes.REMOVE_LIQUIDITY)) return; // return if action is not allowed
+
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);

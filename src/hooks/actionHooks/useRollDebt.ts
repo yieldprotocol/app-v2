@@ -7,6 +7,7 @@ import { Cauldron } from '../../contracts';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IHistoryContext } from '../../types';
 import { getTxCode } from '../../utils/appUtils';
 import { MAX_128, ZERO_BN } from '../../utils/constants';
+import useAllowAction from '../useAllowAction';
 import { useChain } from '../useChain';
 import useContracts from '../useContracts';
 import { AssertActions, useAssert } from './useAssert';
@@ -22,6 +23,7 @@ export const useRollDebt = () => {
   } = useContext(HistoryContext) as IHistoryContext;
 
   const { transact } = useChain();
+  const { isActionAllowed } = useAllowAction();
 
   const { assert, encodeBalanceCall } = useAssert();
   const contracts = useContracts();
@@ -30,6 +32,9 @@ export const useRollDebt = () => {
     if (!contracts) return;
 
     const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
+
+    if (!isActionAllowed(ActionCodes.ROLL_DEBT)) return; // return if action is not allowed
+
     const txCode = getTxCode(ActionCodes.ROLL_DEBT, vault.id);
     const base = assetMap?.get(vault.baseId);
     const hasDebt = vault.accruedArt.gt(ZERO_BN);
