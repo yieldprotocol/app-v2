@@ -747,6 +747,7 @@ SERIES.set(
         ts: '16701201316',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
+        allowActions: [ActionCodes.REPAY],
       },
     ],
     [
@@ -767,6 +768,7 @@ SERIES.set(
         ts: '16701201316',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
+        allowActions: [ActionCodes.REPAY],
       },
     ],
     // [
