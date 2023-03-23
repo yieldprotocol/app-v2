@@ -752,7 +752,8 @@ const VaultPosition = () => {
                         {!removeCollatInput ? (
                           <InputInfoWrap action={() => handleMaxAction(ActionCodes.REMOVE_COLLATERAL)}>
                             <Text size="xsmall" color="text-weak">
-                              Remove all collateral ({cleanValue(maxRemovableCollateral, 6)} {vaultIlk?.displaySymbol!})
+                              Remove excess collateral ({cleanValue(maxRemovableCollateral, 6)}{' '}
+                              {vaultIlk?.displaySymbol!})
                             </Text>
                           </InputInfoWrap>
                         ) : (
