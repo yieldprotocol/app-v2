@@ -60,13 +60,11 @@ const WETH_2306 = '0x0030ff00028b';
 const WETH_2309 = '0x0030ff00028e';
 const FRAX_2306 = '0x0138ff00028b';
 
-
-const FRAX_2309 = '0x0138ff00028e';
-const USDT_2306 = '0x00a0ff00028b';
-
 const USDT_2303 = '0x00a0ff000288';
 const USDT_2309 = '0x00a0ff00028e';
 
+const FRAX_2309 = '0x0138ff00028e';
+const USDT_2306 = '0x00a0ff00028b';
 
 export const validateSeries = async (provider: BaseProvider, cauldronAddress: string) => {
   const preText = '### SERIES SET VALIDATION ERROR ### ';
@@ -791,6 +789,29 @@ SERIES.set(
     //     g2: '20496382304121724017',
     //   },
     // ],
+
+    // frax series testing fork - https://rpc.tenderly.co/fork/3249dabf-f924-4ab9-86d5-61b77fcb46c9
+
+    [
+      FRAX_2309,
+      {
+        id: FRAX_2309, //
+        baseId: '0x313800000000', //
+        maturity: 1695999600, //
+        name: 'FYFRAX2309', //
+        symbol: 'FYFRAX2309', //
+        address: '0x73090425a6fcea8ae0c1cd33b61167aea0e91ee3', //
+        decimals: 18, //
+        version: '1', //
+        poolAddress: '0x190bb3ba10e125d42a6a6e75ea9b2ef80506462d', //
+        poolName: 'FYFRAX2309 LP', //
+        poolSymbol: 'FYFRAX2309LP', //
+        poolVersion: '1', //
+        ts: '12989823246', //
+        g1: '16602069666338596454', //
+        g2: '20496382304121724017', //
+      },
+    ],
   ])
 );
 
@@ -1192,6 +1213,87 @@ SERIES.set(
         poolSymbol: 'FYUSDT2303LP',
         poolVersion: '1',
         ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+    // new series b - fork ending ...3b2c added 3/20/23
+    [
+      USDT_2309,
+      {
+        id: USDT_2309,
+        baseId: '0x30a000000000',
+        maturity: 1695999600,
+        name: 'FYUSDT2309',
+        symbol: 'FYUSDT2309',
+        address: '0x73f363abe2b47a0f7eeb006b4a676475ac9ae3f7',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xf6aacdfde1b8011da2498a0dce9194e738c233aa',
+        poolName: 'FYUSDT2309 LP',
+        poolSymbol: 'FYUSDT2309LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+    [
+      WETH_2309,
+      {
+        id: WETH_2309,
+        baseId: '0x303000000000',
+        maturity: 1695999600,
+        name: 'FYETH2309',
+        symbol: 'FYETH2309',
+        address: '0xfa52937660100c704043616a11758e3c9e4335cb',
+        decimals: 18,
+        version: '1',
+        poolAddress: '0xb2115733312b95b2737232589224dfe5745bec2d',
+        poolName: 'FYETH2309 LP',
+        poolSymbol: 'FYETH2309LP',
+        poolVersion: '1',
+        ts: '23381681843',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+    [
+      DAI_2309,
+      {
+        id: DAI_2309,
+        baseId: '0x303100000000',
+        maturity: 1695999600,
+        name: 'FYDAI2309',
+        symbol: 'FYDAI2309',
+        address: '0x70c2b314ccbdffd56e1e455797a24c4c2208cb59',
+        decimals: 18,
+        version: '1',
+        poolAddress: '0x3237a1745782f4645838ab6e201d19be9b335ed9',
+        poolName: 'FYDAI2309 LP',
+        poolSymbol: 'FYDAI2309LP',
+        poolVersion: '1',
+        ts: '12989823246',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+    [
+      USDC_2309,
+      {
+        id: USDC_2309,
+        baseId: '0x303200000000',
+        maturity: 1695999600,
+        name: 'FYUSDC2309',
+        symbol: 'FYUSDC2309',
+        address: '0x1f517943c87f6f53ba144daa51ccba0d7d095545',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0x3a9ed0cbda275d0f92d1042f0e0ffeb84ba2a99d',
+        poolName: 'FYUSDC2309 LP',
+        poolSymbol: 'FYUSDC2309LP',
+        poolVersion: '1',
+        ts: '10628037201',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
       },

@@ -95,7 +95,7 @@ STRATEGIES.set(1, [
   },
   {
     address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
-    associatedStrategy: '0x45a37d7a93416934ebf7ad85b35bcf39fcd68696',
+    associatedStrategy: '0x31228551f01d9d6ba7c5c32b77b21850ee14ff4e',
     type: StrategyType.V1,
     symbol: 'YSFRAX6MMS',
     baseId: FRAX,
@@ -194,21 +194,23 @@ STRATEGIES.set(1, [
     decimals: 18,
     version: '1',
   },
+  // new for frax jacob b
   {
-    address: '0x45a37d7a93416934ebf7ad85b35bcf39fcd68696',
-    associatedStrategy: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
-    type: StrategyType.V2,
-    symbol: 'YSFRAX6MMS',
-    baseId: FRAX,
-    name: 'Yield Strategy FRAX 6M Mar Sep',
-    decimals: 18,
-    version: '1',
+    address: '0x31228551f01d9d6ba7c5c32b77b21850ee14ff4e', //
+    associatedStrategy: '0x1565f539e96c4d440c38979dbc86fd711c995dd6', //
+    type: StrategyType.V2, //
+    symbol: 'YSFRAX6MMS', //
+    baseId: FRAX, //
+    name: 'Yield Strategy FRAX 6M Mar Sep', //
+    decimals: 18, //
+    version: '1', //
   },
 ]);
 
 STRATEGIES.set(42161, [
   {
     address: '0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1',
+    associatedStrategy: '0xc0c4e4b4755c961b5bfaa5d649c47b772859fa91',
     type: StrategyType.V1,
     symbol: 'YSDAI6MMS',
     baseId: DAI,
@@ -219,6 +221,7 @@ STRATEGIES.set(42161, [
 
   {
     address: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
+    associatedStrategy: '0x15fba9b57d617a89bbfcea123b45618e70bcb139',
     type: StrategyType.V1,
     symbol: 'YSUSDC6MMS',
     baseId: USDC,
@@ -229,6 +232,7 @@ STRATEGIES.set(42161, [
 
   {
     address: '0xD5B43b2550751d372025d048553352ac60f27151',
+    associatedStrategy: '0x871adf4d53817c48cdb777bca57887a6dffb4aef',
     type: StrategyType.V1,
     symbol: 'YSETH6MMS',
     baseId: WETH,
@@ -315,6 +319,37 @@ STRATEGIES.set(42161, [
     baseId: USDT,
     name: 'Yield Strategy USDT 6M Mar Sep',
     decimals: 6,
+    version: '1',
+  },
+  // new strats for v2 added 3/20/23
+  {
+    address: '0x15fba9b57d617a89bbfcea123b45618e70bcb139',
+    associatedStrategy: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
+    type: StrategyType.V2,
+    symbol: 'YSUSDC6MMS',
+    baseId: USDC,
+    name: 'Yield Strategy USDC 6M Mar Sep',
+    decimals: 6,
+    version: '1',
+  },
+  {
+    address: '0xc0c4e4b4755c961b5bfaa5d649c47b772859fa91',
+    associatedStrategy: '0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1',
+    type: StrategyType.V2,
+    symbol: 'YSDAI6MMS',
+    baseId: DAI,
+    name: 'Yield Strategy DAI 6M Mar Sep',
+    decimals: 18,
+    version: '1',
+  },
+  {
+    address: '0x871adf4d53817c48cdb777bca57887a6dffb4aef',
+    associatedStrategy: '0xD5B43b2550751d372025d048553352ac60f27151',
+    type: StrategyType.V2,
+    symbol: 'YSETH6MMS',
+    baseId: WETH,
+    name: 'Yield Strategy ETH 6M Mar Sep',
+    decimals: 18,
     version: '1',
   },
 ]);
