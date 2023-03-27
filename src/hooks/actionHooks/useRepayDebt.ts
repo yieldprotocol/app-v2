@@ -94,7 +94,7 @@ export const useRepayDebt = () => {
     /* Check if the trade of that size is possible */
     const tradeIsNotPossible =  series.getShares(_input).gt(_maxSharesIn);
 
-    diagnostics && tradeIsNotPossible ? console.log('Trade is not possible:'): console.log('Trade is not possible:')
+    diagnostics && tradeIsNotPossible ? console.log('Trade is not possible:'): console.log('Trade is possible:')
     diagnostics && tradeIsNotPossible && console.log('Trade input', _input.toString());
     diagnostics && tradeIsNotPossible && console.log('TradeMax base in:', _maxSharesIn.toString());
 
