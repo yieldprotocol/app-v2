@@ -18,6 +18,7 @@ import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
+import useAllowAction from '../useAllowAction';
 
 export const useRepayDebt = () => {
   const {
@@ -46,6 +47,8 @@ export const useRepayDebt = () => {
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const chainId = useChainId();
 
+  const {isActionAllowed} = useAllowAction();
+
   /**
    * REPAY FN
    * @param vault
@@ -53,14 +56,17 @@ export const useRepayDebt = () => {
    * @param reclaimCollateral
    */
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
+    
     if (!contracts) return;
-
+   
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
     const series: ISeries = seriesMap?.get(vault.seriesId)!;
     const base: IAsset = assetMap?.get(vault.baseId)!;
     const ilk: IAsset = assetMap?.get(vault.ilkId)!;
+
+    if (!isActionAllowed(ActionCodes.REPAY, series )) return; // return if action is not allowed
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
@@ -123,7 +129,7 @@ export const useRepayDebt = () => {
     /* Set the amount to transfer ( + 0.1% after maturity ) */
     const amountToTransfer = series.seriesIsMature ? _input.mul(10001).div(10000) : _input; // After maturity + 0.1% for increases during tx time
 
-    /* In low liq situations/or mature,  send repay funds to join not pool */
+    /* In low liq situations/or mature, send repay funds to join not pool */
     const transferToAddress = tradeIsNotPossible || series.seriesIsMature ? base.joinAddress : series.poolAddress;
 
     /* Check if already approved */
@@ -174,7 +180,6 @@ export const useRepayDebt = () => {
         ignoreIf: isEthBase,
       },
 
-      /* BEFORE MATURITY - !series.seriesIsMature */
       /* convex-type collateral; ensure checkpoint before giving collateral back to account */
       {
         operation: LadleActions.Fn.ROUTE,
@@ -184,6 +189,7 @@ export const useRepayDebt = () => {
         ignoreIf: !isConvexCollateral || _collateralToRemove.eq(ethers.constants.Zero),
       },
 
+      /* BEFORE MATURITY - !series.seriesIsMature */
       {
         operation: LadleActions.Fn.REPAY,
         args: [vault.id, account, ethers.constants.Zero, _inputAsFyTokenWithSlippage] as LadleActions.Args.REPAY,
@@ -211,12 +217,16 @@ export const useRepayDebt = () => {
         args: [vault.id, reclaimToAddress(), _collateralToRemove, _inputCappedAtArt.mul(-1)] as LadleActions.Args.CLOSE,
         ignoreIf: !series.seriesIsMature,
       },
+
       ...removeEthCallData,
       ...unwrapAssetCallData,
+      
     ];
     await transact(calls, txCode);
+
     if (selectedBase?.proxyId !== WETH) refetchBaseBal();
     if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
+
     updateVaults([vault]);
     updateAssets([base, ilk, userState.selectedIlk!]);
     updateSeries([series]);

@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Grid, ResponsiveContext, Select, Text } from 'grommet';
-import { FiChevronDown } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronDown } from 'react-icons/fi';
 
 import { ethers } from 'ethers';
 import styled from 'styled-components';
 
 import { maxBaseIn } from '@yield-protocol/ui-math';
 
-import { ActionType, ISeries } from '../../types';
+import { ActionCodes, ActionType, ISeries } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { useApr } from '../../hooks/useApr';
 import { cleanValue } from '../../utils/appUtils';
@@ -157,9 +157,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
           <Text size="xsmall">Mature</Text>
         </Box>
       )}
-      {_series && actionType !== 'POOL' && (
-        <AprText inputValue={_inputValue} series={_series} actionType={actionType} color="text" />
-      )}
     </Box>
   );
 
@@ -293,14 +290,23 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                   >
                     {series.seriesMark}
                   </Avatar>
-
                   <Box>
-                    <AprText
-                      inputValue={_inputValue}
-                      series={series}
-                      actionType={actionType}
-                      color={series.id === _selectedSeries?.id ? series.textColor : undefined}
-                    />
+                    {
+                    series.allowActions.includes('allow_all') ||
+                    (series.allowActions.includes(ActionCodes.BORROW) && actionType === ActionType.BORROW) ||
+                    (series.allowActions.includes(ActionCodes.LEND) && actionType === ActionType.LEND) ? (
+                      <AprText
+                        inputValue={_inputValue}
+                        series={series}
+                        actionType={actionType}
+                        color={series.id === _selectedSeries?.id ? series.textColor : undefined}
+                      />
+                    ) : (
+                      <Text size="xsmall" color="red">
+                        <FiAlertTriangle /> Restricted
+                      </Text>
+                    )}
+
                     <Text
                       size="small"
                       weight="lighter"

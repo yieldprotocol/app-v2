@@ -25,6 +25,7 @@ STRATEGIES.set(1, [
   /* V1 strategies */
   {
     address: '0x7ACFe277dEd15CabA6a8Da2972b1eb93fe1e2cCD',
+    associatedStrategy: '0xa6dbc40c75037895dee8d2415f1ce9e0fb08cf49',
     type: StrategyType.V1,
     symbol: 'YSDAI6MMS',
     baseId: DAI,
@@ -44,6 +45,7 @@ STRATEGIES.set(1, [
   },
   {
     address: '0xFBc322415CBC532b54749E31979a803009516b5D',
+    associatedStrategy: '0x59e9db2c8995ceeaf6a9ad0896601a5d3289444e',
     type: StrategyType.V1,
     symbol: 'YSUSDC6MMS',
     baseId: USDC,
@@ -63,6 +65,7 @@ STRATEGIES.set(1, [
   },
   {
     address: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247',
+    associatedStrategy: '0x11f30c6b1173ec6e0a6d622c8f17eef3dc593764',
     type: StrategyType.V1,
     symbol: 'YSETH6MMS',
     baseId: WETH,
@@ -92,6 +95,7 @@ STRATEGIES.set(1, [
   },
   {
     address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
+    associatedStrategy: '0x45a37d7a93416934ebf7ad85b35bcf39fcd68696',
     type: StrategyType.V1,
     symbol: 'YSFRAX6MMS',
     baseId: FRAX,
@@ -158,6 +162,46 @@ STRATEGIES.set(1, [
     baseId: USDT,
     name: 'Yield Strategy USDT 6M Mar Sep',
     decimals: 6,
+    version: '1',
+  },
+  {
+    address: '0xa6dbc40c75037895dee8d2415f1ce9e0fb08cf49',
+    associatedStrategy: '0x7ACFe277dEd15CabA6a8Da2972b1eb93fe1e2cCD',
+    type: StrategyType.V2,
+    symbol: 'YSDAI6MMS',
+    baseId: DAI,
+    name: 'Yield Strategy DAI 6M Mar Sep',
+    decimals: 18,
+    version: '1',
+  },
+  {
+    address: '0x59e9db2c8995ceeaf6a9ad0896601a5d3289444e',
+    associatedStrategy: '0xFBc322415CBC532b54749E31979a803009516b5D',
+    type: StrategyType.V2,
+    symbol: 'YSUSDC6MMS',
+    baseId: USDC,
+    name: 'Yield Strategy USDC 6M Mar Sep',
+    decimals: 6,
+    version: '1',
+  },
+  {
+    address: '0x11f30c6b1173ec6e0a6d622c8f17eef3dc593764',
+    associatedStrategy: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247',
+    type: StrategyType.V2,
+    symbol: 'YSETH6MMS',
+    baseId: WETH,
+    name: 'Yield Strategy ETH 6M Mar Sep',
+    decimals: 18,
+    version: '1',
+  },
+  {
+    address: '0x45a37d7a93416934ebf7ad85b35bcf39fcd68696',
+    associatedStrategy: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
+    type: StrategyType.V2,
+    symbol: 'YSFRAX6MMS',
+    baseId: FRAX,
+    name: 'Yield Strategy FRAX 6M Mar Sep',
+    decimals: 18,
     version: '1',
   },
 ]);

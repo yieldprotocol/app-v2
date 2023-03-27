@@ -1,6 +1,7 @@
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { ReactNode } from 'react';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { ReactNode, useMemo } from 'react';
 import { defaultChains } from '../config/customChains';
 
 import {
@@ -12,6 +13,7 @@ import {
   AvatarComponent,
   lightTheme,
 } from '@rainbow-me/rainbowkit';
+
 import {
   metaMaskWallet,
   walletConnectWallet,
@@ -25,19 +27,25 @@ import {
 import YieldAvatar from '../components/YieldAvatar';
 import '@rainbow-me/rainbowkit/styles.css';
 import { useColorScheme } from '../hooks/useColorScheme';
+import { useCachedState } from '../hooks/generalHooks';
+import { Settings } from './types/settings';
 
 const WagmiContext = ({ children }: { children: ReactNode }) => {
-
-  const chainConfig = [
-    alchemyProvider({
-      apiKey: process.env.ALCHEMY_ARBITRUM_KEY!,
-    }),
-  ];
-
   const colorTheme = useColorScheme();
 
-  // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
-  const { chains, provider } = configureChains(defaultChains, [...chainConfig]);
+  const [useForkedEnv] = useCachedState(Settings.USE_FORKED_ENV, false);
+  const [forkEnvUrl] = useCachedState(Settings.FORK_ENV_URL, process.env.REACT_APP_DEFAULT_FORK_RPC_URL);
+  const defaultChainId = parseInt(process.env.REACT_APP_DEFAULT_CHAINID!)
+
+  const chainConfig = useMemo(
+    () =>
+      useForkedEnv
+        ? jsonRpcProvider({ rpc: () => ({ http: forkEnvUrl }) })
+        : alchemyProvider({ apiKey: defaultChainId === 1 ? process.env.ALCHEMY_MAINNET_KEY! : process.env.ALCHEMY_ARBITRUM_KEY!  }),
+    [forkEnvUrl, useForkedEnv]
+  );
+
+  const { chains, provider } = configureChains(defaultChains, [chainConfig]);
 
   const connectors = connectorsForWallets([
     {
@@ -69,7 +77,7 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
 
   const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
     <Text>
-      By connecting my allet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
+      By connecting my wallet, I agree to the <Link href="https://yieldprotocol.com/terms/">Terms of Service</Link> and
       acknowledge I have read and understand the protocol{' '}
       <Link href="https://yieldprotocol.com/privacy/">Privacy Policy</Link>.
     </Text>

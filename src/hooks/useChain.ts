@@ -13,6 +13,7 @@ import { useNetwork, useSigner } from 'wagmi';
 import useContracts from './useContracts';
 import { ISettingsContext } from '../contexts/types/settings';
 import useAccountPlus from './useAccountPlus';
+import useFork from './useFork';
 import { ContractNames } from '../config/contracts';
 
 /* Get the sum of the value of all calls */
@@ -35,9 +36,10 @@ export const useChain = () => {
   /* wagmi connection stuff */
   const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
-  const { data: signer, isError, isLoading } = useSigner();
+  const { data: _signer, isError, isLoading } = useSigner();
   const contracts = useContracts();
-
+  const { provider: forkProvider, useForkedEnv } = useFork();
+  const signer = useForkedEnv ? forkProvider?.getSigner(account) : _signer;
   const approvalMethod = useApprovalMethod();
 
   /**
@@ -49,7 +51,7 @@ export const useChain = () => {
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     if (!contracts) return;
-
+    
     /* Set the router contract instance, ladle by default */
     const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
 
@@ -84,10 +86,6 @@ export const useChain = () => {
       /* else */
       return _contract.interface.encodeFunctionData(call.operation as string, call.args);
     });
-
-    // const calldata = wrapEtherModule.interface.encodeFunctionData('wrap', [other, WAD])
-    // await ladle.ladle.moduleCall(wrapEtherModule.address, calldata, { value: WAD })
-    // expect(await weth.balanceOf(other)).to.equal(WAD)
 
     /* calculate the value sent */
     const batchValue = _getCallValue(_calls);

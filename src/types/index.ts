@@ -111,6 +111,8 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
+  
+  allowActions: (ActionCodes | 'allow_all' | 'allow_none')[];
 }
 
 export enum TokenType {

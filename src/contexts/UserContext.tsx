@@ -16,7 +16,6 @@ import {
 
 import Decimal from 'decimal.js';
 import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
-
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
@@ -133,7 +132,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* LOCAL STATE */
   const [userState, updateState] = useReducer(userReducer, initState);
-  const [vaultFromUrl, setVaultFromUrl] = useState<string | null>(null);
 
   /* HOOKS */
   const chainId = useChainId();
@@ -147,7 +145,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const contracts = useContracts();
 
-  const { getForkStartBlock } = useFork();
+  const { forkStartBlock } = useFork();
 
   const {
     // data: assetBalances,
@@ -205,7 +203,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
     // get the latest available vault ( either from the local storage or from the forkStart)
     const lastVaultUpdate = useForkedEnv
-      ? await getForkStartBlock()
+      ? forkStartBlock || 'earliest'
       : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
 
     /* Get a list of the vaults that were BUILT */
@@ -252,7 +250,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
-  }, [account, chainId, contracts, provider, seriesRootMap]);
+  }, [account, chainId, contracts, forkStartBlock, provider, seriesRootMap, useForkedEnv]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
@@ -305,9 +303,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
+          let baseReserves: BigNumber;
+          try {
+            baseReserves = await series.poolContract.getBaseBalance();
+          } catch (error) {
+            baseReserves = ZERO_BN;
+          }
           /* Get all the data simultanenously in a promise.all */
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-            series.poolContract.getBaseBalance(),
+          const [fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
             series.poolContract.getFYTokenBalance(),
             series.poolContract.totalSupply(),
             series.fyTokenContract.balanceOf(series.poolAddress),
@@ -382,7 +385,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           try {
             // get pool init block
             const gmFilter = series.poolContract.filters.gm();
-            const gm = await series.poolContract.queryFilter(gmFilter);
+            const gm = await series.poolContract.queryFilter(gmFilter, 'earliest');
             poolStartBlock = await gm[0].getBlock();
             currentInvariant = await series.poolContract.invariant();
             initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
@@ -421,7 +424,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const [poolTokens, fyTokenBalance] = await Promise.all([
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
-            ]);
+            ]).catch((e) => {
+              console.log('Error getting user balances for series: ', series.id);
+              return [ZERO_BN, ZERO_BN];
+            }); // catch error and return 0 values if error with series
 
             const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
             return {
@@ -468,23 +474,23 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             _strategy.strategyContract.totalSupply(),
             _strategy.strategyContract.fyToken(),
             _strategy.strategyContract.pool(),
-          ]);
+          ]).catch((e: any) => {
+            console.log('Error getting strategy data: ', _strategy.name);
+            return [ZERO_BN, undefined, undefined];
+          });
 
           // const stratConnected = _strategy.strategyContract.connect(signer);
           // const accountRewards =
           //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
           // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
 
-          // const accountStrategyPercent = mulDecimal(
-          //   divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
-          //   '100'
-          // );
-
           /* We check if the strategy has been supersecced by a v2 version */
           const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
 
           /* Attatch the current series (if any) */
-          const currentSeries = _seriesList.find((s: ISeriesRoot) => s.address.toLowerCase() === fyToken.toLowerCase());
+          const currentSeries = _seriesList.find((s: ISeriesRoot) =>
+            fyToken ? s.address.toLowerCase() === (fyToken as String).toLowerCase() : undefined
+          );
 
           if (currentSeries) {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
@@ -492,7 +498,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               currentSeries.poolContract.balanceOf(
                 hasAnUpdatedVersion && _strategy.associatedStrategy ? _strategy.associatedStrategy : _strategy.address
               ),
-            ]);
+            ]).catch((e: any) => {
+              console.log('Error getting current series data: ', _strategy.name);
+              return [ZERO_BN, ZERO_BN];
+            });
+
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
 
             /* get rewards data */
@@ -522,17 +532,17 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             return {
               ..._strategy,
               strategyTotalSupply,
-              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply, _strategy.decimals),
+              strategyTotalSupply_: ethers.utils.formatUnits(strategyTotalSupply || ZERO_BN, _strategy.decimals),
               poolTotalSupply,
               poolTotalSupply_: ethers.utils.formatUnits(poolTotalSupply, _strategy.decimals),
               strategyPoolBalance,
               strategyPoolBalance_: ethers.utils.formatUnits(strategyPoolBalance, _strategy.decimals),
               strategyPoolPercent,
 
-              currentSeriesAddr: fyToken,
+              currentSeriesAddr: fyToken as string | undefined,
               currentSeries,
 
-              currentPoolAddr,
+              currentPoolAddr: currentPoolAddr as string | undefined,
 
               active: isActive,
               rewardsRate,
@@ -557,7 +567,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               const [accountBalance, accountPoolBalance] = await Promise.all([
                 _strategy.strategyContract.balanceOf(account),
                 _strategy.currentSeries?.poolContract.balanceOf(account),
-              ]);
+              ]).catch((e: any) => {
+                console.log('Error getting current account balance data: ', _strategy.name);
+                return [ZERO_BN, ZERO_BN];
+              });
 
               // const stratConnected = _strategy.strategyContract.connect(signer!);
               // const accountRewards =
@@ -726,11 +739,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [strategyRootMap, userState.seriesMap, chainLoaded, chainId, updateStrategies]);
 
-  /* If the url references a series/vault...set that one as active */
-  useEffect(() => {
-    const vaultId = pathname.split('/')[2];
-    pathname && userState.vaultMap?.has(vaultId) && setVaultFromUrl(vaultId);
-  }, [pathname, userState.vaultMap]);
+  // /* If the url references a series/vault...set that one as active */
+  // useEffect(() => {
+  //   const vaultId = pathname.split('/')[2];
+  //   pathname && userState.vaultMap?.has(vaultId);
+  // }, [pathname, userState.vaultMap]);
 
   /**
    * Explicitly update selected series on series map changes
