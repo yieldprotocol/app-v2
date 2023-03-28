@@ -22,7 +22,7 @@ import useAllowAction from '../useAllowAction';
 
 export const useRepayDebt = () => {
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, diagnostics },
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
@@ -79,7 +79,8 @@ export const useRepayDebt = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const _maxSharesIn = maxBaseIn(
+    const _maxSharesIn = series.sharesReserves.eq(ZERO_BN) ? ZERO_BN 
+    : maxBaseIn(
       series.sharesReserves,
       series.fyTokenReserves,
       getTimeTillMaturity(series.maturity),
@@ -90,12 +91,12 @@ export const useRepayDebt = () => {
       series.mu
     );
 
-    /* Check the max amount of the trade that the pool can handle */
-    const tradeIsNotPossible = series.getShares(_input).gt(_maxSharesIn);
+    /* Check if the trade of that size is possible */
+    const tradeIsNotPossible =  series.getShares(_input).gt(_maxSharesIn);
 
-    tradeIsNotPossible && console.log('trade is not possible:');
-    tradeIsNotPossible && console.log('input', _input.toString());
-    tradeIsNotPossible && console.log('Max base in:', _maxSharesIn.toString());
+    diagnostics && tradeIsNotPossible ? console.log('Trade is not possible:'): console.log('Trade is possible:')
+    diagnostics && tradeIsNotPossible && console.log('Trade input', _input.toString());
+    diagnostics && tradeIsNotPossible && console.log('TradeMax base in:', _maxSharesIn.toString());
 
     const _inputAsFyToken = isMature(series.maturity)
       ? _input

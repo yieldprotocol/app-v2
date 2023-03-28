@@ -67,7 +67,7 @@ export const yieldTheme = {
       placeholder: 'text-xweak',
 
       lightBackground: {
-        dark: '#151515',
+        dark: '#202020',
         light: '#FFFFFF',
       },
       background: {
@@ -75,7 +75,7 @@ export const yieldTheme = {
         light: '#FFFFFF',
       },
       hoverBackground: {
-        dark: '#181818',
+        dark: '#282828',
         light: '#FFFFFF',
       },
       selected: {
