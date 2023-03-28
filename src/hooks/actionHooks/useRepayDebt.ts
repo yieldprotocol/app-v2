@@ -79,7 +79,7 @@ export const useRepayDebt = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const _maxSharesIn = series.sharesReserves.lte(ZERO_BN) ? ZERO_BN 
+    const _maxSharesIn = series.sharesReserves.eq(ZERO_BN) ? ZERO_BN 
     : maxBaseIn(
       series.sharesReserves,
       series.fyTokenReserves,
