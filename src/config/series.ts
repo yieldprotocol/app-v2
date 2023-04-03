@@ -60,13 +60,11 @@ const WETH_2306 = '0x0030ff00028b';
 const WETH_2309 = '0x0030ff00028e';
 const FRAX_2306 = '0x0138ff00028b';
 
-
 const FRAX_2309 = '0x0138ff00028e';
 const USDT_2306 = '0x00a0ff00028b';
 
 const USDT_2303 = '0x00a0ff000288';
 const USDT_2309 = '0x00a0ff00028e';
-
 
 export const validateSeries = async (provider: BaseProvider, cauldronAddress: string) => {
   const preText = '### SERIES SET VALIDATION ERROR ### ';
@@ -1192,6 +1190,28 @@ SERIES.set(
         poolSymbol: 'FYUSDT2303LP',
         poolVersion: '1',
         ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    /* 2309 */
+    [
+      USDC_2309,
+      {
+        id: USDC_2309,
+        baseId: '0x303200000000',
+        maturity: 1695999600,
+        name: 'FYUSDC2309',
+        symbol: 'FYUSDC2309',
+        address: '0x5bb78e530d9365aef75664c5093e40b0001f7ccd',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xa98F3211997FDB072B6a8E2C2A26C34BC447f873',
+        poolName: 'FYUSDC2309 LP',
+        poolSymbol: 'FYUSDC2309LP',
+        poolVersion: '1',
+        ts: '10628037201',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
       },

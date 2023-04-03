@@ -219,6 +219,7 @@ STRATEGIES.set(42161, [
 
   {
     address: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
+    associatedStrategy: '0x3b4ffd93ce5fcf97e61aa8275ec241c76cc01a47',
     type: StrategyType.V1,
     symbol: 'YSUSDC6MMS',
     baseId: USDC,
@@ -314,6 +315,17 @@ STRATEGIES.set(42161, [
     symbol: 'YSUSDT6MMS',
     baseId: USDT,
     name: 'Yield Strategy USDT 6M Mar Sep',
+    decimals: 6,
+    version: '1',
+  },
+
+  {
+    address: '0x3b4ffd93ce5fcf97e61aa8275ec241c76cc01a47',
+    type: StrategyType.V2,
+    associatedStrategy: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
+    symbol: 'YSUSDC6MMS',
+    baseId: USDC,
+    name: 'Yield Strategy USDC 6M Mar Sep',
     decimals: 6,
     version: '1',
   },
