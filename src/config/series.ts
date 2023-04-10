@@ -1198,6 +1198,8 @@ SERIES.set(
       },
     ],
 
+
+
     /* 2309 */
     [
       USDC_2309,
@@ -1207,7 +1209,7 @@ SERIES.set(
         maturity: 1695999600,
         name: 'FYUSDC2309',
         symbol: 'FYUSDC2309',
-        address: '0x5bb78e530d9365aef75664c5093e40b0001f7ccd',
+        address: '0x5Bb78E530D9365aeF75664c5093e40B0001F7CCd',
         decimals: 6,
         version: '1',
         poolAddress: '0xa98F3211997FDB072B6a8E2C2A26C34BC447f873',
@@ -1228,10 +1230,10 @@ SERIES.set(
         maturity: 1695999600,
         name: 'FYWETH2309',
         symbol: 'FYWETH2309',
-        address: '',
+        address: '0xd947360575E6F01Ce7A210C12F2EE37F5ab12d11',
         decimals: 6,
         version: '1',
-        poolAddress: '',
+        poolAddress: '0x3EA4618cE652eaB330F00935FD075F5Cb614e689',
         poolName: 'FYWETH2309 LP',
         poolSymbol: 'FYWETH2309LP',
         poolVersion: '1',
@@ -1249,10 +1251,10 @@ SERIES.set(
         maturity: 1695999600,
         name: 'FYDAI2309',
         symbol: 'FYDAI2309',
-        address: '',
+        address: '0xEE508c827a8990c04798B242fa801C5351012B23',
         decimals: 6,
         version: '1',
-        poolAddress: '',
+        poolAddress: '0x9a364e874258D6B76091D928ce69512Cd905EE68',
         poolName: 'FYDAI2309 LP',
         poolSymbol: 'FYDAI2309LP',
         poolVersion: '1',
@@ -1261,5 +1263,28 @@ SERIES.set(
         g2: '20496382304121724017',
       },
     ],
+
+    [
+      USDT_2309,
+      {
+        id: USDT_2309,
+        baseId: '0x30a000000000',
+        maturity: 1695999600,
+        name: 'FYUSDT2309',
+        symbol: 'FYUSDT2309',
+        address: '0x9B19889794A30056A1E5Be118ee0a6647B184c5f',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xf0bA5Cf116321A89b35b2d146aE5B861Bd9c23D3',
+        poolName: 'FYUSD2309 LP',
+        poolSymbol: 'FYUSDT2309LP',
+        poolVersion: '1',
+        ts: '10628037201',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+
   ])
 );
