@@ -1256,7 +1256,7 @@ SERIES.set(
         poolName: 'FYDAI2309 LP',
         poolSymbol: 'FYDAI2309LP',
         poolVersion: '1',
-        ts: '12989823246 ',
+        ts: '12989823246',
         g1: '16602069666338596454',
         g2: '20496382304121724017',
       },
