@@ -216,7 +216,6 @@ STRATEGIES.set(42161, [
     decimals: 18,
     version: '1',
   },
-
   {
     address: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
     associatedStrategy: '0x3b4ffd93ce5fcf97e61aa8275ec241c76cc01a47',
@@ -227,7 +226,6 @@ STRATEGIES.set(42161, [
     decimals: 6,
     version: '1',
   },
-
   {
     address: '0xD5B43b2550751d372025d048553352ac60f27151',
     type: StrategyType.V1,
