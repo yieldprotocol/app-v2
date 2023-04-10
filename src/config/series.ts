@@ -688,6 +688,10 @@ SERIES.set(
       },
     ],
 
+    /**
+     * 2309 
+     * */
+
     [
       WETH_2309,
       {
@@ -1213,6 +1217,48 @@ SERIES.set(
         poolAddress: '0xa98F3211997FDB072B6a8E2C2A26C34BC447f873',
         poolName: 'FYUSDC2309 LP',
         poolSymbol: 'FYUSDC2309LP',
+        poolVersion: '1',
+        ts: '10628037201',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    [
+      WETH_2309,
+      {
+        id: WETH_2309,
+        baseId: '0x303000000000',
+        maturity: 1695999600,
+        name: 'FYWETH2309',
+        symbol: 'FYWETH2309',
+        address: '',
+        decimals: 6,
+        version: '1',
+        poolAddress: '',
+        poolName: 'FYWETH2309 LP',
+        poolSymbol: 'FYWETH2309LP',
+        poolVersion: '1',
+        ts: '10628037201',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
+
+    [
+      DAI_2309,
+      {
+        id: DAI_2309,
+        baseId: '0x303100000000',
+        maturity: 1695999600,
+        name: 'FYDAI2309',
+        symbol: 'FYDAI2309',
+        address: '',
+        decimals: 6,
+        version: '1',
+        poolAddress: '',
+        poolName: 'FYDAI2309 LP',
+        poolSymbol: 'FYDAI2309LP',
         poolVersion: '1',
         ts: '10628037201',
         g1: '16602069666338596454',
