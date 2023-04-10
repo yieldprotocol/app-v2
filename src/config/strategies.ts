@@ -318,7 +318,7 @@ STRATEGIES.set(42161, [
   },
 
   {
-    address: '0x3b4ffd93ce5fcf97e61aa8275ec241c76cc01a47',
+    address: '0x3b4FFD93CE5fCf97e61AA8275Ec241C76cC01a47',
     type: StrategyType.V2,
     associatedStrategy: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
     symbol: 'YSUSDC6MMS',
@@ -327,6 +327,29 @@ STRATEGIES.set(42161, [
     decimals: 6,
     version: '1',
   },
+
+  {
+    address: '0x5582b8398FB586F1b79edd1a6e83f1c5aa558955',
+    type: StrategyType.V2,
+    associatedStrategy: '0xD5B43b2550751d372025d048553352ac60f27151',
+    symbol: 'YSETH6MMS',
+    baseId: WETH,
+    name: 'Yield Strategy WETH 6M Mar Sep',
+    decimals: 18,
+    version: '1',
+  },
+
+  {
+    address: '0x5aeB4EFaAA0d27bd606D618BD74Fe883062eAfd0',
+    type: StrategyType.V2,
+    associatedStrategy: '0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1',
+    symbol: 'YSDAI6MMS',
+    baseId: DAI,
+    name: 'Yield Strategy DAI 6M Mar Sep',
+    decimals: 18,
+    version: '1',
+  },
+
 ]);
 
 export default STRATEGIES;
