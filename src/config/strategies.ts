@@ -307,7 +307,9 @@ STRATEGIES.set(42161, [
     decimals: 6,
     version: '1',
   },
-  {
+
+
+  { // check this one
     address: '0xfe2aba5ba890af0ee8b6f2d488b1f85c9e7c5643',
     type: StrategyType.V2,
     symbol: 'YSUSDT6MMS',
@@ -327,7 +329,6 @@ STRATEGIES.set(42161, [
     decimals: 6,
     version: '1',
   },
-
   {
     address: '0x5582b8398FB586F1b79edd1a6e83f1c5aa558955',
     type: StrategyType.V2,
@@ -338,7 +339,6 @@ STRATEGIES.set(42161, [
     decimals: 18,
     version: '1',
   },
-
   {
     address: '0x5aeB4EFaAA0d27bd606D618BD74Fe883062eAfd0',
     type: StrategyType.V2,
@@ -349,7 +349,6 @@ STRATEGIES.set(42161, [
     decimals: 18,
     version: '1',
   },
-
 ]);
 
 export default STRATEGIES;
