@@ -14,6 +14,8 @@ export const useInputValidation = (
   limits: (number | string | undefined)[],
   vault?: IVault | undefined
 ) => {
+  console.log('useInputValidation args: ', input, actionCode, series, limits, vault);
+
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
@@ -63,6 +65,7 @@ export const useInputValidation = (
 
         case ActionCodes.REPAY:
         case ActionCodes.ROLL_DEBT:
+          console.log('useInputValidation: REPAY || ROLL_DEBT', limits[0], _inputAsFloat, actionCode);
           /* set dust limit Error between 0 and dustLimit */
           limits[0] &&
             _inputAsFloat > parseFloat(limits[0].toString()) &&

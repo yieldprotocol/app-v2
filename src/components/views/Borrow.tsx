@@ -34,7 +34,7 @@ import { useInputValidation } from '../../hooks/useInputValidation';
 import AltText from '../texts/AltText';
 import YieldCardHeader from '../YieldCardHeader';
 import { useBorrow } from '../../hooks/actionHooks/useBorrow';
-import { useCollateralHelpers } from '../../hooks/viewHelperHooks/useCollateralHelpers';
+import { useCollateralHelpers } from '../../hooks/higherOrderHooks/useCollateralHelpers';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ColorText from '../texts/ColorText';
@@ -44,7 +44,7 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
-import useAssetPair from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
 import Line from '../elements/Line';
 import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
@@ -53,6 +53,9 @@ import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
+import VariableRate from '../selectors/VariableRate';
+import { useBorrowVariableRate } from '../../hooks/actionHooks/useBorrowVariableRate';
+
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
@@ -60,8 +63,17 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, vaultMap, vaultsLoading, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } =
-    userState;
+  const {
+    assetMap,
+    vaultMap,
+    vaultsLoading,
+    seriesMap,
+    selectedSeries,
+    selectedIlk,
+    selectedBase,
+    selectedVault,
+    selectedVR,
+  } = userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccountPlus();
@@ -85,10 +97,15 @@ const Borrow = () => {
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
+
+  const borrowVariableRate = useBorrowVariableRate();
+
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  console.log('apr in borrow', apr);
 
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
-  const { validIlks } = useAssetPair(undefined, undefined, selectedSeries?.id);
+
+  const { validIlks } = useAssetPair(selectedBase?.id, undefined, selectedSeries?.id);
 
   const {
     collateralizationPercent,
@@ -100,7 +117,7 @@ const Borrow = () => {
     minCollatRatioPct,
     totalCollateral_,
     liquidationPrice_,
-  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPair);
+  } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPair, selectedVR);
 
   const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
     borrowInput,
@@ -138,6 +155,10 @@ const Borrow = () => {
       action_code: ActionCodes.BORROW,
       supporting_collateral: selectedIlk?.symbol,
     } as GA_Properties.transaction_initiated);
+  };
+
+  const handleBorrowVariableRate = () => {
+    borrowVariableRate(undefined, borrowInput, collatInput);
   };
 
   /** Interaction handlers */
@@ -183,7 +204,7 @@ const Borrow = () => {
     /* if ANY of the following conditions are met: block action */
     !activeAccount ||
     !borrowInput ||
-    !selectedSeries ||
+    (!selectedSeries && !selectedVR) ||
     !selectedIlk ||
     undercollateralized ||
     borrowInputError ||
@@ -195,6 +216,7 @@ const Borrow = () => {
     borrowInput,
     collatInput,
     selectedSeries,
+    selectedVR,
     selectedIlk,
     activeAccount,
     borrowInputError,
@@ -206,19 +228,29 @@ const Borrow = () => {
 
   /* if ANY of the following conditions are met: block next step action */
   useEffect(() => {
-    !borrowInput ||
-    !selectedSeries ||
-    borrowInputError ||
-    selectedSeries?.seriesIsMature ||
-    (stepPosition === 1 && undercollateralized) ||
-    (stepPosition === 1 && collatInputError) ||
-    selectedSeries.baseId !== selectedBase?.proxyId
-      ? setStepDisabled(true)
-      : setStepDisabled(false); /* else if all pass, then unlock borrowing */
+    if (!selectedVR) {
+      !borrowInput ||
+      !selectedSeries ||
+      borrowInputError ||
+      selectedSeries?.seriesIsMature ||
+      (stepPosition === 1 && undercollateralized) ||
+      (stepPosition === 1 && collatInputError) ||
+      selectedSeries.baseId !== selectedBase?.proxyId
+        ? setStepDisabled(true)
+        : setStepDisabled(false); /* else if all pass, then unlock borrowing */
+    } else {
+      !borrowInput ||
+      borrowInputError ||
+      (stepPosition === 1 && undercollateralized) ||
+      (stepPosition === 1 && collatInputError)
+        ? setStepDisabled(true)
+        : setStepDisabled(false); /* else if all pass, then unlock borrowing */
+    }
   }, [
     borrowInput,
     borrowInputError,
     selectedSeries,
+    selectedVR,
     activeAccount,
     stepPosition,
     collatInput,
@@ -269,6 +301,7 @@ const Borrow = () => {
   /* make sure ilk is valid */
   useEffect(() => {
     if (validIlks) {
+      console.log('validIlks in borrow useEffect', validIlks, typeof validIlks);
       !validIlks.map((a) => a.proxyId)?.includes(selectedIlk?.proxyId!) && setSelectedIlk(validIlks[0]);
     }
   }, [selectedIlk?.proxyId, setSelectedIlk, validIlks]);
@@ -286,14 +319,14 @@ const Borrow = () => {
         <CenterPanelWrap series={selectedSeries || undefined}>
           <Box id="topsection">
             {stepPosition === 0 && ( // INITIAL STEP
-              <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }} gap="large">
+              <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }} gap="small">
                 <YieldCardHeader>
                   <Box gap={mobile ? undefined : 'xsmall'}>
                     <ColorText size={mobile ? 'medium' : '2rem'}>BORROW</ColorText>
                     <AltText color="text-weak" size="xsmall">
                       Borrow popular ERC20 tokens at a{' '}
                       <Text size="small" color="text">
-                        fixed rate
+                        fixed or variable rate
                       </Text>
                     </AltText>
                   </Box>
@@ -328,15 +361,20 @@ const Borrow = () => {
                       setOpen={toggleModal}
                     />
                   ) : (
-                    <SectionWrap
-                      title={
-                        selectedBase
-                          ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
-                          : ''
-                      }
-                    >
-                      <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
-                    </SectionWrap>
+                    <Box direction="column" gap="medium" style={{}}>
+                      <SectionWrap
+                        title={
+                          selectedBase
+                            ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
+                            : ''
+                        }
+                      >
+                        <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
+                      </SectionWrap>
+                      <SectionWrap title="OR choose a variable rate">
+                        <VariableRate />
+                      </SectionWrap>
+                    </Box>
                   )}
                 </Box>
 
@@ -351,7 +389,7 @@ const Borrow = () => {
                     </Text>
                   </InputInfoWrap>
                 )}
-                {!borrowInputError && borrowInput && borrowPossible && selectedSeries && (
+                {!borrowInputError && borrowInput && borrowPossible && (selectedSeries || selectedVR) && (
                   <InputInfoWrap>
                     <Text size="small" color="text-weak">
                       Requires equivalent of {nFormatter(parseFloat(minCollateral_!), selectedIlk?.digitFormat!)}{' '}
@@ -432,7 +470,7 @@ const Borrow = () => {
                               onChange={(event: any) =>
                                 setCollatInput(cleanValue(event.target.value, selectedIlk?.decimals))
                               }
-                              disabled={!selectedSeries || selectedSeries.seriesIsMature}
+                              disabled={(!selectedSeries || selectedSeries.seriesIsMature) && !selectedVR}
                             />
                             <MaxButton
                               action={() => maxCollateral && handleMaxAction(ActionCodes.ADD_COLLATERAL)}
@@ -507,14 +545,23 @@ const Borrow = () => {
                         icon={<FiPocket />}
                         value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                       />
-                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
-                      <InfoBite
-                        label="Vault Debt Payable @ Maturity"
-                        icon={<FiTrendingUp />}
-                        value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${
-                          selectedBase?.displaySymbol
-                        }`}
-                      />
+                      {!selectedVR && (
+                        <div>
+                          <InfoBite
+                            label="Series Maturity"
+                            icon={<FiClock />}
+                            value={`${selectedSeries?.displayName}`}
+                          />
+
+                          <InfoBite
+                            label="Vault Debt Payable @ Maturity"
+                            icon={<FiTrendingUp />}
+                            value={`${cleanValue(borrowEstimate_, selectedBase?.digitFormat!)} ${
+                              selectedBase?.displaySymbol
+                            }`}
+                          />
+                        </div>
+                      )}
                       <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
                       <InfoBite
                         label="Total Supporting Collateral"
@@ -587,7 +634,7 @@ const Borrow = () => {
                 // label={<Text size={mobile ? 'small' : undefined}> Next step </Text>}
                 label={
                   <Text size={mobile ? 'small' : undefined}>
-                    {borrowInput && (!selectedSeries || selectedBase?.proxyId !== selectedSeries.baseId)
+                    {borrowInput && (!selectedSeries || selectedBase?.proxyId !== selectedSeries.baseId) && !selectedVR
                       ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
                           selectedBase && '-based'
                         } Maturity`
@@ -613,7 +660,8 @@ const Borrow = () => {
                         } ${selectedBase?.displaySymbol || ''}`}
                   </Text>
                 }
-                onClick={() => handleBorrow()}
+                // onClick={() => handleBorrow()}
+                onClick={() => handleBorrowVariableRate()}
                 disabled={borrowDisabled || borrowProcess?.processActive || !disclaimerChecked}
               />
             )}

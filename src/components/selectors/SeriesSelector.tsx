@@ -193,8 +193,9 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
   ]);
 
   const handleSelect = (_series: ISeries) => {
+    userActions.setSelectedVR(false);
     if (!selectSeriesLocally) {
-      diagnostics && console.log('Series selected globally: ', _series.id);
+      diagnostics && console.log('Series selected globally: ', _series);
       userActions.setSelectedSeries(_series);
     } else {
       /* used for passing a selected series to the parent component */
@@ -291,8 +292,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
                     {series.seriesMark}
                   </Avatar>
                   <Box>
-                    {
-                    series.allowActions.includes('allow_all') ||
+                    {series.allowActions.includes('allow_all') ||
                     (series.allowActions.includes(ActionCodes.BORROW) && actionType === ActionType.BORROW) ||
                     (series.allowActions.includes(ActionCodes.LEND) && actionType === ActionType.LEND) ? (
                       <AprText

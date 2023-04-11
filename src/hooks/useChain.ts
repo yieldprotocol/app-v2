@@ -6,7 +6,7 @@ import { TxContext } from '../contexts/TxContext';
 import { ApprovalType, ICallData, ISignData, LadleActions, TokenType } from '../types';
 import { MAX_256, ZERO_BN } from '../utils/constants';
 
-import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
+import { ERC1155__factory, ERC20Permit__factory, Ladle, VRLadle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { useNetwork, useSigner } from 'wagmi';
@@ -51,9 +51,10 @@ export const useChain = () => {
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
     if (!contracts) return;
-    
+
     /* Set the router contract instance, ladle by default */
-    const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
+    // const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
+    const _contract: Contract = contracts.get(ContractNames.VR_LADLE)?.connect(signer!) as VRLadle;
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call: ICallData) => !call.ignoreIf);

@@ -34,6 +34,7 @@ function VaultPositionSelector(target: any) {
 
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
+      console.log('vaultMap in VaultPositionSelector.tsx: ', vaultMap);
       if (!vaultMap) return;
       const _filteredVaults = Array.from(vaultMap.values())
         .filter((vault) => !dashHideInactiveVaults || vault.isActive)
@@ -44,6 +45,7 @@ function VaultPositionSelector(target: any) {
         .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
+      console.log('filteredVaults in VaultPositionSelector.tsx: ', _filteredVaults);
     },
     [vaultMap, dashHideInactiveVaults]
   );

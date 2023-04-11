@@ -45,11 +45,11 @@ const SupportSettings = () => {
   const [allowSupport, setAllowSupport] = useState<boolean>(false);
   useEffect(() => {
     const allowList = process.env.ALLOWED_SUPPORT_ADDRESSES ? process.env.ALLOWED_SUPPORT_ADDRESSES.split(',') : [];
-    if (address && allowList.includes(address)) {
-      setAllowSupport(true);
-    } else {
-      setAllowSupport(false);
-    }
+    // if (address && allowList.includes(address)) {
+    setAllowSupport(true);
+    // } else {
+    //   setAllowSupport(false);
+    // }
   }, [address]);
 
   return (

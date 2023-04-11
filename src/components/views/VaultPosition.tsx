@@ -28,8 +28,11 @@ import ModalWrap from '../wraps/ModalWrap';
 
 import { useCachedState } from '../../hooks/generalHooks';
 import { useRepayDebt } from '../../hooks/actionHooks/useRepayDebt';
+
+import { useRepayDebtVariableRate } from '../../hooks/actionHooks/useRepayDebtVariableRate';
+
 import { useRollDebt } from '../../hooks/actionHooks/useRollDebt';
-import { useCollateralHelpers } from '../../hooks/viewHelperHooks/useCollateralHelpers';
+import { useCollateralHelpers } from '../../hooks/higherOrderHooks/useCollateralHelpers';
 import { useAddCollateral } from '../../hooks/actionHooks/useAddCollateral';
 import { useRemoveCollateral } from '../../hooks/actionHooks/useRemoveCollateral';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
@@ -38,7 +41,7 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
-import useAssetPair from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
 import Logo from '../logos/Logo';
 import { useAccount, useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
@@ -66,6 +69,7 @@ const VaultPosition = () => {
   const vaultBase = assetMap?.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
+  const vaultIsVR = !!_selectedVault?.seriesId;
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { data: ilkBal } = useBalance({
@@ -127,6 +131,9 @@ const VaultPosition = () => {
 
   /* HOOK FNS */
   const repay = useRepayDebt();
+
+  const repayVariableRate = useRepayDebtVariableRate();
+
   const rollDebt = useRollDebt();
 
   const { logAnalyticsEvent } = useAnalytics();
@@ -142,23 +149,25 @@ const VaultPosition = () => {
     unhealthyCollatRatio,
     liquidationPrice_,
     minSafeCollatRatioPct,
-  } = useCollateralHelpers('0', '0', _selectedVault, assetPair);
+  } = useCollateralHelpers('0', '0', _selectedVault, assetPair, vaultIsVR);
 
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
     `-${repayInput! || '0'}`,
     '0',
     _selectedVault,
-    assetPair
+    assetPair,
+    vaultIsVR
   );
 
   const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
-    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPair);
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPair, vaultIsVR);
 
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
     _selectedVault,
-    assetPair
+    assetPair,
+    vaultIsVR
   );
 
   const {
@@ -214,9 +223,11 @@ const VaultPosition = () => {
   );
 
   const handleRepay = () => {
+    console.log('%c handleRepay', 'color: #00ff00; font-size: 16px;', repayDisabled);
     if (repayDisabled) return;
     setRepayDisabled(true);
-    repay(_selectedVault!, repayInput?.toString(), reclaimCollateral);
+    // repay(_selectedVault!, repayInput?.toString(), reclaimCollateral);
+    repayVariableRate(_selectedVault!, repayInput?.toString(), reclaimCollateral);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
@@ -493,13 +504,22 @@ const VaultPosition = () => {
                       dropProps={{ round: 'small' }}
                       plain
                       size="small"
-                      options={[
-                        { text: 'Repay Debt', index: 0 },
-                        { text: 'Roll Vault', index: 1, disabled: !rollPossible },
-                        { text: 'Add More Collateral', index: 2 },
-                        { text: 'Remove Collateral', index: 3 },
-                        { text: 'View Transaction History', index: 4 },
-                      ]}
+                      options={
+                        _selectedVault?.seriesId
+                          ? [
+                              { text: 'Repay Debt', index: 0 },
+                              { text: 'Roll Vault', index: 1, disabled: !rollPossible },
+                              { text: 'Add More Collateral', index: 2 },
+                              { text: 'Remove Collateral', index: 3 },
+                              { text: 'View Transaction History', index: 4 },
+                            ]
+                          : [
+                              { text: 'Repay Debt', index: 0 },
+                              { text: 'Add More Collateral', index: 2 },
+                              { text: 'Remove Collateral', index: 3 },
+                              { text: 'View Transaction History', index: 4 },
+                            ]
+                      }
                       icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"

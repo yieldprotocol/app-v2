@@ -12,7 +12,7 @@ import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
-import useAssetPair from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -37,12 +37,13 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, selectedIlk, selectedBase, selectedSeries } = userState;
+  const { assetMap, selectedIlk, selectedBase, selectedSeries, selectedVR } = userState;
 
   const { setSelectedIlk, setSelectedBase, setSelectedSeries, setSelectedStrategy } = userActions;
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
+
   const { validIlks, validIlksLoading } = useAssetPair(undefined, undefined, selectedSeries?.id);
 
   const optionText = (asset: IAsset | undefined) =>
@@ -79,6 +80,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
+    console.log('%c in assetSelector useEffect', 'font-size: 36px;', selectCollateral, validIlks, selectedSeries);
     const opts = (selectCollateral ? validIlks! : Array.from(assetMap.values()))
       .filter((a) => a.showToken)
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
@@ -154,7 +156,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
             (false &&
               selectCollateral &&
               options.filter((o, i) => (o.balance?.eq(ethers.constants.Zero) ? i : null))) ||
-            (selectCollateral ? selectedSeries?.seriesIsMature || !selectedSeries : undefined)
+            (selectCollateral ? selectedSeries?.seriesIsMature || (!selectedSeries && !selectedVR) : undefined)
           }
           size="small"
           // eslint-disable-next-line react/no-children-prop

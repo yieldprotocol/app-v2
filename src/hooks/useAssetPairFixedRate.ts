@@ -16,7 +16,7 @@ import useDefaultProvider from './useDefaultProvider';
 import { SettingsContext } from '../contexts/SettingsContext';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
-const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
+const useAssetPairFixedRate = (baseId?: string, ilkId?: string, seriesId?: string) => {
   /* CONTEXT STATE */
   const {
     userState: { assetMap },
@@ -156,6 +156,9 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     }
   );
 
+  console.log('validIlks non VR: ', validIlks, baseId, ilkId, seriesId);
+  console.log('useAssetPair data: ', data);
+
   return {
     data,
     error,
@@ -167,4 +170,4 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   };
 };
 
-export default useAssetPair;
+export default useAssetPairFixedRate;

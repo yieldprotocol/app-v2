@@ -16,6 +16,7 @@ export interface IUserContextActions {
   setSelectedBase: (base: IAsset | null) => void;
   setSelectedVault: (vault: IVault | IDummyVault | null) => void;
   setSelectedStrategy: (strategy: IStrategy | null) => void;
+  setSelectedVR: (vr: boolean | null) => void;
 }
 
 export interface IUserContextState {
@@ -36,7 +37,7 @@ export interface IUserContextState {
   selectedBase: IAsset | null;
   selectedVault: IVault | null;
   selectedStrategy: IStrategy | null;
-
+  selectedVR: boolean | null;
 }
 
 export enum UserState {
@@ -59,7 +60,7 @@ export enum UserState {
   SELECTED_ILK = 'selectedIlk',
   SELECTED_BASE = 'selectedBase',
   SELECTED_STRATEGY = 'selectedStrategy',
-
+  SELECTED_VR = 'selectedVR',
 }
 
 export type UserLoadingAction = {
@@ -125,16 +126,19 @@ export type SelectedIlkAction = {
   payload: IAsset;
 };
 
-
 export type SelectedBaseAction = {
   type: UserState.SELECTED_BASE;
   payload: IAsset;
 };
 
-
 export type SelectedStrategyAction = {
   type: UserState.SELECTED_STRATEGY;
   payload: IStrategy;
+};
+
+export type SelectedVRAction = {
+  type: UserState.SELECTED_VR;
+  payload: boolean;
 };
 
 export type UserContextAction =
@@ -152,4 +156,5 @@ export type UserContextAction =
   | SelectedSeriesAction
   | SelectedIlkAction
   | SelectedBaseAction
-  | SelectedStrategyAction;
+  | SelectedStrategyAction
+  | SelectedVRAction;

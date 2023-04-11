@@ -17,12 +17,13 @@ import {
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { ZERO_BN } from '../utils/constants';
-import { Cauldron } from '../contracts';
+import { Cauldron, VRCauldron } from '../contracts';
 
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
 import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
+import { VaultPouredEvent as VRVaultPouredEvent } from '../contracts/VRCauldron';
 import { useAccount, useProvider } from 'wagmi';
 import useContracts from '../hooks/useContracts';
 
@@ -383,6 +384,71 @@ const HistoryProvider = ({ children }: any) => {
     [assetRootMap, provider]
   );
 
+  // new function to parse VR pour logs
+  const _parseVRPourLogs = useCallback(
+    (eventList: VRVaultPouredEvent[], contract: VRCauldron, vault: IVault) => {
+      return Promise.all(
+        eventList.map(async (e) => {
+          const { blockNumber, transactionHash } = e;
+
+          // event VaultPoured(bytes12 indexed vaultId, bytes6 indexed seriesId, bytes6 indexed ilkId, int128 ink, int128 art)
+          const { ilkId, ink, art, baseId } = e.args;
+          const base_ = assetRootMap.get(baseId);
+          const ilk = assetRootMap.get(ilkId);
+          const date = (await provider.getBlock(blockNumber)).timestamp;
+
+          const actionCode = _inferTransactionType(art, ink);
+
+          let primaryInfo: string = '';
+          if (actionCode === ActionCodes.BORROW)
+            primaryInfo = `
+          ${cleanValue(
+            ethers.utils.formatUnits(vault.art, base_?.decimals),
+            base_?.digitFormat!
+          )} ${base_?.displaySymbol!} @
+          ${cleanValue(vault.rate_, 2)}%`;
+          /* 
+            will need to uncomment and test below when we have a fork 
+            with the wrap module - jacob b 
+          */
+          // else if (actionCode === ActionCodes.REPAY)
+          //   primaryInfo = `${cleanValue(
+          //     ethers.utils.formatUnits(baseTraded.abs(), base_?.decimals),
+          //     base_?.digitFormat!
+          //   )} ${base_?.displaySymbol!}`;
+          else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
+            primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk?.decimals), ilk?.digitFormat!)} ${
+              ilk?.displaySymbol
+            }`;
+
+          console.log('primaryInfo', primaryInfo, base_, cleanValue(vault.rate_, 2), vault);
+
+          return {
+            /* histItem base */
+            blockNumber,
+            date,
+            transactionHash,
+            actionCode,
+            primaryInfo,
+
+            /* args info */
+            ilkId,
+            ink,
+            art,
+            baseId,
+
+            /* Formatted values:  */
+            date_: dateFormat(date),
+            ink_: ethers.utils.formatUnits(ink, 18),
+            art_: ethers.utils.formatUnits(art, base_?.decimals),
+          };
+          // as IBaseHistItem;
+        })
+      );
+    },
+    [assetRootMap, provider]
+  );
+
   const _parseGivenLogs = useCallback(
     (eventList: VaultGivenEvent[], contract: Cauldron, series: ISeries) =>
       Promise.all(
@@ -446,6 +512,7 @@ const HistoryProvider = ({ children }: any) => {
 
       const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
       const cauldronContract = contracts.get(ContractNames.CAULDRON) as Cauldron;
+      const VRcauldronContract = contracts.get(ContractNames.VR_CAULDRON) as VRCauldron;
 
       /* Get all the Vault historical Pour transactions */
       await Promise.all(
@@ -465,6 +532,14 @@ const HistoryProvider = ({ children }: any) => {
             cauldronContract.queryFilter(rolledFilter, useForkedEnv ? forkStartBlock : 'earliest'),
           ]);
 
+          /* get VR logs */
+          const [vrPourEventList, vrGivenEventList] = await Promise.all([
+            VRcauldronContract.queryFilter(pourFilter, useForkedEnv ? forkStartBlock : 'earliest'),
+            VRcauldronContract.queryFilter(givenFilter, useForkedEnv ? forkStartBlock : 'earliest'),
+          ]);
+
+          console.log('%c eventList', 'font-size: 36px; color: yellow;', vrPourEventList, vault);
+
           /* parse/process the log information  */
           const [pourLogs, givenLogs, rolledLogs] = await Promise.all([
             _parsePourLogs(pourEventList, cauldronContract, series),
@@ -472,7 +547,12 @@ const HistoryProvider = ({ children }: any) => {
             _parseRolledLogs(rolledEventList, cauldronContract, series),
           ]);
 
-          const combinedLogs = [...pourLogs, ...givenLogs, ...rolledLogs].sort((a, b) => a.blockNumber - b.blockNumber);
+          /* VR data */
+          const [vrPourLogs] = await Promise.all([_parseVRPourLogs(vrPourEventList, VRcauldronContract, vault)]);
+
+          const combinedLogs = [...pourLogs, ...givenLogs, ...rolledLogs, ...vrPourLogs].sort(
+            (a, b) => a.blockNumber - b.blockNumber
+          );
           vaultHistMap.set(vaultId, combinedLogs);
         })
       );

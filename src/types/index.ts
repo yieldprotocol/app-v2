@@ -111,7 +111,7 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-  
+
   allowActions: (ActionCodes | 'allow_all' | 'allow_none')[];
 }
 
@@ -206,7 +206,7 @@ export interface IVaultRoot {
   id: string;
   ilkId: string;
   baseId: string;
-  seriesId: string;
+  seriesId?: string; // VR vaults won't have a series
   displayName: string;
   decimals: number;
 }
@@ -260,6 +260,26 @@ export interface IVault extends IVaultRoot {
   art_: string;
 
   rateAtMaturity: BigNumber;
+  rate: BigNumber;
+  rate_: string;
+
+  accruedArt_: string;
+}
+
+export interface IVaultVR extends IVaultRoot {
+  owner: string;
+
+  isWitchOwner: boolean;
+  hasBeenLiquidated: boolean;
+
+  isActive: boolean;
+  ink: BigNumber;
+  art: BigNumber;
+  accruedArt: BigNumber; // TODO how do i get this value? -jacob b
+
+  ink_: string;
+  art_: string;
+
   rate: BigNumber;
   rate_: string;
 

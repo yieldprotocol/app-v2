@@ -18,11 +18,11 @@ import { WETH } from '../../config/assets';
 import useAccountPlus from '../useAccountPlus';
 
 /* Collateralization hook calculates collateralization metrics */
-export const useCollateralHelpers = (
+export const useCollateralHelpersFixedRate = (
   debtInput: string | undefined,
   collInput: string | undefined,
   vault: IVault | undefined,
-  assetPairInfo: IAssetPair | undefined| null
+  assetPairInfo: IAssetPair | undefined | null
 ) => {
   /* STATE FROM CONTEXT */
   const {
@@ -38,7 +38,7 @@ export const useCollateralHelpers = (
   const { address: activeAccount } = useAccountPlus();
   const { data: userIlkBalance } = useBalance({
     address: activeAccount,
-    token: _selectedIlk?.proxyId === WETH ? undefined : _selectedIlk?.address as Address,
+    token: _selectedIlk?.proxyId === WETH ? undefined : (_selectedIlk?.address as Address),
     enabled: !!_selectedIlk,
   });
 

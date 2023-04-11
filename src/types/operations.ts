@@ -31,6 +31,11 @@ export namespace LadleActions {
 
   export namespace Args {
     export type BUILD = [seriesId_bytes6: string, ilkId_bytes6: string, salt_bytes8: string];
+
+    // new for VR - should we augment this type instead of creating a new one? - jacob b
+    export type BUILD_VR = [baseId_bytes6: string, ilkId_bytes6: string, salt_bytes8: string]; // TODO - update types - jacob b
+    export type TRANSFER_VR = [ilkId_bytes6: string, to: string, base: BigNumberish, art: BigNumberish]; // TODO - update types - jacob b
+
     export type ROLL = [vaultId: string, newSeriesId: string, loan: BigNumberish, max: BigNumberish];
     export type TWEAK = [vaultId: string, seriesId: string, ilkId: string];
     export type GIVE = [vaultId: string, to: string];

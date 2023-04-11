@@ -15,7 +15,17 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
+import {
+  IAssetRoot,
+  ISeriesRoot,
+  IVaultRoot,
+  ISeries,
+  IAsset,
+  IVault,
+  IStrategyRoot,
+  IStrategy,
+  IVaultVR,
+} from '../types';
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
@@ -55,6 +65,7 @@ const initState: IUserContextState = {
   selectedBase: null, // initial base
   selectedVault: null,
   selectedStrategy: null,
+  selectedVR: null,
 };
 
 const initActions: IUserContextActions = {
@@ -67,6 +78,7 @@ const initActions: IUserContextActions = {
   setSelectedSeries: () => null,
   setSelectedBase: () => null,
   setSelectedStrategy: () => null,
+  setSelectedVR: () => null,
 };
 
 const UserContext = createContext<{
@@ -116,6 +128,8 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
 
     case UserState.SELECTED_STRATEGY:
       return { ...state, selectedStrategy: action.payload };
+    case UserState.SELECTED_VR:
+      return { ...state, selectedVR: action.payload };
     default:
       return state;
   }
@@ -195,6 +209,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     if (!contracts) return;
 
     const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
+    const VRCauldron = contracts.get(ContractNames.VR_CAULDRON) as contractTypes.VRCauldron;
 
     const cacheKey = `vaults_${account}_${chainId}`;
     const cachedVaults = JSON.parse(localStorage.getItem(cacheKey)!);
@@ -222,6 +237,25 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       };
     });
 
+    console.log('vaults built', vaultsBuilt);
+
+    /* get a list of the VR vaults that were BUILT */
+    const VRvaultsBuiltFilter = VRCauldron.filters.VaultBuilt(null, account, null);
+    const VRvaultsBuilt = (await VRCauldron.queryFilter(VRvaultsBuiltFilter!, lastVaultUpdate)) || [];
+    const VRbuildEventList = VRvaultsBuilt.map((x) => {
+      const { vaultId: id, ilkId, baseId } = x.args;
+      const asset = assetRootMap.get(baseId);
+      return {
+        id,
+        baseId,
+        ilkId,
+        displayName: generateVaultName(id),
+        decimals: asset?.decimals!,
+      };
+    });
+
+    console.log('vaults built VR', VRvaultsBuilt);
+
     /* Get a list of the vaults that were RECEIVED */
     const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
     const vaultsReceived = (await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate)) || [];
@@ -241,8 +275,45 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       })
     );
 
+    console.log('vaults received', vaultsReceived);
+
+    /* get a list of VR vaults that were RECEIVED */
+    const VRvaultsReceivedFilter = VRCauldron.filters.VaultGiven(null, account);
+    const VRvaultsReceived = (await VRCauldron.queryFilter(VRvaultsReceivedFilter, lastVaultUpdate)) || [];
+    const VRreceivedEventsList = await Promise.all(
+      VRvaultsReceived.map(async (x): Promise<IVaultRoot> => {
+        const { vaultId: id } = x.args;
+        const { ilkId, baseId } = await VRCauldron.vaults(id);
+        const asset = assetRootMap.get(baseId);
+        return {
+          id,
+          baseId,
+          ilkId,
+          displayName: generateVaultName(id),
+          decimals: asset?.decimals!,
+        };
+      })
+    );
+
+    console.log('vaults received VR', VRvaultsReceived);
+
     /* all vaults */
-    const allVaultList = [...buildEventList, ...receivedEventsList, ...cachedVaultList];
+    const allVaultList = [
+      ...buildEventList,
+      ...receivedEventsList,
+      ...cachedVaultList, // this is causing us to have vault dupes - is this intentional?
+      ...VRbuildEventList,
+      ...VRvaultsReceived,
+    ];
+
+    console.log(
+      'allVaultList components',
+      buildEventList,
+      receivedEventsList,
+      cachedVaultList,
+      VRbuildEventList,
+      VRvaultsReceived
+    );
 
     /* Cache results */
     const latestBlock = (await provider.getBlockNumber()).toString();
@@ -622,8 +693,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       let _vaults: IVaultRoot[] | undefined = vaultList;
       const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
+      const VRCauldron = contracts.get(ContractNames.VR_CAULDRON) as contractTypes.VRCauldron;
       const WitchV1 = contracts.get(ContractNames.WITCH) as contractTypes.Witch;
       const Witch = contracts.get(ContractNames.WITCHV2) as contractTypes.WitchV2;
+      const VRWitch = contracts.get(ContractNames.VR_WITCH) as contractTypes.VRWitch;
 
       /**
        * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
@@ -635,17 +708,77 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /* if fetching vaults fails */
       if (!_vaults) return;
 
+      console.log('Updating _vaults with dynamic data ...', _vaults);
+
       const updatedVaults = await Promise.all(
         _vaults.map(async (vault) => {
+          // check for a series id. if there isn't one, we know its VR and need
+          // to use the VR contracts
+          if (!vault.seriesId) {
+            // VR vault logic
+            console.log('VR vault here: ', vault);
+
+            const [{ ink, art }, { owner, ilkId, baseId }] = await Promise.all([
+              VRCauldron?.balances(vault.id), // change this back to CAULDRON
+              VRCauldron?.vaults(vault.id),
+            ]);
+
+            // console.log('VR vault res: ', res, vault.id);
+            // return;
+
+            const baseRoot = assetRootMap.get(baseId);
+            const ilkRoot = assetRootMap.get(ilkId);
+            if (!baseRoot) return;
+
+            const liquidationEvents = !useForkedEnv
+              ? await VRWitch.queryFilter(Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null))
+              : [];
+            const hasBeenLiquidated = liquidationEvents.flat().length > 0;
+
+            // looking for a rate - seems to always return 1 - jacob b
+            const rateOracleAddr = await VRCauldron.rateOracles(vault.baseId);
+            const RateOracle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider); // using compount multi here, but all rate oracles follow the same func sig methodology
+
+            let accruedArt: BigNumber = art;
+            // let rate: BigNumber = BigNumber.from('1');
+            let rate: BigNumber;
+
+            [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+
+            console.log('%c VR rate: ', 'color: #00ff00; font-size: 36px;', rate.toString(), vault.baseId);
+
+            const newVault: IVaultVR = {
+              ...vault,
+              owner, // refreshed in case owner has been updated
+              isWitchOwner: Witch.address === owner || WitchV1.address === owner, // check if witch is the owner (in liquidation process)
+              hasBeenLiquidated,
+              isActive: owner === account, // refreshed in case owner has been updated
+              ilkId, // refreshed in case ilkId has been updated
+              ink,
+              art,
+              accruedArt,
+              rate,
+
+              rate_: cleanValue(ethers.utils.formatUnits(rate, 18), 2), // always 18 decimals when getting rate from rate oracle,
+              ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
+              art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
+              accruedArt_: cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot?.decimals), baseRoot?.digitFormat), // display purposes
+            };
+
+            return newVault;
+          }
+
           const [
             { ink, art },
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
+          console.log('regular cauldron', Cauldron);
+
           const series = seriesRootMap.get(seriesId);
           if (!series) return;
 
-          const isVaultMature = isMature(series.maturity);
+          const isVaultMature = isMature(series?.maturity!);
 
           const liquidationEvents = !useForkedEnv
             ? await Promise.all([
@@ -702,6 +835,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           return newVault;
         })
       );
+
+      console.log('updatedVaults: ', updatedVaults);
 
       const newVaultMap = updatedVaults.reduce((acc, item) => {
         if (item) {
@@ -773,7 +908,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       []
     ),
     setSelectedSeries: useCallback(
-      (series: ISeries | null) => updateState({ type: UserState.SELECTED_SERIES, payload: series! }),
+      (series: ISeries | null | string) => updateState({ type: UserState.SELECTED_SERIES, payload: series! }),
       []
     ),
     setSelectedBase: useCallback(
@@ -784,6 +919,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       (strategy: IStrategy | null) => updateState({ type: UserState.SELECTED_STRATEGY, payload: strategy! }),
       []
     ),
+    setSelectedVR: useCallback((vr: boolean) => {
+      updateState({ type: UserState.SELECTED_VR, payload: vr });
+      console.log('%c setSelectedVR', 'color: #00ff00; font-size: 24px;', vr);
+    }, []),
   } as IUserContextActions;
 
   return <UserContext.Provider value={{ userState, userActions, updateState }}>{children}</UserContext.Provider>;

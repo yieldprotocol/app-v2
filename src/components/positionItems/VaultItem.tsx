@@ -9,7 +9,7 @@ import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
-import useAssetPair from '../../hooks/useAssetPair';
+import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
 import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
@@ -37,6 +37,8 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPair, undefined);
+
+  console.log('in VaultItem', vaultsLoading, vault.displayName, vault, debtInBase_);
 
   return (
     <ItemWrap
