@@ -791,6 +791,30 @@ SERIES.set(
     //     g2: '20496382304121724017',
     //   },
     // ],
+    
+        /**
+     * 2309 
+     * */
+        [
+          FRAX_2309,
+          {
+            id: FRAX_2309,
+            baseId: '0x313800000000',
+            maturity: 1695999600,
+            name: 'FYFRAX2309',
+            symbol: 'FYFRAX2309',
+            address: '0xB38Ba395D15392796B51057490bBc790871dd6a0',
+            decimals: 18,
+            version: '1',
+            poolAddress: '0xe2F6f40192F3E4568a62577E0541AC823b6f0D9e',
+            poolName: 'FYFRAX2309 LP',
+            poolSymbol: 'FYFRAX2309LP',
+            poolVersion: '1',
+            ts: '12989823246',
+            g1: '16602069666338596454',
+            g2: '20496382304121724017',
+          },
+        ],
   ])
 );
 
