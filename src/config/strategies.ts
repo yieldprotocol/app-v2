@@ -195,7 +195,7 @@ STRATEGIES.set(1, [
     version: '1',
   },
   {
-    address: '0x45a37d7a93416934ebf7ad85b35bcf39fcd68696',
+    address: '0x93dEe161a396aF75c7458a65687895299bFeB437',
     associatedStrategy: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
     type: StrategyType.V2,
     symbol: 'YSFRAX6MMS',
