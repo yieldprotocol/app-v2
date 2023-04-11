@@ -209,6 +209,7 @@ STRATEGIES.set(1, [
 STRATEGIES.set(42161, [
   {
     address: '0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1',
+    associatedStrategy: '0x5aeB4EFaAA0d27bd606D618BD74Fe883062eAfd0',
     type: StrategyType.V1,
     symbol: 'YSDAI6MMS',
     baseId: DAI,
@@ -218,7 +219,7 @@ STRATEGIES.set(42161, [
   },
   {
     address: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
-    associatedStrategy: '0x3b4ffd93ce5fcf97e61aa8275ec241c76cc01a47',
+    associatedStrategy: '0x3b4FFD93CE5fCf97e61AA8275Ec241C76cC01a47',
     type: StrategyType.V1,
     symbol: 'YSUSDC6MMS',
     baseId: USDC,
@@ -228,6 +229,7 @@ STRATEGIES.set(42161, [
   },
   {
     address: '0xD5B43b2550751d372025d048553352ac60f27151',
+    associatedStrategy: '0x5582b8398FB586F1b79edd1a6e83f1c5aa558955',
     type: StrategyType.V1,
     symbol: 'YSETH6MMS',
     baseId: WETH,
@@ -259,7 +261,7 @@ STRATEGIES.set(42161, [
     address: '0x3353E1E2976DBbc191a739871faA8E6E9D2622c7',
     associatedStrategy: '0xad1983745D6c739537fEaB5bed45795f47A940b3',
     type: StrategyType.V1,
-    symbol: 'YSWETH6MJD',
+    symbol: 'YSETH6MJD',
     baseId: WETH,
     name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
@@ -335,7 +337,7 @@ STRATEGIES.set(42161, [
     associatedStrategy: '0xD5B43b2550751d372025d048553352ac60f27151',
     symbol: 'YSETH6MMS',
     baseId: WETH,
-    name: 'Yield Strategy WETH 6M Mar Sep',
+    name: 'Yield Strategy ETH 6M Mar Sep',
     decimals: 18,
     version: '1',
   },
