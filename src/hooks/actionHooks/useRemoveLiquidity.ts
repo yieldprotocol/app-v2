@@ -304,7 +304,7 @@ export const useRemoveLiquidity = () => {
       encodeBalanceCall(_base.address, _base.tokenIdentifier),
       AssertActions.Fn.ASSERT_EQ_REL,
       _base.balance!.add(series.getBase(_sharesReceived)),
-      WAD_BN.mul('10') // 10% relative tolerance
+      WAD_BN.div('10') // 10% relative tolerance
     );
     /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
     const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN)
@@ -313,7 +313,7 @@ export const useRemoveLiquidity = () => {
           encodeBalanceCall(series.address, undefined),
           AssertActions.Fn.ASSERT_EQ_REL,
           series.fyTokenBalance!.add(_fyTokenReceived),
-          WAD_BN.mul('10') // 10% relative tolerance
+          WAD_BN.div('10') // 10% relative tolerance
         )
       : [];
 

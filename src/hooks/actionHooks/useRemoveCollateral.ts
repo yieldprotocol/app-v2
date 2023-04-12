@@ -44,7 +44,6 @@ export const useRemoveCollateral = () => {
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.REMOVE_COLLATERAL)) return; // return if action is not allowed
 
-
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);
 
