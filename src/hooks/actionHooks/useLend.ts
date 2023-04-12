@@ -106,7 +106,7 @@ export const useLend = () => {
       encodeBalanceCall(series.fyTokenContract.address, undefined),
       AssertActions.Fn.ASSERT_EQ_REL,
       series.fyTokenBalance!.add(_inputAsFyToken),
-      WAD_BN.mul('10') // 10% relative tolerance
+      WAD_BN.div('10') // 10% relative tolerance
     );
 
     const calls: ICallData[] = [

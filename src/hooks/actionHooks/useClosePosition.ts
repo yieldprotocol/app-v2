@@ -123,8 +123,8 @@ export const useClosePosition = () => {
       base.address,
       encodeBalanceCall(base.address, base.tokenIdentifier),
       AssertActions.Fn.ASSERT_EQ_REL,
-      base.balance.add(series.fyTokenBalance!),
-      WAD_BN.mul('10') // 10% relative tolerance
+      base.balance.add(_input),
+      WAD_BN.div('10') // 10% relative tolerance
     );
 
     const calls: ICallData[] = [
