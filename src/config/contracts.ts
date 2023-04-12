@@ -29,7 +29,7 @@ const contractAddresses: ContractAddresses = {
         [ContractNames.TRANSFER_1155_MODULE, '0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06'],
         [ContractNames.WRAP_ETHER_MODULE, '0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA'],
         [ContractNames.CONVEX_LADLE_MODULE, '0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6'],
-        [ContractNames.ASSERT, '0x41bf71A2109FbdF7e5064a7421EAEFeaBF7a12f7'],
+        [ContractNames.ASSERT, '0x40f0b18c7a41c04f848c033ed7f9178d9c5a80d8'],
       ]),
     ],
     [
@@ -40,7 +40,7 @@ const contractAddresses: ContractAddresses = {
         [ContractNames.WITCH, '0x08173D0885B00BDD640aaE57D05AbB74cd00d669'],
         [ContractNames.WITCHV2, '0x07c2c74811cb14a5003c3ccff7ec436d504fffb6'],
         [ContractNames.WRAP_ETHER_MODULE, '0x4cd01ed221d6d198e2656c16c32803bf78134568'],
-        [ContractNames.ASSERT, '0x3201161c97E6B3c6e0e565d8Cd17ae5d0BEDb5F7'],
+        [ContractNames.ASSERT, '0x40f0b18c7a41c04f848c033ed7f9178d9c5a80d8'],
       ]),
     ],
   ]),
