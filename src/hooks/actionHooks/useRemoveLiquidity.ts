@@ -1,6 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { toast } from 'react-toastify';
 import {
   burn,
   burnFromStrategy,
