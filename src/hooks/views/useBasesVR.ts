@@ -41,7 +41,11 @@ const useBasesVR = () => {
     [forkProvider, provider, useForkedEnv, _getBases]
   );
 
-  const { data, isLoading, error } = useSWR(key, getBases, { revalidateOnFocus: false });
+  const { data, isLoading, error } = useSWR(key, getBases, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    revalidateOnMount: false,
+  });
 
   return { data, isLoading, error };
 };
