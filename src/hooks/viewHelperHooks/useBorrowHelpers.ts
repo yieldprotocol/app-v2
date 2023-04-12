@@ -243,8 +243,12 @@ export const useBorrowHelpers = (
           : vaultSeries.getBase(_sharesRequired);
 
         const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
+        // assume that if sharesReserves are zero then the pool is not functioning correctly, so use the total vault debt
+        // this assumption is invalid if the pool has liquidity, but someone borrowed (took out) all shares from the pool
+        // in the above scenario, the pool would be valid, and all functionality should be available
+        const debtInBaseChecked = vaultSeries.sharesReserves.eq(ethers.constants.Zero) ? vault.accruedArt : _debtInBase;
         // add buffer to handle moving interest accumulation
-        const _debtInBaseWithBuffer = _debtInBase.mul(1000).div(999);
+        const _debtInBaseWithBuffer = debtInBaseChecked.mul(10000).div(9999);
 
         setDebtInBase(_debtInBaseWithBuffer);
         setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));

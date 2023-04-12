@@ -683,7 +683,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             owner, // refreshed in case owner has been updated
             isWitchOwner: Witch.address === owner || WitchV1.address === owner, // check if witch is the owner (in liquidation process)
             hasBeenLiquidated,
-            isActive: owner === account, // refreshed in case owner has been updated
+            isActive: owner.toLowerCase() === account?.toLowerCase(), // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated
             ink,
