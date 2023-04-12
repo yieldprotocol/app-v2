@@ -75,7 +75,7 @@ const VariableRate = () => {
 
   const {
     userState: { selectedVR },
-    userActions: { setSelectedVR, setSelectedSeries },
+    userActions: { setSelectedVR },
   } = useContext(UserContext);
 
   return (
