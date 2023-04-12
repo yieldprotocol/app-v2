@@ -55,6 +55,7 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 
 import VariableRate from '../selectors/VariableRate';
 import { useBorrowVariableRate } from '../../hooks/actionHooks/useBorrowVariableRate';
+import useBasesVR from '../../hooks/views/useBasesVR';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -101,11 +102,12 @@ const Borrow = () => {
   const borrowVariableRate = useBorrowVariableRate();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
-  console.log('apr in borrow', apr);
 
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
 
   const { validIlks } = useAssetPair(selectedBase?.id, undefined, selectedSeries?.id);
+
+  const { data: basesVR } = useBasesVR();
 
   const {
     collateralizationPercent,
@@ -371,9 +373,11 @@ const Borrow = () => {
                       >
                         <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                       </SectionWrap>
-                      <SectionWrap title="OR choose a variable rate">
-                        <VariableRate />
-                      </SectionWrap>
+                      {basesVR?.length && basesVR.includes(selectedBase.id)&& (
+                        <SectionWrap title="OR choose a variable rate">
+                          <VariableRate />
+                        </SectionWrap>
+                      )}
                     </Box>
                   )}
                 </Box>
