@@ -46,7 +46,7 @@ export const useRollDebt = () => {
       cauldron.interface.encodeFunctionData('balances', [vault.id]),
       AssertActions.Fn.ASSERT_EQ_REL,
       vault.accruedArt,
-      WAD_BN.mul('10') // 10% relative tolerance
+      WAD_BN.div('10') // 10% relative tolerance
     );
 
     const calls: ICallData[] = [

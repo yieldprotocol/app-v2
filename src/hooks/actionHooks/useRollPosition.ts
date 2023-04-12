@@ -129,7 +129,7 @@ export const useRollPosition = () => {
       encodeBalanceCall(toSeries.address, undefined),
       AssertActions.Fn.ASSERT_EQ_REL,
       fromSeries.fyTokenBalance!,
-      WAD_BN.mul('10') // 10% relative tolerance
+      WAD_BN.div('10') // 10% relative tolerance
     );
 
     /* Reciever of transfer (based on maturity) the series maturity */
