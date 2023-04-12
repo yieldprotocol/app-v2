@@ -171,7 +171,7 @@ export const useRepayDebt = () => {
      * - Users ilk balance increases by ilk amount> if repaying all debt AND removing all collateral
      * - vault debt reduced by input amount > if repaying part debt
      */
-    const assertCallData: ICallData[] = reclaimCollateral
+    const assertCallData: ICallData[] = _collateralToRemove !== ZERO_BN
       ? assert(
           ilk.address,
           encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
@@ -183,7 +183,7 @@ export const useRepayDebt = () => {
           cauldron.interface.encodeFunctionData('balances', [vault.id]),
           AssertActions.Fn.ASSERT_EQ_REL,
           vault.accruedArt.sub(_input),
-          WAD_BN.mul('10') // 10% relative tolerance
+          WAD_BN.div('10') // 10% relative tolerance
         );
 
     const calls: ICallData[] = [
