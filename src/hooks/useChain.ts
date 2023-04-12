@@ -97,7 +97,7 @@ export const useChain = () => {
       gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
       console.log('Auto gas estimate:', gasEst.mul(135).div(100).toString());
     } catch (e: any) {
-      gasEst = BigNumber.from(500000);
+      gasEst = BigNumber.from(5000000);
       /* handle if the tx if going to fail and transactions aren't forced */
       if (!forceTransactions) return handleTxWillFail(e.error, txCode, e.transaction);
     }
