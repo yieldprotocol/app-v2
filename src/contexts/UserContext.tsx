@@ -921,6 +921,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     ),
     setSelectedVR: useCallback((vr: boolean) => {
       updateState({ type: UserState.SELECTED_VR, payload: vr });
+      updateState({ type: UserState.SELECTED_SERIES, payload: null });
       console.log('%c setSelectedVR', 'color: #00ff00; font-size: 24px;', vr);
     }, []),
   } as IUserContextActions;

@@ -118,7 +118,7 @@ export type SelectedVaultAction = {
 
 export type SelectedSeriesAction = {
   type: UserState.SELECTED_SERIES;
-  payload: ISeries;
+  payload: ISeries | null;
 };
 
 export type SelectedIlkAction = {

@@ -1,10 +1,12 @@
-import { Block } from '@ethersproject/providers';
+import { AlchemyProvider, Block } from '@ethersproject/providers';
 import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from 'ethers';
 import { ReactNode } from 'react';
 import { IChainContextActions } from '../contexts/types/chain';
 import { FYToken, Pool, Strategy } from '../contracts';
 
 export { LadleActions, RoutedActions } from './operations';
+
+export type Provider = ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider | AlchemyProvider;
 
 export interface IChainContext {
   chainState: IChainContextState;
@@ -260,26 +262,6 @@ export interface IVault extends IVaultRoot {
   art_: string;
 
   rateAtMaturity: BigNumber;
-  rate: BigNumber;
-  rate_: string;
-
-  accruedArt_: string;
-}
-
-export interface IVaultVR extends IVaultRoot {
-  owner: string;
-
-  isWitchOwner: boolean;
-  hasBeenLiquidated: boolean;
-
-  isActive: boolean;
-  ink: BigNumber;
-  art: BigNumber;
-  accruedArt: BigNumber; // TODO how do i get this value? -jacob b
-
-  ink_: string;
-  art_: string;
-
   rate: BigNumber;
   rate_: string;
 

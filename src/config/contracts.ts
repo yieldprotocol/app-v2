@@ -19,7 +19,7 @@ interface ContractAddresses {
   addresses: Map<number, Map<ContractNames, string>>;
 }
 
-const contractAddresses: ContractAddresses = {
+export const contractAddresses: ContractAddresses = {
   addresses: new Map([
     [
       1,
