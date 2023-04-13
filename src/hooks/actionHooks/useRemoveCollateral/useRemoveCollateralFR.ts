@@ -1,22 +1,22 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { UserContext } from '../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../types';
-import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
-import { useChain } from '../useChain';
-import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
-import { useAddRemoveEth } from './useAddRemoveEth';
-import { ONE_BN, ZERO_BN } from '../../utils/constants';
-import { ConvexJoin__factory } from '../../contracts';
-import { HistoryContext } from '../../contexts/HistoryContext';
+import { UserContext } from '../../../contexts/UserContext';
+import { ICallData, IVault, ActionCodes, LadleActions, RoutedActions, IHistoryContext } from '../../../types';
+import { cleanValue, getTxCode } from '../../../utils/appUtils';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../../config/assets';
+import { useChain } from '../../useChain';
+import { useWrapUnwrapAsset } from '../useWrapUnwrapAsset';
+import { useAddRemoveEth } from '../useAddRemoveEth';
+import { ONE_BN, ZERO_BN } from '../../../utils/constants';
+import { ConvexJoin__factory } from '../../../contracts';
+import { HistoryContext } from '../../../contexts/HistoryContext';
 import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
-import useContracts from '../useContracts';
-import useAccountPlus from '../useAccountPlus';
-import { ContractNames } from '../../config/contracts';
-import useAllowAction from '../useAllowAction';
+import useContracts from '../../useContracts';
+import useAccountPlus from '../../useAccountPlus';
+import { ContractNames } from '../../../config/contracts';
+import useAllowAction from '../../useAllowAction';
 
-export const useRemoveCollateral = () => {
+export const useRemoveCollateralFR = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, assetMap } = userState;
   const { address: account } = useAccountPlus();
@@ -41,7 +41,6 @@ export const useRemoveCollateral = () => {
   const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.REMOVE_COLLATERAL)) return; // return if action is not allowed
-
 
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);

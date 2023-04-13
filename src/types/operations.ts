@@ -100,11 +100,15 @@ export namespace RoutedActions {
     UNWRAP = 'unwrap',
 
     CHECKPOINT = 'checkpoint', // convex
+    DEPOSIT = 'deposit', // for VR lending
   }
 
   export namespace Args {
     export type SELL_BASE = [receiver: string, min: BigNumberish];
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
+
+    // new for VR
+    export type DEPOSIT = [receiver: string, amount: BigNumberish];
 
     export type MINT_POOL_TOKENS = [to: string, remainderTo: string, minRatio: BigNumberish, maxRatio: BigNumberish];
     export type BURN_POOL_TOKENS = [baseTo: string, fyTokenTo: string, minRatio: BigNumberish, maxRatio: BigNumberish];

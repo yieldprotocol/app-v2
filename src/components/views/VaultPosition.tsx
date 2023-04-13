@@ -29,11 +29,10 @@ import ModalWrap from '../wraps/ModalWrap';
 import { useCachedState } from '../../hooks/generalHooks';
 import { useRepayDebt } from '../../hooks/actionHooks/useRepayDebt';
 
-import { useRepayDebtVariableRate } from '../../hooks/actionHooks/useRepayDebtVariableRate';
-
 import { useRollDebt } from '../../hooks/actionHooks/useRollDebt';
-import { useCollateralHelpers } from '../../hooks/higherOrderHooks/useCollateralHelpers';
+import { useCollateralHelpers } from '../../hooks/viewHelperHooks/useCollateralHelpers';
 import { useAddCollateral } from '../../hooks/actionHooks/useAddCollateral';
+
 import { useRemoveCollateral } from '../../hooks/actionHooks/useRemoveCollateral';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
@@ -69,7 +68,7 @@ const VaultPosition = () => {
   const vaultBase = assetMap?.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
   const vaultSeries = seriesMap?.get(_selectedVault?.seriesId!);
-  const vaultIsVR = !!_selectedVault?.seriesId;
+  const vaultIsVR = !_selectedVault?.seriesId;
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { data: ilkBal } = useBalance({
@@ -132,14 +131,12 @@ const VaultPosition = () => {
   /* HOOK FNS */
   const repay = useRepayDebt();
 
-  const repayVariableRate = useRepayDebtVariableRate();
-
   const rollDebt = useRollDebt();
 
   const { logAnalyticsEvent } = useAnalytics();
 
   const { addCollateral } = useAddCollateral();
-  const { removeCollateral } = useRemoveCollateral();
+  const { removeCollateral } = useRemoveCollateral(vaultIsVR);
 
   const {
     maxCollateral,
@@ -223,11 +220,9 @@ const VaultPosition = () => {
   );
 
   const handleRepay = () => {
-    console.log('%c handleRepay', 'color: #00ff00; font-size: 16px;', repayDisabled);
     if (repayDisabled) return;
     setRepayDisabled(true);
-    // repay(_selectedVault!, repayInput?.toString(), reclaimCollateral);
-    repayVariableRate(_selectedVault!, repayInput?.toString(), reclaimCollateral);
+    repay(_selectedVault!, repayInput?.toString(), reclaimCollateral);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
@@ -249,6 +244,7 @@ const VaultPosition = () => {
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
+    console.log('handleCollateral', action, removeCollateralDisabled);
     if (action === 'REMOVE') {
       if (removeCollateralDisabled) return;
       setRemoveCollateralDisabled(true);
@@ -262,6 +258,16 @@ const VaultPosition = () => {
     } else {
       if (addCollateralDisabled) return;
       setAddCollateralDisabled(true);
+
+      console.log(
+        '%c handleCollateral in VaultPosition',
+        'color: #00ff00; font-size: 16px;',
+        action,
+        addCollateralDisabled,
+        removeCollateralDisabled
+      );
+
+      // addCollateral(_selectedVault, addCollatInput);
       addCollateral(_selectedVault, addCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {

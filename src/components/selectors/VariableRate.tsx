@@ -74,11 +74,9 @@ const VariableRate = () => {
   } = useContext(SettingsContext);
 
   const {
-    userState: { selectedVR, },
+    userState: { selectedVR },
     userActions: { setSelectedVR },
   } = useContext(UserContext);
-
-
 
   return (
     <StyledBox

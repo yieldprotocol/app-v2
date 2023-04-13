@@ -25,10 +25,10 @@ export const contractAddresses: ContractAddresses = {
       1,
       new Map([
         [ContractNames.CAULDRON, '0xc88191F8cb8e6D4a668B047c1C8503432c3Ca867'],
-        [ContractNames.VR_CAULDRON, '0x8fd04c6153a0e33afc669689c9bc36ae2e1e6501'],
+        [ContractNames.VR_CAULDRON, '0xe9b81548704a0bf1ebe85ed504bc3e248ce15733'],
         [ContractNames.LADLE, '0x6cB18fF2A33e981D1e38A663Ca056c0a5265066A'],
-        [ContractNames.VR_LADLE, '0x35d8f478ce6597548256d02b374972a775df927d'],
-        [ContractNames.VR_WITCH, '0x1b831a29427c50ca412ef5c19eb2cf2a300a48a6'],
+        [ContractNames.VR_LADLE, '0x3fa3116da426af606826eaf2e58344fbd56b6489'],
+        [ContractNames.VR_WITCH, '0xe7901efbfb59ef0c4831d06f77edc740ed98adc8'],
         [ContractNames.WITCH, '0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061'],
         [ContractNames.WITCHV2, '0x08d2f5c96bb1f6be04b49bcd869d5af01db4c400'],
         [ContractNames.TRANSFER_1155_MODULE, '0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06'],
