@@ -31,7 +31,7 @@ import { useInputValidation } from '../../hooks/useInputValidation';
 import AltText from '../texts/AltText';
 import YieldCardHeader from '../YieldCardHeader';
 import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
-import { useLend } from '../../hooks/actionHooks/useLend';
+import useLend from '../../hooks/actionHooks/useLend';
 
 import ColorText from '../texts/ColorText';
 import { useProcess } from '../../hooks/useProcess';
