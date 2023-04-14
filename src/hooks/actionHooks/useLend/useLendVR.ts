@@ -86,8 +86,7 @@ export const useLendVR = () => {
       return [];
     };
     const joinAddr = await ladle.joins(base.id);
-    const vyPool = 'something'; // TODO
-    const proxyContract = 'something' as ProxyContractVR; // TODO
+    const vyTokenAddr = 'something'; // TODO
 
     const calls: ICallData[] = [
       ...permitCallData,
@@ -99,9 +98,9 @@ export const useLendVR = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [account, _input] as RoutedActions.Args.LEND, // TODO get real routed action/func args
-        fnName: RoutedActions.Fn.LEND_VR, // TODO get real routed action/func name
-        targetContract: proxyContract,
+        args: [account, _input] as RoutedActions.Args.DEPOSIT,
+        fnName: RoutedActions.Fn.DEPOSIT,
+        targetContract: vyTokenContract,
         ignoreIf: false,
       },
     ];
