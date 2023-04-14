@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, MAX_256, sellBase } from '@yield-protocol/ui-math';
 import * as contractTypes from '../../../contracts';
 
 import { ETH_BASED_ASSETS, USDT } from '../../../config/assets';
@@ -16,8 +15,8 @@ import useChainId from '../../useChainId';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import useAllowAction from '../../useAllowAction';
-import { VYToken__factory, Join__factory, VYTokenProxy__factory } from '../../../contracts';
-import useFork from '../../useFork';
+import { VYToken__factory } from '../../../contracts';
+import { MAX_256 } from '@yield-protocol/ui-math';
 
 /* Lend Actions Hook */
 export const useLendVR = () => {
@@ -43,21 +42,26 @@ export const useLendVR = () => {
   const contracts = useContracts();
 
   const lend = async (input: string | undefined) => {
-    if (!selectedBase || !contracts || !assetMap || !account) return;
-    if (!isActionAllowed(ActionCodes.LEND_FR)) return;
+    console.log('in lend vr');
+
+    if (!selectedBase || !contracts || !assetMap || !account)
+      return console.error('no selectedBase || !contracts || !assetMap || !account');
+    if (!isActionAllowed(ActionCodes.LEND_FR)) return console.log('lend action not allowed');
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, `${selectedBase?.id}-vr`);
 
     const base = assetMap.get(selectedBase.id);
-    if (!base) return;
+    if (!base) return console.error('no base');
+
+    if (!input) return console.error('no input');
 
     const cleanedInput = cleanValue(input, base.decimals);
-    const _input = input ? ethers.utils.parseUnits(cleanedInput, base?.decimals) : ethers.constants.Zero;
+    const _input = ethers.utils.parseUnits(cleanedInput, base.decimals);
 
     const ladle = contracts.get(ContractNames.VR_LADLE) as contractTypes.VRLadle | undefined;
 
-    if (!ladle?.address) return;
+    if (!ladle?.address) return console.error('no ladle');
 
     /* check if signature is required */
     const alreadyApproved = (await base.getAllowance(account, ladle.address)).gte(_input);
@@ -82,11 +86,13 @@ export const useLendVR = () => {
       return [];
     };
 
-    const joinAddr = await ladle.joins(base.id);
+    // const joinAddr = await ladle.joins(base.id); TODO figure out why not working
+    const joinAddr = base.joinAddressVR;
+    if (!joinAddr) return console.error('no joinAddr');
 
-    const vyTokenAddr = base.VYTokenProxyAddress;
-    if (!vyTokenAddr) return;
-    const vyTokenProxyContract = VYToken__factory.connect(vyTokenAddr, provider);
+    const vyTokenProxyAddr = base.VYTokenProxyAddress;
+    if (!vyTokenProxyAddr) return console.error('no vyTokenAddr');
+    const vyTokenProxyContract = VYToken__factory.connect(vyTokenProxyAddr, provider);
 
     const calls: ICallData[] = [
       ...permitCallData,
