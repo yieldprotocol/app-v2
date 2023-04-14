@@ -27,7 +27,7 @@ export const contractAddresses: ContractAddresses = {
         [ContractNames.CAULDRON, '0xc88191F8cb8e6D4a668B047c1C8503432c3Ca867'],
         [ContractNames.VR_CAULDRON, '0xe199a0559516d8dd4739c978ad91ff1e6e228ecb'],
         [ContractNames.LADLE, '0x6cB18fF2A33e981D1e38A663Ca056c0a5265066A'],
-        [ContractNames.VR_LADLE, '0x122ea911f1c2d78b67a77f95cae04dea10fee47b'],
+        [ContractNames.VR_LADLE, '0x3405402FeE8d274fD5c2aC73F829c775B5a017AB'],
         [ContractNames.VR_WITCH, '0x556c5d86ab9497e2d12aa5bd2547f15bcb66065d'],
         [ContractNames.WITCH, '0x53C3760670f6091E1eC76B4dd27f73ba4CAd5061'],
         [ContractNames.WITCHV2, '0x08d2f5c96bb1f6be04b49bcd869d5af01db4c400'],
