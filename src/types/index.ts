@@ -434,6 +434,7 @@ export enum ActionCodes {
   ROLL_DEBT = 'Roll Debt',
   // LEND
   LEND = 'Lend',
+  LEND_FR = 'Lend_FR',
   CLOSE_POSITION = 'Redeem Position',
   ROLL_POSITION = 'Roll Position',
   REDEEM = 'Redeem',
