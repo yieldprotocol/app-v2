@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { MAX_256 } from '@yield-protocol/ui-math';
+import { calculateSlippage, MAX_256, sellBase } from '@yield-protocol/ui-math';
+import * as contractTypes from '../../../contracts';
 
 import { ETH_BASED_ASSETS, USDT } from '../../../config/assets';
 import { HistoryContext } from '../../../contexts/HistoryContext';
@@ -15,7 +16,8 @@ import useChainId from '../../useChainId';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import useAllowAction from '../../useAllowAction';
-import { VRLadle } from '../../../contracts';
+import { VYToken__factory, Join__factory, VYTokenProxy__factory } from '../../../contracts';
+import useFork from '../../useFork';
 
 /* Lend Actions Hook */
 export const useLendVR = () => {
@@ -53,7 +55,7 @@ export const useLendVR = () => {
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base?.decimals) : ethers.constants.Zero;
 
-    const ladle = contracts.get(ContractNames.VR_LADLE) as VRLadle | undefined;
+    const ladle = contracts.get(ContractNames.VR_LADLE) as contractTypes.VRLadle | undefined;
 
     if (!ladle?.address) return;
 
@@ -80,8 +82,8 @@ export const useLendVR = () => {
       return [];
     };
     const joinAddr = await ladle.joins(base.id);
-    const vyTokenAddr = 'something'; // TODO
-    const vyTokenContract = VYTokenFactory.connect(vyTokenAddr, provider);
+    const vyTokenAddr = base.VYTokenAddress!;
+    const vyTokenContract = VYToken__factory.connect(vyTokenAddr, provider);
 
     const calls: ICallData[] = [
       ...permitCallData,

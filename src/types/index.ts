@@ -161,6 +161,9 @@ export interface IAssetRoot extends IAssetStaticInfo, ISignable {
   displayName: string;
   displayNameMobile: string;
   joinAddress: string;
+  joinAddressVR?: string; // for VR if we can't query - jacob b
+  VYTokenAddress?: string; // for VR if we can't query - jacob b
+  VYTokenProxyAddress?: string; // for VR if we can't query - jacob b
 
   digitFormat: number;
   assetContract: Contract;
