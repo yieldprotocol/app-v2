@@ -17,6 +17,7 @@ import useChainId from '../../useChainId';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import useAllowAction from '../../useAllowAction';
+import { VRLadle } from '../../../contracts';
 
 /* Lend Actions Hook */
 export const useLendVR = () => {
@@ -58,12 +59,12 @@ export const useLendVR = () => {
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base?.decimals) : ethers.constants.Zero;
 
-    const ladleAddress = contracts.get(ContractNames.VR_LADLE)?.address;
+    const ladle = contracts.get(ContractNames.VR_LADLE) as VRLadle | undefined;
 
-    if (!ladleAddress) return;
+    if (!ladle?.address) return;
 
     /* check if signature is required */
-    const alreadyApproved = (await base.getAllowance(account, ladleAddress)).gte(_input);
+    const alreadyApproved = (await base.getAllowance(account, ladle.address)).gte(_input);
 
     /* ETH is used as a base */
     const isEthBase = ETH_BASED_ASSETS.includes(selectedBase.id);
@@ -84,7 +85,7 @@ export const useLendVR = () => {
       // if (isEthBase) return addEth(_input, series.poolAddress); // TODO addETH using vr
       return [];
     };
-
+    const joinAddr = await ladle.joins(base.id);
     const vyPool = 'something'; // TODO
     const proxyContract = 'something' as ProxyContractVR; // TODO
 
@@ -93,7 +94,7 @@ export const useLendVR = () => {
       ...addEthCallData(),
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, vyPool, _input] as LadleActions.Args.TRANSFER,
+        args: [base.address, joinAddr, _input] as LadleActions.Args.TRANSFER,
         ignoreIf: isEthBase,
       },
       {
