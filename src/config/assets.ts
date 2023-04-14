@@ -22,6 +22,8 @@ export interface AssetStaticInfo {
   unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
   proxyId?: string; // associated token (eg. )
   joinAddressVR?: string; // address of the VR join contract
+  VYTokenAddress?: string; // address of the VYToken contract
+  VYTokenProxyAddress?: string; // address of the VYTokenProxy contract
 }
 
 export const WETH = '0x303000000000';
