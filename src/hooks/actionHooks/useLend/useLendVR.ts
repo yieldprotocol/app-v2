@@ -81,9 +81,12 @@ export const useLendVR = () => {
       // if (isEthBase) return addEth(_input, series.poolAddress); // TODO addETH using vr
       return [];
     };
+
     const joinAddr = await ladle.joins(base.id);
-    const vyTokenAddr = base.VYTokenAddress!;
-    const vyTokenContract = VYToken__factory.connect(vyTokenAddr, provider);
+
+    const vyTokenAddr = base.VYTokenProxyAddress;
+    if (!vyTokenAddr) return;
+    const vyTokenProxyContract = VYToken__factory.connect(vyTokenAddr, provider);
 
     const calls: ICallData[] = [
       ...permitCallData,
@@ -97,7 +100,7 @@ export const useLendVR = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [account, _input] as RoutedActions.Args.DEPOSIT,
         fnName: RoutedActions.Fn.DEPOSIT,
-        targetContract: vyTokenContract,
+        targetContract: vyTokenProxyContract,
         ignoreIf: false,
       },
     ];
