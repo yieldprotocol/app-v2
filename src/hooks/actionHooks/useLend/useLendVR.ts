@@ -48,6 +48,7 @@ export const useLendVR = () => {
   const contracts = useContracts();
 
   const lend = async (input: string | undefined, series: ISeries) => {
+    console.log('🦄 ~ file: useLendVR.ts:68 ~ lend ~ input, series', input, series);
     if (!contracts) return;
     // if (!isActionAllowed(ActionCodes.LEND)) return; // return if action is not allowed -- TODO implement for VR - jacob b
 

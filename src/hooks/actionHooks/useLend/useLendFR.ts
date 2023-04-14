@@ -47,6 +47,7 @@ export const useLendFR = () => {
   const contracts = useContracts();
 
   const lend = async (input: string | undefined, series: ISeries) => {
+    console.log('🦄 ~ file: useLendFR.ts:49 ~ lend ~ input, series', input, series);
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.LEND)) return; // return if action is not allowed
 
