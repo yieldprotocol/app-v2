@@ -1,12 +1,12 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 
-import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext, TokenType } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
@@ -22,9 +22,9 @@ import useAllowAction from '../useAllowAction';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
+  const { selectedBase, selectedIlk, selectedSeries, assetMap,  } = userState;
   const { updateAssets, updateVaults } = userActions;
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
   const contracts = useContracts();
 
   const {
@@ -107,11 +107,19 @@ export const useAddCollateral = () => {
     );
 
     /* Add in an Assert call : collateral(ilk) increases by input amount */
-    const assertCallData: ICallData[] = assert(
+    const assertCallData: ICallData[] =  ilk.id !== WETH
+    ? assert(
       ilk.address,
       encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
       AssertActions.Fn.ASSERT_GE,
       ilk.balance.add(_input)
+    )
+    : assert(
+        undefined,
+        encodeBalanceCall(undefined),
+        AssertActions.Fn.ASSERT_GE,
+        (nativeBalance?.value as BigNumber).add(input)
+        // ilk.balance.add(_input)    
     );
 
     /**

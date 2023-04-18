@@ -40,7 +40,7 @@ export const useAssert = () => {
   const { address: account } = useAccount();
   const { chain } = useNetwork();
 
-  const encodeBalanceCall = (targetAddress: string, tokenIdentifier: string | number | undefined = undefined) => {
+  const encodeBalanceCall = (targetAddress: string | undefined, tokenIdentifier: string | number | undefined = undefined) => {
     if (targetAddress) {
       const abi = tokenIdentifier ? ERC1155__factory.abi : erc20ABI;
       const args = tokenIdentifier ? [account, tokenIdentifier] : [account];
@@ -53,7 +53,7 @@ export const useAssert = () => {
   };
 
   const assert = (
-    address: string,
+    address: string | undefined,
     encodedCallBytes: string,
     assertFn: AssertActions.Fn,
     expectedVal: BigNumber,
@@ -61,17 +61,19 @@ export const useAssert = () => {
     ignoreIf: boolean = false
   ): ICallData[] => {
     if (!contracts) return [];
-
-    const AssertContract = contracts.get(ContractNames.ASSERT) as Assert;
-
+    /* if address == undefined, then use the appropriate multicall contract for the connected chain as the defualt */
+    const defaultAddress = chain?.contracts?.multicall3?.address!
+    
+    const assertContract = contracts.get(ContractNames.ASSERT) as Assert;
+    
     return [
       {
         operation: LadleActions.Fn.ROUTE,
         args: relOrAbsVal.gt(ZERO_BN)
-          ? [address, encodedCallBytes, expectedVal, relOrAbsVal]
-          : [address, encodedCallBytes, expectedVal],
+          ? [address || defaultAddress, encodedCallBytes, expectedVal, relOrAbsVal]
+          : [address || defaultAddress, encodedCallBytes, expectedVal],
         fnName: assertFn,
-        targetContract: AssertContract,
+        targetContract: assertContract,
         ignoreIf,
       },
     ];
