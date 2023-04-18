@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
+import { IVYToken } from '../hooks/entities/useVYTokens';
 
 const Outer = styled(Box)`
   position: relative;
@@ -31,7 +32,7 @@ function PositionAvatar({
   condensed,
   actionType,
 }: {
-  position: IVault | ISeries | IStrategy;
+  position: IVault | ISeries | IStrategy | IVYToken;
   actionType: ActionType;
   condensed?: boolean;
 }) {
