@@ -42,8 +42,6 @@ export const useLendVR = () => {
   const contracts = useContracts();
 
   const lend = async (input: string | undefined) => {
-    console.log('in lend vr');
-
     if (!selectedBase || !contracts || !assetMap || !account)
       return console.error('no selectedBase || !contracts || !assetMap || !account');
     if (!isActionAllowed(ActionCodes.LEND_FR)) return console.log('lend action not allowed');
@@ -81,18 +79,27 @@ export const useLendVR = () => {
       txCode
     );
 
-    const addEthCallData = () => {
-      // if (isEthBase) return addEth(_input, series.poolAddress); // TODO addETH using vr
-      return [];
-    };
-
-    // const joinAddr = await ladle.joins(base.id); TODO figure out why not working
     const joinAddr = base.joinAddressVR;
     if (!joinAddr) return console.error('no joinAddr');
 
     const vyTokenProxyAddr = base.VYTokenProxyAddress;
     if (!vyTokenProxyAddr) return console.error('no vyTokenAddr');
     const vyTokenProxyContract = VYToken__factory.connect(vyTokenProxyAddr, provider);
+
+    const addEthCallData = () => {
+      // TODO move to its own hook? - jacob b
+      if (isEthBase) {
+        console.log('LENDING ETH', _input);
+        return [
+          {
+            operation: LadleActions.Fn.WRAP_ETHER,
+            args: [joinAddr] as LadleActions.Args.WRAP_ETHER,
+          },
+        ];
+      }
+
+      return [];
+    };
 
     const calls: ICallData[] = [
       ...permitCallData,

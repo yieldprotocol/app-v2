@@ -11,17 +11,54 @@ const _abi = [
     inputs: [
       {
         internalType: "contract IVRCauldron",
-        name: "cauldron",
+        name: "cauldron_",
+        type: "address",
+      },
+      {
+        internalType: "contract IRouter",
+        name: "router_",
         type: "address",
       },
       {
         internalType: "contract IWETH9",
-        name: "weth",
+        name: "weth_",
         type: "address",
       },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "previousAdmin",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "newAdmin",
+        type: "address",
+      },
+    ],
+    name: "AdminChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "beacon",
+        type: "address",
+      },
+    ],
+    name: "BeaconUpgraded",
+    type: "event",
   },
   {
     anonymous: false,
@@ -72,25 +109,6 @@ const _abi = [
       },
     ],
     name: "JoinAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "module",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bool",
-        name: "set",
-        type: "bool",
-      },
-    ],
-    name: "ModuleAdded",
     type: "event",
   },
   {
@@ -182,6 +200,19 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "implementation",
+        type: "address",
+      },
+    ],
+    name: "Upgraded",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "LOCK",
     outputs: [
@@ -265,24 +296,6 @@ const _abi = [
       },
     ],
     name: "addJoin",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "module",
-        type: "address",
-      },
-      {
-        internalType: "bool",
-        name: "set",
-        type: "bool",
-      },
-    ],
-    name: "addModule",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -411,25 +424,6 @@ const _abi = [
     ],
     name: "destroy",
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address payable",
-        name: "to",
-        type: "address",
-      },
-    ],
-    name: "exitEther",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "ethTransferred",
-        type: "uint256",
-      },
-    ],
     stateMutability: "payable",
     type: "function",
   },
@@ -648,11 +642,18 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "root_",
         type: "address",
       },
     ],
-    name: "integrations",
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "initialized",
     outputs: [
       {
         internalType: "bool",
@@ -666,20 +667,20 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "etherId",
-        type: "bytes6",
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    name: "joinEther",
+    name: "integrations",
     outputs: [
       {
-        internalType: "uint256",
-        name: "ethTransferred",
-        type: "uint256",
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
-    stateMutability: "payable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -717,49 +718,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "module",
-        type: "address",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "moduleCall",
-    outputs: [
-      {
-        internalType: "bytes",
-        name: "result",
-        type: "bytes",
-      },
-    ],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "modules",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes12",
         name: "vaultId_",
         type: "bytes12",
@@ -783,6 +741,19 @@ const _abi = [
     name: "pour",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "proxiableUUID",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -931,7 +902,7 @@ const _abi = [
     name: "router",
     outputs: [
       {
-        internalType: "contract Router",
+        internalType: "contract IRouter",
         name: "",
         type: "address",
       },
@@ -1087,6 +1058,56 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address payable",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "unwrapEther",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ethTransferred",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newImplementation",
+        type: "address",
+      },
+    ],
+    name: "upgradeTo",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newImplementation",
+        type: "address",
+      },
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "upgradeToAndCall",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "weth",
     outputs: [
@@ -1097,6 +1118,25 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "wrapEther",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "ethTransferred",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
     type: "function",
   },
   {
