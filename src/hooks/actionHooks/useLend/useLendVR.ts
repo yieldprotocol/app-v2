@@ -94,6 +94,7 @@ export const useLendVR = () => {
           {
             operation: LadleActions.Fn.WRAP_ETHER,
             args: [joinAddr] as LadleActions.Args.WRAP_ETHER,
+            overrides: { value: _input },
           },
         ];
       }
