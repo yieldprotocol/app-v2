@@ -1,5 +1,5 @@
 import { ReactNode, createContext } from 'react';
-import { EthersMulticall, MulticallService } from '@yield-protocol/ui-multicall/src';
+import { EthersMulticall, MulticallService } from '@yield-protocol/ui-multicall';
 import useDefaultProvider from '../hooks/useDefaultProvider';
 import useFork from '../hooks/useFork';
 import useChainId from '../hooks/useChainId';
