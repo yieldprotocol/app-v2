@@ -57,28 +57,25 @@ function LendPositionSelector() {
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
-    (async () => {
-      /* only if viewing the main screen (not when modal is showing) */
-      const getPositions = async () =>
-        activeAccount
-          ? [...seriesMap.values(), ...(vyTokens?.values()! || [])].reduce(
-              async (acc, { baseId, address, balance, balance_, displayName }) => {
-                const position: IPosition = {
-                  baseId,
-                  address,
-                  balance: balance ?? ethers.constants.Zero,
-                  balance_: balance_ ?? '0',
-                  displayName,
-                };
-
-                return [...(await acc), position];
+    /* only if viewing the main screen (not when modal is showing) */
+    const getPositions = () =>
+      activeAccount
+        ? [...seriesMap.values(), ...(vyTokens?.values()! || [])].reduce(
+            (acc, { baseId, address, balance, balance_, displayName }) => [
+              ...acc,
+              {
+                baseId,
+                address,
+                balance: balance ?? ethers.constants.Zero,
+                balance_: balance_ ?? '0',
+                displayName,
               },
-              Promise.resolve<IPosition[]>([])
-            )
-          : [];
+            ],
+            [] as IPosition[]
+          )
+        : [];
 
-      setAllPositions(handleSort(await getPositions()));
-    })();
+    setAllPositions(handleSort(getPositions()));
   }, [activeAccount, seriesMap, vyTokens]);
 
   useEffect(() => {
