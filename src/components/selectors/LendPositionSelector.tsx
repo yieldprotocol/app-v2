@@ -23,7 +23,7 @@ export interface IPosition {
 
 function LendPositionSelector() {
   const { data: vyTokens } = useVYTokens();
-  console.log('🦄 ~ file: LendPositionSelector.tsx:25 ~ LendPositionSelector ~ vyTokens:', vyTokens);
+  console.log('🦄 ~ file: LendPositionSelector.tsx:26 ~ LendPositionSelector ~ vyTokens:', vyTokens);
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
@@ -73,14 +73,14 @@ function LendPositionSelector() {
             }, Promise.resolve<IPosition[]>([]))
           : [];
 
-      setAllPositions(await getPositions());
+      setAllPositions(handleSort(await getPositions()));
     })();
   }, [activeAccount, seriesMap]);
 
   useEffect(() => {
     handleFilter({
       base: selectedBase,
-      id: selectedSeries ? selectedSeries?.id : selectedVR ? selectedBase?.VYTokenProxyAddress : undefined,
+      id: selectedSeries ? selectedSeries?.id : selectedVR ? selectedBase?.VYTokenAddress : undefined,
     });
   }, [handleFilter, selectedBase, selectedSeries, selectedVR]);
 
