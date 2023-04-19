@@ -231,7 +231,7 @@ const LendPosition = () => {
                     <InfoBite
                       label="Portfolio value at Maturity"
                       value={`${cleanValue(
-                        selectedSeries?.fyTokenBalance_!,
+                        selectedSeries?.balance_!,
                         selectedBase?.digitFormat!
                       )} ${selectedBase?.displaySymbol!}`}
                       icon={<FiTrendingUp />}
