@@ -8,6 +8,7 @@ import { ISignable } from '../../types';
 import { BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils.js';
 import { ChainContext } from '../../contexts/ChainContext';
+import { MulticallContext } from '../../contexts/MutlicallContext';
 
 export interface IVYToken extends ISignable {
   id: string; // vyToken address
@@ -22,6 +23,7 @@ export interface IVYToken extends ISignable {
 }
 
 const useVYTokens = () => {
+  const { multicall: _multicall, forkMulticall } = useContext(MulticallContext);
   const { mutate: _mutate } = useSWRConfig();
   const { address: account } = useAccountPlus();
   const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
@@ -31,6 +33,7 @@ const useVYTokens = () => {
   } = useContext(ChainContext);
 
   const providerToUse = useForkedEnv && forkProvider ? forkProvider : provider;
+  const multicall = useForkedEnv ? forkMulticall : _multicall;
 
   const get = useCallback(async () => {
     console.log('getting vyToken data');
@@ -39,8 +42,9 @@ const useVYTokens = () => {
       .reduce(async (vyTokens, [proxyAddress, address]) => {
         if (!address || !proxyAddress) return await vyTokens;
 
-        const contract = VYToken__factory.connect(address, providerToUse);
-        const proxy = VYToken__factory.connect(proxyAddress, providerToUse);
+        const contract = multicall?.wrap(VYToken__factory.connect(address, providerToUse))!;
+        const proxy = multicall?.wrap(VYToken__factory.connect(proxyAddress, providerToUse))!;
+
         const [name, symbol, decimals, version, baseAddress, baseId, balance] = await Promise.all([
           contract.name(),
           contract.symbol(),
@@ -69,7 +73,7 @@ const useVYTokens = () => {
 
         return (await vyTokens).set(address, data);
       }, Promise.resolve(new Map<string, IVYToken>()));
-  }, [account, assetRootMap, providerToUse]);
+  }, [account, assetRootMap, multicall, providerToUse]);
 
   const key = useMemo(
     () => ['vyTokens', forkUrl, useForkedEnv, account, assetRootMap],
@@ -78,7 +82,7 @@ const useVYTokens = () => {
 
   const { data, error, isLoading } = useSWR(key, get, {
     revalidateOnFocus: false,
-    revalidateIfStale: false,
+    revalidateIfStale: true,
   });
 
   return { data, error, isLoading, key };
