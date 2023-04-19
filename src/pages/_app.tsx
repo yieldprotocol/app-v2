@@ -14,6 +14,7 @@ const DynamicTxProvider = dynamic(() => import('../contexts/TxContext'), { ssr: 
 const DynamicHistoryProvider = dynamic(() => import('../contexts/HistoryContext'), { ssr: false });
 const DynamicLayout = dynamic(() => import('../components/Layout'), { ssr: false });
 const DynamicKillSwitch = dynamic(() => import('../components/KillSwitch'), { ssr: false });
+const DynamicMulticallProvider = dynamic(() => import('../contexts/MutlicallContext'), { ssr: false });
 
 declare global {
   interface Window {
@@ -35,17 +36,19 @@ const App = ({ Component, pageProps }: AppProps) => {
     <WagmiContext>
       <DynamicSettingsProvider>
         <DynamicChainProvider>
-          <DynamicUserProvider>
-            <DynamicTxProvider>
-              <DynamicHistoryProvider>
-                <DynamicLayout>
-                  <DynamicKillSwitch>
-                    <Component {...pageProps} />
-                  </DynamicKillSwitch>
-                </DynamicLayout>
-              </DynamicHistoryProvider>
-            </DynamicTxProvider>
-          </DynamicUserProvider>
+          <DynamicMulticallProvider>
+            <DynamicUserProvider>
+              <DynamicTxProvider>
+                <DynamicHistoryProvider>
+                  <DynamicLayout>
+                    <DynamicKillSwitch>
+                      <Component {...pageProps} />
+                    </DynamicKillSwitch>
+                  </DynamicLayout>
+                </DynamicHistoryProvider>
+              </DynamicTxProvider>
+            </DynamicUserProvider>
+          </DynamicMulticallProvider>
         </DynamicChainProvider>
       </DynamicSettingsProvider>
     </WagmiContext>
