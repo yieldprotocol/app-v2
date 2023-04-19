@@ -6,6 +6,8 @@ import { UserContext } from '../../contexts/UserContext';
 import useDefaultProvider from '../useDefaultProvider';
 import useAccountPlus from '../useAccountPlus';
 import { ISignable } from '../../types';
+import { BigNumber, ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils.js';
 
 export interface IVYToken extends ISignable {
   id: string; // vyToken address
@@ -14,6 +16,8 @@ export interface IVYToken extends ISignable {
   baseId: string; // associated base id
   displayName?: string;
   displayNameMobile?: string;
+  balance?: BigNumber;
+  balance_?: string;
 }
 
 const useVYTokens = () => {
@@ -31,13 +35,14 @@ const useVYTokens = () => {
         if (!address) return await vyTokens;
 
         const contract = VYToken__factory.connect(address, useForkedEnv && forkProvider ? forkProvider : provider);
-        const [name, symbol, decimals, version, baseAddress, baseId] = await Promise.all([
+        const [name, symbol, decimals, version, baseAddress, baseId, balance] = await Promise.all([
           contract.name(),
           contract.symbol(),
           contract.decimals(),
           contract.version(),
           contract.underlying(),
           contract.underlyingId(),
+          account ? contract.balanceOf(account) : ethers.constants.Zero,
         ]);
 
         const data: IVYToken = {
@@ -51,14 +56,16 @@ const useVYTokens = () => {
           baseId,
           displayName: `Variable Rate ${name.substring(2)}`,
           displayNameMobile: `Variable Rate ${name.substring(2)}`,
+          balance,
+          balance_: formatUnits(balance, decimals),
         };
 
         return (await vyTokens).set(address, data);
       }, Promise.resolve(new Map<string, IVYToken>()));
-  }, [assetMap, forkProvider, provider, useForkedEnv]);
+  }, [account, assetMap, forkProvider, provider, useForkedEnv]);
 
   const key = useMemo(
-    () => ['lendPositionsVR', account, assetMap, forkProvider, provider, useForkedEnv],
+    () => ['vyTokens', account, assetMap, forkProvider, provider, useForkedEnv],
     [account, assetMap, forkProvider, provider, useForkedEnv]
   );
 
