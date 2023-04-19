@@ -3,7 +3,8 @@ import { useRemoveCollateralVR } from './useRemoveCollateralVR';
 import { useRemoveCollateralFR } from './useRemoveCollateralFR';
 
 export const useRemoveCollateral = (isVRVault: boolean) => {
-  const baseHook = isVRVault ? useRemoveCollateralVR : useRemoveCollateralFR;
+  const removeCollateralVR = useRemoveCollateralVR();
+  const removeCollateralFR = useRemoveCollateralFR();
 
-  return baseHook();
+  return isVRVault ? removeCollateralVR : removeCollateralFR;
 };

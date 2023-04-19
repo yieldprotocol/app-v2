@@ -10,11 +10,10 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   const { userState } = useContext(UserContext);
   const { selectedVR } = userState;
 
-  if (selectedVR) {
-    return useAssetPairVariableRate(baseId, ilkId);
-  } else {
-    return useAssetPairFixedRate(baseId, ilkId, seriesId);
-  }
+  const assetPairVR = useAssetPairVariableRate(baseId, ilkId);
+  const assetPairFR = useAssetPairFixedRate(baseId, ilkId, seriesId);
+
+  return selectedVR ? assetPairVR : assetPairFR;
 };
 
 export default useAssetPair;

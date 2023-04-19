@@ -44,7 +44,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
 
-  const { validIlks, validIlksLoading } = useAssetPair(undefined, undefined, selectedSeries?.id);
+  const { validIlks, validIlksLoading } = useAssetPair(selectedBase?.id, undefined, selectedSeries?.id);
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (

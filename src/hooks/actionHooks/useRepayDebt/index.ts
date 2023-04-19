@@ -10,7 +10,8 @@ export const useRepayDebt = () => {
   const { userState } = useContext(UserContext);
   const { selectedSeries } = userState;
 
-  const baseHook = selectedSeries ? useRepayDebtFR : useRepayDebtVR;
+  const repayDebtVR = useRepayDebtVR();
+  const repayDebtFR = useRepayDebtFR();
 
-  return baseHook();
+  return selectedSeries ? repayDebtFR : repayDebtVR;
 };

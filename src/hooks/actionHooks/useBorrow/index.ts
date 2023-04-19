@@ -10,7 +10,8 @@ export const useBorrow = () => {
   const { userState } = useContext(UserContext);
   const { selectedVR } = userState;
 
-  const baseHook = selectedVR ? useBorrowVR : useBorrowFR;
+  const borrowVR = useBorrowVR();
+  const borrowFR = useBorrowFR();
 
-  return baseHook();
+  return selectedVR ? borrowVR : borrowFR;
 };
