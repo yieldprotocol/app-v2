@@ -56,8 +56,8 @@ const useVYTokens = () => {
           version,
           baseAddress,
           baseId,
-          displayName: `Variable Rate ${name.substring(2)}`,
-          displayNameMobile: `Variable Rate ${name.substring(2)}`,
+          displayName: name,
+          displayNameMobile: name,
           balance,
           balance_: formatUnits(balance, decimals),
         };

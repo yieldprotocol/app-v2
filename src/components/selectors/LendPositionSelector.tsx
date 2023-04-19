@@ -75,7 +75,7 @@ function LendPositionSelector() {
 
       setAllPositions(handleSort(await getPositions()));
     })();
-  }, [activeAccount, seriesMap]);
+  }, [activeAccount, seriesMap, vyTokens]);
 
   useEffect(() => {
     handleFilter({
