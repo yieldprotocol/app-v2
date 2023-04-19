@@ -26,7 +26,7 @@ const useVYTokens = () => {
 
   const get = useCallback(async () => {
     return await Array.from(assetMap.values())
-      .map((a) => a.VYTokenProxyAddress) // get asset's vyTokenProxy addr
+      .map((a) => a.VYTokenAddress) // get asset's vyTokenProxy addr
       .reduce(async (vyTokens, address) => {
         if (!address) return await vyTokens;
 
