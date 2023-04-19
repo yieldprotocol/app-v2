@@ -75,7 +75,7 @@ const useVYTokens = () => {
 
   const { data, error, isLoading } = useSWR(key, get, { revalidateOnFocus: false, revalidateIfStale: false });
 
-  return { data, error, isLoading };
+  return { data, error, isLoading, key };
 };
 
 export default useVYTokens;
