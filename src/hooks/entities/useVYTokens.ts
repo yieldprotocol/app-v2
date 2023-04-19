@@ -1,13 +1,14 @@
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { VYToken__factory } from '../../contracts';
 import { useCallback, useContext, useMemo } from 'react';
 import useFork from '../useFork';
 import { UserContext } from '../../contexts/UserContext';
 import useDefaultProvider from '../useDefaultProvider';
 import useAccountPlus from '../useAccountPlus';
-import { ISignable } from '../../types';
+import { ISignable, Provider } from '../../types';
 import { BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils.js';
+import { ChainContext } from '../../contexts/ChainContext';
 
 export interface IVYToken extends ISignable {
   id: string; // vyToken address
@@ -22,22 +23,25 @@ export interface IVYToken extends ISignable {
 }
 
 const useVYTokens = () => {
+  const { mutate: _mutate } = useSWRConfig();
   const { address: account } = useAccountPlus();
-  const { useForkedEnv, provider: forkProvider } = useFork();
+  const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
   const provider = useDefaultProvider();
   const {
-    userState: { assetMap },
-  } = useContext(UserContext);
+    chainState: { assetRootMap },
+  } = useContext(ChainContext);
+
+  const providerToUse = useForkedEnv && forkProvider ? forkProvider : provider;
 
   const get = useCallback(async () => {
-    return await Array.from(assetMap.values())
+    console.log('getting vyToken data');
+    return await Array.from(assetRootMap.values())
       .map((a) => [a.VYTokenProxyAddress, a.VYTokenAddress]) // get asset's vyTokenProxy addr
       .reduce(async (vyTokens, [proxyAddress, address]) => {
         if (!address || !proxyAddress) return await vyTokens;
 
-        const _provider = useForkedEnv && forkProvider ? forkProvider : provider;
-        const contract = VYToken__factory.connect(address, _provider);
-        const proxy = VYToken__factory.connect(proxyAddress, _provider);
+        const contract = VYToken__factory.connect(address, providerToUse);
+        const proxy = VYToken__factory.connect(proxyAddress, providerToUse);
         const [name, symbol, decimals, version, baseAddress, baseId, balance] = await Promise.all([
           contract.name(),
           contract.symbol(),
@@ -66,14 +70,17 @@ const useVYTokens = () => {
 
         return (await vyTokens).set(address, data);
       }, Promise.resolve(new Map<string, IVYToken>()));
-  }, [account, assetMap, forkProvider, provider, useForkedEnv]);
+  }, [account, assetRootMap, providerToUse]);
 
   const key = useMemo(
-    () => ['vyTokens', account, assetMap, forkProvider, provider, useForkedEnv],
-    [account, assetMap, forkProvider, provider, useForkedEnv]
+    () => ['vyTokens', forkUrl, useForkedEnv, account, assetRootMap],
+    [account, assetRootMap, forkUrl, useForkedEnv]
   );
 
-  const { data, error, isLoading } = useSWR(key, get, { revalidateOnFocus: false, revalidateIfStale: false });
+  const { data, error, isLoading } = useSWR(key, get, {
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+  });
 
   return { data, error, isLoading, key };
 };

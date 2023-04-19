@@ -12,6 +12,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import { IPosition } from '../selectors/LendPositionSelector';
 import useVYTokens from '../../hooks/entities/useVYTokens';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
 interface LendItemProps {
   item: IPosition;
@@ -28,6 +29,7 @@ function LendItem({ item, index, condensed }: LendItemProps) {
     userActions: { setSelectedBase, setSelectedSeries },
   } = useContext(UserContext);
   const { data: vyTokens } = useVYTokens();
+  // use vyToken balance if not a series
   const vyToken = vyTokens?.get(item.address);
   const series = [...seriesMap.values()].find((s) => s.address === item.address);
   const base = assetMap.get(item.baseId);

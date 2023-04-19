@@ -17,9 +17,13 @@ import { ContractNames } from '../../../config/contracts';
 import useAllowAction from '../../useAllowAction';
 import { VYToken__factory } from '../../../contracts';
 import { MAX_256 } from '@yield-protocol/ui-math';
+import useVYTokens from '../../entities/useVYTokens';
+import { useSWRConfig } from 'swr';
 
 /* Lend Actions Hook */
 export const useLendVR = () => {
+  const { mutate } = useSWRConfig();
+  const { key } = useVYTokens();
   const { userState, userActions } = useContext(UserContext);
   const provider = useProvider();
   const { assetMap, selectedBase } = userState;
@@ -120,8 +124,7 @@ export const useLendVR = () => {
     ];
 
     await transact(calls, txCode);
-    refetchBaseBal();
-    updateAssets([base]);
+    mutate(key);
     // updateLendVRHistory(); // TODO update vr lend history
   };
 
