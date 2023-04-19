@@ -19,11 +19,11 @@ export interface IPosition {
   baseId: string; // underlying base id
   displayName: string;
   balance: BigNumber;
+  balance_: string;
 }
 
 function LendPositionSelector() {
   const { data: vyTokens } = useVYTokens();
-  console.log('🦄 ~ file: LendPositionSelector.tsx:26 ~ LendPositionSelector ~ vyTokens:', vyTokens);
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
@@ -61,16 +61,20 @@ function LendPositionSelector() {
       /* only if viewing the main screen (not when modal is showing) */
       const getPositions = async () =>
         activeAccount
-          ? [...seriesMap.values(), ...(vyTokens?.values()! || [])].reduce(async (acc, item) => {
-              const position: IPosition = {
-                baseId: item.baseId,
-                address: item.address,
-                balance: ethers.constants.Zero,
-                displayName: item.displayName,
-              };
+          ? [...seriesMap.values(), ...(vyTokens?.values()! || [])].reduce(
+              async (acc, { baseId, address, balance, balance_, displayName }) => {
+                const position: IPosition = {
+                  baseId,
+                  address,
+                  balance: balance ?? ethers.constants.Zero,
+                  balance_: balance_ ?? '0',
+                  displayName,
+                };
 
-              return [...(await acc), position];
-            }, Promise.resolve<IPosition[]>([]))
+                return [...(await acc), position];
+              },
+              Promise.resolve<IPosition[]>([])
+            )
           : [];
 
       setAllPositions(handleSort(await getPositions()));

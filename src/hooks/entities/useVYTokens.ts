@@ -16,8 +16,9 @@ export interface IVYToken extends ISignable {
   baseId: string; // associated base id
   displayName: string;
   displayNameMobile: string;
-  balance?: BigNumber;
-  balance_?: string;
+  balance: BigNumber;
+  balance_: string;
+  proxyAddress: string;
 }
 
 const useVYTokens = () => {
@@ -31,12 +32,12 @@ const useVYTokens = () => {
   const get = useCallback(async () => {
     return await Array.from(assetMap.values())
       .map((a) => [a.VYTokenProxyAddress, a.VYTokenAddress]) // get asset's vyTokenProxy addr
-      .reduce(async (vyTokens, [proxyAddr, address]) => {
-        if (!address || !proxyAddr) return await vyTokens;
+      .reduce(async (vyTokens, [proxyAddress, address]) => {
+        if (!address || !proxyAddress) return await vyTokens;
 
         const _provider = useForkedEnv && forkProvider ? forkProvider : provider;
         const contract = VYToken__factory.connect(address, _provider);
-        const proxy = VYToken__factory.connect(proxyAddr, _provider);
+        const proxy = VYToken__factory.connect(proxyAddress, _provider);
         const [name, symbol, decimals, version, baseAddress, baseId, balance] = await Promise.all([
           contract.name(),
           contract.symbol(),
@@ -60,6 +61,7 @@ const useVYTokens = () => {
           displayNameMobile: name,
           balance,
           balance_: formatUnits(balance, decimals),
+          proxyAddress,
         };
 
         return (await vyTokens).set(address, data);
@@ -71,7 +73,7 @@ const useVYTokens = () => {
     [account, assetMap, forkProvider, provider, useForkedEnv]
   );
 
-  const { data, error, isLoading } = useSWR(key, get, { revalidateOnFocus: false });
+  const { data, error, isLoading } = useSWR(key, get, { revalidateOnFocus: false, revalidateIfStale: false });
 
   return { data, error, isLoading };
 };

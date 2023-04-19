@@ -11,6 +11,7 @@ import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import { IPosition } from '../selectors/LendPositionSelector';
+import useVYTokens from '../../hooks/entities/useVYTokens';
 
 interface LendItemProps {
   item: IPosition;
@@ -23,12 +24,14 @@ function LendItem({ item, index, condensed }: LendItemProps) {
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { assetMap, seriesLoading, selectedSeries, selectedBase, seriesMap },
+    userState: { assetMap, seriesLoading, selectedSeries, seriesMap },
     userActions: { setSelectedBase, setSelectedSeries },
   } = useContext(UserContext);
-  const { fyTokenMarketValue } = useLendHelpers(selectedSeries, '0');
+  const { data: vyTokens } = useVYTokens();
+  const vyToken = vyTokens?.get(item.address);
   const series = [...seriesMap.values()].find((s) => s.address === item.address);
   const base = assetMap.get(item.baseId);
+  const { fyTokenMarketValue } = useLendHelpers(series!, '0');
 
   const handleSelect = () => {
     base && setSelectedBase(base);
@@ -42,7 +45,7 @@ function LendItem({ item, index, condensed }: LendItemProps) {
   return (
     <ItemWrap action={handleSelect} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={series} condensed={condensed} actionType={ActionType.LEND} />
+        <PositionAvatar position={series ?? vyToken} condensed={condensed} actionType={ActionType.LEND} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
@@ -59,7 +62,11 @@ function LendItem({ item, index, condensed }: LendItemProps) {
                   Balance:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {seriesLoading ? <SkeletonWrap width={30} /> : cleanValue(fyTokenMarketValue, base?.digitFormat!)}
+                  {seriesLoading ? (
+                    <SkeletonWrap width={30} />
+                  ) : (
+                    cleanValue(series ? fyTokenMarketValue : item.balance_, base?.digitFormat!)
+                  )}
                 </Text>
               </Box>
             )}

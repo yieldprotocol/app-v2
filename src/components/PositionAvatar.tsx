@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
-import { IVYToken } from '../hooks/entities/useVYTokens';
+import useVYTokens, { IVYToken } from '../hooks/entities/useVYTokens';
 
 const Outer = styled(Box)`
   position: relative;
@@ -32,29 +32,33 @@ function PositionAvatar({
   condensed,
   actionType,
 }: {
-  position: IVault | ISeries | IStrategy | IVYToken;
+  position: IVault | ISeries | IStrategy | IVYToken | undefined;
   actionType: ActionType;
   condensed?: boolean;
 }) {
-  const isVault = position?.id.length > 15;
+  const isVault = position?.id.length! > 15;
+  const { data: vyTokens } = useVYTokens();
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { assetMap, seriesMap } = userState;
+  const { assetMap, seriesMap, vaultMap } = userState;
 
-  const base: IAsset | undefined = assetMap?.get(position?.baseId!); // same for both series and vaults
-  const vault: IVault | undefined = isVault ? (position as IVault) : undefined;
-  const series: ISeries | undefined = vault ? seriesMap?.get(vault.seriesId!) : (position as ISeries);
+  const base = assetMap.get(position?.baseId!); // same for both series, vaults, and vyTokens
+  const vault = isVault ? vaultMap.get(position?.id!) : undefined;
+  const series = vault ? seriesMap.get(vault.seriesId!) : seriesMap.get(position?.id!);
+  const vyToken = vyTokens?.get(position?.id!);
 
-  const ilk: IAsset | undefined = vault && assetMap?.get(vault.ilkId); // doesn't exist on series
+  const ilk = vault && assetMap.get(vault.ilkId); // doesn't exist on series or vyTokens
   const baseImageSize = condensed ? '20px' : '24px';
   const ilkImageSize = condensed ? '16px' : '20px';
-
   const ilkBorderSize = condensed ? '18px' : '22px';
 
   return (
     <Outer width={condensed ? '36px' : 'auto'}>
-      <Avatar background={series?.seriesIsMature ? 'lightGrey' : series?.color} size={condensed ? '36px' : undefined}>
+      <Avatar
+        background={vyToken ? 'gradient-transparent' : series?.seriesIsMature ? 'lightGrey' : series?.color}
+        size={condensed ? '36px' : undefined}
+      >
         <Box round="large" background="white" pad="xxsmall">
           <Logo image={base?.image} height={baseImageSize} width={baseImageSize} />
         </Box>
