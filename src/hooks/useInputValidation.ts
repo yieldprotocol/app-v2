@@ -14,8 +14,6 @@ export const useInputValidation = (
   limits: (number | string | undefined)[],
   vault?: IVault | undefined
 ) => {
-  console.log('useInputValidation args: ', input, actionCode, series, limits, vault);
-
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;

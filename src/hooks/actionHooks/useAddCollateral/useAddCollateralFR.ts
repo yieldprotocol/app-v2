@@ -1,25 +1,25 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { UserContext } from '../../contexts/UserContext';
+import { UserContext } from '../../../contexts/UserContext';
 
-import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext } from '../../../types';
 
-import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
-import { useChain } from '../useChain';
-import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
-import { useAddRemoveEth } from './useAddRemoveEth';
-import { ConvexLadleModule } from '../../contracts';
-import { ModuleActions } from '../../types/operations';
-import { HistoryContext } from '../../contexts/HistoryContext';
+import { cleanValue, getTxCode } from '../../../utils/appUtils';
+import { BLANK_VAULT, ZERO_BN } from '../../../utils/constants';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../../config/assets';
+import { useChain } from '../../useChain';
+import { useWrapUnwrapAsset } from '../useWrapUnwrapAsset';
+import { useAddRemoveEth } from '../useAddRemoveEth';
+import { ConvexLadleModule } from '../../../contracts';
+import { ModuleActions } from '../../../types/operations';
+import { HistoryContext } from '../../../contexts/HistoryContext';
 import { Address, useBalance } from 'wagmi';
-import useContracts from '../useContracts';
-import useAccountPlus from '../useAccountPlus';
-import { ContractNames } from '../../config/contracts';
-import useAllowAction from '../useAllowAction';
+import useContracts from '../../useContracts';
+import useAccountPlus from '../../useAccountPlus';
+import { ContractNames } from '../../../config/contracts';
+import useAllowAction from '../../useAllowAction';
 
-export const useAddCollateral = () => {
+export const useAddCollateralFR = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
@@ -34,7 +34,7 @@ export const useAddCollateral = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
-  const {isActionAllowed} = useAllowAction();
+  const { isActionAllowed } = useAllowAction();
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -109,13 +109,6 @@ export const useAddCollateral = () => {
      * BUILD CALL DATA ARRAY
      * */
     const calls: ICallData[] = [
-      /* If vault is null, build a new vault, else ignore */
-      {
-        operation: LadleActions.Fn.BUILD,
-        args: [selectedSeries?.id, selectedIlk?.proxyId, '0'] as LadleActions.Args.BUILD,
-        ignoreIf: !!vault, // ignore if vault exists
-      },
-
       /* If convex-type collateral, add vault using convex ladle module */
       {
         operation: LadleActions.Fn.MODULE,

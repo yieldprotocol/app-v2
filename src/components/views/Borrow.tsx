@@ -34,7 +34,7 @@ import { useInputValidation } from '../../hooks/useInputValidation';
 import AltText from '../texts/AltText';
 import YieldCardHeader from '../YieldCardHeader';
 import { useBorrow } from '../../hooks/actionHooks/useBorrow';
-import { useCollateralHelpers } from '../../hooks/higherOrderHooks/useCollateralHelpers';
+import { useCollateralHelpers } from '../../hooks/viewHelperHooks/useCollateralHelpers';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ColorText from '../texts/ColorText';
@@ -54,7 +54,6 @@ import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
 import VariableRate from '../selectors/VariableRate';
-import { useBorrowVariableRate } from '../../hooks/actionHooks/useBorrowVariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
 
 const Borrow = () => {
@@ -98,8 +97,6 @@ const Borrow = () => {
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
-
-  const borrowVariableRate = useBorrowVariableRate();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
@@ -157,10 +154,6 @@ const Borrow = () => {
       action_code: ActionCodes.BORROW,
       supporting_collateral: selectedIlk?.symbol,
     } as GA_Properties.transaction_initiated);
-  };
-
-  const handleBorrowVariableRate = () => {
-    borrowVariableRate(undefined, borrowInput, collatInput);
   };
 
   /** Interaction handlers */
@@ -664,8 +657,7 @@ const Borrow = () => {
                         } ${selectedBase?.displaySymbol || ''}`}
                   </Text>
                 }
-                // onClick={() => handleBorrow()}
-                onClick={() => handleBorrowVariableRate()}
+                onClick={() => handleBorrow()}
                 disabled={borrowDisabled || borrowProcess?.processActive || !disclaimerChecked}
               />
             )}

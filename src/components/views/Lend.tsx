@@ -10,6 +10,7 @@ import MainViewWrap from '../wraps/MainViewWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
+import VariableRate from '../selectors/VariableRate';
 
 import { UserContext } from '../../contexts/UserContext';
 import { ActionCodes, ActionType, ProcessStage, TxState } from '../../types';
@@ -17,7 +18,7 @@ import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 
-import PositionSelector from '../selectors/LendPositionSelector';
+import LendPositionSelector from '../selectors/LendPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
 import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
@@ -30,7 +31,7 @@ import { useInputValidation } from '../../hooks/useInputValidation';
 import AltText from '../texts/AltText';
 import YieldCardHeader from '../YieldCardHeader';
 import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
-import { useLend } from '../../hooks/actionHooks/useLend';
+import useLend from '../../hooks/actionHooks/useLend';
 
 import ColorText from '../texts/ColorText';
 import { useProcess } from '../../hooks/useProcess';
@@ -51,7 +52,7 @@ const Lend = () => {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap } = userState;
+  const { selectedVR, selectedSeries, selectedBase, seriesMap } = userState;
 
   const { address: activeAccount } = useAccountPlus();
 
@@ -111,9 +112,11 @@ const Lend = () => {
 
   /* ACTION DISABLING LOGIC  - if conditions are met: allow action */
   useEffect(() => {
-    activeAccount && lendInput && selectedSeries && !lendError ? setLendDisabled(false) : setLendDisabled(true);
-    lendInput && selectedSeries && !lendError ? setStepDisabled(false) : setStepDisabled(true);
-  }, [lendInput, activeAccount, lendError, selectedSeries]);
+    activeAccount && lendInput && (selectedSeries || selectedVR) && !lendError
+      ? setLendDisabled(false)
+      : setLendDisabled(true);
+    lendInput && (selectedSeries || selectedVR) && !lendError ? setStepDisabled(false) : setStepDisabled(true);
+  }, [lendInput, activeAccount, lendError, selectedSeries, selectedVR]);
 
   /* Watch process timeouts */
   useEffect(() => {
@@ -125,7 +128,7 @@ const Lend = () => {
       {!mobile && (
         <PanelWrap basis="30%">
           <Navigation sideNavigation={true} />
-          <PositionSelector actionType={ActionType.LEND} />
+          <LendPositionSelector />
         </PanelWrap>
       )}
 
@@ -140,7 +143,7 @@ const Lend = () => {
                     <AltText color="text-weak" size="xsmall">
                       Lend popular ERC20 tokens for{' '}
                       <Text size="small" color="text">
-                        fixed returns
+                        fixed or variable returns
                       </Text>
                     </AltText>
                   </Box>
@@ -188,17 +191,22 @@ const Lend = () => {
                       setOpen={toggleModal}
                     />
                   ) : (
-                    <SectionWrap
-                      title={
-                        selectedBase
-                          ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
-                              selectedBase && '-based'
-                            } maturity date:`
-                          : ''
-                      }
-                    >
-                      <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
-                    </SectionWrap>
+                    <Box direction="column" gap="medium">
+                      <SectionWrap
+                        title={
+                          selectedBase
+                            ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
+                                selectedBase && '-based'
+                              } maturity date:`
+                            : ''
+                        }
+                      >
+                        <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
+                      </SectionWrap>
+                      <SectionWrap title="OR lend indefintiely for a variable rate">
+                        <VariableRate />
+                      </SectionWrap>
+                    </Box>
                   )}
                 </Box>
 
@@ -243,7 +251,9 @@ const Lend = () => {
                       icon={<BiMessageSquareAdd />}
                       value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                     />
-                    <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    {!selectedVR && (
+                      <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
+                    )}
                     <InfoBite
                       label="Redeemable @ Maturity"
                       icon={<FiTrendingUp />}

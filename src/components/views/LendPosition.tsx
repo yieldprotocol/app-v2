@@ -31,11 +31,12 @@ import ExitButton from '../buttons/ExitButton';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useVYTokens from '../../hooks/entities/useVYTokens';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const router = useRouter();
-  const { id: idFromUrl } = router.query;
+  const { id: idFromUrl } = router.query; // fyToken or vyToken address
 
   /* STATE FROM CONTEXT */
   const {
@@ -186,13 +187,12 @@ const LendPosition = () => {
   }, [closeProcess?.stage, resetInputs, rollProcess?.stage]);
 
   useEffect(() => {
-    const _series = seriesMap?.get(idFromUrl as string) || null;
+    const _series = [...seriesMap?.values()].find((s) => s.address === idFromUrl) || null;
     const _base = assetMap?.get(_series?.baseId!);
-    if (idFromUrl) {
-      setSelectedSeries(_series);
-      setSelectedBase(_base!);
-    }
-  }, [idFromUrl, seriesMap, setSelectedSeries, assetMap, setSelectedBase]);
+
+    _series && setSelectedSeries(_series);
+    _base && setSelectedBase(_base!);
+  }, [assetMap, idFromUrl, seriesMap, setSelectedBase, setSelectedSeries]);
 
   return (
     <>
@@ -231,7 +231,7 @@ const LendPosition = () => {
                     <InfoBite
                       label="Portfolio value at Maturity"
                       value={`${cleanValue(
-                        selectedSeries?.fyTokenBalance_!,
+                        selectedSeries?.balance_!,
                         selectedBase?.digitFormat!
                       )} ${selectedBase?.displaySymbol!}`}
                       icon={<FiTrendingUp />}
@@ -310,7 +310,7 @@ const LendPosition = () => {
                           />
                         </InputWrap>
 
-                        {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
+                        {maxClose.lt(selectedSeries?.balance!) && (
                           <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}

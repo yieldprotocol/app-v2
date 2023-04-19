@@ -1,72 +1,93 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Box, Button, Text } from 'grommet';
-
 import { UserContext } from '../../contexts/UserContext';
-
-import { ActionType, IAsset, ISeries } from '../../types';
-
-import { ZERO_BN } from '../../utils/constants';
+import { IAsset, ISeries } from '../../types';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
-import { useAccount } from 'wagmi';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useVYTokens from '../../hooks/entities/useVYTokens';
+import { BigNumber, ethers } from 'ethers';
 
 interface IPositionFilter {
-  base: IAsset | undefined;
-  series: ISeries | undefined;
+  base?: IAsset | null;
+  id?: string; // fyToken or vyToken address
 }
 
-function PositionSelector({ actionType }: { actionType: ActionType }) {
+export interface IPosition {
+  address: string; // fyToken or vyToken address
+  baseId: string; // underlying base id
+  displayName: string;
+  balance: BigNumber;
+  balance_: string;
+}
+
+function LendPositionSelector() {
+  const { data: vyTokens } = useVYTokens();
+
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { seriesMap, selectedSeries, selectedBase } = userState;
+  const { seriesMap, selectedBase, selectedVR, selectedSeries } = userState;
 
   const { address: activeAccount } = useAccountPlus();
 
-  const [allPositions, setAllPositions] = useState<ISeries[]>([]);
+  const [allPositions, setAllPositions] = useState<IPosition[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
 
   const [currentFilter, setCurrentFilter] = useState<IPositionFilter>();
   const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
-  const [filteredSeries, setFilteredSeries] = useState<ISeries[]>([]);
+  console.log('🦄 ~ file: LendPositionSelector.tsx:39 ~ LendPositionSelector ~ filterLabels:', filterLabels);
+  const [filteredPositions, setFilteredPositions] = useState<IPosition[]>([]);
+  console.log('🦄 ~ file: LendPositionSelector.tsx:41 ~ LendPositionSelector ~ filteredPositions:', filteredPositions);
 
   const handleFilter = useCallback(
-    ({ base, series }: IPositionFilter) => {
-      /* filter all positions by base if base is selected */
-      const _filteredSeries: ISeries[] = Array.from(seriesMap?.values()!)
-        /* filter by positive balances on either pool tokens or fyTokens */
-        .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-        .filter((_series: ISeries) => (base ? _series.baseId === base.proxyId : true))
-        .filter((_series: ISeries) => (series ? _series.id === series.id : true));
-      setCurrentFilter({ base, series });
-      setFilterLabels([base?.symbol, series?.displayNameMobile]);
-      setFilteredSeries(_filteredSeries);
+    ({ base, id }: IPositionFilter) => {
+      const filtered = allPositions
+        /* filter all positions by base if base is selected */
+        .filter((item) => (base ? item.baseId === base.proxyId : true))
+        .filter((item) => (id ? item.address === id : true));
+
+      setCurrentFilter({ base, id });
+      setFilterLabels([base?.symbol]);
+      setFilteredPositions(filtered);
     },
-    [seriesMap, actionType]
+    [allPositions]
   );
+
+  const handleSort = (positions: IPosition[]) => positions.sort((a, b) => (a.balance.gt(b.balance) ? -1 : 1));
 
   /* CHECK the list of current vaults which match the current base series selection */
   useEffect(() => {
-    /* only if veiwing the main screen (not when modal is showing) */
-    // if (!showPositionModal) {
-    const _allPositions: ISeries[] = Array.from(seriesMap?.values()!)
-      /* filter by positive balances on either pool tokens or fyTokens */
-      .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
-      .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
-      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
-        actionType === 'LEND' && _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
-      )
-      .sort((_seriesA: ISeries, _seriesB: ISeries) =>
-        actionType === 'POOL' && _seriesA.poolTokens?.lt(_seriesB.poolTokens!) ? 1 : -1
-      );
-    setAllPositions(_allPositions);
+    /* only if viewing the main screen (not when modal is showing) */
+    const getPositions = () =>
+      activeAccount
+        ? [...seriesMap.values(), ...(vyTokens?.values()! || [])].reduce(
+            (acc, { baseId, address, balance, balance_, displayName }) =>
+              balance && balance.gt(ethers.constants.Zero)
+                ? [
+                    ...acc,
+                    {
+                      baseId,
+                      address,
+                      balance: balance ?? ethers.constants.Zero,
+                      balance_: balance_ ?? '0',
+                      displayName,
+                    },
+                  ]
+                : acc,
+            [] as IPosition[]
+          )
+        : [];
 
-    if (selectedBase) handleFilter({ base: selectedBase, series: undefined });
-    if (selectedBase && selectedSeries) handleFilter({ base: selectedBase, series: selectedSeries });
-    // }
-  }, [selectedBase, selectedSeries, handleFilter, seriesMap, actionType]);
+    setAllPositions(handleSort(getPositions()));
+  }, [activeAccount, seriesMap, vyTokens]);
+
+  useEffect(() => {
+    handleFilter({
+      base: selectedBase,
+      id: selectedSeries ? selectedSeries?.address : selectedVR ? selectedBase?.VYTokenAddress : undefined,
+    });
+  }, [handleFilter, selectedBase, selectedSeries, selectedVR]);
 
   useEffect(() => {
     allPositions.length <= 5 && setShowAllPositions(true);
@@ -89,14 +110,14 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
           </Box>
 
           <ListWrap overflow="auto">
-            {filteredSeries.length === 0 && !showAllPositions && (
+            {filteredPositions.length === 0 && !showAllPositions && (
               <Text weight={450} size="small">
                 No suggested positions
               </Text>
             )}
 
-            {(!showAllPositions ? filteredSeries : allPositions).map((x: ISeries, i: number) => (
-              <LendItem series={x} actionType={actionType} index={i} key={x.id} />
+            {(!showAllPositions ? filteredPositions : allPositions).map((x, i) => (
+              <LendItem item={x} index={i} key={x.address} />
             ))}
           </ListWrap>
 
@@ -116,8 +137,8 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
                     onClick={() =>
                       handleFilter({
                         ...currentFilter,
-                        base: undefined,
-                      } as IPositionFilter)
+                        base: null,
+                      })
                     }
                   >
                     <Button plain icon={<FiX style={{ verticalAlign: 'middle' }} />} />
@@ -164,4 +185,4 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   );
 }
 
-export default PositionSelector;
+export default LendPositionSelector;

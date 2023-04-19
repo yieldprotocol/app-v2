@@ -161,6 +161,9 @@ export interface IAssetRoot extends IAssetStaticInfo, ISignable {
   displayName: string;
   displayNameMobile: string;
   joinAddress: string;
+  joinAddressVR?: string; // for VR if we can't query - jacob b
+  VYTokenAddress?: string; // for VR if we can't query - jacob b
+  VYTokenProxyAddress?: string; // for VR if we can't query - jacob b
 
   digitFormat: number;
   assetContract: Contract;
@@ -225,8 +228,8 @@ export interface ISeries extends ISeriesRoot {
 
   poolTokens?: BigNumber | undefined;
   poolTokens_?: string | undefined;
-  fyTokenBalance?: BigNumber | undefined;
-  fyTokenBalance_?: string | undefined;
+  balance?: BigNumber | undefined; // fyToken balance
+  balance_?: string | undefined; // fyToken balance
 
   poolPercent?: string | undefined;
   poolAPY?: string;
@@ -434,6 +437,7 @@ export enum ActionCodes {
   ROLL_DEBT = 'Roll Debt',
   // LEND
   LEND = 'Lend',
+  LEND_FR = 'Lend_FR',
   CLOSE_POSITION = 'Redeem Position',
   ROLL_POSITION = 'Roll Position',
   REDEEM = 'Redeem',

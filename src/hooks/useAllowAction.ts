@@ -10,14 +10,20 @@ import { ActionCodes, ISeries } from '../types';
  * @returns boolean
  */
 const useAllowAction = () => {
-  const { userState } = useContext(UserContext);
+  const {
+    userState: { selectedSeries, selectedVR },
+  } = useContext(UserContext);
 
   const isActionAllowed = (action: ActionCodes, series?: ISeries): boolean => {
-    const seriesToUse = series || userState.selectedSeries;
+    const seriesToUse = series || selectedSeries;
+
+    // allow all vr actions for now
+    if (selectedVR) return true;
 
     if (seriesToUse) {
-      if (seriesToUse.allowActions.includes('allow_all') || seriesToUse.allowActions.includes(action)) {return true}
-      else {
+      if (seriesToUse.allowActions.includes('allow_all') || seriesToUse.allowActions.includes(action)) {
+        return true;
+      } else {
         toast.warn(`Action temporarily not allowed on this series.`);
         return false;
       }

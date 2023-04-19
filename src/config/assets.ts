@@ -21,6 +21,9 @@ export interface AssetStaticInfo {
   wrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the corresponding wrap handler address
   unwrapHandlerAddresses?: Map<number, string>; // mapping a chain id to the correpsonding unwrap handler address
   proxyId?: string; // associated token (eg. )
+  joinAddressVR?: string; // address of the VR join contract
+  VYTokenAddress?: string; // address of the VYToken contract
+  VYTokenProxyAddress?: string; // address of the VYTokenProxy contract
 }
 
 export const WETH = '0x303000000000';
@@ -85,6 +88,9 @@ ASSETS.set(
       {
         assetAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         joinAddress: '0x4fE92119CDf873Cf8826F4E6EcfD4E578E3D44Dc',
+        joinAddressVR: '0x9eaCB025AB57A9d250BAb776B9d532039f0dAA3A',
+        VYTokenAddress: '0x96b99a8dA9554770A708F63485954c90473E0cA1',
+        VYTokenProxyAddress: '0x9aA81D23DE44F210Fd9e8E17a99D4cF8Ef16CBB0',
         version: '1',
         name: 'Dai Stablecoin',
         decimals: 18,
@@ -100,6 +106,9 @@ ASSETS.set(
       {
         assetAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         joinAddress: '0x0d9A1A773be5a83eEbda23bf98efB8585C3ae4f4',
+        joinAddressVR: '0x119672DDfFb496C6FAF4E2EB490d21D5e74BB6ae',
+        VYTokenAddress: '0xc3D163EaC4db5c62046345E5c780C7EaB9763353',
+        VYTokenProxyAddress: '0x62F8cA169555CE5692b9F72FB73237fdf01FA7A4',
         version: '1',
         name: 'USD Coin',
         decimals: 6,
@@ -145,6 +154,9 @@ ASSETS.set(
       {
         assetAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         joinAddress: '0x3bDb887Dc46ec0E964Df89fFE2980db0121f0fD0',
+        joinAddressVR: '0xd4bd75B00D3dcecAE262Dd34F8E94d59bF16c6EF',
+        VYTokenAddress: '0xEFCF601949Eeb126c2D3d8203f3d4F99Bf5dd1f1',
+        VYTokenProxyAddress: '0x4e65d89A12B38C5C4530be902fBEb9c0F14aECF2',
         version: '1',
         name: 'Wrapped Ether',
         decimals: 18,
@@ -246,6 +258,9 @@ ASSETS.set(
       {
         assetAddress: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
         joinAddress: '0x5655A973A49e1F9c1408bb9A617Fd0DBD0352464',
+        joinAddressVR: '0x22956932A4F395B17A0F687923f386453a2c92Cb',
+        VYTokenAddress: '0x3951bEa7D8611f3c9146C9E5BDFb81ee4b32B441',
+        VYTokenProxyAddress: '0xCE207D07D8F79B48B4b7618CF1e543bE2f98Fed2',
         version: '1',
         name: 'Frax',
         decimals: 18,

@@ -33,7 +33,6 @@ export const useProcess = (
 
   useEffect(() => {
     const _process = processes.get(txCode);
-    console.log('useProcess: ', _process);
     if (_process) setTxProcess(_process);
   }, [processes, txCode]);
 
