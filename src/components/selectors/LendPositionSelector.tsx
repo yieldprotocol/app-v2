@@ -36,9 +36,7 @@ function LendPositionSelector() {
 
   const [currentFilter, setCurrentFilter] = useState<IPositionFilter>();
   const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
-  console.log('🦄 ~ file: LendPositionSelector.tsx:39 ~ LendPositionSelector ~ filterLabels:', filterLabels);
   const [filteredPositions, setFilteredPositions] = useState<IPosition[]>([]);
-  console.log('🦄 ~ file: LendPositionSelector.tsx:41 ~ LendPositionSelector ~ filteredPositions:', filteredPositions);
 
   const handleFilter = useCallback(
     ({ base, id }: IPositionFilter) => {
