@@ -36,12 +36,13 @@ function LendPositionSelector() {
 
   const [currentFilter, setCurrentFilter] = useState<IPositionFilter>();
   const [filterLabels, setFilterLabels] = useState<(string | undefined)[]>([]);
+  console.log('🦄 ~ file: LendPositionSelector.tsx:39 ~ LendPositionSelector ~ filterLabels:', filterLabels);
   const [filteredPositions, setFilteredPositions] = useState<IPosition[]>([]);
+  console.log('🦄 ~ file: LendPositionSelector.tsx:41 ~ LendPositionSelector ~ filteredPositions:', filteredPositions);
 
   const handleFilter = useCallback(
     ({ base, id }: IPositionFilter) => {
       const filtered = allPositions
-        .filter((item) => item.balance.gt(ethers.constants.Zero))
         /* filter all positions by base if base is selected */
         .filter((item) => (base ? item.baseId === base.proxyId : true))
         .filter((item) => (id ? item.address === id : true));
@@ -61,16 +62,19 @@ function LendPositionSelector() {
     const getPositions = () =>
       activeAccount
         ? [...seriesMap.values(), ...(vyTokens?.values()! || [])].reduce(
-            (acc, { baseId, address, balance, balance_, displayName }) => [
-              ...acc,
-              {
-                baseId,
-                address,
-                balance: balance ?? ethers.constants.Zero,
-                balance_: balance_ ?? '0',
-                displayName,
-              },
-            ],
+            (acc, { baseId, address, balance, balance_, displayName }) =>
+              balance && balance.gt(ethers.constants.Zero)
+                ? [
+                    ...acc,
+                    {
+                      baseId,
+                      address,
+                      balance: balance ?? ethers.constants.Zero,
+                      balance_: balance_ ?? '0',
+                      displayName,
+                    },
+                  ]
+                : acc,
             [] as IPosition[]
           )
         : [];
