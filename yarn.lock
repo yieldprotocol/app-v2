@@ -2749,6 +2749,14 @@
   dependencies:
     chai "^4.3.6"
 
+"@yield-protocol/ui-multicall@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@yield-protocol/ui-multicall/-/ui-multicall-1.0.4.tgz#c3ef9ad84f3ffb7aae29a2b0d0a37cb92aeaea3f"
+  integrity sha512-YRI/e13csxxOWS9ONl6Kz4HorlwmD23iGeuf0R6bnKuV4H2dOiDWfGT+YpoClSiqfYwRAzx+r8/Rs7mkk/7zcA==
+  dependencies:
+    dataloader "^2.1.0"
+    typechain "^8.1.0"
+
 JSONStream@^1.3.5:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.3.5.tgz#3208c1f08d3a4d99261ab64f92302bc15e111ca0"
@@ -3878,6 +3886,11 @@ data-urls@^3.0.2:
     abab "^2.0.6"
     whatwg-mimetype "^3.0.0"
     whatwg-url "^11.0.0"
+
+dataloader@^2.1.0:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-2.2.2.tgz#216dc509b5abe39d43a9b9d97e6e5e473dfbe3e0"
+  integrity sha512-8YnDaaf7N3k/q5HnTJVuzSyLETjoZjVmHc4AeKAzOvKHEFQKcn64OKBfzHYtE9zGjctNM7V9I0MfnUVLpi7M5g==
 
 date-fns@^2.24.0:
   version "2.29.3"
@@ -8358,7 +8371,7 @@ type-fest@^0.7.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.7.1.tgz#8dda65feaf03ed78f0a3f9678f1869147f7c5c48"
   integrity sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg==
 
-typechain@^8.1.1:
+typechain@^8.1.0, typechain@^8.1.1:
   version "8.1.1"
   resolved "https://registry.yarnpkg.com/typechain/-/typechain-8.1.1.tgz#9c2e8012c2c4c586536fc18402dcd7034c4ff0bd"
   integrity sha512-uF/sUvnXTOVF2FHKhQYnxHk4su4JjZR8vr4mA2mBaRwHTbwh0jIlqARz9XJr1tA0l7afJGvEa1dTSi4zt039LQ==
