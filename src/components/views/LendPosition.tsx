@@ -310,7 +310,7 @@ const LendPosition = () => {
                           />
                         </InputWrap>
 
-                        {maxClose.lt(selectedSeries?.fyTokenBalance!) && (
+                        {maxClose.lt(selectedSeries?.balance!) && (
                           <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
