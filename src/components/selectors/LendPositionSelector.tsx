@@ -85,7 +85,7 @@ function LendPositionSelector() {
   useEffect(() => {
     handleFilter({
       base: selectedBase,
-      id: selectedSeries ? selectedSeries?.id : selectedVR ? selectedBase?.VYTokenAddress : undefined,
+      id: selectedSeries ? selectedSeries?.address : selectedVR ? selectedBase?.VYTokenAddress : undefined,
     });
   }, [handleFilter, selectedBase, selectedSeries, selectedVR]);
 
