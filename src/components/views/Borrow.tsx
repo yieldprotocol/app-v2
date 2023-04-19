@@ -54,11 +54,7 @@ import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
 import VariableRate from '../selectors/VariableRate';
-<<<<<<< Updated upstream
-import { useBorrowVariableRate } from '../../hooks/actionHooks/useBorrowVariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
-=======
->>>>>>> Stashed changes
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
