@@ -14,8 +14,8 @@ export interface IVYToken extends ISignable {
   decimals: number;
   baseAddress: string; // associated base addr
   baseId: string; // associated base id
-  displayName?: string;
-  displayNameMobile?: string;
+  displayName: string;
+  displayNameMobile: string;
   balance?: BigNumber;
   balance_?: string;
 }
@@ -30,11 +30,13 @@ const useVYTokens = () => {
 
   const get = useCallback(async () => {
     return await Array.from(assetMap.values())
-      .map((a) => a.VYTokenAddress) // get asset's vyTokenProxy addr
-      .reduce(async (vyTokens, address) => {
-        if (!address) return await vyTokens;
+      .map((a) => [a.VYTokenProxyAddress, a.VYTokenAddress]) // get asset's vyTokenProxy addr
+      .reduce(async (vyTokens, [proxyAddr, address]) => {
+        if (!address || !proxyAddr) return await vyTokens;
 
-        const contract = VYToken__factory.connect(address, useForkedEnv && forkProvider ? forkProvider : provider);
+        const _provider = useForkedEnv && forkProvider ? forkProvider : provider;
+        const contract = VYToken__factory.connect(address, _provider);
+        const proxy = VYToken__factory.connect(proxyAddr, _provider);
         const [name, symbol, decimals, version, baseAddress, baseId, balance] = await Promise.all([
           contract.name(),
           contract.symbol(),
@@ -42,7 +44,7 @@ const useVYTokens = () => {
           contract.version(),
           contract.underlying(),
           contract.underlyingId(),
-          account ? contract.balanceOf(account) : ethers.constants.Zero,
+          account ? proxy.balanceOf(account) : ethers.constants.Zero,
         ]);
 
         const data: IVYToken = {

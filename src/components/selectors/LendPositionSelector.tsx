@@ -41,7 +41,7 @@ function LendPositionSelector() {
   const handleFilter = useCallback(
     ({ base, id }: IPositionFilter) => {
       const filtered = allPositions
-        // .filter((item) => item.balance.gt(ethers.constants.Zero))
+        .filter((item) => item.balance.gt(ethers.constants.Zero))
         /* filter all positions by base if base is selected */
         .filter((item) => (base ? item.baseId === base.proxyId : true))
         .filter((item) => (id ? item.address === id : true));
@@ -61,7 +61,7 @@ function LendPositionSelector() {
       /* only if viewing the main screen (not when modal is showing) */
       const getPositions = async () =>
         activeAccount
-          ? [...seriesMap.values()].reduce(async (acc, item) => {
+          ? [...seriesMap.values(), ...(vyTokens?.values()! || [])].reduce(async (acc, item) => {
               const position: IPosition = {
                 baseId: item.baseId,
                 address: item.address,
