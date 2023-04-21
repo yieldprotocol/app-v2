@@ -24,10 +24,12 @@ import { useSWRConfig } from 'swr';
 export const useLendVR = () => {
   const { mutate } = useSWRConfig();
   const { key } = useVYTokens();
-  const { userState, userActions } = useContext(UserContext);
+  const {
+    userState,
+    userActions: { updateAssets },
+  } = useContext(UserContext);
   const provider = useProvider();
   const { assetMap, selectedBase } = userState;
-  const { updateAssets } = userActions;
   const { address: account } = useAccountPlus();
   const chainId = useChainId();
   const { isActionAllowed } = useAllowAction();
@@ -125,6 +127,8 @@ export const useLendVR = () => {
 
     await transact(calls, txCode);
     mutate(key);
+    refetchBaseBal();
+    updateAssets([base]);
     // updateLendVRHistory(); // TODO update vr lend history
   };
 
