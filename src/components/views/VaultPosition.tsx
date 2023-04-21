@@ -40,7 +40,7 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
-import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 import Logo from '../logos/Logo';
 import { useAccount, useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';

@@ -12,7 +12,7 @@ import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
-import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;

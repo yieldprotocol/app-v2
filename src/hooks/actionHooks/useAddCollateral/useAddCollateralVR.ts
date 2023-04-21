@@ -17,11 +17,10 @@ import { Address, useBalance } from 'wagmi';
 import useContracts from '../../useContracts';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
-import useAllowAction from '../../useAllowAction';
 
 export const useAddCollateralVR = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
+  const { selectedBase, selectedIlk, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
@@ -34,8 +33,6 @@ export const useAddCollateralVR = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
-  const { isActionAllowed } = useAllowAction();
-
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
     token: selectedBase?.address as Address,
@@ -47,8 +44,6 @@ export const useAddCollateralVR = () => {
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
     if (!contracts) return;
-
-    if (!isActionAllowed(ActionCodes.ADD_COLLATERAL) && selectedSeries) return; // return if action is not allowed
 
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
@@ -79,11 +74,6 @@ export const useAddCollateralVR = () => {
 
     /* Handle wrapping of tokens:  */
     const wrapAssetCallData: ICallData[] = await wrapAsset(_input, ilk!, txCode);
-
-    /* conditionally set build args for ladle for fixed rate or variable rate ladle */
-    const buildArgs = selectedSeries
-      ? [selectedSeries?.id, selectedIlk?.proxyId, '0']
-      : [base?.id, selectedIlk?.proxyId, '0'];
 
     /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permitCallData: ICallData[] = await sign(
@@ -142,7 +132,7 @@ export const useAddCollateralVR = () => {
     ];
 
     /* TRANSACT */
-    await transact(calls, txCode);
+    await transact(calls, txCode, true);
 
     /* then update UI */
     refetchBaseBal();

@@ -1,10 +1,10 @@
 /* HOOKS */
-import useAssetPairFixedRate from '../useAssetPairFixedRate';
-import useAssetPairVariableRate from '../useAssetPairVariableRate';
+import useAssetPairFixedRate from './useAssetPairFR';
+import useAssetPairVariableRate from './useAssetPairVR';
 import { useContext } from 'react';
 
 /* CONTEXTS */
-import { UserContext } from '../../contexts/UserContext';
+import { UserContext } from '../../../contexts/UserContext';
 
 const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   const { userState } = useContext(UserContext);

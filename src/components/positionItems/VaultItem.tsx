@@ -9,7 +9,7 @@ import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
-import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';

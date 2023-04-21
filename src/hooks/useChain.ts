@@ -46,15 +46,18 @@ export const useChain = () => {
    * TRANSACTING
    * @param { ICallsData[] } calls list of callData as ICallData
    * @param { string } txCode internal transaction code
+   * @param { boolean } useVR use the VR ladle contract
    *
    * * @returns { Promise<void> }
    */
-  const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
+  const transact = async (calls: ICallData[], txCode: string, useVR?: boolean): Promise<void> => {
     if (!contracts) return;
 
     /* Set the router contract instance, ladle by default */
-    // const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
-    const _contract: Contract = contracts.get(ContractNames.VR_LADLE)?.connect(signer!) as VRLadle;
+    let _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
+
+    /* If VR is required, set the VR ladle contract */
+    if (useVR) _contract = contracts.get(ContractNames.VR_LADLE)?.connect(signer!) as VRLadle;
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call: ICallData) => !call.ignoreIf);

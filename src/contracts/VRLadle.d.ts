@@ -28,14 +28,12 @@ interface VRLadleInterface extends ethers.utils.Interface {
     "ROOT4146650865()": FunctionFragment;
     "addIntegration(address,bool)": FunctionFragment;
     "addJoin(bytes6,address)": FunctionFragment;
-    "addModule(address,bool)": FunctionFragment;
     "addToken(address,bool)": FunctionFragment;
     "batch(bytes[])": FunctionFragment;
     "borrowingFee()": FunctionFragment;
     "build(bytes6,bytes6,uint8)": FunctionFragment;
     "cauldron()": FunctionFragment;
     "destroy(bytes12)": FunctionFragment;
-    "exitEther(address)": FunctionFragment;
     "forwardDaiPermit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)": FunctionFragment;
     "forwardPermit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
@@ -43,13 +41,13 @@ interface VRLadleInterface extends ethers.utils.Interface {
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
+    "initialize(address)": FunctionFragment;
+    "initialized()": FunctionFragment;
     "integrations(address)": FunctionFragment;
-    "joinEther(bytes6)": FunctionFragment;
     "joins(bytes6)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
-    "moduleCall(address,bytes)": FunctionFragment;
-    "modules(address)": FunctionFragment;
     "pour(bytes12,address,int128,int128)": FunctionFragment;
+    "proxiableUUID()": FunctionFragment;
     "renounceRole(bytes4,address)": FunctionFragment;
     "repay(bytes12,address,address,int128)": FunctionFragment;
     "retrieve(address,address)": FunctionFragment;
@@ -63,7 +61,11 @@ interface VRLadleInterface extends ethers.utils.Interface {
     "tokens(address)": FunctionFragment;
     "transfer(address,address,uint128)": FunctionFragment;
     "tweak(bytes12,bytes6,bytes6)": FunctionFragment;
+    "unwrapEther(address)": FunctionFragment;
+    "upgradeTo(address)": FunctionFragment;
+    "upgradeToAndCall(address,bytes)": FunctionFragment;
     "weth()": FunctionFragment;
+    "wrapEther(address)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "LOCK", values?: undefined): string;
@@ -85,10 +87,6 @@ interface VRLadleInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "addModule",
-    values: [string, boolean]
-  ): string;
-  encodeFunctionData(
     functionFragment: "addToken",
     values: [string, boolean]
   ): string;
@@ -103,7 +101,6 @@ interface VRLadleInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "cauldron", values?: undefined): string;
   encodeFunctionData(functionFragment: "destroy", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "exitEther", values: [string]): string;
   encodeFunctionData(
     functionFragment: "forwardDaiPermit",
     values: [
@@ -149,24 +146,24 @@ interface VRLadleInterface extends ethers.utils.Interface {
     functionFragment: "hasRole",
     values: [BytesLike, string]
   ): string;
+  encodeFunctionData(functionFragment: "initialize", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "initialized",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "integrations",
     values: [string]
   ): string;
-  encodeFunctionData(
-    functionFragment: "joinEther",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(functionFragment: "joins", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "moduleCall",
-    values: [string, BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "modules", values: [string]): string;
-  encodeFunctionData(
     functionFragment: "pour",
     values: [BytesLike, string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proxiableUUID",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
@@ -214,7 +211,14 @@ interface VRLadleInterface extends ethers.utils.Interface {
     functionFragment: "tweak",
     values: [BytesLike, BytesLike, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "unwrapEther", values: [string]): string;
+  encodeFunctionData(functionFragment: "upgradeTo", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "upgradeToAndCall",
+    values: [string, BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "weth", values?: undefined): string;
+  encodeFunctionData(functionFragment: "wrapEther", values: [string]): string;
 
   decodeFunctionResult(functionFragment: "LOCK", data: BytesLike): Result;
   decodeFunctionResult(
@@ -231,7 +235,6 @@ interface VRLadleInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addJoin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "addModule", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "batch", data: BytesLike): Result;
   decodeFunctionResult(
@@ -241,7 +244,6 @@ interface VRLadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "build", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cauldron", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "destroy", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "exitEther", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "forwardDaiPermit",
     data: BytesLike
@@ -258,16 +260,22 @@ interface VRLadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initialized",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "integrations",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "joinEther", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "joins", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "moduleCall", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "modules", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pour", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proxiableUUID",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
@@ -290,28 +298,48 @@ interface VRLadleInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "tokens", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tweak", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "unwrapEther",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradeToAndCall",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "weth", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "wrapEther", data: BytesLike): Result;
 
   events: {
+    "AdminChanged(address,address)": EventFragment;
+    "BeaconUpgraded(address)": EventFragment;
     "FeeSet(uint256)": EventFragment;
     "IntegrationAdded(address,bool)": EventFragment;
     "JoinAdded(bytes6,address)": EventFragment;
-    "ModuleAdded(address,bool)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
     "TokenAdded(address,bool)": EventFragment;
+    "Upgraded(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "IntegrationAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "JoinAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ModuleAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
 }
+
+export type AdminChangedEvent = TypedEvent<
+  [string, string] & { previousAdmin: string; newAdmin: string }
+>;
+
+export type BeaconUpgradedEvent = TypedEvent<[string] & { beacon: string }>;
 
 export type FeeSetEvent = TypedEvent<[BigNumber] & { fee: BigNumber }>;
 
@@ -321,10 +349,6 @@ export type IntegrationAddedEvent = TypedEvent<
 
 export type JoinAddedEvent = TypedEvent<
   [string, string] & { assetId: string; join: string }
->;
-
-export type ModuleAddedEvent = TypedEvent<
-  [string, boolean] & { module: string; set: boolean }
 >;
 
 export type RoleAdminChangedEvent = TypedEvent<
@@ -342,6 +366,8 @@ export type RoleRevokedEvent = TypedEvent<
 export type TokenAddedEvent = TypedEvent<
   [string, boolean] & { token: string; set: boolean }
 >;
+
+export type UpgradedEvent = TypedEvent<[string] & { implementation: string }>;
 
 export class VRLadle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -407,12 +433,6 @@ export class VRLadle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    addModule(
-      module: string,
-      set: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     addToken(
       token: string,
       set: boolean,
@@ -437,11 +457,6 @@ export class VRLadle extends BaseContract {
 
     destroy(
       vaultId_: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    exitEther(
-      to: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -494,12 +509,14 @@ export class VRLadle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    integrations(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
-
-    joinEther(
-      etherId: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    initialize(
+      root_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    initialized(overrides?: CallOverrides): Promise<[boolean]>;
+
+    integrations(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
@@ -508,14 +525,6 @@ export class VRLadle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    moduleCall(
-      module: string,
-      data: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    modules(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
-
     pour(
       vaultId_: BytesLike,
       to: string,
@@ -523,6 +532,8 @@ export class VRLadle extends BaseContract {
       base: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
     renounceRole(
       role: BytesLike,
@@ -599,7 +610,28 @@ export class VRLadle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    unwrapEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    upgradeTo(
+      newImplementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    upgradeToAndCall(
+      newImplementation: string,
+      data: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     weth(overrides?: CallOverrides): Promise<[string]>;
+
+    wrapEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   LOCK(overrides?: CallOverrides): Promise<string>;
@@ -619,12 +651,6 @@ export class VRLadle extends BaseContract {
   addJoin(
     assetId: BytesLike,
     join: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  addModule(
-    module: string,
-    set: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -652,11 +678,6 @@ export class VRLadle extends BaseContract {
 
   destroy(
     vaultId_: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  exitEther(
-    to: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -709,12 +730,14 @@ export class VRLadle extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
-
-  joinEther(
-    etherId: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  initialize(
+    root_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  initialized(overrides?: CallOverrides): Promise<boolean>;
+
+  integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -723,14 +746,6 @@ export class VRLadle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  moduleCall(
-    module: string,
-    data: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  modules(arg0: string, overrides?: CallOverrides): Promise<boolean>;
-
   pour(
     vaultId_: BytesLike,
     to: string,
@@ -738,6 +753,8 @@ export class VRLadle extends BaseContract {
     base: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
   renounceRole(
     role: BytesLike,
@@ -814,7 +831,28 @@ export class VRLadle extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  unwrapEther(
+    to: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  upgradeTo(
+    newImplementation: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  upgradeToAndCall(
+    newImplementation: string,
+    data: BytesLike,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   weth(overrides?: CallOverrides): Promise<string>;
+
+  wrapEther(
+    to: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     LOCK(overrides?: CallOverrides): Promise<string>;
@@ -834,12 +872,6 @@ export class VRLadle extends BaseContract {
     addJoin(
       assetId: BytesLike,
       join: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    addModule(
-      module: string,
-      set: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -872,8 +904,6 @@ export class VRLadle extends BaseContract {
     cauldron(overrides?: CallOverrides): Promise<string>;
 
     destroy(vaultId_: BytesLike, overrides?: CallOverrides): Promise<void>;
-
-    exitEther(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     forwardDaiPermit(
       token: string,
@@ -930,24 +960,15 @@ export class VRLadle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+    initialize(root_: string, overrides?: CallOverrides): Promise<void>;
 
-    joinEther(
-      etherId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    initialized(overrides?: CallOverrides): Promise<boolean>;
+
+    integrations(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
-
-    moduleCall(
-      module: string,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    modules(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     pour(
       vaultId_: BytesLike,
@@ -956,6 +977,8 @@ export class VRLadle extends BaseContract {
       base: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
     renounceRole(
       role: BytesLike,
@@ -1035,10 +1058,49 @@ export class VRLadle extends BaseContract {
       }
     >;
 
+    unwrapEther(to: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    upgradeTo(
+      newImplementation: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    upgradeToAndCall(
+      newImplementation: string,
+      data: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     weth(overrides?: CallOverrides): Promise<string>;
+
+    wrapEther(to: string, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
+    "AdminChanged(address,address)"(
+      previousAdmin?: null,
+      newAdmin?: null
+    ): TypedEventFilter<
+      [string, string],
+      { previousAdmin: string; newAdmin: string }
+    >;
+
+    AdminChanged(
+      previousAdmin?: null,
+      newAdmin?: null
+    ): TypedEventFilter<
+      [string, string],
+      { previousAdmin: string; newAdmin: string }
+    >;
+
+    "BeaconUpgraded(address)"(
+      beacon?: string | null
+    ): TypedEventFilter<[string], { beacon: string }>;
+
+    BeaconUpgraded(
+      beacon?: string | null
+    ): TypedEventFilter<[string], { beacon: string }>;
+
     "FeeSet(uint256)"(
       fee?: null
     ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
@@ -1070,16 +1132,6 @@ export class VRLadle extends BaseContract {
       assetId?: BytesLike | null,
       join?: string | null
     ): TypedEventFilter<[string, string], { assetId: string; join: string }>;
-
-    "ModuleAdded(address,bool)"(
-      module?: string | null,
-      set?: boolean | null
-    ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
-
-    ModuleAdded(
-      module?: string | null,
-      set?: boolean | null
-    ): TypedEventFilter<[string, boolean], { module: string; set: boolean }>;
 
     "RoleAdminChanged(bytes4,bytes4)"(
       role?: BytesLike | null,
@@ -1142,6 +1194,14 @@ export class VRLadle extends BaseContract {
       token?: string | null,
       set?: boolean | null
     ): TypedEventFilter<[string, boolean], { token: string; set: boolean }>;
+
+    "Upgraded(address)"(
+      implementation?: string | null
+    ): TypedEventFilter<[string], { implementation: string }>;
+
+    Upgraded(
+      implementation?: string | null
+    ): TypedEventFilter<[string], { implementation: string }>;
   };
 
   estimateGas: {
@@ -1162,12 +1222,6 @@ export class VRLadle extends BaseContract {
     addJoin(
       assetId: BytesLike,
       join: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    addModule(
-      module: string,
-      set: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1195,11 +1249,6 @@ export class VRLadle extends BaseContract {
 
     destroy(
       vaultId_: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    exitEther(
-      to: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1255,12 +1304,14 @@ export class VRLadle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    integrations(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    joinEther(
-      etherId: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    initialize(
+      root_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    initialized(overrides?: CallOverrides): Promise<BigNumber>;
+
+    integrations(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     joins(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1269,14 +1320,6 @@ export class VRLadle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    moduleCall(
-      module: string,
-      data: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    modules(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
     pour(
       vaultId_: BytesLike,
       to: string,
@@ -1284,6 +1327,8 @@ export class VRLadle extends BaseContract {
       base: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
@@ -1360,7 +1405,28 @@ export class VRLadle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    unwrapEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    upgradeTo(
+      newImplementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    upgradeToAndCall(
+      newImplementation: string,
+      data: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     weth(overrides?: CallOverrides): Promise<BigNumber>;
+
+    wrapEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1381,12 +1447,6 @@ export class VRLadle extends BaseContract {
     addJoin(
       assetId: BytesLike,
       join: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    addModule(
-      module: string,
-      set: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1414,11 +1474,6 @@ export class VRLadle extends BaseContract {
 
     destroy(
       vaultId_: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    exitEther(
-      to: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1474,14 +1529,16 @@ export class VRLadle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    initialize(
+      root_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    initialized(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     integrations(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    joinEther(
-      etherId: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     joins(
@@ -1494,17 +1551,6 @@ export class VRLadle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    moduleCall(
-      module: string,
-      data: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    modules(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     pour(
       vaultId_: BytesLike,
       to: string,
@@ -1512,6 +1558,8 @@ export class VRLadle extends BaseContract {
       base: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: BytesLike,
@@ -1591,6 +1639,27 @@ export class VRLadle extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    unwrapEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    upgradeTo(
+      newImplementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    upgradeToAndCall(
+      newImplementation: string,
+      data: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     weth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    wrapEther(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }

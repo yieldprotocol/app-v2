@@ -18,12 +18,14 @@ import { WETH } from '../../config/assets';
 import useAccountPlus from '../useAccountPlus';
 
 /* Collateralization hook calculates collateralization metrics */
-export const useCollateralHelpersFixedRate = (
+export const useCollateralHelpers = (
   debtInput: string | undefined,
   collInput: string | undefined,
   vault: IVault | undefined,
-  assetPairInfo: IAssetPair | undefined | null
+  assetPairInfo: IAssetPair | undefined | null,
+  isVR: boolean | null
 ) => {
+  console.log('%c useCollateralHelpers singular hook', 'color: orange; font-weight: bold;');
   /* STATE FROM CONTEXT */
   const {
     userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap },
@@ -31,7 +33,7 @@ export const useCollateralHelpersFixedRate = (
 
   const _selectedBase = vault ? assetMap?.get(vault.baseId) : selectedBase;
   const _selectedIlk = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
-  const _selectedSeries = vault ? seriesMap?.get(vault.seriesId) : selectedSeries;
+  const _selectedSeries = vault && vault.seriesId ? seriesMap?.get(vault.seriesId) : selectedSeries;
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
@@ -124,20 +126,28 @@ export const useCollateralHelpersFixedRate = (
 
     const existingDebt_ = vault?.accruedArt ? vault.accruedArt : ethers.constants.Zero;
     const existingDebtAsWei = decimalNToDecimal18(existingDebt_, _selectedBase?.decimals || 18);
-    const newDebt =
-      debtInput && Math.abs(parseFloat(debtInput)) > 0 && _selectedSeries
-        ? buyBase(
-            _selectedSeries.sharesReserves,
-            _selectedSeries.fyTokenReserves,
-            _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase?.decimals)),
-            getTimeTillMaturity(_selectedSeries.maturity),
-            _selectedSeries.ts,
-            _selectedSeries.g2,
-            _selectedSeries.decimals,
-            _selectedSeries.c,
-            _selectedSeries.mu
-          )
-        : ZERO_BN;
+    let newDebt;
+    if (isVR) {
+      newDebt =
+        debtInput && Math.abs(parseFloat(debtInput)) > 0
+          ? ethers.utils.parseUnits(debtInput, _selectedBase?.decimals)
+          : ZERO_BN;
+    } else {
+      newDebt =
+        debtInput && Math.abs(parseFloat(debtInput)) > 0 && _selectedSeries
+          ? buyBase(
+              _selectedSeries.sharesReserves,
+              _selectedSeries.fyTokenReserves,
+              _selectedSeries.getShares(ethers.utils.parseUnits(debtInput, _selectedBase?.decimals)),
+              getTimeTillMaturity(_selectedSeries.maturity),
+              _selectedSeries.ts,
+              _selectedSeries.g2,
+              _selectedSeries.decimals,
+              _selectedSeries.c,
+              _selectedSeries.mu
+            )
+          : ZERO_BN;
+    }
     const newDebtAsWei = decimalNToDecimal18(newDebt, _selectedBase?.decimals || 18);
     const _totalDebt = existingDebtAsWei.add(newDebtAsWei);
 

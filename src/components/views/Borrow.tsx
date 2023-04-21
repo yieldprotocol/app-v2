@@ -44,7 +44,7 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
-import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 import Line from '../elements/Line';
 import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
@@ -54,11 +54,7 @@ import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
 import VariableRate from '../selectors/VariableRate';
-<<<<<<< Updated upstream
-import { useBorrowVariableRate } from '../../hooks/actionHooks/useBorrowVariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
-=======
->>>>>>> Stashed changes
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -370,11 +366,11 @@ const Borrow = () => {
                       >
                         <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                       </SectionWrap>
-                      {basesVR?.length && basesVR.includes(selectedBase?.id!) && (
-                        <SectionWrap title="OR choose a variable rate">
-                          <VariableRate />
-                        </SectionWrap>
-                      )}
+                      {/* {basesVR?.length && basesVR.includes(selectedBase?.id!) && ( */}
+                      <SectionWrap title="OR choose a variable rate">
+                        <VariableRate />
+                      </SectionWrap>
+                      {/* )} */}
                     </Box>
                   )}
                 </Box>

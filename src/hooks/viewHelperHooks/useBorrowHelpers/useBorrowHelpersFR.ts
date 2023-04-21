@@ -20,7 +20,7 @@ import { WETH } from '../../../config/assets';
 import useAccountPlus from '../../useAccountPlus';
 
 /* Collateralization hook calculates collateralization metrics */
-export const useBorrowHelpers = (
+export const useBorrowHelpersFR = (
   input: string | undefined,
   collateralInput: string | undefined,
   vault: IVault | undefined,
@@ -109,7 +109,6 @@ export const useBorrowHelpers = (
       const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
       /* remaining debt is debt in base less input (with a minimum of zero) */
       const remainingDebt = debtInBase.sub(input_).gte(ZERO_BN) ? debtInBase.sub(input_) : ZERO_BN;
-      console.log('remainingDebt', debtInBase.sub(input_).gte(ZERO_BN));
       setDebtAfterRepay(remainingDebt);
     }
   }, [input, vault, debtInBase]);
@@ -170,7 +169,6 @@ export const useBorrowHelpers = (
         assetPairInfo?.minRatio.toString()!,
         undefined
       );
-      diagnostics && console.log('min Collat of roll to series', _minCollat.toString());
 
       /* SET MAX ROLL */
       if (vault.accruedArt.lt(_maxFyTokenIn)) {
@@ -194,7 +192,6 @@ export const useBorrowHelpers = (
         ? true
         : conditionsMet;
 
-      diagnostics && console.log('Roll possible: ', rollable);
       setRollPossible(rollable);
     }
   }, [futureSeries, vault, diagnostics, assetPairInfo, minDebt, vaultIlk?.decimals, getTimeTillMaturity]);
@@ -202,29 +199,48 @@ export const useBorrowHelpers = (
   /* Update the Min Max repayable amounts */
   useEffect(() => {
     if (account && vault && vaultBase && minDebt) {
-      console.log('in borrowHelpers just below useEffect if', vault, vaultBase, minDebt);
+      const vaultSeries = seriesMap.get(vault?.seriesId!);
+      if (!vaultSeries) return;
 
-      const isVRVault = !vault?.seriesId;
+      /* estimate max fyToken out to assess protocol limits */
+      const _maxFyTokenOut = maxFyTokenOut(
+        vaultSeries.sharesReserves,
+        vaultSeries.fyTokenReserves,
+        getTimeTillMaturity(vaultSeries.maturity),
+        vaultSeries.ts,
+        vaultSeries.g1,
+        vaultSeries.decimals,
+        vaultSeries.c,
+        vaultSeries.mu
+      );
 
-      if (isVRVault) {
-        console.log('%c VR VAULT', 'color: green; font-weight: bold; font-size: 36px;');
-        // setMaxRepay(vault.accruedArt);
-        // setMaxRepay_(vault.accruedArt_);
+      const limited = _maxFyTokenOut.lt(vault.accruedArt);
+
+      /* adjust max repayable to vault art if protocol limited */
+      if (limited) {
+        const accruedArt_ = ethers.utils.formatUnits(vault.accruedArt, vault.decimals); // is this necessary? seems this is already done in vault - jacob b
+        setMaxRepay(vault.accruedArt);
+        setMaxRepay_(accruedArt_);
         setDebtInBase(vault.accruedArt);
-        setDebtInBase_(vault.accruedArt_);
+        setDebtInBase_(accruedArt_);
+      } else {
+        const _sharesRequired = buyFYToken(
+          vaultSeries.sharesReserves,
+          vaultSeries.fyTokenReserves,
+          vault.accruedArt,
+          getTimeTillMaturity(vaultSeries.maturity),
+          vaultSeries.ts,
+          vaultSeries.g1,
+          vaultSeries.decimals,
+          vaultSeries.c,
+          vaultSeries.mu
+        );
 
-        // some of the below is dupe code from the else statement - TODO refactor - jacob b
+        const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero)
+          ? ethers.constants.Zero
+          : vaultSeries.getBase(_sharesRequired);
 
-        /*
-          an assumption is made in much of the below logic that because VR borrows arent series,
-          and thus have no maturity date, I've modified the conditionals from the else statement to default
-          to the isMature option. Is this the right way to think about it? - jacob b
-        */
-
-        const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero) ? ethers.constants.Zero : vault.accruedArt; // modified this logic from original, TODO verify this logic - jacob b
-        // const _debtInBase = vault.accruedArt;
-        const _debtInBase = _baseRequired;
-
+        const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
         // add buffer to handle moving interest accumulation
         const _debtInBaseWithBuffer = _debtInBase.mul(1000).div(999);
 
@@ -240,82 +256,16 @@ export const useBorrowHelpers = (
         _maxToDust && setMinRepayable(_maxToDust);
         _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
-        const _accruedArt = vault.accruedArt.gt(baseBalance?.value || ethers.constants.Zero)
-          ? baseBalance?.value!
-          : vault.accruedArt;
-        setMaxRepay(_accruedArt);
-        setMaxRepay_(debtInBase_);
-      } else {
-        const vaultSeries = seriesMap.get(vault?.seriesId!);
-        if (!vaultSeries) return;
-
-        /* estimate max fyToken out to assess protocol limits */
-        const _maxFyTokenOut = maxFyTokenOut(
-          vaultSeries.sharesReserves,
-          vaultSeries.fyTokenReserves,
-          getTimeTillMaturity(vaultSeries.maturity),
-          vaultSeries.ts,
-          vaultSeries.g1,
-          vaultSeries.decimals,
-          vaultSeries.c,
-          vaultSeries.mu
-        );
-
-        const limited = _maxFyTokenOut.lt(vault.accruedArt);
-
-        /* adjust max repayable to vault art if protocol limited */
-        if (limited) {
-          const accruedArt_ = ethers.utils.formatUnits(vault.accruedArt, vault.decimals); // is this necessary? seems this is already done in vault - jacob b
-          setMaxRepay(vault.accruedArt);
-          setMaxRepay_(accruedArt_);
-          setDebtInBase(vault.accruedArt);
-          setDebtInBase_(accruedArt_);
+        /* if the series is mature re-set max as all debt (if balance allows) */
+        if (vaultSeries.seriesIsMature) {
+          const _accruedArt = vault.accruedArt.gt(baseBalance?.value || ethers.constants.Zero)
+            ? baseBalance?.value!
+            : vault.accruedArt;
+          setMaxRepay(_accruedArt);
+          setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
         } else {
-          const _sharesRequired = buyFYToken(
-            vaultSeries.sharesReserves,
-            vaultSeries.fyTokenReserves,
-            vault.accruedArt,
-            getTimeTillMaturity(vaultSeries.maturity),
-            vaultSeries.ts,
-            vaultSeries.g1,
-            vaultSeries.decimals,
-            vaultSeries.c,
-            vaultSeries.mu
-          );
-
-          const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero)
-            ? ethers.constants.Zero
-            : vaultSeries.getBase(_sharesRequired);
-
-          const _debtInBase = isMature(vaultSeries.maturity) ? vault.accruedArt : _baseRequired;
-          // add buffer to handle moving interest accumulation
-          const _debtInBaseWithBuffer = _debtInBase.mul(1000).div(999);
-
-          setDebtInBase(_debtInBaseWithBuffer);
-          setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
-
-          /* maxRepayable is either the max tokens they have or max debt */
-          const _maxRepayable =
-            baseBalance?.value && _debtInBaseWithBuffer.gt(baseBalance.value)
-              ? baseBalance.value
-              : _debtInBaseWithBuffer;
-
-          /* set the min repayable up to the dust limit */
-          const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
-          _maxToDust && setMinRepayable(_maxToDust);
-          _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
-
-          /* if the series is mature re-set max as all debt (if balance allows) */
-          if (vaultSeries.seriesIsMature) {
-            const _accruedArt = vault.accruedArt.gt(baseBalance?.value || ethers.constants.Zero)
-              ? baseBalance?.value!
-              : vault.accruedArt;
-            setMaxRepay(_accruedArt);
-            setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
-          } else {
-            setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase.decimals));
-            setMaxRepay(_maxRepayable);
-          }
+          setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase.decimals));
+          setMaxRepay(_maxRepayable);
         }
       }
     }
@@ -330,37 +280,6 @@ export const useBorrowHelpers = (
     vault,
     vaultBase,
   ]);
-
-  console.log('useBorrowHelpers RETURNs', vault, debtAfterRepay?.toString(), vaultBase);
-  console.table({
-    borrowPossible,
-    rollPossible,
-    rollProtocolLimited,
-
-    borrowEstimate,
-    borrowEstimate_,
-
-    maxRepay_,
-    maxRepay,
-
-    debtInBase,
-    debtInBase_,
-
-    debtAfterRepay,
-
-    minRepayable,
-    minRepayable_,
-
-    maxRoll,
-    maxRoll_,
-
-    userBaseBalance: baseBalance?.value,
-    userBaseBalance_: baseBalance?.formatted,
-    maxDebt,
-    minDebt,
-    maxDebt_,
-    minDebt_,
-  });
 
   return {
     borrowPossible,
