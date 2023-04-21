@@ -80,7 +80,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    console.log('%c in assetSelector useEffect', 'font-size: 36px;', selectCollateral, validIlks, selectedSeries);
     const opts = (selectCollateral ? validIlks! : Array.from(assetMap.values()))
       .filter((a) => a.showToken)
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
