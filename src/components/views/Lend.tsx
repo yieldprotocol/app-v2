@@ -18,7 +18,7 @@ import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 
-import PositionSelector from '../selectors/LendPositionSelector';
+import LendPositionSelector from '../selectors/LendPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
 import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
@@ -128,7 +128,7 @@ const Lend = () => {
       {!mobile && (
         <PanelWrap basis="30%">
           <Navigation sideNavigation={true} />
-          <PositionSelector actionType={ActionType.LEND} />
+          <LendPositionSelector />
         </PanelWrap>
       )}
 

@@ -492,7 +492,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         _accountData = await Promise.all(
           _publicData.map(async (series): Promise<ISeries> => {
             /* Get all the data simultanenously in a promise.all */
-            const [poolTokens, fyTokenBalance] = await Promise.all([
+            const [poolTokens, balance] = await Promise.all([
               series.poolContract.balanceOf(account),
               series.fyTokenContract.balanceOf(account),
             ]).catch((e) => {
@@ -504,9 +504,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             return {
               ...series,
               poolTokens,
-              fyTokenBalance,
+              balance,
               poolTokens_: ethers.utils.formatUnits(poolTokens, series.decimals),
-              fyTokenBalance_: ethers.utils.formatUnits(fyTokenBalance, series.decimals),
+              balance_: ethers.utils.formatUnits(balance, series.decimals),
               poolPercent,
             };
           })
@@ -816,7 +816,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             owner, // refreshed in case owner has been updated
             isWitchOwner: Witch.address === owner || WitchV1.address === owner, // check if witch is the owner (in liquidation process)
             hasBeenLiquidated,
-            isActive: owner === account, // refreshed in case owner has been updated
+            isActive: owner.toLowerCase() === account?.toLowerCase(), // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated
             ink,

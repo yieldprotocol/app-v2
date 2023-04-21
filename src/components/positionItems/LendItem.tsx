@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { Box, Text } from 'grommet';
-import { ActionType, ISeries } from '../../types';
+import { ActionType } from '../../types';
 import { UserContext } from '../../contexts/UserContext';
 import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
@@ -10,42 +10,44 @@ import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
+import { IPosition } from '../selectors/LendPositionSelector';
+import useVYTokens from '../../hooks/entities/useVYTokens';
+import useAccountPlus from '../../hooks/useAccountPlus';
 
-function LendItem({
-  series,
-  index,
-  actionType,
-  condensed,
-}: {
-  series: ISeries;
+interface LendItemProps {
+  item: IPosition;
   index: number;
-  actionType: ActionType;
   condensed?: boolean;
-}) {
+}
+
+function LendItem({ item, index, condensed }: LendItemProps) {
   const router = useRouter();
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { assetMap, seriesLoading, selectedSeries, selectedBase },
-    userActions,
+    userState: { assetMap, seriesLoading, selectedSeries, seriesMap },
+    userActions: { setSelectedBase, setSelectedSeries },
   } = useContext(UserContext);
+  const { data: vyTokens } = useVYTokens();
+  // use vyToken balance if not a series
+  const vyToken = vyTokens?.get(item.address);
+  const series = [...seriesMap.values()].find((s) => s.address === item.address);
+  const base = assetMap.get(item.baseId);
   const { fyTokenMarketValue } = useLendHelpers(series!, '0');
-  const seriesBase = assetMap?.get(series.baseId)!;
-  const isSelectedBaseAndSeries = series.baseId === seriesBase.proxyId && series.id === selectedSeries?.id;
 
-  const handleSelect = (_series: ISeries) => {
-    userActions.setSelectedBase(selectedBase);
-    userActions.setSelectedSeries(_series);
-    router.push(`/${actionType.toLowerCase()}position/${_series.id}`);
+  const handleSelect = () => {
+    base && setSelectedBase(base);
+    series && setSelectedSeries(series);
+    router.push(`/lendposition/${item.address}`);
     logAnalyticsEvent(GA_Event.position_opened, {
       id: selectedSeries?.name,
     } as GA_Properties.position_opened);
   };
 
   return (
-    <ItemWrap action={() => handleSelect(series)} index={index}>
+    <ItemWrap action={handleSelect} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={series} condensed={condensed} actionType={ActionType.LEND} />
+        <PositionAvatar position={series ?? vyToken} condensed={condensed} actionType={ActionType.LEND} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
@@ -53,7 +55,7 @@ function LendItem({
           width={condensed ? '6rem' : undefined}
         >
           <Text weight={900} size="small">
-            {series.displayName}
+            {item.displayName}
           </Text>
           <Box direction="row" gap="xsmall">
             {fyTokenMarketValue !== 'Low liquidity' && (
@@ -62,10 +64,10 @@ function LendItem({
                   Balance:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {seriesLoading && isSelectedBaseAndSeries ? (
+                  {seriesLoading ? (
                     <SkeletonWrap width={30} />
                   ) : (
-                    cleanValue(fyTokenMarketValue, seriesBase?.digitFormat!)
+                    cleanValue(series ? fyTokenMarketValue : item.balance_, base?.digitFormat!)
                   )}
                 </Text>
               </Box>
