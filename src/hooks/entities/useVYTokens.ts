@@ -56,19 +56,19 @@ const useVYTokens = () => {
         ]);
 
         const data: IVYToken = {
-          id: address,
-          address,
+          id: address.toLowerCase(),
+          address: address.toLowerCase(),
           name,
           symbol,
           decimals,
           version,
-          baseAddress,
+          baseAddress: baseAddress.toLowerCase(),
           baseId,
           displayName: name,
           displayNameMobile: name,
           balance,
           balance_: formatUnits(balance, decimals),
-          proxyAddress,
+          proxyAddress: proxyAddress.toLowerCase(),
         };
 
         return (await vyTokens).set(address, data);
