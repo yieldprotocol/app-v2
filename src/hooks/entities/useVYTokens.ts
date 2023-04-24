@@ -1,4 +1,4 @@
-import useSWR, { useSWRConfig } from 'swr';
+import useSWR from 'swr';
 import { VYToken__factory } from '../../contracts';
 import { useCallback, useContext, useMemo } from 'react';
 import useFork from '../useFork';
@@ -24,7 +24,6 @@ export interface IVYToken extends ISignable {
 
 const useVYTokens = () => {
   const { multicall: _multicall, forkMulticall } = useContext(MulticallContext);
-  const { mutate: _mutate } = useSWRConfig();
   const { address: account } = useAccountPlus();
   const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
   const provider = useDefaultProvider();
@@ -55,9 +54,10 @@ const useVYTokens = () => {
           account ? proxy.balanceOf(account) : ethers.constants.Zero,
         ]);
 
+        const addr = address.toLowerCase();
         const data: IVYToken = {
-          id: address.toLowerCase(),
-          address: address.toLowerCase(),
+          id: addr,
+          address: addr,
           name,
           symbol,
           decimals,
@@ -71,7 +71,7 @@ const useVYTokens = () => {
           proxyAddress: proxyAddress.toLowerCase(),
         };
 
-        return (await vyTokens).set(address, data);
+        return (await vyTokens).set(addr, data);
       }, Promise.resolve(new Map<string, IVYToken>()));
   }, [account, assetRootMap, multicall, providerToUse]);
 
