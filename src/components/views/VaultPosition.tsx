@@ -411,7 +411,7 @@ const VaultPosition = () => {
                 {_selectedVault?.isActive && (
                   <Box>
                     <Box gap="small">
-                      {_selectedVault?.isActive && !unhealthyCollatRatio && (
+                      {_selectedVault?.isActive && !unhealthyCollatRatio && !vaultIsVR && (
                         <InfoBite
                           label="Maturity date"
                           value={`${vaultSeries?.displayName}`}
