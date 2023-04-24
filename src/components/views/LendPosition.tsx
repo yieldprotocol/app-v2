@@ -43,9 +43,14 @@ const LendPosition = () => {
     userState,
     userActions: { setSelectedSeries, setSelectedBase },
   } = useContext(UserContext);
-  const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
+  const { selectedSeries, seriesMap, assetMap, seriesLoading, selectedVR } = userState;
+  const { data: vyTokens, isLoading: vyTokensLoading } = useVYTokens();
+  const vyToken = vyTokens?.get(idFromUrl as string);
 
-  const selectedBase = assetMap?.get(selectedSeries?.baseId!);
+  // handle both vyToken and fyToken as positions
+  const position = vyToken ? vyToken : selectedSeries ?? undefined;
+
+  const selectedBase = assetMap?.get(position?.baseId!);
 
   /* LOCAL STATE */
   const [actionActive, setActionActive] = useState<any>({ text: 'Close Position', index: 0 });
@@ -188,16 +193,17 @@ const LendPosition = () => {
 
   useEffect(() => {
     const _series = [...seriesMap?.values()].find((s) => s.address === idFromUrl) || null;
-    const _base = assetMap?.get(_series?.baseId!);
+    const _base = assetMap?.get(vyToken ? vyToken.baseId : _series?.baseId!);
 
     _series && setSelectedSeries(_series);
     _base && setSelectedBase(_base!);
-  }, [assetMap, idFromUrl, seriesMap, setSelectedBase, setSelectedSeries]);
+  }, [assetMap, idFromUrl, seriesMap, setSelectedBase, setSelectedSeries, vyToken]);
 
   return (
     <>
-      {selectedSeries && (
-        <ModalWrap series={selectedSeries}>
+      {position && (
+        // TODO handle vyToken as another "series" within ModalWrap
+        <ModalWrap series={vyToken ? undefined : selectedSeries!}>
           <CenterPanelWrap>
             {!mobile && <ExitButton action={() => router.back()} />}
 
@@ -211,50 +217,69 @@ const LendPosition = () => {
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedSeries!} actionType={ActionType.LEND} />
+                    <PositionAvatar position={position} actionType={ActionType.LEND} />
                     <Box>
-                      <Text size={mobile ? 'medium' : 'large'}> {selectedSeries?.displayName} </Text>
-                      <CopyWrap hash={selectedSeries.address}>
-                        <Text size="small"> {abbreviateHash(selectedSeries?.address!, 6)}</Text>
+                      <Text size={mobile ? 'medium' : 'large'}>{position.displayName}</Text>
+                      <CopyWrap hash={position.address}>
+                        <Text size="small"> {abbreviateHash(position.address, 6)}</Text>
                       </CopyWrap>
                     </Box>
                   </Box>
                 </Box>
 
                 <SectionWrap>
-                  <Box gap="small">
-                    <InfoBite
-                      label="Maturity date"
-                      value={`${selectedSeries?.fullDate}`}
-                      icon={<FiClock color={selectedSeries?.color} />}
-                    />
-                    <InfoBite
-                      label="Portfolio value at Maturity"
-                      value={`${cleanValue(
-                        selectedSeries?.balance_!,
-                        selectedBase?.digitFormat!
-                      )} ${selectedBase?.displaySymbol!}`}
-                      icon={<FiTrendingUp />}
-                      loading={seriesLoading}
-                    />
-                    <InfoBite
-                      label="Current value"
-                      value={
-                        fyTokenMarketValue === 'Low liquidity'
-                          ? 'Low Liquidity'
-                          : `${cleanValue(
-                              fyTokenMarketValue,
-                              selectedBase?.digitFormat!
-                            )} ${selectedBase?.displaySymbol!}`
-                      }
-                      icon={
-                        <Box height="1em" width="1em">
-                          <Logo image={selectedBase?.image} />
-                        </Box>
-                      }
-                      loading={seriesLoading}
-                    />
-                  </Box>
+                  {selectedSeries && (
+                    <Box gap="small">
+                      <InfoBite
+                        label="Maturity date"
+                        value={`${selectedSeries?.fullDate}`}
+                        icon={<FiClock color={selectedSeries?.color} />}
+                      />
+                      <InfoBite
+                        label="Portfolio value at Maturity"
+                        value={`${cleanValue(
+                          selectedSeries?.balance_!,
+                          selectedBase?.digitFormat!
+                        )} ${selectedBase?.displaySymbol!}`}
+                        icon={<FiTrendingUp />}
+                        loading={seriesLoading}
+                      />
+                      <InfoBite
+                        label="Current value"
+                        value={
+                          fyTokenMarketValue === 'Low liquidity'
+                            ? 'Low Liquidity'
+                            : `${cleanValue(
+                                fyTokenMarketValue,
+                                selectedBase?.digitFormat!
+                              )} ${selectedBase?.displaySymbol!}`
+                        }
+                        icon={
+                          <Box height="1em" width="1em">
+                            <Logo image={selectedBase?.image} />
+                          </Box>
+                        }
+                        loading={seriesLoading}
+                      />
+                    </Box>
+                  )}
+                  {vyToken && (
+                    <Box gap="small">
+                      <InfoBite
+                        label="Current value"
+                        value={`${cleanValue(
+                          position.balance_, // TODO: get current value of vyToken position
+                          selectedBase?.digitFormat!
+                        )} ${selectedBase?.displaySymbol!}`}
+                        icon={
+                          <Box height="1em" width="1em">
+                            <Logo image={selectedBase?.image} />
+                          </Box>
+                        }
+                        loading={vyTokensLoading}
+                      />
+                    </Box>
+                  )}
                 </SectionWrap>
               </Box>
 
@@ -265,11 +290,19 @@ const LendPosition = () => {
                       plain
                       size="small"
                       dropProps={{ round: 'small' }}
-                      options={[
-                        { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
-                        { text: 'Roll Position', index: 1 },
-                        { text: 'View Transaction History', index: 2 },
-                      ]}
+                      options={
+                        selectedSeries
+                          ? [
+                              { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
+                              { text: 'Roll Position', index: 1 },
+                              { text: 'View Transaction History', index: 2 },
+                            ]
+                          : // vyToken actions
+                            [
+                              { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
+                              { text: 'View Transaction History', index: 2 },
+                            ]
+                      }
                       icon={<FiChevronDown />}
                       labelKey="text"
                       valueKey="index"
@@ -287,7 +320,7 @@ const LendPosition = () => {
                         <InputWrap
                           action={() => console.log('maxAction')}
                           isError={closeError}
-                          disabled={!selectedSeries}
+                          disabled={!position}
                           round
                         >
                           <TextInput
@@ -296,21 +329,19 @@ const LendPosition = () => {
                             inputMode="decimal"
                             placeholder="Amount to redeem"
                             value={closeInput || ''}
-                            onChange={(event: any) =>
-                              setCloseInput(cleanValue(event.target.value, selectedSeries.decimals))
-                            }
-                            disabled={!selectedSeries}
+                            onChange={(event: any) => setCloseInput(cleanValue(event.target.value, position?.decimals))}
+                            disabled={!position}
                             icon={<Logo image={selectedBase?.image} />}
                           />
                           <MaxButton
                             action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}
-                            disabled={maxClose_ === '0.0' || !selectedSeries}
+                            disabled={maxClose_ === '0.0' || !position}
                             clearAction={() => setCloseInput('')}
                             showingMax={!!closeInput && closeInput === maxClose_}
                           />
                         </InputWrap>
 
-                        {maxClose.lt(selectedSeries?.balance!) && (
+                        {selectedSeries && maxClose.lt(selectedSeries.balance!) && (
                           <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
@@ -331,14 +362,14 @@ const LendPosition = () => {
                           label={`Redeem Position ${selectedBase?.displaySymbol}`}
                           icon={<FiArrowRight />}
                           value={`${cleanValue(closeInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
-                          loading={seriesLoading}
+                          loading={selectedVR ? vyTokensLoading : seriesLoading}
                         />
                       </ActiveTransaction>
                     )}
                   </>
                 )}
 
-                {actionActive.index === 1 && (
+                {actionActive.index === 1 && selectedSeries && (
                   <>
                     {stepPosition[actionActive.index] === 0 && (
                       <Box margin={{ top: 'small' }} gap="small">
@@ -360,7 +391,7 @@ const LendPosition = () => {
                             placeholder={`Amount of ${selectedBase?.displaySymbol} to roll`}
                             value={rollInput || ''}
                             onChange={(event: any) =>
-                              setRollInput(cleanValue(event.target.value, selectedSeries.decimals))
+                              setRollInput(cleanValue(event.target.value, selectedSeries?.decimals))
                             }
                             disabled={!selectedSeries || !rollToSeries}
                             icon={<Logo image={selectedBase?.image} />}
@@ -375,7 +406,7 @@ const LendPosition = () => {
                       </Box>
                     )}
 
-                    {stepPosition[actionActive.index] !== 0 && (
+                    {stepPosition[actionActive.index] !== 0 && selectedSeries && (
                       <ActiveTransaction
                         pad
                         txProcess={rollProcess}
@@ -397,56 +428,84 @@ const LendPosition = () => {
                   </>
                 )}
 
-                {actionActive.index === 2 && <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />}
+                {actionActive.index === 2 && selectedSeries && (
+                  <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />
+                )}
+                {/* TODO handle vyToken history  */}
+                {/* {actionActive.index === 1 && <YieldHistoryVR position={vyToken} view={['TRADE']} />} */}
               </Box>
             </Box>
 
-            <ActionButtonGroup pad>
-              {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
-                <NextButton
-                  label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
-                  onClick={() => handleStepper()}
-                  key="next"
-                  disabled={(actionActive.index === 0 && closeDisabled) || (actionActive.index === 1 && rollDisabled)}
-                  errorLabel={(actionActive.index === 0 && closeError) || (actionActive.index === 1 && rollError)}
-                />
-              )}
-
-              {actionActive.index === 0 &&
-                stepPosition[actionActive.index] !== 0 &&
-                closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE &&
-                closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE_TIMEOUT && (
-                  <TransactButton
-                    primary
-                    label={
-                      <Text size={mobile ? 'small' : undefined}>
-                        {`Redeem${closeProcess?.processActive ? 'ing' : ''} ${
-                          nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.displaySymbol}`}
-                      </Text>
-                    }
-                    onClick={() => handleClosePosition()}
-                    disabled={closeDisabled || closeProcess?.processActive}
+            {selectedSeries && (
+              <ActionButtonGroup pad>
+                {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
+                  <NextButton
+                    label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
+                    onClick={() => handleStepper()}
+                    key="next"
+                    disabled={(actionActive.index === 0 && closeDisabled) || (actionActive.index === 1 && rollDisabled)}
+                    errorLabel={(actionActive.index === 0 && closeError) || (actionActive.index === 1 && rollError)}
                   />
                 )}
 
-              {actionActive.index === 1 &&
-                stepPosition[actionActive.index] !== 0 &&
-                rollProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
-                  <TransactButton
-                    primary
-                    label={
-                      <Text size={mobile ? 'small' : undefined}>
-                        {`Roll${rollProcess?.processActive ? 'ing' : ''} ${
-                          nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
-                        } ${selectedBase?.displaySymbol}`}
-                      </Text>
-                    }
-                    onClick={() => handleRollPosition()}
-                    disabled={rollDisabled || rollProcess?.processActive}
-                  />
-                )}
-            </ActionButtonGroup>
+                {actionActive.index === 0 &&
+                  stepPosition[actionActive.index] !== 0 &&
+                  closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE &&
+                  closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE_TIMEOUT && (
+                    <TransactButton
+                      primary
+                      label={
+                        <Text size={mobile ? 'small' : undefined}>
+                          {`Redeem${closeProcess?.processActive ? 'ing' : ''} ${
+                            nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
+                          } ${selectedBase?.displaySymbol}`}
+                        </Text>
+                      }
+                      onClick={() => handleClosePosition()}
+                      disabled={closeDisabled || closeProcess?.processActive}
+                    />
+                  )}
+
+                {actionActive.index === 1 &&
+                  stepPosition[actionActive.index] !== 0 &&
+                  rollProcess?.stage !== ProcessStage.PROCESS_COMPLETE && (
+                    <TransactButton
+                      primary
+                      label={
+                        <Text size={mobile ? 'small' : undefined}>
+                          {`Roll${rollProcess?.processActive ? 'ing' : ''} ${
+                            nFormatter(Number(rollInput), selectedBase?.digitFormat!) || ''
+                          } ${selectedBase?.displaySymbol}`}
+                        </Text>
+                      }
+                      onClick={() => handleRollPosition()}
+                      disabled={rollDisabled || rollProcess?.processActive}
+                    />
+                  )}
+              </ActionButtonGroup>
+            )}
+            {vyToken && (
+              <ActionButtonGroup pad>
+                {/* handle closing vyToken (lend) position */}
+                {actionActive.index === 0 &&
+                  stepPosition[actionActive.index] !== 0 &&
+                  closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE &&
+                  closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE_TIMEOUT && (
+                    <TransactButton
+                      primary
+                      label={
+                        <Text size={mobile ? 'small' : undefined}>
+                          {`Redeem${closeProcess?.processActive ? 'ing' : ''} ${
+                            nFormatter(Number(closeInput), selectedBase?.digitFormat!) || ''
+                          } ${selectedBase?.displaySymbol}`}
+                        </Text>
+                      }
+                      onClick={handleClosePosition} // TODO handle closing both fyToken and vyToken using handleClosePosition
+                      disabled={closeDisabled || closeProcess?.processActive}
+                    />
+                  )}
+              </ActionButtonGroup>
+            )}
           </CenterPanelWrap>
         </ModalWrap>
       )}
