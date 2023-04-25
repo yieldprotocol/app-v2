@@ -206,18 +206,10 @@ const Lend = () => {
                     />
                   ) : (
                     <Box direction="column" gap="medium">
-                      <SectionWrap
-                        title={
-                          selectedBase
-                            ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
-                                selectedBase && '-based'
-                              } maturity date:`
-                            : ''
-                        }
-                      >
+                      <SectionWrap title={`Select a fixed rate maturity`}>
                         <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
                       </SectionWrap>
-                      <SectionWrap title="OR lend indefintiely for a variable rate">
+                      <SectionWrap title="OR lend indefinitely at a variable rate">
                         <VariableRate />
                       </SectionWrap>
                     </Box>
