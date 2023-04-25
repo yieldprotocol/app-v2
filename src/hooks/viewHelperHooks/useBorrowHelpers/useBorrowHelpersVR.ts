@@ -7,9 +7,11 @@ import { UserContext } from '../../../contexts/UserContext';
 import { IVault, IAssetPair } from '../../../types';
 import { cleanValue } from '../../../utils/appUtils';
 import { ZERO_BN } from '../../../utils/constants';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance, useProvider } from 'wagmi';
 import { WETH } from '../../../config/assets';
 import useAccountPlus from '../../useAccountPlus';
+import { VYJoin__factory } from '../../../contracts';
+import useSWR from 'swr';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpersVR = (
@@ -24,11 +26,12 @@ export const useBorrowHelpersVR = (
   } = useContext(SettingsContext);
 
   const {
-    userState: { assetMap, seriesMap, selectedSeries },
+    userState: { assetMap, selectedBase },
   } = useContext(UserContext);
 
+  const provider = useProvider();
+
   const vaultBase = assetMap.get(vault?.baseId!);
-  const vaultIlk = assetMap.get(vault?.ilkId!);
 
   const { address: account } = useAccountPlus();
   const { data: baseBalance } = useBalance({
@@ -36,9 +39,13 @@ export const useBorrowHelpersVR = (
     token: vaultBase?.proxyId === WETH ? undefined : (vaultBase?.address as Address),
   });
 
+  const fetchJoinBalance = async (joinAddr: string, provider: any) => {
+    const join = VYJoin__factory.connect(joinAddr, provider);
+    const joinBalance = await join.storedBalance();
+    return joinBalance;
+  };
+
   /* LOCAL STATE */
-  const [borrowEstimate, setBorrowEstimate] = useState<BigNumber>(ethers.constants.Zero);
-  const [borrowEstimate_, setBorrowEstimate_] = useState<string>();
 
   const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
 
@@ -61,12 +68,15 @@ export const useBorrowHelpersVR = (
   const [minRepayable, setMinRepayable] = useState<BigNumber>(ethers.constants.Zero);
   const [minRepayable_, setMinRepayable_] = useState<string | undefined>();
 
-  const [maxRoll, setMaxRoll] = useState<BigNumber>(ethers.constants.Zero);
-  const [maxRoll_, setMaxRoll_] = useState<string | undefined>();
-
   const [borrowPossible, setBorrowPossible] = useState<boolean>(false);
-  const [rollPossible, setRollPossible] = useState<boolean>(false);
-  const [rollProtocolLimited, setRollProtocolLimited] = useState<boolean>(false);
+
+  /* get join balance when selectedBase changes */
+  const { data: joinBalance, error: joinBalanceError } = useSWR(selectedBase?.joinAddressVR, async (joinAddress) => {
+    const join = VYJoin__factory.connect(joinAddress, provider);
+    return await join.storedBalance();
+  });
+
+  console.log('assetPairInfo: ', assetPairInfo);
 
   /* Update the borrow limits if asset pair changes */
   useEffect(() => {
@@ -82,14 +92,14 @@ export const useBorrowHelpersVR = (
     }
   }, [assetPairInfo]);
 
-  /* check if the user can borrow the specified amount based on protocol base reserves */
+  /* check if a user can borrow based on join balance */
   useEffect(() => {
-    if (input && selectedSeries && parseFloat(input) > 0) {
-      const cleanedInput = cleanValue(input, selectedSeries.decimals);
-      const input_ = ethers.utils.parseUnits(cleanedInput, selectedSeries.decimals);
-      input_.lte(selectedSeries.sharesReserves) ? setBorrowPossible(true) : setBorrowPossible(false);
+    if (selectedBase && joinBalance && input && parseFloat(input) > 0) {
+      const cleanedInput = cleanValue(input, selectedBase.decimals);
+      const input_ = ethers.utils.parseUnits(cleanedInput, selectedBase.decimals);
+      input_.lte(joinBalance) ? setBorrowPossible(true) : setBorrowPossible(false);
     }
-  }, [input, selectedSeries, selectedSeries?.sharesReserves]);
+  }, [selectedBase, input, joinBalance]);
 
   /* check the new debt level after potential repaying */
   useEffect(() => {
@@ -106,46 +116,37 @@ export const useBorrowHelpersVR = (
   /* Update the Min Max repayable amounts */
   useEffect(() => {
     if (account && vault && vaultBase && minDebt) {
-      const isVRVault = !vault?.seriesId;
+      setDebtInBase(vault.accruedArt);
+      setDebtInBase_(vault.accruedArt_);
 
-      if (isVRVault) {
-        setDebtInBase(vault.accruedArt);
-        setDebtInBase_(vault.accruedArt_);
+      const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero) ? ethers.constants.Zero : vault.accruedArt; // modified this logic from original, TODO verify this logic - jacob b
+      const _debtInBase = _baseRequired;
 
-        const _baseRequired = vault.accruedArt.eq(ethers.constants.Zero) ? ethers.constants.Zero : vault.accruedArt; // modified this logic from original, TODO verify this logic - jacob b
-        const _debtInBase = _baseRequired;
+      // add buffer to handle moving interest accumulation
+      const _debtInBaseWithBuffer = _debtInBase.mul(1000).div(999);
 
-        // add buffer to handle moving interest accumulation
-        const _debtInBaseWithBuffer = _debtInBase.mul(1000).div(999);
+      setDebtInBase(_debtInBaseWithBuffer);
+      setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
 
-        setDebtInBase(_debtInBaseWithBuffer);
-        setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
+      /* maxRepayable is either the max tokens they have or max debt */
+      const _maxRepayable =
+        baseBalance?.value && _debtInBaseWithBuffer.gt(baseBalance.value) ? baseBalance.value : _debtInBaseWithBuffer;
 
-        /* maxRepayable is either the max tokens they have or max debt */
-        const _maxRepayable =
-          baseBalance?.value && _debtInBaseWithBuffer.gt(baseBalance.value) ? baseBalance.value : _debtInBaseWithBuffer;
+      /* set the min repayable up to the dust limit */
+      const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
+      _maxToDust && setMinRepayable(_maxToDust);
+      _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
 
-        /* set the min repayable up to the dust limit */
-        const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
-        _maxToDust && setMinRepayable(_maxToDust);
-        _maxToDust && setMinRepayable_(ethers.utils.formatUnits(_maxToDust, vaultBase?.decimals)?.toString());
-
-        const _accruedArt = vault.accruedArt.gt(baseBalance?.value || ethers.constants.Zero)
-          ? baseBalance?.value!
-          : vault.accruedArt;
-        setMaxRepay(_accruedArt);
-        setMaxRepay_(debtInBase_);
-      }
+      const _accruedArt = vault.accruedArt.gt(baseBalance?.value || ethers.constants.Zero)
+        ? baseBalance?.value!
+        : vault.accruedArt;
+      setMaxRepay(_accruedArt);
+      setMaxRepay_(debtInBase_);
     }
-  }, [account, baseBalance?.formatted, baseBalance?.value, minDebt, seriesMap, vault, vaultBase]);
+  }, [account, baseBalance?.formatted, baseBalance?.value, minDebt, vault, vaultBase]);
 
-  return {
+  console.log('useBorrowHelpersVR returns', {
     borrowPossible,
-    rollPossible,
-    rollProtocolLimited,
-
-    borrowEstimate,
-    borrowEstimate_,
 
     maxRepay_,
     maxRepay,
@@ -158,8 +159,27 @@ export const useBorrowHelpersVR = (
     minRepayable,
     minRepayable_,
 
-    maxRoll,
-    maxRoll_,
+    userBaseBalance: baseBalance?.value,
+    userBaseBalance_: baseBalance?.formatted,
+    maxDebt,
+    minDebt,
+    maxDebt_,
+    minDebt_,
+  });
+
+  return {
+    borrowPossible,
+
+    maxRepay_,
+    maxRepay,
+
+    debtInBase,
+    debtInBase_,
+
+    debtAfterRepay,
+
+    minRepayable,
+    minRepayable_,
 
     userBaseBalance: baseBalance?.value,
     userBaseBalance_: baseBalance?.formatted,
