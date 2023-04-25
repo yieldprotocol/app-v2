@@ -146,25 +146,23 @@ const VaultPosition = () => {
     unhealthyCollatRatio,
     liquidationPrice_,
     minSafeCollatRatioPct,
-  } = useCollateralHelpers('0', '0', _selectedVault, assetPair, vaultIsVR);
+  } = useCollateralHelpers('0', '0', _selectedVault, assetPair);
 
   const { collateralizationPercent: repayCollEst } = useCollateralHelpers(
     `-${repayInput! || '0'}`,
     '0',
     _selectedVault,
-    assetPair,
-    vaultIsVR
+    assetPair
   );
 
   const { collateralizationPercent: removeCollEst, unhealthyCollatRatio: removeCollEstUnhealthyRatio } =
-    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPair, vaultIsVR);
+    useCollateralHelpers('0', `-${removeCollatInput! || '0'}`, _selectedVault, assetPair);
 
   const { collateralizationPercent: addCollEst } = useCollateralHelpers(
     '0',
     `${addCollatInput! || '0'}`,
     _selectedVault,
-    assetPair,
-    vaultIsVR
+    assetPair
   );
 
   const {
