@@ -26,6 +26,7 @@ export const useLendFR = () => {
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
+  const series = selectedSeries;
   const { updateSeries, updateAssets } = userActions;
   const { address: account } = useAccountPlus();
   const chainId = useChainId();
@@ -46,8 +47,8 @@ export const useLendFR = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const contracts = useContracts();
 
-  const lend = async (input: string | undefined, series: ISeries) => {
-    console.log('🦄 ~ file: useLendFR.ts:49 ~ lend ~ input, series', input, series);
+  const lend = async (input: string | undefined) => {
+    if (!series) return console.error('no series selected');
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.LEND)) return; // return if action is not allowed
 

@@ -14,7 +14,6 @@ import useContracts from '../../useContracts';
 import useChainId from '../../useChainId';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
-import useAllowAction from '../../useAllowAction';
 import { VYToken__factory } from '../../../contracts';
 import { MAX_256 } from '@yield-protocol/ui-math';
 import useVYTokens from '../../entities/useVYTokens';
@@ -23,7 +22,7 @@ import { useSWRConfig } from 'swr';
 /* Lend Actions Hook */
 export const useLendVR = () => {
   const { mutate } = useSWRConfig();
-  const { key } = useVYTokens();
+  const { key, data: vyTokens } = useVYTokens();
   const {
     userState,
     userActions: { updateAssets },
@@ -32,7 +31,8 @@ export const useLendVR = () => {
   const { assetMap, selectedBase } = userState;
   const { address: account } = useAccountPlus();
   const chainId = useChainId();
-  const { isActionAllowed } = useAllowAction();
+
+  const vyToken = vyTokens ? [...vyTokens.values()].find((vy) => vy.baseId === selectedBase?.id) : undefined;
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -50,15 +50,14 @@ export const useLendVR = () => {
   const lend = async (input: string | undefined) => {
     if (!selectedBase || !contracts || !assetMap || !account)
       return console.error('no selectedBase || !contracts || !assetMap || !account');
-    if (!isActionAllowed(ActionCodes.LEND_FR)) return console.log('lend action not allowed');
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.LEND, `${selectedBase?.id}-vr`);
+    const txCode = getTxCode(ActionCodes.LEND, vyToken?.address!);
 
     const base = assetMap.get(selectedBase.id);
-    if (!base) return console.error('no base');
+    if (!base) return console.error('no base in useLendVR');
 
-    if (!input) return console.error('no input');
+    if (!input) return console.error('no input in useLendVR');
 
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = ethers.utils.parseUnits(cleanedInput, base.decimals);
@@ -86,16 +85,15 @@ export const useLendVR = () => {
     );
 
     const joinAddr = base.joinAddressVR;
-    if (!joinAddr) return console.error('no joinAddr');
+    if (!joinAddr) return console.error('no joinAddress');
 
     const vyTokenProxyAddr = base.VYTokenProxyAddress;
-    if (!vyTokenProxyAddr) return console.error('no vyTokenAddr');
+    if (!vyTokenProxyAddr) return console.error('no vyTokenAddress');
     const vyTokenProxyContract = VYToken__factory.connect(vyTokenProxyAddr, provider);
 
     const addEthCallData = () => {
       // TODO move to its own hook? - jacob b
       if (isEthBase) {
-        console.log('LENDING ETH', _input);
         return [
           {
             operation: LadleActions.Fn.WRAP_ETHER,
@@ -110,7 +108,6 @@ export const useLendVR = () => {
 
     const calls: ICallData[] = [
       ...permitCallData,
-      ...addEthCallData(),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, joinAddr, _input] as LadleActions.Args.TRANSFER,
@@ -123,9 +120,10 @@ export const useLendVR = () => {
         targetContract: vyTokenProxyContract,
         ignoreIf: false,
       },
+      ...addEthCallData(),
     ];
 
-    await transact(calls, txCode);
+    await transact(calls, txCode, true);
     mutate(key);
     refetchBaseBal();
     updateAssets([base]);

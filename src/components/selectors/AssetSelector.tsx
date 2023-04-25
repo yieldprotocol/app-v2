@@ -12,7 +12,7 @@ import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
-import useAssetPair from '../../hooks/higherOrderHooks/useAssetPair';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -44,7 +44,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
 
-  const { validIlks, validIlksLoading } = useAssetPair(undefined, undefined, selectedSeries?.id);
+  const { validIlks, validIlksLoading } = useAssetPair(selectedBase?.id, undefined, selectedSeries?.id);
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -80,7 +80,6 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    console.log('%c in assetSelector useEffect', 'font-size: 36px;', selectCollateral, validIlks, selectedSeries);
     const opts = (selectCollateral ? validIlks! : Array.from(assetMap.values()))
       .filter((a) => a.showToken)
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not

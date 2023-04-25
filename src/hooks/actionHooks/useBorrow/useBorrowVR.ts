@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 
-import { SettingsContext } from '../../../contexts/SettingsContext';
 import { UserContext } from '../../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, ISeries, IAsset } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
@@ -18,16 +17,11 @@ import { Address, useBalance } from 'wagmi';
 import useContracts from '../../useContracts';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
-import useAllowAction from '../../useAllowAction';
 
 export const useBorrowVR = () => {
-  const {
-    settingsState: { slippageTolerance },
-  } = useContext(SettingsContext);
-
   const { userState, userActions } = useContext(UserContext);
-  const { selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
-  const { updateVaults, updateAssets, updateSeries } = userActions;
+  const { selectedBase, selectedIlk, assetMap } = userState;
+  const { updateVaults, updateAssets } = userActions;
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
 
@@ -45,8 +39,6 @@ export const useBorrowVR = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
 
-  const { isActionAllowed } = useAllowAction();
-
   const borrowVariableRate = async (
     vault: IVault | undefined,
     input: string | undefined,
@@ -56,7 +48,7 @@ export const useBorrowVR = () => {
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, 'VR');
-    // TODO whats our second argument? vaultId if exisitng vault? look into what we do with this TX code - jacob b
+
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
 
@@ -83,30 +75,8 @@ export const useBorrowVR = () => {
     const cleanCollInput = cleanValue(collInput, ilkToUse.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
-    /*
-        Here is where we buy base in the previous borrow hook,
-        but in this case, we will need a new buyBase function, 
-        the old one requires a maturity date, but for VR we won't
-        have one. we also have no series. Will we have series for VR?
-
-        check for preview function
-
-        const _expectedFyToken = buyBase(
-            series.sharesReserves,
-            series.fyTokenReserves,
-            series.getShares(_input), // convert input in base to shares
-            getTimeTillMaturity(series.maturity),
-            series.ts,
-            series.g2,
-            series.decimals,
-            series.c,
-            series.mu
-            );
-            const _expectedFyTokenWithSlippage = calculateSlippage(_expectedFyToken, slippageTolerance.toString());
-    */
-
     /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
-    const _allowance = await ilkToUse.getAllowance(account!, ilkToUse.joinAddress);
+    const _allowance = await ilkToUse.getAllowance(account!, ilkToUse.joinAddressVR!);
 
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_collInput) : _allowance;
     console.log('Already approved', alreadyApproved);
@@ -123,7 +93,7 @@ export const useBorrowVR = () => {
       [
         {
           target: ilkToUse,
-          spender: ilkToUse.joinAddress,
+          spender: ilkToUse.joinAddressVR!,
           amount: _collInput,
           ignoreIf:
             alreadyApproved === true || // Ignore if already approved
@@ -134,13 +104,6 @@ export const useBorrowVR = () => {
       ],
       txCode
     );
-
-    /* if ETH is being borrowed, send the borrowed tokens (WETH) to ladle for unwrapping */
-    const serveToAddress = () => {
-      if (isEthBase) return ladleAddress;
-      // if ( wrapping  ) return wrapHandler
-      return account;
-    };
 
     /**
      *
@@ -175,26 +138,17 @@ export const useBorrowVR = () => {
         targetContract: ConvexLadleModuleContract,
         ignoreIf: !!vault || !isConvexCollateral,
       },
-
-      /* commenting out, as VR recipe book doesnt use serve */
-      // {
-      //   operation: LadleActions.Fn.SERVE,
-      //   args: [vaultId, serveToAddress(), _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
-      //   ignoreIf: false,
-      // },
-
-      // testing new pour action - jacob b
       {
         operation: LadleActions.Fn.POUR,
         args: [vaultId, ladleAddress, _collInput, _input] as LadleActions.Args.POUR, // TODO - update types - jacob b
         ignoreIf: false,
       },
 
-      ...removeEthCallData,
+      ...removeEthCallData, // do we still need this?/what does this do? - jacob b
     ];
 
     /* finally, handle the transaction */
-    await transact(calls, txCode);
+    await transact(calls, txCode, true);
 
     /* When complete, update vaults.
       If a vault was provided, update it only,

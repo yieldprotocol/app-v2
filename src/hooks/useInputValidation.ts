@@ -1,10 +1,9 @@
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
 import { UserContext } from '../contexts/UserContext';
-import { useLendHelpers } from './viewHelperHooks/useLendHelpers';
 import { ActionCodes, ISeries, IVault } from '../types';
 import useAccountPlus from './useAccountPlus';
+import { useLendHelpersFR } from './viewHelperHooks/useLendHelpers/useLendHelpersFR';
 
 /* Provides input validation for each ActionCode */
 export const useInputValidation = (
@@ -19,7 +18,7 @@ export const useInputValidation = (
   const { assetMap, selectedSeries, selectedBase } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap?.get(series?.baseId!) || selectedBase;
-  const { protocolLimited } = useLendHelpers(_selectedSeries, input);
+  const { protocolLimited } = useLendHelpersFR(_selectedSeries, input);
 
   const { address: activeAccount } = useAccountPlus();
 

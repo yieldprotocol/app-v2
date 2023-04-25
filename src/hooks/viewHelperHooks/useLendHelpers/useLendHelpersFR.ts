@@ -2,18 +2,18 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { maxBaseIn, maxBaseOut, maxFyTokenIn, sellBase, sellFYToken } from '@yield-protocol/ui-math';
 
-import { SettingsContext } from '../../contexts/SettingsContext';
-import { UserContext } from '../../contexts/UserContext';
-import { ActionType, ISeries } from '../../types';
-import { ZERO_BN } from '../../utils/constants';
-import { useApr } from '../useApr';
-import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
-import { cleanValue } from '../../utils/appUtils';
-import { WETH } from '../../config/assets';
-import useAccountPlus from '../useAccountPlus';
+import { SettingsContext } from '../../../contexts/SettingsContext';
+import { UserContext } from '../../../contexts/UserContext';
+import { ActionType, ISeries } from '../../../types';
+import { ZERO_BN } from '../../../utils/constants';
+import { useApr } from '../../useApr';
+import useTimeTillMaturity from '../../useTimeTillMaturity';
+import { Address, useBalance } from 'wagmi';
+import { cleanValue } from '../../../utils/appUtils';
+import { WETH } from '../../../config/assets';
+import useAccountPlus from '../../useAccountPlus';
 
-export const useLendHelpers = (
+export const useLendHelpersFR = (
   series: ISeries | null,
   input: string | undefined,
   rollToSeries: ISeries | undefined = undefined
@@ -95,7 +95,7 @@ export const useLendHelpers = (
         parseInt(input!) > 0 && setProtocolLimited(true);
       }
     }
-  }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity, userBaseBalance_]);
+  }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity, userBaseBalance_, input]);
 
   /* Sets max close and current market value of fyTokens held in base tokens */
   useEffect(() => {

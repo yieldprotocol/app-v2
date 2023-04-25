@@ -1,22 +1,22 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
-import { IAsset, IAssetPair } from '../types';
+import { IAsset, IAssetPair } from '../../../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWR from 'swr';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
-import useContracts from './useContracts';
-import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
-import useChainId from './useChainId';
-import { UserContext } from '../contexts/UserContext';
-import { stETH, wstETH } from '../config/assets';
-import { ContractNames } from '../config/contracts';
-import useFork from './useFork';
+import useContracts from '../../useContracts';
+import { Cauldron, CompositeMultiOracle__factory } from '../../../contracts';
+import useChainId from '../../useChainId';
+import { UserContext } from '../../../contexts/UserContext';
+import { stETH, wstETH } from '../../../config/assets';
+import { ContractNames } from '../../../config/contracts';
+import useFork from '../../useFork';
 import { JsonRpcProvider, Provider } from '@ethersproject/providers';
-import useDefaultProvider from './useDefaultProvider';
-import { SettingsContext } from '../contexts/SettingsContext';
+import useDefaultProvider from '../../useDefaultProvider';
+import { SettingsContext } from '../../../contexts/SettingsContext';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
-const useAssetPairFixedRate = (baseId?: string, ilkId?: string, seriesId?: string) => {
+const useAssetPairFR = (baseId?: string, ilkId?: string, seriesId?: string) => {
   /* CONTEXT STATE */
   const {
     userState: { assetMap },
@@ -107,17 +107,17 @@ const useAssetPairFixedRate = (baseId?: string, ilkId?: string, seriesId?: strin
   const getSeriesEntityIlks = useCallback(async () => {
     if (!seriesId) return undefined;
 
-    console.log('getting series ilks for: ', seriesId);
-
     const getIlkAddedEvents = async (
       provider: JsonRpcProvider | Provider,
       seriesId: string,
       fromBlock?: number | string
     ) => {
       const cauldron = contracts?.get(ContractNames.CAULDRON)?.connect(provider) as Cauldron;
+
       try {
         return await cauldron.queryFilter(
           cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)),
+
           fromBlock || 'earliest'
         );
       } catch (e) {
@@ -156,9 +156,6 @@ const useAssetPairFixedRate = (baseId?: string, ilkId?: string, seriesId?: strin
     }
   );
 
-  console.log('validIlks non VR: ', validIlks, baseId, ilkId, seriesId);
-  console.log('useAssetPair data: ', data);
-
   return {
     data,
     error,
@@ -170,4 +167,4 @@ const useAssetPairFixedRate = (baseId?: string, ilkId?: string, seriesId?: strin
   };
 };
 
-export default useAssetPairFixedRate;
+export default useAssetPairFR;

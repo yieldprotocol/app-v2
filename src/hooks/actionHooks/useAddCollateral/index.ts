@@ -10,7 +10,8 @@ export const useAddCollateral = () => {
   const { userState } = useContext(UserContext);
   const { selectedSeries } = userState;
 
-  const baseHook = selectedSeries ? useAddCollateralFR : useAddCollateralVR;
+  const addCollateralVR = useAddCollateralVR();
+  const addCollateralFR = useAddCollateralFR();
 
-  return baseHook();
+  return selectedSeries ? addCollateralFR : addCollateralVR;
 };

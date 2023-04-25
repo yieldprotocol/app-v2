@@ -15,6 +15,7 @@ import { ISettingsContext } from '../contexts/types/settings';
 import useAccountPlus from './useAccountPlus';
 import useFork from './useFork';
 import { ContractNames } from '../config/contracts';
+import { UserContext } from '../contexts/UserContext';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -25,6 +26,9 @@ const _getCallValue = (calls: ICallData[]): BigNumber =>
 
 /* Generic hook for chain transactions */
 export const useChain = () => {
+  const {
+    userState: { selectedVR },
+  } = useContext(UserContext);
   const {
     settingsState: { approveMax, forceTransactions, diagnostics },
   } = useContext(SettingsContext) as ISettingsContext;
@@ -46,15 +50,17 @@ export const useChain = () => {
    * TRANSACTING
    * @param { ICallsData[] } calls list of callData as ICallData
    * @param { string } txCode internal transaction code
+   * @param { boolean } useVR use the VR ladle contract
    *
    * * @returns { Promise<void> }
    */
-  const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
+  const transact = async (calls: ICallData[], txCode: string, useVR?: boolean): Promise<void> => {
     if (!contracts) return;
 
     /* Set the router contract instance, ladle by default */
-    // const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
-    const _contract: Contract = contracts.get(ContractNames.VR_LADLE)?.connect(signer!) as VRLadle;
+    const contract: Contract = contracts
+      .get(selectedVR ? ContractNames.VR_LADLE : ContractNames.LADLE)
+      ?.connect(signer!) as Ladle;
 
     /* First, filter out any ignored calls */
     const _calls = calls.filter((call: ICallData) => !call.ignoreIf);
@@ -71,13 +77,13 @@ export const useChain = () => {
           const encodedFn = (call.targetContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
 
           if (call.operation === LadleActions.Fn.ROUTE)
-            return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
+            return contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
               call.targetContract.address,
               encodedFn,
             ]);
 
           if (call.operation === LadleActions.Fn.MODULE)
-            return _contract.interface.encodeFunctionData(LadleActions.Fn.MODULE, [
+            return contract.interface.encodeFunctionData(LadleActions.Fn.MODULE, [
               call.targetContract.address,
               encodedFn,
             ]);
@@ -85,7 +91,7 @@ export const useChain = () => {
         throw new Error('Function name and contract target required for routing/ module interaction');
       }
       /* else */
-      return _contract.interface.encodeFunctionData(call.operation as string, call.args);
+      return contract.interface.encodeFunctionData(call.operation as string, call.args);
     });
 
     /* calculate the value sent */
@@ -95,7 +101,7 @@ export const useChain = () => {
     let gasEst: BigNumber;
     // let gasEstFail: boolean = false;
     try {
-      gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+      gasEst = await contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
       console.log('Auto gas estimate:', gasEst.mul(135).div(100).toString());
     } catch (e: any) {
       gasEst = BigNumber.from(500000);
@@ -105,8 +111,7 @@ export const useChain = () => {
 
     /* Finally, send out the transaction */
     return handleTx(
-      () =>
-        _contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
+      () => contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
       txCode
     );
   };

@@ -2,8 +2,18 @@
 import { useRemoveCollateralVR } from './useRemoveCollateralVR';
 import { useRemoveCollateralFR } from './useRemoveCollateralFR';
 
-export const useRemoveCollateral = (isVRVault: boolean) => {
-  const baseHook = isVRVault ? useRemoveCollateralVR : useRemoveCollateralFR;
+// CONTEXTS
+import { UserContext } from '../../../contexts/UserContext';
 
-  return baseHook();
+import { useContext } from 'react';
+
+export const useRemoveCollateral = () => {
+  const {
+    userState: { selectedVR },
+  } = useContext(UserContext);
+
+  const removeCollateralVR = useRemoveCollateralVR();
+  const removeCollateralFR = useRemoveCollateralFR();
+
+  return selectedVR ? removeCollateralVR : removeCollateralFR;
 };

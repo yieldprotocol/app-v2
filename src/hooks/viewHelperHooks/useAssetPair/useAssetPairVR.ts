@@ -1,22 +1,22 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
-import { IAsset, IAssetPair } from '../types';
+import { IAsset, IAssetPair } from '../../../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWR from 'swr';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
-import useContracts from './useContracts';
-import { VRCauldron, CompositeMultiOracle__factory } from '../contracts';
-import useChainId from './useChainId';
-import { UserContext } from '../contexts/UserContext';
-import { stETH, wstETH } from '../config/assets';
-import { ContractNames } from '../config/contracts';
-import useFork from './useFork';
+import useContracts from '../../useContracts';
+import { VRCauldron, CompositeMultiOracle__factory, Cauldron } from '../../../contracts';
+import useChainId from '../../useChainId';
+import { UserContext } from '../../../contexts/UserContext';
+import { stETH, wstETH } from '../../../config/assets';
+import { ContractNames } from '../../../config/contracts';
+import useFork from '../../useFork';
 import { JsonRpcProvider, Provider } from '@ethersproject/providers';
-import useDefaultProvider from './useDefaultProvider';
-import { SettingsContext } from '../contexts/SettingsContext';
+import useDefaultProvider from '../../useDefaultProvider';
+import { SettingsContext } from '../../../contexts/SettingsContext';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
-const useAssetPairVariableRate = (baseId?: string, ilkId?: string) => {
+const useAssetPairVR = (baseId?: string, ilkId?: string) => {
   console.log('useAssetPairVariableRate args: ', baseId, ilkId);
 
   /* CONTEXT STATE */
@@ -109,19 +109,16 @@ const useAssetPairVariableRate = (baseId?: string, ilkId?: string) => {
   const getSeriesEntityIlks = useCallback(async () => {
     if (!baseId) return undefined;
 
-    console.log('baseId in getSeriesEntity Ilks', bytesToBytes32(baseId, 6), provider);
-
     const getIlkAddedEvents = async (
       provider: JsonRpcProvider | Provider,
       baseId: string,
       fromBlock?: number | string
     ) => {
       const cauldron = contracts?.get(ContractNames.VR_CAULDRON)?.connect(provider) as VRCauldron;
-      console.log('gettingIlkAddedEvents VR', provider);
+
       try {
         return await cauldron.queryFilter(
           cauldron.filters.IlkAdded(bytesToBytes32(baseId, 6)),
-
           fromBlock || 'earliest'
         );
       } catch (e) {
@@ -136,7 +133,6 @@ const useAssetPairVariableRate = (baseId?: string, ilkId?: string) => {
     if (useForkedEnv && forkProvider) {
       ilkAddedEvents = new Set([...ilkAddedEvents, ...(await getIlkAddedEvents(forkProvider, baseId, forkStartBlock))]);
     }
-    console.log('ilkAddedEvents VR', ilkAddedEvents, baseId);
 
     return [...ilkAddedEvents.values()].reduce((acc, { args: { ilkId } }) => {
       const asset = assetMap.get(ilkId.toLowerCase());
@@ -158,10 +154,6 @@ const useAssetPairVariableRate = (baseId?: string, ilkId?: string) => {
     }
   );
 
-  console.log('validIlks VR: ', validIlks, baseId, ilkId);
-
-  console.log('useAssetPairVariableRate data: ', data);
-
   return {
     data,
     error,
@@ -173,4 +165,4 @@ const useAssetPairVariableRate = (baseId?: string, ilkId?: string) => {
   };
 };
 
-export default useAssetPairVariableRate;
+export default useAssetPairVR;

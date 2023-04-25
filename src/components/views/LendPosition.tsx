@@ -21,7 +21,6 @@ import TransactButton from '../buttons/TransactButton';
 import YieldHistory from '../YieldHistory';
 import { useInputValidation } from '../../hooks/useInputValidation';
 import ModalWrap from '../wraps/ModalWrap';
-import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 import { useClosePosition } from '../../hooks/actionHooks/useClosePosition';
 import { useRollPosition } from '../../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../wraps/CopyWrap';
@@ -32,6 +31,7 @@ import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useVYTokens from '../../hooks/entities/useVYTokens';
+import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -75,10 +75,10 @@ const LendPosition = () => {
 
   /* HOOK FNS */
   /* Close helpers */
-  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpers(selectedSeries!, closeInput, rollToSeries!);
+  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpersFR(selectedSeries!, closeInput, rollToSeries!);
 
   /* Roll helpers */
-  const { maxRoll_, rollEstimate_ } = useLendHelpers(selectedSeries!, rollInput, rollToSeries!);
+  const { maxRoll_, rollEstimate_ } = useLendHelpersFR(selectedSeries!, rollInput, rollToSeries!);
 
   const closePosition = useClosePosition();
   const rollPosition = useRollPosition();

@@ -15,17 +15,7 @@ import {
 } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import {
-  IAssetRoot,
-  ISeriesRoot,
-  IVaultRoot,
-  ISeries,
-  IAsset,
-  IVault,
-  IStrategyRoot,
-  IStrategy,
-  IVaultVR,
-} from '../types';
+import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
 import { ChainContext } from './ChainContext';
 import { cleanValue, generateVaultName } from '../utils/appUtils';
 
@@ -321,7 +311,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
-  }, [account, chainId, contracts, forkStartBlock, provider, seriesRootMap, useForkedEnv]);
+  }, [account, assetRootMap, chainId, contracts, forkStartBlock, provider, seriesRootMap, useForkedEnv]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
@@ -484,6 +474,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             currentInvariant,
             initInvariant,
             startBlock: poolStartBlock!,
+            balance: ethers.constants.Zero,
+            balance_: '0',
           };
         })
       );
@@ -691,7 +683,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       console.log('Updating vaults ...', account);
       updateState({ type: UserState.VAULTS_LOADING, payload: true });
 
-      let _vaults: IVaultRoot[] | undefined = vaultList;
+      let _vaults = vaultList;
       const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
       const VRCauldron = contracts.get(ContractNames.VR_CAULDRON) as contractTypes.VRCauldron;
       const WitchV1 = contracts.get(ContractNames.WITCH) as contractTypes.Witch;
@@ -702,7 +694,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
        * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
       if (vaultList.length === 0) {
         updateState({ type: UserState.CLEAR_VAULTS });
-        _vaults = await _getVaults();
+        _vaults = (await _getVaults()) as any;
       }
 
       /* if fetching vaults fails */
@@ -747,7 +739,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
             console.log('%c VR rate: ', 'color: #00ff00; font-size: 36px;', rate.toString(), vault.baseId);
 
-            const newVault: IVaultVR = {
+            const newVault = {
               ...vault,
               owner, // refreshed in case owner has been updated
               isWitchOwner: Witch.address === owner || WitchV1.address === owner, // check if witch is the owner (in liquidation process)
@@ -840,7 +832,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const newVaultMap = updatedVaults.reduce((acc, item) => {
         if (item) {
-          return acc.set(item.id, item);
+          return acc.set(item.id, item as any);
         }
         return acc;
       }, new Map() as Map<string, IVault>);
@@ -908,7 +900,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       []
     ),
     setSelectedSeries: useCallback(
-      (series: ISeries | null | string) => updateState({ type: UserState.SELECTED_SERIES, payload: series! }),
+      (series: ISeries | null | string) => updateState({ type: UserState.SELECTED_SERIES, payload: series as any }),
       []
     ),
     setSelectedBase: useCallback(
