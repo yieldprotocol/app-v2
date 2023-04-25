@@ -101,7 +101,7 @@ export const useChain = () => {
     let gasEst: BigNumber;
     // let gasEstFail: boolean = false;
     try {
-      gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+      gasEst = await contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
       console.log('Auto gas estimate:', gasEst.mul(135).div(100).toString());
     } catch (e: any) {
       gasEst = BigNumber.from(500000);
@@ -111,8 +111,7 @@ export const useChain = () => {
 
     /* Finally, send out the transaction */
     return handleTx(
-      () =>
-        _contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
+      () => contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
       txCode
     );
   };
