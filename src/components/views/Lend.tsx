@@ -53,7 +53,7 @@ const Lend = () => {
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { selectedVR, selectedSeries, selectedBase, seriesMap } = userState;
+  const { selectedVR, selectedSeries, selectedBase } = userState;
 
   const { address: activeAccount } = useAccountPlus();
 
