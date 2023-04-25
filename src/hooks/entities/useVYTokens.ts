@@ -55,14 +55,15 @@ const useVYTokens = () => {
           account ? proxy.balanceOf(account) : ethers.constants.Zero,
         ]);
 
+        const addr = address.toLowerCase();
         const data: IVYToken = {
-          id: address,
-          address,
+          id: addr,
+          address: addr,
           name,
           symbol,
           decimals,
           version,
-          baseAddress,
+          baseAddress: baseAddress.toLowerCase(),
           baseId,
           displayName: name,
           displayNameMobile: name,
@@ -71,7 +72,7 @@ const useVYTokens = () => {
           proxyAddress,
         };
 
-        return (await vyTokens).set(address, data);
+        return (await vyTokens).set(addr, data);
       }, Promise.resolve(new Map<string, IVYToken>()));
   }, [account, assetRootMap, multicall, providerToUse]);
 
