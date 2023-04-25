@@ -60,7 +60,6 @@ const Lend = () => {
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [lendInput, setLendInput] = useState<string>('');
-  // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
