@@ -512,18 +512,21 @@ const HistoryProvider = ({ children }: any) => {
 
       const vaultHistMap = new Map<string, IBaseHistItem[]>([]);
       const cauldronContract = contracts.get(ContractNames.CAULDRON) as Cauldron;
-      const VRcauldronContract = contracts.get(ContractNames.VR_CAULDRON) as VRCauldron;
+      const cauldronContractVR = contracts.get(ContractNames.VR_CAULDRON) as VRCauldron;
 
       /* Get all the Vault historical Pour transactions */
       await Promise.all(
         vaultList.map(async (vault) => {
           const { id: vaultId, seriesId } = vault;
           const vaultId32 = bytesToBytes32(vaultId, 12);
-          const series = seriesRootMap.get(seriesId) as ISeries;
+          const series = seriesRootMap.get(seriesId!) as ISeries;
 
           const givenFilter = cauldronContract.filters.VaultGiven(vaultId32, null);
           const pourFilter = cauldronContract.filters.VaultPoured(vaultId32);
           const rolledFilter = cauldronContract.filters.VaultRolled(vaultId32);
+
+          // vr
+          const pourFilterVR = cauldronContractVR.filters.VaultPoured(vaultId32);
 
           /* get all the logs available */
           const [pourEventList, givenEventList, rolledEventList] = await Promise.all([
@@ -534,8 +537,8 @@ const HistoryProvider = ({ children }: any) => {
 
           /* get VR logs */
           const [vrPourEventList, vrGivenEventList] = await Promise.all([
-            VRcauldronContract.queryFilter(pourFilter, useForkedEnv ? forkStartBlock : 'earliest'),
-            VRcauldronContract.queryFilter(givenFilter, useForkedEnv ? forkStartBlock : 'earliest'),
+            cauldronContractVR.queryFilter(pourFilterVR, useForkedEnv ? forkStartBlock : 'earliest'),
+            cauldronContractVR.queryFilter(givenFilter, useForkedEnv ? forkStartBlock : 'earliest'),
           ]);
 
           console.log('%c eventList', 'font-size: 36px; color: yellow;', vrPourEventList, vault);
@@ -548,7 +551,7 @@ const HistoryProvider = ({ children }: any) => {
           ]);
 
           /* VR data */
-          const [vrPourLogs] = await Promise.all([_parseVRPourLogs(vrPourEventList, VRcauldronContract, vault)]);
+          const [vrPourLogs] = await Promise.all([_parseVRPourLogs(vrPourEventList, cauldronContractVR, vault)]);
 
           const combinedLogs = [...pourLogs, ...givenLogs, ...rolledLogs, ...vrPourLogs].sort(
             (a, b) => a.blockNumber - b.blockNumber
@@ -565,14 +568,15 @@ const HistoryProvider = ({ children }: any) => {
         );
     },
     [
-      _parseGivenLogs,
-      _parsePourLogs,
-      _parseRolledLogs,
       contracts,
       diagnostics,
       seriesRootMap,
       useForkedEnv,
       forkStartBlock,
+      _parsePourLogs,
+      _parseGivenLogs,
+      _parseRolledLogs,
+      _parseVRPourLogs,
     ]
   );
 

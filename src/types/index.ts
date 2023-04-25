@@ -456,7 +456,7 @@ export interface IBaseHistItem {
   blockNumber: number;
   date: number;
   transactionHash: string;
-  series: ISeries;
+  series?: ISeries;
   actionCode: ActionCodes;
   date_: string;
   primaryInfo: string;
