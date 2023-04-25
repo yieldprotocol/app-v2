@@ -39,12 +39,6 @@ export const useBorrowHelpersVR = (
     token: vaultBase?.proxyId === WETH ? undefined : (vaultBase?.address as Address),
   });
 
-  const fetchJoinBalance = async (joinAddr: string, provider: any) => {
-    const join = VYJoin__factory.connect(joinAddr, provider);
-    const joinBalance = await join.storedBalance();
-    return joinBalance;
-  };
-
   /* LOCAL STATE */
 
   const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
@@ -75,8 +69,6 @@ export const useBorrowHelpersVR = (
     const join = VYJoin__factory.connect(joinAddress, provider);
     return await join.storedBalance();
   });
-
-  console.log('assetPairInfo: ', assetPairInfo);
 
   /* Update the borrow limits if asset pair changes */
   useEffect(() => {
@@ -144,28 +136,6 @@ export const useBorrowHelpersVR = (
       setMaxRepay_(debtInBase_);
     }
   }, [account, baseBalance?.formatted, baseBalance?.value, minDebt, vault, vaultBase]);
-
-  console.log('useBorrowHelpersVR returns', {
-    borrowPossible,
-
-    maxRepay_,
-    maxRepay,
-
-    debtInBase,
-    debtInBase_,
-
-    debtAfterRepay,
-
-    minRepayable,
-    minRepayable_,
-
-    userBaseBalance: baseBalance?.value,
-    userBaseBalance_: baseBalance?.formatted,
-    maxDebt,
-    minDebt,
-    maxDebt_,
-    minDebt_,
-  });
 
   return {
     borrowPossible,
