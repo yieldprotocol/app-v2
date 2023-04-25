@@ -228,8 +228,8 @@ export interface ISeries extends ISeriesRoot {
 
   poolTokens?: BigNumber | undefined;
   poolTokens_?: string | undefined;
-  balance?: BigNumber | undefined; // fyToken balance
-  balance_?: string | undefined; // fyToken balance
+  balance: BigNumber; // fyToken balance
+  balance_: string; // fyToken balance
 
   poolPercent?: string | undefined;
   poolAPY?: string;

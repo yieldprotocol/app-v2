@@ -474,6 +474,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             currentInvariant,
             initInvariant,
             startBlock: poolStartBlock!,
+            balance: ethers.constants.Zero,
+            balance_: '0',
           };
         })
       );
