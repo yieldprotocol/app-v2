@@ -293,7 +293,7 @@ const Lend = () => {
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
                 <Text size="small">View position:</Text>
-                <LendItem item={vyToken! || selectedSeries!} index={0} condensed />
+                <LendItem item={selectedVR ? vyToken! : selectedSeries!} index={0} condensed />
               </Box>
             )}
         </Box>
