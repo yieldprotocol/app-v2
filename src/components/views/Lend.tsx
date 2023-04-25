@@ -46,6 +46,7 @@ import { WETH } from '../../config/assets';
 import useAccountPlus from '../../hooks/useAccountPlus';
 import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
 import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
+import useVYTokens from '../../hooks/entities/useVYTokens';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -76,6 +77,8 @@ const Lend = () => {
   const apy = selectedVR ? apyVR : apyFR;
 
   const lend = useLend();
+  const { data: vyTokens } = useVYTokens();
+  const vyToken = [...vyTokens?.values()!].find((vyToken) => vyToken.baseId === selectedBase?.id);
 
   const { logAnalyticsEvent } = useAnalytics();
 
@@ -287,13 +290,8 @@ const Lend = () => {
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
-                <Text size="small"> View position: </Text>
-                <LendItem
-                  series={seriesMap?.get(selectedSeries?.id!)!}
-                  index={0}
-                  actionType={ActionType.LEND}
-                  condensed
-                />
+                <Text size="small">View position:</Text>
+                <LendItem item={vyToken! || selectedSeries!} index={0} condensed />
               </Box>
             )}
         </Box>
