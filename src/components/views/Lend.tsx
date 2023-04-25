@@ -65,8 +65,16 @@ const Lend = () => {
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpersFR(selectedSeries, lendInput);
-  const { maxClose_ } = useLendHelpersVR(lendInput);
+  const {
+    maxLend_: maxLendFR_,
+    apy: apyFR,
+    protocolLimited,
+    valueAtMaturity_,
+  } = useLendHelpersFR(selectedSeries, lendInput);
+  const { maxLend_: maxLendVR_, apy: apyVR } = useLendHelpersVR(lendInput);
+  const maxLend_ = selectedVR ? maxLendVR_ : maxLendFR_;
+  const apy = selectedVR ? apyVR : apyFR;
+
   const lend = useLend();
 
   const { logAnalyticsEvent } = useAnalytics();
@@ -252,16 +260,18 @@ const Lend = () => {
                       icon={<BiMessageSquareAdd />}
                       value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                     />
-                    {!selectedVR && (
+                    {selectedSeries && (
                       <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     )}
-                    <InfoBite
-                      label="Redeemable @ Maturity"
-                      icon={<FiTrendingUp />}
-                      value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!)} ${
-                        selectedBase?.displaySymbol
-                      }`}
-                    />
+                    {selectedSeries && (
+                      <InfoBite
+                        label="Redeemable @ Maturity"
+                        icon={<FiTrendingUp />}
+                        value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!)} ${
+                          selectedBase?.displaySymbol
+                        }`}
+                      />
+                    )}
                     <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
                   </Box>
                 </ActiveTransaction>
