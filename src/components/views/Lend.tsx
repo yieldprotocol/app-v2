@@ -209,7 +209,7 @@ const Lend = () => {
                       <SectionWrap title={`Select a fixed rate maturity`}>
                         <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
                       </SectionWrap>
-                      <SectionWrap title="OR lend indefinitely at a variable rate">
+                      <SectionWrap title="Or lend indefinitely at a variable rate">
                         <VariableRate />
                       </SectionWrap>
                     </Box>
