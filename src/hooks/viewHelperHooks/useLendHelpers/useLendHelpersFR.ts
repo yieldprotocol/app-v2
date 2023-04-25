@@ -8,7 +8,7 @@ import { ActionType, ISeries } from '../../../types';
 import { ZERO_BN } from '../../../utils/constants';
 import { useApr } from '../../useApr';
 import useTimeTillMaturity from '../../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import { cleanValue } from '../../../utils/appUtils';
 import { WETH } from '../../../config/assets';
 import useAccountPlus from '../../useAccountPlus';
@@ -54,7 +54,7 @@ export const useLendHelpersFR = (
   const { address: account } = useAccountPlus();
   const { data } = useBalance({
     address: account,
-    token: selectedBase?.proxyId === WETH ? undefined : selectedBase?.address as Address,
+    token: selectedBase?.proxyId === WETH ? undefined : (selectedBase?.address as Address),
     enabled: !!activeAccount && !!selectedBase,
   });
   const userBaseBalance = data?.value || ethers.constants.Zero;
@@ -84,7 +84,7 @@ export const useLendHelpersFR = (
       // make sure max shares in is greater than 0 and convert to base
       const _maxBaseIn = _maxSharesIn.lte(ethers.constants.Zero) ? ethers.constants.Zero : series.getBase(_maxSharesIn);
       diagnostics && console.log('MAX BASE IN : ', _maxBaseIn.toString());
-      
+
       if (userBaseBalance.lt(_maxBaseIn)) {
         setMaxLend(userBaseBalance);
         setMaxLend_(ethers.utils.formatUnits(userBaseBalance, series.decimals).toString());
@@ -92,11 +92,10 @@ export const useLendHelpersFR = (
       } else {
         setMaxLend(_maxBaseIn);
         setMaxLend_(ethers.utils.formatUnits(_maxBaseIn, series.decimals).toString());
-        parseInt(input!) > 0 &&  setProtocolLimited(true);
+        parseInt(input!) > 0 && setProtocolLimited(true);
       }
-
     }
-  }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity, userBaseBalance_]);
+  }, [userBaseBalance, series, selectedBase, diagnostics, getTimeTillMaturity, userBaseBalance_, input]);
 
   /* Sets max close and current market value of fyTokens held in base tokens */
   useEffect(() => {
@@ -104,7 +103,7 @@ export const useLendHelpersFR = (
       const sharesValue = sellFYToken(
         series.sharesReserves,
         series.fyTokenReserves,
-        series.fyTokenBalance || ethers.constants.Zero,
+        series.balance || ethers.constants.Zero,
         getTimeTillMaturity(series.maturity),
         series.ts,
         series.g2,
@@ -134,7 +133,7 @@ export const useLendHelpersFR = (
         : setFyTokenMarketValue(ethers.utils.formatUnits(baseValue, series.decimals));
 
       /* set max Closing */
-      if (baseValue.lte(ethers.constants.Zero) && series.fyTokenBalance?.gt(_maxFyTokenIn)) {
+      if (baseValue.lte(ethers.constants.Zero) && series.balance?.gt(_maxFyTokenIn)) {
         setMaxClose(_maxBaseOut);
         setMaxClose_(ethers.utils.formatUnits(_maxBaseOut, series.decimals));
       } else if (baseValue.lte(ethers.constants.Zero)) {
@@ -147,10 +146,10 @@ export const useLendHelpersFR = (
     }
 
     if (series && series.seriesIsMature) {
-      const val = ethers.utils.formatUnits(series.fyTokenBalance!, series.decimals);
+      const val = ethers.utils.formatUnits(series.balance!, series.decimals);
       setFyTokenMarketValue(val);
       setMaxClose_(val);
-      setMaxClose(series.fyTokenBalance!);
+      setMaxClose(series.balance!);
     }
   }, [getTimeTillMaturity, series]);
 
@@ -194,11 +193,11 @@ export const useLendHelpersFR = (
       const _maxBaseIn = rollToSeries.getBase(_maxSharesIn);
 
       const _sharesValue = series.seriesIsMature
-        ? series.fyTokenBalance || ZERO_BN
+        ? series.balance || ZERO_BN
         : sellFYToken(
             series.sharesReserves,
             series.fyTokenReserves,
-            series.fyTokenBalance || ethers.constants.Zero,
+            series.balance || ethers.constants.Zero,
             getTimeTillMaturity(series.maturity),
             series.ts,
             series.g2,
@@ -268,4 +267,3 @@ export const useLendHelpersFR = (
     protocolLimited, // userBaseBalance.gt(protocolBaseIn)
   };
 };
-../
