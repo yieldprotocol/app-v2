@@ -81,7 +81,10 @@ const Lend = () => {
 
   const { logAnalyticsEvent } = useAnalytics();
 
-  const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
+  const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(
+    ActionCodes.LEND,
+    vyToken ? vyToken.id! : selectedSeries?.id!
+  );
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
@@ -90,10 +93,10 @@ const Lend = () => {
   const handleLend = () => {
     if (lendDisabled) return;
     setLendDisabled(true);
-    lend(lendInput, selectedSeries!);
+    lend(lendInput);
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries?.name,
+      series_id: vyToken ? vyToken.name : selectedSeries?.name, // TODO handle vyToken
       action_code: ActionCodes.LEND,
     } as GA_Properties.transaction_initiated);
   };
