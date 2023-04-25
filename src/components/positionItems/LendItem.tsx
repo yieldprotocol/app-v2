@@ -6,13 +6,12 @@ import { UserContext } from '../../contexts/UserContext';
 import { cleanValue } from '../../utils/appUtils';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
-import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import { IPosition } from '../selectors/LendPositionSelector';
 import useVYTokens from '../../hooks/entities/useVYTokens';
-import useAccountPlus from '../../hooks/useAccountPlus';
+import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
 
 interface LendItemProps {
   item: IPosition;
@@ -33,7 +32,7 @@ function LendItem({ item, index, condensed }: LendItemProps) {
   const vyToken = vyTokens?.get(item.address);
   const series = [...seriesMap.values()].find((s) => s.address === item.address);
   const base = assetMap.get(item.baseId);
-  const { fyTokenMarketValue } = useLendHelpers(series!, '0');
+  const { fyTokenMarketValue } = useLendHelpersFR(series!, '0');
 
   const handleSelect = () => {
     base && setSelectedBase(base);
