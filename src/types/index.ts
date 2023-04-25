@@ -254,7 +254,7 @@ export interface IVault extends IVaultRoot {
 
   isWitchOwner: boolean;
   hasBeenLiquidated: boolean;
-  isVaultMature: boolean;
+  isVaultMature?: boolean;
 
   isActive: boolean;
   ink: BigNumber;
@@ -264,7 +264,7 @@ export interface IVault extends IVaultRoot {
   ink_: string;
   art_: string;
 
-  rateAtMaturity: BigNumber;
+  rateAtMaturity?: BigNumber;
   rate: BigNumber;
   rate_: string;
 
