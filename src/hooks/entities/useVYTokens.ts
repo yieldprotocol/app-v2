@@ -1,4 +1,4 @@
-import useSWR, { useSWRConfig } from 'swr';
+import useSWR from 'swr';
 import { VYToken__factory } from '../../contracts';
 import { useCallback, useContext, useMemo } from 'react';
 import useFork from '../useFork';
@@ -24,7 +24,6 @@ export interface IVYToken extends ISignable {
 
 const useVYTokens = () => {
   const { multicall: _multicall, forkMulticall } = useContext(MulticallContext);
-  const { mutate: _mutate } = useSWRConfig();
   const { address: account } = useAccountPlus();
   const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
   const provider = useDefaultProvider();
@@ -69,7 +68,7 @@ const useVYTokens = () => {
           displayNameMobile: name,
           balance,
           balance_: formatUnits(balance, decimals),
-          proxyAddress,
+          proxyAddress: proxyAddress.toLowerCase(),
         };
 
         return (await vyTokens).set(addr, data);
