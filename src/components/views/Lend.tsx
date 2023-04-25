@@ -277,7 +277,11 @@ const Lend = () => {
                         }`}
                       />
                     )}
-                    <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
+                    <InfoBite
+                      label={`${selectedVR ? 'Variable' : 'Effective'} APY`}
+                      icon={<FiPercent />}
+                      value={`${apy}%`}
+                    />
                   </Box>
                 </ActiveTransaction>
               </Box>
