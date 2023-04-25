@@ -77,7 +77,7 @@ const Lend = () => {
 
   const lend = useLend();
   const { data: vyTokens } = useVYTokens();
-  const vyToken = [...vyTokens?.values()!].find((vyToken) => vyToken.baseId === selectedBase?.id);
+  const vyToken = vyTokens ? [...vyTokens.values()].find((vyToken) => vyToken.baseId === selectedBase?.id) : undefined;
 
   const { logAnalyticsEvent } = useAnalytics();
 
