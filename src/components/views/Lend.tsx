@@ -30,7 +30,6 @@ import TransactButton from '../buttons/TransactButton';
 import { useInputValidation } from '../../hooks/useInputValidation';
 import AltText from '../texts/AltText';
 import YieldCardHeader from '../YieldCardHeader';
-import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 import useLend from '../../hooks/actionHooks/useLend';
 
 import ColorText from '../texts/ColorText';
@@ -41,11 +40,12 @@ import InputInfoWrap from '../wraps/InputInfoWrap';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import Line from '../elements/Line';
-import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
+import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -65,7 +65,8 @@ const Lend = () => {
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
+  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpersFR(selectedSeries, lendInput);
+  const { maxClose_ } = useLendHelpersVR(lendInput);
   const lend = useLend();
 
   const { logAnalyticsEvent } = useAnalytics();
