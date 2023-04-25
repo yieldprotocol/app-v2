@@ -22,7 +22,7 @@ import { useSWRConfig } from 'swr';
 /* Lend Actions Hook */
 export const useLendVR = () => {
   const { mutate } = useSWRConfig();
-  const { key } = useVYTokens();
+  const { key, data: vyTokens } = useVYTokens();
   const {
     userState,
     userActions: { updateAssets },
@@ -31,6 +31,8 @@ export const useLendVR = () => {
   const { assetMap, selectedBase } = userState;
   const { address: account } = useAccountPlus();
   const chainId = useChainId();
+
+  const vyToken = vyTokens ? [...vyTokens.values()].find((vy) => vy.baseId === selectedBase?.id) : undefined;
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -50,7 +52,7 @@ export const useLendVR = () => {
       return console.error('no selectedBase || !contracts || !assetMap || !account');
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.LEND, `${selectedBase?.id}-vr`);
+    const txCode = getTxCode(ActionCodes.LEND, vyToken?.address!);
 
     const base = assetMap.get(selectedBase.id);
     if (!base) return console.error('no base in useLendVR');

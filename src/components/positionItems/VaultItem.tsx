@@ -61,7 +61,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
           {vault.isActive ? (
             <Box direction="column" width={condensed ? '6rem' : undefined}>
               <Text weight={450} size="xsmall">
-                {seriesMap?.get(vault.seriesId)?.displayName}
+                {seriesMap?.get(vault.seriesId!)?.displayName}
               </Text>
               <Box direction="row" gap="xsmall">
                 <Text weight={450} size="xsmall">

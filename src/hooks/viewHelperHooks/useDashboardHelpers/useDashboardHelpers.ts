@@ -1,7 +1,3 @@
-/* 
-    This is literally just copy pasted FR - need to modify/test for VR - jacob b
-*/
-
 import { ethers } from 'ethers';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
@@ -68,12 +64,12 @@ export const useDashboardHelpers = () => {
     const _lendPositions: ILendPosition[] = Array.from(seriesMap?.values()!)
       .map((_series) => {
         const currentValue =
-          _series.seriesIsMature && _series.fyTokenBalance
-            ? _series.fyTokenBalance
+          _series.seriesIsMature && _series.balance
+            ? _series.balance
             : sellFYToken(
                 _series.sharesReserves,
                 _series.fyTokenReserves,
-                _series.fyTokenBalance || ethers.constants.Zero,
+                _series.balance || ethers.constants.Zero,
                 getTimeTillMaturity(_series.maturity),
                 _series.ts,
                 _series.g2,
@@ -82,15 +78,13 @@ export const useDashboardHelpers = () => {
                 _series.mu
               );
         const currentValue_ =
-          currentValue.lte(ethers.constants.Zero) && _series.fyTokenBalance?.gt(ethers.constants.Zero)
-            ? _series.fyTokenBalance_
+          currentValue.lte(ethers.constants.Zero) && _series.balance?.gt(ethers.constants.Zero)
+            ? _series.balance_
             : ethers.utils.formatUnits(currentValue, _series.decimals);
         return { ..._series, currentValue_ };
       })
-      .filter((_series: ILendPosition) => _series.fyTokenBalance?.gt(ZERO_BN))
-      .sort((_seriesA: ILendPosition, _seriesB: ILendPosition) =>
-        _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
-      );
+      .filter((_series: ILendPosition) => _series.balance?.gt(ZERO_BN))
+      .sort((_seriesA: ILendPosition, _seriesB: ILendPosition) => (_seriesA.balance?.gt(_seriesB.balance!) ? 1 : -1));
     setLendPositions(_lendPositions);
   }, [getTimeTillMaturity, seriesMap]);
 

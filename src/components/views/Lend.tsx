@@ -30,7 +30,6 @@ import TransactButton from '../buttons/TransactButton';
 import { useInputValidation } from '../../hooks/useInputValidation';
 import AltText from '../texts/AltText';
 import YieldCardHeader from '../YieldCardHeader';
-import { useLendHelpers } from '../../hooks/viewHelperHooks/useLendHelpers';
 import useLend from '../../hooks/actionHooks/useLend';
 
 import ColorText from '../texts/ColorText';
@@ -41,36 +40,51 @@ import InputInfoWrap from '../wraps/InputInfoWrap';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import Line from '../elements/Line';
-import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
+import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
+import useVYTokens from '../../hooks/entities/useVYTokens';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { selectedVR, selectedSeries, selectedBase, seriesMap } = userState;
+  const { selectedVR, selectedSeries, selectedBase } = userState;
 
   const { address: activeAccount } = useAccountPlus();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const [lendInput, setLendInput] = useState<string>('');
-  // const [maxLend, setMaxLend] = useState<string | undefined>();
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
 
   /* HOOK FNS */
-  const { maxLend_, apy, protocolLimited, valueAtMaturity_ } = useLendHelpers(selectedSeries, lendInput);
+  const {
+    maxLend_: maxLendFR_,
+    apy: apyFR,
+    protocolLimited,
+    valueAtMaturity_,
+  } = useLendHelpersFR(selectedSeries, lendInput);
+  const { maxLend_: maxLendVR_, apy: apyVR } = useLendHelpersVR(lendInput);
+  const maxLend_ = selectedVR ? maxLendVR_ : maxLendFR_;
+  const apy = selectedVR ? apyVR : apyFR;
+
   const lend = useLend();
+  const { data: vyTokens } = useVYTokens();
+  const vyToken = vyTokens ? [...vyTokens.values()].find((vyToken) => vyToken.baseId === selectedBase?.id) : undefined;
 
   const { logAnalyticsEvent } = useAnalytics();
 
-  const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(ActionCodes.LEND, selectedSeries?.id!);
+  const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(
+    ActionCodes.LEND,
+    vyToken ? vyToken.id! : selectedSeries?.id!
+  );
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
@@ -79,10 +93,10 @@ const Lend = () => {
   const handleLend = () => {
     if (lendDisabled) return;
     setLendDisabled(true);
-    lend(lendInput, selectedSeries!);
+    lend(lendInput);
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
-      series_id: selectedSeries?.name,
+      series_id: vyToken ? vyToken.name : selectedSeries?.name, // TODO handle vyToken
       action_code: ActionCodes.LEND,
     } as GA_Properties.transaction_initiated);
   };
@@ -192,18 +206,10 @@ const Lend = () => {
                     />
                   ) : (
                     <Box direction="column" gap="medium">
-                      <SectionWrap
-                        title={
-                          selectedBase
-                            ? `Select a${selectedBase?.id === WETH ? 'n' : ''} ${selectedBase?.displaySymbol}${
-                                selectedBase && '-based'
-                              } maturity date:`
-                            : ''
-                        }
-                      >
+                      <SectionWrap title={`Select a fixed rate maturity`}>
                         <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
                       </SectionWrap>
-                      <SectionWrap title="OR lend indefintiely for a variable rate">
+                      <SectionWrap title="Or lend indefinitely at a variable rate">
                         <VariableRate />
                       </SectionWrap>
                     </Box>
@@ -251,17 +257,23 @@ const Lend = () => {
                       icon={<BiMessageSquareAdd />}
                       value={`${cleanValue(lendInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                     />
-                    {!selectedVR && (
+                    {selectedSeries && (
                       <InfoBite label="Series Maturity" icon={<FiClock />} value={`${selectedSeries?.displayName}`} />
                     )}
+                    {selectedSeries && (
+                      <InfoBite
+                        label="Redeemable @ Maturity"
+                        icon={<FiTrendingUp />}
+                        value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!)} ${
+                          selectedBase?.displaySymbol
+                        }`}
+                      />
+                    )}
                     <InfoBite
-                      label="Redeemable @ Maturity"
-                      icon={<FiTrendingUp />}
-                      value={`${cleanValue(valueAtMaturity_, selectedBase?.digitFormat!)} ${
-                        selectedBase?.displaySymbol
-                      }`}
+                      label={`${selectedVR ? 'Variable' : 'Effective'} APY`}
+                      icon={<FiPercent />}
+                      value={`${apy}%`}
                     />
-                    <InfoBite label="Effective APY" icon={<FiPercent />} value={`${apy}%`} />
                   </Box>
                 </ActiveTransaction>
               </Box>
@@ -276,13 +288,8 @@ const Lend = () => {
             lendProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
             lendProcess?.tx.status === TxState.SUCCESSFUL && (
               <Box pad="large" gap="small">
-                <Text size="small"> View position: </Text>
-                <LendItem
-                  series={seriesMap?.get(selectedSeries?.id!)!}
-                  index={0}
-                  actionType={ActionType.LEND}
-                  condensed
-                />
+                <Text size="small">View position:</Text>
+                <LendItem item={selectedVR ? vyToken! : selectedSeries!} index={0} condensed />
               </Box>
             )}
         </Box>

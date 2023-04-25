@@ -61,7 +61,7 @@ export const useRepayDebtFR = () => {
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
-    const series: ISeries = seriesMap?.get(vault.seriesId)!;
+    const series: ISeries = seriesMap?.get(vault.seriesId!)!;
     const base: IAsset = assetMap?.get(vault.baseId)!;
     const ilk: IAsset = assetMap?.get(vault.ilkId)!;
 
