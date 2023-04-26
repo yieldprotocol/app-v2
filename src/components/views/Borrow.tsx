@@ -44,7 +44,6 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
-import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 import Line from '../elements/Line';
 import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
@@ -55,6 +54,7 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 
 import VariableRate from '../selectors/VariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
