@@ -43,6 +43,8 @@ const useIlks = () => {
   const getIlksFR = useCallback(async () => {
     if (!selectedSeries || !cauldronFR) return [];
 
+    console.log('getting ilks fr');
+
     const _getIlkAddedEvents = async (cauldron: Cauldron, fromBlock?: number | string) => {
       try {
         return await cauldronFR.queryFilter(
@@ -66,9 +68,11 @@ const useIlks = () => {
   const getIlksVR = useCallback(async () => {
     if (!selectedVR || !cauldronVR || !selectedBase) return [];
 
+    console.log('getting ilks vr');
+
     const _getIlkAddedEvents = async (cauldron: VRCauldron, fromBlock?: string | number) => {
       try {
-        return await cauldronVR.queryFilter(
+        return await cauldron.queryFilter(
           cauldron.filters.IlkAdded(bytesToBytes32(selectedBase.id, 6)),
           fromBlock || 'earliest'
         );
@@ -96,7 +100,6 @@ const useIlks = () => {
   const { data, error, isLoading } = useSWR(key, getIlks, {
     shouldRetryOnError: false,
     revalidateOnFocus: false,
-    revalidateIfStale: false,
   });
 
   return { data, error, isLoading };
