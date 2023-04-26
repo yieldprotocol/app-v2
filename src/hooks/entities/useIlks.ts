@@ -96,6 +96,7 @@ const useIlks = () => {
   const { data, error, isLoading } = useSWR(key, getIlks, {
     shouldRetryOnError: false,
     revalidateOnFocus: false,
+    revalidateIfStale: false,
   });
 
   return { data, error, isLoading };
