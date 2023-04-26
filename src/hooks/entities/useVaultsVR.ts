@@ -41,8 +41,8 @@ const useVaultsVR = () => {
   };
 
   const getVault = useCallback(
-    async (id: string): Promise<IVault | undefined> => {
-      if (!cauldronToUse || !witchToUse) return;
+    async (id: string) => {
+      if (!cauldronToUse || !witchToUse || !assetRootMap) return;
 
       const [[art, ink], [owner, baseId, ilkId]] = await Promise.all([
         cauldronToUse.balances(id),
@@ -81,22 +81,21 @@ const useVaultsVR = () => {
         isActive: owner.toLowerCase() === account?.toLowerCase(), // refreshed in case owner has been updated
         displayName: generateVaultName(id),
         decimals: base.decimals,
-      };
+      } as IVault;
     },
     [account, assetRootMap, cauldronToUse, useForkedEnv, witchToUse]
   );
 
   const getVaults = useCallback(async () => {
     if (!cauldron) return;
-    if (!forkCauldron && useForkedEnv) return;
 
     console.log('getting vaults in useVaultsVR');
 
     // default provider vault ids
-    const vaultIds = await getVaultIds(cauldron, forkStartBlock);
+    const vaultIds = await getVaultIds(cauldron);
 
     // fork provider vault ids
-    const forkVaultIds = !useForkedEnv ? [] : await getVaultIds(forkCauldron!, forkStartBlock);
+    const forkVaultIds = useForkedEnv && forkCauldron ? await getVaultIds(forkCauldron, forkStartBlock) : [];
 
     // both fork and non-fork vault ids
     const allIds = [...new Set([...vaultIds, ...forkVaultIds])];
@@ -109,12 +108,13 @@ const useVaultsVR = () => {
     return vaults;
   }, [cauldron, forkCauldron, forkStartBlock, getVault, useForkedEnv]);
 
-  const key = useMemo(
-    () => ['vaults', cauldron, forkCauldron, forkStartBlock, getVault, useForkedEnv],
-    [cauldron, forkCauldron, forkStartBlock, getVault, useForkedEnv]
-  );
+  const key = useMemo(() => ['vaults', forkStartBlock, useForkedEnv], [, forkStartBlock, useForkedEnv]);
 
-  const { data, error, isLoading } = useSWR(key, getVaults, { revalidateOnFocus: false });
+  const { data, error, isLoading } = useSWR(key, getVaults, {
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+    shouldRetryOnError: false,
+  });
 
   return { data, error, isLoading };
 };
