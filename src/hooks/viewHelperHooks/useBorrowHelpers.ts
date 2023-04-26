@@ -208,7 +208,7 @@ export const useBorrowHelpers = (
       const isVRVault = !vault?.seriesId;
 
       if (isVRVault) {
-        console.log('%c VR VAULT', 'color: green; font-weight: bold; font-size: 36px;');
+        // console.log('%c VR VAULT', 'color: green; font-weight: bold; font-size: 36px;');
         // setMaxRepay(vault.accruedArt);
         // setMaxRepay_(vault.accruedArt_);
         setDebtInBase(vault.accruedArt);
@@ -337,36 +337,36 @@ export const useBorrowHelpers = (
     vaultBase,
   ]);
 
-  console.log('useBorrowHelpers RETURNs', vault, debtAfterRepay?.toString(), vaultBase);
-  console.table({
-    borrowPossible,
-    rollPossible,
-    rollProtocolLimited,
+  // console.log('useBorrowHelpers RETURNs', vault, debtAfterRepay?.toString(), vaultBase);
+  // console.table({
+  //   borrowPossible,
+  //   rollPossible,
+  //   rollProtocolLimited,
 
-    borrowEstimate,
-    borrowEstimate_,
+  //   borrowEstimate,
+  //   borrowEstimate_,
 
-    maxRepay_,
-    maxRepay,
+  //   maxRepay_,
+  //   maxRepay,
 
-    debtInBase,
-    debtInBase_,
+  //   debtInBase,
+  //   debtInBase_,
 
-    debtAfterRepay,
+  //   debtAfterRepay,
 
-    minRepayable,
-    minRepayable_,
+  //   minRepayable,
+  //   minRepayable_,
 
-    maxRoll,
-    maxRoll_,
+  //   maxRoll,
+  //   maxRoll_,
 
-    userBaseBalance: baseBalance?.value,
-    userBaseBalance_: baseBalance?.formatted,
-    maxDebt,
-    minDebt,
-    maxDebt_,
-    minDebt_,
-  });
+  //   userBaseBalance: baseBalance?.value,
+  //   userBaseBalance_: baseBalance?.formatted,
+  //   maxDebt,
+  //   minDebt,
+  //   maxDebt_,
+  //   minDebt_,
+  // });
 
   return {
     borrowPossible,
