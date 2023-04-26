@@ -1,12 +1,11 @@
 import contractAddresses, { ContractNames } from '../../config/contracts';
-import { VRCauldron, VRCauldron__factory } from '../../contracts';
+import { VRCauldron__factory } from '../../contracts';
 import useFork from '../useFork';
 import useDefaultProvider from '../useDefaultProvider';
 import useSWR from 'swr';
 import { Provider } from '../../types';
 import { useCallback, useMemo } from 'react';
 import useChainId from '../useChainId';
-import contracts from '../../config/contracts';
 
 const useBasesVR = () => {
   const chainId = useChainId();
