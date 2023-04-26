@@ -1,17 +1,14 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react';
-import { IAsset, IAssetPair } from '../../../types';
+import { useCallback, useContext } from 'react';
+import { IAssetPair } from '../../../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWR from 'swr';
-
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts from '../../useContracts';
 import { Cauldron, CompositeMultiOracle__factory } from '../../../contracts';
 import useChainId from '../../useChainId';
 import { UserContext } from '../../../contexts/UserContext';
-import { stETH, wstETH } from '../../../config/assets';
 import { ContractNames } from '../../../config/contracts';
 import useFork from '../../useFork';
-import { JsonRpcProvider, Provider } from '@ethersproject/providers';
 import useDefaultProvider from '../../useDefaultProvider';
 import { SettingsContext } from '../../../contexts/SettingsContext';
 
@@ -104,66 +101,12 @@ const useAssetPairFR = (baseId?: string, ilkId?: string, seriesId?: string) => {
     }
   );
 
-  const getSeriesEntityIlks = useCallback(async () => {
-    if (!seriesId) return undefined;
-
-    const getIlkAddedEvents = async (
-      provider: JsonRpcProvider | Provider,
-      seriesId: string,
-      fromBlock?: number | string
-    ) => {
-      const cauldron = contracts?.get(ContractNames.CAULDRON)?.connect(provider) as Cauldron;
-
-      try {
-        return await cauldron.queryFilter(
-          cauldron.filters.IlkAdded(bytesToBytes32(seriesId, 6)),
-
-          fromBlock || 'earliest'
-        );
-      } catch (e) {
-        console.log('error getting ilk added events: ', e);
-        return [];
-      }
-    };
-
-    let ilkAddedEvents = new Set(await getIlkAddedEvents(provider, seriesId));
-
-    // get cauldron ilkAdded events for this series id using fork env
-    if (useForkedEnv && forkProvider) {
-      ilkAddedEvents = new Set([
-        ...ilkAddedEvents,
-        ...(await getIlkAddedEvents(forkProvider, seriesId, forkStartBlock)),
-      ]);
-    }
-
-    return [...ilkAddedEvents.values()].reduce((acc, { args: { ilkId } }) => {
-      const asset = assetMap.get(ilkId.toLowerCase());
-      if (!asset) return acc;
-
-      // handle/add stETH if wstETH; it's wrapped to wstETH by default and doesn't have an addIlk event
-      return asset.id.toLowerCase() === wstETH.toLowerCase()
-        ? [...acc, asset, assetMap.get(stETH.toLowerCase())!]
-        : [...acc, asset];
-    }, [] as IAsset[]);
-  }, [assetMap, contracts, forkProvider, forkStartBlock, provider, seriesId, useForkedEnv]);
-
-  const { data: validIlks, error: validIlksError } = useSWR(
-    seriesId ? ['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId] : null,
-    getSeriesEntityIlks,
-    {
-      shouldRetryOnError: false,
-      revalidateOnFocus: false,
-    }
-  );
-
   return {
     data,
     error,
     isLoading: !data && !error,
     getAssetPair,
     genKey,
-    validIlks,
-    validIlksLoading: !validIlks && !validIlksError,
   };
 };
 
