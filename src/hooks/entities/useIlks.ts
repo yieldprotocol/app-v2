@@ -1,30 +1,35 @@
 import { bytesToBytes32 } from '@yield-protocol/ui-math';
-import { IAsset } from '../../types';
+import { IAsset, Provider } from '../../types';
 import useSWR from 'swr';
 import { useCallback, useContext, useMemo } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { MulticallContext } from '../../contexts/MutlicallContext';
 import useContracts from '../useContracts';
-import { ContractNames } from '../../config/contracts';
-import { Cauldron, VRCauldron } from '../../contracts';
+import contractAddresses, { ContractNames } from '../../config/contracts';
+import { Cauldron, Cauldron__factory, VRCauldron, VRCauldron__factory } from '../../contracts';
 import useFork from '../useFork';
 import { stETH, wstETH } from '../../config/assets';
+import useDefaultProvider from '../useDefaultProvider';
+import useChainId from '../useChainId';
 
 const useIlks = () => {
   const contracts = useContracts();
-  const { useForkedEnv, forkStartBlock } = useFork();
+  const { useForkedEnv, forkStartBlock, provider: forkProvider } = useFork();
+  const provider = useDefaultProvider();
   const { multicall, forkMulticall } = useContext(MulticallContext);
   const {
     userState: { selectedVR, selectedSeries, assetMap, selectedBase },
   } = useContext(UserContext);
 
-  const _cauldronFR = contracts?.get(ContractNames.CAULDRON) as Cauldron | undefined;
-  const _cauldronVR = contracts?.get(ContractNames.VR_CAULDRON) as VRCauldron | undefined;
-
-  const cauldronFR = multicall?.wrap(_cauldronFR!);
-  const cauldronVR = multicall?.wrap(_cauldronVR!);
-  const forkCauldronFR = forkMulticall?.wrap(_cauldronFR!);
-  const forkCauldronVR = forkMulticall?.wrap(_cauldronVR!);
+  // contract instantiations
+  const getCauldronFR = (provider: Provider) =>
+    Cauldron__factory.connect(contracts?.get(ContractNames.CAULDRON)?.address!, provider);
+  const getCauldronVR = (provider: Provider) =>
+    VRCauldron__factory.connect(contracts?.get(ContractNames.VR_CAULDRON)?.address!, provider);
+  const cauldronFR = multicall?.wrap(getCauldronFR(provider));
+  const cauldronVR = multicall?.wrap(getCauldronVR(provider));
+  const forkCauldronFR = forkMulticall?.wrap(getCauldronFR(forkProvider!));
+  const forkCauldronVR = forkMulticall?.wrap(getCauldronVR(forkProvider!));
 
   const _getAssetsFromIlkIds = useCallback(
     (ids: string[]) =>
@@ -47,10 +52,7 @@ const useIlks = () => {
 
     const _getIlkAddedEvents = async (cauldron: Cauldron, fromBlock?: number | string) => {
       try {
-        return await cauldronFR.queryFilter(
-          cauldron.filters.IlkAdded(bytesToBytes32(selectedSeries.id, 6)),
-          fromBlock || 'earliest'
-        );
+        return await cauldronFR.queryFilter(cauldron.filters.IlkAdded(bytesToBytes32(selectedSeries.id, 6)), fromBlock);
       } catch (e) {
         console.log('error getting fr ilk added events: ', e);
         return [];
@@ -72,10 +74,7 @@ const useIlks = () => {
 
     const _getIlkAddedEvents = async (cauldron: VRCauldron, fromBlock?: string | number) => {
       try {
-        return await cauldron.queryFilter(
-          cauldron.filters.IlkAdded(bytesToBytes32(selectedBase.id, 6)),
-          fromBlock || 'earliest'
-        );
+        return await cauldron.queryFilter(cauldron.filters.IlkAdded(bytesToBytes32(selectedBase.id, 6)), fromBlock);
       } catch (e) {
         console.log('error getting vr ilk added events: ', e);
         return [];
