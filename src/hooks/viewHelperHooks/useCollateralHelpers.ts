@@ -25,7 +25,7 @@ export const useCollateralHelpers = (
   vault: IVault | undefined,
   assetPairInfo: IAssetPair | undefined | null
 ) => {
-  console.log('%c useCollateralHelpers singular hook', 'color: orange; font-weight: bold;');
+  // console.log('%c useCollateralHelpers singular hook', 'color: orange; font-weight: bold;');
   /* STATE FROM CONTEXT */
   const {
     userState: { selectedBase, selectedIlk, selectedSeries, assetMap, seriesMap, selectedVR },

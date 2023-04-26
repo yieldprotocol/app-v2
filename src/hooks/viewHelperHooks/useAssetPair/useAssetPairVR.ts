@@ -14,7 +14,7 @@ import { SettingsContext } from '../../../contexts/SettingsContext';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPairVR = (baseId?: string, ilkId?: string) => {
-  console.log('useAssetPairVariableRate args: ', baseId, ilkId);
+  // console.log('useAssetPairVariableRate args: ', baseId, ilkId);
 
   /* CONTEXT STATE */
   const {
