@@ -19,7 +19,7 @@ import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
 
-import { cleanValue, getTxCode, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
 import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
@@ -55,6 +55,7 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 
 import VariableRate from '../selectors/VariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
+import useIlks from '../../hooks/entities/useIlks';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -101,8 +102,6 @@ const Borrow = () => {
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
 
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
-
-  const { validIlks } = useAssetPair(selectedBase?.id, undefined, selectedSeries?.id);
 
   const { data: basesVR } = useBasesVR();
 
@@ -292,14 +291,6 @@ const Borrow = () => {
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [borrowProcess, contracts, resetInputs, vaultToUse]);
-
-  /* make sure ilk is valid */
-  useEffect(() => {
-    if (validIlks) {
-      console.log('validIlks in borrow useEffect', validIlks, typeof validIlks);
-      !validIlks.map((a) => a.proxyId)?.includes(selectedIlk?.proxyId!) && setSelectedIlk(validIlks[0]);
-    }
-  }, [selectedIlk?.proxyId, setSelectedIlk, validIlks]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
