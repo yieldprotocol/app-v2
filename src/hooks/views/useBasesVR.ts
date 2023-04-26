@@ -1,11 +1,10 @@
-import contractAddresses, { ContractNames } from '../../config/contracts';
+import { ContractNames } from '../../config/contracts';
 import { VRCauldron, VRCauldron__factory } from '../../contracts';
 import useFork from '../useFork';
 import useDefaultProvider from '../useDefaultProvider';
 import useSWR from 'swr';
 import { Provider } from '../../types';
 import { useCallback, useContext, useMemo } from 'react';
-import useChainId from '../useChainId';
 import { MulticallContext } from '../../contexts/MutlicallContext';
 import useContracts from '../useContracts';
 
