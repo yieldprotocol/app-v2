@@ -356,11 +356,11 @@ const Borrow = () => {
                       >
                         <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                       </SectionWrap>
-                      {basesVR?.length && basesVR.includes(selectedBase?.id!) && (
+                      {basesVR?.length && basesVR.includes(selectedBase?.id!) ? (
                         <SectionWrap title="OR choose a variable rate">
                           <VariableRate />
                         </SectionWrap>
-                      )}
+                      ) : null}
                     </Box>
                   )}
                 </Box>
