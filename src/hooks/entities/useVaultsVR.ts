@@ -100,10 +100,10 @@ const useVaultsVR = () => {
     // both fork and non-fork vault ids
     const allIds = [...new Set([...vaultIds, ...forkVaultIds])];
 
-    const vaults = await allIds.reduce(
-      async (acc, id) => (await acc).set(id, await getVault(id)),
-      Promise.resolve(new Map<string, IVault | undefined>())
-    );
+    const vaults = await allIds.reduce(async (acc, id) => {
+      const vault = await getVault(id);
+      return vault ? (await acc).set(id, vault) : await acc;
+    }, Promise.resolve(new Map<string, IVault | undefined>()));
 
     return vaults;
   }, [cauldron, forkCauldron, forkStartBlock, getVault, useForkedEnv]);
@@ -116,7 +116,7 @@ const useVaultsVR = () => {
     shouldRetryOnError: false,
   });
 
-  return { data, error, isLoading };
+  return { data, error, isLoading, key };
 };
 
 export default useVaultsVR;
