@@ -38,8 +38,6 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
   const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPair, undefined);
 
-  console.log('in VaultItem', vaultsLoading, vault.displayName, vault, debtInBase_);
-
   return (
     <ItemWrap
       action={() => handleSelect(vault)}
