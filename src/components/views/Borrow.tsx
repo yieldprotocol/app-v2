@@ -99,9 +99,7 @@ const Borrow = () => {
   const borrow = useBorrow();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
-
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
-
   const { data: basesVR } = useBasesVR();
 
   const {
