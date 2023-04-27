@@ -103,7 +103,7 @@ const useVaultsVR = () => {
     const vaults = await allIds.reduce(async (acc, id) => {
       const vault = await getVault(id);
       return vault ? (await acc).set(id, vault) : await acc;
-    }, Promise.resolve(new Map<string, IVault | undefined>()));
+    }, Promise.resolve(new Map<string, IVault>()));
 
     return vaults;
   }, [cauldron, forkCauldron, forkStartBlock, getVault, useForkedEnv]);
