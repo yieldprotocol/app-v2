@@ -5,14 +5,11 @@ import useSWR from 'swr';
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts from '../../useContracts';
 import { Cauldron, CompositeMultiOracle__factory, VRCauldron } from '../../../contracts';
-import useChainId from '../../useChainId';
 import { UserContext } from '../../../contexts/UserContext';
 import { ContractNames } from '../../../config/contracts';
 import useFork from '../../useFork';
 import { SettingsContext } from '../../../contexts/SettingsContext';
 import { MulticallContext } from '../../../contexts/MutlicallContext';
-import { useProvider } from 'wagmi';
-import useDefaultProvider from '../../useDefaultProvider';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string) => {
@@ -31,7 +28,6 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
 
   /* HOOKS */
   const contracts = useContracts();
-  const provider = useProvider(); // is the fork or non-fork provider depending on useForkedEnv
   const { useForkedEnv } = useFork();
   const cauldron = useMemo(() => {
     const _cauldron = contracts?.get(selectedVR ? ContractNames.VR_CAULDRON : ContractNames.CAULDRON) as
@@ -62,7 +58,7 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
 
       const oracleContract = CompositeMultiOracle__factory.connect(oracleAddr, cauldron.provider); // using the composite multi oracle but all oracles should have the same interface
 
-      console.log('Getting Asset Pair Info: ', baseId, ilkId);
+      diagnostics && console.log('Getting Asset Pair Info: ', baseId, ilkId);
 
       /* Get debt params and spot ratios */
       const [{ max, min, sum, dec }, { ratio }] = await Promise.all([
@@ -95,7 +91,7 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
         baseDecimals: _base.decimals,
       };
     },
-    [assetMap, cauldron, provider]
+    [assetMap, cauldron, diagnostics]
   );
 
   // This function is used to generate the key for the useSWR hook
