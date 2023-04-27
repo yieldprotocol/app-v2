@@ -1,9 +1,8 @@
 import useSWR from 'swr';
 import { IVault } from '../../types';
 import { useCallback, useContext, useMemo } from 'react';
-import useContracts from '../useContracts';
-import { ContractNames } from '../../config/contracts';
-import { CompositeMultiOracle, CompoundMultiOracle__factory, VRCauldron, VRWitch } from '../../contracts';
+import contractAddresses, { ContractNames } from '../../config/contracts';
+import { CompoundMultiOracle__factory, VRCauldron, VRCauldron__factory, VRWitch__factory } from '../../contracts';
 import useFork from '../useFork';
 import useDefaultProvider from '../useDefaultProvider';
 import { MulticallContext } from '../../contexts/MutlicallContext';
@@ -13,6 +12,7 @@ import { bytesToBytes32 } from '@yield-protocol/ui-math';
 import { RATE } from '../../utils/constants';
 import { cleanValue, generateVaultName } from '../../utils/appUtils';
 import useAccountPlus from '../useAccountPlus';
+import useChainId from '../useChainId';
 
 const useVaultsVR = () => {
   const { address: account } = useAccountPlus();
@@ -20,18 +20,38 @@ const useVaultsVR = () => {
   const {
     chainState: { assetRootMap },
   } = useContext(ChainContext);
-  const contracts = useContracts();
+  const chainId = useChainId();
   const provider = useDefaultProvider();
   const { provider: forkProvider, useForkedEnv, forkStartBlock } = useFork();
 
-  const _cauldron = contracts?.get(ContractNames.VR_CAULDRON) as VRCauldron | undefined;
-  const _witch = contracts?.get(ContractNames.VR_WITCH) as VRWitch | undefined;
-
-  const cauldron = multicall?.wrap(_cauldron!);
-  const witch = multicall?.wrap(_witch!);
-  const forkCauldron = forkMulticall?.wrap(_cauldron!);
-  const forkWitch = forkMulticall?.wrap(_witch!);
+  const cauldronAddr = contractAddresses.addresses.get(chainId)?.get(ContractNames.VR_CAULDRON);
+  const cauldron = useMemo(
+    () => (cauldronAddr ? multicall?.wrap(VRCauldron__factory.connect(cauldronAddr, provider)) : undefined),
+    [cauldronAddr, multicall, provider]
+  );
+  const forkCauldron = useMemo(
+    () =>
+      cauldronAddr && forkProvider
+        ? forkMulticall?.wrap(VRCauldron__factory.connect(cauldronAddr, forkProvider))
+        : undefined,
+    [cauldronAddr, forkMulticall, forkProvider]
+  );
+  // cauldron to use when fetching a vault's data
   const cauldronToUse = useForkedEnv ? forkCauldron! : cauldron;
+
+  const witchAddr = contractAddresses.addresses.get(chainId)?.get(ContractNames.VR_WITCH);
+  const witch = useMemo(
+    () => (witchAddr ? multicall?.wrap(VRWitch__factory.connect(witchAddr, provider)) : undefined),
+    [multicall, provider, witchAddr]
+  );
+  const forkWitch = useMemo(
+    () =>
+      cauldronAddr && forkProvider
+        ? forkMulticall?.wrap(VRWitch__factory.connect(cauldronAddr, forkProvider))
+        : undefined,
+    [cauldronAddr, forkMulticall, forkProvider]
+  );
+  // witch to use when fetching a vault's data
   const witchToUse = useForkedEnv ? forkWitch! : witch;
 
   const getVaultIds = async (cauldron: VRCauldron, fromBlock?: number | string): Promise<string[]> => {
@@ -108,11 +128,11 @@ const useVaultsVR = () => {
     return vaults;
   }, [cauldron, forkCauldron, forkStartBlock, getVault, useForkedEnv]);
 
-  const key = useMemo(() => ['vaults', forkStartBlock, useForkedEnv], [, forkStartBlock, useForkedEnv]);
+  // not adding the contracts as deps because they are causing infinite renders
+  const key = useMemo(() => ['vaultsVR', forkStartBlock, useForkedEnv], [, forkStartBlock, useForkedEnv]);
 
   const { data, error, isLoading } = useSWR(key, getVaults, {
     revalidateOnFocus: false,
-    revalidateIfStale: false,
     shouldRetryOnError: false,
   });
 
