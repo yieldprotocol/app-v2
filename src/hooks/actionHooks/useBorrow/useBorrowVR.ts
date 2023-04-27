@@ -3,19 +3,21 @@ import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, IAsset } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
-import { BLANK_VAULT, ONE_BN, ZERO_BN } from '../../../utils/constants';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../../config/assets';
+import { BLANK_VAULT } from '../../../utils/constants';
+import { ETH_BASED_ASSETS, WETH } from '../../../config/assets';
 import { useChain } from '../../useChain';
 import { useWrapUnwrapAsset } from '../useWrapUnwrapAsset';
 import { useAddRemoveEth } from '../useAddRemoveEth';
-import { ModuleActions } from '../../../types/operations';
-import { ConvexLadleModule } from '../../../contracts';
 import { Address, useBalance } from 'wagmi';
 import useContracts from '../../useContracts';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
+import useAssetPair from '../../viewHelperHooks/useAssetPair/useAssetPair';
+import { useSWRConfig } from 'swr';
 
 export const useBorrowVR = () => {
+  const { mutate } = useSWRConfig();
+  const { genKey: genAssetPairKey } = useAssetPair();
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, assetMap } = userState;
   const { updateAssets } = userActions;
@@ -132,6 +134,7 @@ export const useBorrowVR = () => {
     if (selectedBase?.id !== WETH) refetchBaseBal();
     if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateAssets([base, ilkToUse, selectedIlk!]);
+    mutate(genAssetPairKey(selectedBase!.id, selectedIlk!.id));
 
     // TODO update all vaults
   };
