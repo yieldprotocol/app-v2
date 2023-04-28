@@ -43,9 +43,8 @@ export const useLendHelpersVR = (input?: string) => {
     address: account,
     token: selectedBase?.VYTokenProxyAddress as Address,
     enabled: !!selectedBase,
+    formatUnits: selectedBase?.decimals,
   });
-
-  // TODO - vyTokenBalance.formatted is not correct
 
   return {
     maxLend: baseBal?.value,

@@ -105,13 +105,13 @@ export namespace RoutedActions {
 
     CHECKPOINT = 'checkpoint', // convex
     DEPOSIT = 'deposit', // for VR lending
+    REDEEM = 'redeem', // for VR lending
   }
 
   export namespace Args {
     export type SELL_BASE = [receiver: string, min: BigNumberish];
     export type SELL_FYTOKEN = [receiver: string, min: BigNumberish];
 
-    // new for VR
     export type DEPOSIT = [receiver: string, amount: BigNumberish];
 
     export type MINT_POOL_TOKENS = [to: string, remainderTo: string, minRatio: BigNumberish, maxRatio: BigNumberish];
@@ -132,6 +132,8 @@ export namespace RoutedActions {
     export type UNWRAP = [receiver: string];
 
     export type CHECKPOINT = [vaultOwner: string];
+
+    export type REDEEM_VR = [receiver: string, amount: BigNumberish];
   }
 }
 
