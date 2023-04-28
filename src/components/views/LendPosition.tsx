@@ -21,7 +21,8 @@ import TransactButton from '../buttons/TransactButton';
 import YieldHistory from '../YieldHistory';
 import { useInputValidation } from '../../hooks/useInputValidation';
 import ModalWrap from '../wraps/ModalWrap';
-import { useClosePosition } from '../../hooks/actionHooks/useClosePosition';
+import { useClosePositionFR } from '../../hooks/actionHooks/useClosePosition/useClosePositionFR';
+import { useClosePositionVR } from '../../hooks/actionHooks/useClosePosition/useClosePositionVR';
 import { useRollPosition } from '../../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
@@ -32,6 +33,7 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useVYTokens from '../../hooks/entities/useVYTokens';
 import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
+import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -41,11 +43,13 @@ const LendPosition = () => {
   /* STATE FROM CONTEXT */
   const {
     userState,
-    userActions: { setSelectedSeries, setSelectedBase },
+    userActions: { setSelectedSeries, setSelectedBase, setSelectedVR },
   } = useContext(UserContext);
   const { selectedSeries, seriesMap, assetMap, seriesLoading, selectedVR } = userState;
   const { data: vyTokens, isLoading: vyTokensLoading } = useVYTokens();
   const vyToken = vyTokens?.get(idFromUrl as string);
+
+  console.log('vyToken in LendPosition', vyToken);
 
   // handle both vyToken and fyToken as positions
   const position = vyToken ? vyToken : selectedSeries ?? undefined;
@@ -75,12 +79,35 @@ const LendPosition = () => {
 
   /* HOOK FNS */
   /* Close helpers */
-  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpersFR(selectedSeries!, closeInput, rollToSeries!);
+  const {
+    fyTokenMarketValue,
+    maxClose_: maxCloseFR_,
+    maxClose: maxCloseFR,
+  } = useLendHelpersFR(selectedSeries!, closeInput, rollToSeries!);
 
   /* Roll helpers */
   const { maxRoll_, rollEstimate_ } = useLendHelpersFR(selectedSeries!, rollInput, rollToSeries!);
 
-  const closePosition = useClosePosition();
+  /* VR */
+  const {
+    maxClose: maxCloseVR,
+    maxClose_: maxCloseVR_,
+    apy,
+    marketValue: marketValueVR,
+  } = useLendHelpersVR(closeInput);
+
+  const maxClose = selectedSeries ? maxCloseFR : maxCloseVR;
+  const maxClose_ = selectedSeries ? maxCloseFR_ : maxCloseVR_;
+
+  console.log('useLendHelpersVR Returns', {
+    maxClose: maxCloseVR,
+    maxClose_: maxCloseVR_,
+    apy,
+    marketValueVR,
+  });
+
+  const closePositionFR = useClosePositionFR();
+  const closePositionVR = useClosePositionVR();
   const rollPosition = useRollPosition();
 
   const { logAnalyticsEvent } = useAnalytics();
@@ -126,7 +153,13 @@ const LendPosition = () => {
   const handleClosePosition = () => {
     if (closeDisabled) return;
     setCloseDisabled(true);
-    closePosition(closeInput, selectedSeries!);
+
+    // use correct close fn
+    if (selectedVR) {
+      closePositionVR(closeInput);
+    } else {
+      closePositionFR(closeInput, selectedSeries!);
+    }
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
@@ -195,7 +228,7 @@ const LendPosition = () => {
     const _series = [...seriesMap?.values()].find((s) => s.address === idFromUrl) || null;
     const _base = assetMap?.get(vyToken ? vyToken.baseId : _series?.baseId!);
 
-    _series && setSelectedSeries(_series);
+    _series ? setSelectedSeries(_series) : setSelectedVR(true);
     _base && setSelectedBase(_base!);
   }, [assetMap, idFromUrl, seriesMap, setSelectedBase, setSelectedSeries, vyToken]);
 
@@ -278,6 +311,16 @@ const LendPosition = () => {
                         }
                         loading={vyTokensLoading}
                       />
+                      <InfoBite
+                        label="APY"
+                        value={`${apy}%`}
+                        icon={
+                          <Box height="1em" width="1em">
+                            <Logo image={<FiTrendingUp />} />
+                          </Box>
+                        }
+                        loading={vyTokensLoading}
+                      />
                     </Box>
                   )}
                 </SectionWrap>
@@ -341,14 +384,16 @@ const LendPosition = () => {
                           />
                         </InputWrap>
 
-                        {selectedSeries && maxClose.lt(selectedSeries.balance!) && (
-                          <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
-                            <Text color="text" alignSelf="end" size="xsmall">
-                              Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
-                              {selectedSeries.sharesReserves.eq(maxClose) && ' (limited by protocol)'}
-                            </Text>
-                          </InputInfoWrap>
-                        )}
+                        {(selectedSeries && maxClose!.lt(selectedSeries.balance!)) ||
+                          (selectedVR && (
+                            <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
+                              <Text color="text" alignSelf="end" size="xsmall">
+                                Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
+                                {((selectedSeries && selectedSeries.sharesReserves.eq(maxClose!)) || selectedVR) &&
+                                  ' (limited by protocol)'}
+                              </Text>
+                            </InputInfoWrap>
+                          ))}
                       </Box>
                     )}
 
@@ -488,7 +533,7 @@ const LendPosition = () => {
               <ActionButtonGroup pad>
                 {/* handle closing vyToken (lend) position */}
                 {actionActive.index === 0 &&
-                  stepPosition[actionActive.index] !== 0 &&
+                  // stepPosition[actionActive.index] !== 0 &&
                   closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE &&
                   closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE_TIMEOUT && (
                     <TransactButton
