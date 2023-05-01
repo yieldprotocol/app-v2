@@ -106,6 +106,7 @@ export namespace RoutedActions {
     CHECKPOINT = 'checkpoint', // convex
     DEPOSIT = 'deposit', // for VR lending
     REDEEM = 'redeem', // for VR lending
+    WITHDRAW = 'withdraw', // for VR lending
   }
 
   export namespace Args {
@@ -134,6 +135,7 @@ export namespace RoutedActions {
     export type CHECKPOINT = [vaultOwner: string];
 
     export type REDEEM_VR = [receiver: string, amount: BigNumberish];
+    export type WITHDRAW_VR = [underlyingAmount: BigNumberish, receiver: string, holder: string];
   }
 }
 

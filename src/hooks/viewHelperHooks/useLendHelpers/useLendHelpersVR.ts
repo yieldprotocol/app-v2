@@ -7,6 +7,9 @@ import { Address, useBalance, useProvider } from 'wagmi';
 import { WETH } from '../../../config/assets';
 import useAccountPlus from '../../useAccountPlus';
 import { useConvertValue } from '../../useConvertValue';
+import useVYTokens from '../../entities/useVYTokens';
+import { VYTokenProxy__factory, VYToken__factory } from '../../../contracts';
+import { formatUnits } from 'ethers/lib/utils.js';
 
 export const useLendHelpersVR = (input?: string) => {
   const {
@@ -18,6 +21,15 @@ export const useLendHelpersVR = (input?: string) => {
     address: account,
     token: selectedBase?.proxyId === WETH ? undefined : (selectedBase?.address as Address),
     enabled: !!selectedBase,
+  });
+
+  const { data: vyTokens } = useVYTokens();
+  const provider = useProvider();
+  const vyToken = vyTokens?.get(selectedBase?.VYTokenAddress!.toLowerCase()!);
+
+  const { data: vyTokenBal } = useBalance({
+    address: account,
+    token: vyToken?.proxyAddress as Address,
   });
 
   const { convertValue } = useConvertValue();
@@ -34,10 +46,14 @@ export const useLendHelpersVR = (input?: string) => {
     console.log('marketValue', value.toString());
   }
   useEffect(() => {
-    if (selectedBase?.id) {
-      fetchMarketValue();
-    }
-  }, [convertValue, input, selectedBase]);
+    (async () => {
+      if (vyToken?.proxyAddress && vyTokenBal?.value) {
+        const vyTokenProxyContract = VYToken__factory.connect(vyToken.proxyAddress, provider);
+        const underlyingAmount = await vyTokenProxyContract.previewRedeem(vyTokenBal.value);
+        setMarketValue(formatUnits(underlyingAmount.toString(), vyToken?.decimals!));
+      }
+    })();
+  }, [provider, vyToken?.balance, vyToken?.decimals, vyToken?.proxyAddress, vyTokenBal?.value]);
 
   const { data: vyTokenbalance } = useBalance({
     address: account,

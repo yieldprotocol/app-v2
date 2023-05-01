@@ -95,6 +95,7 @@ const LendPosition = () => {
     apy,
     marketValue: marketValueVR,
   } = useLendHelpersVR(closeInput);
+  console.log('🦄 ~ file: LendPosition.tsx:98 ~ LendPosition ~ marketValueVR:', marketValueVR);
 
   const maxClose = selectedSeries ? maxCloseFR : maxCloseVR;
   const maxClose_ = selectedSeries ? maxCloseFR_ : maxCloseVR_;
@@ -301,7 +302,7 @@ const LendPosition = () => {
                       <InfoBite
                         label="Current value"
                         value={`${cleanValue(
-                          position.balance_, // TODO: get current value of vyToken position
+                          marketValueVR,
                           selectedBase?.digitFormat!
                         )} ${selectedBase?.displaySymbol!}`}
                         icon={

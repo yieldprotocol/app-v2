@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
+import type { Provider } from "@ethersproject/providers";
 import type { VRLadle, VRLadleInterface } from "../VRLadle";
 
 const _abi = [
@@ -1143,7 +1143,7 @@ const _abi = [
     stateMutability: "payable",
     type: "receive",
   },
-];
+] as const;
 
 export class VRLadle__factory {
   static readonly abi = _abi;
