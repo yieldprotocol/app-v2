@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   YearnVaultMultiOracle,
   YearnVaultMultiOracleInterface,
@@ -451,7 +451,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-];
+] as const;
 
 export class YearnVaultMultiOracle__factory {
   static readonly abi = _abi;

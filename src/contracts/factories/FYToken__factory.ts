@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
+import type { Provider } from "@ethersproject/providers";
 import type { FYToken, FYTokenInterface } from "../FYToken";
 
 const _abi = [
@@ -998,7 +998,7 @@ const _abi = [
     stateMutability: "pure",
     type: "function",
   },
-];
+] as const;
 
 export class FYToken__factory {
   static readonly abi = _abi;

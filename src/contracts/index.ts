@@ -26,7 +26,7 @@ export type { Witch } from "./Witch";
 export type { WitchV2 } from "./WitchV2";
 export type { WrapEtherModule } from "./WrapEtherModule";
 export type { YearnVaultMultiOracle } from "./YearnVaultMultiOracle";
-
+export * as factories from "./factories";
 export { AccumulatorOracle__factory } from "./factories/AccumulatorOracle__factory";
 export { Cauldron__factory } from "./factories/Cauldron__factory";
 export { ChainlinkMultiOracle__factory } from "./factories/ChainlinkMultiOracle__factory";
