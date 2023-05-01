@@ -477,7 +477,7 @@ const LendPosition = () => {
                   <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />
                 )}
                 {/* TODO handle vyToken history  */}
-                {/* {actionActive.index === 1 && <YieldHistoryVR position={vyToken} view={['TRADE']} />} */}
+                {/* {actionActive.index === 1 && <YieldHistory position={vyToken} view={['TRADE']} />} */}
               </Box>
             </Box>
 
@@ -532,8 +532,17 @@ const LendPosition = () => {
             {vyToken && (
               <ActionButtonGroup pad>
                 {/* handle closing vyToken (lend) position */}
+                {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
+                  <NextButton
+                    label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
+                    onClick={() => handleStepper()}
+                    key="next"
+                    disabled={actionActive.index === 0 && closeDisabled}
+                    errorLabel={actionActive.index === 0 && closeError}
+                  />
+                )}
                 {actionActive.index === 0 &&
-                  // stepPosition[actionActive.index] !== 0 &&
+                  stepPosition[actionActive.index] !== 0 &&
                   closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE &&
                   closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE_TIMEOUT && (
                     <TransactButton
