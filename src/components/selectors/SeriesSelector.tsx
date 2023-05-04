@@ -77,7 +77,7 @@ const AprText = ({
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
   const _inputValue = cleanValue(inputValue, series.decimals);
-  const { apr } = useApr(_inputValue, actionType, series);
+  const { apr } = useApr(_inputValue, actionType, series.id);
   const [limitHit, setLimitHit] = useState<boolean>(false);
 
   const sharesIn = maxBaseIn(
