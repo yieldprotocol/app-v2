@@ -50,7 +50,7 @@ export const useLendHelpersFR = (
   // estimated fyTokens received after rolling to a new series
   const [rollEstimate_, setRollEstimate_] = useState<string>();
 
-  const { apr: apy } = useApr(input, ActionType.LEND, series);
+  const { apr: apy } = useApr(input, ActionType.LEND, series?.id);
   const { address: account } = useAccountPlus();
   const { data } = useBalance({
     address: account,

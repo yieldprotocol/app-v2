@@ -33,7 +33,7 @@ export const useLendHelpersVR = (input?: string) => {
     token: vyToken?.proxyAddress as Address,
   });
 
-  const { apr: apy } = useApr(input, ActionType.LEND, null); // TODO - handle vr apy's
+  const { apr: apy } = useApr(input, ActionType.LEND, vyToken?.baseId);
 
   const [marketValue, setMarketValue] = useState<string>(); // the value of vyToken position in base
 
