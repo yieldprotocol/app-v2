@@ -55,7 +55,7 @@ import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
-import VariableRate from '../selectors/VariableRateSelector';
+import VariableRateSelector from '../selectors/VariableRateSelector';
 import useBasesVR from '../../hooks/views/useBasesVR';
 
 const Borrow = () => {
@@ -377,9 +377,9 @@ const Borrow = () => {
                       >
                         <SeriesSelector inputValue={borrowInput} actionType={ActionType.BORROW} />
                       </SectionWrap>
-                      {basesVR?.length && basesVR.includes(selectedBase?.id!) && (
+                      {selectedBase && basesVR?.length && basesVR.includes(selectedBase.id) && (
                         <SectionWrap title="OR choose a variable rate">
-                          <VariableRate />
+                          <VariableRateSelector baseId={selectedBase.id} />
                         </SectionWrap>
                       )}
                     </Box>

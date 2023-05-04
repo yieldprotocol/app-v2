@@ -10,7 +10,7 @@ import MainViewWrap from '../wraps/MainViewWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
-import VariableRate from '../selectors/VariableRateSelector';
+import VariableRateSelector from '../selectors/VariableRateSelector';
 
 import { UserContext } from '../../contexts/UserContext';
 import { ActionCodes, ActionType, ProcessStage, TxState } from '../../types';
@@ -47,6 +47,7 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
 import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
 import useVYTokens from '../../hooks/entities/useVYTokens';
+import useBasesVR from '../../hooks/views/useBasesVR';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -77,6 +78,7 @@ const Lend = () => {
 
   const lend = useLend();
   const { data: vyTokens } = useVYTokens();
+  const { data: basesVR } = useBasesVR();
   const vyToken = vyTokens ? [...vyTokens.values()].find((vyToken) => vyToken.baseId === selectedBase?.id) : undefined;
 
   const { logAnalyticsEvent } = useAnalytics();
@@ -209,9 +211,11 @@ const Lend = () => {
                       <SectionWrap title={`Select a fixed rate maturity`}>
                         <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
                       </SectionWrap>
-                      <SectionWrap title="Or lend indefinitely at a variable rate">
-                        <VariableRate />
-                      </SectionWrap>
+                      {selectedBase && basesVR?.length && basesVR.includes(selectedBase.id) && (
+                        <SectionWrap title="Or lend indefinitely at a variable rate">
+                          <VariableRateSelector baseId={selectedBase.id} />
+                        </SectionWrap>
+                      )}
                     </Box>
                   )}
                 </Box>

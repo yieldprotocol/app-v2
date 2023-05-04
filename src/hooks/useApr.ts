@@ -97,7 +97,6 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           const VRCauldron = contracts?.get(ContractNames.VR_CAULDRON) as VRCauldron;
           const interestRateOracleAddr = await VRCauldron.rateOracles(baseId);
           const interestRateOracle = VRInterestRateOracle__factory.connect(interestRateOracleAddr, provider);
-          console.log('INTEREST RATE ORACLE', interestRateOracleAddr, interestRateOracle);
 
           // TODO figure out if this is how to call oracle for lend and borrow
           if (actionType === 'LEND') {
