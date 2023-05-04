@@ -10,7 +10,7 @@ import MainViewWrap from '../wraps/MainViewWrap';
 import SeriesSelector from '../selectors/SeriesSelector';
 import { cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
-import VariableRate from '../selectors/VariableRate';
+import VariableRate from '../selectors/VariableRateSelector';
 
 import { UserContext } from '../../contexts/UserContext';
 import { ActionCodes, ActionType, ProcessStage, TxState } from '../../types';

@@ -55,7 +55,7 @@ import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
-import VariableRate from '../selectors/VariableRate';
+import VariableRate from '../selectors/VariableRateSelector';
 import useBasesVR from '../../hooks/views/useBasesVR';
 
 const Borrow = () => {
