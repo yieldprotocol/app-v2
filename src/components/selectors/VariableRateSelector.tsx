@@ -7,6 +7,7 @@ import YieldMark from '../logos/YieldMark';
 import { useApr } from '../../hooks/useApr';
 import { ActionType } from '../../types';
 import { useRouter } from 'next/router';
+import SkeletonWrap from '../wraps/SkeletonWrap';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -131,11 +132,10 @@ const VariableRateSelector = ({ baseId }: { baseId: string }) => {
           </Text>
         </ShineyBox>
 
-        <Box fill align="end" width="small" className="thisHereBox">
-          <Box style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-            <Text size="1.5em" color={darkMode ? 'white' : 'black'}>
-              {apr} <Text size="small">% {'APR'}</Text>
-            </Text>
+        <Box fill align="end">
+          <Box gap="xsmall" align="center" color={darkMode ? 'white' : 'black'} direction="row">
+            <Text size="1.5em">{apr || <SkeletonWrap width={10} />}</Text>
+            <Text size="small">% APR</Text>
           </Box>
         </Box>
       </Box>
