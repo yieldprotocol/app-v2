@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import { UserContext } from '../../contexts/UserContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import YieldMark from '../logos/YieldMark';
+import { useApr } from '../../hooks/useApr';
+import { ActionType } from '../../types';
+import { useRouter } from 'next/router';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -68,7 +71,9 @@ const ShineyBox = styled(Box)`
   }
 `;
 
-const VariableRate = (apr: string | undefined) => {
+const VariableRateSelector = ({ baseId }: { baseId: string }) => {
+  const router = useRouter();
+  console.log('🦄 ~ file: VariableRateSelector.tsx:76 ~ VariableRateSelector ~ router:', router);
   const {
     settingsState: { darkMode },
   } = useContext(SettingsContext);
@@ -77,6 +82,8 @@ const VariableRate = (apr: string | undefined) => {
     userState: { selectedVR },
     userActions: { setSelectedVR },
   } = useContext(UserContext);
+
+  const { apr } = useApr(undefined, router.pathname.includes('lend') ? ActionType.LEND : ActionType.BORROW, baseId);
 
   return (
     <StyledBox
@@ -127,7 +134,7 @@ const VariableRate = (apr: string | undefined) => {
         <Box fill align="end" width="small" className="thisHereBox">
           <Box style={{ marginTop: 'auto', marginBottom: 'auto' }}>
             <Text size="1.5em" color={darkMode ? 'white' : 'black'}>
-              {2.7} <Text size="small">% {'APR'}</Text>
+              {apr} <Text size="small">% {'APR'}</Text>
             </Text>
           </Box>
         </Box>
@@ -136,4 +143,4 @@ const VariableRate = (apr: string | undefined) => {
   );
 };
 
-export default VariableRate;
+export default VariableRateSelector;
