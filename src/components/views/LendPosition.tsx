@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useRouter } from 'next/router';
-import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp, FiPercent } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -49,7 +49,7 @@ const LendPosition = () => {
   const { data: vyTokens, isLoading: vyTokensLoading } = useVYTokens();
   const vyToken = vyTokens?.get(idFromUrl as string);
 
-  console.log('vyToken in LendPosition', vyToken);
+  console.log('vyTokens in LendPosition', vyTokens);
 
   // handle both vyToken and fyToken as positions
   const position = vyToken ? vyToken : selectedSeries ?? undefined;
@@ -95,17 +95,10 @@ const LendPosition = () => {
     apy,
     marketValue: marketValueVR,
   } = useLendHelpersVR(closeInput);
-  console.log('🦄 ~ file: LendPosition.tsx:98 ~ LendPosition ~ marketValueVR:', marketValueVR);
+  console.log('🦄 ~ file: LendPosition.tsx:98 ~ LendPosition ~ marketValueVR:', marketValueVR, maxCloseVR_, apy);
 
   const maxClose = selectedSeries ? maxCloseFR : maxCloseVR;
   const maxClose_ = selectedSeries ? maxCloseFR_ : maxCloseVR_;
-
-  console.log('useLendHelpersVR Returns', {
-    maxClose: maxCloseVR,
-    maxClose_: maxCloseVR_,
-    apy,
-    marketValueVR,
-  });
 
   const closePositionFR = useClosePositionFR();
   const closePositionVR = useClosePositionVR();
@@ -116,7 +109,7 @@ const LendPosition = () => {
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
-    selectedSeries?.id!
+    selectedVR ? 'VR' : selectedSeries?.id!
   );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_POSITION,
@@ -239,7 +232,15 @@ const LendPosition = () => {
         // TODO handle vyToken as another "series" within ModalWrap
         <ModalWrap series={vyToken ? undefined : selectedSeries!}>
           <CenterPanelWrap>
-            {!mobile && <ExitButton action={() => router.back()} />}
+            {!mobile && (
+              <ExitButton
+                action={() => {
+                  setSelectedSeries(null);
+                  setSelectedVR(false);
+                  router.back();
+                }}
+              />
+            )}
 
             <Box pad={mobile ? 'medium' : 'large'} gap="1em">
               <Box height={{ min: '250px' }} gap="medium">
@@ -317,6 +318,19 @@ const LendPosition = () => {
                         value={`${apy}%`}
                         icon={
                           <Box height="1em" width="1em">
+                            <Logo image={<FiPercent />} />
+                          </Box>
+                        }
+                        loading={vyTokensLoading}
+                      />
+                      <InfoBite
+                        label="Interest Earned"
+                        value={`${cleanValue(
+                          vyToken.accumulatedInterestInBase_,
+                          selectedBase?.digitFormat!
+                        )} ${selectedBase?.displaySymbol!}`}
+                        icon={
+                          <Box height="1em" width="1em">
                             <Logo image={<FiTrendingUp />} />
                           </Box>
                         }
@@ -385,16 +399,15 @@ const LendPosition = () => {
                           />
                         </InputWrap>
 
-                        {(selectedSeries && maxClose!.lt(selectedSeries.balance!)) ||
-                          (selectedVR && (
-                            <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
-                              <Text color="text" alignSelf="end" size="xsmall">
-                                Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
-                                {((selectedSeries && selectedSeries.sharesReserves.eq(maxClose!)) || selectedVR) &&
-                                  ' (limited by protocol)'}
-                              </Text>
-                            </InputInfoWrap>
-                          ))}
+                        {selectedSeries && maxClose!.lt(selectedSeries.balance!) && (
+                          <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
+                            <Text color="text" alignSelf="end" size="xsmall">
+                              Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
+                              {((selectedSeries && selectedSeries.sharesReserves.eq(maxClose!)) || selectedVR) &&
+                                ' (limited by protocol)'}
+                            </Text>
+                          </InputInfoWrap>
+                        )}
                       </Box>
                     )}
 

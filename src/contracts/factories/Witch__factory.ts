@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { Witch, WitchInterface } from "../Witch";
 
 const _abi = [
@@ -650,7 +650,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-] as const;
+];
 
 export class Witch__factory {
   static readonly abi = _abi;

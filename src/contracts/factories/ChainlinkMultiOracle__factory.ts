@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type {
   ChainlinkMultiOracle,
   ChainlinkMultiOracleInterface,
@@ -472,7 +472,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class ChainlinkMultiOracle__factory {
   static readonly abi = _abi;

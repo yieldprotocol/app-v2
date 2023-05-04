@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { VRCauldron, VRCauldronInterface } from "../VRCauldron";
 
 const _abi = [
@@ -1279,7 +1279,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class VRCauldron__factory {
   static readonly abi = _abi;

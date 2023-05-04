@@ -6,7 +6,6 @@ import { useApr } from '../../useApr';
 import { Address, useBalance, useProvider } from 'wagmi';
 import { WETH } from '../../../config/assets';
 import useAccountPlus from '../../useAccountPlus';
-import { useConvertValue } from '../../useConvertValue';
 import useVYTokens from '../../entities/useVYTokens';
 import { VYTokenProxy__factory, VYToken__factory } from '../../../contracts';
 import { formatUnits } from 'ethers/lib/utils.js';
@@ -27,24 +26,17 @@ export const useLendHelpersVR = (input?: string) => {
   const provider = useProvider();
   const vyToken = vyTokens?.get(selectedBase?.VYTokenAddress!.toLowerCase()!);
 
+  console.log('vyToken in useLendHelpersVR', vyToken);
+
   const { data: vyTokenBal } = useBalance({
     address: account,
     token: vyToken?.proxyAddress as Address,
   });
 
-  const { convertValue } = useConvertValue();
-
   const { apr: apy } = useApr(input, ActionType.LEND, null); // TODO - handle vr apy's
 
   const [marketValue, setMarketValue] = useState<string>(); // the value of vyToken position in base
 
-  async function fetchMarketValue() {
-    // TODO - obviously we don't want to hardcode this, but we are limited
-    // by having very few spotOracles on the VRCauldron in this fork
-    const value = await convertValue(selectedBase!.id, '0x313800000000', input);
-    setMarketValue(value.toString());
-    console.log('marketValue', value.toString());
-  }
   useEffect(() => {
     (async () => {
       if (vyToken?.proxyAddress && vyTokenBal?.value) {

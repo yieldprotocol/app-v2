@@ -5,7 +5,12 @@ import useSWR from 'swr';
 
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts from '../../useContracts';
-import { VRCauldron, CompositeMultiOracle__factory, Cauldron } from '../../../contracts';
+import {
+  VRCauldron,
+  CompositeMultiOracle__factory,
+  VRInterestRateOracle__factory,
+  ChainlinkMultiOracle__factory,
+} from '../../../contracts';
 import useChainId from '../../useChainId';
 import { UserContext } from '../../../contexts/UserContext';
 import { stETH, wstETH } from '../../../config/assets';
@@ -42,17 +47,23 @@ const useAssetPairVR = (baseId?: string, ilkId?: string) => {
     const _base = assetMap.get(baseId);
     const _ilk = assetMap.get(ilkId);
 
+    console.log('base and ilk in useAssetPairVR: ', _base, _ilk, Cauldron);
+
     if (!_base || !_ilk) {
+      console.log('early return in useAssetPairVR');
       return undefined;
     }
 
     const [oracleAddr] = await Cauldron.spotOracles(baseId, ilkId);
 
+    console.log('oracleAddr in useAssetPairVR: ', oracleAddr);
+
     if (oracleAddr === ethers.constants.AddressZero) {
       throw new Error(`no oracle set for base: ${baseId} and ilk: ${ilkId}}`);
     }
 
-    const oracleContract = CompositeMultiOracle__factory.connect(oracleAddr, provider); // using the composite multi oracle but all oracles should have the same interface
+    const oracleContract = ChainlinkMultiOracle__factory.connect(oracleAddr, provider); // using the composite multi oracle but all oracles should have the same interface
+    console.log('oracleContract in useAssetPairVr: ', oracleContract);
 
     diagnostics && console.log('Getting Asset Pair Info VR: ', baseId, ilkId);
 
@@ -61,6 +72,8 @@ const useAssetPairVR = (baseId?: string, ilkId?: string) => {
       Cauldron.debt(baseId, ilkId),
       Cauldron.spotOracles(baseId, ilkId),
     ]);
+
+    console.log('ratio in useAssetPairVR: ', ratio);
 
     /* get pricing if available */
     let price: BigNumber;
@@ -74,6 +87,8 @@ const useAssetPairVR = (baseId?: string, ilkId?: string) => {
       console.log('Error getting pricing for: ', baseId, ilkId, error);
       price = ethers.constants.Zero;
     }
+
+    console.log('price in useAssetPairVR: ', price);
 
     return {
       baseId,
@@ -153,6 +168,8 @@ const useAssetPairVR = (baseId?: string, ilkId?: string) => {
       revalidateOnFocus: false,
     }
   );
+
+  console.log('validIlks VR', validIlks);
 
   return {
     data,

@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { Strategy, StrategyInterface } from "../Strategy";
 
 const _abi = [
@@ -1258,7 +1258,7 @@ const _abi = [
     stateMutability: "pure",
     type: "function",
   },
-] as const;
+];
 
 export class Strategy__factory {
   static readonly abi = _abi;

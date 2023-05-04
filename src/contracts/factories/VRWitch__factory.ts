@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { VRWitch, VRWitchInterface } from "../VRWitch";
 
 const _abi = [
@@ -1222,7 +1222,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-] as const;
+];
 
 export class VRWitch__factory {
   static readonly abi = _abi;

@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { Cauldron, CauldronInterface } from "../Cauldron";
 
 const _abi = [
@@ -1469,7 +1469,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class Cauldron__factory {
   static readonly abi = _abi;

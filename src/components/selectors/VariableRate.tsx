@@ -68,7 +68,7 @@ const ShineyBox = styled(Box)`
   }
 `;
 
-const VariableRate = () => {
+const VariableRate = (apr: string | undefined) => {
   const {
     settingsState: { darkMode },
   } = useContext(SettingsContext);
@@ -87,7 +87,7 @@ const VariableRate = () => {
       onClick={() => setSelectedVR(true)}
       className="VR-container"
     >
-      <Box pad="medium" width="small" direction="row" gap="small" fill>
+      <Box pad="medium" width="small" height="medium" direction="row" gap="small" fill>
         <Box direction="row" gap="small" fill>
           <Avatar
             background={
@@ -95,7 +95,7 @@ const VariableRate = () => {
                 ? 'linear-gradient(90deg, rgba(30,42,217,1) 15%, rgba(121,0,255,1) 78%)'
                 : '-webkit-linear-gradient(95deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)'
             }
-            style={{}}
+            style={{ marginTop: '-5px' }}
           >
             <YieldMark colors={darkMode ? ['white'] : ['black']} />
           </Avatar>

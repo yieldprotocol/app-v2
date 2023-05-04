@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { sellBase, buyBase, calculateAPR, bytesToBytes32 } from '@yield-protocol/ui-math';
 
@@ -13,8 +13,10 @@ import * as contractTypes from '../contracts';
 import { VRInterestRateOracle__factory } from '../contracts';
 import useContracts from './useContracts';
 import { ContractNames } from '../config/contracts';
-import { RATE, ZERO_BN } from '../utils/constants';
+import { RATE, ZERO_BN, CHI } from '../utils/constants';
 import { useConvertValue } from './useConvertValue';
+import useFork from './useFork';
+import { formatUnits } from 'ethers/lib/utils.js';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
@@ -26,6 +28,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const provider = useProvider();
   const contracts = useContracts();
+  const { useForkedEnv, forkStartBlock } = useFork();
 
   const _selectedSeries = series || selectedSeries;
   /* Make sure there won't be an underflow */
@@ -83,23 +86,38 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           const VRCauldron = contracts?.get(ContractNames.VR_CAULDRON) as contractTypes.VRCauldron;
           const interestRateOracleAddr = await VRCauldron.rateOracles(selectedBase.id);
           const interestRateOracle = VRInterestRateOracle__factory.connect(interestRateOracleAddr, provider);
-          const apy = await interestRateOracle.peek(bytesToBytes32(selectedBase.id, 6), RATE, '0');
-          return apy;
+          const joinAddress = selectedBase.joinAddressVR;
+          console.log('INTEREST RATE ORACLE', interestRateOracleAddr, interestRateOracle);
+
+          let rate: any = ethers.constants.Zero; // TODO - fix this type
+
+          if (actionType === 'LEND') {
+            rate = await interestRateOracle.peek(bytesToBytes32(selectedBase.id, 6), RATE, '0');
+          }
+
+          if (actionType === 'BORROW') {
+            rate = await interestRateOracle.peek(
+              bytesToBytes32(selectedBase.id, 6),
+              bytesToBytes32('0x434849000000', 6), // TODO - make this a constant
+              '0'
+            );
+          }
+
+          console.log('rate in useAPR', rate);
+
+          return rate;
         } catch (e) {
           console.log(`Error getting APY for ${selectedBase.symbol}:`, e);
-          return 0;
+          return ethers.constants.Zero;
         }
       };
 
       getAPY().then((res) => {
-        /*
-          looking at the contract code/the response, i don't think this actually returns the rate,
-          but the accumulated base + interest
-        */
-        const rate = res.accumulated.toString();
-        const _apr = calculateAPR(baseAmount, rate, now, now);
-        console.log('cleaned apr', cleanValue(_apr, 2), rate, baseAmount, _input, _fallbackInput, _apr);
-        setApr(cleanValue(_apr, 2));
+        const rate = res.accumulated
+          ? formatUnits(BigNumber.from(res.accumulated.toHexString()), selectedBase.decimals)
+          : ethers.constants.Zero;
+
+        setApr(rate.toString());
       });
     }
   }, [_selectedSeries, _input, actionType, _fallbackInput, getTimeTillMaturity]);

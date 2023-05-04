@@ -16,16 +16,20 @@ import useAllowAction from '../../useAllowAction';
 import { MAX_256 } from '@yield-protocol/ui-math';
 import useChainId from '../../useChainId';
 import useVYTokens from '../../entities/useVYTokens';
+import { useAddRemoveEth } from '../useAddRemoveEth';
 import { VRLadle, VYToken__factory } from '../../../contracts';
+import { ONE_BN } from '../../../utils/constants';
 
 /* Lend Actions Hook */
 export const useClosePositionVR = () => {
+  console.log('useClosePositionVR FIRING');
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedBase, selectedVR } = userState;
   const { address: account } = useAccountPlus();
   const { data: signer } = useSigner();
   const { data: vyTokens } = useVYTokens();
   const vyToken = vyTokens?.get(selectedBase?.VYTokenAddress!.toLowerCase()!);
+  const { removeEth } = useAddRemoveEth();
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -79,9 +83,8 @@ export const useClosePositionVR = () => {
       txCode
     );
 
-    console.log('inhereeeeeeeeeeeeeeeeeeeeeeeeeee');
     // TODO vr remove eth logic
-    // const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
+    const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
 
     const calls: ICallData[] = [
       ...permitCallData,
@@ -97,7 +100,7 @@ export const useClosePositionVR = () => {
         targetContract: vyTokenProxyContract,
         ignoreIf: false,
       },
-      // ...removeEthCallData,
+      ...removeEthCallData,
     ];
     await transact(calls, txCode);
     refetchBaseBal();

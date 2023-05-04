@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { Ladle, LadleInterface } from "../Ladle";
 
 const _abi = [
@@ -1394,7 +1394,7 @@ const _abi = [
     stateMutability: "payable",
     type: "receive",
   },
-] as const;
+];
 
 export class Ladle__factory {
   static readonly abi = _abi;

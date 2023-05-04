@@ -108,6 +108,7 @@ export const useLendVR = () => {
 
     const calls: ICallData[] = [
       ...permitCallData,
+      ...addEthCallData(),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, joinAddr, _input] as LadleActions.Args.TRANSFER,
@@ -120,7 +121,6 @@ export const useLendVR = () => {
         targetContract: vyTokenProxyContract,
         ignoreIf: false,
       },
-      ...addEthCallData(),
     ];
 
     await transact(calls, txCode, true);

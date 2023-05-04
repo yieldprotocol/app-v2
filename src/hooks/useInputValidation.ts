@@ -13,9 +13,11 @@ export const useInputValidation = (
   limits: (number | string | undefined)[],
   vault?: IVault | undefined
 ) => {
+  console.log('useInputValidation params', input, actionCode, series, limits, vault);
+
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
-  const { assetMap, selectedSeries, selectedBase } = userState;
+  const { assetMap, selectedSeries, selectedBase, selectedVR } = userState;
   const _selectedSeries = series || selectedSeries;
   const _selectedBase = assetMap?.get(series?.baseId!) || selectedBase;
   const { protocolLimited } = useLendHelpersFR(_selectedSeries, input);
@@ -55,7 +57,7 @@ export const useInputValidation = (
             _selectedSeries &&
             ethers.utils.parseUnits(input, _selectedSeries.decimals).gt(_selectedSeries.sharesReserves) &&
             setInputError(`Amount exceeds the ${_selectedBase?.symbol} currently available in pool`);
-          aboveMax && setInputError('Exceeds the max allowable debt for this series');
+          aboveMax && setInputError(`Exceeds the max allowable debt ${selectedVR ? '' : 'for this series'}`);
           belowMin &&
             setInputError(`A minimum debt of ${limits[0]} ${_selectedBase?.symbol} is required for this series`);
           break;

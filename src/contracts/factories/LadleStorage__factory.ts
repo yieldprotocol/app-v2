@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { LadleStorage, LadleStorageInterface } from "../LadleStorage";
 
 const _abi = [
@@ -278,7 +278,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class LadleStorage__factory {
   static readonly abi = _abi;

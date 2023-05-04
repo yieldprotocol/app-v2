@@ -30,6 +30,7 @@ export namespace LadleActions {
 
     // for the VR ladle
     WRAP_ETHER = 'wrapEther',
+    UNWRAP_ETHER = 'unwrapEther',
   }
 
   export namespace Args {

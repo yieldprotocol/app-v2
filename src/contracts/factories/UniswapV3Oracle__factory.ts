@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type {
   UniswapV3Oracle,
   UniswapV3OracleInterface,
@@ -513,7 +513,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class UniswapV3Oracle__factory {
   static readonly abi = _abi;

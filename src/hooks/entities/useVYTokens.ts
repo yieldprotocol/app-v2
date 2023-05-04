@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { VYToken__factory } from '../../contracts';
+import { VYToken__factory, VRInterestRateOracle__factory } from '../../contracts';
 import { useCallback, useContext, useMemo } from 'react';
 import useFork from '../useFork';
 import useDefaultProvider from '../useDefaultProvider';
@@ -9,6 +9,13 @@ import { BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils.js';
 import { ChainContext } from '../../contexts/ChainContext';
 import { MulticallContext } from '../../contexts/MutlicallContext';
+import { ContractNames } from '../../config/contracts';
+import * as contractTypes from '../../contracts';
+import useContracts from '../useContracts';
+import { RATE, CHI } from '../../utils/constants';
+import { bytesToBytes32 } from '@yield-protocol/ui-math';
+import { useApr } from '../useApr';
+import { ActionType } from '../../types';
 
 export interface IVYToken extends ISignable {
   id: string; // vyToken address
@@ -20,6 +27,7 @@ export interface IVYToken extends ISignable {
   balance: BigNumber;
   balance_: string;
   proxyAddress: string;
+  accumulatedInterestInBase_: string;
 }
 
 const useVYTokens = () => {
@@ -27,6 +35,9 @@ const useVYTokens = () => {
   const { address: account } = useAccountPlus();
   const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
   const provider = useDefaultProvider();
+  const contracts = useContracts();
+  const { apr } = useApr(undefined, ActionType.LEND, null);
+
   const {
     chainState: { assetRootMap },
   } = useContext(ChainContext);
@@ -41,8 +52,11 @@ const useVYTokens = () => {
       .reduce(async (vyTokens, [proxyAddress, address]) => {
         if (!address || !proxyAddress) return await vyTokens;
 
-        const contract = multicall?.wrap(VYToken__factory.connect(address, providerToUse))!;
-        const proxy = multicall?.wrap(VYToken__factory.connect(proxyAddress, providerToUse))!;
+        // const contract = multicall?.wrap(VYToken__factory.connect(address, providerToUse))!;
+        // const proxy = multicall?.wrap(VYToken__factory.connect(proxyAddress, providerToUse))!;
+
+        const contract = VYToken__factory.connect(address, providerToUse)!;
+        const proxy = VYToken__factory.connect(proxyAddress, providerToUse)!;
 
         const [name, symbol, decimals, version, baseAddress, baseId, balance] = await Promise.all([
           contract.name(),
@@ -53,6 +67,16 @@ const useVYTokens = () => {
           contract.underlyingId(),
           account ? proxy.balanceOf(account) : ethers.constants.Zero,
         ]);
+
+        try {
+          const underlyingAmount = await contract.convertToUnderlying(balance);
+          console.log('convertToUnderlying', formatUnits(underlyingAmount, decimals), apr);
+          // Calculate the interest accrued
+          const interestAccrued = underlyingAmount.mul(ethers.BigNumber.from(apr)).div(ethers.constants.WeiPerEther);
+          console.log('Interest accrued:', formatUnits(interestAccrued, decimals), apr);
+        } catch (e) {
+          console.log('error in useVYTokens', e, bytesToBytes32(baseId, 6));
+        }
 
         const addr = address.toLowerCase();
         const data: IVYToken = {
@@ -69,6 +93,7 @@ const useVYTokens = () => {
           balance,
           balance_: formatUnits(balance, decimals),
           proxyAddress: proxyAddress.toLowerCase(),
+          accumulatedInterestInBase_: '0.0',
         };
 
         return (await vyTokens).set(addr, data);

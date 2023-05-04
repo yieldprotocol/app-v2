@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { VYJoin, VYJoinInterface } from "../VYJoin";
 
 const _abi = [
@@ -395,7 +395,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+];
 
 export class VYJoin__factory {
   static readonly abi = _abi;

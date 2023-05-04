@@ -899,10 +899,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       (asset: IAsset | null) => updateState({ type: UserState.SELECTED_ILK, payload: asset! }),
       []
     ),
-    setSelectedSeries: useCallback(
-      (series: ISeries | null | string) => updateState({ type: UserState.SELECTED_SERIES, payload: series as any }),
-      []
-    ),
+    setSelectedSeries: useCallback((series: ISeries | null | string) => {
+      console.log('%c setSelectedSeries', 'color: #00ff00; font-size: 24px;', series);
+      updateState({ type: UserState.SELECTED_SERIES, payload: series as any });
+    }, []),
     setSelectedBase: useCallback(
       (asset: IAsset | null) => updateState({ type: UserState.SELECTED_BASE, payload: asset! }),
       []

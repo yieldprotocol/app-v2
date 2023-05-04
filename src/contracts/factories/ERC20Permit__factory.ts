@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import type { ERC20Permit, ERC20PermitInterface } from "../ERC20Permit";
 
 const _abi = [
@@ -343,7 +343,7 @@ const _abi = [
     stateMutability: "pure",
     type: "function",
   },
-] as const;
+];
 
 export class ERC20Permit__factory {
   static readonly abi = _abi;
