@@ -12,7 +12,7 @@ import { useProvider } from 'wagmi';
 import { VRCauldron, VRInterestRateOracle__factory } from '../contracts';
 import useContracts from './useContracts';
 import { ContractNames } from '../config/contracts';
-import { RATE } from '../utils/constants';
+import { CHI, RATE } from '../utils/constants';
 import { formatUnits } from 'ethers/lib/utils.js';
 
 /**
@@ -92,33 +92,21 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
 
     (async () => {
       // trying to get rate from interest rate oracle for vr calcs
-      const getRateVR = async (baseId: string) => {
+      const getRate = async (baseId: string) => {
         try {
           const VRCauldron = contracts?.get(ContractNames.VR_CAULDRON) as VRCauldron;
           const interestRateOracleAddr = await VRCauldron.rateOracles(baseId);
           const interestRateOracle = VRInterestRateOracle__factory.connect(interestRateOracleAddr, provider);
 
-          // TODO figure out if this is how to call oracle for lend and borrow
-          if (actionType === 'LEND') {
-            return (await interestRateOracle.peek(bytesToBytes32(baseId, 6), RATE, '0')).accumulated;
-          }
-
-          if (actionType === 'BORROW') {
-            return (
-              await interestRateOracle.peek(
-                bytesToBytes32(baseId, 6),
-                bytesToBytes32('0x434849000000', 6), // TODO - make this a constant
-                '0'
-              )
-            ).accumulated;
-          }
+          if (actionType === 'LEND') (await interestRateOracle.peek(bytesToBytes32(baseId, 6), RATE, '0')).accumulated;
+          if (actionType === 'BORROW') (await interestRateOracle.peek(bytesToBytes32(baseId, 6), CHI, '0')).accumulated;
         } catch (e) {
           console.log(`Error getting vr APY for base with id: ${baseId}:`, e);
           return undefined;
         }
       };
 
-      const _rate = await getRateVR(base.id);
+      const _rate = await getRate(base.id);
       if (!_rate) return;
 
       // format rate

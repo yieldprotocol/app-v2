@@ -16,7 +16,7 @@ export const SECONDS_PER_YEAR: number = 365 * 24 * 60 * 60;
 export const ETH_BYTES = ethers.utils.formatBytes32String('ETH-A');
 export const CHAI_BYTES = ethers.utils.formatBytes32String('CHAI');
 
-export const CHI = ethers.utils.formatBytes32String('chi');
+export const CHI = ethers.utils.formatBytes32String('CHI');
 export const RATE = ethers.utils.formatBytes32String('RATE');
 
 export const BLANK_ADDRESS = ethers.constants.AddressZero;
