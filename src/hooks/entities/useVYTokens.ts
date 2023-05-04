@@ -36,7 +36,6 @@ const useVYTokens = () => {
   const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
   const provider = useDefaultProvider();
   const contracts = useContracts();
-  const { apr } = useApr(undefined, ActionType.LEND, null);
 
   const {
     chainState: { assetRootMap },
@@ -70,10 +69,10 @@ const useVYTokens = () => {
 
         try {
           const underlyingAmount = await contract.convertToUnderlying(balance);
-          console.log('convertToUnderlying', formatUnits(underlyingAmount, decimals), apr);
+          console.log('convertToUnderlying', formatUnits(underlyingAmount, decimals));
           // Calculate the interest accrued
-          const interestAccrued = underlyingAmount.mul(ethers.BigNumber.from(apr)).div(ethers.constants.WeiPerEther);
-          console.log('Interest accrued:', formatUnits(interestAccrued, decimals), apr);
+          // const interestAccrued = underlyingAmount.mul(ethers.BigNumber.from(apr)).div(ethers.constants.WeiPerEther);
+          // console.log('Interest accrued:', formatUnits(interestAccrued, decimals), );
         } catch (e) {
           console.log('error in useVYTokens', e, bytesToBytes32(baseId, 6));
         }
@@ -98,7 +97,7 @@ const useVYTokens = () => {
 
         return (await vyTokens).set(addr, data);
       }, Promise.resolve(new Map<string, IVYToken>()));
-  }, [account, assetRootMap, multicall, providerToUse]);
+  }, [account, assetRootMap, providerToUse]);
 
   const key = useMemo(
     () => ['vyTokens', forkUrl, useForkedEnv, account, assetRootMap],
