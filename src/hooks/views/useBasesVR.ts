@@ -43,8 +43,7 @@ const useBasesVR = () => {
 
   const { data, isLoading, error } = useSWR(key, getBases, {
     revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    revalidateOnMount: false,
+    revalidateIfStale: false,
   });
 
   return { data, isLoading, error };
