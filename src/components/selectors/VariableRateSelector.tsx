@@ -73,7 +73,7 @@ const ShineyBox = styled(Box)`
 
 const VariableRateSelector = ({ baseId }: { baseId: string }) => {
   const router = useRouter();
-  console.log('🦄 ~ file: VariableRateSelector.tsx:76 ~ VariableRateSelector ~ router:', router);
+
   const {
     settingsState: { darkMode },
   } = useContext(SettingsContext);
