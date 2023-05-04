@@ -134,7 +134,7 @@ const VariableRateSelector = ({ baseId }: { baseId: string }) => {
 
         <Box fill align="end">
           <Box gap="xsmall" align="center" color={darkMode ? 'white' : 'black'} direction="row">
-            <Text size="1.5em">{apr || <SkeletonWrap width={30} />}</Text>
+            <Text size="1.5em">{apr || <SkeletonWrap width={50} />}</Text>
             <Text size="small">% APR</Text>
           </Box>
         </Box>
