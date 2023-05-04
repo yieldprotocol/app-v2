@@ -100,7 +100,7 @@ const Borrow = () => {
 
   const borrow = useBorrow();
 
-  const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  const { apr: aprFR } = useApr(borrowInput, ActionType.BORROW, selectedSeries?.id);
 
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
 
@@ -570,7 +570,7 @@ const Borrow = () => {
                           />
                         </div>
                       )}
-                      <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                      <InfoBite label="Effective APR" icon={<FiPercent />} value={`${aprFR}%`} />
                       <InfoBite
                         label="Total Supporting Collateral"
                         icon={
