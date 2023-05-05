@@ -1,18 +1,15 @@
 import { ethers } from 'ethers';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { sellFYToken, strategyTokenValue } from '@yield-protocol/ui-math';
-
 import { SettingsContext } from '../../../contexts/SettingsContext';
 import { UserContext } from '../../../contexts/UserContext';
-import { IAssetPair, ISeries, IStrategy, IVault } from '../../../types';
+import { ISeries, IStrategy, IVault } from '../../../types';
 import { cleanValue } from '../../../utils/appUtils';
-import { USDC, USDT, WETH } from '../../../config/assets';
+import { USDC, WETH } from '../../../config/assets';
 import { ZERO_BN } from '../../../utils/constants';
 import useTimeTillMaturity from '../../useTimeTillMaturity';
-import useAssetPair from '../useAssetPair/useAssetPairFR';
 import { useConvertValue } from '../../useConvertValue';
-import { unstable_serialize, useSWRConfig } from 'swr';
-import { toast } from 'react-toastify';
+import useAssetPair from '../useAssetPair/useAssetPair';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -23,8 +20,6 @@ interface IStrategyPosition extends IStrategy {
 }
 
 export const useDashboardHelpers = () => {
-  const { cache, mutate } = useSWRConfig();
-
   /* STATE FROM CONTEXT */
   const {
     settingsState: { dashHideEmptyVaults, dashHideInactiveVaults, dashCurrency },
@@ -35,7 +30,6 @@ export const useDashboardHelpers = () => {
   } = useContext(UserContext);
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { getAssetPair, genKey: genAssetPairKey } = useAssetPair();
   const { convertValue } = useConvertValue();
 
   const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;

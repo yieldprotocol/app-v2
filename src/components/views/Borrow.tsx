@@ -19,7 +19,7 @@ import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
 
-import { cleanValue, getTxCode, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
 import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
@@ -46,7 +46,6 @@ import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
-import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 import Line from '../elements/Line';
 import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
@@ -57,6 +56,7 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 
 import VariableRateSelector from '../selectors/VariableRateSelector';
 import useBasesVR from '../../hooks/views/useBasesVR';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -103,9 +103,6 @@ const Borrow = () => {
   const { apr: aprFR } = useApr(borrowInput, ActionType.BORROW, selectedSeries?.id);
 
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
-
-  const { validIlks } = useAssetPair(selectedBase?.id, undefined, selectedSeries?.id);
-
   const { data: basesVR } = useBasesVR();
 
   const {
@@ -303,14 +300,6 @@ const Borrow = () => {
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
   }, [borrowProcess, contracts, resetInputs, vaultToUse]);
-
-  /* make sure ilk is valid */
-  useEffect(() => {
-    if (validIlks) {
-      console.log('validIlks in borrow useEffect', validIlks, typeof validIlks);
-      !validIlks.map((a) => a.proxyId)?.includes(selectedIlk?.proxyId!) && setSelectedIlk(validIlks[0]);
-    }
-  }, [selectedIlk?.proxyId, setSelectedIlk, validIlks]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">

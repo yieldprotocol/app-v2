@@ -10,10 +10,10 @@ import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
 import { useBorrowHelpersVR } from '../../hooks/viewHelperHooks/useBorrowHelpers/useBorrowHelpersVR';
 import { useBorrowHelpersFR } from '../../hooks/viewHelperHooks/useBorrowHelpers/useBorrowHelpersFR';
-import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();

@@ -42,14 +42,15 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
-import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 import Logo from '../logos/Logo';
-import { useAccount, useBalance } from 'wagmi';
+import { useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import { WETH } from '../../config/assets';
 import { Address } from '@wagmi/core';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
+import useVaultsVR from '../../hooks/entities/useVaultsVR';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -61,11 +62,12 @@ const VaultPosition = () => {
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
-  const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault, setSelectedVR } = userActions;
+  const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
+  const { data: vaultsVR } = useVaultsVR();
 
   const { address: account } = useAccountPlus();
 
-  const _selectedVault = vaultMap?.get(idFromUrl as string);
+  const _selectedVault = vaultMap?.get(idFromUrl as string) || vaultsVR?.get(idFromUrl as string);
 
   const vaultBase = assetMap?.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
@@ -138,7 +140,7 @@ const VaultPosition = () => {
   const { logAnalyticsEvent } = useAnalytics();
 
   const { addCollateral } = useAddCollateral();
-  const { removeCollateral } = useRemoveCollateral(vaultIsVR);
+  const { removeCollateral } = useRemoveCollateral();
 
   const {
     maxCollateral,
