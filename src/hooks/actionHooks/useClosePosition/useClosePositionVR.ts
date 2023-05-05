@@ -71,19 +71,23 @@ export const useClosePositionVR = () => {
     /* if ethBase */
     const isEthBase = ETH_BASED_ASSETS.includes(base.id);
 
+    const vyTokenValueOfInput = await vyTokenContract.convertToPrincipal(_input);
+    const _vyTokenValueOfInput = ethers.utils.parseUnits(vyTokenValueOfInput.toString(), base.decimals);
+
+    const alreadyApproved = (await vyTokenContract.allowance(account, ladleAddress!)).gte(_vyTokenValueOfInput);
+
     const permitCallData: ICallData[] = await sign(
       [
         {
           target: vyTokenProxyContract as any,
           spender: ladleAddress!,
-          amount: _input,
-          ignoreIf: false,
+          amount: _vyTokenValueOfInput,
+          ignoreIf: alreadyApproved === true,
         },
       ],
       txCode
     );
 
-    // TODO vr remove eth logic
     const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
 
     const calls: ICallData[] = [
@@ -91,7 +95,7 @@ export const useClosePositionVR = () => {
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [vyTokenProxyAddr, vyTokenProxyAddr, _input] as LadleActions.Args.TRANSFER,
-        ignoreIf: false, // never ignore, even after maturity because we go through the ladle.
+        ignoreIf: false, // never ignore, because we go through the ladle.
       },
       {
         operation: LadleActions.Fn.ROUTE,

@@ -45,8 +45,6 @@ export const useRepayDebtVR = () => {
   const { sign, transact } = useChain();
   const chainId = useChainId();
 
-  const { isActionAllowed } = useAllowAction();
-
   /**
    * REPAY FN
    * @param vault
@@ -130,7 +128,6 @@ export const useRepayDebtVR = () => {
     const permitCallData: ICallData[] = await sign(
       [
         {
-          // before maturity
           target: base,
           spender: 'LADLE',
           amount: approveAmount, // generous approval permits on repayment we can refine at a later stage
