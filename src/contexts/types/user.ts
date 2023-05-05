@@ -37,7 +37,7 @@ export interface IUserContextState {
   selectedBase: IAsset | null;
   selectedVault: IVault | null;
   selectedStrategy: IStrategy | null;
-  selectedVR: boolean | null;
+  selectedVR: boolean;
 }
 
 export enum UserState {
