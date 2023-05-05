@@ -8,7 +8,8 @@ import { UserContext } from '../../contexts/UserContext';
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import SkeletonWrap from '../wraps/SkeletonWrap';
-import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
+import { useBorrowHelpersVR } from '../../hooks/viewHelperHooks/useBorrowHelpers/useBorrowHelpersVR';
+import { useBorrowHelpersFR } from '../../hooks/viewHelperHooks/useBorrowHelpers/useBorrowHelpersFR';
 import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
@@ -34,9 +35,14 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
 
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
+  const vaultIsVR = !vault?.seriesId;
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
-  const { debtInBase_ } = useBorrowHelpers(undefined, undefined, vault, assetPair, undefined);
+
+  const { debtInBase_: debtInBaseVR_ } = useBorrowHelpersVR(undefined, undefined, vault, assetPair);
+  const { debtInBase_: debtInBaseFR_ } = useBorrowHelpersFR(undefined, undefined, vault, assetPair, undefined);
+
+  const debtInBase_ = vaultIsVR ? debtInBaseVR_ : debtInBaseFR_;
 
   return (
     <ItemWrap

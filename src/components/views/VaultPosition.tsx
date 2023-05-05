@@ -34,7 +34,9 @@ import { useCollateralHelpers } from '../../hooks/viewHelperHooks/useCollateralH
 import { useAddCollateral } from '../../hooks/actionHooks/useAddCollateral';
 
 import { useRemoveCollateral } from '../../hooks/actionHooks/useRemoveCollateral';
-import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
+import { useBorrowHelpersVR } from '../../hooks/viewHelperHooks/useBorrowHelpers/useBorrowHelpersVR';
+import { useBorrowHelpersFR } from '../../hooks/viewHelperHooks/useBorrowHelpers/useBorrowHelpersFR';
+
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
@@ -168,20 +170,44 @@ const VaultPosition = () => {
   );
 
   const {
-    maxRepay,
-    maxRepay_,
-    minRepayable,
-    minRepayable_,
+    maxRepay: maxRepayFR,
+    maxRepay_: maxRepayFR_,
+    minRepayable: minRepayableFR,
+    minRepayable_: minRepayableFR_,
     maxRoll_,
-    minDebt,
-    userBaseBalance,
-    userBaseBalance_,
+    minDebt: minDebtFR,
+    userBaseBalance: userBaseBalanceFR,
+    userBaseBalance_: userBaseBalanceFR_,
     rollPossible,
-    debtAfterRepay,
-    debtInBase,
-    debtInBase_,
+    debtAfterRepay: debtAfterRepayFR,
+    debtInBase: debtInBaseFR,
+    debtInBase_: debtInBaseFR_,
     rollProtocolLimited,
-  } = useBorrowHelpers(repayInput, undefined, _selectedVault, assetPair, rollToSeries);
+  } = useBorrowHelpersFR(repayInput, undefined, _selectedVault, assetPair, rollToSeries);
+
+  const {
+    maxRepay: maxRepayVR,
+    maxRepay_: maxRepayVR_,
+    minRepayable: minRepayableVR,
+    minRepayable_: minRepayableVR_,
+    minDebt: minDebtVR,
+    userBaseBalance: userBaseBalanceVR,
+    userBaseBalance_: userBaseBalanceVR_,
+    debtAfterRepay: debtAfterRepayVR,
+    debtInBase: debtInBaseVR,
+    debtInBase_: debtInBaseVR_,
+  } = useBorrowHelpersVR(repayInput, undefined, _selectedVault, assetPair);
+
+  const maxRepay = vaultIsVR ? maxRepayVR : maxRepayFR;
+  const maxRepay_ = vaultIsVR ? maxRepayVR_ : maxRepayFR_;
+  const minRepayable = vaultIsVR ? minRepayableVR : minRepayableFR;
+  const minRepayable_ = vaultIsVR ? minRepayableVR_ : minRepayableFR_;
+  const minDebt = vaultIsVR ? minDebtVR : minDebtFR;
+  const userBaseBalance = vaultIsVR ? userBaseBalanceVR : userBaseBalanceFR;
+  const userBaseBalance_ = vaultIsVR ? userBaseBalanceVR_ : userBaseBalanceFR_;
+  const debtAfterRepay = vaultIsVR ? debtAfterRepayVR : debtAfterRepayFR;
+  const debtInBase = vaultIsVR ? debtInBaseVR : debtInBaseFR;
+  const debtInBase_ = vaultIsVR ? debtInBaseVR_ : debtInBaseFR_;
 
   const { inputError: repayError } = useInputValidation(repayInput, ActionCodes.REPAY, vaultSeries!, [
     debtAfterRepay?.eq(ZERO_BN) || debtAfterRepay?.gt(minDebt!) ? undefined : '0',

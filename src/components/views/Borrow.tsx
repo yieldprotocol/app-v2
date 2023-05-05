@@ -35,7 +35,9 @@ import AltText from '../texts/AltText';
 import YieldCardHeader from '../YieldCardHeader';
 import { useBorrow } from '../../hooks/actionHooks/useBorrow';
 import { useCollateralHelpers } from '../../hooks/viewHelperHooks/useCollateralHelpers';
-import { useBorrowHelpers } from '../../hooks/viewHelperHooks/useBorrowHelpers';
+import { useBorrowHelpersFR } from '../../hooks/viewHelperHooks/useBorrowHelpers/useBorrowHelpersFR';
+import { useBorrowHelpersVR } from '../../hooks/viewHelperHooks/useBorrowHelpers/useBorrowHelpersVR';
+
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ColorText from '../texts/ColorText';
 import { useProcess } from '../../hooks/useProcess';
@@ -114,13 +116,22 @@ const Borrow = () => {
     liquidationPrice_,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPair);
 
-  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
-    borrowInput,
-    collatInput,
-    vaultToUse,
-    assetPair,
-    selectedSeries
-  );
+  const {
+    minDebt_: minDebtFR_,
+    maxDebt_: maxDebtFR_,
+    borrowPossible: borrowPossibleFR,
+    borrowEstimate_,
+  } = useBorrowHelpersFR(borrowInput, collatInput, vaultToUse, assetPair, selectedSeries);
+
+  const {
+    minDebt_: minDebtVR_,
+    maxDebt_: maxDebtVR_,
+    borrowPossible: borrowPossibleVR,
+  } = useBorrowHelpersVR(borrowInput, collatInput, vaultToUse, assetPair);
+
+  const minDebt_ = selectedVR ? minDebtVR_ : minDebtFR_;
+  const maxDebt_ = selectedVR ? maxDebtVR_ : maxDebtFR_;
+  const borrowPossible = selectedVR ? borrowPossibleVR : borrowPossibleFR;
 
   /* input validation hooks */
   const { inputError: borrowInputError } = useInputValidation(borrowInput, ActionCodes.BORROW, selectedSeries, [
