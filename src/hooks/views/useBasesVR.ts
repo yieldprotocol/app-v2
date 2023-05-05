@@ -7,11 +7,15 @@ import { Provider } from '../../types';
 import { useCallback, useContext, useMemo } from 'react';
 import { MulticallContext } from '../../contexts/MutlicallContext';
 import useContracts from '../useContracts';
+import { SettingsContext } from '../../contexts/SettingsContext';
 
 const useBasesVR = () => {
+  const {
+    settingsState: { diagnostics },
+  } = useContext(SettingsContext);
   const contracts = useContracts();
   const { multicall, forkMulticall } = useContext(MulticallContext);
-  const { provider: forkProvider, useForkedEnv, forkStartBlock } = useFork();
+  const { provider: forkProvider, useForkedEnv, forkStartBlock, forkUrl } = useFork();
   const provider = useDefaultProvider();
 
   const getCauldronVR = (provider: Provider) =>
@@ -26,21 +30,20 @@ const useBasesVR = () => {
 
   // combines fork and non-fork data
   const getBases = useCallback(async () => {
-    console.log('getting vr bases');
+    diagnostics && console.log('getting vr bases');
     const baseIds = await _getBases(cauldronVR!);
     const forkBaseIds = useForkedEnv && forkCauldronVR ? await _getBases(forkCauldronVR, forkStartBlock) : [];
     const allIds = [...new Set([...baseIds, ...forkBaseIds])];
     return allIds;
-  }, [_getBases, cauldronVR, forkCauldronVR, forkStartBlock, useForkedEnv]);
+  }, [_getBases, cauldronVR, diagnostics, forkCauldronVR, forkStartBlock, useForkedEnv]);
 
   const key = useMemo(
-    () => ['basesVR', useForkedEnv, forkProvider, provider, _getBases],
-    [forkProvider, provider, useForkedEnv, _getBases]
+    () => ['basesVR', useForkedEnv, forkStartBlock, forkUrl],
+    [forkStartBlock, forkUrl, useForkedEnv]
   );
 
   const { data, isLoading, error } = useSWR(key, getBases, {
     revalidateOnFocus: false,
-    revalidateOnReconnect: false,
     revalidateIfStale: false,
   });
 
