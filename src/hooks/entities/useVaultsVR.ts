@@ -136,6 +136,7 @@ const useVaultsVR = () => {
 
   const { data, error, isLoading } = useSWR(key, getVaults, {
     revalidateOnFocus: false,
+    revalidateIfStale: false,
     shouldRetryOnError: false,
   });
 
