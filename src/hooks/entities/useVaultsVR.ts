@@ -22,7 +22,7 @@ const useVaultsVR = () => {
   } = useContext(ChainContext);
   const chainId = useChainId();
   const provider = useDefaultProvider();
-  const { provider: forkProvider, useForkedEnv, forkStartBlock } = useFork();
+  const { provider: forkProvider, useForkedEnv, forkStartBlock, forkUrl } = useFork();
 
   const cauldronAddr = contractAddresses.addresses.get(chainId)?.get(ContractNames.VR_CAULDRON);
   const cauldron = useMemo(
@@ -130,8 +130,8 @@ const useVaultsVR = () => {
 
   // not adding the contracts as deps because they are causing infinite renders
   const key = useMemo(
-    () => ['vaultsVR', account, forkStartBlock, useForkedEnv, assetRootMap],
-    [account, forkStartBlock, useForkedEnv, assetRootMap]
+    () => ['vaultsVR', account, forkStartBlock, useForkedEnv, assetRootMap, forkUrl],
+    [account, forkStartBlock, useForkedEnv, assetRootMap, forkUrl]
   );
 
   const { data, error, isLoading } = useSWR(key, getVaults, {
