@@ -62,7 +62,7 @@ const useVaultsVR = () => {
 
   const getVault = useCallback(
     async (id: string) => {
-      if (!cauldronToUse || !witchToUse || !assetRootMap) return;
+      if (!cauldronToUse || !witchToUse || !assetRootMap || !account) return;
 
       const [[art, ink], [owner, baseId, ilkId]] = await Promise.all([
         cauldronToUse.balances(id),
@@ -98,7 +98,7 @@ const useVaultsVR = () => {
         isWitchOwner: witchToUse.address === owner, // check if witch is the owner (in liquidation process)
         accruedArt: art, // vr accrued art is the art
         accruedArt_: art_,
-        isActive: owner.toLowerCase() === account?.toLowerCase(), // refreshed in case owner has been updated
+        isActive: owner.toLowerCase() === account.toLowerCase(), // refreshed in case owner has been updated
         displayName: generateVaultName(id),
         decimals: base.decimals,
       } as IVault;
@@ -129,7 +129,10 @@ const useVaultsVR = () => {
   }, [cauldron, forkCauldron, forkStartBlock, getVault, useForkedEnv]);
 
   // not adding the contracts as deps because they are causing infinite renders
-  const key = useMemo(() => ['vaultsVR', forkStartBlock, useForkedEnv], [, forkStartBlock, useForkedEnv]);
+  const key = useMemo(
+    () => ['vaultsVR', account, forkStartBlock, useForkedEnv, assetRootMap],
+    [account, forkStartBlock, useForkedEnv, assetRootMap]
+  );
 
   const { data, error, isLoading } = useSWR(key, getVaults, {
     revalidateOnFocus: false,
