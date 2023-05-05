@@ -140,7 +140,7 @@ const VaultPosition = () => {
   const { logAnalyticsEvent } = useAnalytics();
 
   const { addCollateral } = useAddCollateral();
-  const { removeCollateral } = useRemoveCollateral(vaultIsVR);
+  const { removeCollateral } = useRemoveCollateral();
 
   const {
     maxCollateral,
