@@ -28,19 +28,18 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
 
   /* HOOKS */
   const contracts = useContracts();
-  const { useForkedEnv } = useFork();
-  const cauldron = useMemo(() => {
-    const _cauldron = contracts?.get(selectedVR ? ContractNames.VR_CAULDRON : ContractNames.CAULDRON) as
-      | VRCauldron
-      | Cauldron
-      | undefined;
-
-    return (useForkedEnv ? forkMulticall : multicall)?.wrap(_cauldron!);
-  }, [contracts, forkMulticall, multicall, selectedVR, useForkedEnv]);
+  const { useForkedEnv, forkUrl } = useFork();
 
   /* GET PAIR INFO */
   const getAssetPair = useCallback(
-    async (baseId: string, ilkId: string): Promise<IAssetPair | undefined> => {
+    async (baseId: string, ilkId: string, isVR = false): Promise<IAssetPair | undefined> => {
+      const _cauldron = contracts?.get(isVR ? ContractNames.VR_CAULDRON : ContractNames.CAULDRON) as
+        | VRCauldron
+        | Cauldron
+        | undefined;
+
+      const cauldron = (useForkedEnv ? forkMulticall : multicall)?.wrap(_cauldron!);
+
       if (!cauldron || !assetMap) return;
 
       const _base = assetMap.get(baseId);
@@ -91,14 +90,29 @@ const useAssetPair = (baseId?: string, ilkId?: string) => {
         baseDecimals: _base.decimals,
       };
     },
-    [assetMap, cauldron, diagnostics]
+    [assetMap, contracts, diagnostics, forkMulticall, multicall, useForkedEnv]
   );
 
   // This function is used to generate the key for the useSWR hook
-  const genKey = useCallback((baseId: string, ilkId: string) => ['assetPair', cauldron, baseId, ilkId], [cauldron]);
-  const key = useMemo(() => (baseId && ilkId ? genKey(baseId!, ilkId!) : null), [baseId, genKey, ilkId]);
+  const genKey = useCallback(
+    (baseId: string, ilkId: string, isVR = false) => [
+      'assetPair',
+      baseId,
+      ilkId,
+      isVR,
+      assetMap,
+      diagnostics,
+      useForkedEnv,
+      forkUrl,
+    ],
+    [assetMap, diagnostics, forkUrl, useForkedEnv]
+  );
+  const key = useMemo(
+    () => (baseId && ilkId ? genKey(baseId!, ilkId!, selectedVR) : null),
+    [baseId, genKey, ilkId, selectedVR]
+  );
 
-  const { data, error, isLoading } = useSWR(key, () => getAssetPair(baseId!, ilkId!), {
+  const { data, error, isLoading } = useSWR(key, () => getAssetPair(baseId!, ilkId!, selectedVR), {
     revalidateIfStale: false,
     revalidateOnFocus: false,
   });
