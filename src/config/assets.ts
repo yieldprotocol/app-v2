@@ -579,6 +579,9 @@ ASSETS.set(
 
         assetAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
         joinAddress: '0xc31cce4fFA203d8F8D865b6cfaa4F36AD77E9810',
+        joinAddressVR: '0x19D3b30ADC060eC540290F0397eaaEDcEE1CdEF0',
+        VYTokenAddress: '0x2db95a0Eb47B2b01B809f9c6356D3180D0fD8aA9',
+        VYTokenProxyAddress: '0x9F48F385df4db84A3a4AFb322986652391648453',
         tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
@@ -596,6 +599,9 @@ ASSETS.set(
 
         assetAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
         joinAddress: '0x1229C71482E458fa2cd51d13eB157Bd2b5D5d1Ee',
+        joinAddressVR: '0x82196ac59f5690ebd123DA046Cc0135B236fB378',
+        VYTokenAddress: '0xD7DDDEfaE154a27d076C627c09a332C87E1b4629',
+        VYTokenProxyAddress: '0xb1179a15dc6b60232DF23a13e14af9F823b9150b',
         tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
@@ -614,6 +620,9 @@ ASSETS.set(
 
         assetAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         joinAddress: '0xaf93a04d5D8D85F69AF65ED66A9717DB0796fB10',
+        joinAddressVR: '0xFB0b2212879f1bf905106804bDf2EC654EC76985',
+        VYTokenAddress: '0x6951CA250aD9F3CA82d752Da3aF6e6118a8ef3fC',
+        VYTokenProxyAddress: '0x37A02a232C109F51D5791b60aF0F7E47CbfC72Db',
         tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
       },
     ],
@@ -632,6 +641,9 @@ ASSETS.set(
 
         assetAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
         joinAddress: '0xcb60Bd598bf48be1E24262E8BF1e3703FECA3470',
+        joinAddressVR: '0xD368a4044bb8De06B3971e34fF076BdFDeF7CE61',
+        VYTokenAddress: '0x6B5E997E6365cf28932c76Da2d8433cBeF428c38',
+        VYTokenProxyAddress: '0xe5269034884f9598d7cf3F9Abaf634BDc7DE8f1C',
         tokenRoles: [TokenRole.BASE],
       },
     ],

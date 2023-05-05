@@ -7,6 +7,7 @@ import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
 import useVYTokens, { IVYToken } from '../hooks/entities/useVYTokens';
+import useVaultsVR from '../hooks/entities/useVaultsVR';
 
 const Outer = styled(Box)`
   position: relative;
@@ -42,9 +43,10 @@ function PositionAvatar({
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { assetMap, seriesMap, vaultMap } = userState;
+  const { data: vaultsVR } = useVaultsVR();
 
   const base = assetMap.get(position?.baseId!); // same for both series, vaults, and vyTokens
-  const vault = isVault ? vaultMap.get(position?.id!) : undefined;
+  const vault = isVault ? vaultMap.get(position?.id!) || vaultsVR?.get(position?.id!) : undefined;
   const series = vault ? seriesMap.get(vault.seriesId!) : seriesMap.get(position?.id!);
   const vyToken = vyTokens?.get(position?.id!);
 

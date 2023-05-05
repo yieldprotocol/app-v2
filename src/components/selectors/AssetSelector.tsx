@@ -12,7 +12,7 @@ import AssetSelectModal from './AssetSelectModal';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
-import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
+import useIlks from '../../hooks/entities/useIlks';
 
 interface IAssetSelectorProps {
   selectCollateral?: boolean;
@@ -44,7 +44,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
 
-  const { validIlks, validIlksLoading } = useAssetPair(selectedBase?.id, undefined, selectedSeries?.id);
+  const { data: ilks } = useIlks();
 
   const optionText = (asset: IAsset | undefined) =>
     asset ? (
@@ -80,7 +80,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = (selectCollateral ? validIlks! : Array.from(assetMap.values()))
+    const opts = (selectCollateral ? ilks || [] : Array.from(assetMap.values()))
       .filter((a) => a.showToken)
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 
@@ -91,15 +91,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
           .filter((a) => !IGNORE_BASE_ASSETS.includes(a.proxyId!));
 
     setOptions(filteredOptions);
-  }, [
-    selectCollateral,
-    selectedBase?.proxyId,
-    selectedSeries,
-    showWrappedTokens,
-    assetMap,
-    validIlks,
-    validIlksLoading,
-  ]);
+  }, [selectCollateral, selectedBase?.proxyId, selectedSeries, showWrappedTokens, assetMap, ilks]);
 
   /* initiate base selector to USDC available asset and selected ilk ETH */
   useEffect(() => {
