@@ -20,7 +20,7 @@ import useAllowAction from '../useAllowAction';
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, assetMap } = userState;
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
@@ -76,12 +76,12 @@ export const useRemoveCollateral = () => {
     };
 
     /* Add in an Assert call : collateral(ilk) decreases by input amount */
-    const assertCallData: ICallData[] = assert(
-      ilk.address,
-      encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
-      AssertActions.Fn.ASSERT_GE,
-      ilk.balance.sub(_input)
-    );
+    // const assertCallData: ICallData[] = assert(
+    //   ilk.address,
+    //   encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
+    //   AssertActions.Fn.ASSERT_GE,
+    //   ilk.balance.sub(_input)
+    // );
 
     const calls: ICallData[] = [
       /* convex-type collateral; ensure checkpoint before giving collateral back to account */
@@ -105,7 +105,7 @@ export const useRemoveCollateral = () => {
       ...removeEthCallData,
       ...unwrapCallData,
 
-      ...assertCallData,
+      // ...assertCallData,
     ];
 
     await transact(calls, txCode);
