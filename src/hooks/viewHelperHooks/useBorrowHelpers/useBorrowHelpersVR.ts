@@ -101,7 +101,7 @@ export const useBorrowHelpersVR = (
       const cleanedInput = cleanValue(input, vault.decimals);
       const input_ = ethers.utils.parseUnits(cleanedInput, vault.decimals);
       /* remaining debt is debt in base less input (with a minimum of zero) */
-      const remainingDebt = debtInBase.sub(input_).gte(ZERO_BN) ? debtInBase.sub(input_) : ZERO_BN;
+      const remainingDebt = debtInBase?.sub(input_).gte(ZERO_BN) ? debtInBase.sub(input_) : ZERO_BN;
 
       setDebtAfterRepay(remainingDebt);
     }
