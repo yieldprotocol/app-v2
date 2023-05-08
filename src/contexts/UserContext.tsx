@@ -55,7 +55,7 @@ const initState: IUserContextState = {
   selectedBase: null, // initial base
   selectedVault: null,
   selectedStrategy: null,
-  selectedVR: null,
+  selectedVR: false,
 };
 
 const initActions: IUserContextActions = {
