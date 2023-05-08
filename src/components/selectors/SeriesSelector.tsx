@@ -15,6 +15,8 @@ import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import useTimeTillMaturity from '../../hooks/useTimeTillMaturity';
 
+import React from 'react';
+
 const StyledBox = styled(Box)`
 -webkit-transition: transform 0.3s ease-in-out;
 -moz-transition: transform 0.3s ease-in-out;
@@ -132,7 +134,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
   const { userState, userActions } = useContext(UserContext);
-  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault } = userState;
+  const { selectedSeries, selectedBase, seriesMap, seriesLoading, selectedVault, selectedVR } = userState;
   const [localSeries, setLocalSeries] = useState<ISeries | null>();
   const [options, setOptions] = useState<ISeries[]>([]);
 
@@ -162,6 +164,11 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
+    console.log('seriesSelector useEffect', selectedSeries, options);
+    // if (selectedVR && selectedSeries === null) {
+    //   setOptions(options);
+    //   return;
+    // }
     const opts = Array.from(seriesMap?.values()!);
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
@@ -253,7 +260,14 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
       )}
 
       {cardLayout && (
-        <Grid columns={mobile ? '100%' : '40%'} gap="small">
+        <Grid
+          columns={mobile ? '100%' : '40%'}
+          gap="small"
+          height={{
+            min: '84px',
+            max: '84px',
+          }}
+        >
           {seriesLoading ? (
             <>
               <CardSkeleton />
@@ -332,4 +346,4 @@ SeriesSelector.defaultProps = {
   setOpen: () => null,
 };
 
-export default SeriesSelector;
+export default React.memo(SeriesSelector);

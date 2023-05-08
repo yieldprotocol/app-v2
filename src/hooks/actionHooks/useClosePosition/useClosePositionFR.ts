@@ -21,7 +21,6 @@ import useAllowAction from '../../useAllowAction';
 
 /* Lend Actions Hook */
 export const useClosePositionFR = () => {
-  console.log('useClosePositionFR FIRING');
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);

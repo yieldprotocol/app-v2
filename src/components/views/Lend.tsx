@@ -47,6 +47,7 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
 import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
 import useVYTokens from '../../hooks/entities/useVYTokens';
+import useBasesVR from '../../hooks/views/useBasesVR';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -74,6 +75,7 @@ const Lend = () => {
   const { maxLend_: maxLendVR_, apy: apyVR } = useLendHelpersVR(lendInput);
   const maxLend_ = selectedVR ? maxLendVR_ : maxLendFR_;
   const apy = selectedVR ? apyVR : apyFR;
+  const { data: basesVR } = useBasesVR();
 
   const lend = useLend();
   const { data: vyTokens } = useVYTokens();
@@ -209,9 +211,11 @@ const Lend = () => {
                       <SectionWrap title={`Select a fixed rate maturity`}>
                         <SeriesSelector inputValue={lendInput} actionType={ActionType.LEND} />
                       </SectionWrap>
-                      <SectionWrap title="Or lend indefinitely at a variable rate">
-                        <VariableRate />
-                      </SectionWrap>
+                      {basesVR?.length && basesVR.includes(selectedBase?.id!) ? (
+                        <SectionWrap title="Or lend indefinitely at a variable rate">
+                          <VariableRate />
+                        </SectionWrap>
+                      ) : null}
                     </Box>
                   )}
                 </Box>

@@ -1,5 +1,6 @@
 import React, { useContext, useRef, useState } from 'react';
 import { Box, ResponsiveContext, Stack } from 'grommet';
+import { UserContext } from '../../contexts/UserContext';
 
 import { useSpring, animated, to } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
@@ -8,6 +9,7 @@ import styled from 'styled-components';
 interface IPanelWrap {
   children: any;
   series?: any;
+  showBorder?: boolean;
 }
 
 const StyledBox: any = styled(Box)`
@@ -37,8 +39,12 @@ const StyledBox: any = styled(Box)`
 const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 300;
 const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 300;
 
-function CenterPanelWrap({ children, series }: IPanelWrap) {
+function CenterPanelWrap({ children, series, showBorder }: IPanelWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
+  const { userState } = useContext(UserContext);
+  const { selectedVR } = userState;
+
+  console.log('centerpanelwrap', children, series, showBorder);
 
   const [flipped] = useState(false);
   const domTarget = useRef(null);
@@ -108,11 +114,22 @@ function CenterPanelWrap({ children, series }: IPanelWrap) {
                 </Box>
               )}
               <Box
-                elevation={mobile ? undefined : 'xlarge'}
+                elevation={mobile || selectedVR ? undefined : 'xlarge'}
                 height="650px"
                 width="500px"
-                round="xsmall"
+                round="medium"
                 background="lightBackground"
+                style={
+                  showBorder && selectedVR
+                    ? {
+                        borderImage:
+                          'linear-gradient(to right, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82) 1',
+                        borderWidth: '10px',
+                        borderStyle: 'solid',
+                        borderRadius: '10px',
+                      }
+                    : {}
+                }
               >
                 <Box fill round="xsmall" background="lightBackground" justify="between">
                   {children}

@@ -27,7 +27,7 @@ function LendItem({ item, index, condensed }: LendItemProps) {
     userState: { assetMap, seriesLoading, selectedSeries, seriesMap },
     userActions: { setSelectedBase, setSelectedSeries },
   } = useContext(UserContext);
-  const { data: vyTokens } = useVYTokens();
+  const { data: vyTokens, isLoading: vyTokensLoading } = useVYTokens();
   // use vyToken balance if not a series
   const vyToken = vyTokens?.get(item.address);
   const series = [...seriesMap.values()].find((s) => s.address === item.address);
@@ -63,10 +63,15 @@ function LendItem({ item, index, condensed }: LendItemProps) {
                   Balance:
                 </Text>
                 <Text weight={450} size="xsmall">
-                  {seriesLoading ? (
+                  {seriesLoading && series ? (
                     <SkeletonWrap width={30} />
                   ) : (
-                    cleanValue(series ? fyTokenMarketValue : item.balance_, base?.digitFormat!)
+                    series && cleanValue(fyTokenMarketValue, base?.digitFormat!)
+                  )}
+                  {vyTokensLoading && vyToken ? (
+                    <SkeletonWrap width={30} />
+                  ) : (
+                    vyToken && cleanValue(item.balance_, base?.digitFormat!)
                   )}
                 </Text>
               </Box>

@@ -42,14 +42,15 @@ import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import ExitButton from '../buttons/ExitButton';
 import { ZERO_BN } from '../../utils/constants';
-import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair';
 import Logo from '../logos/Logo';
-import { useAccount, useBalance } from 'wagmi';
+import { useBalance } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_View, GA_Properties } from '../../types/analytics';
 import { WETH } from '../../config/assets';
 import { Address } from '@wagmi/core';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
+import useVaultsVR from '../../hooks/entities/useVaultsVR';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -62,10 +63,11 @@ const VaultPosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault, setSelectedVR } = userActions;
+  const { data: vaultsVR } = useVaultsVR();
 
   const { address: account } = useAccountPlus();
 
-  const _selectedVault = vaultMap?.get(idFromUrl as string);
+  const _selectedVault = vaultMap?.get(idFromUrl as string) || vaultsVR?.get(idFromUrl as string);
 
   const vaultBase = assetMap?.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
@@ -113,13 +115,13 @@ const VaultPosition = () => {
 
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
-  const [repayInput, setRepayInput] = useState<any>(undefined);
+  const [repayInput, setRepayInput] = useState<string>();
   const [reclaimCollateral, setReclaimCollateral] = useState<boolean>(true);
 
-  const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
-  const [removeCollatInput, setRemoveCollatInput] = useState<any>(undefined);
+  const [addCollatInput, setAddCollatInput] = useState<string>();
+  const [removeCollatInput, setRemoveCollatInput] = useState<string>();
 
-  const [rollToSeries, setRollToSeries] = useState<ISeries | undefined>(undefined);
+  const [rollToSeries, setRollToSeries] = useState<ISeries>();
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -138,7 +140,7 @@ const VaultPosition = () => {
   const { logAnalyticsEvent } = useAnalytics();
 
   const { addCollateral } = useAddCollateral();
-  const { removeCollateral } = useRemoveCollateral(vaultIsVR);
+  const { removeCollateral } = useRemoveCollateral();
 
   const {
     maxCollateral,
@@ -167,6 +169,7 @@ const VaultPosition = () => {
     assetPair
   );
 
+  // fixed rate helpers
   const {
     maxRepay: maxRepayFR,
     maxRepay_: maxRepayFR_,
@@ -183,6 +186,7 @@ const VaultPosition = () => {
     rollProtocolLimited,
   } = useBorrowHelpersFR(repayInput, undefined, _selectedVault, assetPair, rollToSeries);
 
+  // variable rate helpers
   const {
     maxRepay: maxRepayVR,
     maxRepay_: maxRepayVR_,
@@ -194,8 +198,9 @@ const VaultPosition = () => {
     debtAfterRepay: debtAfterRepayVR,
     debtInBase: debtInBaseVR,
     debtInBase_: debtInBaseVR_,
-  } = useBorrowHelpersVR(repayInput, undefined, _selectedVault, assetPair);
+  } = useBorrowHelpersVR(repayInput, _selectedVault, assetPair);
 
+  // consolidated helpers
   const maxRepay = vaultIsVR ? maxRepayVR : maxRepayFR;
   const maxRepay_ = vaultIsVR ? maxRepayVR_ : maxRepayFR_;
   const minRepayable = vaultIsVR ? minRepayableVR : minRepayableFR;
@@ -268,11 +273,10 @@ const VaultPosition = () => {
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
-    console.log('handleCollateral', action, removeCollateralDisabled);
     if (action === 'REMOVE') {
       if (removeCollateralDisabled) return;
       setRemoveCollateralDisabled(true);
-      removeCollateral(_selectedVault!, removeCollatInput);
+      if (_selectedVault && removeCollatInput) removeCollateral(_selectedVault, removeCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
@@ -282,14 +286,6 @@ const VaultPosition = () => {
     } else {
       if (addCollateralDisabled) return;
       setAddCollateralDisabled(true);
-
-      console.log(
-        '%c handleCollateral in VaultPosition',
-        'color: #00ff00; font-size: 16px;',
-        action,
-        addCollateralDisabled,
-        removeCollateralDisabled
-      );
 
       // addCollateral(_selectedVault, addCollatInput);
       addCollateral(_selectedVault, addCollatInput);
@@ -303,7 +299,7 @@ const VaultPosition = () => {
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
-    actionCode === ActionCodes.REPAY && setRepayInput(maxRepay.gt(minRepayable) ? maxRepay_ : minRepayable_);
+    actionCode === ActionCodes.REPAY && setRepayInput(maxRepay?.gt(minRepayable!) ? maxRepay_ : minRepayable_);
     actionCode === ActionCodes.ADD_COLLATERAL && setAddCollatInput(maxCollateral);
     actionCode === ActionCodes.REMOVE_COLLATERAL && setRemoveCollatInput(maxRemovableCollateral);
     logAnalyticsEvent(GA_Event.max_clicked, {
@@ -409,7 +405,7 @@ const VaultPosition = () => {
     <>
       {_selectedVault && (
         <ModalWrap>
-          <CenterPanelWrap>
+          <CenterPanelWrap showBorder>
             {!mobile && (
               <ExitButton
                 action={() => {
@@ -454,9 +450,12 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, _selectedVault?.decimals), 10)} ${
-                          vaultBase?.displaySymbol
-                        }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
+                        value={`${cleanValue(
+                          ethers.utils.formatUnits(debtInBase || ZERO_BN, _selectedVault?.decimals),
+                          10
+                        )} ${vaultBase?.displaySymbol}${
+                          vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''
+                        }`}
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading || !debtInBase_}
                       />
@@ -578,7 +577,6 @@ const VaultPosition = () => {
                             type="number"
                             inputMode="decimal"
                             placeholder={`Enter ${vaultBase?.displaySymbol} amount to Repay`}
-                            // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                             value={repayInput || ''}
                             onChange={(event: any) =>
                               setRepayInput(cleanValue(event.target.value, vaultBase?.decimals))
@@ -592,7 +590,7 @@ const VaultPosition = () => {
                           />
                         </InputWrap>
 
-                        {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
+                        {!repayInput && minRepayable && maxRepay_ && maxRepay?.gt(minRepayable) && (
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                             {maxRepay.eq(userBaseBalance!) ? (
                               <Text color="text" alignSelf="end" size="xsmall">

@@ -9,8 +9,8 @@ import { cleanValue } from '../../../utils/appUtils';
 import { USDC, USDT, WETH } from '../../../config/assets';
 import { ZERO_BN } from '../../../utils/constants';
 import useTimeTillMaturity from '../../useTimeTillMaturity';
-import useAssetPair from '../useAssetPair/useAssetPairFR';
 import { useConvertValue } from '../../useConvertValue';
+import useAssetPair from '../useAssetPair/useAssetPair';
 import { unstable_serialize, useSWRConfig } from 'swr';
 import { toast } from 'react-toastify';
 

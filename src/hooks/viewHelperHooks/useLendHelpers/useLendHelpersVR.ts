@@ -26,8 +26,6 @@ export const useLendHelpersVR = (input?: string) => {
   const provider = useProvider();
   const vyToken = vyTokens?.get(selectedBase?.VYTokenAddress!.toLowerCase()!);
 
-  console.log('vyToken in useLendHelpersVR', vyToken);
-
   const { data: vyTokenBal } = useBalance({
     address: account,
     token: vyToken?.proxyAddress as Address,

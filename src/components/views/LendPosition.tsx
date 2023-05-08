@@ -231,7 +231,7 @@ const LendPosition = () => {
       {position && (
         // TODO handle vyToken as another "series" within ModalWrap
         <ModalWrap series={vyToken ? undefined : selectedSeries!}>
-          <CenterPanelWrap>
+          <CenterPanelWrap showBorder>
             {!mobile && (
               <ExitButton
                 action={() => {

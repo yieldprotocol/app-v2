@@ -22,7 +22,6 @@ import { ONE_BN } from '../../../utils/constants';
 
 /* Lend Actions Hook */
 export const useClosePositionVR = () => {
-  console.log('useClosePositionVR FIRING');
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedBase, selectedVR } = userState;
   const { address: account } = useAccountPlus();
