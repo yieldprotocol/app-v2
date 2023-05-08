@@ -450,9 +450,12 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase!, _selectedVault?.decimals), 10)} ${
-                          vaultBase?.displaySymbol
-                        }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
+                        value={`${cleanValue(
+                          ethers.utils.formatUnits(debtInBase || ZERO_BN, _selectedVault?.decimals),
+                          10
+                        )} ${vaultBase?.displaySymbol}${
+                          vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''
+                        }`}
                         icon={<FiTrendingUp />}
                         loading={vaultsLoading || !debtInBase_}
                       />
