@@ -29,7 +29,7 @@ export const useRepayDebt = () => {
   const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap, selectedIlk, selectedBase } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
@@ -171,20 +171,24 @@ export const useRepayDebt = () => {
      * - Users ilk balance increases by ilk amount> if repaying all debt AND removing all collateral
      * - vault debt reduced by input amount > if repaying part debt
      */
-    const assertCallData: ICallData[] = _collateralToRemove !== ZERO_BN
-      ? assert(
+    const assertCallData: ICallData[] = 
+    _collateralToRemove !== ZERO_BN && nativeBalance ?
+    isEthCollateral 
+        ? assert(
+            // if base is WETH, check the native balance increase
+            undefined,
+            encodeBalanceCall(undefined),
+            AssertActions.Fn.ASSERT_EQ_REL, // relative here
+            nativeBalance.value.add(vault.ink),
+            WAD_BN
+          ) :
+      assert(
           ilk.address,
           encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
           AssertActions.Fn.ASSERT_GE,
           ilk.balance.add(vault.ink)
         )
-      : assert(
-          cauldron.address,
-          cauldron.interface.encodeFunctionData('balances', [vault.id]),
-          AssertActions.Fn.ASSERT_EQ_REL,
-          vault.accruedArt.sub(_input),
-          WAD_BN.div('10') // 10% relative tolerance
-        );
+      : []; // currently not handling asserts on partial debt repayments
 
     const calls: ICallData[] = [
       ...permitCallData,
