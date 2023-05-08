@@ -163,12 +163,12 @@ export const useBorrowHelpers = (
         futureSeries.mu
       );
 
-      const _minCollat = calculateMinCollateral(
-        assetPairInfo?.pairPrice!,
+      const _minCollat = assetPairInfo ? calculateMinCollateral(
+        assetPairInfo.pairPrice,
         newDebt,
-        assetPairInfo?.minRatio.toString()!,
+        assetPairInfo.minRatio.toString()!,
         undefined
-      );
+      ): ZERO_BN
       diagnostics && console.log('min Collat of roll to series', _minCollat.toString());
 
       /* SET MAX ROLL */

@@ -1,29 +1,30 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 
-import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext } from '../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext, TokenType } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS } from '../../config/assets';
+import { BLANK_VAULT, WAD_BN, ZERO_BN } from '../../utils/constants';
+import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ConvexLadleModule } from '../../contracts';
+import { Cauldron, ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
+import { useAssert, AssertActions } from './useAssert';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
+  const { selectedBase, selectedIlk, selectedSeries, assetMap,  } = userState;
   const { updateAssets, updateVaults } = userActions;
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
   const contracts = useContracts();
 
   const {
@@ -34,6 +35,7 @@ export const useAddCollateral = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
+  const { assert } = useAssert();
   const {isActionAllowed} = useAllowAction();
 
   const { refetch: refetchBaseBal } = useBalance({
@@ -53,9 +55,11 @@ export const useAddCollateral = () => {
     const vaultId = vault?.id || BLANK_VAULT;
 
     /* set the ilk based on if a vault has been selected or it's a new vault */
-    const ilk: IAsset | null | undefined = vault ? assetMap?.get(vault.ilkId) : selectedIlk;
+    const ilk: IAsset | null | undefined = vault ? assetMap?.get(vault.ilkId)! : selectedIlk!;
     const base: IAsset | null | undefined = vault ? assetMap?.get(vault.baseId) : selectedBase;
+    
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
+    const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
@@ -66,6 +70,11 @@ export const useAddCollateral = () => {
 
     /* check if the ilk/asset is an eth asset variety, if so pour to Ladle */
     const isEthCollateral = ETH_BASED_ASSETS.includes(ilk?.proxyId!);
+    /* pour destination based on ilk/asset is an eth asset variety */
+    const pourToAddress = () => {
+      if (isEthCollateral) return ladleAddress;
+      return account;
+    };
 
     /* is convex-type collateral */
     const isConvexCollateral = CONVEX_BASED_ASSETS.includes(selectedIlk?.proxyId!);
@@ -99,11 +108,15 @@ export const useAddCollateral = () => {
       selectedIlk?.proxyId
     );
 
-    /* pour destination based on ilk/asset is an eth asset variety */
-    const pourToAddress = () => {
-      if (isEthCollateral) return ladleAddress;
-      return account;
-    };
+    /* Add in an Assert call : collateral(ilk) increases by input amount */
+    const assertCallData: ICallData[] =  [] ;
+    // vault ? assert(
+    //   cauldron.address,
+    //   cauldron.interface.encodeFunctionData('balances', [vaultId]),
+    //   AssertActions.Fn.ASSERT_EQ_REL,
+    //   vault.ink.add(input),
+    //   WAD_BN.div('10') // 10% relative tolerance
+    // ) : [];
 
     /**
      * BUILD CALL DATA ARRAY
@@ -139,6 +152,9 @@ export const useAddCollateral = () => {
         args: [vaultId, pourToAddress(), _input, ethers.constants.Zero] as LadleActions.Args.POUR,
         ignoreIf: false, // never ignore
       },
+
+      /* handle any assert at end of tx */
+      ...assertCallData,
     ];
 
     /* TRANSACT */

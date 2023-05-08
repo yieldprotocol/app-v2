@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, maxBaseIn, MAX_256, sellBase } from '@yield-protocol/ui-math';
+import { calculateSlippage, maxBaseIn, MAX_256, sellBase, WAD_BN } from '@yield-protocol/ui-math';
 
 import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ISeries, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../types';
@@ -11,13 +11,14 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
-import { ConvexJoin__factory } from '../../contracts';
+import { Cauldron, ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
+import { AssertActions, useAssert } from './useAssert';
 import useAllowAction from '../useAllowAction';
 
 export const useRepayDebt = () => {
@@ -28,7 +29,7 @@ export const useRepayDebt = () => {
   const { userState, userActions } = useContext(UserContext);
   const { seriesMap, assetMap, selectedIlk, selectedBase } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
   const { chain } = useNetwork();
   const provider = useProvider();
   const contracts = useContracts();
@@ -47,6 +48,7 @@ export const useRepayDebt = () => {
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const chainId = useChainId();
 
+  const { assert, encodeBalanceCall } = useAssert();
   const {isActionAllowed} = useAllowAction();
 
   /**
@@ -58,7 +60,8 @@ export const useRepayDebt = () => {
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
     
     if (!contracts) return;
-   
+
+    const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
@@ -164,9 +167,31 @@ export const useRepayDebt = () => {
       return account;
     };
 
+    /** Add in an Assert call :
+     * - Users ilk balance increases by ilk amount> if repaying all debt AND removing all collateral
+     * - vault debt reduced by input amount > if repaying part debt
+     */
+    const assertCallData: ICallData[] = 
+    _collateralToRemove !== ZERO_BN && nativeBalance ?
+    isEthCollateral 
+        ? assert(
+            // if base is WETH, check the native balance increase
+            undefined,
+            encodeBalanceCall(undefined),
+            AssertActions.Fn.ASSERT_EQ_REL, // relative here
+            nativeBalance.value.add(vault.ink),
+            WAD_BN
+          ) :
+      assert(
+          ilk.address,
+          encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
+          AssertActions.Fn.ASSERT_GE,
+          ilk.balance.add(vault.ink)
+        )
+      : []; // currently not handling asserts on partial debt repayments
+
     const calls: ICallData[] = [
       ...permitCallData,
-
       /* Reqd. when we have a wrappedBase */
       // ...wrapAssetCallData
 
@@ -221,6 +246,8 @@ export const useRepayDebt = () => {
 
       ...removeEthCallData,
       ...unwrapAssetCallData,
+
+      ...assertCallData,
       
     ];
     await transact(calls, txCode);

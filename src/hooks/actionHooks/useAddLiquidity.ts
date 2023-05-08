@@ -1,6 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { calcPoolRatios, calculateSlippage, fyTokenForMint, MAX_256, splitLiquidity } from '@yield-protocol/ui-math';
+import {
+  calcPoolRatios,
+  calculateSlippage,
+  fyTokenForMint,
+  MAX_256,
+  splitLiquidity,
+  WAD_BN,
+} from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
 import { UserContext } from '../../contexts/UserContext';
@@ -25,16 +32,17 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS, USDT, WETH } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
+import { AssertActions, useAssert } from './useAssert';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 
 export const useAddLiquidity = () => {
   const {
-    settingsState: { slippageTolerance },
+    settingsState: { slippageTolerance, diagnostics },
   } = useContext(SettingsContext);
 
   const { userState, userActions } = useContext(UserContext);
@@ -53,6 +61,8 @@ export const useAddLiquidity = () => {
   const {isActionAllowed} = useAllowAction();
 
   const { addEth } = useAddRemoveEth();
+  const { assert, encodeBalanceCall } = useAssert();
+
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -134,7 +144,8 @@ export const useAddLiquidity = () => {
     const baseToPool = _series.getBase(sharesToPool);
 
     /* DIAGNOSITCS */
-    method === AddLiquidityType.BUY &&
+    diagnostics &&
+      method === AddLiquidityType.BUY &&
       console.log(
         '\n',
         'method: ',
@@ -162,7 +173,8 @@ export const useAddLiquidity = () => {
         formatUnits(maxRatio, strategy.decimals)
       );
 
-    method === AddLiquidityType.BORROW &&
+    diagnostics &&
+      method === AddLiquidityType.BORROW &&
       console.log(
         '\n',
         'method: ',
@@ -221,7 +233,14 @@ export const useAddLiquidity = () => {
       return []; // sends back an empty array [] if not eth base
     };
 
-    console.log('isEthBase', isEthBase);
+    /* Add in an Assert call : Strategy Tokens received within 10% of baseIn.   */
+    const assertCallData: ICallData[] = assert(
+      strategy.address,
+      encodeBalanceCall(strategy.address, undefined),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      strategy.accountBalance!.add(_input),
+      WAD_BN.div('10') // 10% relative tolerance
+    );
 
     /**
      * BUILD CALL DATA ARRAY
@@ -230,7 +249,6 @@ export const useAddLiquidity = () => {
       ...permitCallData,
 
       /* addETh calldata */
-
       ...addEthCallData(),
 
       /**
@@ -310,6 +328,8 @@ export const useAddLiquidity = () => {
         targetContract: strategy.strategyContract,
         ignoreIf: !strategy,
       },
+
+      ...assertCallData,
     ];
 
     await transact(calls, txCode);

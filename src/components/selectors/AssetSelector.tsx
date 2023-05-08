@@ -43,6 +43,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
   const [options, setOptions] = useState<IAsset[]>([]);
   const [modalOpen, toggleModal] = useState<boolean>(false);
   const { logAnalyticsEvent } = useAnalytics();
+
   const { validIlks, validIlksLoading } = useAssetPair(undefined, undefined, selectedSeries?.id);
 
   const optionText = (asset: IAsset | undefined) =>
@@ -79,7 +80,7 @@ function AssetSelector({ selectCollateral, isModal }: IAssetSelectorProps) {
 
   /* update options on any changes */
   useEffect(() => {
-    const opts = (selectCollateral ? validIlks! : Array.from(assetMap.values()))
+    const opts = (selectCollateral && validIlks ? validIlks : Array.from(assetMap.values())) // if !validIlks, then we just return all assets ( for forked env )
       .filter((a) => a.showToken)
       .filter((a) => (showWrappedTokens ? true : !a.isWrappedToken)); // filter based on whether wrapped tokens are shown or not
 

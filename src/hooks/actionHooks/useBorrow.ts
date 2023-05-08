@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
+import { buyBase, calculateSlippage, WAD_BN } from '@yield-protocol/ui-math';
 
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -13,7 +13,9 @@ import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ModuleActions } from '../../types/operations';
+import { AssertActions, useAssert } from './useAssert';
+
+import { ModuleActions, RoutedActions } from '../../types/operations';
 import { ConvexLadleModule } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useBalance } from 'wagmi';
@@ -30,7 +32,7 @@ export const useBorrow = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
   const contracts = useContracts();
 
   const { refetch: refetchIlkBal } = useBalance({
@@ -44,16 +46,17 @@ export const useBorrow = () => {
 
   const { addEth, removeEth } = useAddRemoveEth();
 
+  const { assert, encodeBalanceCall } = useAssert();
+
   const { wrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const {isActionAllowed} = useAllowAction();
+  const { isActionAllowed } = useAllowAction();
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.BORROW)) return; // return if action is not allowed
-
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);
@@ -126,6 +129,26 @@ export const useBorrow = () => {
       txCode
     );
 
+    /* Add in an Assert call */
+    const assertCallData: ICallData[] =
+      isEthBase && nativeBalance
+        ? assert(
+            // if base is WETH, check the native balance increase
+            undefined,
+            encodeBalanceCall(undefined),
+            AssertActions.Fn.ASSERT_EQ_REL, // relative here
+            nativeBalance.value.add(_input),
+            WAD_BN
+          )
+        : assert(
+            // else check the token balance
+            base.address,
+            encodeBalanceCall(base.address, base.tokenIdentifier),
+            AssertActions.Fn.ASSERT_EQ_REL, // relative here
+            base.balance.add(_input),
+            WAD_BN
+          );
+
     /* if ETH is being borrowed, send the borrowed tokens (WETH) to ladle for unwrapping */
     const serveToAddress = () => {
       if (isEthBase) return ladleAddress;
@@ -169,7 +192,10 @@ export const useBorrow = () => {
         args: [vaultId, serveToAddress(), _collInput, _input, _expectedFyTokenWithSlippage] as LadleActions.Args.SERVE,
         ignoreIf: false,
       },
+
       ...removeEthCallData,
+
+      ...assertCallData,
     ];
 
     /* finally, handle the transaction */

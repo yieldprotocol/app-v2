@@ -1,6 +1,7 @@
 import { createContext, Dispatch, ReactNode, useEffect, useReducer } from 'react';
 import { USDC } from '../config/assets';
 import { ApprovalType } from '../types';
+import { BLANK_ADDRESS } from '../utils/constants';
 import { ISettingsContextActions, ISettingsContextState, Settings, SettingsContextAction } from './types/settings';
 
 const initState: ISettingsContextState = {
@@ -39,6 +40,7 @@ const initState: ISettingsContextState = {
   /* Development settings */
 
   /* Always force transctions to the chain -> even if they will likely fail */
+
   forceTransactions: false,
 
   /* Show diagnostic messages in the console */

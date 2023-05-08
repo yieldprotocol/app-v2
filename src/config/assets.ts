@@ -12,7 +12,6 @@ export interface AssetStaticInfo {
   digitFormat: number; // this is the 'reasonable' number of digits to show. accuracy equivalent to +- 1 us cent.
 
   tokenRoles: TokenRole[];
-
   // optionals
   // isYieldBase?: boolean;
 

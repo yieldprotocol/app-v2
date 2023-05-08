@@ -7,6 +7,7 @@ import {
   calculateSlippage,
   newPoolState,
   sellFYToken,
+  WAD_BN,
 } from '@yield-protocol/ui-math';
 
 import { formatUnits } from 'ethers/lib/utils';
@@ -26,6 +27,7 @@ import useContracts from '../useContracts';
 import { Strategy__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
 import useAccountPlus from '../useAccountPlus';
+import { AssertActions, useAssert } from './useAssert';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 
@@ -55,7 +57,7 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const provider = useProvider();
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
@@ -68,6 +70,8 @@ export const useRemoveLiquidity = () => {
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { isActionAllowed } = useAllowAction();
+
+  const { assert, encodeBalanceCall } = useAssert();
 
   const contracts = useContracts();
   const { refetch: refetchBaseBal } = useBalance({
@@ -294,6 +298,35 @@ export const useRemoveLiquidity = () => {
       txCode
     );
 
+    /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
+    const assertCallData_base: ICallData[] = 
+    isEthBase && nativeBalance
+    ? assert(
+      undefined,
+      encodeBalanceCall(undefined),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      nativeBalance.value.add(series.getBase(_sharesReceived)),
+      WAD_BN.div('10') // 10% relative tolerance
+    ):
+    assert( 
+      _base.address,
+      encodeBalanceCall(_base.address, _base.tokenIdentifier),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      _base.balance!.add(series.getBase(_sharesReceived)),
+      WAD_BN.div('10') // 10% relative tolerance
+    )
+    
+    /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
+    const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN)
+      ? assert(
+          series.address,
+          encodeBalanceCall(series.address, undefined),
+          AssertActions.Fn.ASSERT_EQ_REL,
+          series.fyTokenBalance!.add(_fyTokenReceived),
+          WAD_BN.div('10') // 10% relative tolerance
+        )
+      : [];
+
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
     const calls: ICallData[] = [
       ...permitCallData,
@@ -452,6 +485,10 @@ export const useRemoveLiquidity = () => {
       },
 
       ...removeEthCallData,
+
+      ...assertCallData_base,
+      // ...assertCallData_fyToken, temporarily remove fyToken check
+
     ];
 
     await transact(calls, txCode);
