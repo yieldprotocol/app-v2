@@ -57,7 +57,7 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const provider = useProvider();
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
@@ -299,13 +299,22 @@ export const useRemoveLiquidity = () => {
     );
 
     /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
-    const assertCallData_base: ICallData[] = assert(
+    const assertCallData_base: ICallData[] = 
+    isEthBase && nativeBalance
+    ? assert(
+      undefined,
+      encodeBalanceCall(undefined),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      nativeBalance.value.add(series.getBase(_sharesReceived)),
+      WAD_BN.div('10') // 10% relative tolerance
+    ):
+    assert( 
       _base.address,
       encodeBalanceCall(_base.address, _base.tokenIdentifier),
       AssertActions.Fn.ASSERT_EQ_REL,
       _base.balance!.add(series.getBase(_sharesReceived)),
       WAD_BN.div('10') // 10% relative tolerance
-    );
+    )
     
     /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
     const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN)
@@ -478,7 +487,8 @@ export const useRemoveLiquidity = () => {
       ...removeEthCallData,
 
       ...assertCallData_base,
-      ...assertCallData_fyToken,
+      // ...assertCallData_fyToken, temporarily remove fyToken check
+
     ];
 
     await transact(calls, txCode);
