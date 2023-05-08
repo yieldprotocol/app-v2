@@ -198,7 +198,7 @@ const VaultPosition = () => {
     debtAfterRepay: debtAfterRepayVR,
     debtInBase: debtInBaseVR,
     debtInBase_: debtInBaseVR_,
-  } = useBorrowHelpersVR(repayInput, undefined, _selectedVault, assetPair);
+  } = useBorrowHelpersVR(repayInput, _selectedVault, assetPair);
 
   // consolidated helpers
   const maxRepay = vaultIsVR ? maxRepayVR : maxRepayFR;

@@ -41,7 +41,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
 
-  const { debtInBase_: debtInBaseVR_ } = useBorrowHelpersVR(undefined, undefined, vault, assetPair);
+  const { debtInBase_: debtInBaseVR_ } = useBorrowHelpersVR(undefined, vault, assetPair);
   const { debtInBase_: debtInBaseFR_ } = useBorrowHelpersFR(undefined, undefined, vault, assetPair, undefined);
 
   const debtInBase_ = vaultIsVR ? debtInBaseVR_ : debtInBaseFR_;

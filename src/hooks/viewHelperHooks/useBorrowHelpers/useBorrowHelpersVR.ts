@@ -16,7 +16,6 @@ import { formatUnits } from 'ethers/lib/utils.js';
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpersVR = (
   input: string | undefined,
-  collateralInput: string | undefined,
   vault: IVault | undefined,
   assetPairInfo: IAssetPair | null | undefined
 ) => {
