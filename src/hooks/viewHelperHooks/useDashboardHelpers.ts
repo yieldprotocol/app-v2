@@ -9,9 +9,9 @@ import { cleanValue } from '../../utils/appUtils';
 import { USDC, USDT, WETH } from '../../config/assets';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import useAssetPair from './useAssetPair';
 import { unstable_serialize, useSWRConfig } from 'swr';
 import { toast } from 'react-toastify';
+import useAssetPair from './useAssetPair/useAssetPair';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;

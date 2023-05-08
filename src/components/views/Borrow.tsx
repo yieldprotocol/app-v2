@@ -127,7 +127,7 @@ const Borrow = () => {
     minDebt_: minDebtVR_,
     maxDebt_: maxDebtVR_,
     borrowPossible: borrowPossibleVR,
-  } = useBorrowHelpersVR(borrowInput, collatInput, vaultToUse, assetPair);
+  } = useBorrowHelpersVR(borrowInput, vaultToUse, assetPair);
 
   const minDebt_ = selectedVR ? minDebtVR_ : minDebtFR_;
   const maxDebt_ = selectedVR ? maxDebtVR_ : maxDebtFR_;

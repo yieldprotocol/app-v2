@@ -14,6 +14,7 @@ import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
+import useVaultsVR from '../../hooks/entities/useVaultsVR';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();
@@ -36,10 +37,11 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
   const vaultIsVR = !vault?.seriesId;
+  const { isLoading: vaultsLoadingVR } = useVaultsVR();
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
 
-  const { debtInBase_: debtInBaseVR_ } = useBorrowHelpersVR(undefined, undefined, vault, assetPair);
+  const { debtInBase_: debtInBaseVR_ } = useBorrowHelpersVR(undefined, vault, assetPair);
   const { debtInBase_: debtInBaseFR_ } = useBorrowHelpersFR(undefined, undefined, vault, assetPair, undefined);
 
   const debtInBase_ = vaultIsVR ? debtInBaseVR_ : debtInBaseFR_;
@@ -71,13 +73,20 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
                 <Text weight={450} size="xsmall">
                   Debt:
                 </Text>
-                <Text weight={450} size="xsmall">
-                  {(vaultsLoading && vault.id === selectedVault?.id) || !debtInBase_ ? (
-                    <SkeletonWrap width={30} />
-                  ) : (
-                    cleanValue(debtInBase_, 2)
-                  )}
-                </Text>
+                {!vaultIsVR && (
+                  <Text weight={450} size="xsmall">
+                    {(vaultsLoading && vault.id === selectedVault?.id) || !debtInBase_ ? (
+                      <SkeletonWrap width={30} />
+                    ) : (
+                      cleanValue(debtInBase_, 2)
+                    )}
+                  </Text>
+                )}
+                {vaultIsVR && (
+                  <Text weight={450} size="xsmall">
+                    {!debtInBase_ ? <SkeletonWrap width={30} /> : cleanValue(debtInBase_, 2)}
+                  </Text>
+                )}
               </Box>
             </Box>
           ) : (
