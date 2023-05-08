@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext, TokenType } from '../../types';
 
 import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { BLANK_VAULT, ZERO_BN } from '../../utils/constants';
+import { BLANK_VAULT, WAD_BN, ZERO_BN } from '../../utils/constants';
 import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
@@ -109,13 +109,14 @@ export const useAddCollateral = () => {
     );
 
     /* Add in an Assert call : collateral(ilk) increases by input amount */
-    // const assertCallData: ICallData[] = assert(
+    const assertCallData: ICallData[] =  [] ;
+    // vault ? assert(
     //   cauldron.address,
     //   cauldron.interface.encodeFunctionData('balances', [vaultId]),
     //   AssertActions.Fn.ASSERT_EQ_REL,
-    //   currentArt.add(input),
+    //   vault.ink.add(input),
     //   WAD_BN.div('10') // 10% relative tolerance
-    // );
+    // ) : [];
 
     /**
      * BUILD CALL DATA ARRAY
@@ -153,7 +154,7 @@ export const useAddCollateral = () => {
       },
 
       /* handle any assert at end of tx */
-      // ...assertCallData,
+      ...assertCallData,
     ];
 
     /* TRANSACT */

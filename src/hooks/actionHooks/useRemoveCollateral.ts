@@ -7,8 +7,8 @@ import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ONE_BN, ZERO_BN } from '../../utils/constants';
-import { ConvexJoin__factory } from '../../contracts';
+import { ONE_BN, WAD_BN, ZERO_BN } from '../../utils/constants';
+import { Cauldron, ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
 import useContracts from '../useContracts';
@@ -50,6 +50,8 @@ export const useRemoveCollateral = () => {
     /* get associated series and ilk */
     const ilk = assetMap?.get(vault.ilkId)!;
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
+    const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
+    
     /* get unwrap handler if required */
     const unwrapHandlerAddress = ilk.unwrapHandlerAddresses?.get(chain?.id!);
     /* check if the ilk/asset is an eth asset variety OR if it is wrapped token, if so pour to Ladle */
@@ -76,13 +78,14 @@ export const useRemoveCollateral = () => {
     };
 
     /* Add in an Assert call : collateral(ilk) decreases by input amount */
-    // const assertCallData: ICallData[] = assert(
+    const assertCallData: ICallData[] = [];
+    //  vault ? assert(
     //   cauldron.address,
-    //   cauldron.interface.encodeFunctionData('balances', [vaultId]),
+    //   cauldron.interface.encodeFunctionData('balances', [vault.id]),
     //   AssertActions.Fn.ASSERT_EQ_REL,
-    //   currentIlk.balance.sub(_input),
+    //   vault.ink.sub(_input),
     //   WAD_BN.div('10')
-    // );
+    // ): [];
 
     const calls: ICallData[] = [
       /* convex-type collateral; ensure checkpoint before giving collateral back to account */
@@ -106,7 +109,7 @@ export const useRemoveCollateral = () => {
       ...removeEthCallData,
       ...unwrapCallData,
 
-      // ...assertCallData,
+      ...assertCallData,
     ];
 
     await transact(calls, txCode);
