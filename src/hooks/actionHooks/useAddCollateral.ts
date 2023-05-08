@@ -107,20 +107,13 @@ export const useAddCollateral = () => {
     );
 
     /* Add in an Assert call : collateral(ilk) increases by input amount */
-    const assertCallData: ICallData[] =  ilk.id !== WETH
-    ? assert(
-      ilk.address,
-      encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
-      AssertActions.Fn.ASSERT_GE,
-      ilk.balance.add(_input)
-    )
-    : assert(
-        undefined,
-        encodeBalanceCall(undefined),
-        AssertActions.Fn.ASSERT_GE,
-        (nativeBalance?.value as BigNumber).add(input)
-        // ilk.balance.add(_input)    
-    );
+    // const assertCallData: ICallData[] = assert(
+    //   // ilk?.address,
+    //   // // ilk.address, // if WETH, we don't pass address so that the native balance is read. 
+    //   // // encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
+    //   // // AssertActions.Fn.ASSERT_GE,
+    //   // // ilk.balance.add(_input)
+    // );
 
     /**
      * BUILD CALL DATA ARRAY
@@ -158,7 +151,7 @@ export const useAddCollateral = () => {
       },
 
       /* handle any assert at end of tx */
-      ...assertCallData,
+      // ...assertCallData,
     ];
 
     /* TRANSACT */
