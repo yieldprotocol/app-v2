@@ -306,6 +306,7 @@ export const useRemoveLiquidity = () => {
       _base.balance!.add(series.getBase(_sharesReceived)),
       WAD_BN.div('10') // 10% relative tolerance
     );
+    
     /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
     const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN)
       ? assert(

@@ -10,7 +10,7 @@ import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, WETH } from '../../config/assets
 import { useChain } from '../useChain';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { useAddRemoveEth } from './useAddRemoveEth';
-import { ConvexLadleModule } from '../../contracts';
+import { Cauldron, ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
 import { Address, useBalance } from 'wagmi';
@@ -35,7 +35,7 @@ export const useAddCollateral = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
-  const { assert, encodeBalanceCall } = useAssert();
+  const { assert } = useAssert();
   const {isActionAllowed} = useAllowAction();
 
   const { refetch: refetchBaseBal } = useBalance({
@@ -57,7 +57,9 @@ export const useAddCollateral = () => {
     /* set the ilk based on if a vault has been selected or it's a new vault */
     const ilk: IAsset | null | undefined = vault ? assetMap?.get(vault.ilkId)! : selectedIlk!;
     const base: IAsset | null | undefined = vault ? assetMap?.get(vault.baseId) : selectedBase;
+    
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
+    const cauldron = contracts.get(ContractNames.CAULDRON) as Cauldron;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ADD_COLLATERAL, vaultId);
@@ -108,6 +110,11 @@ export const useAddCollateral = () => {
 
     /* Add in an Assert call : collateral(ilk) increases by input amount */
     // const assertCallData: ICallData[] = assert(
+    //   cauldron.address,
+    //   cauldron.interface.encodeFunctionData('balances', [vaultId]),
+    //   AssertActions.Fn.ASSERT_EQ_REL,
+    //   currentArt.add(input),
+    //   WAD_BN.div('10') // 10% relative tolerance
     // );
 
     /**

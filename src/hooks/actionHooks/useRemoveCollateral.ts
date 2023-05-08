@@ -77,10 +77,11 @@ export const useRemoveCollateral = () => {
 
     /* Add in an Assert call : collateral(ilk) decreases by input amount */
     // const assertCallData: ICallData[] = assert(
-    //   ilk.address,
-    //   encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
-    //   AssertActions.Fn.ASSERT_GE,
-    //   ilk.balance.sub(_input)
+    //   cauldron.address,
+    //   cauldron.interface.encodeFunctionData('balances', [vaultId]),
+    //   AssertActions.Fn.ASSERT_EQ_REL,
+    //   currentIlk.balance.sub(_input),
+    //   WAD_BN.div('10')
     // );
 
     const calls: ICallData[] = [

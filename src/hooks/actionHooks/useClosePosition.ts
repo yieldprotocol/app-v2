@@ -120,7 +120,7 @@ export const useClosePosition = () => {
 
     /* Add in an Assert call : base Balance increases up to 10% of fyToken balance */
     const assertCallData: ICallData[] =
-      base.id === WETH && nativeBalance
+      isEthBase && nativeBalance
         ? assert(
             // if base is WETH, check the native balance increase
             undefined,

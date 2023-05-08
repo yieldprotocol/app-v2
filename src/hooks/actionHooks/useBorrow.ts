@@ -131,7 +131,7 @@ export const useBorrow = () => {
 
     /* Add in an Assert call */
     const assertCallData: ICallData[] =
-      base.id === WETH && nativeBalance
+      isEthBase && nativeBalance
         ? assert(
             // if base is WETH, check the native balance increase
             undefined,
