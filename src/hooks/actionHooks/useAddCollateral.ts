@@ -108,11 +108,6 @@ export const useAddCollateral = () => {
 
     /* Add in an Assert call : collateral(ilk) increases by input amount */
     // const assertCallData: ICallData[] = assert(
-    //   // ilk?.address,
-    //   // // ilk.address, // if WETH, we don't pass address so that the native balance is read. 
-    //   // // encodeBalanceCall(ilk.address, ilk.tokenIdentifier),
-    //   // // AssertActions.Fn.ASSERT_GE,
-    //   // // ilk.balance.add(_input)
     // );
 
     /**

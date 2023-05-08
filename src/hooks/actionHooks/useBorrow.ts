@@ -32,7 +32,7 @@ export const useBorrow = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, seriesMap, assetMap } = userState;
   const { updateVaults, updateAssets, updateSeries } = userActions;
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
   const contracts = useContracts();
 
   const { refetch: refetchIlkBal } = useBalance({
@@ -52,12 +52,11 @@ export const useBorrow = () => {
   const { sign, transact } = useChain();
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const {isActionAllowed} = useAllowAction();
+  const { isActionAllowed } = useAllowAction();
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.BORROW)) return; // return if action is not allowed
-
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);
@@ -131,13 +130,24 @@ export const useBorrow = () => {
     );
 
     /* Add in an Assert call */
-    const assertCallData: ICallData[] = assert(
-      base.address,
-      encodeBalanceCall(base.address, base.tokenIdentifier),
-      AssertActions.Fn.ASSERT_EQ_REL, // relative here 
-      base.balance.add(_input),
-      WAD_BN
-    );
+    const assertCallData: ICallData[] =
+      base.id === WETH && nativeBalance
+        ? assert(
+            // if base is WETH, check the native balance increase
+            undefined,
+            encodeBalanceCall(undefined),
+            AssertActions.Fn.ASSERT_EQ_REL, // relative here
+            nativeBalance.value.add(_input),
+            WAD_BN
+          )
+        : assert(
+            // else check the token balance
+            base.address,
+            encodeBalanceCall(base.address, base.tokenIdentifier),
+            AssertActions.Fn.ASSERT_EQ_REL, // relative here
+            base.balance.add(_input),
+            WAD_BN
+          );
 
     /* if ETH is being borrowed, send the borrowed tokens (WETH) to ladle for unwrapping */
     const serveToAddress = () => {
