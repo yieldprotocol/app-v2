@@ -84,7 +84,12 @@ const SupportSettings = () => {
               </Text>
               <TextInput value={forkUrlInput} onChange={(e) => setForkUrlInput(e.target.value)} size="xsmall" />
               <GeneralButton
-                action={() => forkUrlInput !== forkEnvUrl && console.log(`changing fork url to: ${forkUrlInput}`)}
+                action={() => {
+                  if (forkUrlInput !== forkEnvUrl) {
+                    console.log(`changing fork url to: ${forkUrlInput}`);
+                    updateSetting(Settings.FORK_ENV_URL, forkUrlInput);
+                  }
+                }}
                 background="background"
                 disabled={!useForkedEnv || forkUrlInput === forkEnvUrl}
               >
