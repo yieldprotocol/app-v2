@@ -115,13 +115,13 @@ const VaultPosition = () => {
 
   const [stepPosition, setStepPosition] = useState<number[]>(new Array(7).fill(0));
 
-  const [repayInput, setRepayInput] = useState<any>(undefined);
+  const [repayInput, setRepayInput] = useState<string>();
   const [reclaimCollateral, setReclaimCollateral] = useState<boolean>(true);
 
-  const [addCollatInput, setAddCollatInput] = useState<any>(undefined);
-  const [removeCollatInput, setRemoveCollatInput] = useState<any>(undefined);
+  const [addCollatInput, setAddCollatInput] = useState<string>();
+  const [removeCollatInput, setRemoveCollatInput] = useState<string>();
 
-  const [rollToSeries, setRollToSeries] = useState<ISeries | undefined>(undefined);
+  const [rollToSeries, setRollToSeries] = useState<ISeries>();
 
   const [repayDisabled, setRepayDisabled] = useState<boolean>(true);
   const [rollDisabled, setRollDisabled] = useState<boolean>(true);
@@ -169,6 +169,7 @@ const VaultPosition = () => {
     assetPair
   );
 
+  // fixed rate helpers
   const {
     maxRepay: maxRepayFR,
     maxRepay_: maxRepayFR_,
@@ -185,6 +186,7 @@ const VaultPosition = () => {
     rollProtocolLimited,
   } = useBorrowHelpersFR(repayInput, undefined, _selectedVault, assetPair, rollToSeries);
 
+  // variable rate helpers
   const {
     maxRepay: maxRepayVR,
     maxRepay_: maxRepayVR_,
@@ -198,6 +200,7 @@ const VaultPosition = () => {
     debtInBase_: debtInBaseVR_,
   } = useBorrowHelpersVR(repayInput, undefined, _selectedVault, assetPair);
 
+  // consolidated helpers
   const maxRepay = vaultIsVR ? maxRepayVR : maxRepayFR;
   const maxRepay_ = vaultIsVR ? maxRepayVR_ : maxRepayFR_;
   const minRepayable = vaultIsVR ? minRepayableVR : minRepayableFR;
@@ -274,7 +277,7 @@ const VaultPosition = () => {
     if (action === 'REMOVE') {
       if (removeCollateralDisabled) return;
       setRemoveCollateralDisabled(true);
-      removeCollateral(_selectedVault!, removeCollatInput);
+      if (_selectedVault && removeCollatInput) removeCollateral(_selectedVault, removeCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
@@ -293,8 +296,7 @@ const VaultPosition = () => {
         removeCollateralDisabled
       );
 
-      // addCollateral(_selectedVault, addCollatInput);
-      addCollateral(_selectedVault, addCollatInput);
+      addCollatInput && addCollateral(_selectedVault, addCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
@@ -305,7 +307,7 @@ const VaultPosition = () => {
   };
 
   const handleMaxAction = (actionCode: ActionCodes) => {
-    actionCode === ActionCodes.REPAY && setRepayInput(maxRepay.gt(minRepayable) ? maxRepay_ : minRepayable_);
+    actionCode === ActionCodes.REPAY && setRepayInput(maxRepay?.gt(minRepayable!) ? maxRepay_ : minRepayable_);
     actionCode === ActionCodes.ADD_COLLATERAL && setAddCollatInput(maxCollateral);
     actionCode === ActionCodes.REMOVE_COLLATERAL && setRemoveCollatInput(maxRemovableCollateral);
     logAnalyticsEvent(GA_Event.max_clicked, {
@@ -448,7 +450,7 @@ const VaultPosition = () => {
 
                       <InfoBite
                         label="Vault debt + interest"
-                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase, _selectedVault?.decimals), 10)} ${
+                        value={`${cleanValue(ethers.utils.formatUnits(debtInBase!, _selectedVault?.decimals), 10)} ${
                           vaultBase?.displaySymbol
                         }${vaultSeries?.seriesIsMature ? ` (variable rate: ${_selectedVault.rate_}%)` : ''}`}
                         icon={<FiTrendingUp />}
@@ -572,7 +574,6 @@ const VaultPosition = () => {
                             type="number"
                             inputMode="decimal"
                             placeholder={`Enter ${vaultBase?.displaySymbol} amount to Repay`}
-                            // ref={(el:any) => { el && !repayOpen && !rateLockOpen && !mobile && el.focus(); setInputRef(el); }}
                             value={repayInput || ''}
                             onChange={(event: any) =>
                               setRepayInput(cleanValue(event.target.value, vaultBase?.decimals))
@@ -586,7 +587,7 @@ const VaultPosition = () => {
                           />
                         </InputWrap>
 
-                        {!repayInput && minRepayable && maxRepay_ && maxRepay.gt(minRepayable) && (
+                        {!repayInput && minRepayable && maxRepay_ && maxRepay?.gt(minRepayable) && (
                           <InputInfoWrap action={() => setRepayInput(maxRepay_)}>
                             {maxRepay.eq(userBaseBalance!) ? (
                               <Text color="text" alignSelf="end" size="xsmall">
