@@ -98,13 +98,13 @@ const useVYTokens = () => {
     [account, assetRootMap, forkUrl, useForkedEnv]
   );
 
-  const { data, error, isLoading } = useSWR(key, get, {
+  const { data, error, isLoading, isValidating } = useSWR(key, get, {
     revalidateOnFocus: false,
     revalidateIfStale: false,
     shouldRetryOnError: false,
   });
 
-  return { data, error, isLoading, key };
+  return { data, error, isLoading: isLoading || isValidating, key };
 };
 
 export default useVYTokens;

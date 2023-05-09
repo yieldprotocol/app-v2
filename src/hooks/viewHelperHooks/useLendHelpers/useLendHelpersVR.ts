@@ -24,17 +24,20 @@ export const useLendHelpersVR = (vyTokenAddress: string | undefined, input?: str
 
   const { data: vyTokens } = useVYTokens();
   const vyToken = vyTokens?.get(vyTokenAddress!);
-  const { data: vyTokenBaseVal } = useVYTokenBaseVal(vyToken?.proxyAddress);
 
   const { apr: apy } = useApr(input, ActionType.LEND, null); // TODO - handle vr apy's
 
+  // use the lesser of the user's base balance and the vyToken's base value
   const maxClose = useMemo(() => {
-    if (vyTokenBaseVal && baseBal) {
+    if (!vyToken) return;
+    const { vyTokenBaseVal } = vyToken;
+
+    if (baseBal) {
       return baseBal.value.lt(vyTokenBaseVal) ? baseBal.value : vyTokenBaseVal;
     }
 
     return vyTokenBaseVal;
-  }, [baseBal, vyTokenBaseVal]);
+  }, [baseBal, vyToken]);
 
   return {
     maxLend: baseBal?.value,
@@ -42,8 +45,8 @@ export const useLendHelpersVR = (vyTokenAddress: string | undefined, input?: str
     maxClose,
     maxClose_: maxClose ? formatUnits(maxClose, vyToken?.decimals) : undefined,
     apy,
-    vyTokenBaseVal,
-    vyTokenBaseVal_: vyTokenBaseVal ? formatUnits(vyTokenBaseVal, vyToken?.decimals) : undefined,
+    vyTokenBaseVal: vyToken?.vyTokenBaseVal,
+    vyTokenBaseVal_: vyToken?.vyTokenBaseVal_,
     userBaseBalance: baseBal?.value,
     userBaseBalance_: baseBal?.formatted,
   };
