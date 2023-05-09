@@ -6,7 +6,6 @@ import { Address, useBalance } from 'wagmi';
 import { WETH } from '../../../config/assets';
 import useAccountPlus from '../../useAccountPlus';
 import { formatUnits } from 'ethers/lib/utils.js';
-import useVYTokenBaseVal from '../../entities/useVYTokenBaseVal';
 import useVYTokens from '../../entities/useVYTokens';
 
 export const useLendHelpersVR = (vyTokenAddress: string | undefined, input?: string) => {
