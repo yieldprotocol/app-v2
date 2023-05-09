@@ -12,6 +12,7 @@ import { GA_Event, GA_Properties } from '../../types/analytics';
 import { IPosition } from '../selectors/LendPositionSelector';
 import useVYTokens from '../../hooks/entities/useVYTokens';
 import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
+import useVYTokenBaseVal from '../../hooks/entities/useVYTokenBaseVal';
 
 interface LendItemProps {
   item: IPosition;
@@ -27,12 +28,13 @@ function LendItem({ item, index, condensed }: LendItemProps) {
     userState: { assetMap, seriesLoading, selectedSeries, seriesMap },
     userActions: { setSelectedBase, setSelectedSeries },
   } = useContext(UserContext);
-  const { data: vyTokens, isLoading: vyTokensLoading } = useVYTokens();
+  const { data: vyTokens } = useVYTokens();
   // use vyToken balance if not a series
   const vyToken = vyTokens?.get(item.address);
   const series = [...seriesMap.values()].find((s) => s.address === item.address);
   const base = assetMap.get(item.baseId);
   const { fyTokenMarketValue } = useLendHelpersFR(series!, '0');
+  const { data: vyTokenBaseVal } = useVYTokenBaseVal(item.address);
 
   const handleSelect = () => {
     base && setSelectedBase(base);
@@ -68,10 +70,10 @@ function LendItem({ item, index, condensed }: LendItemProps) {
                   ) : (
                     series && cleanValue(fyTokenMarketValue, base?.digitFormat!)
                   )}
-                  {vyTokensLoading && vyToken ? (
+                  {!vyTokenBaseVal && vyToken ? (
                     <SkeletonWrap width={30} />
                   ) : (
-                    vyToken && cleanValue(item.balance_, base?.digitFormat!)
+                    vyToken && cleanValue(vyTokenBaseVal, base?.digitFormat!)
                   )}
                 </Text>
               </Box>
