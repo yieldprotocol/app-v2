@@ -5,8 +5,14 @@ import { ModuleActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
 import useAccountPlus from '../useAccountPlus';
 import useContracts from '../useContracts';
+import { useContext } from 'react';
+import { UserContext } from '../../contexts/UserContext';
+import { ETH_BASED_ASSETS } from '../../config/assets';
 
 export const useAddRemoveEth = () => {
+  const {
+    userState: { selectedVR, selectedBase },
+  } = useContext(UserContext);
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
   const WrapEtherModuleContract = contracts?.get(ContractNames.WRAP_ETHER_MODULE);
@@ -16,6 +22,17 @@ export const useAddRemoveEth = () => {
     to: string | undefined = undefined,
     alternateEthAssetId: string | undefined = undefined
   ): ICallData[] => {
+    /* VR */
+    if (selectedVR)
+      return [
+        {
+          operation: LadleActions.Fn.WRAP_ETHER,
+          args: [to] as LadleActions.Args.WRAP_ETHER,
+          overrides: { value },
+        },
+      ];
+
+    /* FR */
     if (!WrapEtherModuleContract) throw new Error('WrapEtherModuleContract not found');
 
     /* if there is a destination 'to' then use the ladle module (wrapEtherModule) */
