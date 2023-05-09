@@ -12,7 +12,6 @@ import { GA_Event, GA_Properties } from '../../types/analytics';
 import { IPosition } from '../selectors/LendPositionSelector';
 import useVYTokens from '../../hooks/entities/useVYTokens';
 import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
-import useVYTokenBaseVal from '../../hooks/entities/useVYTokenBaseVal';
 import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
 
 interface LendItemProps {
@@ -29,11 +28,14 @@ function LendItem({ item, index, condensed }: LendItemProps) {
     userState: { assetMap, seriesLoading, selectedSeries, seriesMap },
     userActions: { setSelectedBase, setSelectedSeries },
   } = useContext(UserContext);
+
   const { data: vyTokens } = useVYTokens();
-  // use vyToken balance if not a series
   const vyToken = vyTokens?.get(item.address);
+
   const series = [...seriesMap.values()].find((s) => s.address === item.address);
+
   const base = assetMap.get(item.baseId);
+
   const { fyTokenMarketValue } = useLendHelpersFR(series!, '0');
   const { vyTokenBaseVal_ } = useLendHelpersVR(vyToken?.address);
 
