@@ -1,46 +1,38 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-
-import { ETH_BASED_ASSETS, USDT } from '../../../config/assets';
-import { SettingsContext } from '../../../contexts/SettingsContext';
+import { ETH_BASED_ASSETS } from '../../../config/assets';
 import { UserContext } from '../../../contexts/UserContext';
-import { ICallData, ActionCodes, LadleActions, RoutedActions, ISignable } from '../../../types';
+import { ICallData, ActionCodes, LadleActions, RoutedActions } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
-
 import { useChain } from '../../useChain';
 import { Address, useBalance, useProvider, useSigner } from 'wagmi';
 import useContracts from '../../useContracts';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import useAllowAction from '../../useAllowAction';
-import { MAX_256 } from '@yield-protocol/ui-math';
-import useChainId from '../../useChainId';
 import useVYTokens from '../../entities/useVYTokens';
 import { useAddRemoveEth } from '../useAddRemoveEth';
-import { VRLadle, VYToken__factory } from '../../../contracts';
+import { VYToken__factory } from '../../../contracts';
 import { ONE_BN } from '../../../utils/constants';
+import { useSWRConfig } from 'swr';
+import { ZERO_BN } from '@yield-protocol/ui-math';
 
 /* Lend Actions Hook */
 export const useClosePositionVR = () => {
+  const { mutate } = useSWRConfig();
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, selectedBase, selectedVR } = userState;
+  const { assetMap, selectedBase } = userState;
   const { address: account } = useAccountPlus();
   const { data: signer } = useSigner();
-  const { data: vyTokens } = useVYTokens();
-  const vyToken = vyTokens?.get(selectedBase?.VYTokenAddress!.toLowerCase()!);
+  const { data: vyTokens, key: vyTokensKey } = useVYTokens();
   const { removeEth } = useAddRemoveEth();
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
     token: selectedBase?.address as Address,
   });
-  const { refetch: refetchVyTokenBal } = useBalance({
-    address: account,
-    token: vyToken?.proxyAddress as Address,
-  });
 
   const contracts = useContracts();
-  const chainId = useChainId();
   const provider = useProvider();
 
   const { updateAssets } = userActions;
@@ -49,51 +41,55 @@ export const useClosePositionVR = () => {
 
   const closePositionVR = async (input: string | undefined) => {
     if (!input) return console.error('no input in useClosePositionVR');
-    if (!contracts) return;
+    if (!account || !contracts || !selectedBase || !vyTokens) return;
     if (!isActionAllowed(ActionCodes.CLOSE_POSITION)) return; // return if action is not allowed
 
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, 'VR');
-    const base = assetMap?.get(selectedBase!.id)!;
-    const cleanedInput = cleanValue(input, base.decimals);
-    const _input = ethers.utils.parseUnits(cleanedInput, base.decimals);
 
-    const selectedVyToken = vyTokens?.get(base?.VYTokenAddress!.toLowerCase());
-    const vyTokenProxyAddr = selectedVyToken?.proxyAddress.toLowerCase();
+    const cleanedInput = cleanValue(input, selectedBase.decimals);
+    const _input = ethers.utils.parseUnits(cleanedInput, selectedBase.decimals);
 
+    const selectedVyToken = vyTokens.get(selectedBase.VYTokenAddress!.toLowerCase());
+    if (!selectedVyToken) return console.error('selectedVyToken not found');
+
+    const vyTokenProxyAddr = selectedVyToken.proxyAddress;
     if (!vyTokenProxyAddr) return console.error('vyTokenProxyAddr not found');
+
     const vyTokenProxyContract = VYToken__factory.connect(vyTokenProxyAddr, provider);
     const vyTokenContract = VYToken__factory.connect(selectedVyToken?.address!, signer!);
 
-    const { address, joinAddressVR } = base;
     const ladleAddress = contracts.get(ContractNames.VR_LADLE)?.address;
+    if (!ladleAddress) return console.error('ladleAddress not found');
 
-    /* if ethBase */
-    const isEthBase = ETH_BASED_ASSETS.includes(base.id);
+    const isEthBase = ETH_BASED_ASSETS.includes(selectedBase.id);
+    const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
 
-    const vyTokenValueOfInput = await vyTokenContract.convertToPrincipal(_input);
-    const _vyTokenValueOfInput = ethers.utils.parseUnits(vyTokenValueOfInput.toString(), base.decimals);
+    let vyTokenValueOfInput: BigNumber;
+    try {
+      vyTokenValueOfInput = await vyTokenProxyContract.previewWithdraw(_input);
+    } catch (e) {
+      return console.log('error getting vyToken value of input', e);
+    }
 
-    const alreadyApproved = (await vyTokenContract.allowance(account, ladleAddress!)).gte(_vyTokenValueOfInput);
+    const alreadyApproved = (await vyTokenProxyContract.allowance(account, ladleAddress)).gte(vyTokenValueOfInput);
 
-    const permitCallData: ICallData[] = await sign(
+    const permitCallData = await sign(
       [
         {
           target: vyTokenProxyContract as any,
-          spender: ladleAddress!,
-          amount: _vyTokenValueOfInput,
-          ignoreIf: alreadyApproved === true,
+          spender: ladleAddress,
+          amount: vyTokenValueOfInput,
+          ignoreIf: alreadyApproved,
         },
       ],
       txCode
     );
 
-    const removeEthCallData = isEthBase ? removeEth(ONE_BN) : [];
-
-    const calls: ICallData[] = [
+    const calls = [
       ...permitCallData,
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [vyTokenProxyAddr, vyTokenProxyAddr, _input] as LadleActions.Args.TRANSFER,
+        args: [vyTokenProxyAddr, vyTokenProxyAddr, vyTokenValueOfInput] as LadleActions.Args.TRANSFER,
         ignoreIf: false, // never ignore, because we go through the ladle.
       },
       {
@@ -107,8 +103,8 @@ export const useClosePositionVR = () => {
     ];
     await transact(calls, txCode);
     refetchBaseBal();
-    refetchVyTokenBal();
-    updateAssets([base]);
+    mutate(vyTokensKey);
+    updateAssets([selectedBase]);
 
     // TODO update vyToken history
   };
