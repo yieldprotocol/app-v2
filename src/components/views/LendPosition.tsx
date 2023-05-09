@@ -91,7 +91,6 @@ const LendPosition = () => {
     maxClose: maxCloseVR,
     maxClose_: maxCloseVR_,
     apy,
-    vyTokenBaseVal_,
   } = useLendHelpersVR(selectedBase?.VYTokenAddress, closeInput);
 
   const maxClose = selectedSeries ? maxCloseFR : maxCloseVR;
@@ -300,7 +299,7 @@ const LendPosition = () => {
                       <InfoBite
                         label="Current value"
                         value={`${cleanValue(
-                          vyTokenBaseVal_,
+                          vyToken.vyTokenBaseVal_,
                           selectedBase?.digitFormat!
                         )} ${selectedBase?.displaySymbol!}`}
                         icon={

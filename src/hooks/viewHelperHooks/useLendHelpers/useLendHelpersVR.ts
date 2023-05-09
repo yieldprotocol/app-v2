@@ -44,8 +44,6 @@ export const useLendHelpersVR = (vyTokenAddress: string | undefined, input?: str
     maxClose,
     maxClose_: maxClose ? formatUnits(maxClose, vyToken?.decimals) : undefined,
     apy,
-    vyTokenBaseVal: vyToken?.vyTokenBaseVal,
-    vyTokenBaseVal_: vyToken?.vyTokenBaseVal_,
     userBaseBalance: baseBal?.value,
     userBaseBalance_: baseBal?.formatted,
   };
