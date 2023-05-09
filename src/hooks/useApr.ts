@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { sellBase, buyBase, calculateAPR, bytesToBytes32 } from '@yield-protocol/ui-math';
+import { sellBase, buyBase, calculateAPR, bytesToBytes32, SECONDS_PER_YEAR } from '@yield-protocol/ui-math';
 
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
@@ -9,11 +9,25 @@ import { cleanValue } from '../utils/appUtils';
 import useTimeTillMaturity from './useTimeTillMaturity';
 import { useProvider } from 'wagmi';
 
-import { VRCauldron, VRInterestRateOracle__factory } from '../contracts';
+import { VRCauldron, VRInterestRateOracle, VRInterestRateOracle__factory } from '../contracts';
 import useContracts from './useContracts';
 import { ContractNames } from '../config/contracts';
 import { CHI, RATE } from '../utils/constants';
 import { formatUnits } from 'ethers/lib/utils.js';
+
+const calcAPR = (interestRateOracle: VRInterestRateOracle, baseId: string, kind: string) => {
+  // compare last two events with accumulated and lastUpdateTimestamp
+  const events = interestRateOracle.queryFilter(interestRateOracle.filters.RateUpdated(baseId, kind), 0, 'latest');
+  const currentRate = events[events.length - 1];
+  const lastRate = events[events.length - 2];
+  const apr = calculateAPR(
+    currentRate.accumulated,
+    lastRate.accumulated,
+    currentRate.lastUpdateTimestamp,
+    lastRate.lastUpdateTimestamp
+  );
+  return apr;
+};
 
 /**
  * Calculate apr for a specified series or in the case of VR, a specified base
