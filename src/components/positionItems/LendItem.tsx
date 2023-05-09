@@ -29,7 +29,7 @@ function LendItem({ item, index, condensed }: LendItemProps) {
     userActions: { setSelectedBase, setSelectedSeries },
   } = useContext(UserContext);
 
-  const { data: vyTokens } = useVYTokens();
+  const { data: vyTokens, isLoading: vyTokensLoading } = useVYTokens();
   const vyToken = vyTokens?.get(item.address);
 
   const series = [...seriesMap.values()].find((s) => s.address === item.address);
@@ -73,7 +73,7 @@ function LendItem({ item, index, condensed }: LendItemProps) {
                   ) : (
                     series && cleanValue(fyTokenMarketValue, base?.digitFormat!)
                   )}
-                  {!vyTokenBaseVal_ && vyToken ? (
+                  {vyTokensLoading && vyToken ? (
                     <SkeletonWrap width={30} />
                   ) : (
                     vyToken && cleanValue(vyTokenBaseVal_, base?.digitFormat!)
