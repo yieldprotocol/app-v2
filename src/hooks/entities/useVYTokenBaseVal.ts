@@ -8,7 +8,7 @@ import useFork from '../useFork';
 import { VYToken__factory } from '../../contracts';
 import { ChainContext } from '../../contexts/ChainContext';
 
-const useVYTokenBaseVal = (vyTokenAddress: string) => {
+const useVYTokenBaseVal = (vyTokenAddress: string | undefined) => {
   const { multicall: _multicall, forkMulticall } = useContext(MulticallContext);
   const {
     chainState: { assetRootMap },
@@ -22,6 +22,7 @@ const useVYTokenBaseVal = (vyTokenAddress: string) => {
   const multicall = useForkedEnv ? forkMulticall : _multicall;
 
   const get = async () => {
+    if (!vyTokenAddress) return;
     const contract = multicall?.wrap(VYToken__factory.connect(vyTokenAddress, providerToUse))!;
     if (!vyTokenBal) return;
 

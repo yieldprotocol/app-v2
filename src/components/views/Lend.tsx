@@ -72,7 +72,7 @@ const Lend = () => {
     protocolLimited,
     valueAtMaturity_,
   } = useLendHelpersFR(selectedSeries, lendInput);
-  const { maxLend_: maxLendVR_, apy: apyVR } = useLendHelpersVR(lendInput);
+  const { maxLend_: maxLendVR_, apy: apyVR } = useLendHelpersVR(selectedBase?.VYTokenAddress, lendInput);
   const maxLend_ = selectedVR ? maxLendVR_ : maxLendFR_;
   const apy = selectedVR ? apyVR : apyFR;
   const { data: basesVR } = useBasesVR();

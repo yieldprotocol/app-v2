@@ -13,6 +13,7 @@ import { IPosition } from '../selectors/LendPositionSelector';
 import useVYTokens from '../../hooks/entities/useVYTokens';
 import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
 import useVYTokenBaseVal from '../../hooks/entities/useVYTokenBaseVal';
+import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
 
 interface LendItemProps {
   item: IPosition;
@@ -34,7 +35,7 @@ function LendItem({ item, index, condensed }: LendItemProps) {
   const series = [...seriesMap.values()].find((s) => s.address === item.address);
   const base = assetMap.get(item.baseId);
   const { fyTokenMarketValue } = useLendHelpersFR(series!, '0');
-  const { data: vyTokenBaseVal } = useVYTokenBaseVal(item.address);
+  const { vyTokenBaseVal_ } = useLendHelpersVR(vyToken?.address);
 
   const handleSelect = () => {
     base && setSelectedBase(base);
@@ -70,10 +71,10 @@ function LendItem({ item, index, condensed }: LendItemProps) {
                   ) : (
                     series && cleanValue(fyTokenMarketValue, base?.digitFormat!)
                   )}
-                  {!vyTokenBaseVal && vyToken ? (
+                  {!vyTokenBaseVal_ && vyToken ? (
                     <SkeletonWrap width={30} />
                   ) : (
-                    vyToken && cleanValue(vyTokenBaseVal, base?.digitFormat!)
+                    vyToken && cleanValue(vyTokenBaseVal_, base?.digitFormat!)
                   )}
                 </Text>
               </Box>
