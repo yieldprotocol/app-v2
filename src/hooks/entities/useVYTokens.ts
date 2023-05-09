@@ -52,6 +52,7 @@ const useVYTokens = () => {
         const _proxy = VYToken__factory.connect(proxyAddress, providerToUse);
         const contract = multicall?.wrap(_contract)!;
         const proxy = multicall?.wrap(_proxy)!;
+
         const [name, symbol, decimals, version, baseAddress, baseId, balance] = await Promise.all([
           contract.name(),
           contract.symbol(),
@@ -64,7 +65,7 @@ const useVYTokens = () => {
 
         let vyTokenBaseVal = balance;
         try {
-          vyTokenBaseVal = await _proxy.previewRedeem(balance);
+          vyTokenBaseVal = await proxy.previewRedeem(balance);
         } catch (e) {
           console.log('Error getting vyTokenBaseVal', e);
         }
