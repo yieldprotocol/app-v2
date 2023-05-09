@@ -20,8 +20,10 @@ import { ZERO_BN } from '@yield-protocol/ui-math';
 /* Lend Actions Hook */
 export const useClosePositionVR = () => {
   const { mutate } = useSWRConfig();
-  const { userState, userActions } = useContext(UserContext);
-  const { assetMap, selectedBase } = userState;
+  const {
+    userState: { selectedBase },
+    userActions,
+  } = useContext(UserContext);
   const { address: account } = useAccountPlus();
   const { data: signer } = useSigner();
   const { data: vyTokens, key: vyTokensKey } = useVYTokens();
