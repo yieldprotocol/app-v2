@@ -37,7 +37,6 @@ function LendItem({ item, index, condensed }: LendItemProps) {
   const base = assetMap.get(item.baseId);
 
   const { fyTokenMarketValue } = useLendHelpersFR(series!, '0');
-  const { vyTokenBaseVal_ } = useLendHelpersVR(vyToken?.address);
 
   const handleSelect = () => {
     base && setSelectedBase(base);
@@ -76,7 +75,7 @@ function LendItem({ item, index, condensed }: LendItemProps) {
                   {vyTokensLoading && vyToken ? (
                     <SkeletonWrap width={30} />
                   ) : (
-                    vyToken && cleanValue(vyTokenBaseVal_, base?.digitFormat!)
+                    vyToken && cleanValue(vyToken.vyTokenBaseVal_, base?.digitFormat!)
                   )}
                 </Text>
               </Box>
