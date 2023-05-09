@@ -49,8 +49,6 @@ const LendPosition = () => {
   const { data: vyTokens, isLoading: vyTokensLoading } = useVYTokens();
   const vyToken = vyTokens?.get(idFromUrl as string);
 
-  console.log('vyTokens in LendPosition', vyTokens);
-
   // handle both vyToken and fyToken as positions
   const position = vyToken ? vyToken : selectedSeries ?? undefined;
 
@@ -223,7 +221,7 @@ const LendPosition = () => {
 
     _series ? setSelectedSeries(_series) : setSelectedVR(true);
     _base && setSelectedBase(_base!);
-  }, [assetMap, idFromUrl, seriesMap, setSelectedBase, setSelectedSeries, vyToken]);
+  }, [assetMap, idFromUrl, seriesMap, setSelectedBase, setSelectedSeries, setSelectedVR, vyToken]);
 
   return (
     <>
