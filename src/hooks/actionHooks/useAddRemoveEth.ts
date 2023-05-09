@@ -7,11 +7,10 @@ import useAccountPlus from '../useAccountPlus';
 import useContracts from '../useContracts';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { ETH_BASED_ASSETS } from '../../config/assets';
 
 export const useAddRemoveEth = () => {
   const {
-    userState: { selectedVR, selectedBase },
+    userState: { selectedVR },
   } = useContext(UserContext);
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
@@ -61,7 +60,7 @@ export const useAddRemoveEth = () => {
   // NOTE: EXIT_ETHER sweeps all out of the ladle, so *value* is not important > it must just be bigger than zero to not be ignored
   const removeEth = (value: BigNumber, to: string | undefined = undefined): ICallData[] => [
     {
-      operation: LadleActions.Fn.EXIT_ETHER,
+      operation: selectedVR ? LadleActions.Fn.UNWRAP_ETHER : LadleActions.Fn.EXIT_ETHER,
       args: [to || account] as LadleActions.Args.EXIT_ETHER,
       ignoreIf: value.eq(ZERO_BN), // ignores if value is ZERO. NB NOTE: sign (+-) is irrelevant here
     },

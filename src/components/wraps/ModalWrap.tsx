@@ -20,7 +20,7 @@ function ModalWrap({ children, series }: IModalWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const {
-    userState: { selectedSeries, seriesMap },
+    userState: { selectedSeries, seriesMap, selectedVR },
   } = useContext(UserContext);
 
   const _series = series! || seriesMap?.get(selectedSeries?.id!);
@@ -32,10 +32,10 @@ function ModalWrap({ children, series }: IModalWrap) {
     <Keyboard onEsc={() => router.back()}>
       <Layer
         full
+        animation="fadeIn"
         background={`linear-gradient( 45deg ,  ${_series?.startColor.toString()} , ${_series?.endColor
           ?.toString()
           .concat('80')} )`}
-        animation="fadeIn"
       >
         {!mobile && (
           <>

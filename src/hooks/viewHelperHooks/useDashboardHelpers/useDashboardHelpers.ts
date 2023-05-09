@@ -9,6 +9,7 @@ import { cleanValue } from '../../../utils/appUtils';
 import { USDC, USDT, WETH } from '../../../config/assets';
 import { ZERO_BN } from '../../../utils/constants';
 import useTimeTillMaturity from '../../useTimeTillMaturity';
+import { useConvertValue } from '../../useConvertValue';
 import useAssetPair from '../useAssetPair/useAssetPair';
 import { unstable_serialize, useSWRConfig } from 'swr';
 import { toast } from 'react-toastify';
@@ -35,6 +36,7 @@ export const useDashboardHelpers = () => {
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { getAssetPair, genKey: genAssetPairKey } = useAssetPair();
+  const { convertValue } = useConvertValue();
 
   const currencySettingAssetId = dashCurrency === WETH ? WETH : USDC;
   const currencySettingDigits = 2;
@@ -122,38 +124,6 @@ export const useDashboardHelpers = () => {
       .sort((_strategyA, _strategyB) => (_strategyA.accountBalance?.lt(_strategyB.accountBalance!) ? 1 : -1));
     setStrategyPositions(_strategyPositions);
   }, [strategyMap, seriesMap, getTimeTillMaturity]);
-
-  /* get a single position's ink or art in usdc or eth (input the asset id): value can be art, ink, fyToken, or poolToken balances */
-  const convertValue = useCallback(
-    async (toAssetId: string = USDC, fromAssetId: string, value: string) => {
-      if (+value === 0) return 0;
-      if (toAssetId === fromAssetId) return Number(value);
-
-      const pairKey = unstable_serialize(genAssetPairKey(toAssetId, fromAssetId));
-      let pair = cache.get(pairKey)?.data as IAssetPair | undefined;
-
-      if (!pair) {
-        try {
-          pair = await getAssetPair(toAssetId, fromAssetId);
-        } catch (e) {
-          console.log('trying to get USDT pair instead of USDC if toAssetId is USDC');
-          // check if toAsset is USDC, if not, then currency setting is ETH and this won't make sense
-          if (toAssetId === USDC) {
-            if (fromAssetId === USDT) return Number(value);
-            pair = await getAssetPair(USDT, fromAssetId);
-          }
-        } finally {
-          pair = undefined;
-        }
-        mutate(pairKey, pair);
-      }
-
-      if (!pair) return 0;
-
-      return Number(ethers.utils.formatUnits(pair.pairPrice, pair.baseDecimals)) * Number(value);
-    },
-    [cache, genAssetPairKey, getAssetPair, mutate]
-  );
 
   useEffect(() => {
     (async () => {

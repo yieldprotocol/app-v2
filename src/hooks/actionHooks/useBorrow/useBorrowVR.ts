@@ -67,7 +67,6 @@ export const useBorrowVR = () => {
     const _allowance = await ilkToUse.getAllowance(account!, ilkToUse.joinAddressVR!);
 
     const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_collInput) : _allowance;
-    console.log('Already approved', alreadyApproved);
 
     /* handle ETH deposit as Collateral, if required (only if collateral used is ETH-based ), else send ZERO_BN */
     const addEthCallData = isEthCollateral

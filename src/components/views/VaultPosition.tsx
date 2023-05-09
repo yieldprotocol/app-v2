@@ -62,7 +62,7 @@ const VaultPosition = () => {
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
-  const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
+  const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault, setSelectedVR } = userActions;
   const { data: vaultsVR } = useVaultsVR();
 
   const { address: account } = useAccountPlus();
@@ -273,7 +273,6 @@ const VaultPosition = () => {
   };
 
   const handleCollateral = (action: 'ADD' | 'REMOVE') => {
-    console.log('handleCollateral', action, removeCollateralDisabled);
     if (action === 'REMOVE') {
       if (removeCollateralDisabled) return;
       setRemoveCollateralDisabled(true);
@@ -288,15 +287,8 @@ const VaultPosition = () => {
       if (addCollateralDisabled) return;
       setAddCollateralDisabled(true);
 
-      console.log(
-        '%c handleCollateral in VaultPosition',
-        'color: #00ff00; font-size: 16px;',
-        action,
-        addCollateralDisabled,
-        removeCollateralDisabled
-      );
-
-      addCollatInput && addCollateral(_selectedVault, addCollatInput);
+      // addCollateral(_selectedVault, addCollatInput);
+      addCollateral(_selectedVault, addCollatInput);
 
       logAnalyticsEvent(GA_Event.transaction_initiated, {
         view: GA_View.BORROW,
@@ -413,8 +405,16 @@ const VaultPosition = () => {
     <>
       {_selectedVault && (
         <ModalWrap>
-          <CenterPanelWrap>
-            {!mobile && <ExitButton action={() => router.back()} />}
+          <CenterPanelWrap showBorder>
+            {!mobile && (
+              <ExitButton
+                action={() => {
+                  setSelectedSeries(null);
+                  setSelectedVR(false);
+                  router.back();
+                }}
+              />
+            )}
 
             <Box fill pad={mobile ? 'medium' : 'large'} gap="1em">
               <Box height={{ min: '250px' }} gap="medium">
