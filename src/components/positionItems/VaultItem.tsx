@@ -14,7 +14,6 @@ import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
-import useVaultsVR from '../../hooks/entities/useVaultsVR';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();
@@ -36,7 +35,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
 
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
-  const vaultIsVR = !vault?.seriesId;
+  const vaultIsVR = !vault.seriesId;
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
 
