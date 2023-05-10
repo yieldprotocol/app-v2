@@ -147,7 +147,10 @@ const Borrow = () => {
   ]);
 
   /* TX info (for disabling buttons) */
-  const { txProcess: borrowProcess, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeries?.id!);
+  const { txProcess: borrowProcess, resetProcess } = useProcess(
+    ActionCodes.BORROW,
+    selectedVR ? 'VR' : selectedSeries?.id!
+  );
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
