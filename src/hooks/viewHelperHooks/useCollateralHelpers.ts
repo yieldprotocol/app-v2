@@ -214,6 +214,8 @@ export const useCollateralHelpers = (
     minSafeCollatRatio,
     _selectedSeries,
     getTimeTillMaturity,
+    selectedBase?.decimals,
+    selectedVR,
   ]);
 
   /* Monitor for undercollaterization/ danger-collateralisation, and set flags if reqd. */
