@@ -21,10 +21,6 @@ export const useBorrowHelpersVR = (
 ) => {
   /* STATE FROM CONTEXT */
   const {
-    settingsState: { diagnostics },
-  } = useContext(SettingsContext);
-
-  const {
     userState: { assetMap, selectedBase },
   } = useContext(UserContext);
 
@@ -39,7 +35,6 @@ export const useBorrowHelpersVR = (
   });
 
   /* LOCAL STATE */
-
   const [debtAfterRepay, setDebtAfterRepay] = useState<BigNumber>();
 
   const [debtInBase, setDebtInBase] = useState<BigNumber>();
