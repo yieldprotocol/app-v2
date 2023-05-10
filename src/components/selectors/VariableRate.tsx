@@ -68,7 +68,7 @@ const ShineyBox = styled(Box)`
   }
 `;
 
-const VariableRate = (apr: string | undefined) => {
+const VariableRate = () => {
   const {
     settingsState: { darkMode },
   } = useContext(SettingsContext);
