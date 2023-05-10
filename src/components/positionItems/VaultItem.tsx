@@ -14,6 +14,7 @@ import { cleanValue } from '../../utils/appUtils';
 import { GA_Event, GA_Properties } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
+import useVaultsVR from '../../hooks/entities/useVaultsVR';
 
 function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; condensed?: boolean }) {
   const router = useRouter();
@@ -33,6 +34,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
     } as GA_Properties.position_opened);
   };
 
+  const { isLoading: vaultsLoadingVR } = useVaultsVR();
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
   const vaultIsVR = !vault.seriesId;
@@ -82,7 +84,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
                 )}
                 {vaultIsVR && (
                   <Text weight={450} size="xsmall">
-                    {!debtInBase_ ? <SkeletonWrap width={30} /> : cleanValue(debtInBase_, 2)}
+                    {!debtInBase_ || vaultsLoadingVR ? <SkeletonWrap width={30} /> : cleanValue(debtInBase_, 2)}
                   </Text>
                 )}
               </Box>
