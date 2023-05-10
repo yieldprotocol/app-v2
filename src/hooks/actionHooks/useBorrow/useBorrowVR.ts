@@ -39,7 +39,7 @@ export const useBorrowVR = () => {
   });
 
   const borrowVR = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
-    if (!contracts) return;
+    if (!contracts || !account || !selectedBase || !assetMap || !selectedIlk) return;
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, 'VR');
@@ -50,45 +50,31 @@ export const useBorrowVR = () => {
     const ladleAddress = contracts.get(ContractNames.VR_LADLE)?.address;
 
     /* Set the series and ilk based on the vault that has been selected or if it's a new vault, get from the globally selected SeriesId */
-    const base = assetMap?.get(selectedBase!.id)!;
+    const base = assetMap.get(selectedBase.id);
 
-    const ilkToUse = vault ? assetMap?.get(vault.ilkId)! : assetMap?.get(selectedIlk?.proxyId!)!; // note: we use the wrapped version if required
+    if (!base) return console.error('base not found');
 
-    /* is ETH  used as collateral */
-    const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk?.proxyId!);
-    /* is ETH being Borrowed   */
-    const isEthBase = ETH_BASED_ASSETS.includes(selectedBase!.id);
+    const ilkToUse = vault ? assetMap.get(vault.ilkId)! : assetMap.get(selectedIlk.proxyId); // note: we use the wrapped version if required
 
-    /* parse inputs  (clean down to base/ilk decimals so that there is never an underlow)  */
+    if (!ilkToUse) return console.error('ilk not found');
+    if (!ilkToUse.joinAddressVR) return console.error('ilkToUse.joinAddressVR not found');
+
+    /* is ETH used as collateral */
+    const isEthCollateral = ETH_BASED_ASSETS.includes(selectedIlk.proxyId);
+
+    /* is ETH being borrowed */
+    const isEthBase = ETH_BASED_ASSETS.includes(selectedBase.id);
+
+    /* parse inputs (clean down to base/ilk decimals so that there is never an underlow) */
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
     const cleanCollInput = cleanValue(collInput, ilkToUse.decimals);
     const _collInput = collInput ? ethers.utils.parseUnits(cleanCollInput, ilkToUse.decimals) : ethers.constants.Zero;
 
-    /* if approveMAx, check if signature is required : note: getAllowance may return FALSE if ERC1155 */
-    const _allowance = await ilkToUse.getAllowance(account!, ilkToUse.joinAddressVR!);
+    /* check if signature is required */
+    const _allowance = await ilkToUse.getAllowance(account, ilkToUse.joinAddressVR!);
+    const alreadyApproved = _allowance.gte(_collInput);
 
-    const alreadyApproved = ethers.BigNumber.isBigNumber(_allowance) ? _allowance.gte(_collInput) : _allowance;
-
-    /* handle ETH deposit as Collateral, if required (only if collateral used is ETH-based ), else send ZERO_BN */
-    const addEthCallData = isEthCollateral
-      ? [
-          {
-            operation: LadleActions.Fn.WRAP_ETHER,
-            args: [selectedBase?.joinAddressVR] as LadleActions.Args.WRAP_ETHER,
-            overrides: { value: _input },
-          },
-        ]
-      : [];
-
-    // TODO update for vr
-    // const removeEthCallData  = removeEth(isEthBase ? ONE_BN : ZERO_BN); // (exit_ether sweeps all the eth out the ladle, so exact amount is not importnat -> just greater than zero)
-
-    /* handle wrapping of collateral if required */
-    // TODO figure out vr wrapping methodology
-    // const wrapAssetCallData = await wrapAsset(_collInput, selectedIlk!, txCode); // note: selected ilk used here, not wrapped version
-
-    /* Gather all the required signatures - sign() processes them and returns them as ICallData types */
     const permitCallData = await sign(
       [
         {
@@ -112,8 +98,8 @@ export const useBorrowVR = () => {
       /* Include all the signatures gathered, if required */
       ...permitCallData,
 
-      /* add in the ETH deposit if required */
-      ...addEthCallData,
+      /* add in the ETH collateral deposit if required */
+      ...(isEthCollateral ? addEth(_collInput, ilkToUse.joinAddressVR) : []),
 
       /* If vault is null, build a new vault, else ignore */
       {
@@ -124,18 +110,21 @@ export const useBorrowVR = () => {
 
       {
         operation: LadleActions.Fn.POUR,
-        args: [vaultId, ladleAddress, _collInput, _input] as LadleActions.Args.POUR,
+        args: [vaultId, isEthBase ? ladleAddress : account, _collInput, _input] as LadleActions.Args.POUR,
         ignoreIf: false,
       },
+
+      /* remove eth if being borrowed */
+      ...(isEthBase ? removeEth(_input, account) : []),
     ];
 
     /* finally, handle the transaction */
     await transact(calls, txCode, true);
 
-    if (selectedBase?.id !== WETH) refetchBaseBal();
-    if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
-    updateAssets([base, ilkToUse, selectedIlk!]);
-    mutate(genAssetPairKey(selectedBase!.id, selectedIlk!.id));
+    if (selectedBase.id !== WETH) refetchBaseBal();
+    if (selectedIlk.proxyId !== WETH) refetchIlkBal();
+    updateAssets([base, ilkToUse, selectedIlk]);
+    mutate(genAssetPairKey(selectedBase.id, selectedIlk.id));
     mutate(vaultsKey);
 
     // TODO update borrow history
