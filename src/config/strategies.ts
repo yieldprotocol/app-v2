@@ -227,7 +227,7 @@ STRATEGIES.set(1, [
     version: '1',
   },
 
-  /// NEW STRATEGIES ///
+  /// New JD STRATEGIES ///
   {
     id: '0x1030FF000000',
     address: '0xA8e46Bb19d583d473ed064ebF20715D01057f711',
@@ -261,7 +261,6 @@ STRATEGIES.set(1, [
     decimals: 6,
     version: '1',
   },
-
   {
     id: '0x10A0FF000000',
     address: '0x17d2a2B20954A4Cab2A62245f366788B5aD41323',
@@ -272,6 +271,8 @@ STRATEGIES.set(1, [
     decimals: 6,
     version: '1',
   },
+
+  // New MS Strategies
   {
     id: '0x10A0FF000001',
     address: '0xdC42495E55A197B66Cd18E6309e05e3187791FD6',
