@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import * as contractTypes from '../../../contracts';
 
-import { ETH_BASED_ASSETS, USDT } from '../../../config/assets';
+import { ETH_BASED_ASSETS, USDT, WETH } from '../../../config/assets';
 import { HistoryContext } from '../../../contexts/HistoryContext';
 import { UserContext } from '../../../contexts/UserContext';
 import { ICallData, ActionCodes, LadleActions, RoutedActions } from '../../../types';
@@ -37,7 +37,7 @@ export const useLendVR = () => {
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
-    token: selectedBase?.address as Address,
+    token: selectedBase?.proxyId === WETH ? undefined : (selectedBase?.address as Address),
   });
 
   const {
