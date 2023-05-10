@@ -44,13 +44,13 @@ export const useClosePositionVR = () => {
     if (!account || !contracts || !selectedBase || !vyTokens) return;
     if (!isActionAllowed(ActionCodes.CLOSE_POSITION)) return; // return if action is not allowed
 
-    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, 'VR');
+    const selectedVyToken = vyTokens.get(selectedBase.VYTokenAddress!.toLowerCase());
+    if (!selectedVyToken) return console.error('selectedVyToken not found');
+
+    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, selectedVyToken.address);
 
     const cleanedInput = cleanValue(input, selectedBase.decimals);
     const _input = ethers.utils.parseUnits(cleanedInput, selectedBase.decimals);
-
-    const selectedVyToken = vyTokens.get(selectedBase.VYTokenAddress!.toLowerCase());
-    if (!selectedVyToken) return console.error('selectedVyToken not found');
 
     const vyTokenProxyAddr = selectedVyToken.proxyAddress;
     if (!vyTokenProxyAddr) return console.error('vyTokenProxyAddr not found');
