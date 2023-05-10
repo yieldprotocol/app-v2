@@ -604,10 +604,10 @@ const Borrow = () => {
                 <Box pad="large" gap="small">
                   <Text size="small"> View Vault: </Text>
                   {vaultToUse && !vaultsLoading && (
-                    <VaultItem vault={vaultMap?.get(vaultToUse.id)!} condensed index={1} />
+                    <VaultItem vault={matchingVaults.find((v) => v.id === vaultToUse.id)!} condensed index={1} />
                   )}
                   {!vaultToUse && newVaultId && (
-                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
+                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId} condensed />
                   )}
                 </Box>
               )}
