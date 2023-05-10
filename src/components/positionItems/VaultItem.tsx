@@ -37,7 +37,6 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
   const vaultIsVR = !vault?.seriesId;
-  const { isLoading: vaultsLoadingVR } = useVaultsVR();
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
 
