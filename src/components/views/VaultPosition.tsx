@@ -61,9 +61,10 @@ const VaultPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
+  const { assetMap, seriesMap, vaultMap, vaultsLoading: vaultsLoadingFR, selectedVR } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault, setSelectedVR } = userActions;
-  const { data: vaultsVR } = useVaultsVR();
+  const { data: vaultsVR, isLoading: vaultsLoadingVR } = useVaultsVR();
+  const vaultsLoading = selectedVR ? vaultsLoadingVR : vaultsLoadingFR;
 
   const { address: account } = useAccountPlus();
 
@@ -399,6 +400,11 @@ const VaultPosition = () => {
       resetInputs(ActionCodes.REMOVE_COLLATERAL);
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_DEBT);
   }, [addCollateralProcess, removeCollateralProcess, repayProcess, resetInputs, rollProcess]);
+
+  // update selectedVR when vault is VR
+  useEffect(() => {
+    vaultIsVR && setSelectedVR(true);
+  }, [setSelectedVR, vaultIsVR]);
 
   return (
     <>
