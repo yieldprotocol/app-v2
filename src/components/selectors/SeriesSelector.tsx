@@ -197,6 +197,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
     selectedSeries,
     actionType,
     selectedVault,
+    options,
   ]);
 
   const handleSelect = (_series: ISeries) => {
