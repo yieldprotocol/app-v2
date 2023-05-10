@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ETH_BASED_ASSETS, WETH } from '../../../config/assets';
 import { UserContext } from '../../../contexts/UserContext';
-import { ActionCodes, LadleActions, RoutedActions } from '../../../types';
+import { ActionCodes, ICallData, LadleActions, RoutedActions } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
 import { useChain } from '../../useChain';
 import { Address, useBalance, useProvider } from 'wagmi';
@@ -84,16 +84,16 @@ export const useClosePositionVR = () => {
       txCode
     );
 
-    const calls = [
+    const calls: ICallData[] = [
       ...permitCallData,
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [vyTokenProxyAddr, vyTokenProxyAddr, vyTokenValueOfInput] as LadleActions.Args.TRANSFER,
-        ignoreIf: false, // never ignore, because we go through the ladle.
+        ignoreIf: false,
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_input, account, account] as RoutedActions.Args.WITHDRAW_VR,
+        args: [_input, isEthBase ? ladleAddress : account, account] as RoutedActions.Args.WITHDRAW_VR,
         fnName: RoutedActions.Fn.WITHDRAW,
         targetContract: vyTokenProxyContract,
         ignoreIf: false,
