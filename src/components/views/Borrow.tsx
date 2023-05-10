@@ -473,7 +473,8 @@ const Borrow = () => {
                             <MaxButton
                               action={() => maxCollateral && handleMaxAction(ActionCodes.ADD_COLLATERAL)}
                               disabled={
-                                !selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature
+                                ((!selectedSeries || selectedSeries.seriesIsMature) && !selectedVR) ||
+                                collatInput === maxCollateral
                               }
                               clearAction={() => setCollatInput('')}
                               showingMax={!!collatInput && collatInput === maxCollateral}
