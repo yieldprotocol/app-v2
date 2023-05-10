@@ -164,11 +164,6 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
   /* Keeping options/selection fresh and valid: */
   useEffect(() => {
-    console.log('seriesSelector useEffect', selectedSeries, options);
-    // if (selectedVR && selectedSeries === null) {
-    //   setOptions(options);
-    //   return;
-    // }
     const opts = Array.from(seriesMap?.values()!);
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
