@@ -273,11 +273,19 @@ const Borrow = () => {
     }
 
     if (selectedVault) {
-      return setVaultToUse(selectedVault);
+      // if using an already selected vault with series
+      if (selectedSeries && selectedVault.seriesId === selectedSeries.id) {
+        return setVaultToUse(selectedVault);
+      }
+
+      // if using an already selected vr vault
+      if (selectedVR && selectedVault.baseId === selectedBase?.id) {
+        return setVaultToUse(selectedVault);
+      }
     }
 
     setVaultToUse(undefined);
-  }, [matchingVaults, selectedVault]);
+  }, [matchingVaults, selectedBase?.id, selectedSeries, selectedVR, selectedVault]);
 
   useEffect(() => {
     if (
