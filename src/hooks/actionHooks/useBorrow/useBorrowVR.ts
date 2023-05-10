@@ -14,10 +14,12 @@ import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import useAssetPair from '../../viewHelperHooks/useAssetPair/useAssetPair';
 import { useSWRConfig } from 'swr';
+import useVaultsVR from '../../entities/useVaultsVR';
 
 export const useBorrowVR = () => {
   const { mutate } = useSWRConfig();
   const { genKey: genAssetPairKey } = useAssetPair();
+  const { key: vaultsKey } = useVaultsVR();
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, assetMap } = userState;
   const { updateAssets } = userActions;
@@ -134,8 +136,9 @@ export const useBorrowVR = () => {
     if (selectedIlk?.proxyId !== WETH) refetchIlkBal();
     updateAssets([base, ilkToUse, selectedIlk!]);
     mutate(genAssetPairKey(selectedBase!.id, selectedIlk!.id));
+    mutate(vaultsKey);
 
-    // TODO update all vaults
+    // TODO update borrow history
   };
 
   return borrowVR;
