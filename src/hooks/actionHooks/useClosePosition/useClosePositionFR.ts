@@ -52,7 +52,7 @@ export const useClosePositionFR = () => {
     series: ISeries,
     getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
-    if (!contracts) return;
+    if (!contracts || !account) return;
     if (!isActionAllowed(ActionCodes.CLOSE_POSITION)) return; // return if action is not allowed
 
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
@@ -86,7 +86,7 @@ export const useClosePositionFR = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress!)).gte(_fyTokenValueOfInput);
+    const alreadyApproved = (await series.fyTokenContract.allowance(account, ladleAddress!)).gte(_fyTokenValueOfInput);
 
     const permitCallData: ICallData[] = await sign(
       [
