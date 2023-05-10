@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
-
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../selectors/SeriesSelector';
@@ -9,7 +8,6 @@ import AssetSelector from '../selectors/AssetSelector';
 import InputWrap from '../wraps/InputWrap';
 import ActionButtonWrap from '../wraps/ActionButtonWrap';
 import SectionWrap from '../wraps/SectionWrap';
-
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -18,7 +16,6 @@ import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
-
 import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
 import YieldInfo from '../FooterInfo';
@@ -41,19 +38,16 @@ import { useBorrowHelpersVR } from '../../hooks/viewHelperHooks/useBorrowHelpers
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ColorText from '../texts/ColorText';
 import { useProcess } from '../../hooks/useProcess';
-
 import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
 import Line from '../elements/Line';
-import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
-
 import VariableRate from '../selectors/VariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
@@ -66,17 +60,8 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const {
-    assetMap,
-    vaultMap,
-    vaultsLoading,
-    seriesMap,
-    selectedSeries,
-    selectedIlk,
-    selectedBase,
-    selectedVault,
-    selectedVR,
-  } = userState;
+  const { assetMap, vaultMap, vaultsLoading, selectedSeries, selectedIlk, selectedBase, selectedVault, selectedVR } =
+    userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccountPlus();
@@ -547,12 +532,12 @@ const Borrow = () => {
                         icon={<FiPocket />}
                         value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                       />
-                      {!selectedVR && (
+                      {selectedSeries && (
                         <div>
                           <InfoBite
                             label="Series Maturity"
                             icon={<FiClock />}
-                            value={`${selectedSeries?.displayName}`}
+                            value={`${selectedSeries.displayName}`}
                           />
 
                           <InfoBite
@@ -602,7 +587,7 @@ const Borrow = () => {
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
-                  <Text size="small"> View Vault: </Text>
+                  <Text size="small">View Vault:</Text>
                   {vaultToUse && !vaultsLoading && (
                     <VaultItem vault={matchingVaults.find((v) => v.id === vaultToUse.id)!} condensed index={1} />
                   )}
