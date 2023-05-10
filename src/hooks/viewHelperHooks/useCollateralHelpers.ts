@@ -7,13 +7,12 @@ import {
   calculateMinCollateral,
   decimalNToDecimal18,
 } from '@yield-protocol/ui-math';
-
 import { UserContext } from '../../contexts/UserContext';
 import { IAssetPair, IVault } from '../../types';
 import { cleanValue } from '../../utils/appUtils';
 import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../useAccountPlus';
 import { parseUnits } from 'ethers/lib/utils.js';
@@ -44,31 +43,31 @@ export const useCollateralHelpers = (
   });
 
   /* LOCAL STATE */
-  const [collateralizationRatio, setCollateralizationRatio] = useState<string | undefined>();
-  const [collateralizationPercent, setCollateralizationPercent] = useState<string | undefined>();
+  const [collateralizationRatio, setCollateralizationRatio] = useState<string>();
+  const [collateralizationPercent, setCollateralizationPercent] = useState<string>();
   const [undercollateralized, setUndercollateralized] = useState<boolean>(true);
   const [unhealthyCollatRatio, setUnhealthyCollatRatio] = useState<boolean>(false);
 
   const [oraclePrice, setOraclePrice] = useState<ethers.BigNumber>(ethers.constants.Zero);
 
-  const [liquidationPrice_, setLiquidationPrice_] = useState<string | undefined>();
+  const [liquidationPrice_, setLiquidationPrice_] = useState<string>();
 
   const [minCollateral, setMinCollateral] = useState<BigNumber>();
-  const [minCollateral_, setMinCollateral_] = useState<string | undefined>();
+  const [minCollateral_, setMinCollateral_] = useState<string>();
 
-  const [minCollatRatio, setMinCollatRatio] = useState<number | undefined>();
-  const [minCollatRatioPct, setMinCollatRatioPct] = useState<string | undefined>();
-  const [minSafeCollatRatio, setMinSafeCollatRatio] = useState<number | undefined>();
-  const [minSafeCollatRatioPct, setMinSafeCollatRatioPct] = useState<string | undefined>();
-  const [minSafeCollateral, setMinSafeCollateral] = useState<string | undefined>();
-  const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string | undefined>();
-  const [maxCollateral, setMaxCollateral] = useState<string | undefined>();
+  const [minCollatRatio, setMinCollatRatio] = useState<number>();
+  const [minCollatRatioPct, setMinCollatRatioPct] = useState<string>();
+  const [minSafeCollatRatio, setMinSafeCollatRatio] = useState<number>();
+  const [minSafeCollatRatioPct, setMinSafeCollatRatioPct] = useState<string>();
+  const [minSafeCollateral, setMinSafeCollateral] = useState<string>();
+  const [maxRemovableCollateral, setMaxRemovableCollateral] = useState<string>();
+  const [maxCollateral, setMaxCollateral] = useState<string>();
 
   const [totalDebt, setTotalDebt] = useState<BigNumber>();
-  const [totalDebt_, setTotalDebt_] = useState<string | undefined>();
+  const [totalDebt_, setTotalDebt_] = useState<string>();
 
   const [totalCollateral, setTotalCollateral] = useState<BigNumber>();
-  const [totalCollateral_, setTotalCollateral_] = useState<string | undefined>();
+  const [totalCollateral_, setTotalCollateral_] = useState<string>();
 
   /* update the prices/limits if anything changes with the asset pair */
   useEffect(() => {
