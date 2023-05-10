@@ -87,11 +87,7 @@ const LendPosition = () => {
   const { maxRoll_, rollEstimate_ } = useLendHelpersFR(selectedSeries!, rollInput, rollToSeries!);
 
   /* VR */
-  const {
-    maxClose: maxCloseVR,
-    maxClose_: maxCloseVR_,
-    apy,
-  } = useLendHelpersVR(selectedBase?.VYTokenAddress, closeInput);
+  const { maxClose: maxCloseVR, maxClose_: maxCloseVR_, apy } = useLendHelpersVR(vyToken?.address, closeInput);
 
   const maxClose = selectedSeries ? maxCloseFR : maxCloseVR;
   const maxClose_ = selectedSeries ? maxCloseFR_ : maxCloseVR_;

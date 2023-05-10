@@ -31,9 +31,7 @@ export const useLendHelpersVR = (vyTokenAddress: string | undefined, input?: str
     if (!vyToken) return;
     const { vyTokenBaseVal } = vyToken;
 
-    if (baseBal) {
-      return baseBal.value.lt(vyTokenBaseVal) ? baseBal.value : vyTokenBaseVal;
-    }
+    if (baseBal) return baseBal.value.lt(vyTokenBaseVal) ? baseBal.value : vyTokenBaseVal;
 
     return vyTokenBaseVal;
   }, [baseBal, vyToken]);
