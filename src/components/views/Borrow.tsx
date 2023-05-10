@@ -52,6 +52,8 @@ import VariableRate from '../selectors/VariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
 import useVaultsVR from '../../hooks/entities/useVaultsVR';
+import { ContractNames } from '../../config/contracts';
+import { Cauldron, VRCauldron } from '../../contracts';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -82,6 +84,7 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
+  console.log('🦄 ~ file: Borrow.tsx:85 ~ Borrow ~ newVaultId:', newVaultId);
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
@@ -293,10 +296,13 @@ const Borrow = () => {
       borrowProcess?.tx.status === TxState.SUCCESSFUL &&
       !vaultToUse
     ) {
-      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contracts)!);
+      const cauldron = contracts?.get(selectedVR ? ContractNames.VR_CAULDRON : ContractNames.CAULDRON) as
+        | VRCauldron
+        | Cauldron;
+      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, cauldron!));
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
-  }, [borrowProcess, contracts, resetInputs, vaultToUse]);
+  }, [borrowProcess, contracts, resetInputs, selectedVR, vaultToUse]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">

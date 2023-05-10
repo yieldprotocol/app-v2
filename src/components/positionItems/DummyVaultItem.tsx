@@ -1,8 +1,6 @@
 import { useRouter } from 'next/router';
-
 import { Box, Text } from 'grommet';
 import { ActionType, ISeries } from '../../types';
-
 import PositionAvatar from '../PositionAvatar';
 import ItemWrap from '../wraps/ItemWrap';
 import { abbreviateHash } from '../../utils/appUtils';
@@ -13,7 +11,7 @@ function DummyVaultItem({
   index = 0,
   condensed,
 }: {
-  series: ISeries;
+  series: ISeries | undefined;
   vaultId: string;
   index?: number;
   condensed?: boolean;
@@ -28,7 +26,7 @@ function DummyVaultItem({
   return (
     <ItemWrap action={() => handleSelect(vaultId)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={series} condensed={condensed} actionType={ActionType.LEND} />
+        <PositionAvatar position={series!} condensed={condensed} actionType={ActionType.LEND} />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
@@ -40,7 +38,7 @@ function DummyVaultItem({
           </Text>
           <Box direction="column">
             <Text weight={450} size="xsmall">
-              {series.displayName}
+              {series?.displayName}
             </Text>
           </Box>
         </Box>
