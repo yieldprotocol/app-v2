@@ -2,17 +2,15 @@ import { useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useSWRConfig } from 'swr';
 import { unstable_serialize } from 'swr';
-import { USDC, USDT, WETH } from '../config/assets';
-import { cleanValue } from '../utils/appUtils';
-import { ZERO_BN } from '../utils/constants';
-import useAssetPairVR from './viewHelperHooks/useAssetPair/useAssetPairVR';
+import { USDC, USDT } from '../config/assets';
+import useAssetPair from './viewHelperHooks/useAssetPair/useAssetPair';
 
 export const useConvertValue = () => {
   const { cache, mutate } = useSWRConfig();
-  const { genKey: genAssetPairKey, getAssetPair } = useAssetPairVR();
+  const { genKey: genAssetPairKey, getAssetPair } = useAssetPair();
 
   const convertValue = useCallback(
-    async (toAssetId = USDC, fromAssetId, value = '1') => {
+    async (toAssetId = USDC, fromAssetId: string, value = '1') => {
       if (+value === 0) return 0;
       if (toAssetId === fromAssetId) return Number(value);
 
