@@ -84,7 +84,6 @@ const Borrow = () => {
   const [matchingVaults, setMatchingVaults] = useState<IVault[]>([]);
   const [vaultToUse, setVaultToUse] = useState<IVault | undefined>(undefined);
   const [newVaultId, setNewVaultId] = useState<string | undefined>(undefined);
-  console.log('🦄 ~ file: Borrow.tsx:85 ~ Borrow ~ newVaultId:', newVaultId);
   const [currentGaugeColor, setCurrentGaugeColor] = useState<string>('#EF4444');
 
   const borrow = useBorrow();
