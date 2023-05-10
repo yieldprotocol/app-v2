@@ -57,6 +57,7 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 import VariableRate from '../selectors/VariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
+import useVaultsVR from '../../hooks/entities/useVaultsVR';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -103,6 +104,7 @@ const Borrow = () => {
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
   const { data: basesVR } = useBasesVR();
+  const { data: vaultsVR } = useVaultsVR();
 
   const {
     collateralizationPercent,
@@ -263,18 +265,18 @@ const Borrow = () => {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
-    if (selectedBase && selectedSeries && selectedIlk) {
-      const arr: IVault[] = Array.from(vaultMap?.values()!) as IVault[];
-      const _matchingVaults = arr.filter(
-        (v: IVault) =>
+    if (selectedBase && selectedIlk) {
+      const vaults = [...(selectedVR ? (vaultsVR || []).values() : (vaultMap || []).values())];
+      const matchingVaults = vaults.filter(
+        (v) =>
           v.ilkId === selectedIlk.proxyId &&
           v.baseId === selectedBase.proxyId &&
-          v.seriesId === selectedSeries.id &&
+          v.seriesId === selectedSeries?.id &&
           v.isActive
       );
-      setMatchingVaults(_matchingVaults);
+      setMatchingVaults(matchingVaults);
     }
-  }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
+  }, [vaultMap, selectedBase, selectedIlk, selectedSeries, vaultsVR, selectedVR]);
 
   /* handle selected vault */
   useEffect(() => {
