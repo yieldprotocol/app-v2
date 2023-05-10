@@ -561,7 +561,11 @@ const Borrow = () => {
                           />
                         </div>
                       )}
-                      <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                      <InfoBite
+                        label={`${selectedVR ? 'Variable' : 'Effective'} APR`}
+                        icon={<FiPercent />}
+                        value={`${apr}%`}
+                      />
                       <InfoBite
                         label="Total Supporting Collateral"
                         icon={
