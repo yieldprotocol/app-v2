@@ -87,32 +87,32 @@ export const useRepayDebtVR = () => {
     /* Check if already approved */
     const alreadyApproved = (await base.getAllowance(account, ladleAddress)).gte(amountToTransfer);
 
-    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100);
+    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer;
 
-    const permitCallData: ICallData[] = await sign(
+    const permitCallData = await sign(
       [
         {
           target: base,
           spender: 'LADLE',
-          amount: approveAmount, // generous approval permits on repayment we can refine at a later stage
-          ignoreIf: alreadyApproved === true,
+          amount: approveAmount,
+          ignoreIf: alreadyApproved,
         },
       ],
       txCode
     );
 
-    const removeEthCallData = isEthCollateral ? removeEth(ONE_BN, ladleAddress) : [];
+    const removeEthCallData = isEthCollateral ? removeEth(ONE_BN, account) : [];
 
-    /* Address to send the collateral to either ladle (if eth is used as collateral) or account */
+    /* Address to send the collateral to: either ladle (if eth is used as collateral) or account */
     const reclaimCollatToAddress = isEthCollateral ? ladleAddress : account;
 
     const calls: ICallData[] = [
       ...permitCallData,
-      ...(isEthBase ? addEth(amountToTransfer, ladleAddress) : []),
+      ...(isEthBase ? addEth(amountToTransfer, base.joinAddressVR) : []),
 
       {
         operation: LadleActions.Fn.TRANSFER,
-        args: [base.address, ladleAddress, amountToTransfer] as LadleActions.Args.TRANSFER,
+        args: [base.address, base.joinAddressVR, amountToTransfer] as LadleActions.Args.TRANSFER,
         ignoreIf: isEthBase,
       },
 
