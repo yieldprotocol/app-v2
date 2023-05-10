@@ -72,20 +72,21 @@ const Lend = () => {
     protocolLimited,
     valueAtMaturity_,
   } = useLendHelpersFR(selectedSeries, lendInput);
-  const { maxLend_: maxLendVR_, apy: apyVR } = useLendHelpersVR(lendInput);
+  const { maxLend_: maxLendVR_, apy: apyVR } = useLendHelpersVR(selectedBase?.VYTokenAddress, lendInput);
   const maxLend_ = selectedVR ? maxLendVR_ : maxLendFR_;
   const apy = selectedVR ? apyVR : apyFR;
   const { data: basesVR } = useBasesVR();
 
   const lend = useLend();
   const { data: vyTokens } = useVYTokens();
-  const vyToken = vyTokens ? [...vyTokens.values()].find((vyToken) => vyToken.baseId === selectedBase?.id) : undefined;
+  const vyToken =
+    vyTokens && selectedVR ? [...vyTokens.values()].find((vyToken) => vyToken.baseId === selectedBase?.id) : undefined;
 
   const { logAnalyticsEvent } = useAnalytics();
 
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(
     ActionCodes.LEND,
-    vyToken ? vyToken.id! : selectedSeries?.id!
+    vyToken ? vyToken.id! : selectedSeries?.address!
   );
 
   /* input validation hooks */

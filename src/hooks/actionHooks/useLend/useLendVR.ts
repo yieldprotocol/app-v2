@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import * as contractTypes from '../../../contracts';
 
-import { ETH_BASED_ASSETS, USDT } from '../../../config/assets';
+import { ETH_BASED_ASSETS, USDT, WETH } from '../../../config/assets';
 import { HistoryContext } from '../../../contexts/HistoryContext';
 import { UserContext } from '../../../contexts/UserContext';
 import { ICallData, ActionCodes, LadleActions, RoutedActions } from '../../../types';
@@ -37,7 +37,7 @@ export const useLendVR = () => {
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
-    token: selectedBase?.address as Address,
+    token: selectedBase?.proxyId === WETH ? undefined : (selectedBase?.address as Address),
   });
 
   const {
@@ -49,16 +49,18 @@ export const useLendVR = () => {
   const contracts = useContracts();
 
   const lend = async (input: string | undefined) => {
+    if (!input) return console.error('no input in useLendVR');
+
     if (!selectedBase || !contracts || !assetMap || !account)
       return console.error('no selectedBase || !contracts || !assetMap || !account');
-
-    /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.LEND, vyToken?.address!);
 
     const base = assetMap.get(selectedBase.id);
     if (!base) return console.error('no base in useLendVR');
 
-    if (!input) return console.error('no input in useLendVR');
+    const isEthBase = ETH_BASED_ASSETS.includes(selectedBase.id);
+
+    /* generate the reproducible txCode for tx tracking and tracing */
+    const txCode = getTxCode(ActionCodes.LEND, vyToken?.address!);
 
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = ethers.utils.parseUnits(cleanedInput, base.decimals);
@@ -70,16 +72,13 @@ export const useLendVR = () => {
     /* check if signature is required */
     const alreadyApproved = (await base.getAllowance(account, ladle.address)).gte(_input);
 
-    /* ETH is used as a base */
-    const isEthBase = ETH_BASED_ASSETS.includes(selectedBase.id);
-
     const permitCallData: ICallData[] = await sign(
       [
         {
           target: base,
           spender: ladle.address,
           amount: base.id === USDT && chainId !== 42161 ? MAX_256 : _input, // USDT allowance when non-zero needs to be set to 0 explicitly before settting to a non-zero amount; instead of having multiple approvals, we approve max from the outset on mainnet
-          ignoreIf: alreadyApproved === true,
+          ignoreIf: alreadyApproved === true || isEthBase,
         },
       ],
       txCode
@@ -92,23 +91,9 @@ export const useLendVR = () => {
     if (!vyTokenProxyAddr) return console.error('no vyTokenAddress');
     const vyTokenProxyContract = VYToken__factory.connect(vyTokenProxyAddr, provider);
 
-    const addEthCallData = () => {
-      // TODO move to its own hook? - jacob b
-      if (isEthBase) {
-        return [
-          {
-            operation: LadleActions.Fn.WRAP_ETHER,
-            args: [joinAddr] as LadleActions.Args.WRAP_ETHER,
-            overrides: { value: _input },
-          },
-        ];
-      }
-
-      return [];
-    };
-
     const calls: ICallData[] = [
       ...permitCallData,
+      ...(isEthBase ? addEth(_input, joinAddr) : []),
       {
         operation: LadleActions.Fn.TRANSFER,
         args: [base.address, joinAddr, _input] as LadleActions.Args.TRANSFER,
@@ -121,7 +106,6 @@ export const useLendVR = () => {
         targetContract: vyTokenProxyContract,
         ignoreIf: false,
       },
-      ...addEthCallData(),
     ];
 
     await transact(calls, txCode, true);

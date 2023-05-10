@@ -541,8 +541,6 @@ const HistoryProvider = ({ children }: any) => {
             cauldronContractVR.queryFilter(givenFilter, useForkedEnv ? forkStartBlock : 'earliest'),
           ]);
 
-          console.log('%c eventList', 'font-size: 36px; color: yellow;', vrPourEventList, vault);
-
           /* parse/process the log information  */
           const [pourLogs, givenLogs, rolledLogs] = await Promise.all([
             _parsePourLogs(pourEventList, cauldronContract, series),

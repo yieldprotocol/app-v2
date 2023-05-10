@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, ResponsiveContext, Select, Text, TextInput } from 'grommet';
 import { useRouter } from 'next/router';
-import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiChevronDown, FiClock, FiTool, FiTrendingUp, FiPercent } from 'react-icons/fi';
 
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import InputWrap from '../wraps/InputWrap';
@@ -21,7 +21,8 @@ import TransactButton from '../buttons/TransactButton';
 import YieldHistory from '../YieldHistory';
 import { useInputValidation } from '../../hooks/useInputValidation';
 import ModalWrap from '../wraps/ModalWrap';
-import { useClosePosition } from '../../hooks/actionHooks/useClosePosition';
+import { useClosePositionFR } from '../../hooks/actionHooks/useClosePosition/useClosePositionFR';
+import { useClosePositionVR } from '../../hooks/actionHooks/useClosePosition/useClosePositionVR';
 import { useRollPosition } from '../../hooks/actionHooks/useRollPosition';
 import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
@@ -32,6 +33,7 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import useVYTokens from '../../hooks/entities/useVYTokens';
 import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersFR';
+import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -41,7 +43,7 @@ const LendPosition = () => {
   /* STATE FROM CONTEXT */
   const {
     userState,
-    userActions: { setSelectedSeries, setSelectedBase },
+    userActions: { setSelectedSeries, setSelectedBase, setSelectedVR },
   } = useContext(UserContext);
   const { selectedSeries, seriesMap, assetMap, seriesLoading, selectedVR } = userState;
   const { data: vyTokens, isLoading: vyTokensLoading } = useVYTokens();
@@ -75,12 +77,23 @@ const LendPosition = () => {
 
   /* HOOK FNS */
   /* Close helpers */
-  const { fyTokenMarketValue, maxClose_, maxClose } = useLendHelpersFR(selectedSeries!, closeInput, rollToSeries!);
+  const {
+    fyTokenMarketValue,
+    maxClose_: maxCloseFR_,
+    maxClose: maxCloseFR,
+  } = useLendHelpersFR(selectedSeries!, closeInput, rollToSeries!);
 
   /* Roll helpers */
   const { maxRoll_, rollEstimate_ } = useLendHelpersFR(selectedSeries!, rollInput, rollToSeries!);
 
-  const closePosition = useClosePosition();
+  /* VR */
+  const { maxClose: maxCloseVR, maxClose_: maxCloseVR_, apy } = useLendHelpersVR(vyToken?.address, closeInput);
+
+  const maxClose = selectedSeries ? maxCloseFR : maxCloseVR;
+  const maxClose_ = selectedSeries ? maxCloseFR_ : maxCloseVR_;
+
+  const closePositionFR = useClosePositionFR();
+  const closePositionVR = useClosePositionVR();
   const rollPosition = useRollPosition();
 
   const { logAnalyticsEvent } = useAnalytics();
@@ -88,7 +101,7 @@ const LendPosition = () => {
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
-    selectedSeries?.id!
+    selectedVR ? vyToken?.address! : selectedSeries?.address!
   );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_POSITION,
@@ -126,7 +139,13 @@ const LendPosition = () => {
   const handleClosePosition = () => {
     if (closeDisabled) return;
     setCloseDisabled(true);
-    closePosition(closeInput, selectedSeries!);
+
+    // use correct close fn
+    if (selectedVR) {
+      closePositionVR(closeInput);
+    } else {
+      closePositionFR(closeInput, selectedSeries!);
+    }
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.LEND,
@@ -195,17 +214,25 @@ const LendPosition = () => {
     const _series = [...seriesMap?.values()].find((s) => s.address === idFromUrl) || null;
     const _base = assetMap?.get(vyToken ? vyToken.baseId : _series?.baseId!);
 
-    _series && setSelectedSeries(_series);
+    _series ? setSelectedSeries(_series) : setSelectedVR(true);
     _base && setSelectedBase(_base!);
-  }, [assetMap, idFromUrl, seriesMap, setSelectedBase, setSelectedSeries, vyToken]);
+  }, [assetMap, idFromUrl, seriesMap, setSelectedBase, setSelectedSeries, setSelectedVR, vyToken]);
 
   return (
     <>
       {position && (
         // TODO handle vyToken as another "series" within ModalWrap
         <ModalWrap series={vyToken ? undefined : selectedSeries!}>
-          <CenterPanelWrap>
-            {!mobile && <ExitButton action={() => router.back()} />}
+          <CenterPanelWrap showBorder>
+            {!mobile && (
+              <ExitButton
+                action={() => {
+                  setSelectedSeries(null);
+                  setSelectedVR(false);
+                  router.back();
+                }}
+              />
+            )}
 
             <Box pad={mobile ? 'medium' : 'large'} gap="1em">
               <Box height={{ min: '250px' }} gap="medium">
@@ -268,12 +295,35 @@ const LendPosition = () => {
                       <InfoBite
                         label="Current value"
                         value={`${cleanValue(
-                          position.balance_, // TODO: get current value of vyToken position
+                          vyToken.vyTokenBaseVal_,
                           selectedBase?.digitFormat!
                         )} ${selectedBase?.displaySymbol!}`}
                         icon={
                           <Box height="1em" width="1em">
                             <Logo image={selectedBase?.image} />
+                          </Box>
+                        }
+                        loading={vyTokensLoading}
+                      />
+                      <InfoBite
+                        label="APY"
+                        value={`${apy}%`}
+                        icon={
+                          <Box height="1em" width="1em">
+                            <Logo image={<FiPercent />} />
+                          </Box>
+                        }
+                        loading={vyTokensLoading}
+                      />
+                      <InfoBite
+                        label="Interest Earned"
+                        value={`${cleanValue(
+                          vyToken.accumulatedInterestInBase_,
+                          selectedBase?.digitFormat!
+                        )} ${selectedBase?.displaySymbol!}`}
+                        icon={
+                          <Box height="1em" width="1em">
+                            <Logo image={<FiTrendingUp />} />
                           </Box>
                         }
                         loading={vyTokensLoading}
@@ -341,11 +391,12 @@ const LendPosition = () => {
                           />
                         </InputWrap>
 
-                        {selectedSeries && maxClose.lt(selectedSeries.balance!) && (
+                        {selectedSeries && maxClose!.lt(selectedSeries.balance!) && (
                           <InputInfoWrap action={() => handleMaxAction(ActionCodes.CLOSE_POSITION)}>
                             <Text color="text" alignSelf="end" size="xsmall">
                               Max redeemable is {cleanValue(maxClose_, 2)} {selectedBase?.displaySymbol}
-                              {selectedSeries.sharesReserves.eq(maxClose) && ' (limited by protocol)'}
+                              {((selectedSeries && selectedSeries.sharesReserves.eq(maxClose!)) || selectedVR) &&
+                                ' (limited by protocol)'}
                             </Text>
                           </InputInfoWrap>
                         )}
@@ -432,7 +483,7 @@ const LendPosition = () => {
                   <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />
                 )}
                 {/* TODO handle vyToken history  */}
-                {/* {actionActive.index === 1 && <YieldHistoryVR position={vyToken} view={['TRADE']} />} */}
+                {/* {actionActive.index === 1 && <YieldHistory position={vyToken} view={['TRADE']} />} */}
               </Box>
             </Box>
 
@@ -487,6 +538,15 @@ const LendPosition = () => {
             {vyToken && (
               <ActionButtonGroup pad>
                 {/* handle closing vyToken (lend) position */}
+                {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
+                  <NextButton
+                    label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
+                    onClick={() => handleStepper()}
+                    key="next"
+                    disabled={actionActive.index === 0 && closeDisabled}
+                    errorLabel={actionActive.index === 0 && closeError}
+                  />
+                )}
                 {actionActive.index === 0 &&
                   stepPosition[actionActive.index] !== 0 &&
                   closeProcess?.stage !== ProcessStage.PROCESS_COMPLETE &&

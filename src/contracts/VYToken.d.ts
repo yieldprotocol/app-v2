@@ -542,13 +542,13 @@ export class VYToken extends BaseContract {
 
     convertToPrincipal(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { principalAmount: BigNumber }>;
 
     convertToUnderlying(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { underlyingAmount: BigNumber }>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
@@ -660,36 +660,29 @@ export class VYToken extends BaseContract {
 
     previewDeposit(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { principalAmount: BigNumber }>;
 
     previewMint(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { underlyingAmount: BigNumber }>;
 
     previewRedeem(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { underlyingAmount: BigNumber }>;
 
     previewWithdraw(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { principalAmount: BigNumber }>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
-    "redeem(address,uint256)"(
+    redeem(
       receiver: string,
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "redeem(uint256,address,address)"(
-      principalAmount: BigNumberish,
-      receiver: string,
-      holder: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -792,13 +785,13 @@ export class VYToken extends BaseContract {
 
   convertToPrincipal(
     underlyingAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   convertToUnderlying(
     principalAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -901,36 +894,29 @@ export class VYToken extends BaseContract {
 
   previewDeposit(
     underlyingAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   previewMint(
     principalAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   previewRedeem(
     principalAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   previewWithdraw(
     underlyingAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
-  "redeem(address,uint256)"(
+  redeem(
     receiver: string,
     principalAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "redeem(uint256,address,address)"(
-    principalAmount: BigNumberish,
-    receiver: string,
-    holder: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1150,16 +1136,9 @@ export class VYToken extends BaseContract {
 
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
-    "redeem(address,uint256)"(
+    redeem(
       receiver: string,
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "redeem(uint256,address,address)"(
-      principalAmount: BigNumberish,
-      receiver: string,
-      holder: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1433,12 +1412,12 @@ export class VYToken extends BaseContract {
 
     convertToPrincipal(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     convertToUnderlying(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1545,36 +1524,29 @@ export class VYToken extends BaseContract {
 
     previewDeposit(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     previewMint(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     previewRedeem(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     previewWithdraw(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "redeem(address,uint256)"(
+    redeem(
       receiver: string,
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "redeem(uint256,address,address)"(
-      principalAmount: BigNumberish,
-      receiver: string,
-      holder: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1681,12 +1653,12 @@ export class VYToken extends BaseContract {
 
     convertToPrincipal(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     convertToUnderlying(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1805,36 +1777,29 @@ export class VYToken extends BaseContract {
 
     previewDeposit(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     previewMint(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     previewRedeem(
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     previewWithdraw(
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "redeem(address,uint256)"(
+    redeem(
       receiver: string,
       principalAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "redeem(uint256,address,address)"(
-      principalAmount: BigNumberish,
-      receiver: string,
-      holder: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

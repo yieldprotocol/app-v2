@@ -5,8 +5,13 @@ import { ModuleActions } from '../../types/operations';
 import { ZERO_BN } from '../../utils/constants';
 import useAccountPlus from '../useAccountPlus';
 import useContracts from '../useContracts';
+import { useContext } from 'react';
+import { UserContext } from '../../contexts/UserContext';
 
 export const useAddRemoveEth = () => {
+  const {
+    userState: { selectedVR },
+  } = useContext(UserContext);
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
   const WrapEtherModuleContract = contracts?.get(ContractNames.WRAP_ETHER_MODULE);
@@ -16,6 +21,17 @@ export const useAddRemoveEth = () => {
     to: string | undefined = undefined,
     alternateEthAssetId: string | undefined = undefined
   ): ICallData[] => {
+    /* VR */
+    if (selectedVR)
+      return [
+        {
+          operation: LadleActions.Fn.WRAP_ETHER,
+          args: [to] as LadleActions.Args.WRAP_ETHER,
+          overrides: { value },
+        },
+      ];
+
+    /* FR */
     if (!WrapEtherModuleContract) throw new Error('WrapEtherModuleContract not found');
 
     /* if there is a destination 'to' then use the ladle module (wrapEtherModule) */
@@ -44,7 +60,7 @@ export const useAddRemoveEth = () => {
   // NOTE: EXIT_ETHER sweeps all out of the ladle, so *value* is not important > it must just be bigger than zero to not be ignored
   const removeEth = (value: BigNumber, to: string | undefined = undefined): ICallData[] => [
     {
-      operation: LadleActions.Fn.EXIT_ETHER,
+      operation: selectedVR ? LadleActions.Fn.UNWRAP_ETHER : LadleActions.Fn.EXIT_ETHER,
       args: [to || account] as LadleActions.Args.EXIT_ETHER,
       ignoreIf: value.eq(ZERO_BN), // ignores if value is ZERO. NB NOTE: sign (+-) is irrelevant here
     },

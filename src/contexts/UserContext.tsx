@@ -226,8 +226,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       };
     });
 
-    console.log('vaults built', vaultsBuilt);
-
     /* Get a list of the vaults that were RECEIVED */
     const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
     const vaultsReceived = (await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate)) || [];
@@ -255,8 +253,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       ...receivedEventsList,
       ...cachedVaultList, // this is causing us to have vault dupes - is this intentional?
     ];
-
-    console.log('allVaultList components', buildEventList, receivedEventsList, cachedVaultList);
 
     /* Cache results */
     const latestBlock = (await provider.getBlockNumber()).toString();
@@ -662,8 +658,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
           ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
 
-          console.log('regular cauldron', Cauldron);
-
           const series = seriesRootMap.get(seriesId);
           if (!series) return;
 
@@ -724,8 +718,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           return newVault;
         })
       );
-
-      console.log('updatedVaults: ', updatedVaults);
 
       const newVaultMap = updatedVaults.reduce((acc, item) => {
         if (item) {
@@ -796,10 +788,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       (asset: IAsset | null) => updateState({ type: UserState.SELECTED_ILK, payload: asset! }),
       []
     ),
-    setSelectedSeries: useCallback(
-      (series: ISeries | null | string) => updateState({ type: UserState.SELECTED_SERIES, payload: series as any }),
-      []
-    ),
+    setSelectedSeries: useCallback((series: ISeries | null | string) => {
+      updateState({ type: UserState.SELECTED_SERIES, payload: series as any });
+    }, []),
     setSelectedBase: useCallback(
       (asset: IAsset | null) => updateState({ type: UserState.SELECTED_BASE, payload: asset! }),
       []
@@ -811,7 +802,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     setSelectedVR: useCallback((vr: boolean) => {
       updateState({ type: UserState.SELECTED_VR, payload: vr });
       updateState({ type: UserState.SELECTED_SERIES, payload: null });
-      console.log('%c setSelectedVR', 'color: #00ff00; font-size: 24px;', vr);
     }, []),
   } as IUserContextActions;
 

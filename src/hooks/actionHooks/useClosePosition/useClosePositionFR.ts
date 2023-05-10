@@ -2,25 +2,25 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { buyBase, calculateSlippage } from '@yield-protocol/ui-math';
 
-import { ETH_BASED_ASSETS } from '../../config/assets';
-import { HistoryContext } from '../../contexts/HistoryContext';
-import { SettingsContext } from '../../contexts/SettingsContext';
-import { UserContext } from '../../contexts/UserContext';
-import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../types';
-import { cleanValue, getTxCode } from '../../utils/appUtils';
-import { ONE_BN } from '../../utils/constants';
+import { ETH_BASED_ASSETS } from '../../../config/assets';
+import { HistoryContext } from '../../../contexts/HistoryContext';
+import { SettingsContext } from '../../../contexts/SettingsContext';
+import { UserContext } from '../../../contexts/UserContext';
+import { ICallData, ISeries, ActionCodes, LadleActions, RoutedActions } from '../../../types';
+import { cleanValue, getTxCode } from '../../../utils/appUtils';
+import { ONE_BN } from '../../../utils/constants';
 
-import { useChain } from '../useChain';
-import { useAddRemoveEth } from './useAddRemoveEth';
-import useTimeTillMaturity from '../useTimeTillMaturity';
+import { useChain } from '../../useChain';
+import { useAddRemoveEth } from '../useAddRemoveEth';
+import useTimeTillMaturity from '../../useTimeTillMaturity';
 import { Address, useBalance } from 'wagmi';
-import useContracts from '../useContracts';
-import useAccountPlus from '../useAccountPlus';
-import { ContractNames } from '../../config/contracts';
-import useAllowAction from '../useAllowAction';
+import useContracts from '../../useContracts';
+import useAccountPlus from '../../useAccountPlus';
+import { ContractNames } from '../../../config/contracts';
+import useAllowAction from '../../useAllowAction';
 
 /* Lend Actions Hook */
-export const useClosePosition = () => {
+export const useClosePositionFR = () => {
   const {
     settingsState: { slippageTolerance },
   } = useContext(SettingsContext);
@@ -47,15 +47,15 @@ export const useClosePosition = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { isActionAllowed } = useAllowAction();
 
-  const closePosition = async (
+  const closePositionFR = async (
     input: string | undefined,
     series: ISeries,
     getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
-    if (!contracts) return;
+    if (!contracts || !account) return;
     if (!isActionAllowed(ActionCodes.CLOSE_POSITION)) return; // return if action is not allowed
 
-    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
+    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.address);
     const base = assetMap?.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;
@@ -86,7 +86,7 @@ export const useClosePosition = () => {
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
 
     /* if approveMAx, check if signature is required */
-    const alreadyApproved = (await series.fyTokenContract.allowance(account!, ladleAddress!)).gte(_fyTokenValueOfInput);
+    const alreadyApproved = (await series.fyTokenContract.allowance(account, ladleAddress!)).gte(_fyTokenValueOfInput);
 
     const permitCallData: ICallData[] = await sign(
       [
@@ -153,5 +153,5 @@ export const useClosePosition = () => {
     updateTradeHistory([series]);
   };
 
-  return closePosition;
+  return closePositionFR;
 };
