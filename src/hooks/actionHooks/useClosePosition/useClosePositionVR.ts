@@ -1,11 +1,11 @@
 import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
-import { ETH_BASED_ASSETS } from '../../../config/assets';
+import { ETH_BASED_ASSETS, WETH } from '../../../config/assets';
 import { UserContext } from '../../../contexts/UserContext';
-import { ICallData, ActionCodes, LadleActions, RoutedActions } from '../../../types';
+import { ActionCodes, LadleActions, RoutedActions } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
 import { useChain } from '../../useChain';
-import { Address, useBalance, useProvider, useSigner } from 'wagmi';
+import { Address, useBalance, useProvider } from 'wagmi';
 import useContracts from '../../useContracts';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
@@ -15,7 +15,6 @@ import { useAddRemoveEth } from '../useAddRemoveEth';
 import { VYToken__factory } from '../../../contracts';
 import { ONE_BN } from '../../../utils/constants';
 import { useSWRConfig } from 'swr';
-import { ZERO_BN } from '@yield-protocol/ui-math';
 
 /* Lend Actions Hook */
 export const useClosePositionVR = () => {
@@ -25,13 +24,12 @@ export const useClosePositionVR = () => {
     userActions,
   } = useContext(UserContext);
   const { address: account } = useAccountPlus();
-  const { data: signer } = useSigner();
   const { data: vyTokens, key: vyTokensKey } = useVYTokens();
   const { removeEth } = useAddRemoveEth();
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
-    token: selectedBase?.address as Address,
+    token: selectedBase?.proxyId === WETH ? undefined : (selectedBase?.address as Address),
   });
 
   const contracts = useContracts();
@@ -58,7 +56,6 @@ export const useClosePositionVR = () => {
     if (!vyTokenProxyAddr) return console.error('vyTokenProxyAddr not found');
 
     const vyTokenProxyContract = VYToken__factory.connect(vyTokenProxyAddr, provider);
-    const vyTokenContract = VYToken__factory.connect(selectedVyToken?.address!, signer!);
 
     const ladleAddress = contracts.get(ContractNames.VR_LADLE)?.address;
     if (!ladleAddress) return console.error('ladleAddress not found');
@@ -103,6 +100,7 @@ export const useClosePositionVR = () => {
       },
       ...removeEthCallData,
     ];
+
     await transact(calls, txCode);
     refetchBaseBal();
     mutate(vyTokensKey);
