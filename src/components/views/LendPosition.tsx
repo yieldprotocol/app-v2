@@ -101,7 +101,7 @@ const LendPosition = () => {
   /* Processes to watch */
   const { txProcess: closeProcess, resetProcess: resetCloseProcess } = useProcess(
     ActionCodes.CLOSE_POSITION,
-    selectedVR ? 'VR' : selectedSeries?.id!
+    selectedVR ? vyToken?.address! : selectedSeries?.id!
   );
   const { txProcess: rollProcess, resetProcess: resetRollProcess } = useProcess(
     ActionCodes.ROLL_POSITION,
