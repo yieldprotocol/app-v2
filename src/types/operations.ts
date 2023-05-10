@@ -50,6 +50,7 @@ export namespace LadleActions {
     export type SERVE = [vaultId: string, to: string, ink: BigNumberish, base: BigNumberish, max: BigNumberish];
     export type CLOSE = [vaultId: string, to: string, ink: BigNumberish, art: BigNumberish];
     export type REPAY = [vaultId: string, to: string, ink: BigNumberish, min: BigNumberish];
+    export type REPAY_VR = [vaultId: string, inkTo: string, refundTo: string, ink: BigNumberish];
     export type REPAY_VAULT = [vaultId: string, to: string, ink: BigNumberish, max: BigNumberish];
     export type REPAY_LADLE = [vaultId: string];
     export type RETRIEVE = [assetAddress: string, to: string];
