@@ -134,13 +134,13 @@ const useVaultsVR = () => {
     [account, forkStartBlock, useForkedEnv, assetRootMap, forkUrl]
   );
 
-  const { data, error, isLoading } = useSWR(key, getVaults, {
+  const { data, error, isLoading, isValidating } = useSWR(key, getVaults, {
     revalidateOnFocus: false,
     revalidateIfStale: false,
     shouldRetryOnError: false,
   });
 
-  return { data, error, isLoading, key };
+  return { data, error, isLoading: isLoading || isValidating, key };
 };
 
 export default useVaultsVR;
