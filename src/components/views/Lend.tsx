@@ -79,13 +79,14 @@ const Lend = () => {
 
   const lend = useLend();
   const { data: vyTokens } = useVYTokens();
-  const vyToken = vyTokens ? [...vyTokens.values()].find((vyToken) => vyToken.baseId === selectedBase?.id) : undefined;
+  const vyToken =
+    vyTokens && selectedVR ? [...vyTokens.values()].find((vyToken) => vyToken.baseId === selectedBase?.id) : undefined;
 
   const { logAnalyticsEvent } = useAnalytics();
 
   const { txProcess: lendProcess, resetProcess: resetLendProcess } = useProcess(
     ActionCodes.LEND,
-    vyToken ? vyToken.id! : selectedSeries?.id!
+    vyToken ? vyToken.id! : selectedSeries?.address!
   );
 
   /* input validation hooks */

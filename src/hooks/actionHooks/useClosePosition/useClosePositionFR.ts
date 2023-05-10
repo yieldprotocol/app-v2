@@ -55,7 +55,7 @@ export const useClosePositionFR = () => {
     if (!contracts || !account) return;
     if (!isActionAllowed(ActionCodes.CLOSE_POSITION)) return; // return if action is not allowed
 
-    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
+    const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.address);
     const base = assetMap?.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanedInput, base.decimals) : ethers.constants.Zero;

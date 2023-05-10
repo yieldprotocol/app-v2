@@ -53,7 +53,7 @@ export const useLendFR = () => {
     if (!isActionAllowed(ActionCodes.LEND)) return; // return if action is not allowed
 
     /* generate the reproducible txCode for tx tracking and tracing */
-    const txCode = getTxCode(ActionCodes.LEND, series.id);
+    const txCode = getTxCode(ActionCodes.LEND, series.address);
 
     const base = assetMap?.get(series.baseId)!;
     const cleanedInput = cleanValue(input, base?.decimals);
