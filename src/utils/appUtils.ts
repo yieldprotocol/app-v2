@@ -4,6 +4,7 @@ import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-
 import { ContractMap, ContractNames } from '../config/contracts';
 
 import { ActionCodes, ISeries } from '../types';
+import { Cauldron, VRCauldron } from '../contracts';
 
 export const copyToClipboard = (str: string) => {
   const el = document.createElement('textarea');
@@ -223,11 +224,8 @@ export const getPositionPath = (
   }
 };
 
-export const getVaultIdFromReceipt = (receipt: ContractReceipt | undefined, contractMap: ContractMap | undefined) => {
-  if (!receipt || !contractMap) return '';
-
-  const cauldron = contractMap.get(ContractNames.CAULDRON);
-  if (!cauldron) return '';
+export const getVaultIdFromReceipt = (receipt: ContractReceipt | undefined, cauldron: Cauldron | VRCauldron) => {
+  if (!receipt) return '';
 
   const cauldronAddr = cauldron.address;
   const vaultIdHex = receipt.events?.filter((e) => e.address === cauldronAddr)[0]?.topics[1]!;
