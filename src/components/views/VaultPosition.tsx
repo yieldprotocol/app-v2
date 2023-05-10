@@ -252,7 +252,7 @@ const VaultPosition = () => {
   const handleRepay = () => {
     if (repayDisabled) return;
     setRepayDisabled(true);
-    repay(_selectedVault!, repayInput?.toString(), reclaimCollateral);
+    if (_selectedVault) repay(_selectedVault, repayInput, reclaimCollateral);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
