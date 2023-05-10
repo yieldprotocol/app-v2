@@ -24,6 +24,7 @@ export interface ISeriesStatic {
   g1: string;
   g2: string;
 
+  showSeries?: boolean;
   allowActions?: (ActionCodes | 'allow_none' | 'allow_all')[];
 }
 
@@ -585,6 +586,7 @@ SERIES.set(
         g1: '16602069666338596454',
         g2: '20496382304121724017',
         allowActions: [ActionCodes.REPAY],
+        showSeries: false,
       },
     ],
 
@@ -628,6 +630,7 @@ SERIES.set(
         g1: '16602069666338596454',
         g2: '20496382304121724017',
         allowActions: [ActionCodes.REPAY],
+        showSeries: false,
       },
     ],
 
@@ -671,6 +674,7 @@ SERIES.set(
         g1: '16602069666338596454',
         g2: '20496382304121724017',
         allowActions: [ActionCodes.REPAY],
+        showSeries: false,
       },
     ],
 
@@ -735,6 +739,7 @@ SERIES.set(
         g1: '16602069666338596454',
         g2: '20496382304121724017',
         allowActions: [ActionCodes.REPAY],
+        showSeries: false,
       },
     ],
 
