@@ -108,13 +108,13 @@ const Borrow = () => {
     maxDebt_: maxDebtFR_,
     borrowPossible: borrowPossibleFR,
     borrowEstimate_,
-  } = useBorrowHelpersFR(borrowInput, collatInput, vaultToUse, assetPair, selectedSeries);
+  } = useBorrowHelpersFR(borrowInput, collatInput, selectedSeries ? vaultToUse : undefined, assetPair, selectedSeries);
 
   const {
     minDebt_: minDebtVR_,
     maxDebt_: maxDebtVR_,
     borrowPossible: borrowPossibleVR,
-  } = useBorrowHelpersVR(borrowInput, vaultToUse, assetPair);
+  } = useBorrowHelpersVR(borrowInput, selectedVR ? vaultToUse : undefined, assetPair);
 
   const minDebt_ = selectedVR ? minDebtVR_ : minDebtFR_;
   const maxDebt_ = selectedVR ? maxDebtVR_ : maxDebtFR_;
@@ -259,7 +259,7 @@ const Borrow = () => {
         (v) =>
           v.ilkId === selectedIlk.proxyId &&
           v.baseId === selectedBase.proxyId &&
-          v.seriesId === selectedSeries?.id &&
+          (selectedVR ? true : v.seriesId === selectedSeries?.id) &&
           v.isActive
       );
       setMatchingVaults(matchingVaults);
@@ -588,9 +588,7 @@ const Borrow = () => {
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
                   <Text size="small">View Vault:</Text>
-                  {vaultToUse && !vaultsLoading && (
-                    <VaultItem vault={matchingVaults.find((v) => v.id === vaultToUse.id)!} condensed index={1} />
-                  )}
+                  {vaultToUse && <VaultItem vault={vaultToUse} condensed index={1} />}
                   {!vaultToUse && newVaultId && (
                     <DummyVaultItem series={selectedSeries!} vaultId={newVaultId} condensed />
                   )}
