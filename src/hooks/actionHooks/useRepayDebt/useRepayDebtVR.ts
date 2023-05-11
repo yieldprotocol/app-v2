@@ -116,6 +116,19 @@ export const useRepayDebtVR = () => {
         ignoreIf: isEthBase,
       },
 
+      /* repay less than all debt */
+      {
+        operation: LadleActions.Fn.POUR,
+        args: [
+          vault.id,
+          reclaimCollatToAddress,
+          _collateralToRemove,
+          _inputCappedAtArt.mul(-1),
+        ] as LadleActions.Args.POUR,
+        ignoreIf: inputGreaterThanEqualDebt,
+      },
+
+      /* repay all debt */
       {
         operation: LadleActions.Fn.REPAY,
         args: [
@@ -124,7 +137,7 @@ export const useRepayDebtVR = () => {
           reclaimCollatToAddress,
           _collateralToRemove,
         ] as LadleActions.Args.REPAY_VR,
-        ignoreIf: false,
+        ignoreIf: !inputGreaterThanEqualDebt,
       },
 
       ...removeEthCallData,
