@@ -75,7 +75,7 @@ const VariableRate = () => {
 
   const {
     userState: { selectedVR },
-    userActions: { setSelectedVR },
+    userActions: { setSelectedVR, setSelectedSeries },
   } = useContext(UserContext);
 
   return (
@@ -83,7 +83,10 @@ const VariableRate = () => {
       key={'vr'}
       round="large"
       elevation="xsmall"
-      onClick={() => setSelectedVR(true)}
+      onClick={() => {
+        setSelectedVR(true);
+        setSelectedSeries(null);
+      }}
       className="VR-container"
       style={
         selectedVR

@@ -1,5 +1,5 @@
 import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer, useContext } from 'react';
-import { BigNumber, Contract } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 import { format } from 'date-fns';
 
 import { useCachedState } from '../hooks/generalHooks';
@@ -25,6 +25,7 @@ import { Pool__factory } from '../contracts';
 
 import { useProvider } from 'wagmi';
 import { SettingsContext } from './SettingsContext';
+import { MAX_256, ZERO_BN } from '@yield-protocol/ui-math';
 
 const initState: IChainContextState = {
   /* flags */
@@ -117,7 +118,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
         case TokenType.ERC1155_:
           assetContract = contractTypes.ERC1155__factory.connect(asset.address, provider);
-          getAllowance = async (acc: string, spender: string) => assetContract.isApprovedForAll(acc, spender);
+          getAllowance = async (acc: string, spender: string) =>
+            (await (assetContract as contractTypes.ERC1155).isApprovedForAll(acc, spender))
+              ? ethers.constants.MaxUint256
+              : ethers.constants.Zero;
           setAllowance = async (spender: string) => {
             console.log(spender);
             console.log(asset.address);

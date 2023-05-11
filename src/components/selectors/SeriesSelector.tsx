@@ -184,14 +184,12 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     setOptions(filteredOpts.sort((a, b) => a.maturity - b.maturity));
   }, [
-    seriesMap,
-    selectedBase,
     selectSeriesLocally,
-    _selectedSeries,
-    userActions,
-    selectedSeries,
-    actionType,
-    selectedVault,
+    selectedBase?.proxyId,
+    selectedSeries?.baseId,
+    selectedSeries?.id,
+    selectedSeries?.maturity,
+    seriesMap,
   ]);
 
   const handleSelect = (_series: ISeries) => {

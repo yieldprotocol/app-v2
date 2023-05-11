@@ -139,7 +139,7 @@ export const useBorrowHelpersFR = (
 
   /* SET MAX ROLL and ROLLABLE including Check if the rollToSeries have sufficient base value AND won't be undercollaterallised */
   useEffect(() => {
-    if (futureSeries && vault && vault.accruedArt && vault.seriesId) {
+    if (futureSeries && vault && vault.accruedArt && vault.seriesId && assetPairInfo) {
       const _maxFyTokenIn = maxFyTokenIn(
         futureSeries.sharesReserves,
         futureSeries.fyTokenReserves,
@@ -164,9 +164,9 @@ export const useBorrowHelpersFR = (
       );
 
       const _minCollat = calculateMinCollateral(
-        assetPairInfo?.pairPrice!,
+        assetPairInfo.pairPrice,
         newDebt,
-        assetPairInfo?.minRatio.toString()!,
+        assetPairInfo.minRatio.toString(),
         undefined
       );
 

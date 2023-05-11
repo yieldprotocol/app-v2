@@ -61,9 +61,10 @@ const VaultPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
+  const { assetMap, seriesMap, vaultMap, vaultsLoading: vaultsLoadingFR, selectedVR } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault, setSelectedVR } = userActions;
-  const { data: vaultsVR } = useVaultsVR();
+  const { data: vaultsVR, isLoading: vaultsLoadingVR } = useVaultsVR();
+  const vaultsLoading = selectedVR ? vaultsLoadingVR : vaultsLoadingFR;
 
   const { address: account } = useAccountPlus();
 
@@ -251,7 +252,7 @@ const VaultPosition = () => {
   const handleRepay = () => {
     if (repayDisabled) return;
     setRepayDisabled(true);
-    repay(_selectedVault!, repayInput?.toString(), reclaimCollateral);
+    if (_selectedVault) repay(_selectedVault, repayInput, reclaimCollateral);
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.BORROW,
@@ -340,8 +341,8 @@ const VaultPosition = () => {
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
-    !repayInput || repayError || !_selectedVault ? setRepayDisabled(true) : setRepayDisabled(false);
-    !rollToSeries || rollError || !_selectedVault ? setRollDisabled(true) : setRollDisabled(false);
+    !repayInput || repayError || !_selectedVault || vaultsLoading ? setRepayDisabled(true) : setRepayDisabled(false);
+    !rollToSeries || rollError || !_selectedVault || vaultsLoading ? setRollDisabled(true) : setRollDisabled(false);
     !addCollatInput || addCollatError || !_selectedVault
       ? setAddCollateralDisabled(true)
       : setAddCollateralDisabled(false);
@@ -358,6 +359,7 @@ const VaultPosition = () => {
     removeCollatError,
     rollError,
     _selectedVault,
+    vaultsLoading,
   ]);
 
   /* EXTRA INITIATIONS */
@@ -399,6 +401,11 @@ const VaultPosition = () => {
       resetInputs(ActionCodes.REMOVE_COLLATERAL);
     rollProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs(ActionCodes.ROLL_DEBT);
   }, [addCollateralProcess, removeCollateralProcess, repayProcess, resetInputs, rollProcess]);
+
+  // update selectedVR when vault is VR
+  useEffect(() => {
+    vaultIsVR && setSelectedVR(true);
+  }, [setSelectedVR, vaultIsVR]);
 
   return (
     <>

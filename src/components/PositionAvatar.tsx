@@ -58,7 +58,15 @@ function PositionAvatar({
   return (
     <Outer width={condensed ? '36px' : 'auto'}>
       <Avatar
-        background={vyToken ? 'gradient-transparent' : series?.seriesIsMature ? 'lightGrey' : series?.color}
+        background={
+          vyToken
+            ? 'gradient-transparent'
+            : series?.seriesIsMature
+            ? 'lightGrey'
+            : series
+            ? series.color
+            : 'gradient-transparent'
+        }
         size={condensed ? '36px' : undefined}
       >
         <Box round="large" background="white" pad="xxsmall">

@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, CheckBox, Keyboard, ResponsiveContext, Text, TextInput } from 'grommet';
-
 import { FiClock, FiPocket, FiPercent, FiTrendingUp } from 'react-icons/fi';
 
 import SeriesSelector from '../selectors/SeriesSelector';
@@ -9,7 +8,6 @@ import AssetSelector from '../selectors/AssetSelector';
 import InputWrap from '../wraps/InputWrap';
 import ActionButtonWrap from '../wraps/ActionButtonWrap';
 import SectionWrap from '../wraps/SectionWrap';
-
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -18,7 +16,6 @@ import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
-
 import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
 import YieldInfo from '../FooterInfo';
@@ -41,22 +38,22 @@ import { useBorrowHelpersVR } from '../../hooks/viewHelperHooks/useBorrowHelpers
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ColorText from '../texts/ColorText';
 import { useProcess } from '../../hooks/useProcess';
-
 import DummyVaultItem from '../positionItems/DummyVaultItem';
 import SeriesOrStrategySelectorModal from '../selectors/SeriesOrStrategySelectorModal';
 import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
 import Line from '../elements/Line';
-import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
-
 import VariableRate from '../selectors/VariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
+import useVaultsVR from '../../hooks/entities/useVaultsVR';
+import { ContractNames } from '../../config/contracts';
+import { Cauldron, VRCauldron } from '../../contracts';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -65,17 +62,8 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const {
-    assetMap,
-    vaultMap,
-    vaultsLoading,
-    seriesMap,
-    selectedSeries,
-    selectedIlk,
-    selectedBase,
-    selectedVault,
-    selectedVR,
-  } = userState;
+  const { assetMap, vaultMap, vaultsLoading, selectedSeries, selectedIlk, selectedBase, selectedVault, selectedVR } =
+    userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccountPlus();
@@ -103,6 +91,7 @@ const Borrow = () => {
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
   const { data: basesVR } = useBasesVR();
+  const { data: vaultsVR } = useVaultsVR();
 
   const {
     collateralizationPercent,
@@ -121,13 +110,13 @@ const Borrow = () => {
     maxDebt_: maxDebtFR_,
     borrowPossible: borrowPossibleFR,
     borrowEstimate_,
-  } = useBorrowHelpersFR(borrowInput, collatInput, vaultToUse, assetPair, selectedSeries);
+  } = useBorrowHelpersFR(borrowInput, collatInput, selectedSeries ? vaultToUse : undefined, assetPair, selectedSeries);
 
   const {
     minDebt_: minDebtVR_,
     maxDebt_: maxDebtVR_,
     borrowPossible: borrowPossibleVR,
-  } = useBorrowHelpersVR(borrowInput, vaultToUse, assetPair);
+  } = useBorrowHelpersVR(borrowInput, selectedVR ? vaultToUse : undefined, assetPair);
 
   const minDebt_ = selectedVR ? minDebtVR_ : minDebtFR_;
   const maxDebt_ = selectedVR ? maxDebtVR_ : maxDebtFR_;
@@ -145,7 +134,10 @@ const Borrow = () => {
   ]);
 
   /* TX info (for disabling buttons) */
-  const { txProcess: borrowProcess, resetProcess } = useProcess(ActionCodes.BORROW, selectedSeries?.id!);
+  const { txProcess: borrowProcess, resetProcess } = useProcess(
+    ActionCodes.BORROW,
+    selectedVR ? 'VR' : selectedSeries?.id!
+  );
 
   /** LOCAL ACTION FNS */
   const handleBorrow = () => {
@@ -263,18 +255,18 @@ const Borrow = () => {
 
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
-    if (selectedBase && selectedSeries && selectedIlk) {
-      const arr: IVault[] = Array.from(vaultMap?.values()!) as IVault[];
-      const _matchingVaults = arr.filter(
-        (v: IVault) =>
+    if (selectedBase && selectedIlk) {
+      const vaults = [...(selectedVR ? (vaultsVR || []).values() : (vaultMap || []).values())];
+      const matchingVaults = vaults.filter(
+        (v) =>
           v.ilkId === selectedIlk.proxyId &&
           v.baseId === selectedBase.proxyId &&
-          v.seriesId === selectedSeries.id &&
+          (selectedVR ? true : v.seriesId === selectedSeries?.id) &&
           v.isActive
       );
-      setMatchingVaults(_matchingVaults);
+      setMatchingVaults(matchingVaults);
     }
-  }, [vaultMap, selectedBase, selectedIlk, selectedSeries]);
+  }, [vaultMap, selectedBase, selectedIlk, selectedSeries, vaultsVR, selectedVR]);
 
   /* handle selected vault */
   useEffect(() => {
@@ -283,11 +275,19 @@ const Borrow = () => {
     }
 
     if (selectedVault) {
-      return setVaultToUse(selectedVault);
+      // if using an already selected vault with series
+      if (selectedSeries && selectedVault.seriesId === selectedSeries.id) {
+        return setVaultToUse(selectedVault);
+      }
+
+      // if using an already selected vr vault
+      if (selectedVR && selectedVault.baseId === selectedBase?.id) {
+        return setVaultToUse(selectedVault);
+      }
     }
 
     setVaultToUse(undefined);
-  }, [matchingVaults, selectedVault]);
+  }, [matchingVaults, selectedBase?.id, selectedSeries, selectedVR, selectedVault]);
 
   useEffect(() => {
     if (
@@ -295,10 +295,13 @@ const Borrow = () => {
       borrowProcess?.tx.status === TxState.SUCCESSFUL &&
       !vaultToUse
     ) {
-      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, contracts)!);
+      const cauldron = contracts?.get(selectedVR ? ContractNames.VR_CAULDRON : ContractNames.CAULDRON) as
+        | VRCauldron
+        | Cauldron;
+      setNewVaultId(getVaultIdFromReceipt(borrowProcess?.tx?.receipt, cauldron!));
     }
     borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE_TIMEOUT && resetInputs();
-  }, [borrowProcess, contracts, resetInputs, vaultToUse]);
+  }, [borrowProcess, contracts, resetInputs, selectedVR, vaultToUse]);
 
   return (
     <Keyboard onEsc={() => setCollatInput('')} onEnter={() => console.log('ENTER smashed')} target="document">
@@ -471,7 +474,8 @@ const Borrow = () => {
                             <MaxButton
                               action={() => maxCollateral && handleMaxAction(ActionCodes.ADD_COLLATERAL)}
                               disabled={
-                                !selectedSeries || collatInput === maxCollateral || selectedSeries.seriesIsMature
+                                ((!selectedSeries || selectedSeries.seriesIsMature) && !selectedVR) ||
+                                collatInput === maxCollateral
                               }
                               clearAction={() => setCollatInput('')}
                               showingMax={!!collatInput && collatInput === maxCollateral}
@@ -541,12 +545,12 @@ const Borrow = () => {
                         icon={<FiPocket />}
                         value={`${cleanValue(borrowInput, selectedBase?.digitFormat!)} ${selectedBase?.displaySymbol}`}
                       />
-                      {!selectedVR && (
+                      {selectedSeries && (
                         <div>
                           <InfoBite
                             label="Series Maturity"
                             icon={<FiClock />}
-                            value={`${selectedSeries?.displayName}`}
+                            value={`${selectedSeries.displayName}`}
                           />
 
                           <InfoBite
@@ -558,7 +562,11 @@ const Borrow = () => {
                           />
                         </div>
                       )}
-                      <InfoBite label="Effective APR" icon={<FiPercent />} value={`${apr}%`} />
+                      <InfoBite
+                        label={`${selectedVR ? 'Variable' : 'Effective'} APR`}
+                        icon={<FiPercent />}
+                        value={`${apr}%`}
+                      />
                       <InfoBite
                         label="Total Supporting Collateral"
                         icon={
@@ -592,12 +600,10 @@ const Borrow = () => {
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
                 <Box pad="large" gap="small">
-                  <Text size="small"> View Vault: </Text>
-                  {vaultToUse && !vaultsLoading && (
-                    <VaultItem vault={vaultMap?.get(vaultToUse.id)!} condensed index={1} />
-                  )}
+                  <Text size="small">View Vault:</Text>
+                  {vaultToUse && <VaultItem vault={vaultToUse} condensed index={1} />}
                   {!vaultToUse && newVaultId && (
-                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId!} condensed />
+                    <DummyVaultItem series={selectedSeries!} vaultId={newVaultId} condensed />
                   )}
                 </Box>
               )}
