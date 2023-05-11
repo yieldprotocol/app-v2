@@ -341,8 +341,8 @@ const VaultPosition = () => {
   /* ACTION DISABLING LOGIC */
   useEffect(() => {
     /* if ANY of the following conditions are met: block action */
-    !repayInput || repayError || !_selectedVault ? setRepayDisabled(true) : setRepayDisabled(false);
-    !rollToSeries || rollError || !_selectedVault ? setRollDisabled(true) : setRollDisabled(false);
+    !repayInput || repayError || !_selectedVault || vaultsLoading ? setRepayDisabled(true) : setRepayDisabled(false);
+    !rollToSeries || rollError || !_selectedVault || vaultsLoading ? setRollDisabled(true) : setRollDisabled(false);
     !addCollatInput || addCollatError || !_selectedVault
       ? setAddCollateralDisabled(true)
       : setAddCollateralDisabled(false);
@@ -359,6 +359,7 @@ const VaultPosition = () => {
     removeCollatError,
     rollError,
     _selectedVault,
+    vaultsLoading,
   ]);
 
   /* EXTRA INITIATIONS */
