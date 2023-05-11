@@ -10,6 +10,9 @@ import { ChainContext } from '../contexts/ChainContext';
 import { TxContext } from '../contexts/TxContext';
 import { useColorScheme } from '../hooks/useColorScheme';
 import useContracts from '../hooks/useContracts';
+import { ContractNames } from '../config/contracts';
+import { Cauldron, VRCauldron } from '../contracts';
+import { UserContext } from '../contexts/UserContext';
 
 interface ITransactionItem {
   tx: any;
@@ -32,6 +35,9 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
   const {
     txActions: { updateTxStage },
   } = useContext(TxContext);
+  const {
+    userState: { selectedVR },
+  } = useContext(UserContext);
   const colorScheme = useColorScheme();
   const contracts = useContracts();
   const theme = useContext<any>(ThemeContext);
@@ -44,9 +50,12 @@ const TransactionItem = ({ tx, wide }: ITransactionItem) => {
 
   /* get position link for viewing position */
   useEffect(() => {
-    const path = getPositionPath(txCode, receipt, contracts, seriesRootMap);
+    const cauldron = selectedVR
+      ? (contracts?.get(ContractNames.VR_CAULDRON) as VRCauldron)
+      : (contracts?.get(ContractNames.CAULDRON) as Cauldron);
+    const path = getPositionPath(txCode, receipt, cauldron, seriesRootMap);
     path && setLink(path);
-  }, [receipt, contracts, seriesRootMap, txCode]);
+  }, [receipt, contracts, seriesRootMap, txCode, selectedVR]);
 
   return (
     <Box
