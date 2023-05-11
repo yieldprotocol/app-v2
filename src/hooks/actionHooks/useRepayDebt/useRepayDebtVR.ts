@@ -1,35 +1,30 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { calculateSlippage, MAX_256 } from '@yield-protocol/ui-math';
+import { MAX_256 } from '@yield-protocol/ui-math';
 import { UserContext } from '../../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, IAsset, RoutedActions } from '../../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IHistoryContext } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
 import { useChain } from '../../useChain';
-import { CONVEX_BASED_ASSETS, ETH_BASED_ASSETS, USDT, WETH } from '../../../config/assets';
-import { SettingsContext } from '../../../contexts/SettingsContext';
+import { ETH_BASED_ASSETS, USDT, WETH } from '../../../config/assets';
 import { useAddRemoveEth } from '../useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../../utils/constants';
-import { useWrapUnwrapAsset } from '../useWrapUnwrapAsset';
-import { ConvexJoin__factory } from '../../../contracts';
-import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
+import { Address, useBalance } from 'wagmi';
 import useContracts from '../../useContracts';
 import useChainId from '../../useChainId';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import { mutate } from 'swr';
 import useVaultsVR from '../../entities/useVaultsVR';
+import { HistoryContext } from '../../../contexts/HistoryContext';
 
 export const useRepayDebtVR = () => {
-  const {
-    settingsState: { slippageTolerance, diagnostics },
-  } = useContext(SettingsContext);
-
   const { userState, userActions } = useContext(UserContext);
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
   const { assetMap, selectedIlk, selectedBase } = userState;
-  const { updateVaults, updateAssets } = userActions;
+  const { updateAssets } = userActions;
   const { address: account } = useAccountPlus();
-  const { chain } = useNetwork();
-  const provider = useProvider();
   const contracts = useContracts();
   const { refetch: refetchIlkBal } = useBalance({
     address: account,
@@ -150,8 +145,7 @@ export const useRepayDebtVR = () => {
 
     updateAssets([base, ilk, userState.selectedIlk!]);
     mutate(vaultsKey);
-
-    // TODO update vault history
+    updateVaultHistory([vault]);
   };
 
   return repay;
