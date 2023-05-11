@@ -12,6 +12,8 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { unstable_serialize, useSWRConfig } from 'swr';
 import { toast } from 'react-toastify';
 import useAssetPair from './useAssetPair/useAssetPair';
+import useVYTokens from '../entities/useVYTokens';
+import useAccountPlus from '../useAccountPlus';
 
 interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
@@ -32,6 +34,9 @@ export const useDashboardHelpers = () => {
   const {
     userState: { vaultMap, seriesMap, strategyMap },
   } = useContext(UserContext);
+
+  const { address: activeAccount } = useAccountPlus();
+  const { data: vyTokens } = useVYTokens();
 
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { getAssetPair, genKey: genAssetPairKey } = useAssetPair();
@@ -85,8 +90,11 @@ export const useDashboardHelpers = () => {
       })
       .filter((_series: ILendPosition) => _series.balance?.gt(ZERO_BN))
       .sort((_seriesA: ILendPosition, _seriesB: ILendPosition) => (_seriesA.balance?.gt(_seriesB.balance!) ? 1 : -1));
-    setLendPositions(_lendPositions);
-  }, [getTimeTillMaturity, seriesMap]);
+
+    const _combinedPositions = [..._lendPositions, ...(vyTokens?.values()! || [])] as ILendPosition[];
+
+    setLendPositions(_combinedPositions);
+  }, [getTimeTillMaturity, seriesMap, vyTokens, activeAccount]);
 
   /* set strategy positions */
   useEffect(() => {
@@ -142,8 +150,6 @@ export const useDashboardHelpers = () => {
             if (fromAssetId === USDT) return Number(value);
             pair = await getAssetPair(USDT, fromAssetId);
           }
-        } finally {
-          pair = undefined;
         }
         mutate(pairKey, pair);
       }
@@ -182,7 +188,12 @@ export const useDashboardHelpers = () => {
       /* calc total lending */
       const _lendBalances = await Promise.all(
         lendPositions.map(
-          async (position) => await convertValue(currencySettingAssetId, position.baseId, position.currentValue_!)
+          async (position) =>
+            await convertValue(
+              currencySettingAssetId,
+              position.baseId,
+              position.maturity ? position.currentValue_! : position.balance_
+            )
         )
       );
       setTotalLendBalance(

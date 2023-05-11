@@ -35,6 +35,7 @@ import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import useAccountPlus from '../hooks/useAccountPlus';
 import { ContractNames } from '../config/contracts';
+import useVaultsVR from '../hooks/entities/useVaultsVR';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -150,6 +151,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const contracts = useContracts();
 
   const { forkStartBlock } = useFork();
+
+  const { data: vaultsVR } = useVaultsVR();
 
   const {
     // data: assetBalances,
@@ -725,12 +728,26 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         }
         return acc;
       }, new Map() as Map<string, IVault>);
-      updateState({ type: UserState.VAULTS, payload: newVaultMap });
+
+      const combinedVaultMap = vaultsVR ? new Map([...newVaultMap, ...vaultsVR!]) : newVaultMap;
+
+      updateState({ type: UserState.VAULTS, payload: combinedVaultMap });
 
       diagnostics && console.log('Vaults updated successfully.');
       updateState({ type: UserState.VAULTS_LOADING, payload: false });
     },
-    [_getVaults, account, assetRootMap, contracts, diagnostics, isMature, provider, seriesRootMap, useForkedEnv]
+    [
+      _getVaults,
+      account,
+      assetRootMap,
+      contracts,
+      diagnostics,
+      isMature,
+      provider,
+      seriesRootMap,
+      useForkedEnv,
+      vaultsVR,
+    ]
   );
 
   /**

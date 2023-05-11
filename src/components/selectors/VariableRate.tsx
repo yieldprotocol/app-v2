@@ -82,33 +82,43 @@ const VariableRate = () => {
     <StyledBox
       key={'vr'}
       round="large"
-      background={selectedVR ? 'purple' : '#00000007'}
       elevation="xsmall"
       onClick={() => setSelectedVR(true)}
       className="VR-container"
+      style={
+        selectedVR
+          ? {
+              border: 'double 2px transparent',
+              backgroundImage: darkMode
+                ? 'linear-gradient(black, black),radial-gradient(circle at top left, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)'
+                : 'linear-gradient(#ffffff, #ffffff),radial-gradient(circle at top left, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+              backgroundOrigin: 'border-box',
+              backgroundClip: 'content-box, border-box',
+              boxSizing: 'border-box',
+            }
+          : {
+              background: darkMode ? '#282828' : '#ffffff',
+              boxSizing: 'border-box',
+              border: 'double 2px transparent',
+            }
+      }
     >
       <Box pad="medium" width="small" height="medium" direction="row" gap="small" fill>
         <Box direction="row" gap="small" fill>
           <Avatar
             background={
-              darkMode
-                ? 'linear-gradient(90deg, rgba(30,42,217,1) 15%, rgba(121,0,255,1) 78%)'
-                : '-webkit-linear-gradient(95deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)'
+              'radial-gradient(circle at top left, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)'
             }
-            style={{ marginTop: '-5px' }}
+            style={{ marginTop: '-3px' }}
           >
-            <YieldMark colors={darkMode ? ['white'] : ['black']} />
+            <YieldMark colors={[' #f79533', '#f37055']} />
           </Avatar>
           <Box align="center" fill="vertical" justify="center">
             <Box direction="row">
-              <Text size="small" color={'text-weak'}>
-                Variable Rate
-              </Text>
+              <Text size="small">Variable Rate</Text>
             </Box>
 
-            <Text size="xsmall" color={'text-weak'}>
-              Indefinite
-            </Text>
+            <Text size="xsmall">Indefinite</Text>
           </Box>
         </Box>
 

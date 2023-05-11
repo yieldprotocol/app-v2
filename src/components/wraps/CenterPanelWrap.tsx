@@ -36,6 +36,11 @@ const StyledBox: any = styled(Box)`
   filter: blur(75px);
 `;
 
+const StyledBoxVR: any = styled(Box)`
+  background: linear-gradient(to right, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
+  filter: blur(75px);
+`;
+
 const calcX = (y: number, ly: number) => -(y - ly - window.innerHeight / 2) / 300;
 const calcY = (x: number, lx: number) => (x - lx - window.innerWidth / 2) / 300;
 
@@ -43,8 +48,6 @@ function CenterPanelWrap({ children, series, showBorder }: IPanelWrap) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const { userState } = useContext(UserContext);
   const { selectedVR } = userState;
-
-  console.log('centerpanelwrap', children, series, showBorder);
 
   const [flipped] = useState(false);
   const domTarget = useRef(null);
@@ -113,20 +116,31 @@ function CenterPanelWrap({ children, series, showBorder }: IPanelWrap) {
                   />
                 </Box>
               )}
+              {selectedVR && (
+                <Box
+                  height="650px"
+                  width="500px"
+                  align="center" // use this to move shadow around
+                  justify="end" // use this to move shadow around
+                >
+                  <StyledBoxVR height="500px" width="450px" animation="fadeIn" />
+                </Box>
+              )}
               <Box
-                elevation={mobile || selectedVR ? undefined : 'xlarge'}
-                height="650px"
+                elevation={mobile ? undefined : 'xlarge'}
+                height="660px"
                 width="500px"
                 round="medium"
                 background="lightBackground"
                 style={
                   showBorder && selectedVR
                     ? {
-                        borderImage:
-                          'linear-gradient(to right, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82) 1',
-                        borderWidth: '10px',
-                        borderStyle: 'solid',
                         borderRadius: '10px',
+                        border: 'double 5px transparent',
+                        backgroundImage:
+                          'linear-gradient(transparent, transparent), radial-gradient(circle at top left, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82)',
+                        backgroundOrigin: 'border-box',
+                        backgroundClip: 'padding-box, border-box',
                       }
                     : {}
                 }

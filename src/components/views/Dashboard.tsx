@@ -16,6 +16,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
 import { Settings } from '../../contexts/types/settings';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useVYTokens from '../../hooks/entities/useVYTokens';
 
 const StyledBox = styled(Box)`
   * {
@@ -44,6 +45,8 @@ const Dashboard = () => {
   } = useContext(ChainContext);
 
   const { address: account } = useAccountPlus();
+
+  const { isLoading: VyTokensLoading } = useVYTokens();
 
   const {
     vaultPositions,
@@ -119,7 +122,7 @@ const Dashboard = () => {
                 </Box>
               </Box>
 
-              {seriesLoading ? (
+              {seriesLoading || VyTokensLoading ? (
                 <Skeleton width={mobile ? 300 : undefined} count={1} height={40} />
               ) : (
                 <DashboardPositionList
