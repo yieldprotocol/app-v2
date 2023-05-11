@@ -75,7 +75,8 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
     } else if (selectedBase) {
       /* logic for VR */
-      const baseAmount = ethers.utils.parseUnits(_input || _fallbackInput, selectedBase.decimals);
+      const cleanedInput = cleanValue(_input || _fallbackInput, selectedBase.decimals);
+      const baseAmount = ethers.utils.parseUnits(cleanedInput, selectedBase.decimals);
 
       const now = Date.now() + 20000;
       // trying to call interest rate oracle
@@ -87,7 +88,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
           const interestRateOracleAddr = await VRCauldron.rateOracles(selectedBase.id);
           const interestRateOracle = VRInterestRateOracle__factory.connect(interestRateOracleAddr, provider);
           const joinAddress = selectedBase.joinAddressVR;
-          console.log('INTEREST RATE ORACLE', interestRateOracleAddr, interestRateOracle);
+          // console.log('INTEREST RATE ORACLE', interestRateOracleAddr, interestRateOracle);
 
           let rate: any = ethers.constants.Zero; // TODO - fix this type
 
@@ -103,7 +104,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
             );
           }
 
-          console.log('rate in useAPR', rate);
+          // console.log('rate in useAPR', rate);
 
           return rate;
         } catch (e) {

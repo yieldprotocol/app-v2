@@ -34,10 +34,10 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
     } as GA_Properties.position_opened);
   };
 
+  const { isLoading: vaultsLoadingVR } = useVaultsVR();
   const vaultBase = assetMap?.get(vault.baseId);
   const vaultIlk = assetMap?.get(vault.ilkId);
-  const vaultIsVR = !vault?.seriesId;
-  const { isLoading: vaultsLoadingVR } = useVaultsVR();
+  const vaultIsVR = !vault.seriesId;
 
   const { data: assetPair } = useAssetPair(vaultBase?.id, vaultIlk?.id);
 
@@ -84,7 +84,7 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
                 )}
                 {vaultIsVR && (
                   <Text weight={450} size="xsmall">
-                    {!debtInBase_ ? <SkeletonWrap width={30} /> : cleanValue(debtInBase_, 2)}
+                    {!debtInBase_ || vaultsLoadingVR ? <SkeletonWrap width={30} /> : cleanValue(debtInBase_, 2)}
                   </Text>
                 )}
               </Box>
