@@ -57,7 +57,11 @@ export const useInputValidation = (
             setInputError(`Amount exceeds the ${_selectedBase?.symbol} currently available in pool`);
           aboveMax && setInputError(`Exceeds the max allowable debt ${selectedVR ? '' : 'for this series'}`);
           belowMin &&
-            setInputError(`A minimum debt of ${limits[0]} ${_selectedBase?.symbol} is required for this series`);
+            setInputError(
+              `A minimum debt of ${limits[0]} ${_selectedBase?.symbol} is required ${
+                selectedVR ? '' : 'for this series'
+              }`
+            );
           break;
 
         case ActionCodes.REPAY:
