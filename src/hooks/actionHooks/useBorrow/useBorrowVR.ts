@@ -14,7 +14,7 @@ import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import useAssetPair from '../../viewHelperHooks/useAssetPair/useAssetPair';
 import { useSWRConfig } from 'swr';
-import useVaultsVR from '../../entities/useVaultsVR';
+import useVaultsVR from '../../entities/useVaults/useVaultsVR';
 import { HistoryContext } from '../../../contexts/HistoryContext';
 
 export const useBorrowVR = () => {

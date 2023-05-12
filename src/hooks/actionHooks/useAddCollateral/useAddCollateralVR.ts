@@ -12,7 +12,7 @@ import useContracts from '../../useContracts';
 import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import { mutate } from 'swr';
-import useVaultsVR from '../../entities/useVaultsVR';
+import useVaultsVR from '../../entities/useVaults/useVaultsVR';
 import { HistoryContext } from '../../../contexts/HistoryContext';
 
 export const useAddCollateralVR = () => {

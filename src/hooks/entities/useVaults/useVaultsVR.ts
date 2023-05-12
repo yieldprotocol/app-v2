@@ -1,18 +1,18 @@
 import useSWR from 'swr';
-import { IVault } from '../../types';
+import { IVault } from '../../../types';
 import { useCallback, useContext, useMemo } from 'react';
-import contractAddresses, { ContractNames } from '../../config/contracts';
-import { CompoundMultiOracle__factory, VRCauldron, VRCauldron__factory, VRWitch__factory } from '../../contracts';
-import useFork from '../useFork';
-import useDefaultProvider from '../useDefaultProvider';
-import { MulticallContext } from '../../contexts/MutlicallContext';
-import { ChainContext } from '../../contexts/ChainContext';
+import contractAddresses, { ContractNames } from '../../../config/contracts';
+import { CompoundMultiOracle__factory, VRCauldron, VRCauldron__factory, VRWitch__factory } from '../../../contracts';
+import useFork from '../../useFork';
+import useDefaultProvider from '../../useDefaultProvider';
+import { MulticallContext } from '../../../contexts/MutlicallContext';
+import { ChainContext } from '../../../contexts/ChainContext';
 import { formatUnits } from 'ethers/lib/utils.js';
 import { bytesToBytes32 } from '@yield-protocol/ui-math';
-import { RATE } from '../../utils/constants';
-import { cleanValue, generateVaultName } from '../../utils/appUtils';
-import useAccountPlus from '../useAccountPlus';
-import useChainId from '../useChainId';
+import { RATE } from '../../../utils/constants';
+import { cleanValue, generateVaultName } from '../../../utils/appUtils';
+import useAccountPlus from '../../useAccountPlus';
+import useChainId from '../../useChainId';
 
 const useVaultsVR = () => {
   const { address: account } = useAccountPlus();

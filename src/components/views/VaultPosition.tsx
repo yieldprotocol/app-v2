@@ -50,7 +50,7 @@ import { WETH } from '../../config/assets';
 import { Address } from '@wagmi/core';
 import useAccountPlus from '../../hooks/useAccountPlus';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
-import useVaultsVR from '../../hooks/entities/useVaultsVR';
+import useVaults from '../../hooks/entities/useVaults';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -61,14 +61,14 @@ const VaultPosition = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, seriesMap, vaultMap, vaultsLoading: vaultsLoadingFR, selectedVR } = userState;
+  const { assetMap, seriesMap, selectedVR } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault, setSelectedVR } = userActions;
-  const { data: vaultsVR, isLoading: vaultsLoadingVR } = useVaultsVR();
+  const { data: vaults, isLoadingVR: vaultsLoadingVR, isLoadingFR: vaultsLoadingFR } = useVaults();
   const vaultsLoading = selectedVR ? vaultsLoadingVR : vaultsLoadingFR;
 
   const { address: account } = useAccountPlus();
 
-  const _selectedVault = vaultMap?.get(idFromUrl as string) || vaultsVR?.get(idFromUrl as string);
+  const _selectedVault = vaults.get(idFromUrl as string);
 
   const vaultBase = assetMap?.get(_selectedVault?.baseId!);
   const vaultIlk = assetMap?.get(_selectedVault?.ilkId!);
@@ -377,16 +377,7 @@ const VaultPosition = () => {
     _selectedVault && setSelectedBase(_base);
     _selectedVault && setSelectedIlk(_ilkToUse!);
     _selectedVault && setSelectedVault(_selectedVault);
-  }, [
-    vaultMap,
-    _selectedVault,
-    seriesMap,
-    assetMap,
-    setSelectedSeries,
-    setSelectedBase,
-    setSelectedIlk,
-    setSelectedVault,
-  ]);
+  }, [_selectedVault, seriesMap, assetMap, setSelectedSeries, setSelectedBase, setSelectedIlk, setSelectedVault]);
 
   useEffect(() => {
     if (_selectedVault && account !== _selectedVault?.owner) router.push(prevLoc);
