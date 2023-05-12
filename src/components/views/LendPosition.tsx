@@ -350,7 +350,7 @@ const LendPosition = () => {
                           : // vyToken actions
                             [
                               { text: `Redeem ${selectedBase?.displaySymbol}`, index: 0 },
-                              { text: 'View Transaction History', index: 2 },
+                              { text: 'View Transaction History', index: 1 },
                             ]
                       }
                       icon={<FiChevronDown />}
@@ -479,11 +479,8 @@ const LendPosition = () => {
                   </>
                 )}
 
-                {actionActive.index === 2 && selectedSeries && (
-                  <YieldHistory seriesOrVault={selectedSeries!} view={['TRADE']} />
-                )}
-                {/* TODO handle vyToken history  */}
-                {/* {actionActive.index === 1 && <YieldHistory position={vyToken} view={['TRADE']} />} */}
+                {actionActive.index === 2 && selectedSeries && <YieldHistory item={selectedSeries!} view={['TRADE']} />}
+                {actionActive.index === 1 && selectedVR && <YieldHistory item={vyToken!} view={['VYTOKEN']} />}
               </Box>
             </Box>
 
@@ -538,7 +535,7 @@ const LendPosition = () => {
             {vyToken && (
               <ActionButtonGroup pad>
                 {/* handle closing vyToken (lend) position */}
-                {stepPosition[actionActive.index] === 0 && actionActive.index !== 2 && (
+                {stepPosition[actionActive.index] === 0 && actionActive.index !== 1 && (
                   <NextButton
                     label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
                     onClick={() => handleStepper()}
