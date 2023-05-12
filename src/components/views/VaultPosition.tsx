@@ -50,7 +50,7 @@ import { WETH } from '../../config/assets';
 import { Address } from '@wagmi/core';
 import useAccountPlus from '../../hooks/useAccountPlus';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
-import useVaultsVR from '../../hooks/entities/useVaultsVR';
+import useVaultsVR from '../../hooks/entities/useVaults/useVaultsVR';
 
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';

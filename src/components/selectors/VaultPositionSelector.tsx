@@ -7,7 +7,7 @@ import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import useAccountPlus from '../../hooks/useAccountPlus';
-import useVaultsVR from '../../hooks/entities/useVaultsVR';
+import useVaultsVR from '../../hooks/entities/useVaults/useVaultsVR';
 
 interface IVaultFilter {
   base: IAsset | undefined;

@@ -51,7 +51,7 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 import VariableRate from '../selectors/VariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
-import useVaultsVR from '../../hooks/entities/useVaultsVR';
+import useVaultsVR from '../../hooks/entities/useVaults/useVaultsVR';
 import { ContractNames } from '../../config/contracts';
 import { Cauldron, VRCauldron } from '../../contracts';
 

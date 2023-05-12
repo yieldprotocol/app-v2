@@ -7,7 +7,7 @@ import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
 import useVYTokens, { IVYToken } from '../hooks/entities/useVYTokens';
-import useVaultsVR from '../hooks/entities/useVaultsVR';
+import useVaultsVR from '../hooks/entities/useVaults/useVaultsVR';
 
 const Outer = styled(Box)`
   position: relative;
