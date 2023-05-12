@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions } from '../../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IHistoryContext } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
 import { BLANK_VAULT } from '../../../utils/constants';
 import { ETH_BASED_ASSETS } from '../../../config/assets';
@@ -13,12 +13,16 @@ import useAccountPlus from '../../useAccountPlus';
 import { ContractNames } from '../../../config/contracts';
 import { mutate } from 'swr';
 import useVaultsVR from '../../entities/useVaultsVR';
+import { HistoryContext } from '../../../contexts/HistoryContext';
 
 export const useAddCollateralVR = () => {
   const {
     userState: { selectedIlk, assetMap },
     userActions: { updateAssets },
   } = useContext(UserContext);
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
   const { address: account } = useAccountPlus();
   const contracts = useContracts();
   const { key: vaultsKey } = useVaultsVR();
@@ -109,8 +113,7 @@ export const useAddCollateralVR = () => {
     refetchIlkBal();
     mutate(vaultsKey);
     updateAssets([ilk]);
-
-    // TODO: update vault history
+    updateVaultHistory([vault!]);
   };
 
   return { addCollateral };

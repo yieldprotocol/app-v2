@@ -407,15 +407,11 @@ const HistoryProvider = ({ children }: any) => {
             base_?.digitFormat!
           )} ${base_?.displaySymbol!} @
           ${cleanValue(vault.rate_, 2)}%`;
-          /* 
-            will need to uncomment and test below when we have a fork 
-            with the wrap module - jacob b 
-          */
-          // else if (actionCode === ActionCodes.REPAY)
-          //   primaryInfo = `${cleanValue(
-          //     ethers.utils.formatUnits(baseTraded.abs(), base_?.decimals),
-          //     base_?.digitFormat!
-          //   )} ${base_?.displaySymbol!}`;
+          else if (actionCode === ActionCodes.REPAY)
+            primaryInfo = `${cleanValue(
+              ethers.utils.formatUnits(art.abs(), base_?.decimals),
+              base_?.digitFormat!
+            )} ${base_?.displaySymbol!}`;
           else if (actionCode === ActionCodes.ADD_COLLATERAL || actionCode === ActionCodes.REMOVE_COLLATERAL)
             primaryInfo = `${cleanValue(ethers.utils.formatUnits(ink, ilk?.decimals), ilk?.digitFormat!)} ${
               ilk?.displaySymbol
