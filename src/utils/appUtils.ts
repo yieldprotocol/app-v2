@@ -187,12 +187,7 @@ export const buildGradient = (colorFrom: string, colorTo: string) => `linear-gra
       ${modColor(colorTo, 0)})
     `;
 
-export const getPositionPath = (
-  txCode: string,
-  receipt: any,
-  contractMap?: ContractMap | undefined,
-  seriesMap?: any
-) => {
+export const getPositionPath = (txCode: string, receipt: any, cauldron?: Cauldron | VRCauldron, seriesMap?: any) => {
   const action = txCode.split('_')[0];
   const positionId = txCode.split('_')[1];
 
@@ -205,7 +200,7 @@ export const getPositionPath = (
     case ActionCodes.ROLL_DEBT:
     case ActionCodes.TRANSFER_VAULT:
     case ActionCodes.MERGE_VAULT:
-      return `/vaultposition/${getVaultIdFromReceipt(receipt, contractMap)}`;
+      return `/vaultposition/${getVaultIdFromReceipt(receipt, cauldron!)}`;
     // LEND
     case ActionCodes.LEND:
     case ActionCodes.CLOSE_POSITION:
