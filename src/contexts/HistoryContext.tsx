@@ -626,7 +626,6 @@ const HistoryProvider = ({ children }: any) => {
           // TODO get deposit events and make logs
           const depositLogs = [] as IHistItemPosition[];
           const sorted = [...depositLogs, ...redeemLogs].sort((a, b) => a.blockNumber - b.blockNumber);
-          console.log('🦄 ~ file: HistoryContext.tsx:630 ~ vyTokenAddresses.map ~ sorted:', sorted);
           vyTokenHistMap.set(address, sorted);
         })
       );
