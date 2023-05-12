@@ -15,11 +15,11 @@ import useAssetPair from './useAssetPair/useAssetPair';
 import useVYTokens from '../entities/useVYTokens';
 import useAccountPlus from '../useAccountPlus';
 
-interface ILendPosition extends ISeries {
+export interface ILendPosition extends ISeries {
   currentValue_: string | undefined;
 }
 
-interface IStrategyPosition extends IStrategy {
+export interface IStrategyPosition extends IStrategy {
   currentValue_: string | undefined;
 }
 

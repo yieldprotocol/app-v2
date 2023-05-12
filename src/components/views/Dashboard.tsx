@@ -136,7 +136,7 @@ const Dashboard = () => {
 
             <Box gap="medium">
               <Box justify="between" direction="row" align="center">
-                <Text size="medium">Liquidity </Text>
+                <Text size="medium">Liquidity</Text>
                 <Box
                   onClick={() => updateSetting(Settings.DASH_HIDE_POOL_POSITIONS, !dashHidePoolPositions)}
                   pad="xsmall"

@@ -1,31 +1,35 @@
 import { useContext } from 'react';
 import { Box } from 'grommet';
-import { ActionType } from '../types';
+import { IVault } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import VaultItem from './positionItems/VaultItem';
 import LendItem from './positionItems/LendItem';
 import StrategyItem from './positionItems/StrategyItem';
-import useVaultsVR from '../hooks/entities/useVaultsVR';
+import useVYTokens from '../hooks/entities/useVYTokens';
+import { ILendPosition, IStrategyPosition } from '../hooks/viewHelperHooks/useDashboardHelpers';
 
-function DashboardPositionListItem({ item, index, actionType }: { item: any; index: number; actionType: ActionType }) {
+function DashboardPositionListItem({
+  item,
+  index,
+}: {
+  item: IVault | ILendPosition | IStrategyPosition;
+  index: number;
+}) {
   const {
-    userState: { vaultMap, seriesMap, strategyMap },
+    userState: { vaultMap, strategyMap, seriesMap },
   } = useContext(UserContext);
 
-  const shouldShowLendPosition = (lendPosition: any) => {
-    const isFRPosition = lendPosition?.maturity ? true : false;
-    if (isFRPosition) {
-      return seriesMap?.has(lendPosition?.id);
-    } else {
-      return lendPosition.hasOwnProperty('vyTokenBaseVal');
-    }
-  };
+  const { data: vyTokens } = useVYTokens();
+
+  const vault = vaultMap.get(item.id);
+  const lendPosition = vyTokens?.has(item.id) ? vyTokens.get(item.id) : seriesMap.get(item.id);
+  const strategy = strategyMap.get(item.id);
 
   return (
     <Box>
-      {vaultMap?.has(item.id!) && <VaultItem vault={item!} index={index} condensed />}
-      {shouldShowLendPosition(item) && <LendItem item={item!} index={index} condensed />}
-      {strategyMap?.has(item.id) && <StrategyItem strategy={item!} index={index} condensed />}
+      {vault && <VaultItem vault={vault} index={index} condensed />}
+      {lendPosition && <LendItem item={lendPosition} index={index} condensed />}
+      {strategy && <StrategyItem strategy={strategy} index={index} condensed />}
     </Box>
   );
 }
