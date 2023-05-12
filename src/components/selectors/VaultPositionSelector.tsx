@@ -47,7 +47,6 @@ function VaultPositionSelector(target: any) {
         .sort((vaultA, vaultB) => (vaultA.art.lt(vaultB.art) ? 1 : -1));
       setFilter({ base, series, ilk });
       setFilteredVaults(_filteredVaults);
-      console.log('filteredVaults in VaultPositionSelector.tsx: ', _filteredVaults);
     },
     [vaultMap, dashHideInactiveVaults]
   );
@@ -55,7 +54,8 @@ function VaultPositionSelector(target: any) {
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
     if (!vaultMap) return;
-    const _allVaults = [...vaultMap.values(), ...(vaultsVR?.values() || [])]
+    const _allVaults = [...vaultMap.values()]
+
       // filter out vaults that have same base and ilk (borrow and pool liquidity positions)
       .filter((vault) => vault.baseId !== vault.ilkId)
 

@@ -90,7 +90,14 @@ function VaultItem({ vault, index, condensed }: { vault: IVault; index: number; 
               </Box>
             </Box>
           ) : (
-            <Text weight={450} size="xsmall" color="text-xweak">
+            <Text
+              weight={450}
+              size="xsmall"
+              color="text-xweak"
+              margin={{
+                right: '15px',
+              }}
+            >
               Vault transferred or deleted
             </Text>
           )}
