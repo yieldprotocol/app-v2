@@ -50,6 +50,8 @@ export interface IHistoryContextState {
   tradeHistory: IHistoryList;
   poolHistory: IHistoryList;
   vaultHistory: IHistoryList;
+  strategyHistory: IHistoryList;
+  vyTokenHistory: Map<string, IBaseHistItem[]> | undefined;
 }
 
 export interface IHistoryContextActions {
@@ -57,6 +59,7 @@ export interface IHistoryContextActions {
   updateStrategyHistory: (strategyList: IStrategy[]) => Promise<void>;
   updateVaultHistory: (vaultList: IVault[]) => Promise<void>;
   updateTradeHistory: (seriesList: ISeries[]) => Promise<void>;
+  updateVYTokenHistory: (vyTokenAddresses: string[]) => Promise<void>;
 }
 
 export interface IPriceContextState {

@@ -17,19 +17,21 @@ import {
 import { ChainContext } from './ChainContext';
 import { abbreviateHash, cleanValue } from '../utils/appUtils';
 import { ZERO_BN } from '../utils/constants';
-import { Cauldron, VRCauldron } from '../contracts';
+import { Cauldron, VRCauldron, VYToken__factory } from '../contracts';
 
 import { SettingsContext } from './SettingsContext';
 import { TransferEvent } from '../contracts/Strategy';
 import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 import { VaultPouredEvent as VRVaultPouredEvent } from '../contracts/VRCauldron';
-import { useAccount, useProvider } from 'wagmi';
+import { useProvider } from 'wagmi';
 import useContracts from '../hooks/useContracts';
 
 import useAccountPlus from '../hooks/useAccountPlus';
 import useFork from '../hooks/useFork';
 import { ContractNames } from '../config/contracts';
+import { formatUnits } from 'ethers/lib/utils.js';
+import useVYTokens from '../hooks/entities/useVYTokens';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -45,6 +47,7 @@ enum HistoryState {
   POOL_HISTORY = 'poolHistory',
   STRATEGY_HISTORY = 'strategyHistory',
   VAULT_HISTORY = 'vaultHistory',
+  VYTOKEN_HISTORY = 'vyTokenHistory',
 }
 
 const HistoryContext = React.createContext<any>({});
@@ -54,6 +57,7 @@ const initState = {
   tradeHistory: new Map([]),
   strategyHistory: new Map([]),
   poolHistory: new Map([]),
+  vyTokenHistory: new Map([]),
 };
 
 function historyReducer(state: any, action: any) {
@@ -85,6 +89,11 @@ function historyReducer(state: any, action: any) {
         ...state,
         vaultHistory: new Map([...state.vaultHistory, ...action.payload]),
       };
+    case HistoryState.VYTOKEN_HISTORY:
+      return {
+        ...state,
+        vyTokenHistory: new Map([...state.vyTokenHistory, ...action.payload]),
+      };
     default:
       return state;
   }
@@ -101,6 +110,7 @@ const HistoryProvider = ({ children }: any) => {
   const contracts = useContracts();
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const { address: account } = useAccountPlus();
+  const { data: vyTokens } = useVYTokens();
 
   const {
     settingsState: { diagnostics },
@@ -574,12 +584,60 @@ const HistoryProvider = ({ children }: any) => {
     ]
   );
 
+  const updateVYTokenHistory = useCallback(
+    async (vyTokenAddresses: string[]) => {
+      const vyTokenHistMap = new Map<string, IBaseHistItem[]>([]);
+
+      await Promise.all(
+        vyTokenAddresses.map(async (address) => {
+          const vyToken = vyTokens?.get(address);
+          const vyTokenContract = VYToken__factory.connect(vyToken?.proxyAddress!, provider);
+          const redeemEvents = await vyTokenContract.queryFilter(
+            vyTokenContract.filters.Redeemed(account, account),
+            useForkedEnv ? forkStartBlock : 'earliest'
+          );
+
+          const redeemLogs = await Promise.all(
+            redeemEvents.map(async (e) => {
+              const {
+                blockNumber,
+                transactionHash,
+                args: { underlyingAmount },
+              } = e;
+              const base = assetRootMap.get(vyToken?.baseId!);
+              const underlyingAmount_ = formatUnits(underlyingAmount, base?.decimals);
+
+              const date = (await provider.getBlock(blockNumber)).timestamp;
+
+              return {
+                blockNumber,
+                date,
+                transactionHash,
+                actionCode: ActionCodes.CLOSE_POSITION,
+                primaryInfo: `${cleanValue(underlyingAmount_, 2)} ${base?.displaySymbol}`,
+                date_: dateFormat(date),
+              } as IHistItemPosition;
+            })
+          );
+          // TODO get deposit events and make logs
+          const depositLogs = [] as IHistItemPosition[];
+          const sorted = [...depositLogs, ...redeemLogs].sort((a, b) => a.blockNumber - b.blockNumber);
+          vyTokenHistMap.set(address, sorted);
+        })
+      );
+
+      updateState({ type: HistoryState.VYTOKEN_HISTORY, payload: vyTokenHistMap });
+    },
+    [account, assetRootMap, forkStartBlock, provider, useForkedEnv, vyTokens]
+  );
+
   /* Exposed userActions */
   const historyActions: IHistoryContextActions = {
     updatePoolHistory,
     updateStrategyHistory,
     updateVaultHistory,
     updateTradeHistory,
+    updateVYTokenHistory,
   };
 
   return <HistoryContext.Provider value={{ historyState, historyActions }}>{children}</HistoryContext.Provider>;
