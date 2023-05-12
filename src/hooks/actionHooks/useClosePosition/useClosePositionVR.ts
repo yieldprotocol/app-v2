@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useContext } from 'react';
 import { ETH_BASED_ASSETS, WETH } from '../../../config/assets';
 import { UserContext } from '../../../contexts/UserContext';
-import { ActionCodes, ICallData, LadleActions, RoutedActions } from '../../../types';
+import { ActionCodes, ICallData, IHistoryContext, LadleActions, RoutedActions } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
 import { useChain } from '../../useChain';
 import { Address, useBalance, useProvider } from 'wagmi';
@@ -15,6 +15,7 @@ import { useAddRemoveEth } from '../useAddRemoveEth';
 import { VYToken__factory } from '../../../contracts';
 import { ONE_BN } from '../../../utils/constants';
 import { useSWRConfig } from 'swr';
+import { HistoryContext } from '../../../contexts/HistoryContext';
 
 /* Lend Actions Hook */
 export const useClosePositionVR = () => {
@@ -23,6 +24,9 @@ export const useClosePositionVR = () => {
     userState: { selectedBase },
     userActions,
   } = useContext(UserContext);
+  const {
+    historyActions: { updateVYTokenHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
   const { address: account } = useAccountPlus();
   const { data: vyTokens, key: vyTokensKey } = useVYTokens();
   const { removeEth } = useAddRemoveEth();
@@ -105,8 +109,7 @@ export const useClosePositionVR = () => {
     refetchBaseBal();
     mutate(vyTokensKey);
     updateAssets([selectedBase]);
-
-    // TODO update vyToken history
+    updateVYTokenHistory([selectedVyToken.address]);
   };
 
   return closePositionVR;
