@@ -1,23 +1,12 @@
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, createContext, ReactNode } from 'react';
+import { useContext, useEffect, useReducer, useCallback, Dispatch, createContext, ReactNode } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import * as contractTypes from '../contracts';
 
-import {
-  calculateAPR,
-  divDecimal,
-  bytesToBytes32,
-  floorDecimal,
-  mulDecimal,
-  sellFYToken,
-  calcAccruedDebt,
-  toBn,
-} from '@yield-protocol/ui-math';
+import { calculateAPR, divDecimal, floorDecimal, mulDecimal, sellFYToken, toBn } from '@yield-protocol/ui-math';
 
 import Decimal from 'decimal.js';
-import { IAssetRoot, ISeriesRoot, IVaultRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
+import { IAssetRoot, ISeriesRoot, ISeries, IAsset, IVault, IStrategyRoot, IStrategy } from '../types';
 import { ChainContext } from './ChainContext';
-import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { EULER_SUPGRAPH_ENDPOINT, RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
@@ -34,17 +23,14 @@ import useFork from '../hooks/useFork';
 import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import useAccountPlus from '../hooks/useAccountPlus';
-import { ContractNames } from '../config/contracts';
 
 const initState: IUserContextState = {
   userLoading: false,
   /* Item maps */
   assetMap: new Map<string, IAsset>(),
   seriesMap: new Map<string, ISeries>(),
-  vaultMap: new Map<string, IVault>(),
   strategyMap: new Map<string, IStrategy>(),
 
-  vaultsLoading: true,
   seriesLoading: true,
   assetsLoading: true,
   strategiesLoading: true,
@@ -61,7 +47,6 @@ const initState: IUserContextState = {
 const initActions: IUserContextActions = {
   updateSeries: () => null,
   updateAssets: () => null,
-  updateVaults: () => null,
   updateStrategies: () => null,
   setSelectedVault: () => null,
   setSelectedIlk: () => null,
@@ -86,8 +71,6 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
     case UserState.USER_LOADING:
       return { ...state, userLoading: action.payload };
 
-    case UserState.VAULTS_LOADING:
-      return { ...state, vaultsLoading: action.payload };
     case UserState.SERIES_LOADING:
       return { ...state, seriesLoading: action.payload };
     case UserState.ASSETS_LOADING:
@@ -99,13 +82,8 @@ function userReducer(state: IUserContextState, action: UserContextAction): IUser
       return { ...state, assetMap: new Map([...state.assetMap, ...action.payload]) };
     case UserState.SERIES:
       return { ...state, seriesMap: new Map([...state.seriesMap, ...action.payload]) };
-    case UserState.VAULTS:
-      return { ...state, vaultMap: new Map([...state.vaultMap, ...action.payload]) };
     case UserState.STRATEGIES:
       return { ...state, strategyMap: new Map([...state.strategyMap, ...action.payload]) };
-
-    case UserState.CLEAR_VAULTS:
-      return { ...state, vaultMap: new Map() };
 
     case UserState.SELECTED_VAULT:
       return { ...state, selectedVault: action.payload };
@@ -131,7 +109,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { chainLoaded, seriesRootMap, assetRootMap, strategyRootMap } = chainState;
 
   const {
-    settingsState: { diagnostics, useForkedEnv },
+    settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
   /* LOCAL STATE */
@@ -139,17 +117,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* HOOKS */
   const chainId = useChainId();
-  const provider = useProvider();
-
   const { address: account } = useAccountPlus();
-
-  const { pathname } = useRouter();
-
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-
-  const contracts = useContracts();
-
-  const { forkStartBlock } = useFork();
 
   const {
     // data: assetBalances,
@@ -193,74 +162,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     },
     [diagnostics]
   );
-
-  /* internal function for getting the users vaults */
-  const _getVaults = useCallback(async () => {
-    if (!contracts) return;
-
-    const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
-
-    const cacheKey = `vaults_${account}_${chainId}`;
-    const cachedVaults = JSON.parse(localStorage.getItem(cacheKey)!);
-    const cachedVaultList = (cachedVaults ?? []) as IVaultRoot[];
-
-    const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
-    // get the latest available vault ( either from the local storage or from the forkStart)
-    const lastVaultUpdate = useForkedEnv
-      ? forkStartBlock || 'earliest'
-      : JSON.parse(localStorage.getItem(lastVaultUpdateKey)!) || 'earliest';
-
-    /* Get a list of the vaults that were BUILT */
-    const vaultsBuiltFilter = Cauldron.filters.VaultBuilt(null, account, null);
-    const vaultsBuilt = (await Cauldron.queryFilter(vaultsBuiltFilter!, lastVaultUpdate)) || [];
-    const buildEventList = vaultsBuilt.map((x) => {
-      const { vaultId: id, ilkId, seriesId } = x.args;
-      const series = seriesRootMap.get(seriesId);
-      return {
-        id,
-        seriesId,
-        baseId: series?.baseId!,
-        ilkId,
-        displayName: generateVaultName(id),
-        decimals: series?.decimals!,
-      };
-    });
-
-    /* Get a list of the vaults that were RECEIVED */
-    const vaultsReceivedFilter = Cauldron.filters.VaultGiven(null, account);
-    const vaultsReceived = (await Cauldron.queryFilter(vaultsReceivedFilter, lastVaultUpdate)) || [];
-    const receivedEventsList = await Promise.all(
-      vaultsReceived.map(async (x): Promise<IVaultRoot> => {
-        const { vaultId: id } = x.args;
-        const { ilkId, seriesId } = await Cauldron.vaults(id);
-        const series = seriesRootMap.get(seriesId);
-        return {
-          id,
-          seriesId,
-          baseId: series?.baseId!,
-          ilkId,
-          displayName: generateVaultName(id),
-          decimals: series?.decimals!,
-        };
-      })
-    );
-
-    console.log('vaults received', vaultsReceived);
-
-    /* all vaults */
-    const allVaultList = [
-      ...buildEventList,
-      ...receivedEventsList,
-      ...cachedVaultList, // this is causing us to have vault dupes - is this intentional?
-    ];
-
-    /* Cache results */
-    const latestBlock = (await provider.getBlockNumber()).toString();
-    allVaultList.length && localStorage.setItem(cacheKey, JSON.stringify(allVaultList));
-    allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
-
-    return allVaultList;
-  }, [account, chainId, contracts, forkStartBlock, provider, seriesRootMap, useForkedEnv]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
@@ -624,115 +525,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     [account, userState.seriesMap] // userState.strategyMap excluded on purpose
   );
 
-  /* Updates the vaults with *user* data */
-  const updateVaults = useCallback(
-    async (vaultList: IVaultRoot[] = []) => {
-      if (!contracts) return;
-
-      console.log('Updating vaults ...', account);
-      updateState({ type: UserState.VAULTS_LOADING, payload: true });
-
-      let _vaults = vaultList;
-      const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
-      const VRCauldron = contracts.get(ContractNames.VR_CAULDRON) as contractTypes.VRCauldron;
-      const WitchV1 = contracts.get(ContractNames.WITCH) as contractTypes.Witch;
-      const Witch = contracts.get(ContractNames.WITCHV2) as contractTypes.WitchV2;
-      const VRWitch = contracts.get(ContractNames.VR_WITCH) as contractTypes.VRWitch;
-
-      /**
-       * if vaultList is empty, clear local app memory and fetch complete Vaultlist from chain via _getVaults */
-      if (vaultList.length === 0) {
-        updateState({ type: UserState.CLEAR_VAULTS });
-        _vaults = (await _getVaults()) as any;
-      }
-
-      /* if fetching vaults fails */
-      if (!_vaults) return;
-
-      console.log('Updating fr _vaults with dynamic data ...', _vaults);
-
-      const updatedVaults = await Promise.all(
-        _vaults.map(async (vault) => {
-          const [
-            { ink, art },
-            { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
-
-          const series = seriesRootMap.get(seriesId);
-          if (!series) return;
-
-          const isVaultMature = isMature(series?.maturity!);
-
-          const liquidationEvents = !useForkedEnv
-            ? await Promise.all([
-                WitchV1.queryFilter(Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
-                Witch.queryFilter(Witch.filters.Bought(bytesToBytes32(vault.id, 12), null, null, null)),
-              ])
-            : [];
-          const hasBeenLiquidated = liquidationEvents.flat().length > 0;
-
-          let accruedArt: BigNumber;
-          let rateAtMaturity: BigNumber;
-          let rate: BigNumber;
-
-          if (isVaultMature) {
-            const rateOracleAddr = await Cauldron.lendingOracles(vault.baseId);
-            const RateOracle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider); // using compount multi here, but all rate oracles follow the same func sig methodology
-
-            rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-            [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
-
-            [accruedArt] = rateAtMaturity.gt(ZERO_BN)
-              ? calcAccruedDebt(rate, rateAtMaturity, art)
-              : calcAccruedDebt(rate, rate, art);
-          } else {
-            rate = BigNumber.from('1');
-            rateAtMaturity = BigNumber.from('1');
-            accruedArt = art;
-          }
-
-          const baseRoot = assetRootMap.get(vault.baseId);
-          const ilkRoot = assetRootMap.get(ilkId);
-
-          const newVault: IVault = {
-            ...vault,
-            owner, // refreshed in case owner has been updated
-            isWitchOwner: Witch.address === owner || WitchV1.address === owner, // check if witch is the owner (in liquidation process)
-            hasBeenLiquidated,
-            isActive: owner.toLowerCase() === account?.toLowerCase(), // refreshed in case owner has been updated
-            seriesId, // refreshed in case seriesId has been updated
-            ilkId, // refreshed in case ilkId has been updated
-            ink,
-            art,
-            accruedArt,
-            isVaultMature,
-            rateAtMaturity,
-            rate,
-
-            rate_: cleanValue(ethers.utils.formatUnits(rate, 18), 2), // always 18 decimals when getting rate from rate oracle,
-            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
-            accruedArt_: cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot?.decimals), baseRoot?.digitFormat), // display purposes
-          };
-
-          return newVault;
-        })
-      );
-
-      const newVaultMap = updatedVaults.reduce((acc, item) => {
-        if (item) {
-          return acc.set(item.id, item as any);
-        }
-        return acc;
-      }, new Map() as Map<string, IVault>);
-      updateState({ type: UserState.VAULTS, payload: newVaultMap });
-
-      diagnostics && console.log('Vaults updated successfully.');
-      updateState({ type: UserState.VAULTS_LOADING, payload: false });
-    },
-    [_getVaults, account, assetRootMap, contracts, diagnostics, isMature, provider, seriesRootMap, useForkedEnv]
-  );
-
   /**
    *
    * When the chainContext is finished loading get the dynamic series and asset.
@@ -743,9 +535,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
       updateAssets(Array.from(assetRootMap.values()));
       updateSeries(Array.from(seriesRootMap.values()));
-      account && updateVaults();
     }
-  }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateSeries, updateVaults]);
+  }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateSeries]);
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
@@ -754,12 +545,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
   }, [strategyRootMap, userState.seriesMap, chainLoaded, chainId, updateStrategies]);
-
-  // /* If the url references a series/vault...set that one as active */
-  // useEffect(() => {
-  //   const vaultId = pathname.split('/')[2];
-  //   pathname && userState.vaultMap?.has(vaultId);
-  // }, [pathname, userState.vaultMap]);
 
   /**
    * Explicitly update selected series on series map changes
@@ -777,9 +562,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const userActions = {
     updateSeries,
     updateAssets,
-    updateVaults,
     updateStrategies,
-
     setSelectedVault: useCallback(
       (vault: IVault | null) => updateState({ type: UserState.SELECTED_VAULT, payload: vault! }),
       []
