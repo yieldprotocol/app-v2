@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-import { ICallData, IVault, ActionCodes, LadleActions, IAsset } from '../../../types';
+import { ICallData, IVault, ActionCodes, LadleActions, IAsset, IHistoryContext } from '../../../types';
 import { cleanValue, getTxCode } from '../../../utils/appUtils';
 import { BLANK_VAULT } from '../../../utils/constants';
 import { ETH_BASED_ASSETS, WETH } from '../../../config/assets';
@@ -15,12 +15,16 @@ import { ContractNames } from '../../../config/contracts';
 import useAssetPair from '../../viewHelperHooks/useAssetPair/useAssetPair';
 import { useSWRConfig } from 'swr';
 import useVaultsVR from '../../entities/useVaultsVR';
+import { HistoryContext } from '../../../contexts/HistoryContext';
 
 export const useBorrowVR = () => {
   const { mutate } = useSWRConfig();
   const { genKey: genAssetPairKey } = useAssetPair();
   const { key: vaultsKey } = useVaultsVR();
   const { userState, userActions } = useContext(UserContext);
+  const {
+    historyActions: { updateVaultHistory },
+  } = useContext(HistoryContext) as IHistoryContext;
   const { selectedBase, selectedIlk, assetMap } = userState;
   const { updateAssets } = userActions;
   const { address: account } = useAccountPlus();
@@ -126,8 +130,7 @@ export const useBorrowVR = () => {
     updateAssets([base, ilkToUse, selectedIlk]);
     mutate(genAssetPairKey(selectedBase.id, selectedIlk.id));
     mutate(vaultsKey);
-
-    // TODO update borrow history
+    updateVaultHistory([]);
   };
 
   return borrowVR;
