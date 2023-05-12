@@ -51,9 +51,9 @@ import useAccountPlus from '../../hooks/useAccountPlus';
 import VariableRate from '../selectors/VariableRate';
 import useBasesVR from '../../hooks/views/useBasesVR';
 import useAssetPair from '../../hooks/viewHelperHooks/useAssetPair/useAssetPair';
-import useVaultsVR from '../../hooks/entities/useVaults/useVaultsVR';
 import { ContractNames } from '../../config/contracts';
 import { Cauldron, VRCauldron } from '../../contracts';
+import useVaults from '../../hooks/entities/useVaults';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -62,8 +62,7 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, vaultMap, vaultsLoading, selectedSeries, selectedIlk, selectedBase, selectedVault, selectedVR } =
-    userState;
+  const { assetMap, selectedSeries, selectedIlk, selectedBase, selectedVault, selectedVR } = userState;
   const { setSelectedIlk } = userActions;
 
   const { address: activeAccount } = useAccountPlus();
@@ -91,7 +90,7 @@ const Borrow = () => {
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
   const { data: basesVR } = useBasesVR();
-  const { data: vaultsVR } = useVaultsVR();
+  const { vaultsFR, vaultsVR } = useVaults();
 
   const {
     collateralizationPercent,
@@ -256,7 +255,7 @@ const Borrow = () => {
   /* CHECK the list of current vaults which match the current series/ilk selection */ // TODO look at moving this to helper hook?
   useEffect(() => {
     if (selectedBase && selectedIlk) {
-      const vaults = [...(selectedVR ? (vaultsVR || []).values() : (vaultMap || []).values())];
+      const vaults = [...(selectedVR ? (vaultsVR || []).values() : (vaultsFR || []).values())];
       const matchingVaults = vaults.filter(
         (v) =>
           v.ilkId === selectedIlk.proxyId &&
@@ -266,7 +265,7 @@ const Borrow = () => {
       );
       setMatchingVaults(matchingVaults);
     }
-  }, [vaultMap, selectedBase, selectedIlk, selectedSeries, vaultsVR, selectedVR]);
+  }, [selectedBase, selectedIlk, selectedSeries, vaultsVR, selectedVR, vaultsFR]);
 
   /* handle selected vault */
   useEffect(() => {

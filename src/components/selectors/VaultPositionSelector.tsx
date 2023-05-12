@@ -7,7 +7,7 @@ import VaultListItem from '../positionItems/VaultItem';
 import ListWrap from '../wraps/ListWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import useAccountPlus from '../../hooks/useAccountPlus';
-import useVaultsVR from '../../hooks/entities/useVaults/useVaultsVR';
+import useVaults from '../../hooks/entities/useVaults';
 
 interface IVaultFilter {
   base: IAsset | undefined;
@@ -21,10 +21,10 @@ function VaultPositionSelector(target: any) {
     settingsState: { dashHideInactiveVaults },
   } = useContext(SettingsContext);
   const {
-    userState: { vaultMap, selectedSeries, selectedBase },
+    userState: { selectedSeries, selectedBase },
   } = useContext(UserContext);
 
-  const { data: vaultsVR } = useVaultsVR();
+  const { data: vaults } = useVaults();
 
   const { address: account } = useAccountPlus();
 
@@ -37,8 +37,7 @@ function VaultPositionSelector(target: any) {
 
   const handleFilter = useCallback(
     ({ base, series, ilk }: IVaultFilter) => {
-      if (!vaultMap) return;
-      const _filteredVaults = Array.from(vaultMap.values())
+      const _filteredVaults = Array.from(vaults.values())
         .filter((vault) => !dashHideInactiveVaults || vault.isActive)
         .filter((vault) => (base ? vault.baseId === base.proxyId : true))
         .filter((vault) => (series ? vault.seriesId === series.id : true))
@@ -49,13 +48,12 @@ function VaultPositionSelector(target: any) {
       setFilteredVaults(_filteredVaults);
       console.log('filteredVaults in VaultPositionSelector.tsx: ', _filteredVaults);
     },
-    [vaultMap, dashHideInactiveVaults]
+    [vaults, dashHideInactiveVaults]
   );
 
   /* CHECK the list of current vaults which match the current series/ilk selection */
   useEffect(() => {
-    if (!vaultMap) return;
-    const _allVaults = [...vaultMap.values(), ...(vaultsVR?.values() || [])]
+    const _allVaults = [...vaults.values()]
       // filter out vaults that have same base and ilk (borrow and pool liquidity positions)
       .filter((vault) => vault.baseId !== vault.ilkId)
 
@@ -73,7 +71,7 @@ function VaultPositionSelector(target: any) {
     if (selectedBase && selectedSeries) {
       handleFilter({ base: selectedBase, series: selectedSeries, ilk: undefined });
     }
-  }, [vaultMap, selectedBase, selectedSeries, handleFilter, vaultsVR]);
+  }, [selectedBase, selectedSeries, handleFilter, vaults]);
 
   useEffect(() => {
     allVaults.length <= 5 && setShowAllVaults(true);

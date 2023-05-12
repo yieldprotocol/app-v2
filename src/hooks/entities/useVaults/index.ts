@@ -11,6 +11,8 @@ const useVaults = () => {
       () => new Map([...(vaultsFR?.entries() || []), ...(vaultsVR?.entries() || [])]),
       [vaultsFR, vaultsVR]
     ),
+    vaultsVR,
+    vaultsFR,
     isLoading: vaultsFRLoading || vaultsVRLoading,
     isLoadingFR: vaultsFRLoading,
     isLoadingVR: vaultsVRLoading,
