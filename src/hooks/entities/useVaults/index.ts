@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import useVaultsFR from './useVaultsFR';
 import useVaultsVR from './useVaultsVR';
 
@@ -6,7 +7,10 @@ const useVaults = () => {
   const { data: vaultsVR, isLoading: vaultsVRLoading } = useVaultsVR();
 
   return {
-    data: new Map([...(vaultsFR?.entries() || []), ...(vaultsVR?.entries() || [])]),
+    data: useMemo(
+      () => new Map([...(vaultsFR?.entries() || []), ...(vaultsVR?.entries() || [])]),
+      [vaultsFR, vaultsVR]
+    ),
     isLoading: vaultsFRLoading || vaultsVRLoading,
     isLoadingFR: vaultsFRLoading,
     isLoadingVR: vaultsVRLoading,
