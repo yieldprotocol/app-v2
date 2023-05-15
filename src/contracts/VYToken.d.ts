@@ -36,19 +36,15 @@ interface VYTokenInterface extends ethers.utils.Interface {
     "decimals()": FunctionFragment;
     "deploymentChainId()": FunctionFragment;
     "deposit(address,uint256)": FunctionFragment;
-    "flashFee(address,uint256)": FunctionFragment;
-    "flashFeeFactor()": FunctionFragment;
-    "flashLoan(address,address,uint256,bytes)": FunctionFragment;
     "getRoleAdmin(bytes4)": FunctionFragment;
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
-    "initialize(address)": FunctionFragment;
+    "initialize(address,string,string,uint8)": FunctionFragment;
     "initialized()": FunctionFragment;
     "join()": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "maxDeposit(address)": FunctionFragment;
-    "maxFlashLoan(address)": FunctionFragment;
     "maxMint(address)": FunctionFragment;
     "maxRedeem(address)": FunctionFragment;
     "maxWithdraw(address)": FunctionFragment;
@@ -66,7 +62,6 @@ interface VYTokenInterface extends ethers.utils.Interface {
     "renounceRole(bytes4,address)": FunctionFragment;
     "revokeRole(bytes4,address)": FunctionFragment;
     "revokeRoles(bytes4[],address)": FunctionFragment;
-    "setFlashFeeFactor(uint256)": FunctionFragment;
     "setRoleAdmin(bytes4,bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
@@ -125,18 +120,6 @@ interface VYTokenInterface extends ethers.utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "flashFee",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashFeeFactor",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashLoan",
-    values: [string, string, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [BytesLike]
   ): string;
@@ -152,7 +135,10 @@ interface VYTokenInterface extends ethers.utils.Interface {
     functionFragment: "hasRole",
     values: [BytesLike, string]
   ): string;
-  encodeFunctionData(functionFragment: "initialize", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [string, string, string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "initialized",
     values?: undefined
@@ -160,10 +146,6 @@ interface VYTokenInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "join", values?: undefined): string;
   encodeFunctionData(functionFragment: "lockRole", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "maxDeposit", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "maxFlashLoan",
-    values: [string]
-  ): string;
   encodeFunctionData(functionFragment: "maxMint", values: [string]): string;
   encodeFunctionData(functionFragment: "maxRedeem", values: [string]): string;
   encodeFunctionData(functionFragment: "maxWithdraw", values: [string]): string;
@@ -221,10 +203,6 @@ interface VYTokenInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "revokeRoles",
     values: [BytesLike[], string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setFlashFeeFactor",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
@@ -297,12 +275,6 @@ interface VYTokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "flashFeeFactor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -318,10 +290,6 @@ interface VYTokenInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "join", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maxDeposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxFlashLoan",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "maxMint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maxRedeem", data: BytesLike): Result;
   decodeFunctionResult(
@@ -364,10 +332,6 @@ interface VYTokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setFlashFeeFactor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setRoleAdmin",
     data: BytesLike
   ): Result;
@@ -398,8 +362,7 @@ interface VYTokenInterface extends ethers.utils.Interface {
     "AdminChanged(address,address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "BeaconUpgraded(address)": EventFragment;
-    "FlashFeeFactorSet(uint256)": EventFragment;
-    "Point(bytes32,address)": EventFragment;
+    "Deposited(address,address,uint256,uint256)": EventFragment;
     "Redeemed(address,address,uint256,uint256)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
@@ -411,8 +374,7 @@ interface VYTokenInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "FlashFeeFactorSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Point"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Deposited"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Redeemed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
@@ -435,12 +397,13 @@ export type ApprovalEvent = TypedEvent<
 
 export type BeaconUpgradedEvent = TypedEvent<[string] & { beacon: string }>;
 
-export type FlashFeeFactorSetEvent = TypedEvent<
-  [BigNumber] & { fee: BigNumber }
->;
-
-export type PointEvent = TypedEvent<
-  [string, string] & { param: string; value: string }
+export type DepositedEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber] & {
+    sender: string;
+    receiver: string;
+    underlyingAmount: BigNumber;
+    principalAmount: BigNumber;
+  }
 >;
 
 export type RedeemedEvent = TypedEvent<
@@ -542,13 +505,13 @@ export class VYToken extends BaseContract {
 
     convertToPrincipal(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { principalAmount: BigNumber }>;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     convertToUnderlying(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { underlyingAmount: BigNumber }>;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
@@ -557,22 +520,6 @@ export class VYToken extends BaseContract {
     deposit(
       receiver: string,
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    flashFee(
-      token: string,
-      principalAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    flashFeeFactor(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    flashLoan(
-      receiver: string,
-      token: string,
-      principalAmount: BigNumberish,
-      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -598,6 +545,9 @@ export class VYToken extends BaseContract {
 
     initialize(
       root_: string,
+      name_: string,
+      symbol_: string,
+      decimals_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -614,11 +564,6 @@ export class VYToken extends BaseContract {
       arg0: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    maxFlashLoan(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     maxMint(
       arg0: string,
@@ -660,29 +605,36 @@ export class VYToken extends BaseContract {
 
     previewDeposit(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { principalAmount: BigNumber }>;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     previewMint(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { underlyingAmount: BigNumber }>;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     previewRedeem(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { underlyingAmount: BigNumber }>;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     previewWithdraw(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { principalAmount: BigNumber }>;
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
-    redeem(
+    "redeem(address,uint256)"(
       receiver: string,
       principalAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "redeem(uint256,address,address)"(
+      principalAmount: BigNumberish,
+      receiver: string,
+      holder: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -701,11 +653,6 @@ export class VYToken extends BaseContract {
     revokeRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setFlashFeeFactor(
-      flashFeeFactor_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -785,13 +732,13 @@ export class VYToken extends BaseContract {
 
   convertToPrincipal(
     underlyingAmount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   convertToUnderlying(
     principalAmount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -800,22 +747,6 @@ export class VYToken extends BaseContract {
   deposit(
     receiver: string,
     underlyingAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  flashFee(
-    token: string,
-    principalAmount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
-
-  flashLoan(
-    receiver: string,
-    token: string,
-    principalAmount: BigNumberish,
-    data: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -841,6 +772,9 @@ export class VYToken extends BaseContract {
 
   initialize(
     root_: string,
+    name_: string,
+    symbol_: string,
+    decimals_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -857,8 +791,6 @@ export class VYToken extends BaseContract {
     arg0: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   maxMint(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -894,29 +826,36 @@ export class VYToken extends BaseContract {
 
   previewDeposit(
     underlyingAmount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   previewMint(
     principalAmount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   previewRedeem(
     principalAmount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   previewWithdraw(
     underlyingAmount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
-  redeem(
+  "redeem(address,uint256)"(
     receiver: string,
     principalAmount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "redeem(uint256,address,address)"(
+    principalAmount: BigNumberish,
+    receiver: string,
+    holder: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -935,11 +874,6 @@ export class VYToken extends BaseContract {
   revokeRoles(
     roles: BytesLike[],
     account: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setFlashFeeFactor(
-    flashFeeFactor_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1037,22 +971,6 @@ export class VYToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    flashFee(
-      token: string,
-      principalAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    flashLoan(
-      receiver: string,
-      token: string,
-      principalAmount: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     grantRole(
@@ -1073,7 +991,13 @@ export class VYToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    initialize(root_: string, overrides?: CallOverrides): Promise<void>;
+    initialize(
+      root_: string,
+      name_: string,
+      symbol_: string,
+      decimals_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     initialized(overrides?: CallOverrides): Promise<boolean>;
 
@@ -1082,8 +1006,6 @@ export class VYToken extends BaseContract {
     lockRole(role: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     maxDeposit(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     maxMint(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1136,9 +1058,16 @@ export class VYToken extends BaseContract {
 
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
-    redeem(
+    "redeem(address,uint256)"(
       receiver: string,
       principalAmount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "redeem(uint256,address,address)"(
+      principalAmount: BigNumberish,
+      receiver: string,
+      holder: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1157,11 +1086,6 @@ export class VYToken extends BaseContract {
     revokeRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setFlashFeeFactor(
-      flashFeeFactor_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1256,23 +1180,35 @@ export class VYToken extends BaseContract {
       beacon?: string | null
     ): TypedEventFilter<[string], { beacon: string }>;
 
-    "FlashFeeFactorSet(uint256)"(
-      fee?: BigNumberish | null
-    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
+    "Deposited(address,address,uint256,uint256)"(
+      sender?: string | null,
+      receiver?: string | null,
+      underlyingAmount?: null,
+      principalAmount?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber, BigNumber],
+      {
+        sender: string;
+        receiver: string;
+        underlyingAmount: BigNumber;
+        principalAmount: BigNumber;
+      }
+    >;
 
-    FlashFeeFactorSet(
-      fee?: BigNumberish | null
-    ): TypedEventFilter<[BigNumber], { fee: BigNumber }>;
-
-    "Point(bytes32,address)"(
-      param?: BytesLike | null,
-      value?: null
-    ): TypedEventFilter<[string, string], { param: string; value: string }>;
-
-    Point(
-      param?: BytesLike | null,
-      value?: null
-    ): TypedEventFilter<[string, string], { param: string; value: string }>;
+    Deposited(
+      sender?: string | null,
+      receiver?: string | null,
+      underlyingAmount?: null,
+      principalAmount?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber, BigNumber],
+      {
+        sender: string;
+        receiver: string;
+        underlyingAmount: BigNumber;
+        principalAmount: BigNumber;
+      }
+    >;
 
     "Redeemed(address,address,uint256,uint256)"(
       holder?: string | null,
@@ -1412,12 +1348,12 @@ export class VYToken extends BaseContract {
 
     convertToPrincipal(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     convertToUnderlying(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1427,22 +1363,6 @@ export class VYToken extends BaseContract {
     deposit(
       receiver: string,
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    flashFee(
-      token: string,
-      principalAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    flashFeeFactor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    flashLoan(
-      receiver: string,
-      token: string,
-      principalAmount: BigNumberish,
-      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1471,6 +1391,9 @@ export class VYToken extends BaseContract {
 
     initialize(
       root_: string,
+      name_: string,
+      symbol_: string,
+      decimals_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1487,8 +1410,6 @@ export class VYToken extends BaseContract {
       arg0: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    maxFlashLoan(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     maxMint(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1524,29 +1445,36 @@ export class VYToken extends BaseContract {
 
     previewDeposit(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     previewMint(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     previewRedeem(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     previewWithdraw(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
-    redeem(
+    "redeem(address,uint256)"(
       receiver: string,
       principalAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "redeem(uint256,address,address)"(
+      principalAmount: BigNumberish,
+      receiver: string,
+      holder: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1565,11 +1493,6 @@ export class VYToken extends BaseContract {
     revokeRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setFlashFeeFactor(
-      flashFeeFactor_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1653,12 +1576,12 @@ export class VYToken extends BaseContract {
 
     convertToPrincipal(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     convertToUnderlying(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1668,22 +1591,6 @@ export class VYToken extends BaseContract {
     deposit(
       receiver: string,
       underlyingAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    flashFee(
-      token: string,
-      principalAmount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    flashFeeFactor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    flashLoan(
-      receiver: string,
-      token: string,
-      principalAmount: BigNumberish,
-      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1712,6 +1619,9 @@ export class VYToken extends BaseContract {
 
     initialize(
       root_: string,
+      name_: string,
+      symbol_: string,
+      decimals_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1727,11 +1637,6 @@ export class VYToken extends BaseContract {
     maxDeposit(
       arg0: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    maxFlashLoan(
-      token: string,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     maxMint(
@@ -1777,29 +1682,36 @@ export class VYToken extends BaseContract {
 
     previewDeposit(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     previewMint(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     previewRedeem(
       principalAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     previewWithdraw(
       underlyingAmount: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    redeem(
+    "redeem(address,uint256)"(
       receiver: string,
       principalAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "redeem(uint256,address,address)"(
+      principalAmount: BigNumberish,
+      receiver: string,
+      holder: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1818,11 +1730,6 @@ export class VYToken extends BaseContract {
     revokeRoles(
       roles: BytesLike[],
       account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setFlashFeeFactor(
-      flashFeeFactor_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

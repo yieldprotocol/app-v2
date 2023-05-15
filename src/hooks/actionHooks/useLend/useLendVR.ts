@@ -18,7 +18,6 @@ import { VYToken__factory } from '../../../contracts';
 import { MAX_256 } from '@yield-protocol/ui-math';
 import useVYTokens from '../../entities/useVYTokens';
 import { useSWRConfig } from 'swr';
-import useAssetPair from '../../viewHelperHooks/useAssetPair/useAssetPair';
 
 /* Lend Actions Hook */
 export const useLendVR = () => {
@@ -41,7 +40,7 @@ export const useLendVR = () => {
   });
 
   const {
-    historyActions: { updateTradeHistory }, // vr deposit history
+    historyActions: { updateVYTokenHistory }, // vr deposit history
   } = useContext(HistoryContext);
 
   const { sign, transact } = useChain();
@@ -112,7 +111,7 @@ export const useLendVR = () => {
     mutate(vyTokensKey);
     refetchBaseBal();
     updateAssets([base]);
-    // updateLendVRHistory(); // TODO update vr lend history
+    updateVYTokenHistory([vyToken?.address!]);
   };
 
   return lend;

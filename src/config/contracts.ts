@@ -11,6 +11,7 @@ export enum ContractNames {
   WRAP_ETHER_MODULE = 'WrapEtherModule',
   CONVEX_LADLE_MODULE = 'ConvexLadleModule',
   TRANSFER_1155_MODULE = 'Transfer1155Module',
+  VR_ROUTER = 'VRRouter',
 }
 
 export type ContractMap = Map<ContractNames, Contract>;
@@ -34,6 +35,7 @@ export const contractAddresses: ContractAddresses = {
         [ContractNames.TRANSFER_1155_MODULE, '0x97f1d43A217aDD678bB6Dcd3C5D51F40b6729d06'],
         [ContractNames.WRAP_ETHER_MODULE, '0x22768FCaFe7BB9F03e31cb49823d1Ece30C0b8eA'],
         [ContractNames.CONVEX_LADLE_MODULE, '0x9Bf195997581C99cef8be95a3a816Ca19Cf1A3e6'],
+        [ContractNames.VR_ROUTER, '0x2e0d7680d68cff941482f111f2ed1df867736576'], // <-- will need to update this, necessary to get Deposited Events
       ]),
     ],
     [
@@ -47,6 +49,7 @@ export const contractAddresses: ContractAddresses = {
         [ContractNames.VR_CAULDRON, '0x51453309441579de245a9e99800b6b7f19e48e1a'],
         [ContractNames.VR_WITCH, '0x090e8a0fc6df49f25c3f619bc3bc1cc6d6150b45'],
         [ContractNames.VR_LADLE, '0x2ad615c6a63186d4fe24fa6a82277832a7468601'],
+        [ContractNames.VR_ROUTER, '0x2e0d7680d68cff941482f111f2ed1df867736576'],
       ]),
     ],
   ]),
