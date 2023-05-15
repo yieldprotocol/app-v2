@@ -29,9 +29,10 @@ import useContracts from '../hooks/useContracts';
 
 import useAccountPlus from '../hooks/useAccountPlus';
 import useFork from '../hooks/useFork';
-import { ContractNames } from '../config/contracts';
+import contractAddresses, { ContractNames } from '../config/contracts';
 import { formatUnits } from 'ethers/lib/utils.js';
 import useVYTokens from '../hooks/entities/useVYTokens';
+import useChainId from '../hooks/useChainId';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -111,6 +112,7 @@ const HistoryProvider = ({ children }: any) => {
   const [historyState, updateState] = useReducer(historyReducer, initState);
   const { address: account } = useAccountPlus();
   const { data: vyTokens } = useVYTokens();
+  const chainId = useChainId();
 
   const {
     settingsState: { diagnostics },
@@ -427,8 +429,6 @@ const HistoryProvider = ({ children }: any) => {
               ilk?.displaySymbol
             }`;
 
-          console.log('primaryInfo', primaryInfo, base_, cleanValue(vault.rate_, 2), vault);
-
           return {
             /* histItem base */
             blockNumber,
@@ -592,8 +592,15 @@ const HistoryProvider = ({ children }: any) => {
         vyTokenAddresses.map(async (address) => {
           const vyToken = vyTokens?.get(address);
           const vyTokenContract = VYToken__factory.connect(vyToken?.proxyAddress!, provider);
+
+          const vrRouterAddr = contractAddresses.addresses.get(chainId)?.get(ContractNames.VR_ROUTER);
+
           const redeemEvents = await vyTokenContract.queryFilter(
-            vyTokenContract.filters.Redeemed(account, account),
+            vyTokenContract.filters.Redeemed(null, null),
+            useForkedEnv ? forkStartBlock : 'earliest'
+          );
+          const depositEvents = await vyTokenContract.queryFilter(
+            vyTokenContract.filters.Deposited(vrRouterAddr, account),
             useForkedEnv ? forkStartBlock : 'earliest'
           );
 
@@ -620,7 +627,30 @@ const HistoryProvider = ({ children }: any) => {
             })
           );
           // TODO get deposit events and make logs
-          const depositLogs = [] as IHistItemPosition[];
+          const depositLogs = await Promise.all(
+            depositEvents.map(async (e) => {
+              const {
+                blockNumber,
+                transactionHash,
+                args: { underlyingAmount },
+              } = e;
+              const base = assetRootMap.get(vyToken?.baseId!);
+              const underlyingAmount_ = formatUnits(underlyingAmount, base?.decimals);
+
+              const date = (await provider.getBlock(blockNumber)).timestamp;
+
+              return {
+                blockNumber,
+                date,
+                transactionHash,
+                actionCode: ActionCodes.LEND,
+                primaryInfo: `${cleanValue(underlyingAmount_, 2)} ${base?.displaySymbol}`,
+                date_: dateFormat(date),
+              } as IHistItemPosition;
+            })
+          );
+
+          // ^ getting deposit events
           const sorted = [...depositLogs, ...redeemLogs].sort((a, b) => a.blockNumber - b.blockNumber);
           vyTokenHistMap.set(address, sorted);
         })

@@ -851,7 +851,7 @@ const VaultPosition = () => {
                   </>
                 )}
 
-                {actionActive.index === 4 && <YieldHistory seriesOrVault={_selectedVault!} view={['VAULT']} />}
+                {actionActive.index === 4 && <YieldHistory item={_selectedVault!} view={['VAULT']} />}
               </Box>
             </Box>
 

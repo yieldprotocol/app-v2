@@ -69,7 +69,7 @@ export const useClosePositionVR = () => {
 
     let vyTokenValueOfInput: BigNumber;
     try {
-      vyTokenValueOfInput = await vyTokenProxyContract.previewWithdraw(_input);
+      vyTokenValueOfInput = await vyTokenProxyContract.callStatic.previewWithdraw(_input);
     } catch (e) {
       return console.log('error getting vyToken value of input', e);
     }
