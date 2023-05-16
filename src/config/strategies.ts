@@ -230,7 +230,7 @@ STRATEGIES.set(1, [
   /// New JD STRATEGIES ///
   {
     id: '0x1030FF000000',
-    address: '0xA8e46Bb19d583d473ed064ebF20715D01057f711',
+    address: '0xFcFc74fA508450C8Ff681E6894Ab2C9852bD32a7',
     // associatedStrategy: '',
     type: StrategyType.V2,
     symbol: 'YSETH6MJD',
@@ -241,7 +241,7 @@ STRATEGIES.set(1, [
   },
   {
     id: '0x1031FF000000',
-    address: '0xD5657d3E53B5e3C950346F6Ec8bc37ECb3753A77',
+    address: '0x742b05A7AF59C31576E4f31B092Caff580B162C3',
     // associatedStrategy: '',
     type: StrategyType.V2,
     symbol: 'YSDAI6MJD',
@@ -252,7 +252,7 @@ STRATEGIES.set(1, [
   },
   {
     id: '0x1032FF000000',
-    address: '0x09258a8705469d85E875398463d1d3C9a37F72e3',
+    address: '0x3e63834310D771d6157706c37778FB1B53eAf6F2',
     // associatedStrategy: '',
     type: StrategyType.V2,
     symbol: 'YSUSDC6MJD',
@@ -263,7 +263,7 @@ STRATEGIES.set(1, [
   },
   {
     id: '0x10A0FF000000',
-    address: '0x17d2a2B20954A4Cab2A62245f366788B5aD41323',
+    address: '0x45eB9E5c68A078BfC92F3d46592E0E35a732F7aC',
     type: StrategyType.V2,
     symbol: 'YSUSDT6MJD',
     baseId: USDT,
@@ -275,7 +275,7 @@ STRATEGIES.set(1, [
   // New MS Strategies
   {
     id: '0x10A0FF000001',
-    address: '0xdC42495E55A197B66Cd18E6309e05e3187791FD6',
+    address: '0xB3E47e689D21d75303E28884187a5681cEfaf40B',
     type: StrategyType.V2,
     symbol: 'YSUSDT6MMS',
     baseId: USDT,
@@ -285,7 +285,7 @@ STRATEGIES.set(1, [
   },
   {
     id: '0x1031FF000001',
-    address: '0xf4F55FEe864746dD55501D4897a1ae774717948A',
+    address: '0x2008E463c4d0364763569dFE16cdF4E6F29bCe8E',
     // associatedStrategy: '0x7ACFe277dEd15CabA6a8Da2972b1eb93fe1e2cCD',
     type: StrategyType.V2,
     symbol: 'YSDAI6MMS',
@@ -296,7 +296,7 @@ STRATEGIES.set(1, [
   },
   {
     id: '0x1032FF000001',
-    address: '0x29ac0e98E355a073A863baBc9E3D353DF1156c22',
+    address: '0x85fA3071AD36d12603176C12118d25602D2229aB',
     // associatedStrategy: '0xFBc322415CBC532b54749E31979a803009516b5D',
     type: StrategyType.V2,
     symbol: 'YSUSDC6MMS',
@@ -307,7 +307,7 @@ STRATEGIES.set(1, [
   },
   {
     id: '0x1030FF000001',
-    address: '0x11DE3906878D4d662a9806B823945b1Ed0d06DF3',
+    address: '0x51D2fCCcC9003f0743bfAa4E495cda5BBA749283',
     // associatedStrategy: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247',
     type: StrategyType.V2,
     symbol: 'YSETH6MMS',
