@@ -375,7 +375,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const poolAPY = sharesAddress ? await getPoolAPY(sharesAddress) : undefined;
 
           // some logic to decide if the series is shown or not
-          const showSeries = series.showSeries || false; // eg. series.maturity !== 1672412400;
+          const hideSeries = series.hideSeries; // eg. series.maturity !== 1672412400;
 
           let currentInvariant: BigNumber | undefined;
           let initInvariant: BigNumber | undefined;
@@ -407,7 +407,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             poolAPY,
             getShares,
             getBase,
-            showSeries,
+            hideSeries,
             sharesAddress,
             currentInvariant,
             initInvariant,

@@ -24,7 +24,7 @@ export interface ISeriesStatic {
   g1: string;
   g2: string;
 
-  showSeries?: boolean;
+  hideSeries?: boolean;
   allowActions?: (ActionCodes | 'allow_none' | 'allow_all')[];
 }
 
@@ -191,48 +191,48 @@ SERIES.set(
     /**
      * 2203
      * */
-    // [
-    //   DAI_2203,
-    //   {
-    //     id: DAI_2203,
-    //     baseId: '0x303100000000',
-    //     // baseAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    //     maturity: 1648177200,
-    //     name: 'FYDAI Mar 22',
-    //     symbol: 'FYDAI2203',
-    //     address: '0x30d94Da9ee56d3EF0c97EBa22223784F6bCf37B9',
-    //     decimals: 18,
-    //     version: '1',
-    //     poolAddress: '0x2e4B70D0F020E62885E82bf75bc123e1Aa8c79cA',
-    //     poolName: 'Yield FYDAI Mar 22 LP Token',
-    //     poolSymbol: 'FYDAI2203LP',
-    //     poolVersion: '1',
-    //     ts: '58454204609',
-    //     g1: '17524406870024074035',
-    //     g2: '19417625340746896437',
-    //   },
-    // ],
-    // [
-    //   USDC_2203,
-    //   {
-    //     id: USDC_2203,
-    //     baseId: '0x303200000000',
-    //     // baseAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    //     maturity: 1648177200,
-    //     name: 'FYUSDC Mar 22',
-    //     symbol: 'FYUSDC2203',
-    //     address: '0x33c4F1A98CF0F540D8a1F6119129337eC5973E29',
-    //     decimals: 6,
-    //     version: '1',
-    //     poolAddress: '0x80142add3A597b1eD1DE392A56B2cef3d8302797',
-    //     poolName: 'Yield FYUSDC Mar 22 LP Token',
-    //     poolSymbol: 'FYUSDC2203LP',
-    //     poolVersion: '1',
-    //     ts: '58454204609',
-    //     g1: '17524406870024074035',
-    //     g2: '19417625340746896437',
-    //   },
-    // ],
+    [
+      DAI_2203,
+      {
+        id: DAI_2203,
+        baseId: '0x303100000000',
+        // baseAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        maturity: 1648177200,
+        name: 'FYDAI Mar 22',
+        symbol: 'FYDAI2203',
+        address: '0x30d94Da9ee56d3EF0c97EBa22223784F6bCf37B9',
+        decimals: 18,
+        version: '1',
+        poolAddress: '0x2e4B70D0F020E62885E82bf75bc123e1Aa8c79cA',
+        poolName: 'Yield FYDAI Mar 22 LP Token',
+        poolSymbol: 'FYDAI2203LP',
+        poolVersion: '1',
+        ts: '58454204609',
+        g1: '17524406870024074035',
+        g2: '19417625340746896437',
+      },
+    ],
+    [
+      USDC_2203,
+      {
+        id: USDC_2203,
+        baseId: '0x303200000000',
+        // baseAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        maturity: 1648177200,
+        name: 'FYUSDC Mar 22',
+        symbol: 'FYUSDC2203',
+        address: '0x33c4F1A98CF0F540D8a1F6119129337eC5973E29',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0x80142add3A597b1eD1DE392A56B2cef3d8302797',
+        poolName: 'Yield FYUSDC Mar 22 LP Token',
+        poolSymbol: 'FYUSDC2203LP',
+        poolVersion: '1',
+        ts: '58454204609',
+        g1: '17524406870024074035',
+        g2: '19417625340746896437',
+      },
+    ],
 
     /**
      * 2206
@@ -632,7 +632,7 @@ SERIES.set(
         g1: '16602069666338596454',
         g2: '20496382304121724017',
         allowActions: [ActionCodes.REPAY],
-        showSeries: false,
+        hideSeries: true,
       },
     ],
     [
@@ -654,7 +654,7 @@ SERIES.set(
         g1: '16602069666338596454',
         g2: '20496382304121724017',
         allowActions: [ActionCodes.REPAY],
-        showSeries: false,
+        hideSeries: true,
       },
     ],
     [
@@ -676,7 +676,7 @@ SERIES.set(
         g1: '16602069666338596454',
         g2: '20496382304121724017',
         allowActions: [ActionCodes.REPAY],
-        showSeries: false,
+        hideSeries: true,
       },
     ],
     [
@@ -698,11 +698,9 @@ SERIES.set(
         g1: '16602069666338596454',
         g2: '20496382304121724017',
         allowActions: [ActionCodes.REPAY],
-        showSeries: false,
+        hideSeries: true,
       },
     ],
-
-
 
     [
       WETH_2306_R,
@@ -804,8 +802,6 @@ SERIES.set(
         g2: '20496382304121724017',
       },
     ],
-
-
 
     /**
      * 2309 

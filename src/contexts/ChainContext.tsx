@@ -219,7 +219,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
         poolContract,
         fyTokenContract,
-        showSeries: series.showSeries || true,
+        hideSeries: series.hideSeries || false ,
 
         fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
         displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
