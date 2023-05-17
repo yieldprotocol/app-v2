@@ -84,7 +84,7 @@ export interface ISeriesRoot extends ISignable {
   displayName: string;
   displayNameMobile: string;
   maturity: number;
-  showSeries: boolean;
+  hideSeries: boolean;
   decimals: number;
 
   fullDate: string;
@@ -240,7 +240,6 @@ export interface ISeries extends ISeriesRoot {
   initInvariant?: BigNumber;
   startBlock: Block;
 
-  // showSeries: boolean;
 }
 
 export interface IDummyVault extends IVaultRoot {}

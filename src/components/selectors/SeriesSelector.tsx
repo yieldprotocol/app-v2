@@ -166,7 +166,7 @@ function SeriesSelector({ selectSeriesLocally, inputValue, actionType, cardLayou
 
     /* filter out options based on base Id ( or proxyId ) and if mature */
     let filteredOpts = opts
-      .filter((s) => s.showSeries)
+      .filter((s) => !s.hideSeries)
       .filter(
         (_series) => _series.baseId === selectedBase?.proxyId && !_series.seriesIsMature
         // !ignoredSeries?.includes(_series.baseId)

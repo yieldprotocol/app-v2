@@ -214,16 +214,12 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       const [startColor, endColor, textColor] = seasonColorMap.get(season)!;
       const [oppStartColor, oppEndColor] = seasonColorMap.get(oppSeason(season))!;
 
-      /* some logic to decide if the series is shown or not */
-      const showSeries = true; // eg. series.maturity !== 1672412400;
-      // const poolVersion =  series.poolVersion || '1'
-
       return {
         ...series,
 
         poolContract,
         fyTokenContract,
-        showSeries,
+        hideSeries: series.hideSeries || false ,
 
         fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
         displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
