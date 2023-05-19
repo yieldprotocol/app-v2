@@ -1,22 +1,11 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { sellBase, buyBase, calculateAPR, bytesToBytes32 } from '@yield-protocol/ui-math';
-
+import { sellBase, buyBase, calculateAPR } from '@yield-protocol/ui-math';
 import { ETH_BASED_ASSETS } from '../config/assets';
 import { UserContext } from '../contexts/UserContext';
 import { ActionType, ISeries } from '../types';
 import { cleanValue } from '../utils/appUtils';
 import useTimeTillMaturity from './useTimeTillMaturity';
-import { useProvider } from 'wagmi';
-import * as contractTypes from '../contracts';
-
-import { VRInterestRateOracle__factory } from '../contracts';
-import useContracts from './useContracts';
-import { ContractNames } from '../config/contracts';
-import { RATE, ZERO_BN, CHI } from '../utils/constants';
-import { useConvertValue } from './useConvertValue';
-import useFork from './useFork';
-import { formatUnits } from 'ethers/lib/utils.js';
 
 /* APR hook calculatess APR, min and max aprs for selected series and BORROW or LEND type */
 export const useApr = (input: string | undefined, actionType: ActionType, series: ISeries | null) => {
@@ -26,9 +15,6 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
 
   /* HOOKS */
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-  const provider = useProvider();
-  const contracts = useContracts();
-  const { useForkedEnv, forkStartBlock } = useFork();
 
   const _selectedSeries = series || selectedSeries;
   /* Make sure there won't be an underflow */
@@ -73,53 +59,7 @@ export const useApr = (input: string | undefined, actionType: ActionType, series
       // figure out what to do with negative apr on borrow for tv series
       const _apr = calculateAPR(baseAmount, preview, _selectedSeries.maturity);
       _apr ? setApr(cleanValue(_apr, 2)) : setApr(_selectedSeries.apr);
-    } else if (selectedBase) {
-      /* logic for VR */
-      const cleanedInput = cleanValue(_input || _fallbackInput, selectedBase.decimals);
-      const baseAmount = ethers.utils.parseUnits(cleanedInput, selectedBase.decimals);
-
-      const now = Date.now() + 20000;
-      // trying to call interest rate oracle
-      // const interestRateOracleAddr = '0xa60eb553b65284e3a221b958c9115d8e558289bf';
-
-      const getAPY = async () => {
-        try {
-          const VRCauldron = contracts?.get(ContractNames.VR_CAULDRON) as contractTypes.VRCauldron;
-          const interestRateOracleAddr = await VRCauldron.rateOracles(selectedBase.id);
-          const interestRateOracle = VRInterestRateOracle__factory.connect(interestRateOracleAddr, provider);
-          const joinAddress = selectedBase.joinAddressVR;
-          // console.log('INTEREST RATE ORACLE', interestRateOracleAddr, interestRateOracle);
-
-          let rate: any = ethers.constants.Zero; // TODO - fix this type
-
-          if (actionType === 'LEND') {
-            rate = await interestRateOracle.peek(bytesToBytes32(selectedBase.id, 6), RATE, '0');
-          }
-
-          if (actionType === 'BORROW') {
-            rate = await interestRateOracle.peek(
-              bytesToBytes32(selectedBase.id, 6),
-              bytesToBytes32('0x434849000000', 6), // TODO - make this a constant
-              '0'
-            );
-          }
-
-          // console.log('rate in useAPR', rate);
-
-          return rate;
-        } catch (e) {
-          console.log(`Error getting APY for ${selectedBase.symbol}:`, e);
-          return ethers.constants.Zero;
-        }
-      };
-
-      getAPY().then((res) => {
-        const rate = res.accumulated
-          ? formatUnits(BigNumber.from(res.accumulated.toHexString()), selectedBase.decimals)
-          : ethers.constants.Zero;
-
-        setApr(rate.toString());
-      });
+      console.log('baseAmount FR', baseAmount, baseAmount.toString(), _fallbackInput, _input);
     }
   }, [_selectedSeries, _input, actionType, _fallbackInput, getTimeTillMaturity]);
 

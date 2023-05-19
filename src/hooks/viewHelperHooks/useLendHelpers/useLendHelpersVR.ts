@@ -2,6 +2,7 @@ import { useContext, useMemo } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { ActionType } from '../../../types';
 import { useApr } from '../../useApr';
+import { useAprVR } from '../../useAprVR';
 import { Address, useBalance } from 'wagmi';
 import { WETH } from '../../../config/assets';
 import useAccountPlus from '../../useAccountPlus';
@@ -24,7 +25,7 @@ export const useLendHelpersVR = (vyTokenAddress: string | undefined, input?: str
   const { data: vyTokens } = useVYTokens();
   const vyToken = vyTokens?.get(vyTokenAddress!);
 
-  const { apr: apy } = useApr(input, ActionType.LEND, null); // TODO - handle vr apy's
+  const { apr: apy } = useAprVR(input ? input : vyToken?.balance_, ActionType.LEND); // TODO - handle vr apy's
 
   return {
     maxLend: baseBal?.value,

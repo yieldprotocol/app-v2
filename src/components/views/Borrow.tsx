@@ -25,6 +25,7 @@ import InfoBite from '../InfoBite';
 import NextButton from '../buttons/NextButton';
 import TransactButton from '../buttons/TransactButton';
 import { useApr } from '../../hooks/useApr';
+import { useAprVR } from '../../hooks/useAprVR';
 import PositionAvatar from '../PositionAvatar';
 import VaultDropSelector from '../selectors/VaultDropSelector';
 import { useInputValidation } from '../../hooks/useInputValidation';
@@ -89,6 +90,8 @@ const Borrow = () => {
   const borrow = useBorrow();
 
   const { apr } = useApr(borrowInput, ActionType.BORROW, selectedSeries);
+  const { apr: aprVR } = useAprVR(borrowInput, ActionType.BORROW);
+
   const { data: assetPair } = useAssetPair(selectedBase?.id, selectedIlk?.id);
   const { data: basesVR } = useBasesVR();
   const { data: vaultsVR } = useVaultsVR();
@@ -168,6 +171,7 @@ const Borrow = () => {
   const handleMaxAction = (actionCode: ActionCodes) => {
     actionCode === ActionCodes.ADD_COLLATERAL && setCollatInput(maxCollateral!);
     actionCode === ActionCodes.BORROW && selectedSeries && setBorrowInput(selectedSeries.sharesReserves_!);
+    actionCode === ActionCodes.BORROW && selectedVR && setBorrowInput(maxDebtVR_!);
     logAnalyticsEvent(GA_Event.max_clicked, {
       view: GA_View.BORROW,
       action_code: actionCode,
@@ -340,7 +344,9 @@ const Borrow = () => {
                           placeholder="Enter amount"
                           value={borrowInput}
                           onChange={(event: any) =>
-                            setBorrowInput(cleanValue(event.target.value, selectedSeries?.decimals))
+                            setBorrowInput(
+                              cleanValue(event.target.value, selectedSeries?.decimals || selectedBase?.decimals)
+                            )
                           }
                           autoFocus={!mobile}
                         />
@@ -370,7 +376,7 @@ const Borrow = () => {
                       </SectionWrap>
                       {basesVR?.length && basesVR.includes(selectedBase?.id!) ? (
                         <SectionWrap title="OR choose a variable rate">
-                          <VariableRate />
+                          <VariableRate rate={aprVR} />
                         </SectionWrap>
                       ) : null}
                     </Box>

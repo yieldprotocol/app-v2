@@ -9,8 +9,6 @@ import { BigNumber, ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils.js';
 import { ChainContext } from '../../contexts/ChainContext';
 import { MulticallContext } from '../../contexts/MutlicallContext';
-import { useApr } from '../useApr';
-import { ActionType } from '../../types';
 
 export interface IVYToken extends ISignable {
   id: string; // vyToken address
@@ -32,7 +30,6 @@ const useVYTokens = () => {
   const { address: account } = useAccountPlus();
   const { useForkedEnv, provider: forkProvider, forkUrl } = useFork();
   const provider = useDefaultProvider();
-  const { apr } = useApr(undefined, ActionType.LEND, null);
 
   const {
     chainState: { assetRootMap },
@@ -42,7 +39,6 @@ const useVYTokens = () => {
   const multicall = useForkedEnv ? forkMulticall : _multicall;
 
   const get = useCallback(async () => {
-    console.log('getting vyToken data');
     return await Array.from(assetRootMap.values())
       .map((a) => [a.VYTokenProxyAddress, a.VYTokenAddress]) // get asset's vyTokenProxy addr
       .reduce(async (vyTokens, [proxyAddress, address]) => {
@@ -65,10 +61,13 @@ const useVYTokens = () => {
 
         let vyTokenBaseVal = balance;
         try {
-          vyTokenBaseVal = await proxy.previewRedeem(balance);
+          vyTokenBaseVal = await proxy.callStatic.previewRedeem(balance);
         } catch (e) {
           console.log('Error getting vyTokenBaseVal', e);
         }
+
+        const accumulatedInterestInBase = vyTokenBaseVal.sub(balance);
+        const accumulatedInterestInBase_ = formatUnits(accumulatedInterestInBase, decimals);
 
         const addr = address.toLowerCase();
         const data: IVYToken = {
@@ -87,7 +86,7 @@ const useVYTokens = () => {
           vyTokenBaseVal,
           vyTokenBaseVal_: formatUnits(vyTokenBaseVal, decimals),
           proxyAddress: proxyAddress.toLowerCase(),
-          accumulatedInterestInBase_: '0.0',
+          accumulatedInterestInBase_,
         };
 
         return (await vyTokens).set(addr, data);
