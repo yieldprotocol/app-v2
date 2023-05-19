@@ -307,7 +307,7 @@ const LendPosition = () => {
                       />
                       <InfoBite
                         label="APY"
-                        value={`${apy}%`}
+                        value={apy ? `${parseFloat(apy).toFixed(2)}%` : ''}
                         icon={
                           <Box height="1em" width="1em">
                             <Logo image={<FiPercent />} />

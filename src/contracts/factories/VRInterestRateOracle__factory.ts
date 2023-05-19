@@ -44,6 +44,43 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
+        name: "accumulated",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "lastUpdateTimestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "utilizationRate",
+        type: "uint256",
+      },
+    ],
+    name: "AccumulationUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes6",
+        name: "baseId",
+        type: "bytes6",
+      },
+      {
+        indexed: true,
+        internalType: "bytes6",
+        name: "kind",
+        type: "bytes6",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
         name: "optimalUsageRate",
         type: "uint256",
       },

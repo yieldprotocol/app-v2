@@ -171,6 +171,7 @@ interface VRInterestRateOracleInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "AccumulationUpdated(bytes6,bytes6,uint256,uint256,uint256)": EventFragment;
     "InterestRateParamSet(bytes6,bytes6,uint256,uint256,uint256,uint256,address)": EventFragment;
     "InterestRateParamUpdated(bytes6,bytes6,uint256,uint256,uint256,uint256,address)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
@@ -178,12 +179,23 @@ interface VRInterestRateOracleInterface extends ethers.utils.Interface {
     "RoleRevoked(bytes4,address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AccumulationUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "InterestRateParamSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "InterestRateParamUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
 }
+
+export type AccumulationUpdatedEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, BigNumber] & {
+    baseId: string;
+    kind: string;
+    accumulated: BigNumber;
+    lastUpdateTimestamp: BigNumber;
+    utilizationRate: BigNumber;
+  }
+>;
 
 export type InterestRateParamSetEvent = TypedEvent<
   [string, string, BigNumber, BigNumber, BigNumber, BigNumber, string] & {
@@ -637,6 +649,40 @@ export class VRInterestRateOracle extends BaseContract {
   };
 
   filters: {
+    "AccumulationUpdated(bytes6,bytes6,uint256,uint256,uint256)"(
+      baseId?: BytesLike | null,
+      kind?: BytesLike | null,
+      accumulated?: null,
+      lastUpdateTimestamp?: null,
+      utilizationRate?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber, BigNumber, BigNumber],
+      {
+        baseId: string;
+        kind: string;
+        accumulated: BigNumber;
+        lastUpdateTimestamp: BigNumber;
+        utilizationRate: BigNumber;
+      }
+    >;
+
+    AccumulationUpdated(
+      baseId?: BytesLike | null,
+      kind?: BytesLike | null,
+      accumulated?: null,
+      lastUpdateTimestamp?: null,
+      utilizationRate?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber, BigNumber, BigNumber],
+      {
+        baseId: string;
+        kind: string;
+        accumulated: BigNumber;
+        lastUpdateTimestamp: BigNumber;
+        utilizationRate: BigNumber;
+      }
+    >;
+
     "InterestRateParamSet(bytes6,bytes6,uint256,uint256,uint256,uint256,address)"(
       baseId?: BytesLike | null,
       kind?: BytesLike | null,

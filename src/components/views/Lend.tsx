@@ -48,6 +48,7 @@ import { useLendHelpersFR } from '../../hooks/viewHelperHooks/useLendHelpers/use
 import { useLendHelpersVR } from '../../hooks/viewHelperHooks/useLendHelpers/useLendHelpersVR';
 import useVYTokens from '../../hooks/entities/useVYTokens';
 import useBasesVR from '../../hooks/views/useBasesVR';
+import { useAprVR } from '../../hooks/useAprVR';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -64,6 +65,8 @@ const Lend = () => {
   const [lendDisabled, setLendDisabled] = useState<boolean>(true);
   const [stepPosition, setStepPosition] = useState<number>(0);
   const [stepDisabled, setStepDisabled] = useState<boolean>(true);
+
+  const { apr: aprVR } = useAprVR(lendInput, ActionType.LEND);
 
   /* HOOK FNS */
   const {
@@ -214,7 +217,7 @@ const Lend = () => {
                       </SectionWrap>
                       {basesVR?.length && basesVR.includes(selectedBase?.id!) ? (
                         <SectionWrap title="Or lend indefinitely at a variable rate">
-                          <VariableRate />
+                          <VariableRate rate={aprVR} />
                         </SectionWrap>
                       ) : null}
                     </Box>

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { UserContext } from '../../contexts/UserContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import YieldMark from '../logos/YieldMark';
+import SkeletonWrap from '../wraps/SkeletonWrap';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -68,7 +69,7 @@ const ShineyBox = styled(Box)`
   }
 `;
 
-const VariableRate = () => {
+const VariableRate = ({ rate }: { rate?: string }) => {
   const {
     settingsState: { darkMode },
   } = useContext(SettingsContext);
@@ -139,9 +140,13 @@ const VariableRate = () => {
 
         <Box fill align="end" width="small" className="thisHereBox">
           <Box style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-            <Text size="1.5em" color={darkMode ? 'white' : 'black'}>
-              {2.7} <Text size="small">% {'APR'}</Text>
-            </Text>
+            {rate ? (
+              <Text size="1.5em" color={darkMode ? 'white' : 'black'}>
+                {parseFloat(rate).toFixed(2)} <Text size="small">% {'APR'}</Text>
+              </Text>
+            ) : (
+              <SkeletonWrap width={100} />
+            )}
           </Box>
         </Box>
       </Box>
