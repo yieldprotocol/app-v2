@@ -14,7 +14,7 @@ const KillSwitch = (props: any) => {
 
   return (
     <>
-      {process.env.KILLSWITCH_ACTIVE === 'true' && chainId === parseInt(process.env.KILLSWITCH_CHAIN!) ? (
+      {process.env.KILLSWITCH_ACTIVE === 'true' ? (
         <Layer modal={true}>
           <Box background="white" pad="large" round="16px" gap="medium">
             <Box direction="row" gap="small" align="center">

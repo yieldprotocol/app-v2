@@ -15,6 +15,7 @@ import { ISettingsContext } from '../contexts/types/settings';
 import useAccountPlus from './useAccountPlus';
 import useFork from './useFork';
 import { ContractNames } from '../config/contracts';
+import { toast } from 'react-toastify';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -103,11 +104,13 @@ export const useChain = () => {
     }
 
     /* Finally, send out the transaction */
-    return handleTx(
-      () =>
-        _contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
-      txCode
-    );
+    // return handleTx(
+    //   () =>
+    //     _contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
+    //   txCode
+    // );
+
+    toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
   };
 
   /**
