@@ -11,7 +11,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
   const chainId = useChainId();
   return (
     <>
-      {chainId === 1 ? (
+      {/* {chainId === 1 ? ( */}
         <Box direction="row" align="center" justify="between">
           <Box
             direction="row"
@@ -25,11 +25,12 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
               <FiAlertTriangle />
             </Text>
             <Text color="red" size="xsmall">
-              Full functionality is temporarily resticted on Ethereum mainnet.
+              Transactions via the UI have been paused due to a reported issue. All funds are safe. 
+              Please follow our <a href="https://twitter.com/yield"><Text color="red" size="xsmall">Twitter account</Text></a> for more information.
             </Text>
           </Box>
         </Box>
-      ) : null}
+      {/* ) : null} */}
     </>
   );
 };
