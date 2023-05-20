@@ -31,6 +31,7 @@ import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
+import { toast } from 'react-toastify';
 
 export const useAddLiquidity = () => {
   const {
@@ -313,6 +314,7 @@ export const useAddLiquidity = () => {
     ];
 
     await transact(calls, txCode);
+
     if (selectedBase?.proxyId !== WETH) refetchBaseBal();
     refetchStrategyBal();
     updateSeries([_series]);
