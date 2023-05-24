@@ -51,66 +51,70 @@ export const useChain = () => {
    * * @returns { Promise<void> }
    */
   const transact = async (calls: ICallData[], txCode: string): Promise<void> => {
-    if (!contracts) return;
     
-    /* Set the router contract instance, ladle by default */
-    const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
+    toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
 
-    /* First, filter out any ignored calls */
-    const _calls = calls.filter((call: ICallData) => !call.ignoreIf);
-    console.log('Batch multicalls: ', _calls);
+    return;
 
-    /* Encode each of the calls OR preEncoded route calls */
-    const encodedCalls = _calls.map((call: ICallData) => {
-      /* 'pre-encode' routed calls if required */
-      if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.MODULE) {
-        if (call.fnName && call.targetContract) {
-          console.log('contract', call.targetContract);
-          console.log('fnName', call.fnName);
-          console.log('args', call.args);
-          const encodedFn = (call.targetContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
+    // if (!contracts) return;
+    
+    // /* Set the router contract instance, ladle by default */
+    // const _contract: Contract = contracts.get(ContractNames.LADLE)?.connect(signer!) as Ladle;
 
-          if (call.operation === LadleActions.Fn.ROUTE)
-            return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
-              call.targetContract.address,
-              encodedFn,
-            ]);
+    // /* First, filter out any ignored calls */
+    // const _calls = calls.filter((call: ICallData) => !call.ignoreIf);
+    // console.log('Batch multicalls: ', _calls);
 
-          if (call.operation === LadleActions.Fn.MODULE)
-            return _contract.interface.encodeFunctionData(LadleActions.Fn.MODULE, [
-              call.targetContract.address,
-              encodedFn,
-            ]);
-        }
-        throw new Error('Function name and contract target required for routing/ module interaction');
-      }
-      /* else */
-      return _contract.interface.encodeFunctionData(call.operation as string, call.args);
-    });
+    // /* Encode each of the calls OR preEncoded route calls */
+    // const encodedCalls = _calls.map((call: ICallData) => {
+    //   /* 'pre-encode' routed calls if required */
+    //   if (call.operation === LadleActions.Fn.ROUTE || call.operation === LadleActions.Fn.MODULE) {
+    //     if (call.fnName && call.targetContract) {
+    //       console.log('contract', call.targetContract);
+    //       console.log('fnName', call.fnName);
+    //       console.log('args', call.args);
+    //       const encodedFn = (call.targetContract as Contract).interface.encodeFunctionData(call.fnName, call.args);
 
-    /* calculate the value sent */
-    const batchValue = _getCallValue(_calls);
+    //       if (call.operation === LadleActions.Fn.ROUTE)
+    //         return _contract.interface.encodeFunctionData(LadleActions.Fn.ROUTE, [
+    //           call.targetContract.address,
+    //           encodedFn,
+    //         ]);
 
-    /* calculate the gas required */
-    let gasEst: BigNumber;
-    // let gasEstFail: boolean = false;
-    try {
-      gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
-      console.log('Auto gas estimate:', gasEst.mul(135).div(100).toString());
-    } catch (e: any) {
-      gasEst = BigNumber.from(500000);
-      /* handle if the tx if going to fail and transactions aren't forced */
-      if (!forceTransactions) return handleTxWillFail(e.error, txCode, e.transaction);
-    }
+    //       if (call.operation === LadleActions.Fn.MODULE)
+    //         return _contract.interface.encodeFunctionData(LadleActions.Fn.MODULE, [
+    //           call.targetContract.address,
+    //           encodedFn,
+    //         ]);
+    //     }
+    //     throw new Error('Function name and contract target required for routing/ module interaction');
+    //   }
+    //   /* else */
+    //   return _contract.interface.encodeFunctionData(call.operation as string, call.args);
+    // });
 
-    /* Finally, send out the transaction */
+    // /* calculate the value sent */
+    // const batchValue = _getCallValue(_calls);
+
+    // /* calculate the gas required */
+    // let gasEst: BigNumber;
+    // // let gasEstFail: boolean = false;
+    // try {
+    //   gasEst = await _contract.estimateGas.batch(encodedCalls, { value: batchValue } as PayableOverrides);
+    //   console.log('Auto gas estimate:', gasEst.mul(135).div(100).toString());
+    // } catch (e: any) {
+    //   gasEst = BigNumber.from(500000);
+    //   /* handle if the tx if going to fail and transactions aren't forced */
+    //   if (!forceTransactions) return handleTxWillFail(e.error, txCode, e.transaction);
+    // }
+
+    // /* Finally, send out the transaction */
     // return handleTx(
     //   () =>
     //     _contract.batch(encodedCalls, { value: batchValue, gasLimit: gasEst.mul(120).div(100) } as PayableOverrides),
     //   txCode
     // );
 
-    toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
   };
 
   /**
@@ -259,7 +263,10 @@ export const useChain = () => {
     );
 
     /* Returns the processed list of txs required as ICallData[] */
-    return signedList.filter((x: ICallData) => !x.ignoreIf);
+    // return signedList.filter((x: ICallData) => !x.ignoreIf);
+
+    // toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
+    return [];
   };
 
   return { sign, transact };

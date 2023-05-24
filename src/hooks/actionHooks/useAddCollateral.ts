@@ -18,6 +18,7 @@ import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
+import { toast } from 'react-toastify';
 
 export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
@@ -143,6 +144,8 @@ export const useAddCollateral = () => {
 
     /* TRANSACT */
     await transact(calls, txCode);
+    // toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
+
 
     /* then update UI */
     refetchBaseBal();
