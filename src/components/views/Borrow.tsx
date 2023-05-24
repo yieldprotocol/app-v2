@@ -13,6 +13,7 @@ import SectionWrap from '../wraps/SectionWrap';
 import MaxButton from '../buttons/MaxButton';
 
 import { UserContext } from '../../contexts/UserContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { ActionCodes, ActionType, IVault, ProcessStage, TxState } from '../../types';
 import PanelWrap from '../wraps/PanelWrap';
 import CenterPanelWrap from '../wraps/CenterPanelWrap';
@@ -52,6 +53,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import { RestrictedAccess } from '../RestrictedAccess';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -63,6 +65,9 @@ const Borrow = () => {
   const { assetMap, vaultMap, vaultsLoading, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } =
     userState;
   const { setSelectedIlk } = userActions;
+
+  const { settingsState } = useContext(SettingsContext);
+  const { featureControls } = settingsState;
 
   const { address: activeAccount } = useAccountPlus();
   const contracts = useContracts();
@@ -284,6 +289,8 @@ const Borrow = () => {
         )}
 
         <CenterPanelWrap series={selectedSeries || undefined}>
+          {!featureControls.borrowingEnabled && <RestrictedAccess />}
+
           <Box id="topsection">
             {stepPosition === 0 && ( // INITIAL STEP
               <Box height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }} gap="large">

@@ -31,9 +31,18 @@ export interface ISettingsContext {
 }
 
 export interface ISettingsContextActions {
-  updateSetting: (setting: Settings, value: string | number | boolean | undefined ) => void;
+  updateSetting: (setting: Settings, value: string | number | boolean | undefined) => void;
 }
 export type SettingsContextAction = { type: Settings; payload: string | number | boolean | undefined };
+
+export interface FeatureControls {
+  borrowingEnabled: boolean;
+  lendingEnabled: boolean;
+  poolEnabled: boolean;
+  vaultActionsEnabled: boolean;
+  lendPositionActionsEnabled: boolean;
+  poolPositionActionsEnabled: boolean;
+}
 
 export interface ISettingsContextState {
   /* User Settings ( getting from the cache first ) */
@@ -64,6 +73,8 @@ export interface ISettingsContextState {
   forkEnvUrl: string;
 
   useMockedUser: boolean;
-  mockUserAddress: `0x${string}`| undefined;
+  mockUserAddress: `0x${string}` | undefined;
 
+  /* Feature Controls */
+  featureControls: FeatureControls;
 }

@@ -4,6 +4,7 @@ import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-
 import { ContractMap, ContractNames } from '../config/contracts';
 
 import { ActionCodes, ISeries } from '../types';
+import { FeatureControls } from '../contexts/types/settings';
 
 export const copyToClipboard = (str: string) => {
   const el = document.createElement('textarea');
@@ -258,3 +259,31 @@ export const numberWithCommas = (x: number) => x.toString().replace(/\B(?=(\d{3}
 
 export const formatValue = (x: string | number, decimals: number) =>
   numberWithCommas(Number(cleanValue(x?.toString(), decimals)));
+
+export const actionControlMapping: Record<ActionCodes, keyof FeatureControls> = {
+  // COLLATERAL actions are related to borrowing
+  [ActionCodes.ADD_COLLATERAL]: 'borrowingEnabled',
+  [ActionCodes.REMOVE_COLLATERAL]: 'borrowingEnabled',
+
+  // BORROW actions are related to borrowing
+  [ActionCodes.BORROW]: 'borrowingEnabled',
+  [ActionCodes.REPAY]: 'borrowingEnabled',
+  [ActionCodes.ROLL_DEBT]: 'borrowingEnabled',
+
+  // LEND actions are related to lending
+  [ActionCodes.LEND]: 'lendingEnabled',
+  [ActionCodes.CLOSE_POSITION]: 'lendPositionActionsEnabled',
+  [ActionCodes.ROLL_POSITION]: 'lendPositionActionsEnabled',
+  [ActionCodes.REDEEM]: 'lendPositionActionsEnabled',
+
+  // POOL actions are related to pool
+  [ActionCodes.ADD_LIQUIDITY]: 'poolEnabled',
+  [ActionCodes.REMOVE_LIQUIDITY]: 'poolEnabled',
+  [ActionCodes.ROLL_LIQUIDITY]: 'poolEnabled',
+  [ActionCodes.CLAIM_REWARDS]: 'poolEnabled',
+
+  // VAULT actions are related to vaultActions
+  [ActionCodes.DELETE_VAULT]: 'vaultActionsEnabled',
+  [ActionCodes.TRANSFER_VAULT]: 'vaultActionsEnabled',
+  [ActionCodes.MERGE_VAULT]: 'vaultActionsEnabled',
+};

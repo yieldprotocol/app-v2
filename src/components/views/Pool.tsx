@@ -11,6 +11,7 @@ import InfoBite from '../InfoBite';
 import ActionButtonGroup from '../wraps/ActionButtonWrap';
 import SectionWrap from '../wraps/SectionWrap';
 import { UserContext } from '../../contexts/UserContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { ActionCodes, AddLiquidityType, ProcessStage, TxState } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
@@ -30,6 +31,7 @@ import ColorText from '../texts/ColorText';
 import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import { useProcess } from '../../hooks/useProcess';
 import StrategyItem from '../positionItems/StrategyItem';
+import { RestrictedAccess } from '../RestrictedAccess';
 
 import Navigation from '../Navigation';
 import Line from '../elements/Line';
@@ -47,6 +49,9 @@ function Pool() {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { selectedBase, selectedStrategy, strategyMap } = userState;
+
+  const { settingsState } = useContext(SettingsContext);
+  const { featureControls } = settingsState;
 
   const { address: activeAccount } = useAccountPlus();
 
@@ -144,6 +149,8 @@ function Pool() {
       )}
 
       <CenterPanelWrap series={selectedStrategy?.currentSeries}>
+        {!featureControls.poolEnabled && <RestrictedAccess />}
+
         <Box id="topsection">
           {stepPosition === 0 && (
             <Box fill gap="large" height="100%" pad={mobile ? 'medium' : { top: 'large', horizontal: 'large' }}>

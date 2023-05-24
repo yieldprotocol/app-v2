@@ -43,15 +43,25 @@ const initState: ISettingsContextState = {
 
   /* Show diagnostic messages in the console */
   diagnostics: false,
-  
+
   /* use a forked network */
-  useForkedEnv: false,
+  useForkedEnv: true,
   forkEnvUrl:
     process.env.REACT_APP_DEFAULT_FORK_RPC_URL || process.env.REACT_APP_LOCALHOST_RPC_URL || 'http://127.0.0.1:8545',
 
   /* Mock a particular user */
   useMockedUser: false,
   mockUserAddress: undefined,
+
+  /* Protocol Features Enable/Disable */
+  featureControls: {
+    borrowingEnabled: true,
+    lendingEnabled: true,
+    poolEnabled: true,
+    vaultActionsEnabled: true,
+    lendPositionActionsEnabled: true,
+    poolPositionActionsEnabled: true,
+  },
 };
 
 const initActions: ISettingsContextActions = {
@@ -69,7 +79,6 @@ const SettingsContext = createContext<{
 });
 
 function settingsReducer(state: ISettingsContextState, action: SettingsContextAction): ISettingsContextState {
-  
   /* Helper: if different from existing , update the state and cache */
   const cacheAndUpdate = (_action: SettingsContextAction) => {
     if (state[action.type] === _action.payload) {
@@ -82,7 +91,6 @@ function settingsReducer(state: ISettingsContextState, action: SettingsContextAc
 }
 
 const SettingsProvider = ({ children }: { children: ReactNode }) => {
-  
   /* LOCAL STATE */
   const [settingsState, updateState] = useReducer(settingsReducer, initState);
 
