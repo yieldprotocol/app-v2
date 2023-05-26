@@ -1,6 +1,7 @@
 import React, { createContext, Dispatch, ReactNode, useCallback, useEffect, useReducer, useContext } from 'react';
 import { BigNumber, Contract } from 'ethers';
 import { format } from 'date-fns';
+import { StrategyType } from '../config/strategies';
 
 import { useCachedState } from '../hooks/generalHooks';
 
@@ -219,7 +220,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
         poolContract,
         fyTokenContract,
-        hideSeries: series.hideSeries || false ,
+        hideSeries: series.hideSeries || false,
 
         fullDate: format(new Date(series.maturity * 1000), 'dd MMMM yyyy'),
         displayName: format(new Date(series.maturity * 1000), 'dd MMM yyyy'),
@@ -289,7 +290,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   /* Attach contract instance */
   const _chargeStrategy = useCallback(
     (strategy: any) => {
-      const Strategy = contractTypes.Strategy__factory.connect(strategy.address, provider);
+      const Strategy =
+        strategy.type === StrategyType.V2_1
+          ? contractTypes.StrategyV21__factory.connect(strategy.address, provider)
+          : contractTypes.Strategy__factory.connect(strategy.address, provider);
       return {
         ...strategy,
         strategyContract: Strategy,

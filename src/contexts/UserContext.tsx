@@ -483,8 +483,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
           // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
 
-          /* We check if the strategy has been supersecced by a v2 version */
-          const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
+          /* We check if the strategy has been supersecced by a v2.1 version */
+          const hasAnUpdatedVersion =
+            (_strategy.type === 'V1' || _strategy.type === 'V2') && !!_strategy.associatedStrategy; // TODO - will need to update this for V2.1 i imagine - V2s will also have an updated version
 
           /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) =>
@@ -526,7 +527,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             }
 
             /* Decide if stragtegy should be 'active' */
-            const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
+            const isActive = _strategy.type === 'V2.1' || _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
 
             return {
               ..._strategy,

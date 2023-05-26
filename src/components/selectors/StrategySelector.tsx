@@ -89,9 +89,9 @@ const StrategySelectItem = ({
             style={{ position: 'absolute', marginTop: '-1em', marginLeft: '17em' }}
             elevation="small"
           >
-              <Text size="small" color="white" textAlign="center">
-                +{returns?.rewardsAPY}%
-              </Text>          
+            <Text size="small" color="white" textAlign="center">
+              +{returns?.rewardsAPY}%
+            </Text>
           </Box>
         )}
 
@@ -140,7 +140,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   useEffect(() => {
     const opts = Array.from(strategyMap?.values()!);
     const filteredOpts = opts
-      .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
+      .filter((_st) => _st.type === 'V2.1' || _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
       .filter((_st) => !_st.currentSeries?.hideSeries && _st.active)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);

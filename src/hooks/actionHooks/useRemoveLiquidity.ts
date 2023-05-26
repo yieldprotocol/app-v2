@@ -91,7 +91,6 @@ export const useRemoveLiquidity = () => {
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.REMOVE_LIQUIDITY)) return; // return if action is not allowed
 
-
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
 
@@ -328,13 +327,29 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy || _strategy.type === StrategyType.V2 || !_associatedStrategyContract,
       },
 
-      /* If removing from a V2 strategy, simply burn fromm strategy to the pool address */
+      /* with new strats version V2.1, we also need to burn the V2 tokens to the V2.1 strategies */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [_strategy.associatedStrategy || series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy.strategyContract,
+        ignoreIf: !_strategy || _strategy.type === StrategyType.V2_1,
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _associatedStrategyContract,
+        ignoreIf: !_strategy || _strategy.type === StrategyType.V2_1 || !_associatedStrategyContract,
+      },
+
+      /* If removing from a V2.1 strategy, simply burn fromm strategy to the pool address */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: _strategy.strategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V1,
+        ignoreIf: !_strategy || _strategy.type === StrategyType.V1 || _strategy.type === StrategyType.V2,
       },
 
       /**

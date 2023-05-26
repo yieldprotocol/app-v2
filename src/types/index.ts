@@ -111,7 +111,7 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-  
+
   allowActions: (ActionCodes | 'allow_all' | 'allow_none')[];
 }
 
@@ -198,7 +198,7 @@ export interface IStrategyRoot extends ISignable {
   decimals: number;
   strategyContract: Strategy;
   startBlock: Block;
-  type: 'V1' | 'V2';
+  type: 'V1' | 'V2' | 'V2.1';
   associatedStrategy?: string;
 }
 
@@ -239,7 +239,6 @@ export interface ISeries extends ISeriesRoot {
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
   startBlock: Block;
-
 }
 
 export interface IDummyVault extends IVaultRoot {}
