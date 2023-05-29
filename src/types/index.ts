@@ -200,6 +200,7 @@ export interface IStrategyRoot extends ISignable {
   startBlock: Block;
   type: 'V1' | 'V2' | 'V2.1';
   associatedStrategy?: string;
+  disabled?: boolean;
 }
 
 export interface IVaultRoot {
@@ -266,7 +267,6 @@ export interface IVault extends IVaultRoot {
 
 export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
-  active: boolean;
 
   currentSeriesAddr?: string;
   currentPoolAddr?: string;

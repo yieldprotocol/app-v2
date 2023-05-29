@@ -484,7 +484,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
           // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
 
-          /* We check if the strategy has been supersecced by a v2.1 version */
+          /* We check if the strategy has been supersecced by a newer version */
           const hasAnUpdatedVersion = (_strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1);
 
           /* Attatch the current series (if any) */
@@ -526,9 +526,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsTokenAddress = undefined;
             }
 
-            /* Decide if stragtegy should be 'active' */
-            const isActive = _strategy.type === 'V2.1' || _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
-
             return {
               ..._strategy,
               strategyTotalSupply,
@@ -544,7 +541,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
               currentPoolAddr: currentPoolAddr as string | undefined,
 
-              active: isActive,
               rewardsRate,
               rewardsPeriod,
               rewardsTokenAddress,
@@ -555,7 +551,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           return {
             ..._strategy,
             currentSeries: undefined,
-            active: false,
           };
         })
       );

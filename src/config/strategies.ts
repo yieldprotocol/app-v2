@@ -18,6 +18,7 @@ export interface StrategyInfo {
   baseId?: string;
   decimals?: number;
   version?: string;
+  active?:boolean;
 }
 
 // map each chain id to its corresponding strategies' data

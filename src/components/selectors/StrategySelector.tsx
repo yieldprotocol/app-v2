@@ -141,7 +141,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     const opts = Array.from(strategyMap?.values()!);
     const filteredOpts = opts
       .filter((_st) => _st.type === 'V2.1')
-      .filter((_st) => !_st.currentSeries?.hideSeries && _st.active)
+      .filter((_st) => !_st.currentSeries?.hideSeries && !_st.disabled)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
 
@@ -150,7 +150,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   const handleSelect = (_strategy: IStrategy) => {
     diagnostics && console.log('SELECTED: ', _strategy.address, 'VERSION: ', _strategy.type);
-    if (_strategy.active) {
+    if (!_strategy.disabled) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
       userActions.setSelectedStrategy(_strategy);
       userActions.setSelectedSeries(_strategy.currentSeries!);
@@ -164,8 +164,8 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     /* if strategy already selected, no need to set explicitly again */
     if (selectedStrategy) return;
     const opts: IStrategy[] = Array.from(strategyMap.values())
-      .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
-      .filter((_st) => !_st.currentSeries?.hideSeries && _st.active)
+      .filter((_st) => _st.type === 'V2.1') // we only want to show V2.1 strategies in the selector for now. 
+      .filter((_st) => !_st.currentSeries?.hideSeries && !_st.disabled)
       .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
 
     /* select strategy with rewards */
