@@ -35,6 +35,7 @@ import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import useAccountPlus from '../hooks/useAccountPlus';
 import { ContractNames } from '../config/contracts';
+import { StrategyType } from '../config/strategies';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -484,8 +485,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
 
           /* We check if the strategy has been supersecced by a v2.1 version */
-          const hasAnUpdatedVersion =
-            (_strategy.type === 'V1' || _strategy.type === 'V2') && !!_strategy.associatedStrategy; // TODO - will need to update this for V2.1 i imagine - V2s will also have an updated version
+          const hasAnUpdatedVersion = (_strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1);
 
           /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) =>
