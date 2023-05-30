@@ -540,16 +540,8 @@ export class StrategyV21 extends BaseContract {
 
     baseCached(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "burn(address)"(
+    burn(
       to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "burn(address,address,uint256,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -777,16 +769,8 @@ export class StrategyV21 extends BaseContract {
 
   baseCached(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "burn(address)"(
+  burn(
     to: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "burn(address,address,uint256,uint256)"(
-    arg0: string,
-    arg1: string,
-    arg2: BigNumberish,
-    arg3: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1014,15 +998,7 @@ export class StrategyV21 extends BaseContract {
 
     baseCached(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "burn(address)"(to: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "burn(address,address,uint256,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber, BigNumber]>;
+    burn(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     burnDivested(to: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1503,16 +1479,8 @@ export class StrategyV21 extends BaseContract {
 
     baseCached(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "burn(address)"(
+    burn(
       to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "burn(address,address,uint256,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1732,16 +1700,8 @@ export class StrategyV21 extends BaseContract {
 
     baseCached(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "burn(address)"(
+    burn(
       to: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "burn(address,address,uint256,uint256)"(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
