@@ -212,8 +212,6 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
                 selected={selected}
                 displayName={displayName}
                 returns={returns}
-                // apy={returns.blendedAPY}
-                // extra={ returns.}
               />
             );
           })}
