@@ -145,7 +145,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     const opts = Array.from(strategyMap?.values()!);
     const filteredOpts = opts
       .filter((_st) => _st.type === StrategyType.V2_1)
-      .filter((_st) => _st.currentSeries?.hideSeries || _st.disabled)
+      .filter((_st) => !_st.currentSeries?.hideSeries || !_st.disabled)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
 
@@ -169,7 +169,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     if (selectedStrategy) return;
     const opts: IStrategy[] = Array.from(strategyMap.values())
       .filter((_st) => _st.type === StrategyType.V2_1) // we only want to show V2.1 strategies in the selector for now.
-      .filter((_st) => _st.currentSeries?.hideSeries || _st.disabled)
+      .filter((_st) => !_st.currentSeries?.hideSeries || !_st.disabled)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
 
     /* select strategy with rewards */
