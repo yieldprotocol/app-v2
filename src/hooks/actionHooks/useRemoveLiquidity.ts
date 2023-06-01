@@ -70,6 +70,9 @@ export const useRemoveLiquidity = () => {
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { isActionAllowed } = useAllowAction();
 
+  const { assert, encodeBalanceCall } = useAssert();
+
+
   const contracts = useContracts();
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -99,8 +102,7 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    const { assert, encodeBalanceCall } = useAssert();
-
+    
     const associated_V2_Contract = _strategy.associatedStrategy.V2
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2, provider)
       : undefined;
