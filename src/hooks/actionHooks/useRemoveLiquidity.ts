@@ -99,6 +99,8 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
+    const { assert, encodeBalanceCall } = useAssert();
+
     const associated_V2_Contract = _strategy.associatedStrategy.V2
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2, provider)
       : undefined;
@@ -301,8 +303,6 @@ export const useRemoveLiquidity = () => {
       ],
       txCode
     );
-
-    const { assert, encodeBalanceCall } = useAssert();
     
     /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
     const assertCallData_base: ICallData[] = 
