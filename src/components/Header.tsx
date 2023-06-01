@@ -43,7 +43,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
 
   // eslint-disable-next-line react/display-name
   const YieldIcon = forwardRef(({ onClick, href }: any, ref: any) => (
-    <a href={href} onClick={onClick} ref={ref}>
+    // <a href={href} onClick={onClick} ref={ref}>
       <StyledAvatar
         background="hoverBackground"
         size="3rem"
@@ -63,7 +63,7 @@ const YieldHeader = ({ actionList }: IYieldHeaderProps) => {
           <YieldMark colors={colorScheme === 'dark' ? ['white'] : ['black']} height="1.75rem" />
         )}
       </StyledAvatar>
-    </a>
+    // </a>
   ));
 
   return (
