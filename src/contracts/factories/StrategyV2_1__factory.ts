@@ -4,40 +4,25 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { FYToken, FYTokenInterface } from "../FYToken";
+import type { StrategyV2_1, StrategyV2_1Interface } from "../StrategyV2_1";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes6",
-        name: "underlyingId_",
-        type: "bytes6",
-      },
-      {
-        internalType: "contract IOracle",
-        name: "oracle_",
-        type: "address",
-      },
-      {
-        internalType: "contract IJoin",
-        name: "join_",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "maturity_",
-        type: "uint256",
-      },
-      {
         internalType: "string",
-        name: "name",
+        name: "name_",
         type: "string",
       },
       {
         internalType: "string",
-        name: "symbol",
+        name: "symbol_",
         type: "string",
+      },
+      {
+        internalType: "contract IFYToken",
+        name: "fyToken_",
+        type: "address",
       },
     ],
     stateMutability: "nonpayable",
@@ -72,19 +57,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "bytes32",
-        name: "param",
-        type: "bytes32",
+        indexed: false,
+        internalType: "address",
+        name: "user",
+        type: "address",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "value",
+        name: "receiver",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "claimed",
+        type: "uint256",
+      },
     ],
-    name: "Point",
+    name: "Claimed",
     type: "event",
   },
   {
@@ -93,29 +84,149 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "to",
+        name: "pool",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "lpTokenDivested",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "redeemed",
+        name: "baseObtained",
         type: "uint256",
       },
     ],
-    name: "Redeemed",
+    name: "Divested",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "pool",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "lpTokenDivested",
+        type: "uint256",
+      },
+    ],
+    name: "Drained",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "pool",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "lpTokenDivested",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "baseObtained",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fyTokenObtained",
+        type: "uint256",
+      },
+    ],
+    name: "Ejected",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "pool",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "baseInvested",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "lpTokensObtained",
+        type: "uint256",
+      },
+    ],
+    name: "Invested",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "accumulated",
+        type: "uint256",
+      },
+    ],
+    name: "RewardsPerTokenUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "start",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "end",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "rate",
+        type: "uint256",
+      },
+    ],
+    name: "RewardsSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "contract IERC20",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "RewardsTokenSet",
     type: "event",
   },
   {
@@ -193,11 +304,17 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "chiAtMaturity",
+        name: "soldFYToken",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "returnedBase",
         type: "uint256",
       },
     ],
-    name: "SeriesMatured",
+    name: "SoldFYToken",
     type: "event",
   },
   {
@@ -223,6 +340,31 @@ const _abi = [
       },
     ],
     name: "Transfer",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "userRewards",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "paidRewardPerToken",
+        type: "uint256",
+      },
+    ],
+    name: "UserRewardsUpdated",
     type: "event",
   },
   {
@@ -304,19 +446,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "accrual",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -384,26 +513,21 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
+    inputs: [],
+    name: "base",
+    outputs: [
       {
-        internalType: "address",
-        name: "from",
+        internalType: "contract IERC20",
+        name: "",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
     ],
-    name: "burn",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "chiAtMaturity",
+    name: "baseCached",
     outputs: [
       {
         internalType: "uint256",
@@ -412,6 +536,121 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "burn",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "poolTokensObtained",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "burnDivested",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "baseObtained",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IPool",
+        name: "pool_",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "poolTokens",
+        type: "uint256",
+      },
+    ],
+    name: "burnPoolTokens",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "baseReceived",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "fyTokenReceived",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "fyTokenTo",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "baseTo",
+        type: "address",
+      },
+    ],
+    name: "buyFYToken",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "soldFYToken",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "returnedBase",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "claim",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "claiming",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -441,19 +680,52 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
+    inputs: [],
+    name: "divest",
+    outputs: [
       {
         internalType: "uint256",
-        name: "",
+        name: "baseObtained",
         type: "uint256",
       },
     ],
-    name: "flashFee",
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "eject",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "baseReceived",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "fyTokenReceived",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "fyToken",
+    outputs: [
+      {
+        internalType: "contract IFYToken",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "fyTokenCached",
     outputs: [
       {
         internalType: "uint256",
@@ -462,40 +734,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IERC3156FlashBorrower",
-        name: "receiver",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "flashLoan",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -578,16 +816,51 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "join",
-    outputs: [
+    inputs: [
       {
-        internalType: "contract IJoin",
-        name: "",
+        internalType: "address",
+        name: "to",
         type: "address",
       },
     ],
-    stateMutability: "view",
+    name: "init",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "baseIn",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "fyTokenIn",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "minted",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IPool",
+        name: "pool_",
+        type: "address",
+      },
+    ],
+    name: "invest",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "poolTokensObtained",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -605,38 +878,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "mature",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "maturity",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "maxFlashLoan",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     stateMutability: "view",
@@ -649,14 +896,15 @@ const _abi = [
         name: "to",
         type: "address",
       },
+    ],
+    name: "mint",
+    outputs: [
       {
         internalType: "uint256",
-        name: "amount",
+        name: "minted",
         type: "uint256",
       },
     ],
-    name: "mint",
-    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -667,14 +915,15 @@ const _abi = [
         name: "to",
         type: "address",
       },
+    ],
+    name: "mintDivested",
+    outputs: [
       {
         internalType: "uint256",
-        name: "amount",
+        name: "minted",
         type: "uint256",
       },
     ],
-    name: "mintWithUnderlying",
-    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -705,19 +954,6 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "oracle",
-    outputs: [
-      {
-        internalType: "contract IOracle",
-        name: "",
-        type: "address",
       },
     ],
     stateMutability: "view",
@@ -767,41 +1003,44 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
+    inputs: [],
+    name: "pool",
+    outputs: [
       {
-        internalType: "bytes32",
-        name: "param",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "value",
+        internalType: "contract IPool",
+        name: "",
         type: "address",
       },
     ],
-    name: "point",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolCached",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
       {
         internalType: "address",
-        name: "to",
+        name: "user",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
     ],
-    name: "redeem",
+    name: "remit",
     outputs: [
       {
         internalType: "uint256",
-        name: "redeemed",
+        name: "claiming",
         type: "uint256",
       },
     ],
@@ -823,6 +1062,19 @@ const _abi = [
     ],
     name: "renounceRole",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "restart",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "baseIn",
+        type: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -865,6 +1117,120 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "rewards",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "accumulated",
+        type: "uint128",
+      },
+      {
+        internalType: "uint128",
+        name: "checkpoint",
+        type: "uint128",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "rewardsPerToken",
+    outputs: [
+      {
+        internalType: "uint128",
+        name: "accumulated",
+        type: "uint128",
+      },
+      {
+        internalType: "uint32",
+        name: "lastUpdated",
+        type: "uint32",
+      },
+      {
+        internalType: "uint96",
+        name: "rate",
+        type: "uint96",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "rewardsPeriod",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "start",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "end",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "rewardsToken",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "start",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "end",
+        type: "uint32",
+      },
+      {
+        internalType: "uint96",
+        name: "rate",
+        type: "uint96",
+      },
+    ],
+    name: "setRewards",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20",
+        name: "rewardsToken_",
+        type: "address",
+      },
+    ],
+    name: "setRewardsToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -878,6 +1244,19 @@ const _abi = [
     name: "setRoleAdmin",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "state",
+    outputs: [
+      {
+        internalType: "enum Strategy.State",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -961,32 +1340,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "underlying",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "underlyingId",
-    outputs: [
-      {
-        internalType: "bytes6",
-        name: "",
-        type: "bytes6",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "version",
     outputs: [
       {
@@ -1000,15 +1353,15 @@ const _abi = [
   },
 ] as const;
 
-export class FYToken__factory {
+export class StrategyV2_1__factory {
   static readonly abi = _abi;
-  static createInterface(): FYTokenInterface {
-    return new utils.Interface(_abi) as FYTokenInterface;
+  static createInterface(): StrategyV2_1Interface {
+    return new utils.Interface(_abi) as StrategyV2_1Interface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): FYToken {
-    return new Contract(address, _abi, signerOrProvider) as FYToken;
+  ): StrategyV2_1 {
+    return new Contract(address, _abi, signerOrProvider) as StrategyV2_1;
   }
 }

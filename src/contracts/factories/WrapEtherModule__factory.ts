@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   WrapEtherModule,
   WrapEtherModuleInterface,
@@ -299,7 +299,7 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
-];
+] as const;
 
 export class WrapEtherModule__factory {
   static readonly abi = _abi;
