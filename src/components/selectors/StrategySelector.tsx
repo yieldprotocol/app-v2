@@ -82,7 +82,7 @@ const StrategySelectItem = ({
           </Box>
         </Box>
 
-        {strategy.rewardsRate!.gt(ZERO_BN) && (
+        {strategy.rewardsRate?.gt(ZERO_BN) && (
           <Box
             round
             background="red"

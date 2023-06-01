@@ -3,6 +3,7 @@ import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from '
 import { ReactNode } from 'react';
 import { IChainContextActions } from '../contexts/types/chain';
 import { FYToken, Pool, Strategy } from '../contracts';
+import { AssociatedStrategy } from '../config/strategies';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -199,7 +200,7 @@ export interface IStrategyRoot extends ISignable {
   strategyContract: Strategy;
   startBlock: Block;
   type: 'V1' | 'V2' | 'V2_1';
-  associatedStrategy?: string;
+  associatedStrategy?: AssociatedStrategy;
   disabled?: boolean;
 }
 

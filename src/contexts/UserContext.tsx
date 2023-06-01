@@ -469,15 +469,22 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       // let _publicData: IStrategy[] = [];
       const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
+          
+          const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
+          let currentPoolAddr = undefined;
+          let fyToken: any = undefined;
+
+          if (_strategy.type !== StrategyType.V2_1) {
+            [fyToken, currentPoolAddr] = await Promise.all([
+              _strategy.strategyContract.fyToken(),
+              _strategy.strategyContract.pool(),
+            ]).catch((e: any) => {
+              console.log('Error getting strategy data: ', _strategy.name);
+              return [undefined, undefined];
+            });
+          }
+
           /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
-            _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.fyToken(),
-            _strategy.strategyContract.pool(),
-          ]).catch((e: any) => {
-            console.log('Error getting strategy data: ', _strategy.name);
-            return [ZERO_BN, undefined, undefined];
-          });
 
           // const stratConnected = _strategy.strategyContract.connect(signer);
           // const accountRewards =
@@ -485,7 +492,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
 
           /* We check if the strategy has been supersecced by a newer version */
-          const hasAnUpdatedVersion = (_strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1);
+          const hasAnUpdatedVersion = _strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1;
 
           /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) =>
@@ -496,7 +503,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(
-                hasAnUpdatedVersion && _strategy.associatedStrategy ? _strategy.associatedStrategy : _strategy.address
+                hasAnUpdatedVersion && _strategy.associatedStrategy?.V2_1
+                  ? _strategy.associatedStrategy.V2_1
+                  : _strategy.address
               ),
             ]).catch((e: any) => {
               console.log('Error getting current series data: ', _strategy.name);
@@ -505,7 +514,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
 
-            /* get rewards data */
+            
+            /* Get rewards data */
             let rewardsPeriod: { start: number; end: number } | undefined;
             let rewardsRate: BigNumber | undefined;
             let rewardsTokenAddress: string | undefined;
@@ -520,7 +530,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsRate = rate;
               rewardsTokenAddress = rewardsToken;
             } catch (e) {
-              console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
+              console.log(`Could not get any rewards data for strategy with address: ${_strategy.address}`);
               rewardsPeriod = undefined;
               rewardsRate = undefined;
               rewardsTokenAddress = undefined;
@@ -538,7 +548,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
               currentSeriesAddr: fyToken as string | undefined,
               currentSeries,
-
               currentPoolAddr: currentPoolAddr as string | undefined,
 
               rewardsRate,

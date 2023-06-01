@@ -8,7 +8,7 @@ export enum StrategyType {
   V2_1 = 'V2_1',
 }
 
-type AssociatedStrategy = {
+export type AssociatedStrategy = {
   [value in StrategyType]?: string;
 };
 
