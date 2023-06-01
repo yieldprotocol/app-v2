@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AccumulatorOracle__factory } from "./AccumulatorOracle__factory";
+export { Assert__factory } from "./Assert__factory";
 export { Cauldron__factory } from "./Cauldron__factory";
 export { ChainlinkMultiOracle__factory } from "./ChainlinkMultiOracle__factory";
 export { ChainlinkUSDOracle__factory } from "./ChainlinkUSDOracle__factory";
