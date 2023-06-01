@@ -34,7 +34,7 @@ STRATEGIES.set(1, [
 
 STRATEGIES.set(42161, [
   {
-    id: '',
+    id: 'YSDAI6MMS',
     address: '0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1',
     associatedStrategy: {
       V2: '0x5aeB4EFaAA0d27bd606D618BD74Fe883062eAfd0',
@@ -48,7 +48,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: 'YSUSDC6MMS',
     address: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
     associatedStrategy: {
       V2: '0x3b4FFD93CE5fCf97e61AA8275Ec241C76cC01a47',
@@ -62,7 +62,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: 'YSETH6MMS',
     address: '0xD5B43b2550751d372025d048553352ac60f27151',
     associatedStrategy: {
       V2: '0x5582b8398FB586F1b79edd1a6e83f1c5aa558955',
@@ -76,7 +76,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: 'YSDAI6MJD',
     address: '0xa3cAF61FD23d374ce13c742E4E9fA9FAc23Ddae6',
     associatedStrategy: {
       V2: '0x4276BEaA49DE905eED06FCDc0aD438a19D3861DD',
@@ -90,7 +90,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: 'YSUSDC6MJD',
     address: '0x54F08092e3256131954dD57C04647De8b2E7A9a9',
     associatedStrategy: {
       V2: '0x33e6B154efC7021dD55464c4e11a6AfE1f3D0635',
@@ -104,7 +104,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: 'YSETH6MJD',
     address: '0x3353E1E2976DBbc191a739871faA8E6E9D2622c7',
     associatedStrategy: {
       V2: '0xad1983745D6c739537fEaB5bed45795f47A940b3',
@@ -120,7 +120,7 @@ STRATEGIES.set(42161, [
 
   //V2 Strategies
   {
-    id: '',
+    id: '0x1030FF000FFE',
     address: '0xad1983745D6c739537fEaB5bed45795f47A940b3',
     type: StrategyType.V2,
     associatedStrategy: { V2_1: '0xc315b7b54b496b0d986684f4682e1d7acfb997e9' },
@@ -131,7 +131,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: '0x1031FF000FFE',
     address: '0x4276BEaA49DE905eED06FCDc0aD438a19D3861DD',
     type: StrategyType.V2,
     associatedStrategy: { V2_1: '0x38069499bd940ce637b3ed19c2cbc9df498d90d5' },
@@ -142,7 +142,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: '0x1032FF000FFE',
     address: '0x33e6B154efC7021dD55464c4e11a6AfE1f3D0635',
     associatedStrategy: { V2_1: '0xbd54fa0318f8337023548f42566637ebcc57fb51' },
     symbol: 'YSUSDC6MJD',
@@ -154,7 +154,7 @@ STRATEGIES.set(42161, [
   },
 
   {
-    id: '',
+    id: '0x10A0FF000FFE',
     address: '0x861509a3fa7d87faa0154aae2cb6c1f92639339a',
     associatedStrategy: { V2_1: '0xf5fd98286fd9d3d94cd63098cc3ce0df5891de73' },
     type: StrategyType.V2,
@@ -166,7 +166,7 @@ STRATEGIES.set(42161, [
   },
 
   {
-    id: '',
+    id: '0x10A0FF000FFF',
     address: '0xfe2aba5ba890af0ee8b6f2d488b1f85c9e7c5643',
     associatedStrategy : { V2_1: '0x29a98294d9da369458d33ed9dd69f0dd36f14484'},
     type: StrategyType.V2,
@@ -178,7 +178,7 @@ STRATEGIES.set(42161, [
   },
 
   {
-    id: '',
+    id: '0x1032FF000FFF',
     address: '0x3b4FFD93CE5fCf97e61AA8275Ec241C76cC01a47',
     type: StrategyType.V2,
     associatedStrategy: { V2_1: '0xd9446472697d0616a0183dad96567bbe5edd1dd4' },
@@ -189,7 +189,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: '0x1030FF000FFF',
     address: '0x5582b8398FB586F1b79edd1a6e83f1c5aa558955',
     type: StrategyType.V2,
     associatedStrategy: { V2_1: '0xfab75a23dd3ecc91d866cb151cee7830857f49cc' },
@@ -200,7 +200,7 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
+    id: '0x1031FF000FFF',
     address: '0x5aeB4EFaAA0d27bd606D618BD74Fe883062eAfd0',
     type: StrategyType.V2,
     associatedStrategy: { V2_1: '0x96b87c0aacb01a09c0de249238d56c6d3a9629a8' },
@@ -213,8 +213,8 @@ STRATEGIES.set(42161, [
 
   // V2.1 strategies
   {
-    id: '',
-    address: '0x96b87c0aacb01a09c0de249238d56c6d3a9629a8', //
+    id: '0x1031FF000001',
+    address: '0x4771522accAC6fEcf89A6365cEaF05667ed95886', //
     type: StrategyType.V2_1,
     symbol: 'YSDAI6MMS',
     baseId: DAI,
@@ -223,8 +223,8 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
-    address: '0x29a98294d9da369458d33ed9dd69f0dd36f14484', //
+    id: '0x10A0FF000001',
+    address: '0x2C918C4db3843F715556c65646f9E4a04C4BfBa6', //
     type: StrategyType.V2_1,
     symbol: 'YSUSDT6MMS',
     baseId: USDT,
@@ -233,8 +233,8 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
-    address: '0xbd54fa0318f8337023548f42566637ebcc57fb51', //
+    id: '0x1032FF000000',
+    address: '0xCeAf1CBf0CFDD1f7Ea4C1C850c0bC032a60431DB', //
     symbol: 'YSUSDC6MJD',
     baseId: USDC,
     name: 'Yield Strategy USDC 6M Jun Dec',
@@ -243,8 +243,8 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
-    address: '0xf5fd98286fd9d3d94cd63098cc3ce0df5891de73', //
+    id: '0x10A0FF000000',
+    address: '0x8b814aD71e611e7a38eE64Ec16ce421A477956e1', //
     type: StrategyType.V2_1,
     symbol: 'YSUSDT6MJD',
     baseId: USDT,
@@ -253,8 +253,8 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
-    address: '0xd9446472697d0616a0183dad96567bbe5edd1dd4', //
+    id: '0x1032FF000001',
+    address: '0x7012aF43F8a3c1141Ee4e955CC568Ad2af59C3fa', //
     type: StrategyType.V2_1,
     symbol: 'YSUSDC6MMS',
     baseId: USDC,
@@ -263,8 +263,8 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
-    address: '0xfab75a23dd3ecc91d866cb151cee7830857f49cc', //
+    id: '0x1030FF000001',
+    address: '0x0A4B2e37BFEF8e54DeA997A87749A403353134e8', //
     type: StrategyType.V2_1,
     symbol: 'YSETH6MMS',
     baseId: WETH,
@@ -273,8 +273,8 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
-    address: '0xc315b7b54b496b0d986684f4682e1d7acfb997e9', //
+    id: '0x1030FF000000',
+    address: '0xC7D2E96Ca94E1870605c286268313785886D2257', //
     type: StrategyType.V2_1,
     symbol: 'YSETH6MJD',
     baseId: WETH,
@@ -283,8 +283,8 @@ STRATEGIES.set(42161, [
     version: '1',
   },
   {
-    id: '',
-    address: '0x38069499bd940ce637b3ed19c2cbc9df498d90d5', //
+    id: '0x1031FF000000',
+    address: '0x9847D09cb0eEA77f7875A6904BFA22AE06b34CCE', //
     type: StrategyType.V2_1,
     symbol: 'YSDAI6MJD',
     baseId: DAI,
