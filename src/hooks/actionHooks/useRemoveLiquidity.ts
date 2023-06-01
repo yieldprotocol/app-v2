@@ -16,7 +16,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { TxContext } from '../../contexts/TxContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ONE_BN, WAD_BN, ZERO_BN } from '../../utils/constants';
 import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
@@ -28,6 +28,7 @@ import { StrategyType } from '../../config/strategies';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
+import { AssertActions, useAssert } from './useAssert';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -300,6 +301,38 @@ export const useRemoveLiquidity = () => {
       ],
       txCode
     );
+
+    const { assert, encodeBalanceCall } = useAssert();
+    
+    /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
+    const assertCallData_base: ICallData[] = 
+    isEthBase && nativeBalance
+    ? assert(
+      undefined,
+      encodeBalanceCall(undefined),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      nativeBalance.value.add(series.getBase(_sharesReceived)),
+      WAD_BN.div('10') // 10% relative tolerance
+    ):
+    assert( 
+      _base.address,
+      encodeBalanceCall(_base.address, _base.tokenIdentifier),
+      AssertActions.Fn.ASSERT_EQ_REL,
+      _base.balance!.add(series.getBase(_sharesReceived)),
+      WAD_BN.div('10') // 10% relative tolerance
+    )
+
+    /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
+    const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN)
+      ? assert(
+          series.address,
+          encodeBalanceCall(series.address, undefined),
+          AssertActions.Fn.ASSERT_EQ_REL,
+          series.fyTokenBalance!.add(_fyTokenReceived),
+          WAD_BN.div('10') // 10% relative tolerance
+        )
+      : [];
+
 
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
     const calls: ICallData[] = [
