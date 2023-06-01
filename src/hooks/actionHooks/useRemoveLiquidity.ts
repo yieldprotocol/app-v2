@@ -98,8 +98,12 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    const _associatedStrategyContract = _strategy.associatedStrategy
-      ? Strategy__factory.connect(_strategy.associatedStrategy, provider)
+    const associated_V2_Contract = _strategy.associatedStrategy.V2
+      ? Strategy__factory.connect(_strategy.associatedStrategy.V2, provider)
+      : undefined;
+
+    const associated_V2_1_Contract = _strategy.associatedStrategy.V2_1
+      ? Strategy__factory.connect(_strategy.associatedStrategy.V2_1, provider)
       : undefined;
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
@@ -311,45 +315,65 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy,
       },
 
-      /** If removing from a V1 strategy, we need to burn the tokens to either the associated v2 strategy or the pool if the is no associatedStrategy */
+      /**
+       * MIGRATE FROM V1 STRATEGY
+       * If removing from a V1 strategy, we need to
+       * 1. burn the tokens to the associated v2 strategy
+       * 2. burn v2 strategies to the associated v2.1 strategy
+       * */
+
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy || series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.associatedStrategy.V2] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy.strategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V2,
+        targetContract: _strategy.strategyContract, // v1 in this case
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [_strategy.associatedStrategy.V2_1] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: associated_V2_Contract,
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _associatedStrategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V2 || !_associatedStrategyContract,
+        targetContract: associated_V2_1_Contract,
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
       },
 
-      /* with new strats version V2.1, we also need to burn the V2 tokens to the V2.1 strategies */
+      /**
+       * MIGRATE FROM V2 STRATEGY
+       * If removing from a V2 strategy, we need to
+       * 1. burn v2 strategies to the associated v2.1 strategy
+       * */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy || series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.associatedStrategy.V2_1] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy.strategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V2_1,
+        targetContract: _strategy.strategyContract,  // v2 in this case
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V2,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _associatedStrategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V2_1 || !_associatedStrategyContract,
+        targetContract: associated_V2_1_Contract,
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V2,
       },
 
-      /* If removing from a V2.1 strategy, simply burn fromm strategy to the pool address */
+
+      /**
+       * If removing DIRECTLY from a V2.1 strategy, simply burn from strategy to the pool address 
+       * */
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy.strategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V1 || _strategy.type === StrategyType.V2,
+        targetContract: _strategy.strategyContract, // v2.1 in this case
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V2_1,
       },
 
       /**
