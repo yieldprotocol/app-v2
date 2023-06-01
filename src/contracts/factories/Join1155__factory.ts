@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
+import type { Provider } from "@ethersproject/providers";
 import type { Join1155, Join1155Interface } from "../Join1155";
 
 const _abi = [
@@ -572,7 +572,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-];
+] as const;
 
 export class Join1155__factory {
   static readonly abi = _abi;
