@@ -368,7 +368,6 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy || _strategy.type !== StrategyType.V2,
       },
 
-
       /**
        * If removing DIRECTLY from a V2.1 strategy, simply burn from strategy to the pool address 
        * */
