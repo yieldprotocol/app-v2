@@ -72,7 +72,6 @@ export const useRemoveLiquidity = () => {
 
   const { assert, encodeBalanceCall } = useAssert();
 
-
   const contracts = useContracts();
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -102,19 +101,18 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    
     const associated_V2_Contract = _strategy.associatedStrategy.V2
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2, provider)
       : undefined;
 
-    const associated_V2_1_Contract = _strategy.associatedStrategy.V2_1
+    const associated_V2_1_Contract = _strategy.associatedStrategy?.V2_1
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2_1, provider)
       : undefined;
 
-      /* some saftey */
-    if ( associated_V2_Contract == undefined && _strategy.type === StrategyType.V1) return; // abort if strat 1 and no associated v2 strategy 
-    if ( associated_V2_1_Contract == undefined && _strategy.type !== StrategyType.V2_1) return; // abort if not strat 2.1 and no associated strategy 
-  
+    /* some saftey */
+    if (associated_V2_Contract == undefined && _strategy.type === StrategyType.V1) return; // abort if strat 1 and no associated v2 strategy
+    if (associated_V2_1_Contract == undefined && _strategy.type !== StrategyType.V2_1) return; // abort if not strat 2.1 and no associated strategy
+
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
@@ -305,24 +303,24 @@ export const useRemoveLiquidity = () => {
       ],
       txCode
     );
-    
+
     /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
-    const assertCallData_base: ICallData[] = 
-    isEthBase && nativeBalance
-    ? assert(
-      undefined,
-      encodeBalanceCall(undefined),
-      AssertActions.Fn.ASSERT_EQ_REL,
-      nativeBalance.value.add(series.getBase(_sharesReceived)),
-      WAD_BN.div('10') // 10% relative tolerance
-    ):
-    assert( 
-      _base.address,
-      encodeBalanceCall(_base.address, _base.tokenIdentifier),
-      AssertActions.Fn.ASSERT_EQ_REL,
-      _base.balance!.add(series.getBase(_sharesReceived)),
-      WAD_BN.div('10') // 10% relative tolerance
-    )
+    const assertCallData_base: ICallData[] =
+      isEthBase && nativeBalance
+        ? assert(
+            undefined,
+            encodeBalanceCall(undefined),
+            AssertActions.Fn.ASSERT_EQ_REL,
+            nativeBalance.value.add(series.getBase(_sharesReceived)),
+            WAD_BN.div('10') // 10% relative tolerance
+          )
+        : assert(
+            _base.address,
+            encodeBalanceCall(_base.address, _base.tokenIdentifier),
+            AssertActions.Fn.ASSERT_EQ_REL,
+            _base.balance!.add(series.getBase(_sharesReceived)),
+            WAD_BN.div('10') // 10% relative tolerance
+          );
 
     /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
     const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN)
@@ -334,7 +332,6 @@ export const useRemoveLiquidity = () => {
           WAD_BN.div('10') // 10% relative tolerance
         )
       : [];
-
 
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
     const calls: ICallData[] = [
@@ -363,14 +360,14 @@ export const useRemoveLiquidity = () => {
 
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy.V2] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.associatedStrategy?.V2] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: _strategy.strategyContract, // v1 in this case
         ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy.V2_1] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.associatedStrategy?.V2_1] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: associated_V2_Contract,
         ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
@@ -390,9 +387,9 @@ export const useRemoveLiquidity = () => {
        * */
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy.V2_1] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.associatedStrategy?.V2_1] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy.strategyContract,  // v2 in this case
+        targetContract: _strategy.strategyContract, // v2 in this case
         ignoreIf: !_strategy || _strategy.type !== StrategyType.V2,
       },
       {
@@ -404,7 +401,7 @@ export const useRemoveLiquidity = () => {
       },
 
       /**
-       * If removing DIRECTLY from a V2.1 strategy, simply burn from strategy to the pool address 
+       * If removing DIRECTLY from a V2.1 strategy, simply burn from strategy to the pool address
        * */
       {
         operation: LadleActions.Fn.ROUTE,
