@@ -474,7 +474,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           let currentPoolAddr = undefined;
           let fyToken: any = undefined;
 
-          if (_strategy.type !== StrategyType.V2_1) {
+          if (_strategy.type === StrategyType.V2_1) {
             [fyToken, currentPoolAddr] = await Promise.all([
               _strategy.strategyContract.fyToken(),
               _strategy.strategyContract.pool(),
