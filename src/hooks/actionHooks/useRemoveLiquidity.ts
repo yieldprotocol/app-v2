@@ -527,6 +527,9 @@ export const useRemoveLiquidity = () => {
       },
 
       ...removeEthCallData,
+
+      ...assertCallData_base,
+      // ...assertCallData_fyToken, temporarily remove fyToken check
     ];
 
     await transact(calls, txCode);
