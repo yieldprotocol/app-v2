@@ -56,7 +56,7 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const provider = useProvider();
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
