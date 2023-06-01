@@ -292,7 +292,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
     (strategy: any) => {
       const Strategy =
         strategy.type === StrategyType.V2_1
-          ? contractTypes.StrategyV21__factory.connect(strategy.address, provider)
+          ? contractTypes.StrategyV2_1__factory.connect(strategy.address, provider)
           : contractTypes.Strategy__factory.connect(strategy.address, provider);
       return {
         ...strategy,
