@@ -106,6 +106,10 @@ export const useRemoveLiquidity = () => {
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2_1, provider)
       : undefined;
 
+      /* some saftey */
+    if ( associated_V2_Contract == undefined && _strategy.type === StrategyType.V1) return; // abort if strat 1 and no associated v2 strategy 
+    if ( associated_V2_1_Contract == undefined && _strategy.type !== StrategyType.V2_1) return; // abort if not strat 2.1 and no associated strategy 
+  
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
