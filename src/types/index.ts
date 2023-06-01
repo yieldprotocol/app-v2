@@ -198,7 +198,7 @@ export interface IStrategyRoot extends ISignable {
   decimals: number;
   strategyContract: Strategy;
   startBlock: Block;
-  type: 'V1' | 'V2' | 'V2.1';
+  type: 'V1' | 'V2' | 'V2_1';
   associatedStrategy?: string;
   disabled?: boolean;
 }
