@@ -461,7 +461,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[], seriesList: ISeries[] = []) => {
-      console.log('Updating strategies...');
+      console.log('Updating strategies...', strategyList);
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
       const _seriesList = seriesList.length ? seriesList : Array.from(userState.seriesMap.values());
@@ -469,12 +469,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       // let _publicData: IStrategy[] = [];
       const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
-          
           const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
           let currentPoolAddr = undefined;
           let fyToken: any = undefined;
 
-          if (_strategy.type === StrategyType.V2_1) {
+          if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
             [fyToken, currentPoolAddr] = await Promise.all([
               _strategy.strategyContract.fyToken(),
               _strategy.strategyContract.pool(),
@@ -482,6 +481,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               console.log('Error getting strategy data: ', _strategy.name);
               return [undefined, undefined];
             });
+          } else if (_strategy.type === StrategyType.V2) {
+            fyToken = _strategy.associatedSeries;
+            currentPoolAddr = await _strategy.strategyContract.pool();
           }
 
           /* Get all the data simultanenously in a promise.all */
@@ -508,13 +510,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                   : _strategy.address
               ),
             ]).catch((e: any) => {
-              console.log('Error getting current series data: ', _strategy.name);
+              console.log('Error getting current series data: ', _strategy.name, _strategy);
               return [ZERO_BN, ZERO_BN];
             });
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
 
-            
             /* Get rewards data */
             let rewardsPeriod: { start: number; end: number } | undefined;
             let rewardsRate: BigNumber | undefined;

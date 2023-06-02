@@ -202,6 +202,7 @@ export interface IStrategyRoot extends ISignable {
   type: 'V1' | 'V2' | 'V2_1';
   associatedStrategy?: AssociatedStrategy;
   disabled?: boolean;
+  associatedSeries?: string;
 }
 
 export interface IVaultRoot {
