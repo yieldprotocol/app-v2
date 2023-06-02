@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import { UserContext } from '../contexts/UserContext';
 import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
+import { StrategyType } from '../config/strategies';
+import { FaExclamationCircle } from 'react-icons/fa';
 
 const Outer = styled(Box)`
   position: relative;
@@ -30,10 +32,12 @@ function PositionAvatar({
   position,
   condensed,
   actionType,
+  type
 }: {
   position: IVault | ISeries | IStrategy;
   actionType: ActionType;
   condensed?: boolean;
+  type?: any;
 }) {
   const isVault = position?.id.length > 15;
 
@@ -67,7 +71,7 @@ function PositionAvatar({
           )}
           {actionType === ActionType.POOL && (
             <Avatar background="lightBackground" size={ilkBorderSize}>
-              {series?.seriesIsMature ? <FiClock /> : <MdAutorenew />}
+              {type !== StrategyType.V2_1 ? <FaExclamationCircle /> : <MdAutorenew />}
             </Avatar>
           )}
         </Inner>
