@@ -280,14 +280,13 @@ const PoolPosition = () => {
                     )}
 
                     {selectedStrategy?.type !== StrategyType.V2_1 && (
-                                              <InfoBite
-                                              label="Strategy Token has been upgraded"
-                                              value={`A newer version of the token is available.`}
-                                              icon={<FaExclamationCircle />}
-                                              loading={seriesLoading}
-                                            />
-                    )
-                    }
+                      <InfoBite
+                        label="Strategy Token has been upgraded"
+                        value={`A newer version of the token is available.`}
+                        icon={<FaExclamationCircle />}
+                        loading={seriesLoading}
+                      />
+                    )}
 
                     {selectedStrategy?.accountRewards?.gt(ZERO_BN) && selectedStrategy?.rewardsTokenAddress && (
                       <Box direction="row" gap="large" justify="between">
