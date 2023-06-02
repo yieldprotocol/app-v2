@@ -530,24 +530,46 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
 
-
-
           const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
           let currentPoolAddr = undefined;
           let fyToken: any = undefined;
 
           if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
-            [fyToken, currentPoolAddr] = await Promise.all([
-              _strategy.strategyContract.fyToken(),
-              _strategy.strategyContract.pool(),
-            ]).catch((e: any) => {
-              console.log('Error getting strategy data: ', _strategy.name);
-              return [undefined, undefined];
-            });
+          [fyToken, currentPoolAddr] = await multicall({
+            contracts: [
+              {
+                address: _strategy.strategyContract.address as `0x${string}`,
+                abi: _strategy.strategyContract.interface as any,
+                functionName: 'fyToken',
+                args:[],
+              },
+              {
+                address: _strategy.strategyContract.address as `0x${string}`,
+                abi: _strategy.strategyContract.interface as any,
+                functionName: 'pool',
+                args:[],
+              },
+            ]}) as unknown as BigNumber[];
+
           } else if (_strategy.type === StrategyType.V2) {
-            fyToken = _strategy.associatedSeries;
+
             currentPoolAddr = await _strategy.strategyContract.pool();
+            fyToken = _strategy.associatedSeries;
+
           }
+
+          // if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
+          //   [fyToken, currentPoolAddr] = await Promise.all([
+          //     _strategy.strategyContract.fyToken(),
+          //     _strategy.strategyContract.pool(),
+          //   ]).catch((e: any) => {
+          //     console.log('Error getting strategy data: ', _strategy.name);
+          //     return [undefined, undefined];
+          //   });
+          // } else if (_strategy.type === StrategyType.V2) {
+          //   fyToken = _strategy.associatedSeries;
+          //   currentPoolAddr = await _strategy.strategyContract.pool();
+          // }
 
 
           /* We check if the strategy has been supersecced by a newer version */
@@ -579,14 +601,34 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             let rewardsTokenAddress: string | undefined;
 
             try {
-              const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
-                _strategy.strategyContract.rewardsPerToken(),
-                _strategy.strategyContract.rewardsPeriod(),
-                _strategy.strategyContract.rewardsToken(),
-              ]);
+
+              const [{ rate }, { start, end }, rewardsToken] = await multicall({
+                contracts: [
+                  {
+                    address: _strategy.strategyContract.address as `0x${string}`,
+                    abi: _strategy.strategyContract.interface as any,
+                    functionName: 'rewardsPerToken',
+                    args:[],
+                  },
+                  {
+                    address: _strategy.strategyContract.address as `0x${string}`,
+                    abi: _strategy.strategyContract.interface as any,
+                    functionName: 'rewardsPeriod',
+                    args:[],
+                  },
+                  {
+                    address: _strategy.strategyContract.address as `0x${string}`,
+                    abi: _strategy.strategyContract.interface as any,
+                    functionName: 'rewardsToken',
+                    args:[],
+                  },
+
+                ]}) as unknown as any[];
+
               rewardsPeriod = { start, end };
               rewardsRate = rate;
               rewardsTokenAddress = rewardsToken;
+              
             } catch (e) {
               console.log(`Could not get any rewards data for strategy with address: ${_strategy.address}`);
               rewardsPeriod = undefined;
