@@ -205,7 +205,11 @@ const PoolPosition = () => {
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
+                    <PositionAvatar
+                      position={selectedSeries!}
+                      actionType={ActionType.POOL}
+                      type={selectedStrategy?.type}
+                    />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {formatStrategyName(_selectedStrategy?.name)}</Text>
                       <CopyWrap hash={_selectedStrategy.address}>
