@@ -360,7 +360,7 @@ const PoolPosition = () => {
                           />
                         </InputWrap>
 
-                        {removeInput && !partialRemoveRequired && !removeError && (
+                        {removeInput && !partialRemoveRequired && !removeError && removeBaseReceived_ && (
                           <InputInfoWrap>
                             <Text color="text-weak" alignSelf="end" size="small">
                               Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}
