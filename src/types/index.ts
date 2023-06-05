@@ -3,6 +3,7 @@ import { ethers, BigNumber, BigNumberish, ContractTransaction, Contract } from '
 import { ReactNode } from 'react';
 import { IChainContextActions } from '../contexts/types/chain';
 import { FYToken, Pool, Strategy } from '../contracts';
+import { AssociatedStrategy } from '../config/strategies';
 
 export { LadleActions, RoutedActions } from './operations';
 
@@ -111,7 +112,7 @@ export interface ISeriesRoot extends ISignable {
   oppEndColor: string;
 
   seriesMark: ReactNode;
-  
+
   allowActions: (ActionCodes | 'allow_all' | 'allow_none')[];
 }
 
@@ -198,8 +199,10 @@ export interface IStrategyRoot extends ISignable {
   decimals: number;
   strategyContract: Strategy;
   startBlock: Block;
-  type: 'V1' | 'V2';
-  associatedStrategy?: string;
+  type: 'V1' | 'V2' | 'V2_1';
+  associatedStrategy?: AssociatedStrategy;
+  disabled?: boolean;
+  associatedSeries?: string;
 }
 
 export interface IVaultRoot {
@@ -239,7 +242,6 @@ export interface ISeries extends ISeriesRoot {
   currentInvariant?: BigNumber;
   initInvariant?: BigNumber;
   startBlock: Block;
-
 }
 
 export interface IDummyVault extends IVaultRoot {}
@@ -267,7 +269,6 @@ export interface IVault extends IVaultRoot {
 
 export interface IStrategy extends IStrategyRoot {
   currentSeries: ISeries | undefined;
-  active: boolean;
 
   currentSeriesAddr?: string;
   currentPoolAddr?: string;

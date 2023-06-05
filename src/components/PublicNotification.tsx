@@ -11,7 +11,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
   const chainId = useChainId();
   return (
     <>
-      {/* {chainId === 1 ? ( */}
+      { chainId === 1 ?
         <Box direction="row" align="center" justify="between">
           <Box
             direction="row"
@@ -30,7 +30,8 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
             </Text>
           </Box>
         </Box>
-      {/* ) : null} */}
+       : null
+       }
     </>
   );
 };

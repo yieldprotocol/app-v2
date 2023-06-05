@@ -3,6 +3,8 @@ import { useContext, useEffect, useReducer, useCallback, useState, Dispatch, cre
 import { BigNumber, ethers } from 'ethers';
 import * as contractTypes from '../contracts';
 
+import { multicall } from '@wagmi/core';
+
 import {
   calculateAPR,
   divDecimal,
@@ -35,6 +37,7 @@ import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
 import useAccountPlus from '../hooks/useAccountPlus';
 import { ContractNames } from '../config/contracts';
+import { StrategyType } from '../config/strategies';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -303,18 +306,35 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
-          let baseReserves: BigNumber;
-          try {
-            baseReserves = await series.poolContract.getBaseBalance();
-          } catch (error) {
-            baseReserves = ZERO_BN;
-          }
-          /* Get all the data simultanenously in a promise.all */
-          const [fyTokenReserves, totalSupply, fyTokenRealReserves] = await Promise.all([
-            series.poolContract.getFYTokenBalance(),
-            series.poolContract.totalSupply(),
-            series.fyTokenContract.balanceOf(series.poolAddress),
-          ]);
+          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = (await multicall({
+            contracts: [
+              {
+                address: series.poolContract.address as `0x${string}`,
+                abi: series.poolContract.interface as any,
+                functionName: 'getBaseBalance',
+                args: [],
+              },
+
+              {
+                address: series.poolContract.address as `0x${string}`,
+                abi: series.poolContract.interface as any,
+                functionName: 'getFYTokenBalance',
+                args: [],
+              },
+              {
+                address: series.poolContract.address as `0x${string}`,
+                abi: series.poolContract.interface as any,
+                functionName: 'totalSupply',
+                args: [],
+              },
+              {
+                address: series.fyTokenContract.address as `0x${string}`,
+                abi: series.fyTokenContract.interface as any,
+                functionName: 'balanceOf',
+                args: [series.poolAddress],
+              },
+            ],
+          })) as unknown as (BigNumber | undefined | null)[];
 
           let sharesReserves: BigNumber;
           let c: BigNumber | undefined;
@@ -322,16 +342,44 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           let currentSharePrice: BigNumber;
           let sharesAddress: string;
 
-          try {
-            [sharesReserves, c, mu, currentSharePrice, sharesAddress] = await Promise.all([
-              series.poolContract.getSharesBalance(),
-              series.poolContract.getC(),
-              series.poolContract.mu(),
-              series.poolContract.getCurrentSharePrice(),
-              series.poolContract.sharesToken(),
-            ]);
-          } catch (error) {
-            sharesReserves = baseReserves;
+          /* This was the case used for Euler pools - no longer used left here for reference */
+          if (false) {
+            [sharesReserves, c, mu, currentSharePrice, sharesAddress] = (await multicall({
+              contracts: [
+                {
+                  address: series.poolContract.address as `0x${string}`,
+                  abi: series.poolContract.interface as any,
+                  functionName: 'getSharesBalance',
+                  args: [],
+                },
+                {
+                  address: series.poolContract.address as `0x${string}`,
+                  abi: series.poolContract.interface as any,
+                  functionName: 'getC',
+                  args: [],
+                },
+                {
+                  address: series.poolContract.address as `0x${string}`,
+                  abi: series.poolContract.interface as any,
+                  functionName: 'mu',
+                  args: [],
+                },
+                {
+                  address: series.poolContract.address as `0x${string}`,
+                  abi: series.poolContract.interface as any,
+                  functionName: 'getCurrentSharePrice',
+                  args: [],
+                },
+                {
+                  address: series.poolContract.address as `0x${string}`,
+                  abi: series.poolContract.interface as any,
+                  functionName: 'sharesToken',
+                  args: [],
+                },
+              ],
+            })) as unknown as any[];
+          } else {
+            sharesReserves = baseReserves ?? ZERO_BN;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
             sharesAddress = assetRootMap.get(series.baseId)?.address!;
             diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
@@ -361,7 +409,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           /* Calculates the base/fyToken unit selling price */
           const _sellRate = sellFYToken(
             sharesReserves,
-            fyTokenReserves,
+            fyTokenReserves || ZERO_BN,
             rateCheckAmount,
             getTimeTillMaturity(series.maturity),
             series.ts,
@@ -381,25 +429,25 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           let initInvariant: BigNumber | undefined;
           let poolStartBlock: Block | undefined;
 
-          try {
-            // get pool init block
-            const gmFilter = series.poolContract.filters.gm();
-            const gm = await series.poolContract.queryFilter(gmFilter, 'earliest');
-            poolStartBlock = await gm[0].getBlock();
-            currentInvariant = await series.poolContract.invariant();
-            initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
-          } catch (e) {
-            diagnostics && console.log('Could not get current and init invariant for series', series.id);
-          }
+          // try {
+          //   // get pool init block
+          //   const gmFilter = series.poolContract.filters.gm();
+          //   const gm = await series.poolContract.queryFilter(gmFilter, 'earliest');
+          //   poolStartBlock = await gm[0].getBlock();
+          //   currentInvariant = await series.poolContract.invariant();
+          //   initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
+          // } catch (e) {
+          //   diagnostics && console.log('Could not get current and init invariant for series', series.id);
+          // }
 
           return {
             ...series,
             sharesReserves,
             sharesReserves_: ethers.utils.formatUnits(sharesReserves, series.decimals),
-            fyTokenReserves,
-            fyTokenRealReserves,
-            totalSupply,
-            totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
+            fyTokenReserves: fyTokenReserves || ZERO_BN,
+            fyTokenRealReserves: fyTokenRealReserves || ZERO_BN,
+            totalSupply: totalSupply || ZERO_BN,
+            totalSupply_: totalSupply ? ethers.utils.formatUnits(totalSupply, series.decimals) : '0',
             apr: `${Number(apr).toFixed(2)}`,
             seriesIsMature: isMature(series.maturity),
             c,
@@ -419,22 +467,31 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       if (account) {
         _accountData = await Promise.all(
           _publicData.map(async (series): Promise<ISeries> => {
-            /* Get all the data simultanenously in a promise.all */
-            const [poolTokens, fyTokenBalance] = await Promise.all([
-              series.poolContract.balanceOf(account),
-              series.fyTokenContract.balanceOf(account),
-            ]).catch((e) => {
-              console.log('Error getting user balances for series: ', series.id);
-              return [ZERO_BN, ZERO_BN];
-            }); // catch error and return 0 values if error with series
+            const [poolTokens, fyTokenBalance] = (await multicall({
+              contracts: [
+                {
+                  address: series.poolContract.address as `0x${string}`,
+                  abi: series.poolContract.interface as any,
+                  functionName: 'balanceOf',
+                  args: [account],
+                },
+                {
+                  address: series.fyTokenContract.address as `0x${string}`,
+                  abi: series.poolContract.interface as any,
+                  functionName: 'balanceOf',
+                  args: [account],
+                },
+              ],
+            })) as unknown as BigNumber[];
 
-            const poolPercent = mulDecimal(divDecimal(poolTokens, series.totalSupply), '100');
+            const poolPercent = mulDecimal(divDecimal(poolTokens || ZERO_BN, series.totalSupply), '100');
+
             return {
               ...series,
-              poolTokens,
-              fyTokenBalance,
-              poolTokens_: ethers.utils.formatUnits(poolTokens, series.decimals),
-              fyTokenBalance_: ethers.utils.formatUnits(fyTokenBalance, series.decimals),
+              poolTokens: poolTokens || ZERO_BN,
+              fyTokenBalance: fyTokenBalance || ZERO_BN,
+              poolTokens_: ethers.utils.formatUnits(poolTokens || ZERO_BN, series.decimals),
+              fyTokenBalance_: ethers.utils.formatUnits(fyTokenBalance || ZERO_BN, series.decimals),
               poolPercent,
             };
           })
@@ -454,13 +511,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       return newSeriesMap;
     },
-    [account, diagnostics, getPoolAPY, getTimeTillMaturity, isMature]
+    [account, assetRootMap, diagnostics, getPoolAPY, getTimeTillMaturity, isMature]
   );
 
   /* Updates the assets with relevant *user* data */
   const updateStrategies = useCallback(
     async (strategyList: IStrategyRoot[], seriesList: ISeries[] = []) => {
-      console.log('Updating strategies...');
+      console.log('Updating strategies...', strategyList);
       updateState({ type: UserState.STRATEGIES_LOADING, payload: true });
 
       const _seriesList = seriesList.length ? seriesList : Array.from(userState.seriesMap.values());
@@ -468,23 +525,47 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       // let _publicData: IStrategy[] = [];
       const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
-          /* Get all the data simultanenously in a promise.all */
-          const [strategyTotalSupply, fyToken, currentPoolAddr] = await Promise.all([
-            _strategy.strategyContract.totalSupply(),
-            _strategy.strategyContract.fyToken(),
-            _strategy.strategyContract.pool(),
-          ]).catch((e: any) => {
-            console.log('Error getting strategy data: ', _strategy.name);
-            return [ZERO_BN, undefined, undefined];
-          });
+          const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
+          let currentPoolAddr = undefined;
+          let fyToken: any = undefined;
 
-          // const stratConnected = _strategy.strategyContract.connect(signer);
-          // const accountRewards =
-          //   _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
-          // console.log(accountRewards.gt(ZERO_BN) ? accountRewards.toString() : 'no rewards');
+          if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
+            [fyToken, currentPoolAddr] = (await multicall({
+              contracts: [
+                {
+                  address: _strategy.strategyContract.address as `0x${string}`,
+                  abi: _strategy.strategyContract.interface as any,
+                  functionName: 'fyToken',
+                  args: [],
+                },
+                {
+                  address: _strategy.strategyContract.address as `0x${string}`,
+                  abi: _strategy.strategyContract.interface as any,
+                  functionName: 'pool',
+                  args: [],
+                },
+              ],
+            })) as unknown as BigNumber[];
+          } else if (_strategy.type === StrategyType.V2) {
+            currentPoolAddr = await _strategy.strategyContract.pool();
+            fyToken = _strategy.associatedSeries;
+          }
 
-          /* We check if the strategy has been supersecced by a v2 version */
-          const hasAnUpdatedVersion = _strategy.type === 'V1' && !!_strategy.associatedStrategy;
+          // if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
+          //   [fyToken, currentPoolAddr] = await Promise.all([
+          //     _strategy.strategyContract.fyToken(),
+          //     _strategy.strategyContract.pool(),
+          //   ]).catch((e: any) => {
+          //     console.log('Error getting strategy data: ', _strategy.name);
+          //     return [undefined, undefined];
+          //   });
+          // } else if (_strategy.type === StrategyType.V2) {
+          //   fyToken = _strategy.associatedSeries;
+          //   currentPoolAddr = await _strategy.strategyContract.pool();
+          // }
+
+          /* We check if the strategy has been supersecced by a newer version */
+          const hasAnUpdatedVersion = _strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1;
 
           /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) =>
@@ -495,38 +576,55 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             const [poolTotalSupply, strategyPoolBalance] = await Promise.all([
               currentSeries.poolContract.totalSupply(),
               currentSeries.poolContract.balanceOf(
-                hasAnUpdatedVersion && _strategy.associatedStrategy ? _strategy.associatedStrategy : _strategy.address
+                hasAnUpdatedVersion && _strategy.associatedStrategy?.V2_1
+                  ? _strategy.associatedStrategy.V2_1
+                  : _strategy.address
               ),
             ]).catch((e: any) => {
-              console.log('Error getting current series data: ', _strategy.name);
+              console.log('Error getting current series data: ', _strategy.name, _strategy);
               return [ZERO_BN, ZERO_BN];
             });
 
             const strategyPoolPercent = mulDecimal(divDecimal(strategyPoolBalance, poolTotalSupply), '100');
 
-            /* get rewards data */
+            /* Get rewards data */
             let rewardsPeriod: { start: number; end: number } | undefined;
             let rewardsRate: BigNumber | undefined;
             let rewardsTokenAddress: string | undefined;
 
             try {
-              const [{ rate }, { start, end }, rewardsToken] = await Promise.all([
-                _strategy.strategyContract.rewardsPerToken(),
-                _strategy.strategyContract.rewardsPeriod(),
-                _strategy.strategyContract.rewardsToken(),
-              ]);
+              const [{ rate }, { start, end }, rewardsToken] = (await multicall({
+                contracts: [
+                  {
+                    address: _strategy.strategyContract.address as `0x${string}`,
+                    abi: _strategy.strategyContract.interface as any,
+                    functionName: 'rewardsPerToken',
+                    args: [],
+                  },
+                  {
+                    address: _strategy.strategyContract.address as `0x${string}`,
+                    abi: _strategy.strategyContract.interface as any,
+                    functionName: 'rewardsPeriod',
+                    args: [],
+                  },
+                  {
+                    address: _strategy.strategyContract.address as `0x${string}`,
+                    abi: _strategy.strategyContract.interface as any,
+                    functionName: 'rewardsToken',
+                    args: [],
+                  },
+                ],
+              })) as unknown as any[];
+
               rewardsPeriod = { start, end };
               rewardsRate = rate;
               rewardsTokenAddress = rewardsToken;
             } catch (e) {
-              console.log(`Could not get rewards data for strategy with address: ${_strategy.address}`);
+              console.log(`Could not get any rewards data for strategy with address: ${_strategy.address}`);
               rewardsPeriod = undefined;
               rewardsRate = undefined;
               rewardsTokenAddress = undefined;
             }
-
-            /* Decide if stragtegy should be 'active' */
-            const isActive = _strategy.type === 'V2' || _strategy.type === 'V1'; // && !_strategy.associatedStrategy)
 
             return {
               ..._strategy,
@@ -540,13 +638,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
               currentSeriesAddr: fyToken as string | undefined,
               currentSeries,
-
               currentPoolAddr: currentPoolAddr as string | undefined,
 
-              active: isActive,
               rewardsRate,
               rewardsPeriod,
-              rewardsTokenAddress,
+              rewardsTokenAddress:
+                rewardsTokenAddress === '0x0000000000000000000000000000000000000000' ? undefined : rewardsTokenAddress,
             };
           }
 
@@ -554,7 +651,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           return {
             ..._strategy,
             currentSeries: undefined,
-            active: false,
           };
         })
       );
@@ -563,29 +659,37 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const _accountData = account
         ? await Promise.all(
             _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
-              const [accountBalance, accountPoolBalance] = await Promise.all([
-                _strategy.strategyContract.balanceOf(account),
-                _strategy.currentSeries?.poolContract.balanceOf(account),
-              ]).catch((e: any) => {
-                console.log('Error getting current account balance data: ', _strategy.name);
-                return [ZERO_BN, ZERO_BN];
-              });
+              const [accountBalance, accountPoolBalance] = (await multicall({
+                contracts: [
+                  {
+                    address: _strategy.strategyContract.address as `0x${string}`,
+                    abi: _strategy.strategyContract.interface as any,
+                    functionName: 'balanceOf',
+                    args: [account],
+                  },
+                  {
+                    address: _strategy.currentSeries?.poolContract.address as `0x${string}`,
+                    abi: _strategy.currentSeries?.poolContract.interface as any,
+                    functionName: 'balanceOf',
+                    args: [account],
+                  },
+                ],
+              })) as unknown as BigNumber[];
 
               // const stratConnected = _strategy.strategyContract.connect(signer!);
               // const accountRewards =
               // _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
-
               const accountRewards = ZERO_BN;
               const accountStrategyPercent = mulDecimal(
-                divDecimal(accountBalance, _strategy.strategyTotalSupply || '0'),
+                divDecimal(accountBalance || ZERO_BN, _strategy.strategyTotalSupply || '0'),
                 '100'
               );
 
               return {
                 ..._strategy,
-                accountBalance,
-                accountBalance_: ethers.utils.formatUnits(accountBalance, _strategy.decimals),
-                accountPoolBalance,
+                accountBalance: accountBalance || ZERO_BN,
+                accountBalance_: ethers.utils.formatUnits(accountBalance || ZERO_BN, _strategy.decimals),
+                accountPoolBalance: accountPoolBalance || ZERO_BN,
                 accountStrategyPercent,
                 accountRewards: accountRewards,
                 accountRewards_: formatUnits(accountRewards, _strategy.decimals),

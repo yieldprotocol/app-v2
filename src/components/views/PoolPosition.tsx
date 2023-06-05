@@ -37,6 +37,8 @@ import GeneralButton from '../buttons/GeneralButton';
 import { MdShortcut } from 'react-icons/md';
 import { ZERO_BN } from '@yield-protocol/ui-math';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import { StrategyType } from '../../config/strategies';
+import { FaExclamationCircle } from 'react-icons/fa';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -170,7 +172,9 @@ const PoolPosition = () => {
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
+    !removeInput || removeError || (selectedStrategy?.type === StrategyType.V2_1 && !selectedSeries)
+      ? setRemoveDisabled(true)
+      : setRemoveDisabled(false);
     +selectedStrategy?.accountRewards_! === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
   }, [selectedStrategy, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
@@ -201,7 +205,11 @@ const PoolPosition = () => {
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
+                    <PositionAvatar
+                      position={selectedSeries!}
+                      actionType={ActionType.POOL}
+                      type={selectedStrategy?.type}
+                    />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {formatStrategyName(_selectedStrategy?.name)}</Text>
                       <CopyWrap hash={_selectedStrategy.address}>
@@ -220,12 +228,14 @@ const PoolPosition = () => {
                     />
                     <InfoBite
                       label="Strategy Token Balance"
-                      value={`${cleanValue(
-                        _selectedStrategy?.accountBalance_,
-                        selectedBase?.digitFormat!
-                      )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase?.symbol
-                      })`}
+                      value={`${cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)} tokens${
+                        removeBaseReceivedMax_
+                          ? ` (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
+                              selectedBase?.symbol
+                            })`
+                          : ``
+                      }
+                    `}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
@@ -272,6 +282,15 @@ const PoolPosition = () => {
                             </Text>
                           </Box>
                         }
+                      />
+                    )}
+
+                    {selectedStrategy?.type !== StrategyType.V2_1 && (
+                      <InfoBite
+                        label="This strategy contract has been upgraded"
+                        value="No action required"
+                        icon={<FaExclamationCircle />}
+                        loading={false}
                       />
                     )}
 
@@ -345,7 +364,7 @@ const PoolPosition = () => {
                           />
                         </InputWrap>
 
-                        {removeInput && !partialRemoveRequired && !removeError && (
+                        {removeInput && !partialRemoveRequired && !removeError && removeBaseReceived_ && (
                           <InputInfoWrap>
                             <Text color="text-weak" alignSelf="end" size="small">
                               Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}

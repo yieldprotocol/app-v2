@@ -59,21 +59,21 @@ const WETH_2306 = '0x0030ff00028b';
 const DAI_2306 = '0x0031ff00028b';
 const USDC_2306 = '0x0032ff00028b';
 const FRAX_2306 = '0x0138ff00028b';
-const USDT_2306 = '0x00a0ff00028b'; 
+const USDT_2306 = '0x00a0ff00028b';
 
 // 2306_R - RECOVERY series
 const WETH_2306_R = '0x0030ff00028c';
-const DAI_2306_R = '0x0031ff00028c'; 
-const USDC_2306_R = '0x0032ff00028c'; 
-const FRAX_2306_R = ''; 
-const USDT_2306_R = '0x00A0ff00028c'; 
+const DAI_2306_R = '0x0031ff00028c';
+const USDC_2306_R = '0x0032ff00028c';
+const FRAX_2306_R = '';
+const USDT_2306_R = '0x00A0ff00028c';
 
 // 2309
-const WETH_2309 = '0x0030ff00028e'; 
-const DAI_2309 = '0x0031ff00028e'; 
-const USDC_2309 = '0x0032ff00028e'; 
-const FRAX_2309 = '0x0138ff00028e'; 
-const USDT_2309 = '0x00a0ff00028e'; 
+const WETH_2309 = '0x0030ff00028e';
+const DAI_2309 = '0x0031ff00028e';
+const USDC_2309 = '0x0032ff00028e';
+const FRAX_2309 = '0x0138ff00028e';
+const USDT_2309 = '0x00a0ff00028e';
 
 export const validateSeries = async (provider: BaseProvider, cauldronAddress: string) => {
   const preText = '### SERIES SET VALIDATION ERROR ### ';
@@ -144,7 +144,6 @@ export const SERIES = new Map<number, Map<string, ISeriesStatic>>();
 SERIES.set(
   1,
   new Map([
-
     // [
     //   DAI_2112,
     //   {
@@ -163,7 +162,7 @@ SERIES.set(
     //     poolVersion: '1',
     //     ts: '58454204609',
     //     g1: '17524406870024074035',
-    //     g2: '19417625340746896437',      
+    //     g2: '19417625340746896437',
     //   },
     // ],
     // [
@@ -610,8 +609,8 @@ SERIES.set(
       },
     ],
 
-    /** 
-     * 2306 
+    /**
+     * 2306
      * */
     [
       WETH_2306,
@@ -710,10 +709,10 @@ SERIES.set(
         maturity: 1688137200,
         name: 'FYETH2306',
         symbol: 'FYETH2306',
-        address: '0xc8110b03629211b946c2783637ABC9402b50EcDf', 
+        address: '0xc8110b03629211b946c2783637ABC9402b50EcDf',
         decimals: 18,
         version: '1',
-        poolAddress: '0x60995D90B45169eB04F1ea9463443a62B83ab1c1', 
+        poolAddress: '0x60995D90B45169eB04F1ea9463443a62B83ab1c1',
         poolName: 'FYETH2306 LP',
         poolSymbol: 'FYETH2306LP',
         poolVersion: '1',
@@ -733,7 +732,7 @@ SERIES.set(
         address: '0xc7f12Ea237bE7BE6028285052CF3727EaF0e597B',
         decimals: 18,
         version: '1',
-        poolAddress: '0x0bdF152f6d899F4B63b9554ED98D9b9d22FFdee4', 
+        poolAddress: '0x0bdF152f6d899F4B63b9554ED98D9b9d22FFdee4',
         poolName: 'FYDAI2306 LP',
         poolSymbol: 'FYDAI2306LP',
         poolVersion: '1',
@@ -790,7 +789,7 @@ SERIES.set(
         maturity: 1688137200,
         name: 'FYUSDT2306',
         symbol: 'FYUSDT2306',
-        address: '0xD28380De0e7093AC62bCb88610b9f4f4Fb58Be74', 
+        address: '0xD28380De0e7093AC62bCb88610b9f4f4Fb58Be74',
         decimals: 6,
         version: '1',
         poolAddress: '0x6E38B8d9dedd967961508708183678b4EC1B1E33',
@@ -804,7 +803,7 @@ SERIES.set(
     ],
 
     /**
-     * 2309 
+     * 2309
      * */
     [
       WETH_2309,
@@ -1140,7 +1139,7 @@ SERIES.set(
       },
     ],
 
-    /* 2303 */
+    // /* 2303 */
     [
       USDC_2303,
       {
@@ -1219,7 +1218,7 @@ SERIES.set(
         address: '0x523803c57a497c3AD0E850766c8276D4864edEA5',
         decimals: 18,
         version: '1',
-        poolAddress: '0x2769ABE33010c710e24eA6aF8A2683C630BbD7D0',
+        poolAddress: '0x3e0a639c4a6D4d39a0DeAE07c228Ff080de55eeE',
         poolName: 'FYETH2306 LP',
         poolSymbol: 'FYETH2306LP',
         poolVersion: '1',
@@ -1240,7 +1239,7 @@ SERIES.set(
         address: '0x60a6A7fabe11ff36cbE917a17666848f0FF3A60a',
         decimals: 18,
         version: '1',
-        poolAddress: '0x02DbfAca22DF7e86897aDF65eb74188D79DAbeA6',
+        poolAddress: '0xB71dB5f70FE5Af728Db8C05930d48553E5a0eB98',
         poolName: 'FYDAI2306 LP',
         poolSymbol: 'FYDAI2306LP',
         poolVersion: '1',
@@ -1261,7 +1260,7 @@ SERIES.set(
         address: '0xcbb7eba13f9e1d97b2138f588f5ca2f5167f06cc',
         decimals: 6,
         version: '1',
-        poolAddress: '0x536edc2a3db3bfe558cae74cedccd30f07f7121b',
+        poolAddress: '0x530648558a27fe1d1BfC7356F67a34f4a7f06B6D',
         poolName: 'FYUSDC2306 LP',
         poolSymbol: 'FYUSDC2306LP',
         poolVersion: '1',
@@ -1282,7 +1281,7 @@ SERIES.set(
         address: '0x035072cb2912daab7b578f468bd6f0d32a269e32',
         decimals: 6,
         version: '1',
-        poolAddress: '0xc6078e090641cC32b05a7F3F102F272A4Ee19867',
+        poolAddress: '0x7388f277441b3E1f3388f0464244e469fEA30e41',
         poolName: 'FYUSDT2306 LP',
         poolSymbol: 'FYUSDT2306LP',
         poolVersion: '1',
@@ -1325,7 +1324,7 @@ SERIES.set(
         address: '0x5Bb78E530D9365aeF75664c5093e40B0001F7CCd',
         decimals: 6,
         version: '1',
-        poolAddress: '0xa98F3211997FDB072B6a8E2C2A26C34BC447f873',
+        poolAddress: '0xf7F6eB1b097F60673e65347C83d83Cb4ade82a0B',
         poolName: 'FYUSDC2309 LP',
         poolSymbol: 'FYUSDC2309LP',
         poolVersion: '1',
@@ -1346,7 +1345,7 @@ SERIES.set(
         address: '0xd947360575E6F01Ce7A210C12F2EE37F5ab12d11',
         decimals: 18,
         version: '1',
-        poolAddress: '0x3EA4618cE652eaB330F00935FD075F5Cb614e689',
+        poolAddress: '0x54D47f765fA247AfEE226fDf919392CdaC6cbb2E',
         poolName: 'FYETH2309 LP',
         poolSymbol: 'FYETH2309LP',
         poolVersion: '1',
@@ -1367,7 +1366,7 @@ SERIES.set(
         address: '0xEE508c827a8990c04798B242fa801C5351012B23',
         decimals: 18,
         version: '1',
-        poolAddress: '0x9a364e874258D6B76091D928ce69512Cd905EE68',
+        poolAddress: '0xbc62d88182ffA86918d0129f5bD35Dea8df9213a',
         poolName: 'FYDAI2309 LP',
         poolSymbol: 'FYDAI2309LP',
         poolVersion: '1',
@@ -1388,7 +1387,7 @@ SERIES.set(
         address: '0x9B19889794A30056A1E5Be118ee0a6647B184c5f',
         decimals: 6,
         version: '1',
-        poolAddress: '0xf0bA5Cf116321A89b35b2d146aE5B861Bd9c23D3',
+        poolAddress: '0x1EEc5ED8E01E0232F5ab2D70bB00231250aB2e7A',
         poolName: 'FYUSDT2309 LP',
         poolSymbol: 'FYUSDT2309LP',
         poolVersion: '1',
@@ -1397,7 +1396,5 @@ SERIES.set(
         g2: '20496382304121724017',
       },
     ],
-
-
   ])
 );

@@ -82,7 +82,7 @@ function Pool() {
     setPoolDisabled(true);
     /* this is simply a check that we don't add to a v1 strategy that has a v2 verison) */
     console.log('Strategy: ', selectedStrategy);
-    if (selectedStrategy?.type === StrategyType.V1 && selectedStrategy.associatedStrategy) {
+    if (selectedStrategy?.type !== StrategyType.V2_1) {
       console.log('config error: Trying to add to an old strategy');
       toast.warning('Trying to add Liquidity to an old Strategy version. Please refresh your browser and try again.');
       return;
@@ -320,11 +320,7 @@ function Pool() {
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               onClick={() => handleNavAction(stepPosition + 1)}
-              disabled={
-                stepDisabled ||
-                !selectedStrategy ||
-                (selectedStrategy.associatedStrategy && selectedStrategy.type === StrategyType.V1)
-              }
+              disabled={stepDisabled || !selectedStrategy || selectedStrategy.type !== StrategyType.V2_1}
               errorLabel={poolError}
             />
           )}

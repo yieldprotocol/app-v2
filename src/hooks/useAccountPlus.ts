@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { SettingsContext } from '../contexts/SettingsContext';
 
 /**
@@ -11,9 +11,10 @@ const useAccountPlus = () => {
     settingsState: { useMockedUser, mockUserAddress },
   } = useContext(SettingsContext);
   const { address } = useAccount();
+  const { data: nativeBalance } = useBalance({ address });
 
   return useMemo(
-    () => (useMockedUser ? { address: mockUserAddress } : { address }),
+    () => (useMockedUser ? { address: mockUserAddress, nativeBalance } : { address, nativeBalance }),
     [address, mockUserAddress, useMockedUser]
   );
 };

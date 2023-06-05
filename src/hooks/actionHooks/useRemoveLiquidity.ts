@@ -16,7 +16,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { TxContext } from '../../contexts/TxContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { ONE_BN, ZERO_BN } from '../../utils/constants';
+import { ONE_BN, WAD_BN, ZERO_BN } from '../../utils/constants';
 import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
@@ -28,6 +28,7 @@ import { StrategyType } from '../../config/strategies';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
+import { AssertActions, useAssert } from './useAssert';
 
 /*
                                                                             +---------+  DEFUNCT PATH
@@ -55,7 +56,7 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const provider = useProvider();
-  const { address: account } = useAccountPlus();
+  const { address: account, nativeBalance } = useAccountPlus();
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;
@@ -68,6 +69,8 @@ export const useRemoveLiquidity = () => {
   const { removeEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
   const { isActionAllowed } = useAllowAction();
+
+  const { assert, encodeBalanceCall } = useAssert();
 
   const contracts = useContracts();
   const { refetch: refetchBaseBal } = useBalance({
@@ -88,9 +91,10 @@ export const useRemoveLiquidity = () => {
   } = useContext(SettingsContext);
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
+    console.log('removeLiquidity', input, series, matchingVault);
+
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.REMOVE_LIQUIDITY)) return; // return if action is not allowed
-
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
@@ -99,9 +103,17 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    const _associatedStrategyContract = _strategy.associatedStrategy
-      ? Strategy__factory.connect(_strategy.associatedStrategy, provider)
+    const associated_V2_Contract = _strategy.associatedStrategy?.V2
+      ? Strategy__factory.connect(_strategy.associatedStrategy.V2, provider)
       : undefined;
+
+    const associated_V2_1_Contract = _strategy.associatedStrategy?.V2_1
+      ? Strategy__factory.connect(_strategy.associatedStrategy.V2_1, provider)
+      : undefined;
+
+    /* some saftey */
+    if (associated_V2_Contract == undefined && _strategy.type === StrategyType.V1) return; // abort if strat 1 and no associated v2 strategy
+    if (associated_V2_1_Contract == undefined && _strategy.type !== StrategyType.V2_1) return; // abort if not strat 2.1 and no associated strategy
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
@@ -294,6 +306,35 @@ export const useRemoveLiquidity = () => {
       txCode
     );
 
+    /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
+    const assertCallData_base: ICallData[] =
+      isEthBase && nativeBalance
+        ? assert(
+            undefined,
+            encodeBalanceCall(undefined),
+            AssertActions.Fn.ASSERT_EQ_REL,
+            nativeBalance.value.add(series.getBase(_sharesReceived)),
+            WAD_BN.div('10') // 10% relative tolerance
+          )
+        : assert(
+            _base.address,
+            encodeBalanceCall(_base.address, _base.tokenIdentifier),
+            AssertActions.Fn.ASSERT_EQ_REL,
+            _base.balance!.add(series.getBase(_sharesReceived)),
+            WAD_BN.div('10') // 10% relative tolerance
+          );
+
+    /* Add in an Assert call : Base received + fyToken received within 10% of strategy tokens held.   */
+    const assertCallData_fyToken: ICallData[] = _fyTokenReceived.gt(ZERO_BN)
+      ? assert(
+          series.address,
+          encodeBalanceCall(series.address, undefined),
+          AssertActions.Fn.ASSERT_EQ_REL,
+          series.fyTokenBalance!.add(_fyTokenReceived),
+          WAD_BN.div('10') // 10% relative tolerance
+        )
+      : [];
+
     // const unwrapping: ICallData[] = await unwrapAsset(_base, account)
     const calls: ICallData[] = [
       ...permitCallData,
@@ -312,29 +353,64 @@ export const useRemoveLiquidity = () => {
         ignoreIf: !_strategy,
       },
 
-      /** If removing from a V1 strategy, we need to burn the tokens to either the associated v2 strategy or the pool if the is no associatedStrategy */
+      /**
+       * MIGRATE FROM V1 STRATEGY
+       * If removing from a V1 strategy, we need to
+       * 1. burn the tokens to the associated v2 strategy
+       * 2. burn v2 strategies to the associated v2.1 strategy
+       * */
+
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [_strategy.associatedStrategy || series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.associatedStrategy?.V2] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy.strategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V2,
+        targetContract: _strategy.strategyContract, // v1 in this case
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
+      },
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [_strategy.associatedStrategy?.V2_1] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: associated_V2_Contract,
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
       },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _associatedStrategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V2 || !_associatedStrategyContract,
+        targetContract: associated_V2_1_Contract,
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
       },
 
-      /* If removing from a V2 strategy, simply burn fromm strategy to the pool address */
+      /**
+       * MIGRATE FROM V2 STRATEGY
+       * If removing from a V2 strategy, we need to
+       * 1. burn v2 strategies to the associated v2.1 strategy
+       * */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [_strategy.associatedStrategy?.V2_1] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy.strategyContract, // v2 in this case
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V2,
+      },
       {
         operation: LadleActions.Fn.ROUTE,
         args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
-        targetContract: _strategy.strategyContract,
-        ignoreIf: !_strategy || _strategy.type === StrategyType.V1,
+        targetContract: associated_V2_1_Contract,
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V2,
+      },
+
+      /**
+       * If removing DIRECTLY from a V2.1 strategy, simply burn from strategy to the pool address
+       * */
+      {
+        operation: LadleActions.Fn.ROUTE,
+        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
+        targetContract: _strategy.strategyContract, // v2.1 in this case
+        ignoreIf: !_strategy || _strategy.type !== StrategyType.V2_1,
       },
 
       /**
@@ -452,6 +528,9 @@ export const useRemoveLiquidity = () => {
       },
 
       ...removeEthCallData,
+
+      // ...assertCallData_base,
+      // ...assertCallData_fyToken, temporarily remove fyToken check
     ];
 
     await transact(calls, txCode);

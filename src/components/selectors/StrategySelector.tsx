@@ -11,6 +11,7 @@ import Skeleton from '../wraps/SkeletonWrap';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ZERO_BN } from '../../utils/constants';
 import useStrategyReturns, { IReturns } from '../../hooks/useStrategyReturns';
+import { StrategyType } from '../../config/strategies';
 
 const StyledBox = styled(Box)`
   -webkit-transition: transform 0.3s ease-in-out;
@@ -81,7 +82,7 @@ const StrategySelectItem = ({
           </Box>
         </Box>
 
-        {strategy.rewardsRate!.gt(ZERO_BN) && (
+        {strategy.rewardsRate?.gt(ZERO_BN) && (
           <Box
             round
             background="red"
@@ -89,9 +90,9 @@ const StrategySelectItem = ({
             style={{ position: 'absolute', marginTop: '-1em', marginLeft: '17em' }}
             elevation="small"
           >
-              <Text size="small" color="white" textAlign="center">
-                +{returns?.rewardsAPY}%
-              </Text>          
+            <Text size="small" color="white" textAlign="center">
+              +{returns?.rewardsAPY}%
+            </Text>
           </Box>
         )}
 
@@ -131,7 +132,10 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const { userState, userActions } = useContext(UserContext);
+  const {
+    userState,
+    userActions: { setSelectedSeries, setSelectedStrategy },
+  } = useContext(UserContext);
 
   const { selectedStrategy, selectedBase, strategiesLoading, strategyMap, seriesMap } = userState;
   const [options, setOptions] = useState<IStrategy[]>([]);
@@ -140,19 +144,20 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
   useEffect(() => {
     const opts = Array.from(strategyMap?.values()!);
     const filteredOpts = opts
-      .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
-      .filter((_st) => !_st.currentSeries?.hideSeries && _st.active)
+      .filter((_st) => _st.type === StrategyType.V2_1)
+      .filter((_st) => !_st.currentSeries?.hideSeries || !_st.disabled)
       .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature)
       .sort((a, b) => a.currentSeries?.maturity! - b.currentSeries?.maturity!);
+
     setOptions(filteredOpts);
   }, [selectedBase, strategyMap, selectedStrategy]);
 
   const handleSelect = (_strategy: IStrategy) => {
     diagnostics && console.log('SELECTED: ', _strategy.address, 'VERSION: ', _strategy.type);
-    if (_strategy.active) {
+    if (!_strategy.disabled) {
       diagnostics && console.log('Strategy selected: ', _strategy.address);
-      userActions.setSelectedStrategy(_strategy);
-      userActions.setSelectedSeries(_strategy.currentSeries!);
+      setSelectedStrategy(_strategy);
+      setSelectedSeries(_strategy.currentSeries!);
     } else {
       toast.info('Strategy coming soon');
     }
@@ -163,25 +168,25 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
     /* if strategy already selected, no need to set explicitly again */
     if (selectedStrategy) return;
     const opts: IStrategy[] = Array.from(strategyMap.values())
-      .filter((_st) => _st.type === 'V2' || (_st.type === 'V1' && !_st.associatedStrategy))
-      .filter((_st) => !_st.currentSeries?.hideSeries && _st.active)
-      .filter((_st: IStrategy) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
+      .filter((_st) => _st.type === StrategyType.V2_1) // we only want to show V2.1 strategies in the selector for now.
+      .filter((_st) => !_st.currentSeries?.hideSeries || !_st.disabled)
+      .filter((_st) => _st.baseId === selectedBase?.proxyId && !_st.currentSeries?.seriesIsMature);
 
     /* select strategy with rewards */
     const strategyWithRewards = opts.find((s) => s.rewardsRate?.gt(ZERO_BN));
     if (strategyWithRewards) {
-      userActions.setSelectedStrategy(strategyWithRewards);
+      setSelectedStrategy(strategyWithRewards);
       return;
     }
     /* select strategy with existing balance */
     const strategyWithBalance = opts.find((_st) => _st?.accountBalance?.gt(ZERO_BN));
     if (strategyWithBalance) {
-      userActions.setSelectedStrategy(strategyWithBalance);
+      setSelectedStrategy(strategyWithBalance);
       return;
     }
     /* else set a random one as a last resort */
-    userActions.setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
-  }, [selectedBase, strategyMap]);
+    setSelectedStrategy(opts[Math.floor(Math.random() * opts.length)]);
+  }, [selectedBase, selectedStrategy, setSelectedStrategy, strategyMap]);
 
   return (
     <Box>
@@ -207,8 +212,6 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
                 selected={selected}
                 displayName={displayName}
                 returns={returns}
-                // apy={returns.blendedAPY}
-                // extra={ returns.}
               />
             );
           })}

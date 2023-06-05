@@ -22,6 +22,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useAccount, useBalance, Address } from 'wagmi';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../useAccountPlus';
+import { StrategyType } from '../../config/strategies';
 
 export const usePoolHelpers = (input: string | undefined, removeLiquidityView: boolean = false) => {
   /* STATE FROM CONTEXT */
@@ -289,6 +290,11 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           strategySeries.c,
           strategySeries.mu
         );
+
+        // if non-current strategy, don't try to estimate base value because of difficutly in getting series data
+        if (strategy.type !== StrategyType.V2_1) {
+          return;
+        }
 
         // if we could sell all fyToken to shares
         if (!fyTokenToShares.eq(ethers.constants.Zero)) {

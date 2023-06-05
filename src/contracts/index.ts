@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccumulatorOracle } from "./AccumulatorOracle";
+export type { Assert } from "./Assert";
 export type { Cauldron } from "./Cauldron";
 export type { ChainlinkMultiOracle } from "./ChainlinkMultiOracle";
 export type { ChainlinkUSDOracle } from "./ChainlinkUSDOracle";
@@ -20,14 +21,16 @@ export type { LadleStorage } from "./LadleStorage";
 export type { NotionalMultiOracle } from "./NotionalMultiOracle";
 export type { Pool } from "./Pool";
 export type { Strategy } from "./Strategy";
+export type { StrategyV2_1 } from "./StrategyV2_1";
 export type { Transfer1155Module } from "./Transfer1155Module";
 export type { UniswapV3Oracle } from "./UniswapV3Oracle";
 export type { Witch } from "./Witch";
 export type { WitchV2 } from "./WitchV2";
 export type { WrapEtherModule } from "./WrapEtherModule";
 export type { YearnVaultMultiOracle } from "./YearnVaultMultiOracle";
-
+export * as factories from "./factories";
 export { AccumulatorOracle__factory } from "./factories/AccumulatorOracle__factory";
+export { Assert__factory } from "./factories/Assert__factory";
 export { Cauldron__factory } from "./factories/Cauldron__factory";
 export { ChainlinkMultiOracle__factory } from "./factories/ChainlinkMultiOracle__factory";
 export { ChainlinkUSDOracle__factory } from "./factories/ChainlinkUSDOracle__factory";
@@ -46,6 +49,7 @@ export { LadleStorage__factory } from "./factories/LadleStorage__factory";
 export { NotionalMultiOracle__factory } from "./factories/NotionalMultiOracle__factory";
 export { Pool__factory } from "./factories/Pool__factory";
 export { Strategy__factory } from "./factories/Strategy__factory";
+export { StrategyV2_1__factory } from "./factories/StrategyV2_1__factory";
 export { Transfer1155Module__factory } from "./factories/Transfer1155Module__factory";
 export { UniswapV3Oracle__factory } from "./factories/UniswapV3Oracle__factory";
 export { Witch__factory } from "./factories/Witch__factory";
