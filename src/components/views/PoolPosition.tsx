@@ -283,10 +283,10 @@ const PoolPosition = () => {
 
                     {selectedStrategy?.type !== StrategyType.V2_1 && (
                       <InfoBite
-                        label="Strategy Token has been upgraded"
-                        value={`A newer version of the token is available.`}
+                        label="This strategy has been upgraded"
+                        value={`No action required`}
                         icon={<FaExclamationCircle />}
-                        loading={seriesLoading}
+                        loading={false}
                       />
                     )}
 
