@@ -642,7 +642,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
               rewardsRate,
               rewardsPeriod,
-              rewardsTokenAddress,
+              rewardsTokenAddress:
+                rewardsTokenAddress === '0x0000000000000000000000000000000000000000' ? undefined : rewardsTokenAddress,
             };
           }
 
