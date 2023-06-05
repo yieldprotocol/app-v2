@@ -320,11 +320,7 @@ function Pool() {
               secondary
               label={<Text size={mobile ? 'small' : undefined}>Next Step</Text>}
               onClick={() => handleNavAction(stepPosition + 1)}
-              disabled={
-                stepDisabled ||
-                !selectedStrategy ||
-                (selectedStrategy.type !== StrategyType.V2_1)
-              }
+              disabled={stepDisabled || !selectedStrategy || selectedStrategy.type !== StrategyType.V2_1}
               errorLabel={poolError}
             />
           )}

@@ -37,6 +37,8 @@ import GeneralButton from '../buttons/GeneralButton';
 import { MdShortcut } from 'react-icons/md';
 import { ZERO_BN } from '@yield-protocol/ui-math';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import { StrategyType } from '../../config/strategies';
+import { FaExclamationCircle } from 'react-icons/fa';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -170,7 +172,9 @@ const PoolPosition = () => {
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
-    !removeInput || removeError || !selectedSeries ? setRemoveDisabled(true) : setRemoveDisabled(false);
+    !removeInput || removeError || (selectedStrategy?.type === StrategyType.V2_1 && !selectedSeries)
+      ? setRemoveDisabled(true)
+      : setRemoveDisabled(false);
     +selectedStrategy?.accountRewards_! === 0 ? setClaimDisabled(true) : setClaimDisabled(false);
   }, [selectedStrategy, activeAccount, forceDisclaimerChecked, removeError, removeInput, selectedSeries]);
 
@@ -272,6 +276,15 @@ const PoolPosition = () => {
                             </Text>
                           </Box>
                         }
+                      />
+                    )}
+
+                    {selectedStrategy?.type !== StrategyType.V2_1 && (
+                      <InfoBite
+                        label="Strategy Token has been upgraded"
+                        value={`A newer version of the token is available.`}
+                        icon={<FaExclamationCircle />}
+                        loading={seriesLoading}
                       />
                     )}
 

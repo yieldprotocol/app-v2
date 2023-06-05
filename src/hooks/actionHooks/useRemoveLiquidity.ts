@@ -91,6 +91,8 @@ export const useRemoveLiquidity = () => {
   } = useContext(SettingsContext);
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
+    console.log('removeLiquidity', input, series, matchingVault);
+
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.REMOVE_LIQUIDITY)) return; // return if action is not allowed
 
@@ -101,7 +103,7 @@ export const useRemoveLiquidity = () => {
     const _strategy: any = selectedStrategy!;
     const _input = ethers.utils.parseUnits(input, _base.decimals);
 
-    const associated_V2_Contract = _strategy.associatedStrategy.V2
+    const associated_V2_Contract = _strategy.associatedStrategy?.V2
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2, provider)
       : undefined;
 
@@ -527,7 +529,7 @@ export const useRemoveLiquidity = () => {
 
       ...removeEthCallData,
 
-      ...assertCallData_base,
+      // ...assertCallData_base,
       // ...assertCallData_fyToken, temporarily remove fyToken check
     ];
 

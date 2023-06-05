@@ -38,7 +38,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   return (
     <ItemWrap action={() => handleSelect(strategy)} index={index}>
       <Box direction="row" gap="small" align="center" pad="small" height={condensed ? '3rem' : undefined}>
-        <PositionAvatar position={strategy.currentSeries!} condensed={condensed} actionType={ActionType.POOL} />
+        <PositionAvatar position={strategy.currentSeries!} condensed={condensed} actionType={ActionType.POOL} type={strategy.type}  />
         <Box
           fill={condensed ? 'horizontal' : undefined}
           justify={condensed ? 'between' : undefined}
