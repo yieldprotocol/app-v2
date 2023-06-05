@@ -12,6 +12,7 @@ import { cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { ActionCodes, ActionType, ProcessStage, TxState } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import PanelWrap from '../wraps/PanelWrap';
@@ -45,6 +46,7 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import { RestrictedAccess } from '../RestrictedAccess';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -52,6 +54,9 @@ const Lend = () => {
   /* STATE FROM CONTEXT */
   const { userState } = useContext(UserContext);
   const { selectedSeries, selectedBase, seriesMap } = userState;
+
+  const { settingsState } = useContext(SettingsContext);
+  const { featureControls } = settingsState;
 
   const { address: activeAccount } = useAccountPlus();
 
@@ -130,6 +135,8 @@ const Lend = () => {
       )}
 
       <CenterPanelWrap series={selectedSeries}>
+        {!featureControls.lendingEnabled && <RestrictedAccess />}
+
         <Box id="topsection">
           {stepPosition === 0 && (
             <>

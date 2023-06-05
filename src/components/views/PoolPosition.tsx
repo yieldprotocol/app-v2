@@ -9,6 +9,7 @@ import { abbreviateHash, cleanValue, formatStrategyName, getTxCode, nFormatter }
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { ActionCodes, ActionType, ProcessStage } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import InfoBite from '../InfoBite';
@@ -37,6 +38,7 @@ import GeneralButton from '../buttons/GeneralButton';
 import { MdShortcut } from 'react-icons/md';
 import { ZERO_BN } from '@yield-protocol/ui-math';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import { RestrictedAccess } from '../RestrictedAccess';
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -49,6 +51,9 @@ const PoolPosition = () => {
     userActions: { setSelectedStrategy },
   } = useContext(UserContext);
   const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
+
+  const { settingsState } = useContext(SettingsContext);
+  const { featureControls } = settingsState;
 
   const { address: activeAccount } = useAccountPlus();
 
@@ -300,7 +305,12 @@ const PoolPosition = () => {
                 </SectionWrap>
               </Box>
 
-              <Box height={{ min: '300px' }}>
+              <Box
+                height={{ min: '300px' }}
+                style={!featureControls.vaultActionsEnabled ? { position: 'relative' } : {}}
+              >
+                {!featureControls.poolPositionActionsEnabled && <RestrictedAccess />}
+
                 <SectionWrap title="Position Actions">
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select

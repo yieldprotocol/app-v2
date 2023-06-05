@@ -10,6 +10,7 @@ import { abbreviateHash, cleanValue, nFormatter } from '../../utils/appUtils';
 import SectionWrap from '../wraps/SectionWrap';
 
 import { UserContext } from '../../contexts/UserContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { ActionCodes, ActionType, ISeries, ProcessStage } from '../../types';
 import MaxButton from '../buttons/MaxButton';
 import InfoBite from '../InfoBite';
@@ -31,6 +32,7 @@ import ExitButton from '../buttons/ExitButton';
 import Logo from '../logos/Logo';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
+import { RestrictedAccess } from '../RestrictedAccess';
 
 const LendPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -43,6 +45,9 @@ const LendPosition = () => {
     userActions: { setSelectedSeries, setSelectedBase },
   } = useContext(UserContext);
   const { selectedSeries, seriesMap, assetMap, seriesLoading } = userState;
+
+  const { settingsState } = useContext(SettingsContext);
+  const { featureControls } = settingsState;
 
   const selectedBase = assetMap?.get(selectedSeries?.baseId!);
 
@@ -258,7 +263,11 @@ const LendPosition = () => {
                 </SectionWrap>
               </Box>
 
-              <Box height={{ min: '300px' }}>
+              <Box
+                height={{ min: '300px' }}
+                style={!featureControls.lendPositionActionsEnabled ? { position: 'relative' } : {}}
+              >
+                {!featureControls.lendPositionActionsEnabled && <RestrictedAccess />}
                 <SectionWrap title="Position Actions" icon={<FiTool />}>
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select

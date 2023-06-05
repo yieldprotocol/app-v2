@@ -8,6 +8,7 @@ import { GiMedalSkull } from 'react-icons/gi';
 
 import { abbreviateHash, cleanValue, getTxCode, nFormatter } from '../../utils/appUtils';
 import { UserContext } from '../../contexts/UserContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import InputWrap from '../wraps/InputWrap';
 import InfoBite from '../InfoBite';
 import { ActionCodes, ActionType, ISeries, ProcessStage } from '../../types';
@@ -47,6 +48,8 @@ import { WETH } from '../../config/assets';
 import { Address } from '@wagmi/core';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
+import { RestrictedAccess } from '../RestrictedAccess';
+
 const VaultPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const prevLoc = useCachedState('lastVisit', '')[0].slice(1).split('/')[0];
@@ -58,6 +61,9 @@ const VaultPosition = () => {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, seriesMap, vaultMap, vaultsLoading } = userState;
   const { setSelectedBase, setSelectedIlk, setSelectedSeries, setSelectedVault } = userActions;
+
+  const { settingsState } = useContext(SettingsContext);
+  const { featureControls } = settingsState;
 
   const { address: account } = useAccountPlus();
 
@@ -486,7 +492,11 @@ const VaultPosition = () => {
                 )}
               </Box>
 
-              <Box height={{ min: '300px' }}>
+              <Box
+                height={{ min: '300px' }}
+                style={!featureControls.vaultActionsEnabled ? { position: 'relative' } : {}}
+              >
+                {!featureControls.vaultActionsEnabled && <RestrictedAccess />}
                 <SectionWrap title="Vault Actions">
                   <Box elevation="xsmall" round background={mobile ? 'hoverBackground' : 'hoverBackground'}>
                     <Select
