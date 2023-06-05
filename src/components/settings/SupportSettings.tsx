@@ -48,7 +48,7 @@ const SupportSettings = () => {
     if (address && allowList.includes(address)) {
       setAllowSupport(true);
     } else {
-      setAllowSupport(true);
+      setAllowSupport(false);
     }
   }, [address]);
 
