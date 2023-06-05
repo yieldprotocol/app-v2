@@ -334,7 +334,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 args: [series.poolAddress],
               },
             ],
-          })) as unknown as BigNumber[];
+          })) as unknown as (BigNumber | undefined | null)[];
 
           let sharesReserves: BigNumber;
           let c: BigNumber | undefined;
@@ -379,7 +379,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ],
             })) as unknown as any[];
           } else {
-            sharesReserves = baseReserves || ZERO_BN;
+            sharesReserves = baseReserves ?? ZERO_BN;
             currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
             sharesAddress = assetRootMap.get(series.baseId)?.address!;
             diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
@@ -409,7 +409,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           /* Calculates the base/fyToken unit selling price */
           const _sellRate = sellFYToken(
             sharesReserves,
-            fyTokenReserves,
+            fyTokenReserves || ZERO_BN,
             rateCheckAmount,
             getTimeTillMaturity(series.maturity),
             series.ts,
@@ -444,10 +444,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             ...series,
             sharesReserves,
             sharesReserves_: ethers.utils.formatUnits(sharesReserves, series.decimals),
-            fyTokenReserves,
-            fyTokenRealReserves,
-            totalSupply,
-            totalSupply_: ethers.utils.formatUnits(totalSupply, series.decimals),
+            fyTokenReserves: fyTokenReserves || ZERO_BN,
+            fyTokenRealReserves: fyTokenRealReserves || ZERO_BN,
+            totalSupply: totalSupply || ZERO_BN,
+            totalSupply_: totalSupply ? ethers.utils.formatUnits(totalSupply, series.decimals) : '0',
             apr: `${Number(apr).toFixed(2)}`,
             seriesIsMature: isMature(series.maturity),
             c,
@@ -511,7 +511,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       return newSeriesMap;
     },
-    [account, diagnostics, getPoolAPY, getTimeTillMaturity, isMature]
+    [account, assetRootMap, diagnostics, getPoolAPY, getTimeTillMaturity, isMature]
   );
 
   /* Updates the assets with relevant *user* data */
