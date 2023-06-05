@@ -205,7 +205,11 @@ const PoolPosition = () => {
                   pad={{ top: mobile ? 'medium' : undefined }}
                 >
                   <Box direction="row" align="center" gap="medium">
-                    <PositionAvatar position={selectedSeries!} actionType={ActionType.POOL} />
+                    <PositionAvatar
+                      position={selectedSeries!}
+                      actionType={ActionType.POOL}
+                      type={selectedStrategy?.type}
+                    />
                     <Box>
                       <Text size={mobile ? 'medium' : 'large'}> {formatStrategyName(_selectedStrategy?.name)}</Text>
                       <CopyWrap hash={_selectedStrategy.address}>
@@ -224,12 +228,14 @@ const PoolPosition = () => {
                     />
                     <InfoBite
                       label="Strategy Token Balance"
-                      value={`${cleanValue(
-                        _selectedStrategy?.accountBalance_,
-                        selectedBase?.digitFormat!
-                      )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase?.symbol
-                      })`}
+                      value={`${cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)} tokens${
+                        removeBaseReceivedMax_
+                          ? ` (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
+                              selectedBase?.symbol
+                            })`
+                          : ``
+                      }
+                    `}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
@@ -282,10 +288,9 @@ const PoolPosition = () => {
                     {selectedStrategy?.type !== StrategyType.V2_1 && (
                       <InfoBite
                         label="This strategy contract has been upgraded"
-                        value='No action required'
-                        // value={`Tokens will be automatically exchanged for the latest token version when removing.`}
+                        value="No action required"
                         icon={<FaExclamationCircle />}
-                        loading={seriesLoading}
+                        loading={false}
                       />
                     )}
 
@@ -359,7 +364,7 @@ const PoolPosition = () => {
                           />
                         </InputWrap>
 
-                        {removeInput && !partialRemoveRequired && !removeError && (
+                        {removeInput && !partialRemoveRequired && !removeError && removeBaseReceived_ && (
                           <InputInfoWrap>
                             <Text color="text-weak" alignSelf="end" size="small">
                               Approx. return {cleanValue(removeBaseReceived_, selectedBase?.digitFormat)}{' '}

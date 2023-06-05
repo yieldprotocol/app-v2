@@ -7,12 +7,11 @@ import { SettingsContext } from '../contexts/SettingsContext';
  * @returns mockUserAddress input when using mocked data, else simply the wagmi useAccount hook address
  */
 const useAccountPlus = () => {
-
   const {
     settingsState: { useMockedUser, mockUserAddress },
   } = useContext(SettingsContext);
   const { address } = useAccount();
-  const {data:nativeBalance} = useBalance({address});
+  const { data: nativeBalance } = useBalance({ address });
 
   return useMemo(
     () => (useMockedUser ? { address: mockUserAddress, nativeBalance } : { address, nativeBalance }),
