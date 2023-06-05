@@ -287,8 +287,8 @@ const PoolPosition = () => {
 
                     {selectedStrategy?.type !== StrategyType.V2_1 && (
                       <InfoBite
-                        label="This strategy has been upgraded"
-                        value={`No action required`}
+                        label="This strategy contract has been upgraded"
+                        value="No action required"
                         icon={<FaExclamationCircle />}
                         loading={false}
                       />
