@@ -229,7 +229,7 @@ const PoolPosition = () => {
                     <InfoBite
                       label="Strategy Token Balance"
                       value={`${cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)} tokens${
-                        removeBaseReceived_
+                        removeBaseReceivedMax_
                           ? ` (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
                               selectedBase?.symbol
                             })`
