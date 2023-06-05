@@ -224,12 +224,14 @@ const PoolPosition = () => {
                     />
                     <InfoBite
                       label="Strategy Token Balance"
-                      value={`${cleanValue(
-                        _selectedStrategy?.accountBalance_,
-                        selectedBase?.digitFormat!
-                      )} tokens (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                        selectedBase?.symbol
-                      })`}
+                      value={`${cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)} tokens${
+                        removeBaseReceived_
+                          ? ` (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
+                              selectedBase?.symbol
+                            })`
+                          : ``
+                      }
+                    `}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
                     />
