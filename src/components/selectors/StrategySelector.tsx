@@ -96,7 +96,7 @@ const StrategySelectItem = ({
           </Box>
         )}
 
-        {returns?.blendedAPY && (
+        {returns?.blendedAPY && +returns.blendedAPY > 0 && (
           <Box fill align="end">
             <Avatar
               background={selected ? 'background' : strategy.currentSeries?.endColor.toString().concat('20')}
