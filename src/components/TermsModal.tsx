@@ -34,7 +34,7 @@ const TermsModal = ({ isOpen, onClose }: ITermsModalProps) => {
             {(size) => (
               <Box pad={{ vertical: 'medium', horizontal: size === 'small' ? 'medium' : 'large' }}>
                 <Box margin={{ bottom: 'medium' }}>
-                  <Text size="small">
+                  <Text size="xsmall">
                     By signing this Release and clicking "I Agree" on the web interface at https://yieldprotocol.com/
                     and accessing the smart contract to redeem my [existing LP Tokens] for [updated LP Tokens], I and
                     any protocol I represent hereby irrevocably and unconditionally release all claims I and any

@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { Anchor, Box, Button, Text, Tip } from 'grommet';
 
 import {
@@ -24,28 +24,11 @@ const FooterInfo = () => {
     chainActions: { exportContractAddresses },
   } = useContext(ChainContext);
 
-  const [showTerms, setShowTerms] = useState<boolean>(false);
-
-  const showTermsModal = () => {
-    console.log('showTermsModal');
-    setShowTerms(!showTerms);
-  };
-
   const handleExternal = (destination: string) => {};
 
   return (
     <>
       <Box gap="small" align="end" width="20%" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
-        <Box alignSelf="end">
-          <Button
-            plain
-            label="Upgrade"
-            onClick={() => {
-              showTermsModal();
-            }}
-          ></Button>
-          <TermsModal isOpen={showTerms} onClose={() => showTermsModal()} />
-        </Box>
         <Box alignSelf="end" width="225px">
           <PublicNotification />{' '}
         </Box>
