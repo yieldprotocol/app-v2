@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { Anchor, Box, Text, Tip } from 'grommet';
+import { useContext, useState } from 'react';
+import { Anchor, Box, Button, Text, Tip } from 'grommet';
 
 import {
   FiGithub as Github,
@@ -14,6 +14,7 @@ import { ChainContext } from '../contexts/ChainContext';
 import BoxWrap from './wraps/BoxWrap';
 import NetworkSelector from './selectors/NetworkSelector';
 import PublicNotification from './PublicNotification';
+import TermsModal from './TermsModal';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -23,11 +24,28 @@ const FooterInfo = () => {
     chainActions: { exportContractAddresses },
   } = useContext(ChainContext);
 
+  const [showTerms, setShowTerms] = useState<boolean>(false);
+
+  const showTermsModal = () => {
+    console.log('showTermsModal');
+    setShowTerms(!showTerms);
+  };
+
   const handleExternal = (destination: string) => {};
 
   return (
     <>
       <Box gap="small" align="end" width="20%" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
+        <Box alignSelf="end">
+          <Button
+            plain
+            label="Upgrade"
+            onClick={() => {
+              showTermsModal();
+            }}
+          ></Button>
+          <TermsModal isOpen={showTerms} onClose={() => showTermsModal()} />
+        </Box>
         <Box alignSelf="end" width="225px">
           <PublicNotification />{' '}
         </Box>
@@ -104,7 +122,7 @@ const FooterInfo = () => {
 
           <BoxWrap>
             <Tip content={<Text size="small">Export Contract Addresses</Text>}>
-              <Anchor color="text-weak" target="_blank" onClick={() =>console.log('addresses not available') }>
+              <Anchor color="text-weak" target="_blank" onClick={() => console.log('addresses not available')}>
                 <FiDownload size={IconSize} />
               </Anchor>
             </Tip>

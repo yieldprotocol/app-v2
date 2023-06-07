@@ -22,6 +22,7 @@ export { NotionalMultiOracle__factory } from "./NotionalMultiOracle__factory";
 export { Pool__factory } from "./Pool__factory";
 export { Strategy__factory } from "./Strategy__factory";
 export { StrategyV2_1__factory } from "./StrategyV2_1__factory";
+export { TokenUpgrade__factory } from "./TokenUpgrade__factory";
 export { Transfer1155Module__factory } from "./Transfer1155Module__factory";
 export { UniswapV3Oracle__factory } from "./UniswapV3Oracle__factory";
 export { Witch__factory } from "./Witch__factory";
