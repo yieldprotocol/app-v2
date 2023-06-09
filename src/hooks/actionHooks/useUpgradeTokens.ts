@@ -1,34 +1,12 @@
-import { ethers, BigNumberish } from 'ethers';
-import { useState, useEffect, useContext } from 'react';
+import { ethers, BigNumberish, BigNumber } from 'ethers';
+import { useState, useEffect } from 'react';
 
-import { useChain } from '../useChain';
 import useAccountPlus from '../useAccountPlus';
-import { useProvider, useBalance, useSigner } from 'wagmi';
-import { Contract } from 'ethers';
+import { useProvider, useSigner } from 'wagmi';
 import { TokenUpgrade__factory } from '../../contracts';
+import { toast } from 'react-toastify';
 
-import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
-import { MerkleTree } from 'merkletreejs';
-import { utils } from 'ethers';
-
-import { TREES, MerkleData } from '../../config/trees/trees';
-import { ICallData } from '../../types';
-
-export namespace TokenUpgradeActions {
-  export enum Fn {
-    UPGRADE = 'upgrade',
-  }
-
-  export namespace Args {
-    export type UPGRADE = [
-      tokenAddress: string,
-      acceptanceToken: string,
-      from: string,
-      tokenInAmount: BigNumberish,
-      proof: string[]
-    ];
-  }
-}
+import { TREES } from '../../config/trees/trees';
 
 enum TokenAddress {
   ETH_March = '0xcf30a5a994f9ace5832e30c138c9697cda5e1247',
@@ -40,56 +18,13 @@ enum TokenAddress {
 }
 
 export const useUpgradeTokens = () => {
-  const tester = '0xfc282d2bfc0b38a93034ad06dc467c2b1a768e32';
+  const tester = '0xfc282d2bfc0b38a93034ad06dc467c2b1a768e32'; // addr to test with
 
   const { address } = useAccountPlus();
   const provider = useProvider();
   const { data: signer } = useSigner();
-  const testTokenAddr = '0x1144e14E9B0AA9e181342c7e6E0a9BaDB4ceD295';
-
-  // getting balances - must be a better way to do this - jacob b
-  const { data: ETHMarBalance } = useBalance({
-    address: tester,
-    token: TokenAddress.ETH_March,
-  });
-
-  const { data: ETHJunBalance } = useBalance({
-    address: tester,
-    token: TokenAddress.ETH_June,
-  });
-
-  const { data: USDCMarBalance } = useBalance({
-    address: tester,
-    token: TokenAddress.USDC_March,
-  });
-
-  const { data: USDCJunBalance } = useBalance({
-    address: tester,
-    token: TokenAddress.USDC_June,
-  });
-
-  const { data: DAIMarBalance } = useBalance({
-    address: tester,
-    token: TokenAddress.DAI_March,
-  });
-
-  const { data: DAIJunBalance } = useBalance({
-    address: tester,
-    token: TokenAddress.DAI_June,
-  });
 
   const balances = new Map<string, BigNumberish | undefined>();
-
-  balances.set(TokenAddress.ETH_March, ETHMarBalance?.value);
-  balances.set(TokenAddress.ETH_June, ETHJunBalance?.value);
-  balances.set(TokenAddress.USDC_March, USDCMarBalance?.value);
-  balances.set(TokenAddress.USDC_June, USDCJunBalance?.value);
-  balances.set(TokenAddress.DAI_March, DAIMarBalance?.value);
-  balances.set(TokenAddress.DAI_June, DAIJunBalance?.value);
-
-  console.log('BALANCES', balances);
-
-  const { sign, transact } = useChain();
 
   const [addressProofs, setAddressProofs] = useState<Map<string, string[][]> | null>(null);
 
@@ -102,8 +37,6 @@ export const useUpgradeTokens = () => {
 
   const upgradeTokenAddr = '0x9Ca89fC21fdbdE431Df9080426F7B630012FE551';
 
-  console.log('TREES', TREES);
-
   const searchMerkleTrees = (address: string): Map<string, string[]> => {
     const matchingProofs: Map<string, string[]> = new Map();
 
@@ -114,9 +47,12 @@ export const useUpgradeTokens = () => {
           const proof = tree.getProof(index);
           matchingProofs.set(treeName, [...proof]);
 
+          balances.set(treeName, value[1]);
+
           console.log('Tree:', treeName);
           console.log('Value:', value);
           console.log('Proof:', proof);
+          console.log('Balances:', balances);
         }
       }
     }
@@ -139,8 +75,9 @@ export const useUpgradeTokens = () => {
     for (const [tokenAddress, proof] of proofMap.entries()) {
       try {
         // Retrieve the balance for the token address from the balance map
-        const balanceData = balances.get(tokenAddress);
-        const upgradeContract = TokenUpgrade__factory.connect(tokenAddress, signer);
+        // const balanceData = balances.get(tokenAddress);
+        const balanceData = BigNumber.from('929712163700000000000');
+        const upgradeContract = TokenUpgrade__factory.connect(upgradeTokenAddr, signer);
 
         // Ensure balance data is available
         if (balanceData === undefined) {
@@ -154,8 +91,10 @@ export const useUpgradeTokens = () => {
         await upgradeTx.wait();
 
         console.log('Token upgrade successful for token:', tokenAddress);
+        toast.success('Token upgrade successful');
       } catch (error) {
         console.error('Error upgrading tokens for token:', tokenAddress, error);
+        toast.error('Error upgrading tokens');
       }
     }
   };
