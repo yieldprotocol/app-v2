@@ -93,7 +93,7 @@ export const useUpgradeTokens = () => {
           // check allowance
           const allowance = tokenContract.allowance(account, UPGRADE_TOKEN_ADDRESS);
 
-          if (!(await allowance).gte(balance)) {
+          if ((await allowance).lt(balance)) {
             const approve = await tokenContract.approve(UPGRADE_TOKEN_ADDRESS, balance);
             await approve.wait();
           }
