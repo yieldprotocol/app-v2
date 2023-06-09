@@ -38,6 +38,7 @@ export interface TokenUpgradeInterface extends utils.Interface {
     "grantRole(bytes4,address)": FunctionFragment;
     "grantRoles(bytes4[],address)": FunctionFragment;
     "hasRole(bytes4,address)": FunctionFragment;
+    "isClaimed(bytes32)": FunctionFragment;
     "lockRole(bytes4)": FunctionFragment;
     "recover(address,address)": FunctionFragment;
     "register(address,address,bytes32)": FunctionFragment;
@@ -48,7 +49,7 @@ export interface TokenUpgradeInterface extends utils.Interface {
     "tokensIn(address)": FunctionFragment;
     "tokensOut(address)": FunctionFragment;
     "unregister(address,address)": FunctionFragment;
-    "upgrade(address,address,address,uint256,bytes32[])": FunctionFragment;
+    "upgrade(address,bytes32,address,uint256,bytes32[])": FunctionFragment;
   };
 
   getFunction(
@@ -62,6 +63,7 @@ export interface TokenUpgradeInterface extends utils.Interface {
       | "grantRole"
       | "grantRoles"
       | "hasRole"
+      | "isClaimed"
       | "lockRole"
       | "recover"
       | "register"
@@ -104,6 +106,10 @@ export interface TokenUpgradeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "hasRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isClaimed",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "lockRole",
@@ -153,7 +159,7 @@ export interface TokenUpgradeInterface extends utils.Interface {
     functionFragment: "upgrade",
     values: [
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>[]
@@ -178,6 +184,7 @@ export interface TokenUpgradeInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isClaimed", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "recover", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
@@ -202,7 +209,7 @@ export interface TokenUpgradeInterface extends utils.Interface {
   events: {
     "Extracted(address,uint256)": EventFragment;
     "Recovered(address,uint256)": EventFragment;
-    "Registered(address,address,uint256,uint256,uint96)": EventFragment;
+    "Registered(address,address,uint256,uint256,uint96,bytes32)": EventFragment;
     "RoleAdminChanged(bytes4,bytes4)": EventFragment;
     "RoleGranted(bytes4,address,address)": EventFragment;
     "RoleRevoked(bytes4,address,address)": EventFragment;
@@ -248,9 +255,10 @@ export interface RegisteredEventObject {
   tokenInBalance: BigNumber;
   tokenOutBalance: BigNumber;
   ratio: BigNumber;
+  merkleRoot: string;
 }
 export type RegisteredEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, BigNumber],
+  [string, string, BigNumber, BigNumber, BigNumber, string],
   RegisteredEventObject
 >;
 
@@ -382,6 +390,11 @@ export interface TokenUpgrade extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    isClaimed(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     lockRole(
       role: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -449,8 +462,8 @@ export interface TokenUpgrade extends BaseContract {
 
     upgrade(
       tokenIn_: PromiseOrValue<string>,
+      acceptanceToken: PromiseOrValue<BytesLike>,
       from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
       tokenInAmount: PromiseOrValue<BigNumberish>,
       proof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -491,6 +504,11 @@ export interface TokenUpgrade extends BaseContract {
   hasRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isClaimed(
+    arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -561,8 +579,8 @@ export interface TokenUpgrade extends BaseContract {
 
   upgrade(
     tokenIn_: PromiseOrValue<string>,
+    acceptanceToken: PromiseOrValue<BytesLike>,
     from: PromiseOrValue<string>,
-    to: PromiseOrValue<string>,
     tokenInAmount: PromiseOrValue<BigNumberish>,
     proof: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -603,6 +621,11 @@ export interface TokenUpgrade extends BaseContract {
     hasRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isClaimed(
+      arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -673,8 +696,8 @@ export interface TokenUpgrade extends BaseContract {
 
     upgrade(
       tokenIn_: PromiseOrValue<string>,
+      acceptanceToken: PromiseOrValue<BytesLike>,
       from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
       tokenInAmount: PromiseOrValue<BigNumberish>,
       proof: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
@@ -700,19 +723,21 @@ export interface TokenUpgrade extends BaseContract {
       recovered?: null
     ): RecoveredEventFilter;
 
-    "Registered(address,address,uint256,uint256,uint96)"(
+    "Registered(address,address,uint256,uint256,uint96,bytes32)"(
       tokenIn?: PromiseOrValue<string> | null,
       tokenOut?: PromiseOrValue<string> | null,
       tokenInBalance?: null,
       tokenOutBalance?: null,
-      ratio?: null
+      ratio?: null,
+      merkleRoot?: null
     ): RegisteredEventFilter;
     Registered(
       tokenIn?: PromiseOrValue<string> | null,
       tokenOut?: PromiseOrValue<string> | null,
       tokenInBalance?: null,
       tokenOutBalance?: null,
-      ratio?: null
+      ratio?: null,
+      merkleRoot?: null
     ): RegisteredEventFilter;
 
     "RoleAdminChanged(bytes4,bytes4)"(
@@ -811,6 +836,11 @@ export interface TokenUpgrade extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isClaimed(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     lockRole(
       role: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -871,8 +901,8 @@ export interface TokenUpgrade extends BaseContract {
 
     upgrade(
       tokenIn_: PromiseOrValue<string>,
+      acceptanceToken: PromiseOrValue<BytesLike>,
       from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
       tokenInAmount: PromiseOrValue<BigNumberish>,
       proof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -917,6 +947,11 @@ export interface TokenUpgrade extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isClaimed(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     lockRole(
       role: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -977,8 +1012,8 @@ export interface TokenUpgrade extends BaseContract {
 
     upgrade(
       tokenIn_: PromiseOrValue<string>,
+      acceptanceToken: PromiseOrValue<BytesLike>,
       from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
       tokenInAmount: PromiseOrValue<BigNumberish>,
       proof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }

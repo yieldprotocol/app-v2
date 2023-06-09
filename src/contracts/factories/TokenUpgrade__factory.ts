@@ -9,6 +9,16 @@ import type { TokenUpgrade, TokenUpgradeInterface } from "../TokenUpgrade";
 const _abi = [
   {
     inputs: [],
+    name: "AlreadyClaimed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidAcceptanceToken",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "NotInMerkleTree",
     type: "error",
   },
@@ -137,6 +147,12 @@ const _abi = [
         internalType: "uint96",
         name: "ratio",
         type: "uint96",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "merkleRoot",
+        type: "bytes32",
       },
     ],
     name: "Registered",
@@ -425,6 +441,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "isClaimed",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "role",
         type: "bytes4",
@@ -632,13 +667,13 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "address",
-        name: "from",
-        type: "address",
+        internalType: "bytes32",
+        name: "acceptanceToken",
+        type: "bytes32",
       },
       {
         internalType: "address",
-        name: "to",
+        name: "from",
         type: "address",
       },
       {

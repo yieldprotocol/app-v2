@@ -22,9 +22,9 @@ const TermsModal = ({ isOpen, onClose }: ITermsModalProps) => {
     onClose();
   };
 
-  useEffect(() => {
+  const confirmClick = () => {
     upgradeTokens(termsAccepted);
-  }, [isOpen, termsAccepted]);
+  };
 
   return (
     <>
@@ -72,7 +72,7 @@ const TermsModal = ({ isOpen, onClose }: ITermsModalProps) => {
                 </Box>
                 <Box direction="row" justify="between">
                   <Button label="Cancel" onClick={closeTermsModal} />
-                  <Button label="Accept" onClick={closeTermsModal} disabled={!termsAccepted} />
+                  <Button label="Accept" onClick={confirmClick} disabled={!termsAccepted} />
                 </Box>
               </Box>
             )}
