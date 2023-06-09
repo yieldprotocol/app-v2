@@ -13,7 +13,7 @@ type PublicNotificationProps = {
 const PublicNotification = ({ children }: PublicNotificationProps) => {
   const chainId = useChainId();
   const { address } = useAccountPlus();
-  const { upgradeTokens, addressProofs } = useUpgradeTokens();
+  const { upgradeTokens, accountProofs } = useUpgradeTokens();
 
   const [showTerms, setShowTerms] = useState<boolean>(false);
   const [showUpgrade, setShowUpgrade] = useState<boolean>(false);
