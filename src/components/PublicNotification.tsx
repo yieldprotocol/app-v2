@@ -24,7 +24,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
 
   return (
     <>
-      {chainId === 1 ? (
+      {chainId === 1 && accountProofs?.size ? (
         <Box direction="row" align="center" justify="between">
           <Box direction="column" border={{ size: 'small' }} pad="small" gap="small" align="center" round="xsmall">
             <Box direction="row" gap="small">
