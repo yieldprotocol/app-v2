@@ -444,6 +444,9 @@ export enum ActionCodes {
   DELETE_VAULT = 'Delete Vault',
   TRANSFER_VAULT = 'Transfer Vault',
   MERGE_VAULT = 'Merge Vault',
+
+  // UPGRADE TOKEN
+  TOKEN_UPGRADE = 'Token Upgrade',
 }
 
 export interface IBaseHistItem {
