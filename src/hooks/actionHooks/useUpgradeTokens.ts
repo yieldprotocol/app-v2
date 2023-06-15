@@ -106,12 +106,12 @@ export const useUpgradeTokens = () => {
     [account, signer]
   );
 
-  const fetchAndSetBalances = async () => {
+  const fetchAndSetBalances = useCallback(async () => {
     const v1Map = await fetchBalances(TokenAddressesV1);
     const v2Map = await fetchBalances(TokenAddressesV2);
     setV1Balances(v1Map!);
     setV2Balances(v2Map!);
-  };
+  }, [fetchBalances]);
 
   // get merkle tree data
   useEffect(() => {
