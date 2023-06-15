@@ -69,7 +69,6 @@ const TOS_HASH = '0x9f6699a0964b1bd6fe6c9fb8bebea236c08311ddd25781bbf5d372d00d32
 
 export const useUpgradeTokens = () => {
   const { address: account } = useAccountPlus();
-  // const account = '0x185a4dc360CE69bDCceE33b3784B0282f7961aea'; // forge tests used this account
   const { provider, useForkedEnv } = useFork();
   const { sign, transact } = useChain();
   const contracts = useContracts();
@@ -90,19 +89,22 @@ export const useUpgradeTokens = () => {
   // maps a user/account address to proofs
   const [accountProofs, setAccountProofs] = useState<Map<string, string[]>>();
 
-  const fetchBalances = async (addrObj: Record<string, string>) => {
-    if (!account || !signer) return;
-    const balanceMap = new Map<string, BigNumberish>();
+  const fetchBalances = useCallback(
+    async (addrObj: Record<string, string>) => {
+      if (!account || !signer) return;
+      const balanceMap = new Map<string, BigNumberish>();
 
-    for (const addr of Object.values(addrObj)) {
-      const strategyContract = Strategy__factory.connect(addr, signer);
+      for (const addr of Object.values(addrObj)) {
+        const strategyContract = Strategy__factory.connect(addr, signer);
 
-      const balanceOf = await strategyContract.balanceOf(account);
-      balanceMap.set(addr, balanceOf);
-    }
-    console.log('balanceMap', balanceMap);
-    return balanceMap;
-  };
+        const balanceOf = await strategyContract.balanceOf(account);
+        balanceMap.set(addr, balanceOf);
+      }
+      console.log('balanceMap', balanceMap);
+      return balanceMap;
+    },
+    [account, signer]
+  );
 
   const fetchAndSetBalances = async () => {
     const v1Map = await fetchBalances(TokenAddressesV1);
