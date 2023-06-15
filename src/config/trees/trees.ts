@@ -6,6 +6,8 @@ import usdcJuneMerkle from './usdc-june-tree.json';
 import usdcMarchMerkle from './usdc-march-tree.json';
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
 
+type TreeMap = Map<string, StandardMerkleTree<string[]>>;
+
 /* 
   I know, i know. ts-ignore isn't great. But fixing it seemed like more trouble 
   than it was worth
@@ -24,19 +26,19 @@ const usdcJune = StandardMerkleTree.load(usdcJuneMerkle);
 // @ts-ignore
 const usdcMarch = StandardMerkleTree.load(usdcMarchMerkle);
 
-const v1: Map<string, StandardMerkleTree<string[]>> = new Map([
+const v1: TreeMap = new Map([
   ['0x1144e14e9b0aa9e181342c7e6e0a9badb4ced295', daiJune],
   ['0x7acfe277ded15caba6a8da2972b1eb93fe1e2ccd', daiMarch],
   ['0x831df23f7278575ba0b136296a285600cd75d076', ethJune],
 ]);
 
-const v2: Map<string, StandardMerkleTree<string[]>> = new Map([
+const v2: TreeMap = new Map([
   ['0xcf30a5a994f9ace5832e30c138c9697cda5e1247', ethMarch],
   ['0x8e8d6ab093905c400d583efd37fbeeb1ee1c0c39', usdcJune],
   ['0xfbc322415cbc532b54749e31979a803009516b5d', usdcMarch],
 ]);
 
-export const TREES: Map<string, Map<string, StandardMerkleTree<string[]>>> = new Map([
+export const TREES: Map<string, TreeMap> = new Map([
   ['v1', v1],
   ['v2', v2],
 ]);
