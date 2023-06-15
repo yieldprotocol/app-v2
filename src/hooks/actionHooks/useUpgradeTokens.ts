@@ -141,7 +141,7 @@ export const useUpgradeTokens = () => {
     }
     setProofBalances(balances);
     setAccountProofs(matchingProofs);
-  }, [account]);
+  }, [account, fetchAndSetBalances]);
 
   const upgradeTokens = useCallback(
     async (termsAccepted: boolean) => {
@@ -213,7 +213,7 @@ export const useUpgradeTokens = () => {
         try {
           await transact(calls, txCode);
         } catch (e) {
-          console.log('Error burning v1 to v2', e);
+          return console.log('Error burning v1 to v2', e);
         }
 
         try {
