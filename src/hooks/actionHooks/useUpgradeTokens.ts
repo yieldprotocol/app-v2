@@ -64,7 +64,7 @@ enum TokenAddressesV2 {
 const UPGRADEABLE_V1s = [TokenAddressesV1.ETH_March, TokenAddressesV1.USDC_March, TokenAddressesV1.DAI_March];
 const BURNABLE_V1s = [TokenAddressesV1.ETH_June, TokenAddressesV1.USDC_June, TokenAddressesV1.DAI_June];
 
-const UPGRADE_TOKEN_ADDRESS = '0x9Ca89fC21fdbdE431Df9080426F7B630012FE551';
+const UPGRADE_CONTRACT_ADDRESS = '0x9Ca89fC21fdbdE431Df9080426F7B630012FE551';
 const TOS_HASH = '0x9f6699a0964b1bd6fe6c9fb8bebea236c08311ddd25781bbf5d372d00d32936b';
 
 export const useUpgradeTokens = () => {
@@ -220,14 +220,14 @@ export const useUpgradeTokens = () => {
           const tokenContract = ERC20__factory.connect(TEST_V2, signer);
 
           // check allowance
-          const allowance = tokenContract.allowance(account, UPGRADE_TOKEN_ADDRESS);
+          const allowance = tokenContract.allowance(account, UPGRADE_CONTRACT_ADDRESS);
 
           if ((await allowance).lt(balance!)) {
-            const approve = await tokenContract.approve(UPGRADE_TOKEN_ADDRESS, balance!);
+            const approve = await tokenContract.approve(UPGRADE_CONTRACT_ADDRESS, balance!);
             await approve.wait();
           }
 
-          const upgradeContract = TokenUpgrade__factory.connect(UPGRADE_TOKEN_ADDRESS, signer);
+          const upgradeContract = TokenUpgrade__factory.connect(UPGRADE_CONTRACT_ADDRESS, signer);
           const upgradeTx = await upgradeContract.upgrade(TEST_V2, acceptanceToken, account, balance!, proof);
           await upgradeTx.wait();
 
