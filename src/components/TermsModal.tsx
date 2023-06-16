@@ -11,9 +11,7 @@ interface ITermsModalProps {
 }
 
 const TermsModal = ({ isOpen, onClose }: ITermsModalProps) => {
-  const { address: account } = useAccountPlus();
-
-  const { upgradeTokens } = useUpgradeTokens();
+  const { upgradeAllStrategies } = useUpgradeTokens();
 
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
 
@@ -23,7 +21,7 @@ const TermsModal = ({ isOpen, onClose }: ITermsModalProps) => {
   };
 
   const confirmClick = () => {
-    upgradeTokens(termsAccepted);
+    upgradeAllStrategies(termsAccepted);
     closeTermsModal();
   };
 

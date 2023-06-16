@@ -12,11 +12,8 @@ type PublicNotificationProps = {
 
 const PublicNotification = ({ children }: PublicNotificationProps) => {
   const chainId = useChainId();
-  const { address } = useAccountPlus();
-  const { upgradeTokens, accountProofs } = useUpgradeTokens();
-
+  const { hasUpgradeable } = useUpgradeTokens();
   const [showTerms, setShowTerms] = useState<boolean>(false);
-  const [showUpgrade, setShowUpgrade] = useState<boolean>(false);
 
   const showTermsModal = () => {
     setShowTerms(!showTerms);
@@ -24,7 +21,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
 
   return (
     <>
-      {chainId === 1 && accountProofs?.size ? (
+      {chainId === 1 && hasUpgradeable ? (
         <Box direction="row" align="center" justify="between">
           <Box direction="column" border={{ size: 'small' }} pad="small" gap="small" align="center" round="xsmall">
             <Box direction="row" gap="small">
@@ -32,7 +29,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
                 <FiAlertTriangle />
               </Text>
               <Text size="xsmall">
-                Action Required: As a consequence of the Euler hack, your lending position needs to be upgraded
+                Action Required: As a consequence of the Euler hack, your strategy tokens need to be upgraded
               </Text>
             </Box>
             <Button
