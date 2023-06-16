@@ -242,7 +242,7 @@ export const useUpgradeTokens = () => {
           if (!treeData.upgradeableBalance?.gt(ethers.constants.Zero)) return;
 
           // if v1 strategy has v2 corresponding strategy, we need to burn the v1 to v2 first
-          if (treeData.v2TokenAddress) {
+          if (treeData.v2TokenAddress && treeData.v1StrategyBal.gt(ethers.constants.Zero)) {
             await burn(treeData);
           }
 
