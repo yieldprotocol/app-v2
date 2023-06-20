@@ -1,5 +1,5 @@
 import { ethers, BigNumber } from 'ethers';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import useAccountPlus from '../useAccountPlus';
 import { useSigner } from 'wagmi';
 import { fetchBalance } from 'wagmi/actions';
@@ -50,6 +50,12 @@ export const useUpgradeTokens = () => {
   const { provider, useForkedEnv } = useFork();
   const { sign, transact } = useChain();
   const contracts = useContracts();
+
+  const toastRef = useRef<any>(null);
+  const toasty = () => {
+    toastRef.current = toast.info('Upgrading tokens: please check your wallet...', { hideProgressBar: true });
+  };
+  const dismissToast = () => toast.dismiss(toastRef.current);
 
   const { data: _signer } = useSigner();
   const signer = useMemo(
@@ -272,7 +278,9 @@ export const useUpgradeTokens = () => {
     if (!hasUpgradeable && completedUpgrade) {
       toast.success('Successfully upgraded all strategy tokens');
     }
-  }, [completedUpgrade, hasUpgradeable]);
+
+    isUpgrading ? toasty() : dismissToast();
+  }, [completedUpgrade, hasUpgradeable, isUpgrading]);
 
   return { upgradeAllStrategies, hasUpgradeable, isUpgrading };
 };
