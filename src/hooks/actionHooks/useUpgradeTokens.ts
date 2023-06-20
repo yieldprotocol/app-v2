@@ -118,7 +118,7 @@ export const useUpgradeTokens = () => {
   useEffect(() => {
     if (!accountTreeData) return;
     const hasUpgradeable = [...accountTreeData.values()].some((treeData) =>
-      treeData.upgradeableBalance?.gt(ethers.constants.Zero)
+      treeData.upgradeableBalance.gt(ethers.constants.Zero)
     );
     setHasUpgradeable(hasUpgradeable);
   }, [accountTreeData]);
@@ -239,7 +239,7 @@ export const useUpgradeTokens = () => {
       await Promise.all(
         [...accountTreeData.values()].map(async (treeData) => {
           // check if user has upgradeable balance
-          if (!treeData.upgradeableBalance?.gt(ethers.constants.Zero)) return;
+          if (!treeData.upgradeableBalance.gt(ethers.constants.Zero)) return;
 
           // if v1 strategy has v2 corresponding strategy, we need to burn the v1 to v2 first
           if (treeData.v2TokenAddress && treeData.v1StrategyBal.gt(ethers.constants.Zero)) {

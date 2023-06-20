@@ -50,6 +50,7 @@ interface TreeData {
 }
 
 export interface TreeDataAsync extends TreeData {
+  upgradeableBalance: BigNumber;
   v1StrategyBal: BigNumber;
   v2StrategyBal: BigNumber;
 }
