@@ -124,7 +124,7 @@ export const useUpgradeTokens = () => {
     (async () => {
       await getAccountTreeData();
     })();
-  }, [account, getAccountTreeData]);
+  }, [getAccountTreeData]);
 
   // assess if user has any upgradeable strategy tokens
   useEffect(() => {
