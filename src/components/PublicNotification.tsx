@@ -11,7 +11,7 @@ type PublicNotificationProps = {
 
 const PublicNotification = ({ children }: PublicNotificationProps) => {
   const chainId = useChainId();
-  const { hasUpgradeable } = useUpgradeTokens();
+  const { hasUpgradeable, isUpgrading } = useUpgradeTokens();
   const [showTerms, setShowTerms] = useState<boolean>(false);
 
   const showTermsModal = () => {
@@ -38,10 +38,11 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
             </Box>
             <Button
               fill
-              label="Upgrade"
+              label={isUpgrading ? 'Upgrading' : 'Upgrade'}
               onClick={() => {
                 showTermsModal();
               }}
+              disabled={isUpgrading}
             />
           </Box>
           <TermsModal isOpen={showTerms} onClose={() => showTermsModal()} />

@@ -60,6 +60,8 @@ export const useUpgradeTokens = () => {
   // maps a user/account address to tree data (with proofs)
   const [accountTreeData, setAccountTreeData] = useState<TreeMapAsync>();
   const [hasUpgradeable, setHasUpgradeable] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [completedUpgrade, setCompletedUpgrade] = useState(false);
 
   const getAccountTreeData = useCallback(async () => {
     if (!account) return;
@@ -222,13 +224,11 @@ export const useUpgradeTokens = () => {
           treeData.proofs!
         );
 
-        await upgradeTx.wait();
-
         console.log('Strategy token upgrade successful for strategy:', treeName);
-        toast.success('Strategy token upgrade successful');
+        await upgradeTx.wait();
       } catch (e) {
         console.error('Error upgrading strategy tokens for strategy:', treeName, e);
-        toast.error('Error upgrading strategy tokens');
+        toast.error(`Error upgrading ${treeName} strategy token`);
       }
     },
     [account, signer]
@@ -240,6 +240,8 @@ export const useUpgradeTokens = () => {
       if (!termsAccepted) return console.error('Terms not accepted');
       if (!account || !signer || !contracts) return;
       if (!accountTreeData) return console.log('No account tree data yet');
+
+      setIsUpgrading(true);
 
       // map through each tree and upgrade if appropriate
       await Promise.all(
@@ -258,11 +260,21 @@ export const useUpgradeTokens = () => {
 
       // get the account tree data again to update the balances after successfully upgrading
       await getAccountTreeData();
+
+      setIsUpgrading(false);
+      setCompletedUpgrade(true);
     },
     [account, accountTreeData, burn, contracts, getAccountTreeData, hasUpgradeable, signer, upgrade]
   );
 
-  return { upgradeAllStrategies, hasUpgradeable };
+  // show success message if user has upgraded all strategies
+  useEffect(() => {
+    if (!hasUpgradeable && completedUpgrade) {
+      toast.success('Successfully upgraded all strategy tokens');
+    }
+  }, [completedUpgrade, hasUpgradeable]);
+
+  return { upgradeAllStrategies, hasUpgradeable, isUpgrading };
 };
 
 export default useUpgradeTokens;
