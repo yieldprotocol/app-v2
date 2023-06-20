@@ -121,8 +121,10 @@ export const useUpgradeTokens = () => {
   // assess if user has any upgradeable strategy tokens
   useEffect(() => {
     if (!accountTreeData) return;
-    const hasUpgradeable = [...accountTreeData.values()].some((treeData) =>
-      treeData.upgradeableBalance.gt(ethers.constants.Zero)
+    // simple dust handling, could be better
+    const isDust = (treeData: TreeDataAsync) => treeData.upgradeableBalance.lt(ethers.constants.WeiPerEther.div(100));
+    const hasUpgradeable = [...accountTreeData.values()].some(
+      (treeData) => treeData.upgradeableBalance.gt(ethers.constants.Zero) && !isDust(treeData)
     );
     setHasUpgradeable(hasUpgradeable);
   }, [accountTreeData]);
