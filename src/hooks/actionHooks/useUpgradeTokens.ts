@@ -215,7 +215,7 @@ export const useUpgradeTokens = () => {
       };
 
       try {
-        approveUpgradeContract();
+        await approveUpgradeContract();
 
         // token in is the v1 strategy adress if no v2, otherwise it's the v2 strategy address
         const tokenIn = v2TokenAddress ? v2TokenAddress : v1TokenAddress;
