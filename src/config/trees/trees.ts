@@ -40,7 +40,7 @@ export enum TREE_NAMES {
   USDC_MARCH_V1 = 'usdc-march-v1',
 }
 
-interface TreeData {
+export interface TreeData {
   treeName: TREE_NAMES;
   tree: StandardMerkleTree<string[]>;
   proofs?: string[]; // uninitialized to start

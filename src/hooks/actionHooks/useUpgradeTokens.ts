@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from 'ethers';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import useAccountPlus from '../useAccountPlus';
-import { useSigner } from 'wagmi';
+import { Address, useSigner } from 'wagmi';
 import { fetchBalance } from 'wagmi/actions';
 import { TokenUpgrade__factory } from '../../contracts';
 import { toast } from 'react-toastify';
@@ -9,7 +9,7 @@ import { ICallData, ActionCodes, LadleActions, RoutedActions } from '../../types
 import { useChain } from '../useChain';
 import { Strategy__factory } from '../../contracts';
 import { getTxCode } from '../../utils/appUtils';
-import { TREES, TreeDataAsync, TreeMapAsync } from '../../config/trees/trees';
+import { TREES, TreeData, TreeDataAsync, TreeMapAsync } from '../../config/trees/trees';
 import useFork from '../useFork';
 import useContracts from '../useContracts';
 
@@ -69,6 +69,19 @@ export const useUpgradeTokens = () => {
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [completedUpgrade, setCompletedUpgrade] = useState(false);
 
+  const getActualBalances = async (account: Address, tree: TreeData) => {
+    const v1StrategyBalRes = await fetchBalance({ address: account, token: tree.v1TokenAddress });
+    const v2StrategyBalRes = tree.v2TokenAddress
+      ? await fetchBalance({ address: account, token: tree.v2TokenAddress })
+      : undefined;
+
+    const v1StrategyBal = v1StrategyBalRes ? v1StrategyBalRes.value : ethers.constants.Zero;
+    const v2StrategyBal = v2StrategyBalRes ? v2StrategyBalRes.value : ethers.constants.Zero;
+    const totalBalance = v1StrategyBal.add(v2StrategyBal);
+
+    return { totalBalance, v1StrategyBal, v2StrategyBal };
+  };
+
   const getAccountTreeData = useCallback(async () => {
     if (!account) return;
 
@@ -94,14 +107,7 @@ export const useUpgradeTokens = () => {
           v2StrategyBal: ethers.constants.Zero,
         });
 
-      const v1StrategyBalRes = await fetchBalance({ address: account, token: tree.v1TokenAddress });
-      const v2StrategyBalRes = tree.v2TokenAddress
-        ? await fetchBalance({ address: account, token: tree.v2TokenAddress })
-        : undefined;
-
-      const v1StrategyBal = v1StrategyBalRes ? v1StrategyBalRes.value : ethers.constants.Zero;
-      const v2StrategyBal = v2StrategyBalRes ? v2StrategyBalRes.value : ethers.constants.Zero;
-      const totalBalance = v1StrategyBal.add(v2StrategyBal);
+      const { totalBalance, v1StrategyBal, v2StrategyBal } = await getActualBalances(account, tree);
 
       // make sure upgradeable balance is not greater than the tree balance
       const upgradeableBalance = treeBalance.lt(totalBalance) ? treeBalance : totalBalance;
@@ -190,12 +196,9 @@ export const useUpgradeTokens = () => {
       if (!account) return console.error('No account');
       const { treeName, v1TokenAddress, v2TokenAddress } = treeData;
 
-      // NOTE - fetch the v2 strategy balance again in case it changed since the last time we fetched it (because of burning)
-      const v2StrategyBalRes = await fetchBalance({ address: account, token: v2TokenAddress });
-      // check if the tree balance is less than the v2 strategy balance
-      const upgradeableBalance = treeData.treeBalance?.lt(v2StrategyBalRes?.value)
-        ? treeData.treeBalance
-        : v2StrategyBalRes?.value;
+      const { totalBalance } = await getActualBalances(account, treeData);
+      // check if the tree balance is less than the total strategy balance
+      const upgradeableBalance = treeData.treeBalance?.lt(totalBalance) ? treeData.treeBalance : totalBalance;
 
       const approveUpgradeContract = async () => {
         // NOTE - if there is no v2 address we use the v1 token address because we didn't need to burn (so we are approving v1)
