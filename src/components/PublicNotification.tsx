@@ -1,10 +1,9 @@
-import { useContext, useState, useEffect } from 'react';
-import { Box, ResponsiveContext, Text, Button } from 'grommet';
-import { FiAlertCircle, FiAlertTriangle } from 'react-icons/fi';
+import { useState } from 'react';
+import { Box, Text, Button } from 'grommet';
+import { FiAlertTriangle } from 'react-icons/fi';
 import useChainId from '../hooks/useChainId';
 import TermsModal from './TermsModal';
 import useUpgradeTokens from '../hooks/actionHooks/useUpgradeTokens';
-import useAccountPlus from '../hooks/useAccountPlus';
 
 type PublicNotificationProps = {
   children?: any;
