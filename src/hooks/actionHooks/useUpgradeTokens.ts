@@ -266,14 +266,13 @@ export const useUpgradeTokens = () => {
 
       // get the account tree data again to update the balances after successfully upgrading
       await getAccountTreeData();
-
       setIsUpgrading(false);
       setCompletedUpgrade(true);
     },
     [account, accountTreeData, burn, contracts, getAccountTreeData, hasUpgradeable, signer, upgrade]
   );
 
-  // show success message if user has upgraded all strategies
+  // handle toast states
   useEffect(() => {
     if (!hasUpgradeable && completedUpgrade) {
       toast.success('Successfully upgraded all strategy tokens');
