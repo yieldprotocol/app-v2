@@ -83,6 +83,7 @@ export const useUpgradeTokens = () => {
             ...tree,
             proofs,
             treeBalance,
+            upgradeableBalance: ethers.constants.Zero,
             v1StrategyBal: ethers.constants.Zero,
             v2StrategyBal: ethers.constants.Zero,
           });
@@ -94,11 +95,16 @@ export const useUpgradeTokens = () => {
 
         const v1StrategyBal = v1StrategyBalRes ? v1StrategyBalRes.value : ethers.constants.Zero;
         const v2StrategyBal = v2StrategyBalRes ? v2StrategyBalRes.value : ethers.constants.Zero;
+        const totalBalance = v1StrategyBal.add(v2StrategyBal);
+
+        // make sure upgradeable balance is not greater than the tree balance
+        const upgradeableBalance = treeBalance.lt(totalBalance) ? treeBalance : totalBalance;
 
         return (await treeMap).set(tree.treeName, {
           ...tree,
           proofs,
           treeBalance,
+          upgradeableBalance,
           v1StrategyBal,
           v2StrategyBal,
         });
@@ -112,7 +118,7 @@ export const useUpgradeTokens = () => {
   useEffect(() => {
     if (!accountTreeData) return;
     const hasUpgradeable = [...accountTreeData.values()].some((treeData) =>
-      treeData.treeBalance?.gt(ethers.constants.Zero)
+      treeData.upgradeableBalance?.gt(ethers.constants.Zero)
     );
     setHasUpgradeable(hasUpgradeable);
   }, [accountTreeData]);
@@ -170,7 +176,12 @@ export const useUpgradeTokens = () => {
       if (!account) return console.error('No account');
       const { treeName, v1TokenAddress, v2TokenAddress } = treeData;
 
-      const upgradeableBalance = treeData.treeBalance!; // already checked if there is an upgradeable balance beforehand
+      // NOTE - fetch the v2 strategy balance again in case it changed since the last time we fetched it (because of burning)
+      const v2StrategyBalRes = await fetchBalance({ address: account, token: v2TokenAddress });
+      // check if the tree balance is less than the v2 strategy balance
+      const upgradeableBalance = treeData.treeBalance?.lt(v2StrategyBalRes?.value)
+        ? treeData.treeBalance
+        : v2StrategyBalRes?.value;
 
       const approveUpgradeContract = async () => {
         // NOTE - if there is no v2 address we use the v1 token address because we didn't need to burn (so we are approving v1)
@@ -178,6 +189,7 @@ export const useUpgradeTokens = () => {
         const allowance = await strategy.allowance(account, UPGRADE_CONTRACT_ADDRESS);
 
         try {
+          // NOTE - we know there is an upgradeable balance because we check for it beforehand
           if (allowance.lt(upgradeableBalance)) {
             const approve = await strategy.approve(UPGRADE_CONTRACT_ADDRESS, upgradeableBalance);
             await approve.wait();
@@ -227,7 +239,7 @@ export const useUpgradeTokens = () => {
       await Promise.all(
         [...accountTreeData.values()].map(async (treeData) => {
           // check if user has upgradeable balance
-          if (!treeData.treeBalance?.gt(ethers.constants.Zero)) return;
+          if (!treeData.upgradeableBalance?.gt(ethers.constants.Zero)) return;
 
           // if v1 strategy has v2 corresponding strategy, we need to burn the v1 to v2 first
           if (treeData.v2TokenAddress && treeData.v1StrategyBal.gt(ethers.constants.Zero)) {
