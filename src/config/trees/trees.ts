@@ -50,7 +50,6 @@ interface TreeData {
 }
 
 export interface TreeDataAsync extends TreeData {
-  upgradeableBalance?: BigNumber; // the user's upgradeable balance, which is the lesser of the actual (total) balance and the tree balance; uninitialized to start
   v1StrategyBal: BigNumber;
   v2StrategyBal: BigNumber;
 }
@@ -58,23 +57,30 @@ export interface TreeDataAsync extends TreeData {
 export type TreeMap = Map<TREE_NAMES, TreeData>;
 export type TreeMapAsync = Map<TREE_NAMES, TreeDataAsync>;
 
-/* 
-  I know, i know. ts-ignore isn't great. But fixing it seemed like more trouble 
-  than it was worth
-*/
+// interface for merkle tree data directly from openzeppelin
+interface StandardMerkleTreeData<T extends any[]> {
+  format: 'standard-v1';
+  tree: string[];
+  values: {
+    value: T;
+    treeIndex: number;
+  }[];
+  leafEncoding: string[];
+}
 
-// @ts-ignore
-const daiJune = StandardMerkleTree.load(daiJuneMerkle);
-// @ts-ignore
-const daiMarch = StandardMerkleTree.load(daiMarchMerkle);
-// @ts-ignore
-const ethJune = StandardMerkleTree.load(ethJuneMerkle);
-// @ts-ignore
-const ethMarch = StandardMerkleTree.load(ethMarchMerkle);
-// @ts-ignore
-const usdcJune = StandardMerkleTree.load(usdcJuneMerkle);
-// @ts-ignore
-const usdcMarch = StandardMerkleTree.load(usdcMarchMerkle);
+const daiJuneMerkle_ = daiJuneMerkle as StandardMerkleTreeData<string[]>;
+const daiMarchMerkle_ = daiMarchMerkle as StandardMerkleTreeData<string[]>;
+const ethJuneMerkle_ = ethJuneMerkle as StandardMerkleTreeData<string[]>;
+const ethMarchMerkle_ = ethMarchMerkle as StandardMerkleTreeData<string[]>;
+const usdcJuneMerkle_ = usdcJuneMerkle as StandardMerkleTreeData<string[]>;
+const usdcMarchMerkle_ = usdcMarchMerkle as StandardMerkleTreeData<string[]>;
+
+const daiJune = StandardMerkleTree.load(daiJuneMerkle_);
+const daiMarch = StandardMerkleTree.load(daiMarchMerkle_);
+const ethJune = StandardMerkleTree.load(ethJuneMerkle_);
+const ethMarch = StandardMerkleTree.load(ethMarchMerkle_);
+const usdcJune = StandardMerkleTree.load(usdcJuneMerkle_);
+const usdcMarch = StandardMerkleTree.load(usdcMarchMerkle_);
 
 export const TREES: TreeMap = new Map();
 
