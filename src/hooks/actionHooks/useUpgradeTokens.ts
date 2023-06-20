@@ -61,58 +61,62 @@ export const useUpgradeTokens = () => {
   const [accountTreeData, setAccountTreeData] = useState<TreeMapAsync>();
   const [hasUpgradeable, setHasUpgradeable] = useState(false);
 
-  // get tree data for this specific user
-  useEffect(() => {
-    (async () => {
-      if (!account) return;
+  const getAccountTreeData = useCallback(async () => {
+    if (!account) return;
 
-      const accountTreeData = await [...TREES.values()].reduce(async (treeMap, tree) => {
-        let proofs = undefined;
-        let treeBalance = undefined;
+    const accountTreeData = await [...TREES.values()].reduce(async (treeMap, tree) => {
+      let proofs = undefined;
+      let treeBalance = undefined;
 
-        for (const [index, value] of tree.tree.entries()) {
-          if (value.toString().toLowerCase().includes(account.toLowerCase())) {
-            proofs = tree.tree.getProof(index);
-            treeBalance = BigNumber.from(value[1]);
-          }
+      for (const [index, value] of tree.tree.entries()) {
+        if (value.toString().toLowerCase().includes(account.toLowerCase())) {
+          proofs = tree.tree.getProof(index);
+          treeBalance = BigNumber.from(value[1]);
         }
+      }
 
-        // if no tree balance, there is no elgigible upgrade, and no need to fetch balances
-        if (!treeBalance || treeBalance.isZero())
-          return (await treeMap).set(tree.treeName, {
-            ...tree,
-            proofs,
-            treeBalance,
-            upgradeableBalance: ethers.constants.Zero,
-            v1StrategyBal: ethers.constants.Zero,
-            v2StrategyBal: ethers.constants.Zero,
-          });
-
-        const v1StrategyBalRes = await fetchBalance({ address: account, token: tree.v1TokenAddress });
-        const v2StrategyBalRes = tree.v2TokenAddress
-          ? await fetchBalance({ address: account, token: tree.v2TokenAddress })
-          : undefined;
-
-        const v1StrategyBal = v1StrategyBalRes ? v1StrategyBalRes.value : ethers.constants.Zero;
-        const v2StrategyBal = v2StrategyBalRes ? v2StrategyBalRes.value : ethers.constants.Zero;
-        const totalBalance = v1StrategyBal.add(v2StrategyBal);
-
-        // make sure upgradeable balance is not greater than the tree balance
-        const upgradeableBalance = treeBalance.lt(totalBalance) ? treeBalance : totalBalance;
-
+      // if no tree balance, there is no elgigible upgrade, and no need to fetch balances
+      if (!treeBalance || treeBalance.isZero())
         return (await treeMap).set(tree.treeName, {
           ...tree,
           proofs,
           treeBalance,
-          upgradeableBalance,
-          v1StrategyBal,
-          v2StrategyBal,
+          upgradeableBalance: ethers.constants.Zero,
+          v1StrategyBal: ethers.constants.Zero,
+          v2StrategyBal: ethers.constants.Zero,
         });
-      }, Promise.resolve<TreeMapAsync>(new Map()));
 
-      setAccountTreeData(accountTreeData);
-    })();
+      const v1StrategyBalRes = await fetchBalance({ address: account, token: tree.v1TokenAddress });
+      const v2StrategyBalRes = tree.v2TokenAddress
+        ? await fetchBalance({ address: account, token: tree.v2TokenAddress })
+        : undefined;
+
+      const v1StrategyBal = v1StrategyBalRes ? v1StrategyBalRes.value : ethers.constants.Zero;
+      const v2StrategyBal = v2StrategyBalRes ? v2StrategyBalRes.value : ethers.constants.Zero;
+      const totalBalance = v1StrategyBal.add(v2StrategyBal);
+
+      // make sure upgradeable balance is not greater than the tree balance
+      const upgradeableBalance = treeBalance.lt(totalBalance) ? treeBalance : totalBalance;
+
+      return (await treeMap).set(tree.treeName, {
+        ...tree,
+        proofs,
+        treeBalance,
+        upgradeableBalance,
+        v1StrategyBal,
+        v2StrategyBal,
+      });
+    }, Promise.resolve<TreeMapAsync>(new Map()));
+
+    setAccountTreeData(accountTreeData);
   }, [account]);
+
+  // get tree data for this specific user on mount
+  useEffect(() => {
+    (async () => {
+      await getAccountTreeData();
+    })();
+  }, [account, getAccountTreeData]);
 
   // assess if user has any upgradeable strategy tokens
   useEffect(() => {
@@ -246,11 +250,14 @@ export const useUpgradeTokens = () => {
             await burn(treeData);
           }
 
-          upgrade(treeData);
+          await upgrade(treeData);
         })
       );
+
+      // get the account tree data again to update the balances after successfully upgrading
+      await getAccountTreeData();
     },
-    [account, accountTreeData, burn, contracts, hasUpgradeable, signer, upgrade]
+    [account, accountTreeData, burn, contracts, getAccountTreeData, hasUpgradeable, signer, upgrade]
   );
 
   return { upgradeAllStrategies, hasUpgradeable };
