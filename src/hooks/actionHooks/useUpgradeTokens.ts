@@ -53,7 +53,10 @@ export const useUpgradeTokens = () => {
 
   const toastRef = useRef<any>(null);
   const toasty = () => {
-    toastRef.current = toast.info('Upgrading tokens: please check your wallet...', { hideProgressBar: true });
+    toastRef.current = toast.info('Upgrading tokens: please check your wallet...', {
+      hideProgressBar: true,
+      autoClose: false,
+    });
   };
   const dismissToast = () => toast.dismiss(toastRef.current);
 

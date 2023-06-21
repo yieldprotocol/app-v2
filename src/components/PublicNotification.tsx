@@ -11,11 +11,18 @@ type PublicNotificationProps = {
 
 const PublicNotification = ({ children }: PublicNotificationProps) => {
   const chainId = useChainId();
-  const { hasUpgradeable, isUpgrading } = useUpgradeTokens();
+  const { hasUpgradeable, isUpgrading, upgradeAllStrategies } = useUpgradeTokens();
   const [showTerms, setShowTerms] = useState<boolean>(false);
 
   const showTermsModal = () => {
     setShowTerms(!showTerms);
+  };
+
+  const confirmUpgrade = (hasAcceptedTerms: boolean) => {
+    if (!hasAcceptedTerms) {
+      return;
+    }
+    upgradeAllStrategies(hasAcceptedTerms);
   };
 
   return (
@@ -45,7 +52,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
               disabled={isUpgrading}
             />
           </Box>
-          <TermsModal isOpen={showTerms} onClose={() => showTermsModal()} />
+          <TermsModal isOpen={showTerms} onClose={() => showTermsModal()} onConfirm={confirmUpgrade} />
         </Box>
       ) : null}
     </>
