@@ -18,7 +18,7 @@ import useAllowAction from '../useAllowAction';
 
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
-  const { selectedIlk, assetMap } = userState;
+  const { selectedIlk, assetMap, selectedSeries } = userState;
   const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
   const provider = useProvider();
@@ -40,8 +40,8 @@ export const useRemoveCollateral = () => {
 
   const removeCollateral = async (vault: IVault, input: string, unwrapOnRemove: boolean = true) => {
     if (!contracts) return;
-    if (!isActionAllowed(ActionCodes.REMOVE_COLLATERAL)) return; // return if action is not allowed
-
+    if (!selectedSeries) return console.error('No selected series');
+    if (!isActionAllowed(ActionCodes.REMOVE_COLLATERAL, selectedSeries)) return; // return if action is not allowed
 
     /* generate the txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_COLLATERAL, vault.id);

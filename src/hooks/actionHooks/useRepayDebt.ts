@@ -47,7 +47,7 @@ export const useRepayDebt = () => {
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
   const chainId = useChainId();
 
-  const {isActionAllowed} = useAllowAction();
+  const { isActionAllowed } = useAllowAction();
 
   /**
    * REPAY FN
@@ -56,17 +56,17 @@ export const useRepayDebt = () => {
    * @param reclaimCollateral
    */
   const repay = async (vault: IVault, input: string | undefined, reclaimCollateral: boolean) => {
-    
     if (!contracts) return;
-   
+
     const txCode = getTxCode(ActionCodes.REPAY, vault.id);
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
-    const series: ISeries = seriesMap?.get(vault.seriesId)!;
+    const series = seriesMap?.get(vault.seriesId);
+    if (!series) return console.error('Series not found');
     const base: IAsset = assetMap?.get(vault.baseId)!;
     const ilk: IAsset = assetMap?.get(vault.ilkId)!;
 
-    if (!isActionAllowed(ActionCodes.REPAY, series )) return; // return if action is not allowed
+    if (!isActionAllowed(ActionCodes.REPAY, series)) return; // return if action is not allowed
 
     const isEthCollateral = ETH_BASED_ASSETS.includes(vault.ilkId);
     const isEthBase = ETH_BASED_ASSETS.includes(series.baseId);
@@ -79,22 +79,23 @@ export const useRepayDebt = () => {
     const cleanInput = cleanValue(input, base.decimals);
     const _input = input ? ethers.utils.parseUnits(cleanInput, base.decimals) : ethers.constants.Zero;
 
-    const _maxSharesIn = series.sharesReserves.eq(ZERO_BN) ? ZERO_BN 
-    : maxBaseIn(
-      series.sharesReserves,
-      series.fyTokenReserves,
-      getTimeTillMaturity(series.maturity),
-      series.ts,
-      series.g1,
-      series.decimals,
-      series.c,
-      series.mu
-    );
+    const _maxSharesIn = series.sharesReserves.eq(ZERO_BN)
+      ? ZERO_BN
+      : maxBaseIn(
+          series.sharesReserves,
+          series.fyTokenReserves,
+          getTimeTillMaturity(series.maturity),
+          series.ts,
+          series.g1,
+          series.decimals,
+          series.c,
+          series.mu
+        );
 
     /* Check if the trade of that size is possible */
-    const tradeIsNotPossible =  series.getShares(_input).gt(_maxSharesIn);
+    const tradeIsNotPossible = series.getShares(_input).gt(_maxSharesIn);
 
-    diagnostics && tradeIsNotPossible ? console.log('Trade is not possible:'): console.log('Trade is possible:')
+    diagnostics && tradeIsNotPossible ? console.log('Trade is not possible:') : console.log('Trade is possible:');
     diagnostics && tradeIsNotPossible && console.log('Trade input', _input.toString());
     diagnostics && tradeIsNotPossible && console.log('TradeMax base in:', _maxSharesIn.toString());
 
@@ -221,7 +222,6 @@ export const useRepayDebt = () => {
 
       ...removeEthCallData,
       ...unwrapAssetCallData,
-      
     ];
     await transact(calls, txCode);
 

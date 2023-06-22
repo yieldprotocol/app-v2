@@ -53,7 +53,7 @@ export const useClosePosition = () => {
     getValuesFromNetwork: boolean = true // get market values by network call or offline calc (default: NETWORK)
   ) => {
     if (!contracts) return;
-    if (!isActionAllowed(ActionCodes.CLOSE_POSITION)) return; // return if action is not allowed
+    if (!isActionAllowed(ActionCodes.CLOSE_POSITION, series)) return; // return if action is not allowed
 
     const txCode = getTxCode(ActionCodes.CLOSE_POSITION, series.id);
     const base = assetMap?.get(series.baseId)!;

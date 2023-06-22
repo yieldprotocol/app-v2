@@ -35,7 +35,7 @@ export const useAddCollateral = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
-  const {isActionAllowed} = useAllowAction();
+  const { isActionAllowed } = useAllowAction();
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -48,7 +48,8 @@ export const useAddCollateral = () => {
 
   const addCollateral = async (vault: IVault | undefined, input: string) => {
     if (!contracts) return;
-    if (!isActionAllowed(ActionCodes.ADD_COLLATERAL)) return; // return if action is not allowed
+    if (!selectedSeries) return console.error('No series selected');
+    if (!isActionAllowed(ActionCodes.ADD_COLLATERAL, selectedSeries)) return; // return if action is not allowed
 
     /* use the vault id provided OR 0 if new/ not provided */
     const vaultId = vault?.id || BLANK_VAULT;
@@ -143,9 +144,10 @@ export const useAddCollateral = () => {
     ];
 
     /* TRANSACT */
-   // await transact(calls, txCode);
-    toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
-
+    // await transact(calls, txCode);
+    toast.warn(
+      'Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.'
+    );
 
     /* then update UI */
     refetchBaseBal();
