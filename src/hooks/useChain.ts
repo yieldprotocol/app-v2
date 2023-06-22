@@ -261,10 +261,7 @@ export const useChain = () => {
     );
 
     /* Returns the processed list of txs required as ICallData[] */
-    // return signedList.filter((x: ICallData) => !x.ignoreIf);
-
-    // toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
-    return [];
+    return signedList.filter((x: ICallData) => !x.ignoreIf);
   };
 
   return { sign, transact };
