@@ -44,6 +44,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy ETH 6M Mar Sep',
     decimals: 18,
     version: '1',
+    associatedSeries: '0x0FBd5ca8eE61ec921B3F61B707f1D7D64456d2d1',
   },
   {
     id: '0x1031FF000FFF',
@@ -58,6 +59,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy DAI 6M Mar Sep',
     decimals: 18,
     version: '1',
+    associatedSeries: '0x79A6Be1Ae54153AA6Fc7e4795272c63F63B2a6DC',
   },
   {
     id: '0x1032FF000FFF',
@@ -72,6 +74,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy USDC 6M Mar Sep',
     decimals: 6,
     version: '1',
+    associatedSeries: '0x22E1e5337C5BA769e98d732518b2128dE14b553C',
   },
   {
     id: '0x1031FF000FFE',
@@ -86,6 +89,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy DAI 6M Jun Dec',
     decimals: 18,
     version: '1',
+    associatedSeries: '0x9ca4D6fbE0Ba91d553e74805d2E2545b04AbEfEA',
   },
   {
     id: '0x1032FF000FFE',
@@ -100,6 +104,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy USDC 6M Jun Dec',
     decimals: 6,
     version: '1',
+    associatedSeries: '0x667f185407C4CAb52aeb681f0006e4642d8091DF',
   },
   {
     id: '0x1030FF000FFE',
@@ -114,6 +119,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
     version: '1',
+    associatedSeries: '0x124c9F7E97235Fe3E35820f95D10aFfCe4bE9168',
   },
   {
     id: '0x1138FF000000',
@@ -128,6 +134,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy FRAX 6M Jun Dec',
     decimals: 18,
     version: '1',
+    associatedSeries: '0xFA71e5f0072401dA161b1FC25a9636927AF690D0',
   },
   {
     id: '0x1138FF000001',
@@ -142,6 +149,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy FRAX 6M Mar Sep',
     decimals: 18,
     version: '1',
+    associatedSeries: '0xB38Ba395D15392796B51057490bBc790871dd6a0',
   },
   /* V2 strategies */
   {
@@ -308,6 +316,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
     version: '1',
+    associatedSeries: '0xc8110b03629211b946c2783637ABC9402b50EcDf',
   },
   {
     id: '',
@@ -322,6 +331,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy ETH 6M Mar Sep',
     decimals: 18,
     version: '1',
+    associatedSeries: '0xD842A9f77e142f420BcdBCd6cFAC3548a68906dB',
   },
   {
     id: '',
@@ -336,6 +346,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy DAI 6M Mar Sep',
     decimals: 18,
     version: '1',
+    associatedSeries: '0xB917a6CD3f811A84c1c5B972E2c715a6d93f40aa',
   },
   {
     id: '',
@@ -350,6 +361,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy USDC 6M Mar Sep',
     decimals: 6,
     version: '1',
+    associatedSeries: '0x74c4cEa80c1afEAda2907B55FDD9C958Da4a53F2',
   },
   {
     id: '',
@@ -364,6 +376,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy DAI 6M Jun Dec',
     decimals: 18,
     version: '1',
+    associatedSeries: '0xc7f12Ea237bE7BE6028285052CF3727EaF0e597B',
   },
   {
     id: '',
@@ -378,6 +391,7 @@ STRATEGIES.set(1, [
       V2: '0x5dd6DcAE25dFfa0D46A04C9d99b4875044289fB2',
     },
     version: '1',
+    associatedSeries: '0x9912ED921832A8F6fc4a07E0892E5974A252043C',
   },
   {
     id: '',
@@ -392,6 +406,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy USDT 6M Jun Dec',
     decimals: 6,
     version: '1',
+    associatedSeries: '0xD28380De0e7093AC62bCb88610b9f4f4Fb58Be74',
   },
   {
     id: '',
@@ -406,6 +421,7 @@ STRATEGIES.set(1, [
     name: 'Yield Strategy USDT 6M Mar Sep',
     decimals: 6,
     version: '1',
+    associatedSeries: '0x299c9e28D2c5efa09aa147abB4f1CB4a8dc7AbE0',
   },
 ]);
 
