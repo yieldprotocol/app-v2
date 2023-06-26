@@ -39,7 +39,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
                   Action Required
                 </Text>
               </Box>
-              <Text size="small" textAlign="center">
+              <Text size="xsmall" textAlign="center" weight={'normal'}>
                 As a consequence of the Euler hack, your strategy tokens need to be upgraded
               </Text>
             </Box>
