@@ -1,5 +1,5 @@
 import { ethers, BigNumber } from 'ethers';
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, useContext } from 'react';
 import useAccountPlus from '../useAccountPlus';
 import { Address, useSigner } from 'wagmi';
 import { fetchBalance } from 'wagmi/actions';
@@ -12,6 +12,7 @@ import { getTxCode } from '../../utils/appUtils';
 import { TREES, TreeData, TreeDataAsync, TreeMapAsync } from '../../config/trees/trees';
 import useFork from '../useFork';
 import useContracts from '../useContracts';
+import { UserContext } from '../../contexts/UserContext';
 
 /*
   This hook is used to upgrade tokens that were impacted in the Euler hack. Here is the process: 
@@ -65,6 +66,10 @@ export const useUpgradeTokens = () => {
     () => (useForkedEnv ? provider?.getSigner(account) : _signer),
     [_signer, account, provider, useForkedEnv]
   );
+
+  const { userState, userActions } = useContext(UserContext);
+  const {strategyMap} = userState;
+  const { updateStrategies } = userActions;
 
   // maps a user/account address to tree data (with proofs)
   const [accountTreeData, setAccountTreeData] = useState<TreeMapAsync>();
@@ -284,6 +289,7 @@ export const useUpgradeTokens = () => {
       await getAccountTreeData();
       setIsUpgrading(false);
       setCompletedUpgrade(true);
+      updateStrategies(Array.from(strategyMap.values()));
     },
     [account, accountTreeData, burn, contracts, getAccountTreeData, hasUpgradeable, signer, upgrade]
   );
