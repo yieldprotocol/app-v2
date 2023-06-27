@@ -124,7 +124,7 @@ export const useChain = () => {
    *
    * @returns { Promise<ICallData[]> }
    */
-  const sign = async (requestedSignatures: ISignData[], txCode: string): Promise<ICallData[]> => {
+  const sign = async (requestedSignatures: ISignData[], txCode: string, forceSignByTx:boolean=false): Promise<ICallData[]> => {
     if (!signer) throw new Error('no signer');
     if (!contracts) throw new Error('no contracts');
 
@@ -149,8 +149,6 @@ export const useChain = () => {
         diagnostics && console.log('Sign: Target', reqSig.target.symbol);
         diagnostics && console.log('Sign: Spender', _spender);
         diagnostics && console.log('Sign: Amount', _amount?.toString());
-
-        console.log(signer);
 
         /* Request the signature if using DaiType permit style */
         if (reqSig.target.tokenType === TokenType.ERC20_DaiPermit && chain?.id !== 42161) {
@@ -180,7 +178,7 @@ export const useChain = () => {
                 true
               ),
             txCode,
-            approvalMethod
+            forceSignByTx ? ApprovalType.TX : approvalMethod
           );
 
           const args = [
@@ -238,7 +236,7 @@ export const useChain = () => {
             reqSig.target.tokenType === TokenType.ERC20_Permit ||
             !reqSig.target.tokenType) && // handle fyTokens (don't have an explicit tokenType in the asset config)
             reqSig.target.tokenType !== TokenType.ERC20_
-            ? approvalMethod
+            ?  (forceSignByTx ? ApprovalType.TX : approvalMethod ) // if forcedSignby tx is true, use tx approval method
             : ApprovalType.TX
         );
 
