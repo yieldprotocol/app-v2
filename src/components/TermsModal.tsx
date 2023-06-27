@@ -1,20 +1,15 @@
 import useAccountPlus from '../hooks/useAccountPlus';
 import ModalWrap from './wraps/ModalWrap';
 import { Box, Text, Layer, Button, CheckBox, ResponsiveContext } from 'grommet';
-import { useState, useEffect } from 'react';
-
-import useUpgradeTokens from '../hooks/actionHooks/useUpgradeTokens';
+import { useState } from 'react';
 
 interface ITermsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onConfirm: (hasAcceptedTerms: boolean) => void;
 }
 
-const TermsModal = ({ isOpen, onClose }: ITermsModalProps) => {
-  const { address: account } = useAccountPlus();
-
-  const { upgradeTokens } = useUpgradeTokens();
-
+const TermsModal = ({ isOpen, onClose, onConfirm }: ITermsModalProps) => {
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
 
   const closeTermsModal = () => {
@@ -23,7 +18,7 @@ const TermsModal = ({ isOpen, onClose }: ITermsModalProps) => {
   };
 
   const confirmClick = () => {
-    upgradeTokens(termsAccepted);
+    onConfirm(termsAccepted);
     closeTermsModal();
   };
 
