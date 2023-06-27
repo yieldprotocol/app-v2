@@ -94,7 +94,8 @@ export const useRemoveLiquidity = () => {
     console.log('removeLiquidity', input, series, matchingVault);
 
     if (!contracts) return;
-    if (!isActionAllowed(ActionCodes.REMOVE_LIQUIDITY)) return; // return if action is not allowed
+    if (!isActionAllowed(ActionCodes.REMOVE_LIQUIDITY, series))
+      return console.error('useRemoveLiquidity: action not allowed'); // return if action is not allowed
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.REMOVE_LIQUIDITY, series.id);
@@ -112,8 +113,10 @@ export const useRemoveLiquidity = () => {
       : undefined;
 
     /* some saftey */
-    if (associated_V2_Contract == undefined && _strategy.type === StrategyType.V1) return; // abort if strat 1 and no associated v2 strategy
-    if (associated_V2_1_Contract == undefined && _strategy.type !== StrategyType.V2_1) return; // abort if not strat 2.1 and no associated strategy
+    if (associated_V2_Contract === undefined && _strategy.type === StrategyType.V1)
+      return console.error('useRemoveLiquidity: associated_V2_Contract is undefined and strategy is V1'); // abort if strat 1 and no associated v2 strategy
+    if (associated_V2_1_Contract === undefined && _strategy.type !== StrategyType.V2_1)
+      return console.error('useRemoveLiquidity: associated_V2_1_Contract is undefined and strategy is not V2_1'); // abort if not strat 2.1 and no associated strategy
 
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 

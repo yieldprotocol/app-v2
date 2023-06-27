@@ -265,6 +265,7 @@ export const useChain = () => {
 
     // toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
     // return [];
+
   };
 
   return { sign, transact };
