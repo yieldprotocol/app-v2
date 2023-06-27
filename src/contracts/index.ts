@@ -22,6 +22,7 @@ export type { NotionalMultiOracle } from "./NotionalMultiOracle";
 export type { Pool } from "./Pool";
 export type { Strategy } from "./Strategy";
 export type { StrategyV2_1 } from "./StrategyV2_1";
+export type { TokenUpgrade } from "./TokenUpgrade";
 export type { Transfer1155Module } from "./Transfer1155Module";
 export type { UniswapV3Oracle } from "./UniswapV3Oracle";
 export type { Witch } from "./Witch";
@@ -50,6 +51,7 @@ export { NotionalMultiOracle__factory } from "./factories/NotionalMultiOracle__f
 export { Pool__factory } from "./factories/Pool__factory";
 export { Strategy__factory } from "./factories/Strategy__factory";
 export { StrategyV2_1__factory } from "./factories/StrategyV2_1__factory";
+export { TokenUpgrade__factory } from "./factories/TokenUpgrade__factory";
 export { Transfer1155Module__factory } from "./factories/Transfer1155Module__factory";
 export { UniswapV3Oracle__factory } from "./factories/UniswapV3Oracle__factory";
 export { Witch__factory } from "./factories/Witch__factory";
