@@ -179,7 +179,8 @@ export const useUpgradeTokens = () => {
             ignoreIf: false,
           },
         ],
-        txCode
+        txCode,
+        true // force approval by TX
       );
 
       const calls: ICallData[] = [
