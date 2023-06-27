@@ -40,7 +40,14 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
                 </Text>
               </Box>
               <Text size="xsmall" textAlign="center" weight={'normal'}>
-                As a consequence of the Euler hack, your strategy tokens need to be upgraded
+                As a consequence of the Euler hack, your strategy tokens need to be upgraded.{' '}
+                <a
+                  target="_blank"
+                  href="https://yield-protocol.medium.com/b678cf5de3af"
+                  style={{ color: 'rgb(255,255,255)', cursor: 'pointer' }}
+                >
+                  Learn more
+                </a>
               </Text>
             </Box>
             <Button
