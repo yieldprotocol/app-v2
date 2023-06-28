@@ -35,7 +35,7 @@ const DashboardPositionSummary = ({
         {actionType === ActionType.BORROW && <Summary label="Debt" value={debt!} />}
         {actionType === ActionType.BORROW && <Summary label="Collateral" value={collateral!} />}
         {actionType === ActionType.LEND && <Summary label="Balance" value={lendBalance!} />}
-        {actionType === ActionType.POOL && <Summary label="Balance" value={strategyBalance!} />}
+        {actionType === ActionType.POOL && <Summary label="Approximate Balance" value={strategyBalance!} />}
       </Box>
       {actionType === ActionType.BORROW && <DashboardSettings actionType={actionType} />}
     </Box>
