@@ -121,36 +121,36 @@ STRATEGIES.set(1, [
     version: '1',
     associatedSeries: '0x124c9F7E97235Fe3E35820f95D10aFfCe4bE9168',
   },
-  {
-    id: '0x1138FF000000',
-    address: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A', //
-    type: StrategyType.V1,
-    associatedStrategy: {
-      V2: '0x4B010fA49E8b673D0682CDeFCF7834328076748C',
-      V2_1: '',
-    },
-    symbol: 'YSFRAX6MJD',
-    baseId: FRAX,
-    name: 'Yield Strategy FRAX 6M Jun Dec',
-    decimals: 18,
-    version: '1',
-    associatedSeries: '0xFA71e5f0072401dA161b1FC25a9636927AF690D0',
-  },
-  {
-    id: '0x1138FF000001',
-    address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
-    associatedStrategy: {
-      V2: '0x45a37d7a93416934ebf7ad85b35bcf39fcd68696',
-      V2_1: '',
-    },
-    type: StrategyType.V1,
-    symbol: 'YSFRAX6MMS',
-    baseId: FRAX,
-    name: 'Yield Strategy FRAX 6M Mar Sep',
-    decimals: 18,
-    version: '1',
-    associatedSeries: '0xB38Ba395D15392796B51057490bBc790871dd6a0',
-  },
+  // {
+  //   id: '0x1138FF000000',
+  //   address: '0xbD6277E36686184A5343F83a4be5CeD0f8CD185A', //
+  //   type: StrategyType.V1,
+  //   associatedStrategy: {
+  //     V2: '',
+  //     V2_1: '0x4B010fA49E8b673D0682CDeFCF7834328076748C',
+  //   },
+  //   symbol: 'YSFRAX6MJD',
+  //   baseId: FRAX,
+  //   name: 'Yield Strategy FRAX 6M Jun Dec',
+  //   decimals: 18,
+  //   version: '1',
+  //   associatedSeries: '0xFA71e5f0072401dA161b1FC25a9636927AF690D0',
+  // },
+  // {
+  //   id: '0x1138FF000001',
+  //   address: '0x1565f539e96c4d440c38979dbc86fd711c995dd6',
+  //   associatedStrategy: {
+  //     V2: '0x45a37d7a93416934ebf7ad85b35bcf39fcd68696',
+  //     V2_1: '',
+  //   },
+  //   type: StrategyType.V1,
+  //   symbol: 'YSFRAX6MMS',
+  //   baseId: FRAX,
+  //   name: 'Yield Strategy FRAX 6M Mar Sep',
+  //   decimals: 18,
+  //   version: '1',
+  //   associatedSeries: '0xB38Ba395D15392796B51057490bBc790871dd6a0',
+  // },
   /* V2 strategies */
   {
     id: '0x1030FF000FFE',
