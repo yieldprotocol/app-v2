@@ -763,44 +763,38 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           let rate: BigNumber;
           let rateOracleAddr: string;
 
-          if (isVaultMature) {
-            // get the accrued art directly from contract; can't multicall this using wagmi for now
-            accruedArt = await Cauldron?.callStatic.debtFromBase(seriesId, art);
+          // get the accrued art directly from contract; can't multicall this using wagmi for now
+          accruedArt = await Cauldron?.callStatic.debtFromBase(seriesId, art);
 
-            [rateOracleAddr, rateAtMaturity] = await multicall({
-              contracts: [
-                {
-                  address: Cauldron.address as `0x${string}`,
-                  abi: contractTypes.Cauldron__factory.abi,
-                  functionName: 'lendingOracles',
-                  args: [vault.baseId as `0x${string}`],
-                },
-                {
-                  address: Cauldron.address as `0x${string}`,
-                  abi: contractTypes.Cauldron__factory.abi,
-                  functionName: 'ratesAtMaturity',
-                  args: [seriesId as `0x${string}`],
-                },
-              ],
-            });
+          [rateOracleAddr, rateAtMaturity] = await multicall({
+            contracts: [
+              {
+                address: Cauldron.address as `0x${string}`,
+                abi: contractTypes.Cauldron__factory.abi,
+                functionName: 'lendingOracles',
+                args: [vault.baseId as `0x${string}`],
+              },
+              {
+                address: Cauldron.address as `0x${string}`,
+                abi: contractTypes.Cauldron__factory.abi,
+                functionName: 'ratesAtMaturity',
+                args: [seriesId as `0x${string}`],
+              },
+            ],
+          });
 
-            // using compound multi here, but all rate oracles follow the same func sig
-            const Rate0racle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider);
-            [rate] = await Rate0racle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+          // using compound multi here, but all rate oracles follow the same func sig
+          const Rate0racle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider);
+          [rate] = await Rate0racle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
-            /* 
+          /* 
               handle the logic berto mentioned regarding pre-june 2023 series having no interest accrued
               (rates are 0%); fyi, we only use "rateToUse(or previously 'rate') once in the ui, to
               visualize the post-maturity variable rate 
             */
 
-            const rateToUse = isVaultMature ? (rate.lt(rateAtMaturity) ? rateAtMaturity : rate) : BigNumber.from('1');
-            rate = rateToUse;
-          } else {
-            rate = BigNumber.from('1');
-            rateAtMaturity = BigNumber.from('1');
-            accruedArt = art;
-          }
+          const rateToUse = isVaultMature ? (rate.lt(rateAtMaturity) ? rateAtMaturity : rate) : BigNumber.from('1');
+          rate = rateToUse;
 
           const baseRoot = assetRootMap.get(vault.baseId);
           const ilkRoot = assetRootMap.get(ilkId);
