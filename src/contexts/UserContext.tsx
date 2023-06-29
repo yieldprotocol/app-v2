@@ -758,15 +758,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             : [];
           const hasBeenLiquidated = liquidationEvents.flat().length > 0;
 
-          let accruedArt: BigNumber;
-          let rateAtMaturity: BigNumber;
-          let rate: BigNumber;
-          let rateOracleAddr: string;
-
           // get the accrued art directly from contract; can't multicall this using wagmi for now
-          accruedArt = await Cauldron?.callStatic.debtFromBase(seriesId, art);
+          const accruedArt = await Cauldron?.callStatic.debtFromBase(seriesId, art);
 
-          [rateOracleAddr, rateAtMaturity] = await multicall({
+          const [rateOracleAddr, rateAtMaturity] = await multicall({
             contracts: [
               {
                 address: Cauldron.address as `0x${string}`,
@@ -785,7 +780,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           // using compound multi here, but all rate oracles follow the same func sig
           const Rate0racle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider);
-          [rate] = await Rate0racle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+          const [rateFromOracle] = await Rate0racle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
           /* 
               handle the logic berto mentioned regarding pre-june 2023 series having no interest accrued
@@ -793,8 +788,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               visualize the post-maturity variable rate 
             */
 
-          const rateToUse = isVaultMature ? (rate.lt(rateAtMaturity) ? rateAtMaturity : rate) : BigNumber.from('1');
-          rate = rateToUse;
+          const rate = isVaultMature
+            ? rateFromOracle.lt(rateAtMaturity)
+              ? rateAtMaturity
+              : rateFromOracle
+            : BigNumber.from('1');
 
           const baseRoot = assetRootMap.get(vault.baseId);
           const ilkRoot = assetRootMap.get(ilkId);
