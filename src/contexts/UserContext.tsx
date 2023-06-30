@@ -740,10 +740,23 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const updatedVaults = await Promise.all(
         _vaults.map(async (vault) => {
-          const [
-            { ink, art },
-            { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
+          const [{ ink, art }, { owner, seriesId, ilkId }] = await multicall({
+            // update balance and series (series - because a vault can have been rolled to another series) */
+            contracts: [
+              {
+                address: Cauldron.address as `0x${string}`,
+                abi: contractTypes.Cauldron__factory.abi,
+                functionName: 'balances',
+                args: [vault.id as `0x${string}`],
+              },
+              {
+                address: Cauldron.address as `0x${string}`,
+                abi: contractTypes.Cauldron__factory.abi,
+                functionName: 'vaults',
+                args: [vault.id as `0x${string}`],
+              },
+            ],
+          });
 
           const series = seriesRootMap.get(seriesId);
           if (!series) return;
@@ -809,7 +822,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             art,
             accruedArt,
             isVaultMature,
-            rateAtMaturity,
             rate,
 
             rate_: cleanValue(ethers.utils.formatUnits(rate, 18), 2), // always 18 decimals when getting rate from rate oracle,

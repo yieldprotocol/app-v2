@@ -260,7 +260,6 @@ export interface IVault extends IVaultRoot {
   ink_: string;
   art_: string;
 
-  rateAtMaturity: BigNumber;
   rate: BigNumber;
   rate_: string;
 
