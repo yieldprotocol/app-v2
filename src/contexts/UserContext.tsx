@@ -740,10 +740,23 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const updatedVaults = await Promise.all(
         _vaults.map(async (vault) => {
-          const [
-            { ink, art },
-            { owner, seriesId, ilkId }, // update balance and series (series - because a vault can have been rolled to another series) */
-          ] = await Promise.all([Cauldron?.balances(vault.id), Cauldron?.vaults(vault.id)]);
+          const [{ ink, art }, { owner, seriesId, ilkId }] = await multicall({
+            // update balance and series (series - because a vault can have been rolled to another series) */
+            contracts: [
+              {
+                address: Cauldron.address as `0x${string}`,
+                abi: contractTypes.Cauldron__factory.abi,
+                functionName: 'balances',
+                args: [vault.id as `0x${string}`],
+              },
+              {
+                address: Cauldron.address as `0x${string}`,
+                abi: contractTypes.Cauldron__factory.abi,
+                functionName: 'vaults',
+                args: [vault.id as `0x${string}`],
+              },
+            ],
+          });
 
           const series = seriesRootMap.get(seriesId);
           if (!series) return;
@@ -758,25 +771,41 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             : [];
           const hasBeenLiquidated = liquidationEvents.flat().length > 0;
 
-          let accruedArt: BigNumber;
-          let rateAtMaturity: BigNumber;
-          let rate: BigNumber;
+          // get the accrued art directly from contract; can't multicall this using wagmi for now
+          const accruedArt = await Cauldron?.callStatic.debtFromBase(seriesId, art);
 
-          if (isVaultMature) {
-            const rateOracleAddr = await Cauldron.lendingOracles(vault.baseId);
-            const RateOracle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider); // using compount multi here, but all rate oracles follow the same func sig methodology
+          const [rateOracleAddr, rateAtMaturity] = await multicall({
+            contracts: [
+              {
+                address: Cauldron.address as `0x${string}`,
+                abi: contractTypes.Cauldron__factory.abi,
+                functionName: 'lendingOracles',
+                args: [vault.baseId as `0x${string}`],
+              },
+              {
+                address: Cauldron.address as `0x${string}`,
+                abi: contractTypes.Cauldron__factory.abi,
+                functionName: 'ratesAtMaturity',
+                args: [seriesId as `0x${string}`],
+              },
+            ],
+          });
 
-            rateAtMaturity = await Cauldron.ratesAtMaturity(seriesId);
-            [rate] = await RateOracle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
+          // using compound multi here, but all rate oracles follow the same func sig
+          const Rate0racle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider);
+          const [rateFromOracle] = await Rate0racle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
-            [accruedArt] = rateAtMaturity.gt(ZERO_BN)
-              ? calcAccruedDebt(rate, rateAtMaturity, art)
-              : calcAccruedDebt(rate, rate, art);
-          } else {
-            rate = BigNumber.from('1');
-            rateAtMaturity = BigNumber.from('1');
-            accruedArt = art;
-          }
+          /* 
+              handle the logic berto mentioned regarding pre-june 2023 series having no interest accrued
+              (rates are 0%); fyi, we only use "rateToUse(or previously 'rate') once in the ui, to
+              visualize the post-maturity variable rate 
+            */
+
+          const rate = isVaultMature
+            ? rateFromOracle.lt(rateAtMaturity)
+              ? rateAtMaturity
+              : rateFromOracle
+            : BigNumber.from('1');
 
           const baseRoot = assetRootMap.get(vault.baseId);
           const ilkRoot = assetRootMap.get(ilkId);
@@ -793,7 +822,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             art,
             accruedArt,
             isVaultMature,
-            rateAtMaturity,
             rate,
 
             rate_: cleanValue(ethers.utils.formatUnits(rate, 18), 2), // always 18 decimals when getting rate from rate oracle,
