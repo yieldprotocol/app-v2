@@ -1,0 +1,98 @@
+[
+  {
+    "fyTokenAddr": "0x124c9F7E97235Fe3E35820f95D10aFfCe4bE9168",
+    "account": "0xD129B0351416C75C9f0623fB43Bb93BB4107b2A4",
+    "AmountFmt": 50.67519744,
+    "Amount": 50675197444676560000
+  },
+  {
+    "fyTokenAddr": "0x124c9F7E97235Fe3E35820f95D10aFfCe4bE9168",
+    "account": "0xA85821C91F16285173d3B3DA59605afcE29B227B",
+    "AmountFmt": 0.2019083898,
+    "Amount": 201908389762257020
+  },
+  {
+    "fyTokenAddr": "0x124c9F7E97235Fe3E35820f95D10aFfCe4bE9168",
+    "account": "0x4beAd5Fc18eA31Bd5149a5081b42F034E200E9E4",
+    "AmountFmt": 0.01512103966,
+    "Amount": 15121039662011668
+  },
+  {
+    "fyTokenAddr": "0x124c9F7E97235Fe3E35820f95D10aFfCe4bE9168",
+    "account": "0xec3A40D114A781481a4a99587d679Ad59b3c1Fc6",
+    "AmountFmt": 0.001007566157,
+    "Amount": 1007566157347481
+  },
+  {
+    "fyTokenAddr": "0x124c9F7E97235Fe3E35820f95D10aFfCe4bE9168",
+    "account": "0x05e818959c2Aa4CD05EDAe9A099c38e7Bdc377C6",
+    "AmountFmt": 3.873486683e-8,
+    "Amount": 38734866833
+  },
+  {
+    "fyTokenAddr": "0x9ca4D6fbE0Ba91d553e74805d2E2545b04AbEfEA",
+    "account": "0xC2a463278387e649eEaA5aE5076e283260B0B1bE",
+    "AmountFmt": 66529.3383,
+    "Amount": 6.652933830446156e22
+  },
+  {
+    "fyTokenAddr": "0x9ca4D6fbE0Ba91d553e74805d2E2545b04AbEfEA",
+    "account": "0xf67336E671f1588d71c8f1e50a79c2715717E07a",
+    "AmountFmt": 3035.694712,
+    "Amount": 3.0356947117954837e21
+  },
+  {
+    "fyTokenAddr": "0x9ca4D6fbE0Ba91d553e74805d2E2545b04AbEfEA",
+    "account": "0xA7E5a837382C4B2A484BD2AFAdc8B5A5f6d74e87",
+    "AmountFmt": 2.807832869e-8,
+    "Amount": 28078328693
+  },
+  {
+    "fyTokenAddr": "0x667f185407C4CAb52aeb681f0006e4642d8091DF",
+    "account": "0x06aaF385809c7BC00698f1E266eD4C78d6b8ba75",
+    "AmountFmt": 478767.0065,
+    "Amount": 478767006484
+  },
+  {
+    "fyTokenAddr": "0x667f185407C4CAb52aeb681f0006e4642d8091DF",
+    "account": "0xDA030d6674812F4EfD4CAE4Bd6AC15073be57d48",
+    "AmountFmt": 201451.6306,
+    "Amount": 201451630623
+  },
+  {
+    "fyTokenAddr": "0x667f185407C4CAb52aeb681f0006e4642d8091DF",
+    "account": "0x4B80e11D2410F2029aE73628603840dfFbF885Aa",
+    "AmountFmt": 1029.276714,
+    "Amount": 1029276714
+  },
+  {
+    "fyTokenAddr": "0x667f185407C4CAb52aeb681f0006e4642d8091DF",
+    "account": "0x31ecB0819346Edd4Ac31E2C3aDACD6629e411A78",
+    "AmountFmt": 1026.134593,
+    "Amount": 1026134593
+  },
+  {
+    "fyTokenAddr": "0x667f185407C4CAb52aeb681f0006e4642d8091DF",
+    "account": "0xc7Ad199Ecd0e20b3c10c724104a2033e140529F9",
+    "AmountFmt": 107.957156,
+    "Amount": 107957156
+  },
+  {
+    "fyTokenAddr": "0x667f185407C4CAb52aeb681f0006e4642d8091DF",
+    "account": "0x7663F7ba9816157cb2E6Ea9364a355bc8Ed0F38D",
+    "AmountFmt": 63.316823,
+    "Amount": 63316823
+  },
+  {
+    "fyTokenAddr": "0x667f185407C4CAb52aeb681f0006e4642d8091DF",
+    "account": "0x0CB584C5cda6C048A4EB76bD114D6b8a128b0dDE",
+    "AmountFmt": 0.010084,
+    "Amount": 10084
+  },
+  {
+    "fyTokenAddr": "0x667f185407C4CAb52aeb681f0006e4642d8091DF",
+    "account": "0x16dB5C66004Acba6E596d0B24d3D12A3c92DCC67",
+    "AmountFmt": 0.000002,
+    "Amount": 2
+  }
+]

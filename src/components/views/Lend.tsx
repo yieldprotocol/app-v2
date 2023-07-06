@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect, useCallback } from 'react';
 import { Box, ResponsiveContext, Text, TextInput } from 'grommet';
+import { toast } from 'react-toastify';
 
 import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
@@ -45,6 +46,8 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
+import useChainId from '../../hooks/useChainId';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -73,6 +76,35 @@ const Lend = () => {
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
+
+  /* AFFECTED JUNE LENDERS */
+  const checkIfAffectedJuneLender = useAffectedJuneLenders();
+  const chainId = useChainId();
+
+  useEffect(() => {
+    const userIsAffectedJuneLender = activeAccount ? checkIfAffectedJuneLender(activeAccount) : null;
+    if (userIsAffectedJuneLender?.found && chainId === 1) {
+      console.log(`The fyTokenAddr for this address is ${userIsAffectedJuneLender.fyTokenAddr}`);
+      toast.info(
+        <div>
+          Our records indicate that your June lending position was affected by a recent security incident. You have been
+          reimbursed as a part of{' '}
+          <a
+            href="https://etherscan.io/tx/0x81ca8318aad98e122b95edee195347d96b3bb7d5a1888be9cf20cd3974dba498"
+            target="_blank"
+          >
+            this
+          </a>{' '}
+          transaction.
+        </div>,
+        {
+          hideProgressBar: true,
+          autoClose: false,
+          toastId: 'affected-june-lender-toast',
+        }
+      );
+    }
+  }, [activeAccount, chainId]);
 
   /* LOCAL FNS */
   const handleLend = () => {
