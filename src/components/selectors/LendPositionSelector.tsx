@@ -12,6 +12,8 @@ import ListWrap from '../wraps/ListWrap';
 import { useAccount } from 'wagmi';
 import useAccountPlus from '../../hooks/useAccountPlus';
 import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
+import { FaInfoCircle } from 'react-icons/fa';
+
 interface IPositionFilter {
   base: IAsset | undefined;
   series: ISeries | undefined;
@@ -164,6 +166,22 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
               </Text>
             </Box>
           )}
+        </Box>
+      )}
+
+      {activeAccount && checkIfAffectedJuneLender(activeAccount) && (
+        <Box border pad="xsmall" round="small" width="small">
+          <Text weight={450} size="small">
+            <FaInfoCircle /> {' '} Our records indicate that your June lending position was affected by a recent security
+            incident. You have been reimbursed as a part of{' '}
+            <a
+              href="https://etherscan.io/tx/0x81ca8318aad98e122b95edee195347d96b3bb7d5a1888be9cf20cd3974dba498"
+              target="_blank"
+            >
+              this
+            </a>{' '}
+            transaction.
+          </Text>
         </Box>
       )}
     </Box>
