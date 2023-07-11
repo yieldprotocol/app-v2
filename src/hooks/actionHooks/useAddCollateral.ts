@@ -35,7 +35,7 @@ export const useAddCollateral = () => {
   const { wrapAsset } = useWrapUnwrapAsset();
   const { addEth } = useAddRemoveEth();
 
-  const {isActionAllowed} = useAllowAction();
+  const { isActionAllowed } = useAllowAction();
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,
@@ -143,9 +143,7 @@ export const useAddCollateral = () => {
     ];
 
     /* TRANSACT */
-   // await transact(calls, txCode);
-    toast.warn('Transactions via the UI have been paused due to a reported issue. All funds are safe. Please follow our Twitter account for more information.')
-
+    await transact(calls, txCode);
 
     /* then update UI */
     refetchBaseBal();

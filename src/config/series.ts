@@ -914,89 +914,89 @@ SERIES.set(
       },
     ],
 
-    // [
-    //   WETH_2312,
-    //   {
-    //     id: WETH_2312, //
-    //     baseId: '0x303000000000', //
-    //     maturity: 1703862000, //
-    //     name: 'FYETH2312', //
-    //     symbol: 'FYETH2312', //
-    //     address: '0xa5d97a0ad07968feb95cda584cc020b6b2a27c09', //
-    //     decimals: 18, //
-    //     version: '1', //
-    //     poolAddress: '0x3520ad11827424f80E8227ac7D8FE78978fe210D', //
-    //     poolName: 'FYETH2312 LP', //
-    //     poolSymbol: 'FYETH2312LP', //
-    //     poolVersion: '1', //
-    //     ts: '16701201316', //
-    //     g1: '16602069666338596454', //
-    //     g2: '20496382304121724017', //
-    //   },
-    // ],
+    [
+      WETH_2312,
+      {
+        id: WETH_2312,
+        baseId: '0x303000000000',
+        maturity: 1703862000,
+        name: 'FYETH2312',
+        symbol: 'FYETH2312',
+        address: '0x82AC37A79D83f8C6E3B55E5e72e1f4ACb1E4fe9f', //
+        decimals: 18,
+        version: '1',
+        poolAddress: '0x1346DE82686C51B1078f7208A989fB207a67D220', //
+        poolName: 'FYETH2312 LP',
+        poolSymbol: 'FYETH2312LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
 
-    // [
-    //   DAI_2312,
-    //   {
-    //     id: DAI_2312, //
-    //     baseId: '0x303100000000', //
-    //     maturity: 1703862000, //
-    //     name: 'FYDAI2312', //
-    //     symbol: 'FYDAI2312', //
-    //     address: '0x0E254118Db13b91aEFBb57eC4d822469655Fb32B', //
-    //     decimals: 18, //
-    //     version: '1', //
-    //     poolAddress: '0x71D0676c00Ba1de3bc3f9a8bbaA89362B22b4725', //
-    //     poolName: 'FYDAI2312 LP', //
-    //     poolSymbol: 'FYDAI2312LP', //
-    //     poolVersion: '1', //
-    //     ts: '16701201316', //
-    //     g1: '16602069666338596454', //
-    //     g2: '20496382304121724017', //
-    //   },
-    // ],
+    [
+      DAI_2312,
+      {
+        id: DAI_2312,
+        baseId: '0x303100000000',
+        maturity: 1703862000,
+        name: 'FYDAI2312',
+        symbol: 'FYDAI2312',
+        address: '0xB78F9F7d67a4c7cfAD0Dad80364E95bAe42d2fE1', //
+        decimals: 18,
+        version: '1',
+        poolAddress: '0x4768B23423AF7b142A3d81751c04Bcd7af8c1D5f', //
+        poolName: 'FYDAI2312 LP',
+        poolSymbol: 'FYDAI2312LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
 
-    // [
-    //   USDC_2312,
-    //   {
-    //     id: USDC_2312, //
-    //     baseId: '0x303200000000', //
-    //     maturity: 1703862000, //
-    //     name: 'FYUSDC2312', //
-    //     symbol: 'FYUSDC2312', //
-    //     address: '0xCC97787B5b9c4d8b41ef7d60234CA5CaE7f766E4', //
-    //     decimals: 6, //
-    //     version: '1', //
-    //     poolAddress: '0x083FC93f8bc18b37A34d419d2FcC37064F721d00', //
-    //     poolName: 'FYUSDC2312 LP', //
-    //     poolSymbol: 'FYUSDC2312LP', //
-    //     poolVersion: '1', //
-    //     ts: '16701201316', //
-    //     g1: '16602069666338596454', //
-    //     g2: '20496382304121724017', //
-    //   },
-    // ],
+    [
+      USDC_2312,
+      {
+        id: USDC_2312,
+        baseId: '0x303200000000',
+        maturity: 1703862000,
+        name: 'FYUSDC2312',
+        symbol: 'FYUSDC2312',
+        address: '0x9536C528d9e3f12586ea3E8f624dACb8150b22aa', //
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xE83e652eFa9F5f89F0A70119DEEeea77D948844E', //
+        poolName: 'FYUSDC2312 LP',
+        poolSymbol: 'FYUSDC2312LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
 
-    // [
-    //   USDT_2312,
-    //   {
-    //     id: USDT_2312, //
-    //     baseId: '0x30a000000000', //
-    //     maturity: 1703862000, //
-    //     name: 'FYUSDT2312', //
-    //     symbol: 'FYUSDT2312', //
-    //     address: '0x18622623b3c242d20a40162585da70fa3ebd71a2', //
-    //     decimals: 6, //
-    //     version: '1', //
-    //     poolAddress: '0x7f416b2019fbd075b667916a6bd94535b8a22f3d', //
-    //     poolName: 'FYUSDT2312 LP', //
-    //     poolSymbol: 'FYUSDT2312LP', //
-    //     poolVersion: '1', //
-    //     ts: '16701201316', //
-    //     g1: '16602069666338596454', //
-    //     g2: '20496382304121724017', //
-    //   },
-    // ],
+    [
+      USDT_2312,
+      {
+        id: USDT_2312,
+        baseId: '0x30a000000000',
+        maturity: 1703862000,
+        name: 'FYUSDT2312',
+        symbol: 'FYUSDT2312',
+        address: '0x72791dA88B34869CdF4863d966F182D866f51c04', //
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xbF1a2c767f156eBbA00f385F5a1045D89591eFF6', //
+        poolName: 'FYUSDT2312 LP',
+        poolSymbol: 'FYUSDT2312LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
   ])
 );
 
@@ -1488,88 +1488,88 @@ SERIES.set(
       },
     ],
 
-    // [
-    //   WETH_2312,
-    //   {
-    //     id: WETH_2312,
-    //     baseId: '0x303000000000',
-    //     maturity: 1703862000,
-    //     name: 'FYETH2312',
-    //     symbol: 'FYETH2312',
-    //     address: '0x497e07dfdb5ebf1fcbc3b98811a92af9f8362804',
-    //     decimals: 18,
-    //     version: '1',
-    //     poolAddress: '0x14A592FAE567f9562315eacd506F0dd1B53D2FCf',
-    //     poolName: 'FYETH2312 LP',
-    //     poolSymbol: 'FYETH2312LP',
-    //     poolVersion: '1',
-    //     ts: '16701201316',
-    //     g1: '16602069666338596454',
-    //     g2: '20496382304121724017',
-    //   },
-    // ],
+    [
+      WETH_2312,
+      {
+        id: WETH_2312,
+        baseId: '0x303000000000',
+        maturity: 1703862000,
+        name: 'FYETH2312',
+        symbol: 'FYETH2312',
+        address: '0x8c41fc42e8Ebf66eA5F3190346c2d5b94A80480F',
+        decimals: 18,
+        version: '1',
+        poolAddress: '0xBfcEe2057bDa64152bEcb8015A171967BFE5d8f9',
+        poolName: 'FYETH2312 LP',
+        poolSymbol: 'FYETH2312LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
 
-    // [
-    //   DAI_2312,
-    //   {
-    //     id: DAI_2312,
-    //     baseId: '0x303100000000',
-    //     maturity: 1703862000,
-    //     name: 'FYDAI2312',
-    //     symbol: 'FYDAI2312',
-    //     address: '0x30128474aD09ec8b66a6d942E9e3bae10CEcae37',
-    //     decimals: 18,
-    //     version: '1',
-    //     poolAddress: '0xC0c11BBDc0Dac4C92Ffa502d4Cc7d2b44011Cd49',
-    //     poolName: 'FYDAI2312 LP',
-    //     poolSymbol: 'FYDAI2312LP',
-    //     poolVersion: '1',
-    //     ts: '16701201316',
-    //     g1: '16602069666338596454',
-    //     g2: '20496382304121724017',
-    //   },
-    // ],
+    [
+      DAI_2312,
+      {
+        id: DAI_2312,
+        baseId: '0x303100000000',
+        maturity: 1703862000,
+        name: 'FYDAI2312',
+        symbol: 'FYDAI2312',
+        address: '0xCA9d3B5dE1550c79155b1311Ef54EBc73954D470',
+        decimals: 18,
+        version: '1',
+        poolAddress: '0x29e0DE79ef2eA2cF8e6c95c9fAe8d4c3774Df3F7',
+        poolName: 'FYDAI2312 LP',
+        poolSymbol: 'FYDAI2312LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
 
-    // [
-    //   USDC_2312,
-    //   {
-    //     id: USDC_2312,
-    //     baseId: '0x303200000000',
-    //     maturity: 1703862000,
-    //     name: 'FYUSDC2312',
-    //     symbol: 'FYUSDC2312',
-    //     address: '0x9214686ea528d6c3dd759b7145de584f53967c69',
-    //     decimals: 6,
-    //     version: '1',
-    //     poolAddress: '0x915C3E4d7e0A609427E79Be8754FA6Ec5b27E755',
-    //     poolName: 'FYUSDC2312 LP',
-    //     poolSymbol: 'FYUSDC2312LP',
-    //     poolVersion: '1',
-    //     ts: '16701201316',
-    //     g1: '16602069666338596454',
-    //     g2: '20496382304121724017',
-    //   },
-    // ],
+    [
+      USDC_2312,
+      {
+        id: USDC_2312,
+        baseId: '0x303200000000',
+        maturity: 1703862000,
+        name: 'FYUSDC2312',
+        symbol: 'FYUSDC2312',
+        address: '0x3B560caa508CA8E58f07263f58Ee2353044C0d5c',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xA8B291Eef77ccc5F39db9c2d71d6A16b0edc7F15',
+        poolName: 'FYUSDC2312 LP',
+        poolSymbol: 'FYUSDC2312LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
 
-    // [
-    //   USDT_2312,
-    //   {
-    //     id: USDT_2312,
-    //     baseId: '0x30a000000000',
-    //     maturity: 1703862000,
-    //     name: 'FYUSDT2312',
-    //     symbol: 'FYUSDT2312',
-    //     address: '0x8e3d40ff86b0538fd91e3d9a3ca269e860d008a0',
-    //     decimals: 6,
-    //     version: '1',
-    //     poolAddress: '0xCcA3e288b7c59e8C676d79F58C304c009524776d',
-    //     poolName: 'FYUSDT2312 LP',
-    //     poolSymbol: 'FYUSDT2312LP',
-    //     poolVersion: '1',
-    //     ts: '16701201316',
-    //     g1: '16602069666338596454',
-    //     g2: '20496382304121724017',
-    //   },
-    // ],
+    [
+      USDT_2312,
+      {
+        id: USDT_2312,
+        baseId: '0x30a000000000',
+        maturity: 1703862000,
+        name: 'FYUSDT2312',
+        symbol: 'FYUSDT2312',
+        address: '0x9Ca40B35c3A8A717D4d54faC0905BBf889dDb281',
+        decimals: 6,
+        version: '1',
+        poolAddress: '0xDDEb62072C1ED94bf1B1018f33aBAA432a974Ca3',
+        poolName: 'FYUSDT2312 LP',
+        poolSymbol: 'FYUSDT2312LP',
+        poolVersion: '1',
+        ts: '16701201316',
+        g1: '16602069666338596454',
+        g2: '20496382304121724017',
+      },
+    ],
   ])
 );
