@@ -48,8 +48,7 @@ export const useLend = () => {
 
   const lend = async (input: string | undefined, series: ISeries) => {
     if (!contracts) return;
-    if (!isActionAllowed(ActionCodes.LEND)) return; // return if action is not allowed
-
+    if (!isActionAllowed(ActionCodes.LEND, series)) return; // return if action is not allowed
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.LEND, series.id);

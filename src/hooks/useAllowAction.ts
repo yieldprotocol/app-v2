@@ -10,19 +10,11 @@ import { ActionCodes, ISeries } from '../types';
  * @returns boolean
  */
 const useAllowAction = () => {
-  const { userState } = useContext(UserContext);
+  const isActionAllowed = (action: ActionCodes, series: ISeries) => {
+    if (series.allowActions.includes('allow_all') || series.allowActions.includes(action)) return true;
 
-  const isActionAllowed = (action: ActionCodes, series?: ISeries): boolean => {
-    const seriesToUse = series || userState.selectedSeries;
-
-    if (seriesToUse) {
-      if (seriesToUse.allowActions.includes('allow_all') || seriesToUse.allowActions.includes(action)) {return true}
-      else {
-        toast.warn(`Action temporarily not allowed on this series.`);
-        return false;
-      }
-    }
-    return false; // deny action by default if conditions are not met
+    toast.warn(`Action temporarily not allowed on this series.`);
+    return false;
   };
 
   return { isActionAllowed };

@@ -48,12 +48,12 @@ export const useBorrow = () => {
   const { sign, transact } = useChain();
   const { getTimeTillMaturity } = useTimeTillMaturity();
 
-  const {isActionAllowed} = useAllowAction();
+  const { isActionAllowed } = useAllowAction();
 
   const borrow = async (vault: IVault | undefined, input: string | undefined, collInput: string | undefined) => {
     if (!contracts) return;
-    if (!isActionAllowed(ActionCodes.BORROW)) return; // return if action is not allowed
-
+    if (!selectedSeries) return console.error('No series selected');
+    if (!isActionAllowed(ActionCodes.BORROW, selectedSeries)) return; // return if action is not allowed
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.BORROW, selectedSeries?.id!);

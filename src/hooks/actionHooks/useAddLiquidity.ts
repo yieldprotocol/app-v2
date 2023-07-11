@@ -51,7 +51,7 @@ export const useAddLiquidity = () => {
     historyActions: { updateStrategyHistory },
   } = useContext(HistoryContext);
 
-  const {isActionAllowed} = useAllowAction();
+  const { isActionAllowed } = useAllowAction();
 
   const { addEth } = useAddRemoveEth();
   const { getTimeTillMaturity } = useTimeTillMaturity();
@@ -71,7 +71,8 @@ export const useAddLiquidity = () => {
     matchingVault: IVault | undefined = undefined
   ) => {
     if (!contracts) return;
-    if (!isActionAllowed(ActionCodes.ADD_LIQUIDITY)) return; // return if action is not allowed
+    if (!strategy.currentSeries) return console.error('No current series for strategy', strategy.id);
+    if (!isActionAllowed(ActionCodes.ADD_LIQUIDITY, strategy.currentSeries)) return; // return if action is not allowed
 
     const txCode = getTxCode(ActionCodes.ADD_LIQUIDITY, strategy.id);
 

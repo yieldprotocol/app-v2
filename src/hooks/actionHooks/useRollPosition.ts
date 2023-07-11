@@ -46,7 +46,7 @@ export const useRollPosition = () => {
    */
   const rollPosition = async (input: string | undefined, fromSeries: ISeries, toSeries: ISeries) => {
     if (!contracts) return;
-    if (!isActionAllowed(ActionCodes.ROLL_POSITION)) return; // return if action is not allowed
+    if (!isActionAllowed(ActionCodes.ROLL_POSITION, fromSeries)) return; // return if action is not allowed
 
     /* generate the reproducible txCode for tx tracking and tracing */
     const txCode = getTxCode(ActionCodes.ROLL_POSITION, fromSeries.id);
