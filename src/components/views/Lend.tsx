@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect, useCallback } from 'react';
 import { Box, ResponsiveContext, Text, TextInput } from 'grommet';
+import { toast } from 'react-toastify';
 
 import { FiClock, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { BiMessageSquareAdd } from 'react-icons/bi';
@@ -45,6 +46,8 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
+import useChainId from '../../hooks/useChainId';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -73,6 +76,8 @@ const Lend = () => {
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
+
+
 
   /* LOCAL FNS */
   const handleLend = () => {

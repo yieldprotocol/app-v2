@@ -11,6 +11,8 @@ import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
 import { useAccount } from 'wagmi';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
+import { FaInfoCircle } from 'react-icons/fa';
 
 interface IPositionFilter {
   base: IAsset | undefined;
@@ -23,6 +25,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   const { seriesMap, selectedSeries, selectedBase } = userState;
 
   const { address: activeAccount } = useAccountPlus();
+  const checkIfAffectedJuneLender = useAffectedJuneLenders();
 
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);
   const [showAllPositions, setShowAllPositions] = useState<boolean>(false);
@@ -55,6 +58,11 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
       /* filter by positive balances on either pool tokens or fyTokens */
       .filter((_series: ISeries) => (actionType === 'LEND' && _series ? _series.fyTokenBalance?.gt(ZERO_BN) : true))
       .filter((_series: ISeries) => (actionType === 'POOL' && _series ? _series.poolTokens?.gt(ZERO_BN) : true))
+      .filter((_series: ISeries) =>
+        actionType === 'LEND' && _series && activeAccount
+          ? checkIfAffectedJuneLender(activeAccount).fyTokenAddr?.toLowerCase() !== _series.address.toLowerCase()
+          : true
+      )
       .sort((_seriesA: ISeries, _seriesB: ISeries) =>
         actionType === 'LEND' && _seriesA.fyTokenBalance?.gt(_seriesB.fyTokenBalance!) ? 1 : -1
       )
@@ -158,6 +166,22 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
               </Text>
             </Box>
           )}
+        </Box>
+      )}
+
+      {activeAccount && checkIfAffectedJuneLender(activeAccount) && (
+        <Box border pad="xsmall" round="small" width="small">
+          <Text weight={450} size="small">
+            <FaInfoCircle /> {' '} Our records indicate that your June lending position was affected by a recent security
+            incident. You have been reimbursed as a part of{' '}
+            <a
+              href="https://etherscan.io/tx/0x81ca8318aad98e122b95edee195347d96b3bb7d5a1888be9cf20cd3974dba498"
+              target="_blank"
+            >
+              this
+            </a>{' '}
+            transaction.
+          </Text>
         </Box>
       )}
     </Box>

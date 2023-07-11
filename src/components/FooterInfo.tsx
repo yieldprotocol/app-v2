@@ -105,7 +105,7 @@ const FooterInfo = () => {
 
           <BoxWrap>
             <Tip content={<Text size="small">Export Contract Addresses</Text>}>
-              <Anchor color="text-weak" target="_blank" onClick={() => console.log('addresses not available')}>
+              <Anchor color="text-weak" target="_blank" onClick={() => exportContractAddresses()}>
                 <FiDownload size={IconSize} />
               </Anchor>
             </Tip>
