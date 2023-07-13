@@ -605,55 +605,55 @@ ASSETS.set(
       },
     ],
 
-    [
-      FETH2312,
-      {
-        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-        joinAddress: '0x3f2Dc75f7bbE69E055Cd06Bf2B0123a212a3B216',
-        version: '1',
-        name: 'Notional fCash ETH Dec 23',
-        decimals: 8,
-        symbol: 'fETH2312',
-        showToken: true,
-        digitFormat: 6,
-        tokenType: TokenType.ERC1155_,
-        tokenIdentifier: 281910930374657, //
-        tokenRoles: [TokenRole.COLLATERAL],
-      },
-    ],
-    [
-      FDAI2312,
-      {
-        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-        joinAddress: '0x0be1Bf3A5E67269837b775F0b1f4c275753755Fe',
-        version: '1',
-        name: 'Notional fCash DAI Dec 23',
-        decimals: 8,
-        symbol: 'fDAI2312',
-        showToken: true,
-        digitFormat: 2,
-        tokenType: TokenType.ERC1155_,
-        tokenIdentifier: 563385907085313, //
-        tokenRoles: [TokenRole.COLLATERAL],
-      },
-    ],
+    // [
+    //   FETH2312,
+    //   {
+    //     assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+    //     joinAddress: '0x3f2Dc75f7bbE69E055Cd06Bf2B0123a212a3B216',
+    //     version: '1',
+    //     name: 'Notional fCash ETH Dec 23',
+    //     decimals: 8,
+    //     symbol: 'fETH2312',
+    //     showToken: true,
+    //     digitFormat: 6,
+    //     tokenType: TokenType.ERC1155_,
+    //     tokenIdentifier: 281910930374657, //
+    //     tokenRoles: [TokenRole.COLLATERAL],
+    //   },
+    // ],
+    // [
+    //   FDAI2312,
+    //   {
+    //     assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+    //     joinAddress: '0x0be1Bf3A5E67269837b775F0b1f4c275753755Fe',
+    //     version: '1',
+    //     name: 'Notional fCash DAI Dec 23',
+    //     decimals: 8,
+    //     symbol: 'fDAI2312',
+    //     showToken: true,
+    //     digitFormat: 2,
+    //     tokenType: TokenType.ERC1155_,
+    //     tokenIdentifier: 563385907085313, //
+    //     tokenRoles: [TokenRole.COLLATERAL],
+    //   },
+    // ],
 
-    [
-      FUSDC2312,
-      {
-        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-        joinAddress: '0xB415e649ECF52dd26C59344355d3359B02fD6921',
-        version: '1',
-        name: 'Notional fCash USDC Dec 23',
-        decimals: 8,
-        symbol: 'fUSDC2312',
-        showToken: true,
-        digitFormat: 2,
-        tokenType: TokenType.ERC1155_,
-        tokenIdentifier: 844860883795969,
-        tokenRoles: [TokenRole.COLLATERAL],
-      },
-    ],
+    // [
+    //   FUSDC2312,
+    //   {
+    //     assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+    //     joinAddress: '0xB415e649ECF52dd26C59344355d3359B02fD6921',
+    //     version: '1',
+    //     name: 'Notional fCash USDC Dec 23',
+    //     decimals: 8,
+    //     symbol: 'fUSDC2312',
+    //     showToken: true,
+    //     digitFormat: 2,
+    //     tokenType: TokenType.ERC1155_,
+    //     tokenIdentifier: 844860883795969,
+    //     tokenRoles: [TokenRole.COLLATERAL],
+    //   },
+    // ],
   ])
 );
 
