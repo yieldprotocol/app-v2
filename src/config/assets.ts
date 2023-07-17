@@ -47,9 +47,6 @@ export const FUSDC2206 = '0x313500000000';
 export const FDAI2209 = '0x313600000000';
 export const FUSDC2209 = '0x313700000000';
 
-/* Convex Curve LP token assets */
-export const CVX3CRV = '0x313900000000';
-
 export const FETH2212 = '0x323800000000';
 export const FDAI2212 = '0x323300000000';
 export const FUSDC2212 = '0x323400000000';
@@ -61,6 +58,17 @@ export const FUSDC2303 = '0x323600000000';
 export const FETH2306 = '0x40301200028B';
 export const FDAI2306 = '0x40311200028B';
 export const FUSDC2306 = '0x40321200028B';
+
+export const FETH2309 = '0x40301200028E';
+export const FDAI2309 = '0x40311200028E';
+export const FUSDC2309 = '0x40321200028E';
+
+export const FETH2312 = '0x403012000291';
+export const FDAI2312 = '0x403112000291';
+export const FUSDC2312 = '0x403212000291';
+
+/* Convex Curve LP token assets */
+export const CVX3CRV = '0x313900000000';
 
 export const CRAB = '0x333800000000';
 export const USDT = '0x30a000000000';
@@ -529,6 +537,58 @@ ASSETS.set(
         tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
+
+    [
+      FETH2309,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0xDC94e2A69A59772c1Bf7f1f10267dA657f99D307',
+        version: '1',
+        name: 'Notional fCash ETH Sept 23',
+        decimals: 8,
+        symbol: 'fETH2309',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 281908939718657,
+        tokenRoles: [TokenRole.COLLATERAL],
+      },
+    ],
+
+    [
+      FDAI2309,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x3ACD66448cA3Df60fB816387D3D10801b70c8D79',
+        version: '1',
+        name: 'Notional fCash Dai Sept 23',
+        decimals: 8,
+        symbol: 'fDAI2309',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 563383916429313,
+        tokenRoles: [TokenRole.COLLATERAL],
+      },
+    ],
+
+    [
+      FUSDC2309,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x591464275c563f38d2E49496Af4230F984c11848',
+        version: '1',
+        name: 'Notional fCash USDC Sept 23',
+        decimals: 8,
+        symbol: 'fUSDC2309',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 844858893139969,
+        tokenRoles: [TokenRole.COLLATERAL],
+      },
+    ],
+
     [
       USDT,
       {
@@ -542,6 +602,56 @@ ASSETS.set(
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
         tokenRoles: [TokenRole.BASE],
+      },
+    ],
+
+    [
+      FETH2312,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x3f2Dc75f7bbE69E055Cd06Bf2B0123a212a3B216',
+        version: '1',
+        name: 'Notional fCash ETH Dec 23',
+        decimals: 8,
+        symbol: 'fETH2312',
+        showToken: true,
+        digitFormat: 6,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 281910930374657, //
+        tokenRoles: [TokenRole.COLLATERAL],
+      },
+    ],
+    [
+      FDAI2312,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0x0be1Bf3A5E67269837b775F0b1f4c275753755Fe',
+        version: '1',
+        name: 'Notional fCash DAI Dec 23',
+        decimals: 8,
+        symbol: 'fDAI2312',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 563385907085313, //
+        tokenRoles: [TokenRole.COLLATERAL],
+      },
+    ],
+
+    [
+      FUSDC2312,
+      {
+        assetAddress: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+        joinAddress: '0xB415e649ECF52dd26C59344355d3359B02fD6921',
+        version: '1',
+        name: 'Notional fCash USDC Dec 23',
+        decimals: 8,
+        symbol: 'fUSDC2312',
+        showToken: true,
+        digitFormat: 2,
+        tokenType: TokenType.ERC1155_,
+        tokenIdentifier: 844860883795969,
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
   ])
