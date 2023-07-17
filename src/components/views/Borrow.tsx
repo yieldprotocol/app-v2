@@ -331,7 +331,7 @@ const Borrow = () => {
                     <SectionWrap
                       title={
                         selectedBase
-                          ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturity dates:`
+                          ? `Available ${selectedBase?.displaySymbol}${selectedBase && '-based'} maturities:`
                           : ''
                       }
                     >
