@@ -169,7 +169,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
         </Box>
       )}
 
-      {activeAccount && checkIfAffectedJuneLender(activeAccount) && (
+      {activeAccount && checkIfAffectedJuneLender(activeAccount).found && (
         <Box border pad="xsmall" round="small" width="small">
           <Text weight={450} size="small">
             <FaInfoCircle /> {' '} Our records indicate that your June lending position was affected by a recent security
