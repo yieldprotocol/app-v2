@@ -772,7 +772,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const hasBeenLiquidated = liquidationEvents.flat().length > 0;
 
           // get the accrued art directly from contract; can't multicall this using wagmi for now
-          const accruedArt = await Cauldron?.callStatic.debtFromBase(seriesId, art);
+          const accruedArt = await Cauldron?.callStatic.debtToBase(seriesId, art);
 
           const [rateOracleAddr, rateAtMaturity] = await multicall({
             contracts: [
