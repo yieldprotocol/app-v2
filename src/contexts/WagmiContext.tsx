@@ -12,6 +12,7 @@ import {
   Theme,
   AvatarComponent,
   lightTheme,
+  getDefaultWallets,
 } from '@rainbow-me/rainbowkit';
 
 import {
@@ -50,6 +51,12 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
 
   const { chains, provider } = configureChains(defaultChains, [chainConfig]);
 
+  const { wallets } = getDefaultWallets({
+    appName: 'Yield-App-V2',
+    projectId,
+    chains,
+  });
+
   const connectors = connectorsForWallets([
     {
       groupName: 'Recommended',
@@ -69,6 +76,7 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
         braveWallet({ chains }),
       ],
     },
+    ...wallets,
     {
       groupName: 'Development Environments',
       wallets: [],
