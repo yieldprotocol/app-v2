@@ -69,7 +69,7 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
     {
       groupName: 'Experimental',
       wallets: [
-        coinbaseWallet({ appName: 'yieldProtocol', chains }),
+        coinbaseWallet({ appName: 'Yield-App-V2', chains }),
         rainbowWallet({ projectId, chains }),
         ledgerWallet({ projectId, chains }),
         argentWallet({ projectId, chains }),
