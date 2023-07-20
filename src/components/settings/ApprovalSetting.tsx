@@ -15,7 +15,7 @@ const AdvancedSetting = () => {
     <Box gap="small" pad={{ vertical: 'small' }}>
       <Box direction="row" justify="between">
         <Text size="small" color={!useForkedEnv ? undefined : 'text-xweak'}>
-          Use Approval by Transactions
+          Use Approval by Transaction
         </Text>
         <Switch
           width={55}
