@@ -35,13 +35,16 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
 
   const [useForkedEnv] = useCachedState(Settings.USE_FORKED_ENV, false);
   const [forkEnvUrl] = useCachedState(Settings.FORK_ENV_URL, process.env.REACT_APP_DEFAULT_FORK_RPC_URL);
-  const defaultChainId = parseInt(process.env.REACT_APP_DEFAULT_CHAINID!)
+  const defaultChainId = parseInt(process.env.REACT_APP_DEFAULT_CHAINID!);
+  const projectId = process.env.WALLETCONNECT_PROJECT_ID!;
 
   const chainConfig = useMemo(
     () =>
       useForkedEnv
         ? jsonRpcProvider({ rpc: () => ({ http: forkEnvUrl }) })
-        : alchemyProvider({ apiKey: defaultChainId === 1 ? process.env.ALCHEMY_MAINNET_KEY! : process.env.ALCHEMY_ARBITRUM_KEY!  }),
+        : alchemyProvider({
+            apiKey: defaultChainId === 1 ? process.env.ALCHEMY_MAINNET_KEY! : process.env.ALCHEMY_ARBITRUM_KEY!,
+          }),
     [forkEnvUrl, useForkedEnv]
   );
 
@@ -50,15 +53,19 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
   const connectors = connectorsForWallets([
     {
       groupName: 'Recommended',
-      wallets: [metaMaskWallet({ chains }), walletConnectWallet({ chains }), injectedWallet({ chains })],
+      wallets: [
+        metaMaskWallet({ projectId, chains }),
+        walletConnectWallet({ projectId, chains }),
+        injectedWallet({ chains }),
+      ],
     },
     {
       groupName: 'Experimental',
       wallets: [
         coinbaseWallet({ appName: 'yieldProtocol', chains }),
-        rainbowWallet({ chains }),
-        ledgerWallet({ chains }),
-        argentWallet({ chains }),
+        rainbowWallet({ projectId, chains }),
+        ledgerWallet({ projectId, chains }),
+        argentWallet({ projectId, chains }),
         braveWallet({ chains }),
       ],
     },
