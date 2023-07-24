@@ -527,25 +527,23 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
           // we always use the v2.1 strategy contract to fetch data and interact with, regardless of strategy type
-          const strategyContractToUse = strategyList.find((strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase()) || _strategy.address
+          const strategyContractToUse = strategyList.find((strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase())?.strategyContract || _strategy.strategyContract
           const strategyAddressToUse = strategyContractToUse.address
           let currentPoolAddr = undefined;
           let fyToken: any = undefined;
 
           if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
 
-            const strategyAddrToUse = associated_V2_1_Contract ? associated_V2_1_Contract.address : _strategy.strategyContract.address;
-
             [fyToken, currentPoolAddr] = (await multicall({
               contracts: [
                 {
-                  address: strategyAddrToUse as `0x${string}`,
+                  address: strategyAddressToUse as `0x${string}`,
                   abi: _strategy.strategyContract.interface as any,
                   functionName: 'fyToken',
                   args: [],
                 },
                 {
-                  address: strategyAddrToUse as `0x${string}`,
+                  address: strategyAddressToUse as `0x${string}`,
                   abi: _strategy.strategyContract.interface as any,
                   functionName: 'pool',
                   args: [],
@@ -553,10 +551,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ],
             })) as unknown as BigNumber[];
           } else if (_strategy.type === StrategyType.V2) {
-            if (!associated_V2_1_Contract) {
-              console.error(`associated_V2_1_Contract is undefined for ${_strategy.name}`);
-            }
-            currentPoolAddr = await associated_V2_1_Contract?.strategyContract.pool();
+            currentPoolAddr = await strategyContractToUse?.pool();
             fyToken = _strategy.associatedSeries;
           } 
 
