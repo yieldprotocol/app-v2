@@ -555,19 +555,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             fyToken = _strategy.associatedSeries;
           } 
 
-          // if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
-          //   [fyToken, currentPoolAddr] = await Promise.all([
-          //     _strategy.strategyContract.fyToken(),
-          //     _strategy.strategyContract.pool(),
-          //   ]).catch((e: any) => {
-          //     console.log('Error getting strategy data: ', _strategy.name);
-          //     return [undefined, undefined];
-          //   });
-          // } else if (_strategy.type === StrategyType.V2) {
-          //   fyToken = _strategy.associatedSeries;
-          //   currentPoolAddr = await _strategy.strategyContract.pool();
-          // }
-
           /* We check if the strategy has been supersecced by a newer version */
           const hasAnUpdatedVersion = _strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1;
 
