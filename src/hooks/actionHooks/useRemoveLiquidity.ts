@@ -112,7 +112,7 @@ export const useRemoveLiquidity = () => {
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2_1, provider)
       : undefined;
 
-    const currentPoolContract = _strategy.type !== StrategyType.V2_1 ?  Pool__factory.connect(_strategy.currentPoolAddr, provider) : series.poolContract;
+    const currentPoolContract = Pool__factory.connect(_strategy.currentPoolAddr, provider)
 
     /* some saftey */
     if (associated_V2_Contract === undefined && _strategy.type === StrategyType.V1)
