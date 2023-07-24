@@ -123,8 +123,8 @@ export const useRemoveLiquidity = () => {
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
-      series.poolContract.getCache(),
-      series.poolContract.totalSupply(),
+      currentPoolContract.getCache(),
+      currentPoolContract.totalSupply(),
     ]);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);

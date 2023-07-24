@@ -552,7 +552,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             })) as unknown as BigNumber[];
           } else if (_strategy.type === StrategyType.V2) {
             if (!associated_V2_1_Contract) {
-              throw new Error(`associated_V2_1_Contract is undefined for ${_strategy.name}`);
+              console.error(`associated_V2_1_Contract is undefined for ${_strategy.name}`);
             }
             currentPoolAddr = await associated_V2_1_Contract?.strategyContract.pool();
             fyToken = _strategy.associatedSeries;
