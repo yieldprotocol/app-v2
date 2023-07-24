@@ -23,7 +23,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useProvider, useBalance, Address } from 'wagmi';
 import useContracts from '../useContracts';
-import { Strategy__factory } from '../../contracts';
+import { Strategy__factory, Pool__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
@@ -111,6 +111,8 @@ export const useRemoveLiquidity = () => {
     const associated_V2_1_Contract = _strategy.associatedStrategy?.V2_1
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2_1, provider)
       : undefined;
+
+    const currentPoolContract = _strategy.type !== StrategyType.V2_1 ?  Pool__factory.connect(_strategy.currentPoolAddr, provider) : series.poolContract;
 
     /* some saftey */
     if (associated_V2_Contract === undefined && _strategy.type === StrategyType.V1)
@@ -379,7 +381,7 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.currentPoolAddr] as RoutedActions.Args.BURN_STRATEGY_TOKENS, 
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: associated_V2_1_Contract,
         ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
@@ -399,7 +401,7 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.currentPoolAddr] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: associated_V2_1_Contract,
         ignoreIf: !_strategy || _strategy.type !== StrategyType.V2,
@@ -521,7 +523,7 @@ export const useRemoveLiquidity = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [toAddress, series.address, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
-        targetContract: series.poolContract,
+        targetContract: currentPoolContract, 
         ignoreIf: !series.seriesIsMature,
       },
       {

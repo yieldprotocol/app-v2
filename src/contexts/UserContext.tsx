@@ -526,10 +526,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
+          const associated_V2_1_Contract = (_strategy.type !== StrategyType.V2_1 ) ? strategyList.find((strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase()) : undefined;
           let currentPoolAddr = undefined;
           let fyToken: any = undefined;
 
           if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
+
+            const addrToUseForPool = associated_V2_1_Contract ? associated_V2_1_Contract.address : _strategy.strategyContract.address;
+
             [fyToken, currentPoolAddr] = (await multicall({
               contracts: [
                 {
@@ -539,7 +543,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                   args: [],
                 },
                 {
-                  address: _strategy.strategyContract.address as `0x${string}`,
+                  address: addrToUseForPool as `0x${string}`,
                   abi: _strategy.strategyContract.interface as any,
                   functionName: 'pool',
                   args: [],
@@ -547,9 +551,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ],
             })) as unknown as BigNumber[];
           } else if (_strategy.type === StrategyType.V2) {
-            currentPoolAddr = await _strategy.strategyContract.pool();
+            currentPoolAddr = await associated_V2_1_Contract?.strategyContract.pool();
             fyToken = _strategy.associatedSeries;
-          }
+          } 
 
           // if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
           //   [fyToken, currentPoolAddr] = await Promise.all([
