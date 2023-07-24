@@ -23,7 +23,7 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { useProvider, useBalance, Address } from 'wagmi';
 import useContracts from '../useContracts';
-import { Strategy__factory } from '../../contracts';
+import { Strategy__factory, Pool__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
@@ -112,6 +112,8 @@ export const useRemoveLiquidity = () => {
       ? Strategy__factory.connect(_strategy.associatedStrategy.V2_1, provider)
       : undefined;
 
+    const currentPoolContract = Pool__factory.connect(_strategy.currentPoolAddr, provider)
+
     /* some saftey */
     if (associated_V2_Contract === undefined && _strategy.type === StrategyType.V1)
       return console.error('useRemoveLiquidity: associated_V2_Contract is undefined and strategy is V1'); // abort if strat 1 and no associated v2 strategy
@@ -121,8 +123,8 @@ export const useRemoveLiquidity = () => {
     const ladleAddress = contracts.get(ContractNames.LADLE)?.address;
 
     const [[cachedSharesReserves, cachedFyTokenReserves], totalSupply] = await Promise.all([
-      series.poolContract.getCache(),
-      series.poolContract.totalSupply(),
+      currentPoolContract.getCache(),
+      currentPoolContract.totalSupply(),
     ]);
     const cachedRealReserves = cachedFyTokenReserves.sub(totalSupply.sub(ONE_BN));
     const [minRatio, maxRatio] = calcPoolRatios(cachedSharesReserves, cachedRealReserves);
@@ -379,7 +381,7 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.currentPoolAddr] as RoutedActions.Args.BURN_STRATEGY_TOKENS, 
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: associated_V2_1_Contract,
         ignoreIf: !_strategy || _strategy.type !== StrategyType.V1,
@@ -399,7 +401,7 @@ export const useRemoveLiquidity = () => {
       },
       {
         operation: LadleActions.Fn.ROUTE,
-        args: [series.poolAddress] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
+        args: [_strategy.currentPoolAddr] as RoutedActions.Args.BURN_STRATEGY_TOKENS,
         fnName: RoutedActions.Fn.BURN_STRATEGY_TOKENS,
         targetContract: associated_V2_1_Contract,
         ignoreIf: !_strategy || _strategy.type !== StrategyType.V2,
@@ -521,7 +523,7 @@ export const useRemoveLiquidity = () => {
         operation: LadleActions.Fn.ROUTE,
         args: [toAddress, series.address, minRatio, maxRatio] as RoutedActions.Args.BURN_POOL_TOKENS,
         fnName: RoutedActions.Fn.BURN_POOL_TOKENS,
-        targetContract: series.poolContract,
+        targetContract: currentPoolContract, 
         ignoreIf: !series.seriesIsMature,
       },
       {

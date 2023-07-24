@@ -526,20 +526,24 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
+          // we always use the v2.1 strategy contract to fetch data and interact with, regardless of strategy type
+          const strategyContractToUse = strategyList.find((strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase())?.strategyContract || _strategy.strategyContract
+          const strategyAddressToUse = strategyContractToUse.address
           let currentPoolAddr = undefined;
           let fyToken: any = undefined;
 
           if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
+
             [fyToken, currentPoolAddr] = (await multicall({
               contracts: [
                 {
-                  address: _strategy.strategyContract.address as `0x${string}`,
+                  address: strategyAddressToUse as `0x${string}`,
                   abi: _strategy.strategyContract.interface as any,
                   functionName: 'fyToken',
                   args: [],
                 },
                 {
-                  address: _strategy.strategyContract.address as `0x${string}`,
+                  address: strategyAddressToUse as `0x${string}`,
                   abi: _strategy.strategyContract.interface as any,
                   functionName: 'pool',
                   args: [],
@@ -547,22 +551,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               ],
             })) as unknown as BigNumber[];
           } else if (_strategy.type === StrategyType.V2) {
-            currentPoolAddr = await _strategy.strategyContract.pool();
+            currentPoolAddr = await strategyContractToUse?.pool();
             fyToken = _strategy.associatedSeries;
-          }
-
-          // if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
-          //   [fyToken, currentPoolAddr] = await Promise.all([
-          //     _strategy.strategyContract.fyToken(),
-          //     _strategy.strategyContract.pool(),
-          //   ]).catch((e: any) => {
-          //     console.log('Error getting strategy data: ', _strategy.name);
-          //     return [undefined, undefined];
-          //   });
-          // } else if (_strategy.type === StrategyType.V2) {
-          //   fyToken = _strategy.associatedSeries;
-          //   currentPoolAddr = await _strategy.strategyContract.pool();
-          // }
+          } 
 
           /* We check if the strategy has been supersecced by a newer version */
           const hasAnUpdatedVersion = _strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1;
