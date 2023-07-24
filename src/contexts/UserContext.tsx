@@ -526,7 +526,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
-          const associated_V2_1_Contract = (_strategy.type !== StrategyType.V2_1 ) ? strategyList.find((strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase()) : undefined;
+          // we always use the v2.1 strategy contract to fetch data and interact with, regardless of strategy type
+          const strategyContractToUse = strategyList.find((strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase()) || _strategy.address
+          const strategyAddressToUse = strategyContractToUse.address
           let currentPoolAddr = undefined;
           let fyToken: any = undefined;
 
