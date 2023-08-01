@@ -35,7 +35,8 @@ const KillSwitch = (props: any) => {
                 Affects Chain:
               </Text>
               <Text size="xsmall" weight={'normal'}>
-                {parseInt(process.env.KILLSWITCH_CHAIN!) === 1 ? 'Ethereum Mainnet' : 'Arbitrum One'}
+               Ethereum Mainnet, Arbitrum One
+                {/* {parseInt(process.env.KILLSWITCH_CHAIN!) === 1 ? 'Ethereum Mainnet' : 'Arbitrum One'} */}
               </Text>
             </Box>
 
