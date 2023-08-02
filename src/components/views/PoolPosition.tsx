@@ -120,7 +120,7 @@ const PoolPosition = () => {
   };
 
   // Logic to allow terms modal for users upgrading their tokens
-  const showTermsModal = () => {
+  const toggleTermsModal = () => {
     setShowTerms(!showTerms);
   };
 
@@ -516,7 +516,7 @@ const PoolPosition = () => {
                 disabled={isUpgrading || (!isUpgrading && completedUpgrade)}
               />
               )}
-              <TermsModal isOpen={showTerms} onClose={() => showTermsModal()} onConfirm={confirmUpgrade}  />
+              <TermsModal isOpen={showTerms} onClose={() => toggleTermsModal()} onConfirm={confirmUpgrade}  />
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>
