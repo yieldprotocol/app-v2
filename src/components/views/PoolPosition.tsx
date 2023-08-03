@@ -39,6 +39,10 @@ import { ZERO_BN } from '@yield-protocol/ui-math';
 import useAccountPlus from '../../hooks/useAccountPlus';
 import { StrategyType } from '../../config/strategies';
 import { FaExclamationCircle } from 'react-icons/fa';
+import useChainId from '../../hooks/useChainId';
+import useUpgradeTokens from '../../hooks/actionHooks/useUpgradeTokens';
+import TermsModal from '../TermsModal';
+
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -59,10 +63,14 @@ const PoolPosition = () => {
   const selectedSeries = _selectedStrategy?.currentSeries;
   const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
 
+  const chainId = useChainId();
+  const { isUpgrading, upgradeAllStrategies, completedUpgrade } = useUpgradeTokens();
+
   /* LOCAL STATE */
   const [removeInput, setRemoveInput] = useState<string | undefined>(undefined);
   const [removeDisabled, setRemoveDisabled] = useState<boolean>(true);
   const [claimDisabled, setClaimDisabled] = useState<boolean>(true);
+  const [showTerms, setShowTerms] = useState<boolean>(false);
 
   const [forceDisclaimerChecked, setForceDisclaimerChecked] = useState<boolean>(false);
 
@@ -109,6 +117,18 @@ const PoolPosition = () => {
     const newStepArray = stepPosition.map((x: any, i: number) => (i === actionActive.index ? x + step : x));
     const validatedSteps = newStepArray.map((x: number) => (x >= 0 ? x : 0));
     setStepPosition(validatedSteps);
+  };
+
+  // Logic to allow terms modal for users upgrading their tokens
+  const toggleTermsModal = () => {
+    setShowTerms(!showTerms);
+  };
+
+  const confirmUpgrade = (hasAcceptedTerms: boolean) => {
+    if (!hasAcceptedTerms) {
+      return;
+    }
+    upgradeAllStrategies(hasAcceptedTerms);
   };
 
   const resetStepper = useCallback(
@@ -169,6 +189,20 @@ const PoolPosition = () => {
     },
     [resetRemoveProcess, resetStepper]
   );
+
+
+  const restrictOptions = selectedStrategy?.type !== StrategyType.V2_1 && chainId === 1;
+
+  useEffect(() => {
+    if (restrictOptions) setActionActive({ text: 'Upgrade Tokens', index: 3 })
+  }, [selectedStrategy, restrictOptions]);
+
+  useEffect(() => {
+    if (!isUpgrading && completedUpgrade) {
+      router.back()
+    }
+  }, [isUpgrading, completedUpgrade])
+
 
   /* ACTION DISABLING LOGIC - if ANY conditions are met: block action */
   useEffect(() => {
@@ -285,10 +319,10 @@ const PoolPosition = () => {
                       />
                     )}
 
-                    {selectedStrategy?.type !== StrategyType.V2_1 && (
+                    {restrictOptions && (
                       <InfoBite
                         label="This strategy contract has been upgraded"
-                        value="No action required"
+                        value="You must upgrade your tokens to remove liquidity"
                         icon={<FaExclamationCircle />}
                         loading={false}
                       />
@@ -327,9 +361,10 @@ const PoolPosition = () => {
                       size="small"
                       dropProps={{ round: 'small' }}
                       options={[
-                        { text: 'Remove Liquidity Tokens', index: 0 },
+                        !restrictOptions && { text: 'Remove Liquidity Tokens', index: 0 },
                         { text: 'View Transaction History', index: 1 },
                         !!selectedStrategy?.rewardsTokenAddress && { text: 'Claim Rewards', index: 2 },
+                        restrictOptions && { text: 'Upgrade Tokens', index: 3 },
                       ].filter(Boolean)}
                       icon={<FiChevronDown />}
                       labelKey="text"
@@ -468,6 +503,20 @@ const PoolPosition = () => {
                   disabled={claimDisabled || claimProcess?.processActive}
                 />
               )}
+
+              {actionActive.index === 3 && (
+                <TransactButton
+                primary
+                label={
+                  <Text size={mobile ? 'small' : undefined}>
+                    {isUpgrading ? 'Upgrading Tokens...' : 'Upgrade Tokens'}
+                  </Text>
+                }
+                onClick={() => setShowTerms(true)}
+                disabled={isUpgrading || (!isUpgrading && completedUpgrade)}
+              />
+              )}
+              <TermsModal isOpen={showTerms} onClose={() => toggleTermsModal()} onConfirm={confirmUpgrade}  />
             </ActionButtonGroup>
           </CenterPanelWrap>
         </ModalWrap>

@@ -304,7 +304,7 @@ export const useUpgradeTokens = () => {
     isUpgrading ? toasty() : dismissToast();
   }, [completedUpgrade, hasUpgradeable, isUpgrading]);
 
-  return { upgradeAllStrategies, hasUpgradeable, isUpgrading };
+  return { upgradeAllStrategies, hasUpgradeable, isUpgrading, completedUpgrade };
 };
 
 export default useUpgradeTokens;
