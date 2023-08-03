@@ -108,7 +108,7 @@ ASSETS.set(
       {
         assetAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         joinAddress: '0x0d9A1A773be5a83eEbda23bf98efB8585C3ae4f4',
-        version: '1',
+        version: '2',
         name: 'USD Coin',
         decimals: 6,
         symbol: 'USDC',
