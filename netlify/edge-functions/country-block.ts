@@ -1,13 +1,13 @@
 export default async (request: Request, context: any) => {
-  const BLOCKED_COUNTRY_CODES = ['CU', 'SY', 'KP', 'IR'] as string[];
+  const BLOCKED_COUNTRY_CODES = ['CU', 'SY', 'KP', 'IR', 'RU'] as string[];
 
   const BLOCKED_SUBDIVISION_CODES = new Map([
     ['UA', ['43', '14', '09']],
     /* ['PT', ['11']], // location for testing */
   ]);
 
-  const countryCode = context.geo?.country?.code || 'PT';
-  const countryName = context.geo?.country?.name || 'Portugal';
+  const countryCode = context.geo?.country?.code;
+  const countryName = context.geo?.country?.name;
 
   const subdivisionCode = context.geo?.subdivision?.code;
   const subdivisionName = context.geo?.subdivision?.name;
