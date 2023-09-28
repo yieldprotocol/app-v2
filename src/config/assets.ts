@@ -261,7 +261,7 @@ ASSETS.set(
         showToken: true,
         digitFormat: 2,
         tokenType: TokenType.ERC20_,
-        tokenRoles: [TokenRole.BASE, TokenRole.COLLATERAL],
+        tokenRoles: [TokenRole.COLLATERAL],
       },
     ],
     [

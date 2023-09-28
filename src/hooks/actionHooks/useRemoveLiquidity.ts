@@ -91,7 +91,6 @@ export const useRemoveLiquidity = () => {
   } = useContext(SettingsContext);
 
   const removeLiquidity = async (input: string, series: ISeries, matchingVault: IVault | undefined) => {
-    console.log('removeLiquidity', input, series, matchingVault);
 
     if (!contracts) return;
     if (!isActionAllowed(ActionCodes.REMOVE_LIQUIDITY, series))
