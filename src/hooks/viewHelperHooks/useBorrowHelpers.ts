@@ -253,9 +253,10 @@ export const useBorrowHelpers = (
         setDebtInBase(_debtInBaseWithBuffer);
         setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
 
+        const _baseBalance = baseBalance?.value ?? ethers.constants.Zero;
+
         /* maxRepayable is either the max tokens they have or max debt */
-        const _maxRepayable =
-          baseBalance?.value && _debtInBaseWithBuffer.gt(baseBalance.value) ? baseBalance.value : _debtInBaseWithBuffer;
+        const _maxRepayable = _debtInBaseWithBuffer.gt(_baseBalance) ? _baseBalance : _debtInBaseWithBuffer;
 
         /* set the min repayable up to the dust limit */
         const _maxToDust = vault.accruedArt.gt(minDebt) ? _maxRepayable.sub(minDebt) : vault.accruedArt;
@@ -264,11 +265,11 @@ export const useBorrowHelpers = (
 
         /* if the series is mature re-set max as all debt (if balance allows) */
         if (vaultSeries.seriesIsMature) {
-          const _accruedArt = vault.accruedArt.gt(baseBalance?.value || ethers.constants.Zero)
-            ? baseBalance?.value!
-            : vault.accruedArt;
-          setMaxRepay(_accruedArt);
-          setMaxRepay_(ethers.utils.formatUnits(_accruedArt, vaultBase?.decimals)?.toString());
+          const accruedArt_ = ethers.utils.formatUnits(vault.accruedArt, vaultBase?.decimals)?.toString();
+          setMaxRepay(vault.accruedArt.gt(_baseBalance) ? _baseBalance : vault.accruedArt);
+          setMaxRepay_(accruedArt_);
+          setDebtInBase(vault.accruedArt);
+          setDebtInBase_(accruedArt_);
         } else {
           setMaxRepay_(ethers.utils.formatUnits(_maxRepayable, vaultBase.decimals));
           setMaxRepay(_maxRepayable);
