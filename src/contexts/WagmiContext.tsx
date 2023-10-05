@@ -12,6 +12,7 @@ import {
   Theme,
   AvatarComponent,
   lightTheme,
+  getDefaultWallets
 } from '@rainbow-me/rainbowkit';
 
 import {
@@ -36,6 +37,7 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
   const [useForkedEnv] = useCachedState(Settings.USE_FORKED_ENV, false);
   const [forkEnvUrl] = useCachedState(Settings.FORK_ENV_URL, process.env.REACT_APP_DEFAULT_FORK_RPC_URL);
   const defaultChainId = parseInt(process.env.REACT_APP_DEFAULT_CHAINID!)
+  const projectId = process.env.WALLETCONNECT_PROJECT_ID!;
 
   const chainConfig = useMemo(
     () =>
@@ -47,24 +49,24 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
 
   const { chains, provider } = configureChains(defaultChains, [chainConfig]);
 
+  const { wallets } = getDefaultWallets({
+    appName: 'Yield-App-V2',
+    projectId,
+    chains,
+  });
+
   const connectors = connectorsForWallets([
+    ...wallets,
     {
       groupName: 'Recommended',
-      wallets: [metaMaskWallet({ chains }), walletConnectWallet({ chains }), injectedWallet({ chains })],
-    },
-    {
-      groupName: 'Experimental',
       wallets: [
-        coinbaseWallet({ appName: 'yieldProtocol', chains }),
-        rainbowWallet({ chains }),
-        ledgerWallet({ chains }),
-        argentWallet({ chains }),
-        braveWallet({ chains }),
+        metaMaskWallet({ projectId, chains }),
+        walletConnectWallet({ projectId, chains }),
+        injectedWallet({ chains }),
+        rainbowWallet({ projectId, chains }),
+        ledgerWallet({ projectId, chains }),
+        argentWallet({ projectId, chains }),
       ],
-    },
-    {
-      groupName: 'Development Environments',
-      wallets: [],
     },
   ]);
 
