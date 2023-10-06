@@ -290,10 +290,20 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   /* Attach contract instance */
   const _chargeStrategy = useCallback(
     (strategy: any) => {
-      const Strategy =
-        strategy.type === StrategyType.V2_1
-          ? contractTypes.StrategyV2_1__factory.connect(strategy.address, provider)
-          : contractTypes.Strategy__factory.connect(strategy.address, provider);
+      let Strategy;
+      switch (strategy.type) {
+        case StrategyType.V1:
+          Strategy = contractTypes.Strategy__factory.connect(strategy.address, provider);
+          break;
+        case StrategyType.V2:
+          Strategy = contractTypes.StrategyV2__factory.connect(strategy.address, provider);
+          break;
+        case StrategyType.V2_1:
+          Strategy = contractTypes.StrategyV2_1__factory.connect(strategy.address, provider);
+          break;
+        default:
+          throw new Error('Invalid strategy type');
+      }
       return {
         ...strategy,
         strategyContract: Strategy,

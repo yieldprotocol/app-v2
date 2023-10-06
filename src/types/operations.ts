@@ -95,6 +95,7 @@ export namespace RoutedActions {
     UNWRAP = 'unwrap',
 
     CHECKPOINT = 'checkpoint', // convex
+    BURN_DIVESTED = 'burnDivested',
   }
 
   export namespace Args {
@@ -119,6 +120,7 @@ export namespace RoutedActions {
     export type UNWRAP = [receiver: string];
 
     export type CHECKPOINT = [vaultOwner: string];
+    export type BURN_DIVESTED = [receiver: string];
   }
 }
 
