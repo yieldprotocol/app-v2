@@ -15,6 +15,7 @@ const nextConfig = {
     INFURA_KEY: process.env.INFURA_KEY,
     ALCHEMY_ARBITRUM_KEY: process.env.ALCHEMY_ARBITRUM_KEY,
     ALCHEMY_MAINNET_KEY: process.env.ALCHEMY_MAINNET_KEY,
+    WALLETCONNECT_PROJECT_ID: process.env.WALLETCONNECT_PROJECT_ID,
     ENV: process.env.NODE_ENV,
 
     TENDERLY_USER: process.env.TENDERLY_USER,
