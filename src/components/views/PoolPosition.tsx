@@ -23,6 +23,7 @@ import YieldHistory from '../YieldHistory';
 import { useInputValidation } from '../../hooks/useInputValidation';
 import ModalWrap from '../wraps/ModalWrap';
 import { useRemoveLiquidity } from '../../hooks/actionHooks/useRemoveLiquidity';
+import { useRemoveFraxLiquidity } from '../../hooks/actionHooks/useRemoveFraxLiquidity';
 import CopyWrap from '../wraps/CopyWrap';
 import { useProcess } from '../../hooks/useProcess';
 import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
@@ -38,11 +39,11 @@ import { MdShortcut } from 'react-icons/md';
 import { ZERO_BN } from '@yield-protocol/ui-math';
 import useAccountPlus from '../../hooks/useAccountPlus';
 import { StrategyType } from '../../config/strategies';
+import { FRAX } from '../../config/assets';
 import { FaExclamationCircle } from 'react-icons/fa';
 import useChainId from '../../hooks/useChainId';
 import useUpgradeTokens from '../../hooks/actionHooks/useUpgradeTokens';
 import TermsModal from '../TermsModal';
-
 
 const PoolPosition = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -86,6 +87,7 @@ const PoolPosition = () => {
 
   /* HOOK FNS */
   const removeLiquidity = useRemoveLiquidity();
+  const removeFraxLiquidity = useRemoveFraxLiquidity();
   const { matchingVault, maxRemove, removeBaseReceived_, partialRemoveRequired, removeFyTokenReceived_ } =
     usePoolHelpers(removeInput, true);
   const { removeBaseReceived_: removeBaseReceivedMax_ } = usePoolHelpers(_selectedStrategy?.accountBalance_, true);
@@ -143,7 +145,13 @@ const PoolPosition = () => {
   const handleRemove = () => {
     if (removeDisabled) return;
     setRemoveDisabled(true);
-    removeLiquidity(removeInput!, selectedSeries!, matchingVault);
+
+    if (selectedStrategy?.baseId === FRAX) {
+      removeFraxLiquidity(removeInput!, selectedSeries!);
+    } else {
+      removeLiquidity(removeInput!, selectedSeries!, matchingVault);
+    }
+
 
     logAnalyticsEvent(GA_Event.transaction_initiated, {
       view: GA_View.POOL,
@@ -190,8 +198,8 @@ const PoolPosition = () => {
     [resetRemoveProcess, resetStepper]
   );
 
-
-  const restrictOptions = selectedStrategy?.type !== StrategyType.V2_1 && chainId === 1;
+  const restrictOptions =
+    selectedStrategy?.type !== StrategyType.V2_1 && chainId === 1 && selectedStrategy?.baseId !== FRAX;
 
   useEffect(() => {
     if (restrictOptions) setActionActive({ text: 'Upgrade Tokens', index: 3 })
@@ -506,15 +514,15 @@ const PoolPosition = () => {
 
               {actionActive.index === 3 && (
                 <TransactButton
-                primary
-                label={
-                  <Text size={mobile ? 'small' : undefined}>
-                    {isUpgrading ? 'Upgrading Tokens...' : 'Upgrade Tokens'}
-                  </Text>
-                }
-                onClick={() => setShowTerms(true)}
-                disabled={isUpgrading || (!isUpgrading && completedUpgrade)}
-              />
+                  primary
+                  label={
+                    <Text size={mobile ? 'small' : undefined}>
+                      {isUpgrading ? 'Upgrading Tokens...' : 'Upgrade Tokens'}
+                    </Text>
+                  }
+                  onClick={() => setShowTerms(true)}
+                  disabled={isUpgrading || (!isUpgrading && completedUpgrade)}
+                />
               )}
               <TermsModal isOpen={showTerms} onClose={() => toggleTermsModal()} onConfirm={confirmUpgrade}  />
             </ActionButtonGroup>

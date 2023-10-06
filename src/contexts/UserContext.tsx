@@ -23,7 +23,7 @@ import { cleanValue, generateVaultName } from '../utils/appUtils';
 
 import { EULER_SUPGRAPH_ENDPOINT, RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
-import { ETH_BASED_ASSETS } from '../config/assets';
+import { ETH_BASED_ASSETS, FRAX } from '../config/assets';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 import { useProvider } from 'wagmi';
 
@@ -527,13 +527,15 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         strategyList.map(async (_strategy): Promise<IStrategy> => {
           const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
           // we always use the v2.1 strategy contract to fetch data and interact with, regardless of strategy type
-          const strategyContractToUse = strategyList.find((strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase())?.strategyContract || _strategy.strategyContract
-          const strategyAddressToUse = strategyContractToUse.address
+          const strategyContractToUse =
+            strategyList.find(
+              (strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase()
+            )?.strategyContract || _strategy.strategyContract;
+          const strategyAddressToUse = strategyContractToUse.address;
           let currentPoolAddr = undefined;
           let fyToken: any = undefined;
 
-          if (_strategy.type === StrategyType.V2_1 || _strategy.type === StrategyType.V1) {
-
+          if ((_strategy.type === StrategyType.V1 || _strategy.type === StrategyType.V2_1) && _strategy.baseId !== FRAX) {
             [fyToken, currentPoolAddr] = (await multicall({
               contracts: [
                 {
@@ -550,10 +552,10 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 },
               ],
             })) as unknown as BigNumber[];
-          } else if (_strategy.type === StrategyType.V2) {
+          } else if (_strategy.type === StrategyType.V2 || _strategy.baseId === FRAX) {
             currentPoolAddr = await strategyContractToUse?.pool();
             fyToken = _strategy.associatedSeries;
-          } 
+          }
 
           /* We check if the strategy has been supersecced by a newer version */
           const hasAnUpdatedVersion = _strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1;

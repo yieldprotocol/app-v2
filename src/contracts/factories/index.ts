@@ -21,6 +21,7 @@ export { LadleStorage__factory } from "./LadleStorage__factory";
 export { NotionalMultiOracle__factory } from "./NotionalMultiOracle__factory";
 export { Pool__factory } from "./Pool__factory";
 export { Strategy__factory } from "./Strategy__factory";
+export { StrategyV2__factory } from "./StrategyV2__factory";
 export { StrategyV2_1__factory } from "./StrategyV2_1__factory";
 export { TokenUpgrade__factory } from "./TokenUpgrade__factory";
 export { Transfer1155Module__factory } from "./Transfer1155Module__factory";
