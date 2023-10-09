@@ -145,7 +145,7 @@ export const useUpgradeTokens = () => {
     if (!accountTreeData) return;
 
     const isDust = (balance: BigNumber, decimals: number): boolean => {
-      const dustThreshold = BigNumber.from(10).pow(decimals - 2); // 0.01 tokens.
+      const dustThreshold = BigNumber.from(5).mul(BigNumber.from(10).pow(decimals - 3)); // 0.005 tokens.
       return balance.lt(dustThreshold);
     };
 
