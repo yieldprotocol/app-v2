@@ -42,6 +42,22 @@ const nextConfig = {
   images: {
     domains: ['metadata.ens.domains'],
   },
+
+  async headers() {
+    return [
+        {
+            // Sets security headers for all routes
+            source: '/(.*)',
+            headers: [
+                {
+                    key: 'X-FRAME-OPTIONS',
+                    value:
+                        "DENY",
+                }
+            ],
+        },
+    ];
+},
 };
 
 module.exports = nextConfig;
