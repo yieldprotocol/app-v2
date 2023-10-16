@@ -1,19 +1,20 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 
-const randomBytes = (count:number):string => {
-	const result = Array(count);
-  	for (let i = 0; i < count; ++i) {
-    	result[i] = Math.floor(256 * Math.random());
-    }
-  	return result.toString();
-};
 
+// function randomNonce(length = 32) {
+//   let nonce = '';
+//   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//   const charactersLength = characters.length;
+//   for (let i = 0; i < length; i++) {
+//       nonce += characters.charAt(Math.floor(Math.random() * charactersLength));
+//   }
+//   return nonce;
+// }
 
 export default class MyDocument extends Document {
   render() {
-
-    const nonce = randomBytes(64);
-    const csp = `object-src 'none'; base-uri 'none'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http: 'nonce-${nonce}' 'strict-dynamic'`
+    // const nonce = randomNonce();
+    // const csp = `object-src 'none'; base-uri 'none'; script-src 'unsafe-eval' 'nonce-${nonce}' 'strict-dynamic'`
 
     return (
       <Html>
@@ -23,7 +24,7 @@ export default class MyDocument extends Document {
             rel="stylesheet"
           />
           <link rel="shortcut icon" href="/favicons/favicon.ico" />
-          <meta httpEquiv="Content-Security-Policy" content={csp} />
+          {/* <meta httpEquiv="Content-Security-Policy" content={csp} /> */}
         </Head>
         <body>
           <Main />

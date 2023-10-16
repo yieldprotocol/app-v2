@@ -89,7 +89,7 @@ export namespace RoutedActions {
     BURN_FOR_BASE = 'burnForBase',
 
     MINT_STRATEGY_TOKENS = 'mint',
-    BURN_STRATEGY_TOKENS = 'burn',
+    BURN_STRATEGY_TOKENS = 'burn(address)',
 
     WRAP = 'wrap',
     UNWRAP = 'unwrap',
