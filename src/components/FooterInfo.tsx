@@ -15,6 +15,7 @@ import BoxWrap from './wraps/BoxWrap';
 import NetworkSelector from './selectors/NetworkSelector';
 import PublicNotification from './PublicNotification';
 import TermsModal from './TermsModal';
+import PublicNotificationSunset from './PublicNotificationSunset';
 
 const IconSize = '1.15rem';
 const IconGap = 'small';
@@ -30,7 +31,8 @@ const FooterInfo = () => {
     <>
       <Box gap="small" align="end" width="20%" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
         <Box alignSelf="end" width="225px">
-          <PublicNotification />{' '}
+          <PublicNotificationSunset />
+          <PublicNotification  />
         </Box>
         <Box alignSelf="end">
           <Text size="xsmall" color="text-weak">
