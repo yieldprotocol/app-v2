@@ -16,7 +16,7 @@ import YieldMark from '../components/logos/YieldMark';
 
 // import { SERIES } from '../config/series';
 import { toast } from 'react-toastify';
-import useChainId from '../hooks/useChainId';
+// import useChainId from '../hooks/useChainId';
 import useContracts from '../hooks/useContracts';
 import { ChainContextActions, ChainState, IChainContextActions, IChainContextState } from './types/chain';
 import { SERIES, ISeriesStatic } from '../config/series';
@@ -26,6 +26,8 @@ import { Pool__factory } from '../contracts';
 
 import { SettingsContext } from './SettingsContext';
 import { useEthersProvider } from '../hooks/useEthersProvider';
+import { useNetwork } from 'wagmi';
+import useChainId from '../hooks/useChainId';
 
 const initState: IChainContextState = {
   /* flags */
@@ -92,9 +94,10 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   /* HOOKS */
   const chainId = useChainId();
+
   const contracts = useContracts();
   const provider = useEthersProvider({
-    chainId: chainId,
+    chainId: 1,
   });
 
   /* CACHED VARIABLES */

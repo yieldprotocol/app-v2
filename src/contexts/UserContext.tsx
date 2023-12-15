@@ -334,7 +334,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             ],
           })
 
-          console.log('RETURN: ',  baseReservesResult, fyTokenReservesResult, totalSupplyResult, fyTokenRealReservesResult) 
+          console.log( chainId )
+          console.log('RETURN: ', series.address , series.displayName,  baseReservesResult.result, fyTokenReservesResult.result, totalSupplyResult.result, fyTokenRealReservesResult.result) 
 
           const baseReserves = BigNumber.from(baseReservesResult.result ?? 0);
           const fyTokenReserves =  BigNumber.from(fyTokenReservesResult.result ?? 0);
@@ -348,7 +349,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const sharesAddress = assetRootMap.get(series.baseId)?.address!;
           const c = undefined;
           const mu = undefined;
-          diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
+          // diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
 
           /* This was the case used for Euler pools - no longer used left here for reference */
           // let sharesReserves: BigNumber;
@@ -553,13 +554,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               contracts: [
                 {
                   address: strategyAddressToUse as `0x${string}`,
-                  abi: _strategy.strategyContract.interface as any,
+                  abi: contractTypes.StrategyV2_1__factory.abi as any,
                   functionName: 'fyToken',
                   args: [],
                 },
                 {
                   address: strategyAddressToUse as `0x${string}`,
-                  abi: _strategy.strategyContract.interface as any,
+                  abi: contractTypes.StrategyV2_1__factory.abi as any,
                   functionName: 'pool',
                   args: [],
                 },

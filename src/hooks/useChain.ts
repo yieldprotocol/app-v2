@@ -9,13 +9,13 @@ import { MAX_256, ZERO_BN } from '../utils/constants';
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useNetwork, useSigner } from 'wagmi';
+import { useNetwork, useWalletClient } from 'wagmi';
 import useContracts from './useContracts';
 import { ISettingsContext } from '../contexts/types/settings';
 import useAccountPlus from './useAccountPlus';
 import useFork from './useFork';
 import { ContractNames } from '../config/contracts';
-import { toast } from 'react-toastify';
+import { useEthersSigner } from './useEthersSigner';
 
 /* Get the sum of the value of all calls */
 const _getCallValue = (calls: ICallData[]): BigNumber =>
@@ -37,7 +37,7 @@ export const useChain = () => {
   /* wagmi connection stuff */
   const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
-  const { data: _signer, isError, isLoading } = useSigner();
+  const _signer = useEthersSigner();
   const contracts = useContracts();
   const { provider: forkProvider, useForkedEnv } = useFork();
   const signer = useForkedEnv ? forkProvider?.getSigner(account) : _signer;

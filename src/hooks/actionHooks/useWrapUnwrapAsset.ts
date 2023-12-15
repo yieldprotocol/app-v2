@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers';
 import { useContext } from 'react';
-import { useNetwork, useSigner } from 'wagmi';
+import { useNetwork } from 'wagmi';
 import { ChainContext } from '../../contexts/ChainContext';
 import { SettingsContext } from '../../contexts/SettingsContext';
 import { ContractNames } from '../../config/contracts';
@@ -8,6 +8,7 @@ import { ICallData, LadleActions, IAsset, RoutedActions, IAssetRoot } from '../.
 import { ZERO_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 import useContracts from '../useContracts';
+import { useEthersSigner } from '../useEthersSigner';
 
 export const useWrapUnwrapAsset = () => {
   const {
@@ -19,7 +20,7 @@ export const useWrapUnwrapAsset = () => {
   } = useContext(SettingsContext);
 
   const { chain } = useNetwork();
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner();
   const { sign } = useChain();
   const contracts = useContracts();
 

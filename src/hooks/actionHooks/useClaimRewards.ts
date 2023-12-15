@@ -4,13 +4,14 @@ import { TxContext } from '../../contexts/TxContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ActionCodes, IAsset, IStrategy} from '../../types';
 
-import { useSigner, useAccount } from 'wagmi';
+import { useAccount } from 'wagmi';
 import useAccountPlus from '../useAccountPlus';
 import useAllowAction from '../useAllowAction';
+import { useEthersSigner } from '../useEthersSigner';
 
 const useClaimRewards = (strategy: IStrategy | undefined) => {
 
-  const { data: signer, isError, isLoading } = useSigner();
+  const signer = useEthersSigner();
   const { address:account } = useAccountPlus();
   const {isActionAllowed} = useAllowAction();
 

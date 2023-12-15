@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from 'ethers';
 import { useState, useEffect, useMemo, useCallback, useRef, useContext } from 'react';
 import useAccountPlus from '../useAccountPlus';
-import { Address, useSigner } from 'wagmi';
+import { Address } from 'wagmi';
 import { fetchBalance } from 'wagmi/actions';
 import { TokenUpgrade__factory } from '../../contracts';
 import { toast } from 'react-toastify';
@@ -13,6 +13,7 @@ import { TREES, TreeData, TreeDataAsync, TreeMapAsync } from '../../config/trees
 import useFork from '../useFork';
 import useContracts from '../useContracts';
 import { UserContext } from '../../contexts/UserContext';
+import { useEthersSigner } from '../useEthersSigner';
 
 /*
   This hook is used to upgrade tokens that were impacted in the Euler hack. Here is the process: 
@@ -61,7 +62,7 @@ export const useUpgradeTokens = () => {
   };
   const dismissToast = () => toast.dismiss(toastRef.current);
 
-  const { data: _signer } = useSigner();
+  const _signer  = useEthersSigner();
   const signer = useMemo(
     () => (useForkedEnv ? provider?.getSigner(account) : _signer),
     [_signer, account, provider, useForkedEnv]
@@ -83,8 +84,8 @@ export const useUpgradeTokens = () => {
       ? await fetchBalance({ address: account, token: tree.v2TokenAddress })
       : undefined;
 
-    const v1StrategyBal = v1StrategyBalRes ? v1StrategyBalRes.value : ethers.constants.Zero;
-    const v2StrategyBal = v2StrategyBalRes ? v2StrategyBalRes.value : ethers.constants.Zero;
+    const v1StrategyBal = v1StrategyBalRes ? BigNumber.from(v1StrategyBalRes.value) : ethers.constants.Zero;
+    const v2StrategyBal = v2StrategyBalRes ?  BigNumber.from(v2StrategyBalRes.value) : ethers.constants.Zero;
     const totalBalance = v1StrategyBal.add(v2StrategyBal);
 
     return { totalBalance, v1StrategyBal, v2StrategyBal };
