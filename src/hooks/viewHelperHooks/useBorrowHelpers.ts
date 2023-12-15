@@ -17,7 +17,6 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
-import useAccountPlus from '../useAccountPlus';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useBorrowHelpers = (
@@ -39,7 +38,7 @@ export const useBorrowHelpers = (
   const vaultBase = assetMap.get(vault?.baseId!);
   const vaultIlk = assetMap.get(vault?.ilkId!);
 
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const { data: baseBalance } = useBalance({
     address: account,
     token: vaultBase?.proxyId === WETH ? undefined : (vaultBase?.address as Address),
@@ -253,7 +252,7 @@ export const useBorrowHelpers = (
         setDebtInBase(_debtInBaseWithBuffer);
         setDebtInBase_(ethers.utils.formatUnits(_debtInBaseWithBuffer, vaultBase.decimals));
 
-        const _baseBalance = baseBalance?.value ?? ethers.constants.Zero;
+        const _baseBalance = BigNumber.from(baseBalance?.value) ?? ethers.constants.Zero;
 
         /* maxRepayable is either the max tokens they have or max debt */
         const _maxRepayable = _debtInBaseWithBuffer.gt(_baseBalance) ? _baseBalance : _debtInBaseWithBuffer;
@@ -278,8 +277,7 @@ export const useBorrowHelpers = (
     }
   }, [
     account,
-    baseBalance?.formatted,
-    baseBalance?.value,
+    baseBalance,
     getTimeTillMaturity,
     isMature,
     minDebt,
@@ -310,7 +308,7 @@ export const useBorrowHelpers = (
     maxRoll,
     maxRoll_,
 
-    userBaseBalance: baseBalance?.value,
+    userBaseBalance: BigNumber.from(baseBalance?.value || 0),
     userBaseBalance_: baseBalance?.formatted,
     maxDebt,
     minDebt,

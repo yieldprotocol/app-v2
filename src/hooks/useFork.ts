@@ -2,9 +2,8 @@ import axios from 'axios';
 import { ethers } from 'ethers';
 import { useCallback, useContext, useMemo } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
-import useAccountPlus from './useAccountPlus';
 import useSWRImmutable from 'swr/immutable';
-import { useBalance } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { toast } from 'react-toastify';
 import useChainId from './useChainId';
 import useDefaultProvider from './useDefaultProvider';
@@ -14,7 +13,7 @@ const useFork = () => {
     settingsState: { useForkedEnv, forkEnvUrl: forkUrl, diagnostics },
   } = useContext(SettingsContext);
 
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const { refetch } = useBalance({ address: account });
 
   const chainId = useChainId();

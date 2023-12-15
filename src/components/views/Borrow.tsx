@@ -46,12 +46,11 @@ import Navigation from '../Navigation';
 import VaultItem from '../positionItems/VaultItem';
 import useAssetPair from '../../hooks/useAssetPair';
 import Line from '../elements/Line';
-import { useAccount, useNetwork } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
-import useAccountPlus from '../../hooks/useAccountPlus';
+import { useAccount } from 'wagmi';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -60,11 +59,11 @@ const Borrow = () => {
 
   /* STATE FROM CONTEXT */
   const { userState, userActions } = useContext(UserContext);
-  const { assetMap, vaultMap, vaultsLoading, seriesMap, selectedSeries, selectedIlk, selectedBase, selectedVault } =
+  const { assetMap, vaultMap, vaultsLoading, selectedSeries, selectedIlk, selectedBase, selectedVault } =
     userState;
   const { setSelectedIlk } = userActions;
 
-  const { address: activeAccount } = useAccountPlus();
+  const { address: activeAccount } = useAccount();
   const contracts = useContracts();
 
   /* LOCAL STATE */

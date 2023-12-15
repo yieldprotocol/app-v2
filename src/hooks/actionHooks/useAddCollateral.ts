@@ -13,9 +13,8 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ConvexLadleModule } from '../../contracts';
 import { ModuleActions } from '../../types/operations';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { Address, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
-import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 import { toast } from 'react-toastify';
@@ -24,7 +23,7 @@ export const useAddCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedBase, selectedIlk, selectedSeries, assetMap } = userState;
   const { updateAssets, updateVaults } = userActions;
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const contracts = useContracts();
 
   const {

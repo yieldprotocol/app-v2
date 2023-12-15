@@ -13,7 +13,7 @@ const DynamicUserProvider = dynamic(() => import('../contexts/UserContext'), { s
 const DynamicTxProvider = dynamic(() => import('../contexts/TxContext'), { ssr: false });
 const DynamicHistoryProvider = dynamic(() => import('../contexts/HistoryContext'), { ssr: false });
 const DynamicLayout = dynamic(() => import('../components/Layout'), { ssr: false });
-const DynamicKillSwitch = dynamic(() => import('../components/KillSwitch'), { ssr: false });
+// const DynamicKillSwitch = dynamic(() => import('../components/KillSwitch'), { ssr: false });
 const DynamicMulticallProvider = dynamic(() => import('../contexts/MutlicallContext'), { ssr: false });
 
 declare global {
@@ -41,9 +41,9 @@ const App = ({ Component, pageProps }: AppProps) => {
               <DynamicTxProvider>
                 <DynamicHistoryProvider>
                   <DynamicLayout>
-                    <DynamicKillSwitch>
+                    {/* <DynamicKillSwitch> */}
                       <Component {...pageProps} />
-                    </DynamicKillSwitch>
+                    {/* </DynamicKillSwitch> */}
                   </DynamicLayout>
                 </DynamicHistoryProvider>
               </DynamicTxProvider>

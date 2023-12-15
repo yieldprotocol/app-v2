@@ -1,9 +1,8 @@
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { useProvider, useBalance, Address } from 'wagmi';
+import { useBalance, Address, useAccount } from 'wagmi';
 import { useChain } from '../useChain';
-import useAccountPlus from '../useAccountPlus';
 import useContracts from '../useContracts';
 import { ContractNames } from '../../config/contracts';
 import { getTxCode } from '../../utils/appUtils';
@@ -29,7 +28,7 @@ export const useRemoveFraxLiquidity = () => {
 
   const _strategy = selectedStrategy!;
 
-  const { address: account, nativeBalance } = useAccountPlus();
+  const { address: account } = useAccount();
 
   const { refetch: refetchBaseBal } = useBalance({
     address: account,

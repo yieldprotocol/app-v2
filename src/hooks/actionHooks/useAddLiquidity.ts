@@ -28,7 +28,6 @@ import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useChainId from '../useChainId';
-import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 import { toast } from 'react-toastify';
@@ -42,7 +41,7 @@ export const useAddLiquidity = () => {
   const { assetMap, seriesMap, selectedStrategy, selectedBase } = userState;
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
 
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const chainId = useChainId();
   const contracts = useContracts();
 

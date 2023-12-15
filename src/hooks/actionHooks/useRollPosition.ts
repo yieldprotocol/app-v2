@@ -12,9 +12,9 @@ import { useChain } from '../useChain';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { useRouter } from 'next/router';
 import useContracts from '../useContracts';
-import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
+import { useAccount } from 'wagmi';
 
 /* Roll Lend Position Action Hook */
 export const useRollPosition = () => {
@@ -27,7 +27,7 @@ export const useRollPosition = () => {
   const { assetMap } = userState;
   const { updateSeries, updateAssets } = userActions;
 
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const contracts = useContracts();
 
   const {

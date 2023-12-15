@@ -21,11 +21,10 @@ import { ETH_BASED_ASSETS, WETH } from '../../config/assets';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { SettingsContext } from '../../contexts/SettingsContext';
-import { usePublicClient, useBalance, Address } from 'wagmi';
+import { useBalance, Address, useAccount } from 'wagmi';
 import useContracts from '../useContracts';
 import { Strategy__factory, Pool__factory } from '../../contracts';
 import { StrategyType } from '../../config/strategies';
-import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 import { AssertActions, useAssert } from './useAssert';
@@ -57,7 +56,8 @@ is Mature?        N     +--------+
 
 export const useRemoveLiquidity = () => {
   const provider = useEthersProvider();
-  const { address: account, nativeBalance } = useAccountPlus();
+  const { address: account } = useAccount();
+  const {data: nativeBalance}  = useBalance({ address: account });
 
   const { txActions } = useContext(TxContext);
   const { resetProcess } = txActions;

@@ -15,7 +15,7 @@ import { useDashboardHelpers } from '../../hooks/viewHelperHooks/useDashboardHel
 import { UserContext } from '../../contexts/UserContext';
 import { formatValue } from '../../utils/appUtils';
 import { Settings } from '../../contexts/types/settings';
-import useAccountPlus from '../../hooks/useAccountPlus';
+import { useAccount } from 'wagmi';
 
 const StyledBox = styled(Box)`
   * {
@@ -43,7 +43,7 @@ const Dashboard = () => {
     chainState: { chainLoaded },
   } = useContext(ChainContext);
 
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
 
   const {
     vaultPositions,

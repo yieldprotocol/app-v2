@@ -25,10 +25,10 @@ import { LiquidityEvent, TradeEvent } from '../contracts/Pool';
 import { VaultGivenEvent, VaultPouredEvent, VaultRolledEvent } from '../contracts/Cauldron';
 import useContracts from '../hooks/useContracts';
 
-import useAccountPlus from '../hooks/useAccountPlus';
 import useFork from '../hooks/useFork';
 import { ContractNames } from '../config/contracts';
 import { useEthersProvider } from '../hooks/useEthersProvider';
+import { useAccount } from 'wagmi';
 
 const dateFormat = (dateInSecs: number) => format(new Date(dateInSecs * 1000), 'dd MMM yyyy');
 
@@ -99,7 +99,7 @@ const HistoryProvider = ({ children }: any) => {
   const provider = useEthersProvider();
   const contracts = useContracts();
   const [historyState, updateState] = useReducer(historyReducer, initState);
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
 
   const {
     settingsState: { diagnostics },

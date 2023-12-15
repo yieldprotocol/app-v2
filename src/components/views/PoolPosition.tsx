@@ -37,7 +37,6 @@ import useStrategyReturns from '../../hooks/useStrategyReturns';
 import GeneralButton from '../buttons/GeneralButton';
 import { MdShortcut } from 'react-icons/md';
 import { ZERO_BN } from '@yield-protocol/ui-math';
-import useAccountPlus from '../../hooks/useAccountPlus';
 import { StrategyType } from '../../config/strategies';
 import { FRAX } from '../../config/assets';
 import { FaExclamationCircle } from 'react-icons/fa';
@@ -57,7 +56,7 @@ const PoolPosition = () => {
   } = useContext(UserContext);
   const { selectedStrategy, strategyMap, assetMap, seriesLoading } = userState;
 
-  const { address: activeAccount } = useAccountPlus();
+  const { address: activeAccount } = useAccount();
 
   const _selectedStrategy = selectedStrategy || strategyMap?.get((idFromUrl as string).toLowerCase());
 

@@ -33,10 +33,10 @@ import { IUserContextActions, IUserContextState, UserContextAction, UserState } 
 import useFork from '../hooks/useFork';
 import { formatUnits } from 'ethers/lib/utils';
 import useBalances, { BalanceData } from '../hooks/useBalances';
-import useAccountPlus from '../hooks/useAccountPlus';
 import { ContractNames } from '../config/contracts';
 import { StrategyType } from '../config/strategies';
 import { useEthersProvider } from '../hooks/useEthersProvider';
+import { useAccount } from 'wagmi';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -139,7 +139,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const chainId = useChainId();
   const provider = useEthersProvider();
 
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
 
   const { pathname } = useRouter();
 

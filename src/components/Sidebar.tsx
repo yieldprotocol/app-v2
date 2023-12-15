@@ -12,16 +12,13 @@ import ThemeSetting from './settings/ThemeSetting';
 import UnwrapSetting from './settings/UnwrapSetting';
 import CopyWrap from './wraps/CopyWrap';
 import YieldAvatar from './YieldAvatar';
-import { useEnsName, useNetwork } from 'wagmi';
-import { FaWallet } from 'react-icons/fa';
-
-import useAccountPlus from '../hooks/useAccountPlus';
+import { useAccount, useEnsName, useNetwork } from 'wagmi';
 
 const Sidebar = ({ settingsOpen, setSettingsOpen }: any) => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
 
   const { chain } = useNetwork();
-  const { address } = useAccountPlus();
+  const { address } = useAccount();
   const { data: ensName } = useEnsName();
 
   const { openAccountModal } = useAccountModal();

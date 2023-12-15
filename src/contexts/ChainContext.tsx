@@ -26,7 +26,6 @@ import { Pool__factory } from '../contracts';
 
 import { SettingsContext } from './SettingsContext';
 import { useEthersProvider } from '../hooks/useEthersProvider';
-import { useNetwork } from 'wagmi';
 import useChainId from '../hooks/useChainId';
 
 const initState: IChainContextState = {

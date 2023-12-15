@@ -11,10 +11,9 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
 import useChainId from '../useChainId';
-import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 
@@ -27,7 +26,7 @@ export const useLend = () => {
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
   const { updateSeries, updateAssets } = userActions;
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const chainId = useChainId();
   const { isActionAllowed } = useAllowAction();
 

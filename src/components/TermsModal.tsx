@@ -1,5 +1,3 @@
-import useAccountPlus from '../hooks/useAccountPlus';
-import ModalWrap from './wraps/ModalWrap';
 import { Box, Text, Layer, Button, CheckBox, ResponsiveContext } from 'grommet';
 import { useState } from 'react';
 

@@ -45,9 +45,8 @@ import { useAccount } from 'wagmi';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
-import useAccountPlus from '../../hooks/useAccountPlus';
-import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
-import useChainId from '../../hooks/useChainId';
+// import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
+// import useChainId from '../../hooks/useChainId';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -56,7 +55,7 @@ const Lend = () => {
   const { userState } = useContext(UserContext);
   const { selectedSeries, selectedBase, seriesMap } = userState;
 
-  const { address: activeAccount } = useAccountPlus();
+  const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
   const [modalOpen, toggleModal] = useState<boolean>(false);
@@ -76,7 +75,6 @@ const Lend = () => {
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
-
 
 
   /* LOCAL FNS */

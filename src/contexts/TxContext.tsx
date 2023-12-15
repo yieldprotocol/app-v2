@@ -5,7 +5,6 @@ import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '.
 import { useAccount, useBalance, useNetwork } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
-import useAccountPlus from '../hooks/useAccountPlus';
 import { useEthersProvider } from '../hooks/useEthersProvider';
 
 enum TxStateItem {
@@ -125,7 +124,7 @@ const TxProvider = ({ children }: any) => {
   };
 
   const provider = useEthersProvider();
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const { refetch: refetchETHBal } = useBalance({ address: account });
 
   const { logAnalyticsEvent } = useAnalytics();

@@ -7,9 +7,8 @@ import { UserContext } from '../contexts/UserContext';
 import { WETH } from '../config/assets';
 import Skeleton from './wraps/SkeletonWrap';
 import Logo from './logos/Logo';
-import { useAccount } from 'wagmi';
 import { cleanValue } from '../utils/appUtils';
-import useAccountPlus from '../hooks/useAccountPlus';
+import { useAccount } from 'wagmi';
 
 const StyledText = styled(Text)`
   svg,
@@ -37,7 +36,7 @@ const YieldBalances = () => {
   const baseBal = assetMap.get(selectedBase?.id!)?.balance_;
   const ilkBal = assetMap.get(selectedIlk?.id!)?.balance_;
 
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const { pathname } = useRouter();
   const [path, setPath] = useState<string>();
 

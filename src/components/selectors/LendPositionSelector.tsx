@@ -10,7 +10,6 @@ import { ZERO_BN } from '../../utils/constants';
 import LendItem from '../positionItems/LendItem';
 import ListWrap from '../wraps/ListWrap';
 import { useAccount } from 'wagmi';
-import useAccountPlus from '../../hooks/useAccountPlus';
 import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
 import { FaInfoCircle } from 'react-icons/fa';
 
@@ -24,7 +23,7 @@ function PositionSelector({ actionType }: { actionType: ActionType }) {
   const { userState } = useContext(UserContext);
   const { seriesMap, selectedSeries, selectedBase } = userState;
 
-  const { address: activeAccount } = useAccountPlus();
+  const { address: activeAccount } = useAccount();
   const checkIfAffectedJuneLender = useAffectedJuneLenders();
 
   const [allPositions, setAllPositions] = useState<ISeries[]>([]);

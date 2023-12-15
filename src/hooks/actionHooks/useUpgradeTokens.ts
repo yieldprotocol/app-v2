@@ -1,7 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
 import { useState, useEffect, useMemo, useCallback, useRef, useContext } from 'react';
-import useAccountPlus from '../useAccountPlus';
-import { Address } from 'wagmi';
+import { Address, useAccount } from 'wagmi';
 import { fetchBalance } from 'wagmi/actions';
 import { TokenUpgrade__factory } from '../../contracts';
 import { toast } from 'react-toastify';
@@ -48,7 +47,7 @@ const UPGRADE_CONTRACT_ADDRESS = '0x9Ca89fC21fdbdE431Df9080426F7B630012FE551';
 const TOS_HASH = '0x9f6699a0964b1bd6fe6c9fb8bebea236c08311ddd25781bbf5d372d00d32936b';
 
 export const useUpgradeTokens = () => {
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const { provider, useForkedEnv } = useFork();
   const { sign, transact } = useChain();
   const contracts = useContracts();

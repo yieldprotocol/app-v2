@@ -15,7 +15,6 @@ import { ZERO_BN } from '../../utils/constants';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance } from 'wagmi';
 import { WETH } from '../../config/assets';
-import useAccountPlus from '../useAccountPlus';
 
 /* Collateralization hook calculates collateralization metrics */
 export const useCollateralHelpers = (
@@ -35,7 +34,8 @@ export const useCollateralHelpers = (
 
   /* HOOKS */
   const { getTimeTillMaturity } = useTimeTillMaturity();
-  const { address: activeAccount } = useAccountPlus();
+  const { address: activeAccount } = useAccount();
+  
   const { data: userIlkBalance } = useBalance({
     address: activeAccount,
     token: _selectedIlk?.proxyId === WETH ? undefined : _selectedIlk?.address as Address,
@@ -106,7 +106,7 @@ export const useCollateralHelpers = (
 
   /* CHECK collateral selection and sets the max available collateral a user can add based on his balance */
   useEffect(() => {
-    setMaxCollateral(userIlkBalance?.formatted);
+    setMaxCollateral('1');
   }, [userIlkBalance?.formatted]);
 
   /* handle changes to input values */

@@ -4,7 +4,6 @@ import { Button, Box, Text, Layer, ResponsiveContext } from 'grommet';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
-import useAccountPlus from '../../hooks/useAccountPlus';
 
 const StyledButton: any = styled(Button)`
   -webkit-transition: transform 0.2s ease-in-out;
@@ -49,7 +48,7 @@ function ActionButtonWrap({ children, pad }: { children: any; pad?: boolean }) {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
   const theme = useColorScheme();
   const { openConnectModal } = useConnectModal();
-  const { address } = useAccountPlus();
+  const { address } = useAccount();
 
   return mobile ? (
     <Layer position="bottom" background="background" modal={false} responsive={false} full="horizontal" animate={false}>

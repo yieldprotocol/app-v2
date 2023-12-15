@@ -39,7 +39,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import { StrategyType } from '../../config/strategies';
 import { toast } from 'react-toastify';
-import useAccountPlus from '../../hooks/useAccountPlus';
+import { useAccount } from 'wagmi';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -48,7 +48,7 @@ function Pool() {
   const { userState } = useContext(UserContext);
   const { selectedBase, selectedStrategy, strategyMap } = userState;
 
-  const { address: activeAccount } = useAccountPlus();
+  const { address: activeAccount } = useAccount();
 
   /* LOCAL STATE */
   const [poolInput, setPoolInput] = useState<string | undefined>(undefined);

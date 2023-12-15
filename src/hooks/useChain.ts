@@ -9,10 +9,9 @@ import { MAX_256, ZERO_BN } from '../utils/constants';
 import { ERC1155__factory, ERC20Permit__factory, Ladle } from '../contracts';
 import { useApprovalMethod } from './useApprovalMethod';
 import { SettingsContext } from '../contexts/SettingsContext';
-import { useNetwork, useWalletClient } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import useContracts from './useContracts';
 import { ISettingsContext } from '../contexts/types/settings';
-import useAccountPlus from './useAccountPlus';
 import useFork from './useFork';
 import { ContractNames } from '../config/contracts';
 import { useEthersSigner } from './useEthersSigner';
@@ -35,7 +34,7 @@ export const useChain = () => {
   } = useContext(TxContext);
 
   /* wagmi connection stuff */
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const { chain } = useNetwork();
   const _signer = useEthersSigner();
   const contracts = useContracts();

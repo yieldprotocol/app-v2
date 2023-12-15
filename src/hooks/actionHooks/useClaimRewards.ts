@@ -5,14 +5,13 @@ import { UserContext } from '../../contexts/UserContext';
 import { ActionCodes, IAsset, IStrategy} from '../../types';
 
 import { useAccount } from 'wagmi';
-import useAccountPlus from '../useAccountPlus';
 import useAllowAction from '../useAllowAction';
 import { useEthersSigner } from '../useEthersSigner';
 
 const useClaimRewards = (strategy: IStrategy | undefined) => {
 
   const signer = useEthersSigner();
-  const { address:account } = useAccountPlus();
+  const { address:account } = useAccount();
   const {isActionAllowed} = useAllowAction();
 
   const { userState, userActions } = useContext(UserContext);

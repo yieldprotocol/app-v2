@@ -2,7 +2,6 @@ import { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Text, Box, ResponsiveContext } from 'grommet';
 import Sidebar from './Sidebar';
-import { UserContext } from '../contexts/UserContext';
 import { useAccount, useBalance, useEnsName } from 'wagmi';
 import { FiSettings } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
@@ -12,7 +11,6 @@ import EthMark from './logos/EthMark';
 import YieldAvatar from './YieldAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import HeaderBalances from './HeaderBalances';
-import useAccountPlus from '../hooks/useAccountPlus';
 import { SettingsContext } from '../contexts/SettingsContext';
 
 const StyledText = styled(Text)`
@@ -39,9 +37,10 @@ const HeaderAccount = () => {
   const { data: ensName } = useEnsName();
   const { openConnectModal } = useConnectModal();
 
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
 
   const { data: ethBalance } = useBalance({ address: account });
+
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   const {

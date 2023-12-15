@@ -13,9 +13,8 @@ import { ONE_BN } from '../../utils/constants';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance } from 'wagmi';
 import useContracts from '../useContracts';
-import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 
@@ -27,7 +26,7 @@ export const useClosePosition = () => {
 
   const { userState, userActions } = useContext(UserContext);
   const { assetMap, selectedSeries, selectedBase } = userState;
-  const { address: account } = useAccountPlus();
+  const { address: account } = useAccount();
   const { refetch: refetchFyTokenBal } = useBalance({
     address: account,
     token: selectedSeries?.address as Address,

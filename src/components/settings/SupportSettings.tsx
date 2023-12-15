@@ -15,8 +15,6 @@ const SupportSettings = () => {
   } = useContext(SettingsContext);
 
   const { address } = useAccount();
-
-  // const account = useAccountPlus();
   const { fillEther, createNewFork } = useFork();
 
   const [forkUrlInput, setForkUrlInput] = useState<string>(forkEnvUrl);
