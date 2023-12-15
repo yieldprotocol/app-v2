@@ -2,13 +2,14 @@ import { useMemo } from 'react';
 import contractAddresses, { ContractMap } from '../config/contracts';
 import * as contractTypes from '../contracts';
 import useChainId from './useChainId';
-import { useProvider } from 'wagmi';
+import { usePublicClient } from 'wagmi';
 import { Contract } from 'ethers';
+import { useEthersProvider } from './useEthersProvider';
 
 const useContracts = () => {
   const { addresses } = contractAddresses;
   const chainId = useChainId();
-  const provider = useProvider();
+  const provider = useEthersProvider();
   const chainAddrs = addresses.get(chainId);
 
   return useMemo(() => {

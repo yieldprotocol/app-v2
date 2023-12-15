@@ -2,10 +2,11 @@ import React, { useReducer, useEffect } from 'react';
 import { ethers, ContractTransaction } from 'ethers';
 import { toast } from 'react-toastify';
 import { ApprovalType, ISignData, TxState, ProcessStage, IYieldProcess } from '../types';
-import { useAccount, useBalance, useNetwork, useProvider } from 'wagmi';
+import { useAccount, useBalance, useNetwork } from 'wagmi';
 import useAnalytics from '../hooks/useAnalytics';
 import { GA_Event, GA_Properties } from '../types/analytics';
 import useAccountPlus from '../hooks/useAccountPlus';
+import { useEthersProvider } from '../hooks/useEthersProvider';
 
 enum TxStateItem {
   TRANSACTIONS = 'transactions',
@@ -123,7 +124,7 @@ const TxProvider = ({ children }: any) => {
     });
   };
 
-  const provider = useProvider();
+  const provider = useEthersProvider();
   const { address: account } = useAccountPlus();
   const { refetch: refetchETHBal } = useBalance({ address: account });
 

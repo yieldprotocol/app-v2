@@ -24,8 +24,8 @@ import { Block } from '@ethersproject/providers';
 import STRATEGIES from '../config/strategies';
 import { Pool__factory } from '../contracts';
 
-import { useProvider } from 'wagmi';
 import { SettingsContext } from './SettingsContext';
+import { useEthersProvider } from '../hooks/useEthersProvider';
 
 const initState: IChainContextState = {
   /* flags */
@@ -93,7 +93,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   /* HOOKS */
   const chainId = useChainId();
   const contracts = useContracts();
-  const provider = useProvider({
+  const provider = useEthersProvider({
     chainId: chainId,
   });
 

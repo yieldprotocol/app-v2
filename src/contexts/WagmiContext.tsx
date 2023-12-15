@@ -1,4 +1,4 @@
-import { WagmiConfig, createClient, configureChains } from 'wagmi';
+import { WagmiConfig, createConfig, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { ReactNode, useMemo } from 'react';
@@ -37,7 +37,7 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
   const [useForkedEnv] = useCachedState(Settings.USE_FORKED_ENV, false);
   const [forkEnvUrl] = useCachedState(Settings.FORK_ENV_URL, process.env.REACT_APP_DEFAULT_FORK_RPC_URL);
   const defaultChainId = parseInt(process.env.REACT_APP_DEFAULT_CHAINID!)
-  const projectId = process.env.WALLETCONNECT_PROJECT_ID!;
+  const projectId = 'b5e9597abbab7ae461d6668eb90978a1';
 
   const chainConfig = useMemo(
     () =>
@@ -47,11 +47,15 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
     [forkEnvUrl, useForkedEnv]
   );
 
-  const { chains, provider } = configureChains(defaultChains, [chainConfig]);
+// const { chains, provider } = configureChains(defaultChains, [chainConfig]);
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  defaultChains,
+  [chainConfig],
+)
 
   const { wallets } = getDefaultWallets({
     appName: 'Yield-App-V2',
-    projectId,
+    projectId: projectId,
     chains,
   });
 
@@ -71,10 +75,10 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
   ]);
 
   // Set up client
-  const client = createClient({
+  const config = createConfig({
     autoConnect: true,
     connectors,
-    provider,
+    publicClient,
   });
 
   const Disclaimer: DisclaimerComponent = ({ Text, Link }) => (
@@ -88,7 +92,7 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
   const CustomAvatar: AvatarComponent = ({ address }) => <YieldAvatar address={address} size={2} noBorder />;
 
   return (
-    <WagmiConfig client={client}>
+    <WagmiConfig config={config}>
       <RainbowKitProvider
         appInfo={{
           appName: 'Yield Protocol',

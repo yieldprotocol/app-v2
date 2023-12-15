@@ -12,7 +12,6 @@ import {
   floorDecimal,
   mulDecimal,
   sellFYToken,
-  calcAccruedDebt,
   toBn,
 } from '@yield-protocol/ui-math';
 
@@ -25,7 +24,6 @@ import { EULER_SUPGRAPH_ENDPOINT, RATE, ZERO_BN } from '../utils/constants';
 import { SettingsContext } from './SettingsContext';
 import { ETH_BASED_ASSETS, FRAX } from '../config/assets';
 import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
-import { useProvider } from 'wagmi';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
@@ -38,6 +36,7 @@ import useBalances, { BalanceData } from '../hooks/useBalances';
 import useAccountPlus from '../hooks/useAccountPlus';
 import { ContractNames } from '../config/contracts';
 import { StrategyType } from '../config/strategies';
+import { useEthersProvider } from '../hooks/useEthersProvider';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -138,7 +137,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /* HOOKS */
   const chainId = useChainId();
-  const provider = useProvider();
+  const provider = useEthersProvider();
 
   const { address: account } = useAccountPlus();
 
@@ -306,84 +305,98 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /* Add in the dynamic series data of the series in the list */
       _publicData = await Promise.all(
         seriesList.map(async (series): Promise<ISeries> => {
-          const [baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves] = (await multicall({
+          const [ baseReservesResult, fyTokenReservesResult, totalSupplyResult, fyTokenRealReservesResult ] = await multicall({
             contracts: [
               {
                 address: series.poolContract.address as `0x${string}`,
-                abi: series.poolContract.interface as any,
+                abi: contractTypes.Pool__factory.abi as any,
                 functionName: 'getBaseBalance',
                 args: [],
               },
-
               {
                 address: series.poolContract.address as `0x${string}`,
-                abi: series.poolContract.interface as any,
+                abi: contractTypes.Pool__factory.abi as any,
                 functionName: 'getFYTokenBalance',
                 args: [],
               },
               {
                 address: series.poolContract.address as `0x${string}`,
-                abi: series.poolContract.interface as any,
+                abi: contractTypes.Pool__factory.abi as any,
                 functionName: 'totalSupply',
                 args: [],
               },
               {
                 address: series.fyTokenContract.address as `0x${string}`,
-                abi: series.fyTokenContract.interface as any,
+                abi: contractTypes.FYToken__factory.abi as any,
                 functionName: 'balanceOf',
                 args: [series.poolAddress],
               },
             ],
-          })) as unknown as (BigNumber | undefined | null)[];
+          })
 
-          let sharesReserves: BigNumber;
-          let c: BigNumber | undefined;
-          let mu: BigNumber | undefined;
-          let currentSharePrice: BigNumber;
-          let sharesAddress: string;
+          console.log('RETURN: ',  baseReservesResult, fyTokenReservesResult, totalSupplyResult, fyTokenRealReservesResult) 
+
+          const baseReserves = BigNumber.from(baseReservesResult.result ?? 0);
+          const fyTokenReserves =  BigNumber.from(fyTokenReservesResult.result ?? 0);
+          const totalSupply =  BigNumber.from(totalSupplyResult.result ?? 0);
+          const fyTokenRealReserves =  BigNumber.from(fyTokenRealReservesResult.result ?? 0);
+
+          // console.log('RETURN: ',  baseReserves, fyTokenReserves, totalSupply, fyTokenRealReserves)
+
+          const sharesReserves = baseReserves ?? '0';
+          const currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
+          const sharesAddress = assetRootMap.get(series.baseId)?.address!;
+          const c = undefined;
+          const mu = undefined;
+          diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
 
           /* This was the case used for Euler pools - no longer used left here for reference */
-          if (false) {
-            [sharesReserves, c, mu, currentSharePrice, sharesAddress] = (await multicall({
-              contracts: [
-                {
-                  address: series.poolContract.address as `0x${string}`,
-                  abi: series.poolContract.interface as any,
-                  functionName: 'getSharesBalance',
-                  args: [],
-                },
-                {
-                  address: series.poolContract.address as `0x${string}`,
-                  abi: series.poolContract.interface as any,
-                  functionName: 'getC',
-                  args: [],
-                },
-                {
-                  address: series.poolContract.address as `0x${string}`,
-                  abi: series.poolContract.interface as any,
-                  functionName: 'mu',
-                  args: [],
-                },
-                {
-                  address: series.poolContract.address as `0x${string}`,
-                  abi: series.poolContract.interface as any,
-                  functionName: 'getCurrentSharePrice',
-                  args: [],
-                },
-                {
-                  address: series.poolContract.address as `0x${string}`,
-                  abi: series.poolContract.interface as any,
-                  functionName: 'sharesToken',
-                  args: [],
-                },
-              ],
-            })) as unknown as any[];
-          } else {
-            sharesReserves = baseReserves ?? ZERO_BN;
-            currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
-            sharesAddress = assetRootMap.get(series.baseId)?.address!;
-            diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
-          }
+          // let sharesReserves: BigNumber;
+          // let c: BigNumber | undefined;
+          // let mu: BigNumber | undefined;
+          // let currentSharePrice: BigNumber;
+          // let sharesAddress: string;
+          // if (false) {
+          //   [sharesReserves, c, mu, currentSharePrice, sharesAddress] = (await multicall({
+          //     contracts: [
+          //       {
+          //         address: series.poolContract.address as `0x${string}`,
+          //         abi: series.poolContract.interface as any,
+          //         functionName: 'getSharesBalance',
+          //         args: [],
+          //       },
+          //       {
+          //         address: series.poolContract.address as `0x${string}`,
+          //         abi: series.poolContract.interface as any,
+          //         functionName: 'getC',
+          //         args: [],
+          //       },
+          //       {
+          //         address: series.poolContract.address as `0x${string}`,
+          //         abi: series.poolContract.interface as any,
+          //         functionName: 'mu',
+          //         args: [],
+          //       },
+          //       {
+          //         address: series.poolContract.address as `0x${string}`,
+          //         abi: series.poolContract.interface as any,
+          //         functionName: 'getCurrentSharePrice',
+          //         args: [],
+          //       },
+          //       {
+          //         address: series.poolContract.address as `0x${string}`,
+          //         abi: series.poolContract.interface as any,
+          //         functionName: 'sharesToken',
+          //         args: [],
+          //       },
+          //     ],
+          //   })) as unknown as any[];
+          // } else if (false) {
+          //   sharesReserves = baseReserves ?? ZERO_BN;
+          //   currentSharePrice = ethers.utils.parseUnits('1', series.decimals);
+          //   sharesAddress = assetRootMap.get(series.baseId)?.address!;
+          //   diagnostics && console.log('Using old pool contract that does not include c, mu, and shares');
+          // }
 
           // convert base amounts to shares amounts (baseAmount is wad)
           const getShares = (baseAmount: BigNumber) =>
@@ -471,13 +484,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               contracts: [
                 {
                   address: series.poolContract.address as `0x${string}`,
-                  abi: series.poolContract.interface as any,
+                  abi: contractTypes.Pool__factory.abi as any,
                   functionName: 'balanceOf',
                   args: [account],
                 },
                 {
                   address: series.fyTokenContract.address as `0x${string}`,
-                  abi: series.poolContract.interface as any,
+                  abi: contractTypes.Pool__factory.abi as any,
                   functionName: 'balanceOf',
                   args: [account],
                 },
@@ -590,19 +603,19 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 contracts: [
                   {
                     address: _strategy.strategyContract.address as `0x${string}`,
-                    abi: _strategy.strategyContract.interface as any,
+                    abi: contractTypes.StrategyV2_1__factory.abi as any,
                     functionName: 'rewardsPerToken',
                     args: [],
                   },
                   {
                     address: _strategy.strategyContract.address as `0x${string}`,
-                    abi: _strategy.strategyContract.interface as any,
+                    abi: contractTypes.StrategyV2_1__factory.abi as any,
                     functionName: 'rewardsPeriod',
                     args: [],
                   },
                   {
                     address: _strategy.strategyContract.address as `0x${string}`,
-                    abi: _strategy.strategyContract.interface as any,
+                    abi: contractTypes.StrategyV2_1__factory.abi as any,
                     functionName: 'rewardsToken',
                     args: [],
                   },
@@ -733,7 +746,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const updatedVaults = await Promise.all(
         _vaults.map(async (vault) => {
-          const [{ ink, art }, { owner, seriesId, ilkId }] = await multicall({
+
+          // [ink, art], [owner, seriesId, ilkId]
+          const [{result: balResult },  {result: vaultResult } ] = await multicall({
             // update balance and series (series - because a vault can have been rolled to another series) */
             contracts: [
               {
@@ -751,6 +766,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             ],
           });
 
+          const [owner, seriesId, ilkId] = vaultResult!;
+          const [ink_, art_] = balResult!;
+
           const series = seriesRootMap.get(seriesId);
           if (!series) return;
 
@@ -765,9 +783,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           const hasBeenLiquidated = liquidationEvents.flat().length > 0;
 
           // get the accrued art directly from contract; can't multicall this using wagmi for now
-          const accruedArt = await Cauldron?.callStatic.debtToBase(seriesId, art);
+          const accruedArt = await Cauldron?.callStatic.debtToBase(seriesId, BigNumber.from(art_));
 
-          const [rateOracleAddr, rateAtMaturity] = await multicall({
+          const [{result: rateOracleAddr}, {result:rateAtMaturity}] = await multicall({
             contracts: [
               {
                 address: Cauldron.address as `0x${string}`,
@@ -785,7 +803,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           });
 
           // using compound multi here, but all rate oracles follow the same func sig
-          const Rate0racle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr, provider);
+          const Rate0racle = contractTypes.CompoundMultiOracle__factory.connect(rateOracleAddr!, provider);
           const [rateFromOracle] = await Rate0racle.peek(bytesToBytes32(vault.baseId, 6), RATE, '0');
 
           /* 
@@ -795,8 +813,8 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             */
 
           const rate = isVaultMature
-            ? rateFromOracle.lt(rateAtMaturity)
-              ? rateAtMaturity
+            ? rateFromOracle.lt(BigNumber.from(rateAtMaturity!))
+              ? BigNumber.from(rateAtMaturity!)
               : rateFromOracle
             : BigNumber.from('1');
 
@@ -811,15 +829,15 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             isActive: owner.toLowerCase() === account?.toLowerCase(), // refreshed in case owner has been updated
             seriesId, // refreshed in case seriesId has been updated
             ilkId, // refreshed in case ilkId has been updated
-            ink,
-            art,
+            ink: BigNumber.from(ink_),
+            art: BigNumber.from(art_),
             accruedArt,
             isVaultMature,
             rate,
 
-            rate_: cleanValue(ethers.utils.formatUnits(rate, 18), 2), // always 18 decimals when getting rate from rate oracle,
-            ink_: cleanValue(ethers.utils.formatUnits(ink, ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
-            art_: cleanValue(ethers.utils.formatUnits(art, baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
+            rate_: cleanValue(ethers.utils.formatUnits(rate!, 18), 2), // always 18 decimals when getting rate from rate oracle,
+            ink_: cleanValue(ethers.utils.formatUnits(BigNumber.from(ink_), ilkRoot?.decimals), ilkRoot?.digitFormat), // for display purposes only
+            art_: cleanValue(ethers.utils.formatUnits(BigNumber.from(art_), baseRoot?.decimals), baseRoot?.digitFormat), // for display purposes only
             accruedArt_: cleanValue(ethers.utils.formatUnits(accruedArt, baseRoot?.decimals), baseRoot?.digitFormat), // display purposes
           };
 

@@ -1,10 +1,9 @@
-import { useEffect, useState, useContext } from 'react';
-import { useProvider } from 'wagmi';
-import { ChainContext } from '../contexts/ChainContext';
+import { useEffect, useState } from 'react';
+import { useEthersProvider } from './useEthersProvider';
 
 export const useTimeTravel = () => {
 
-  const provider = useProvider();
+  const provider = useEthersProvider();
 
   const [snapshotNumber, setSnapshotNumber] = useState<any>('0x1');
   const [block, setBlock] = useState<any>(null);
@@ -14,7 +13,7 @@ export const useTimeTravel = () => {
     provider &&
       (async () => {
         const { timestamp: ts } = await provider.getBlock('latest');
-        setTimestamp(ts);
+        setTimestamp( Number(ts));
       })();
   }, [block, provider]);
 
@@ -31,7 +30,7 @@ export const useTimeTravel = () => {
     console.log('Snapshot taken', num.result);
     setSnapshotNumber(num.result);
     window.localStorage.setItem('snapshot', num.result);
-    setBlock(provider.blockNumber);
+    setBlock(provider.getBlockNumber());
   };
 
   const revertToSnapshot = async () => {
@@ -47,7 +46,7 @@ export const useTimeTravel = () => {
     // eslint-disable-next-line no-console
     console.log('Reverted to Snapshot', (await res.json()).result);
     takeSnapshot();
-    setBlock(provider.blockNumber);
+    setBlock(provider.getBlockNumber());
     window.localStorage.clear();
     window.location.reload();
   };
@@ -63,7 +62,7 @@ export const useTimeTravel = () => {
     // eslint-disable-next-line no-console
     console.log('Reverted to first snapshot', (await res.json()).result);
     takeSnapshot();
-    setBlock(provider.blockNumber);
+    setBlock(provider.getBlockNumber());
     window.localStorage.clear();
     window.location.reload();
   };
@@ -78,7 +77,7 @@ export const useTimeTravel = () => {
     });
     // eslint-disable-next-line no-console
     console.log(await res.json());
-    setBlock(provider.blockNumber);
+    setBlock(provider.getBlockNumber());
     window.location.reload();
   };
 
@@ -92,9 +91,9 @@ export const useTimeTravel = () => {
     });
     // eslint-disable-next-line no-console
     console.log(await res.json());
-    setBlock(provider.blockNumber);
+    setBlock(provider.getBlockNumber());
     // eslint-disable-next-line no-console
-    console.log('new block:', provider.blockNumber);
+    console.log('new block:', provider.getBlockNumber());
   };
 
   const advanceTimeAndBlock = async (time: string) => {

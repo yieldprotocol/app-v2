@@ -10,18 +10,19 @@ import { useAddRemoveEth } from './useAddRemoveEth';
 import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { ConvexJoin__factory } from '../../contracts';
 import { HistoryContext } from '../../contexts/HistoryContext';
-import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
+import { Address, useBalance, useNetwork, usePublicClient } from 'wagmi';
 import useContracts from '../useContracts';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
+import { useEthersProvider } from '../useEthersProvider';
 
 export const useRemoveCollateral = () => {
   const { userState, userActions } = useContext(UserContext);
   const { selectedIlk, assetMap } = userState;
   const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
-  const provider = useProvider();
+  const provider = useEthersProvider();
   const contracts = useContracts();
   const { refetch: refetchIlkBal } = useBalance({
     address: account,

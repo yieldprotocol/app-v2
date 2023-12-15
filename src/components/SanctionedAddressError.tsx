@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Anchor, Box, Button, Collapsible, Layer, Text } from 'grommet';
 import { FiAlertCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { useAccount, useDisconnect, useProvider } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import { ethers } from 'ethers';
 import { GA_Event, GA_Properties } from '../types/analytics';
 import useAnalytics from '../hooks/useAnalytics';
+import { useEthersProvider } from '../hooks/useEthersProvider';
 
 const SanctionedAddressError = () => {
   
   const { disconnect } = useDisconnect();
-  const provider = useProvider();
+  const provider = useEthersProvider();
   const { logAnalyticsEvent } = useAnalytics();
 
   const [showError, setShowError] = useState<boolean>(false);

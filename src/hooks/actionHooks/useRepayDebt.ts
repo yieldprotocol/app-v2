@@ -13,12 +13,13 @@ import { ONE_BN, ZERO_BN } from '../../utils/constants';
 import { useWrapUnwrapAsset } from './useWrapUnwrapAsset';
 import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useBalance, useNetwork, useProvider } from 'wagmi';
+import { Address, useBalance, useNetwork, usePublicClient } from 'wagmi';
 import useContracts from '../useContracts';
 import useChainId from '../useChainId';
 import useAccountPlus from '../useAccountPlus';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
+import { useEthersProvider } from '../useEthersProvider';
 
 export const useRepayDebt = () => {
   const {
@@ -30,7 +31,7 @@ export const useRepayDebt = () => {
   const { updateVaults, updateAssets, updateSeries } = userActions;
   const { address: account } = useAccountPlus();
   const { chain } = useNetwork();
-  const provider = useProvider();
+  const provider = useEthersProvider();
   const contracts = useContracts();
   const { refetch: refetchIlkBal } = useBalance({
     address: account,
