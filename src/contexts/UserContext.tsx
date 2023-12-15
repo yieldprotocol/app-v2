@@ -150,9 +150,6 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const { forkStartBlock } = useFork();
 
   const {
-    // data: assetBalances,
-    // isLoading: assetsLoading,
-    // status: assetsStatus,
     refetch: refetchAssetBalances,
   } = useBalances(
     Array.from(assetRootMap.values()), // asset list : assetRoot[]
@@ -261,7 +258,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
       /* refetch the asset balances */
-      const _assetBalances = (await refetchAssetBalances()).data as BalanceData[];
+      const _assetBalances = (await refetchAssetBalances()).data;
+
+      console.log( _assetBalances)
 
       /**
        * NOTE! this block Below is just a place holder for if EVER async updates of assets are required.
@@ -270,7 +269,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
           // get the balance of the asset from the assetsBalance array
-          const { balance, balance_ } = _assetBalances.find((a) => a.id.toLowerCase() === asset.id.toLowerCase()) || {
+          const { balance, balance_ } = _assetBalances!.find((a) => a.id.toLowerCase() === asset.id.toLowerCase()) || {
             balance: ZERO_BN,
             balance_: '0',
           };
@@ -481,7 +480,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       if (account) {
         _accountData = await Promise.all(
           _publicData.map(async (series): Promise<ISeries> => {
-            const [poolTokens, fyTokenBalance] = (await multicall({
+            const [ poolTokensResult, fyTokenBalanceResult ] = await multicall({
               contracts: [
                 {
                   address: series.poolContract.address as `0x${string}`,
@@ -496,9 +495,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                   args: [account],
                 },
               ],
-            })) as unknown as BigNumber[];
+            });
 
-            const poolPercent = mulDecimal(divDecimal(poolTokens || ZERO_BN, series.totalSupply), '100');
+            const poolTokens = BigNumber.from(poolTokensResult.result);
+            const fyTokenBalance = BigNumber.from(fyTokenBalanceResult.result);
+
+            const poolPercent = '0'//  mulDecimal(divDecimal(poolTokens || ZERO_BN, series.totalSupply), '100');
 
             return {
               ...series,
@@ -576,7 +578,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
           /* Attatch the current series (if any) */
           const currentSeries = _seriesList.find((s: ISeriesRoot) =>
-            fyToken ? s.address.toLowerCase() === (fyToken as String).toLowerCase() : undefined
+            fyToken ? s.address.toLowerCase() === (fyToken as String) : undefined
           );
 
           if (currentSeries) {
@@ -666,22 +668,25 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const _accountData = account
         ? await Promise.all(
             _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
-              const [accountBalance, accountPoolBalance] = (await multicall({
+              const [accountBalanceResult, accountPoolBalanceResult] = await multicall({
                 contracts: [
                   {
                     address: _strategy.strategyContract.address as `0x${string}`,
-                    abi: _strategy.strategyContract.interface as any,
+                    abi: contractTypes.StrategyV2_1__factory.abi as any,
                     functionName: 'balanceOf',
                     args: [account],
                   },
                   {
                     address: _strategy.currentSeries?.poolContract.address as `0x${string}`,
-                    abi: _strategy.currentSeries?.poolContract.interface as any,
+                    abi: contractTypes.Pool__factory.abi as any,
                     functionName: 'balanceOf',
                     args: [account],
                   },
                 ],
-              })) as unknown as BigNumber[];
+              });
+
+              const accountBalance = BigNumber.from(accountBalanceResult.result || 0);
+              const accountPoolBalance = BigNumber.from(accountPoolBalanceResult.result || 0);
 
               // const stratConnected = _strategy.strategyContract.connect(signer!);
               // const accountRewards =

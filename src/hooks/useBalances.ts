@@ -27,35 +27,38 @@ const useBalances = (assetList: IAssetRoot[], enabled: boolean = false) => {
           address: a.address as Address,
           args: a.tokenIdentifier ? [account, a.tokenIdentifier] : [account], // handle erc1155 tokens with tokenIdentifier
           functionName: 'balanceOf',
-          abi: a.tokenIdentifier ? erc1155ABI : erc20ABI, // : a!.assetContract!.interface!.format()! as const,
+          abi: a.tokenIdentifier ? erc1155ABI : erc20ABI as any, // : a!.assetContract!.interface!.format()! as const,
         };
       }): [],
     [account, assetList]
   );
 
-  const formatData = (_data: BigNumber[]) =>
+  const formatData = (_data: any[]) =>
+
+    _data ? 
     _data?.map((d: any, i: number) => {
       return {
         id: assetList[i].id,
-        balance: d || ethers.constants.Zero,
-        balance_: d ? formatUnits(d, assetList[i].decimals) : '0',
+        balance: BigNumber.from(d.result) || ethers.constants.Zero,
+        balance_: d.result ? formatUnits(BigNumber.from(d.result), assetList[i].decimals) : '0',
       } as BalanceData;
-    });
+    }) : 
+    [];
 
   const {
     data,
     isLoading,
-    isFetched,
+    isError,
     refetch,
   } = useContractReads({
     contracts,
     enabled: false, // false so that the hook only runs on demand (when refetch() is called)
-    select: (data: any[]): BalanceData[] => formatData(data),
+    select: (data: any[]) => formatData(data),
   });
-
 
   isLoading && console.log('::: Refetching Asset balances :::');
 
+  if (isError) return { data: [], isLoading, refetch };
   return { data, isLoading, refetch };
 };
 
