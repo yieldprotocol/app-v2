@@ -8,7 +8,7 @@ import { IVault, ISeries, IAsset, IStrategy, ActionType } from '../types';
 import Logo from './logos/Logo';
 import { StrategyType } from '../config/strategies';
 import { FaExclamationCircle } from 'react-icons/fa';
-import useChainId from '../hooks/useChainId';
+import { useNetwork } from 'wagmi';
 
 const Outer = styled(Box)`
   position: relative;
@@ -56,7 +56,7 @@ function PositionAvatar({
 
   const ilkBorderSize = condensed ? '18px' : '22px';
 
-  const chainId = useChainId();
+  const {chain} = useNetwork();
 
   return (
     <Outer width={condensed ? '36px' : 'auto'}>
@@ -74,7 +74,7 @@ function PositionAvatar({
           )}
           {actionType === ActionType.POOL && (
             <Avatar background="lightBackground" size={ilkBorderSize}>
-              {(type !== StrategyType.V2_1 && chainId === 1) ? <FaExclamationCircle /> : <MdAutorenew />}
+              {(type !== StrategyType.V2_1 && chain?.id === 1) ? <FaExclamationCircle /> : <MdAutorenew />}
             </Avatar>
           )}
         </Inner>

@@ -11,9 +11,9 @@ import { cleanValue, getTxCode } from '../../utils/appUtils';
 import { useChain } from '../useChain';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance, useNetwork } from 'wagmi';
 import useContracts from '../useContracts';
-import useChainId from '../useChainId';
+
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 
@@ -27,7 +27,7 @@ export const useLend = () => {
   const { assetMap, selectedSeries, selectedBase } = userState;
   const { updateSeries, updateAssets } = userActions;
   const { address: account } = useAccount();
-  const chainId = useChainId();
+  const {chain} = useNetwork();
   const { isActionAllowed } = useAllowAction();
 
   const { refetch: refetchFyTokenBal } = useBalance({ address: account, token: selectedSeries?.address as Address });
@@ -84,7 +84,7 @@ export const useLend = () => {
         {
           target: base,
           spender: 'LADLE',
-          amount: base.id === USDT && chainId !== 42161 ? MAX_256 : _input, // USDT allowance when non-zero needs to be set to 0 explicitly before settting to a non-zero amount; instead of having multiple approvals, we approve max from the outset on mainnet
+          amount: base.id === USDT && chain?.id !== 42161 ? MAX_256 : _input, // USDT allowance when non-zero needs to be set to 0 explicitly before settting to a non-zero amount; instead of having multiple approvals, we approve max from the outset on mainnet
           ignoreIf: alreadyApproved === true,
         },
       ],

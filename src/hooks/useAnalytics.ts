@@ -1,9 +1,9 @@
+import { useNetwork } from 'wagmi';
 import { GA_Event, GA_View } from '../types/analytics';
 import { useRouter } from 'next/router';
-import useChainId from './useChainId';
 
 const useAnalytics = () => {
-  const chainId = useChainId();
+  const {chain}= useNetwork();
 
   /* get path from router */
   const { asPath } = useRouter();
@@ -23,7 +23,7 @@ const useAnalytics = () => {
       try {
         window?.gtag('event', eventName, {
           ...eventProps,
-          chain_id: chainId,
+          chain_id: chain?.id,
           view: eventProps.view || getView(), // if no view is provided, try to get it
           view_id: viewArr[1] || '-',
         });

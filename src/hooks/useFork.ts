@@ -3,9 +3,8 @@ import { ethers } from 'ethers';
 import { useCallback, useContext, useMemo } from 'react';
 import { SettingsContext } from '../contexts/SettingsContext';
 import useSWRImmutable from 'swr/immutable';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, useNetwork } from 'wagmi';
 import { toast } from 'react-toastify';
-import useChainId from './useChainId';
 import useDefaultProvider from './useDefaultProvider';
 
 const useFork = () => {
@@ -16,7 +15,7 @@ const useFork = () => {
   const { address: account } = useAccount();
   const { refetch } = useBalance({ address: account });
 
-  const chainId = useChainId();
+  const {chain} = useNetwork();
   const defaultProvider = useDefaultProvider();
 
   const provider = useMemo(
@@ -29,7 +28,7 @@ const useFork = () => {
     const currentBlockNumber = await defaultProvider.getBlockNumber();
     const resp = await axios.post(
       TENDERLY_FORK_API,
-      { network_id: chainId.toString(), block_number: currentBlockNumber },
+      { network_id: chain?.id.toString(), block_number: currentBlockNumber },
       {
         headers: {
           'X-Access-Key': process.env.TENDERLY_ACCESS_KEY as string,
@@ -37,7 +36,7 @@ const useFork = () => {
       }
     );
     return `https://rpc.tenderly.co/fork/${resp.data.simulation_fork.id}`;
-  }, [chainId, defaultProvider]);
+  }, [chain, defaultProvider]);
 
   const getForkTimestamp = useCallback(async () => {
     if (!useForkedEnv || !provider) return;

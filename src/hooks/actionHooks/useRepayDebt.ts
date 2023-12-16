@@ -15,7 +15,6 @@ import { ConvexJoin__factory } from '../../contracts';
 import useTimeTillMaturity from '../useTimeTillMaturity';
 import { Address, useAccount, useBalance, useNetwork, usePublicClient } from 'wagmi';
 import useContracts from '../useContracts';
-import useChainId from '../useChainId';
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 import { useEthersProvider } from '../useEthersProvider';
@@ -45,7 +44,6 @@ export const useRepayDebt = () => {
   const { unwrapAsset } = useWrapUnwrapAsset();
   const { sign, transact } = useChain();
   const { getTimeTillMaturity, isMature } = useTimeTillMaturity();
-  const chainId = useChainId();
 
   const {isActionAllowed} = useAllowAction();
 
@@ -139,7 +137,7 @@ export const useRepayDebt = () => {
     // const wrapAssetCallData : ICallData[] = await wrapAsset(ilk, account!);
     const unwrapAssetCallData: ICallData[] = reclaimCollateral ? await unwrapAsset(ilk, account!) : [];
 
-    const approveAmount = base.id === USDT && chainId !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100);
+    const approveAmount = base.id === USDT && chain?.id !== 42161 ? MAX_256 : amountToTransfer.mul(110).div(100);
     const permitCallData: ICallData[] = await sign(
       [
         {

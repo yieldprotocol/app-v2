@@ -46,7 +46,6 @@ import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 // import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
-// import useChainId from '../../hooks/useChainId';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';

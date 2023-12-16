@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext } from 'react';
 import { IAsset, IAssetPair } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import useSWR from 'swr';
@@ -6,7 +6,6 @@ import useSWR from 'swr';
 import { bytesToBytes32, decimal18ToDecimalN, WAD_BN } from '@yield-protocol/ui-math';
 import useContracts from './useContracts';
 import { Cauldron, CompositeMultiOracle__factory } from '../contracts';
-import useChainId from './useChainId';
 import { UserContext } from '../contexts/UserContext';
 import { stETH, wstETH } from '../config/assets';
 import { ContractNames } from '../config/contracts';
@@ -14,6 +13,7 @@ import useFork from './useFork';
 import { JsonRpcProvider, Provider } from '@ethersproject/providers';
 import useDefaultProvider from './useDefaultProvider';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { useNetwork } from 'wagmi';
 
 // This hook is used to get the asset pair info for a given base and collateral (ilk)
 const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
@@ -26,7 +26,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
     settingsState: { diagnostics },
   } = useContext(SettingsContext);
 
-  const chainId = useChainId();
+  const { chain } = useNetwork();
 
   /* HOOKS */
   const provider = useDefaultProvider();
@@ -89,9 +89,9 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   // This function is used to generate the key for the useSWR hook
   const genKey = useCallback(
     (baseId: string, ilkId: string) => {
-      return ['assetPair', chainId, baseId, ilkId];
+      return ['assetPair', chain?.id, baseId, ilkId];
     },
-    [chainId]
+    [chain]
   );
 
   const { data, error } = useSWR(
@@ -148,7 +148,7 @@ const useAssetPair = (baseId?: string, ilkId?: string, seriesId?: string) => {
   }, [assetMap, contracts, forkProvider, forkStartBlock, provider, seriesId, useForkedEnv]);
 
   const { data: validIlks, error: validIlksError } = useSWR(
-    seriesId ? ['seriesIlks', chainId, useForkedEnv, forkUrl, seriesId] : null,
+    seriesId ? ['seriesIlks', chain?.id, useForkedEnv, forkUrl, seriesId] : null,
     getSeriesEntityIlks,
     {
       shouldRetryOnError: false,

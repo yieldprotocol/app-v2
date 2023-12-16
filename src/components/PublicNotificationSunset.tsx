@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Box, Text, Button } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
-import useChainId from '../hooks/useChainId';
+
 import TermsModal from './TermsModal';
 import useUpgradeTokens from '../hooks/actionHooks/useUpgradeTokens';
+import { useNetwork } from 'wagmi';
 
 type PublicNotificationProps = {
   children?: any;
 };
 
 const PublicNotificationSunset = ({ children }: PublicNotificationProps) => {
-  const chainId = useChainId();
   const { hasUpgradeable, isUpgrading, upgradeAllStrategies } = useUpgradeTokens();
   const [showTerms, setShowTerms] = useState<boolean>(false);
 

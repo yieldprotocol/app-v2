@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { Box, Text, Button } from 'grommet';
 import { FiAlertTriangle } from 'react-icons/fi';
-import useChainId from '../hooks/useChainId';
+
 import TermsModal from './TermsModal';
 import useUpgradeTokens from '../hooks/actionHooks/useUpgradeTokens';
+import { useNetwork } from 'wagmi';
 
 type PublicNotificationProps = {
   children?: any;
 };
 
 const PublicNotification = ({ children }: PublicNotificationProps) => {
-  const chainId = useChainId();
+  const {chain} = useNetwork();
+
   const { hasUpgradeable, isUpgrading, upgradeAllStrategies } = useUpgradeTokens();
   const [showTerms, setShowTerms] = useState<boolean>(false);
 
@@ -27,7 +29,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
 
   return (
     <>
-      {chainId === 1 && hasUpgradeable ? (
+      {chain?.id === 1 && hasUpgradeable ? (
         <Box direction="row" align="center" justify="between">
           <Box direction="column" border={{ size: 'small' }} pad="small" gap="small" align="center" round="xsmall">
             <Box gap="small" align="center">

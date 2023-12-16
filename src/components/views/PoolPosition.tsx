@@ -29,7 +29,7 @@ import { useProcess } from '../../hooks/useProcess';
 import { usePoolHelpers } from '../../hooks/viewHelperHooks/usePoolHelpers';
 import InputInfoWrap from '../wraps/InputInfoWrap';
 import ExitButton from '../buttons/ExitButton';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import useAnalytics from '../../hooks/useAnalytics';
 import { GA_Event, GA_Properties, GA_View } from '../../types/analytics';
 import useClaimRewards from '../../hooks/actionHooks/useClaimRewards';
@@ -40,7 +40,6 @@ import { ZERO_BN } from '@yield-protocol/ui-math';
 import { StrategyType } from '../../config/strategies';
 import { FRAX } from '../../config/assets';
 import { FaExclamationCircle } from 'react-icons/fa';
-import useChainId from '../../hooks/useChainId';
 import useUpgradeTokens from '../../hooks/actionHooks/useUpgradeTokens';
 import TermsModal from '../TermsModal';
 
@@ -63,7 +62,7 @@ const PoolPosition = () => {
   const selectedSeries = _selectedStrategy?.currentSeries;
   const selectedBase = assetMap?.get(_selectedStrategy?.baseId!);
 
-  const chainId = useChainId();
+  const {chain}= useNetwork();
   const { isUpgrading, upgradeAllStrategies, completedUpgrade } = useUpgradeTokens();
 
   /* LOCAL STATE */
@@ -198,7 +197,7 @@ const PoolPosition = () => {
   );
 
   const restrictOptions =
-    selectedStrategy?.type !== StrategyType.V2_1 && chainId === 1 && selectedStrategy?.baseId !== FRAX;
+    selectedStrategy?.type !== StrategyType.V2_1 && chain?.id === 1 && selectedStrategy?.baseId !== FRAX;
 
   useEffect(() => {
     if (restrictOptions) setActionActive({ text: 'Upgrade Tokens', index: 3 })

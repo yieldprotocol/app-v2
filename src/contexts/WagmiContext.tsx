@@ -19,11 +19,9 @@ import {
   metaMaskWallet,
   walletConnectWallet,
   injectedWallet,
-  coinbaseWallet,
   rainbowWallet,
   ledgerWallet,
   argentWallet,
-  braveWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import YieldAvatar from '../components/YieldAvatar';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -36,7 +34,7 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
 
   const [useForkedEnv] = useCachedState(Settings.USE_FORKED_ENV, false);
   const [forkEnvUrl] = useCachedState(Settings.FORK_ENV_URL, process.env.REACT_APP_DEFAULT_FORK_RPC_URL);
-  const defaultChainId = parseInt(process.env.REACT_APP_DEFAULT_CHAINID!)
+  const defaultChainId = 1; // parseInt(process.env.REACT_APP_DEFAULT_CHAINID!)
   const projectId = 'b5e9597abbab7ae461d6668eb90978a1';
 
   const chainConfig = useMemo(
@@ -48,7 +46,7 @@ const WagmiContext = ({ children }: { children: ReactNode }) => {
   );
 
 // const { chains, provider } = configureChains(defaultChains, [chainConfig]);
-const { chains, publicClient, webSocketPublicClient } = configureChains(
+const { chains, publicClient } = configureChains(
   defaultChains,
   [chainConfig],
 )

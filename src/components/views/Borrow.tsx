@@ -19,7 +19,7 @@ import CenterPanelWrap from '../wraps/CenterPanelWrap';
 import VaultSelector from '../selectors/VaultPositionSelector';
 import ActiveTransaction from '../ActiveTransaction';
 
-import { cleanValue, getTxCode, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
+import { cleanValue, getVaultIdFromReceipt, nFormatter } from '../../utils/appUtils';
 
 import YieldInfo from '../FooterInfo';
 import BackButton from '../buttons/BackButton';
@@ -101,7 +101,7 @@ const Borrow = () => {
     liquidationPrice_,
   } = useCollateralHelpers(borrowInput, collatInput, vaultToUse, assetPair);
 
-  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } = useBorrowHelpers(
+  const { minDebt_, maxDebt_, borrowPossible, borrowEstimate_ } =  useBorrowHelpers(
     borrowInput,
     collatInput,
     vaultToUse,

@@ -27,16 +27,15 @@ import useTimeTillMaturity from '../hooks/useTimeTillMaturity';
 
 import request from 'graphql-request';
 import { Block } from '@ethersproject/providers';
-import useChainId from '../hooks/useChainId';
 import useContracts from '../hooks/useContracts';
 import { IUserContextActions, IUserContextState, UserContextAction, UserState } from './types/user';
 import useFork from '../hooks/useFork';
 import { formatUnits } from 'ethers/lib/utils';
-import useBalances, { BalanceData } from '../hooks/useBalances';
+import useBalances from '../hooks/useBalances';
 import { ContractNames } from '../config/contracts';
 import { StrategyType } from '../config/strategies';
 import { useEthersProvider } from '../hooks/useEthersProvider';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 
 const initState: IUserContextState = {
   userLoading: false,
@@ -136,7 +135,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userState, updateState] = useReducer(userReducer, initState);
 
   /* HOOKS */
-  const chainId = useChainId();
+  const {chain} = useNetwork();
   const provider = useEthersProvider();
 
   const { address: account } = useAccount();
@@ -195,11 +194,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const Cauldron = contracts.get(ContractNames.CAULDRON) as contractTypes.Cauldron;
 
-    const cacheKey = `vaults_${account}_${chainId}`;
+    const cacheKey = `vaults_${account}_${chain?.id}`;
     const cachedVaults = JSON.parse(localStorage.getItem(cacheKey)!);
     const cachedVaultList = (cachedVaults ?? []) as IVaultRoot[];
 
-    const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chainId}`;
+    const lastVaultUpdateKey = `lastVaultUpdate_${account}_${chain?.id}`;
     // get the latest available vault ( either from the local storage or from the forkStart)
     const lastVaultUpdate = useForkedEnv
       ? forkStartBlock || 'earliest'
@@ -249,7 +248,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     allVaultList.length && localStorage.setItem(lastVaultUpdateKey, latestBlock);
 
     return allVaultList;
-  }, [account, chainId, contracts, forkStartBlock, provider, seriesRootMap, useForkedEnv]);
+  }, [account, chain, contracts, forkStartBlock, provider, seriesRootMap, useForkedEnv]);
 
   /* Updates the assets with relevant *user* data */
   const updateAssets = useCallback(
@@ -258,9 +257,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       updateState({ type: UserState.ASSETS_LOADING, payload: true });
 
       /* refetch the asset balances */
-      const _assetBalances = (await refetchAssetBalances()).data;
-
-      console.log( _assetBalances)
+      const _assetBalances = (await refetchAssetBalances()).data || [];
 
       /**
        * NOTE! this block Below is just a place holder for if EVER async updates of assets are required.
@@ -268,11 +265,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
        * */
       const updatedAssets = await Promise.all(
         assetList.map(async (asset) => {
+          
           // get the balance of the asset from the assetsBalance array
-          const { balance, balance_ } = _assetBalances!.find((a) => a.id.toLowerCase() === asset.id.toLowerCase()) || {
+          const { balance, balance_ } = _assetBalances.find((a) => a.id.toLowerCase() === asset.id.toLowerCase()) || {
             balance: ZERO_BN,
             balance_: '0',
           };
+
           const newAsset = {
             /* public data */
             ...asset,
@@ -333,7 +332,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             ],
           })
 
-          console.log( chainId )
+          console.log( chain?.id )
           console.log('RETURN: ', series.address , series.displayName,  baseReservesResult.result, fyTokenReservesResult.result, totalSupplyResult.result, fyTokenRealReservesResult.result) 
 
           const baseReserves = BigNumber.from(baseReservesResult.result ?? 0);
@@ -872,20 +871,20 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
    *
    * */
   useEffect(() => {
-    if (chainLoaded === chainId && assetRootMap.size && seriesRootMap.size) {
+    if (chainLoaded === chain?.id && assetRootMap.size && seriesRootMap.size) {
       updateAssets(Array.from(assetRootMap.values()));
       updateSeries(Array.from(seriesRootMap.values()));
       account && updateVaults();
     }
-  }, [account, assetRootMap, seriesRootMap, chainLoaded, chainId, updateAssets, updateSeries, updateVaults]);
+  }, [account, assetRootMap, seriesRootMap, chainLoaded, chain, updateAssets, updateSeries, updateVaults]);
 
   /* update strategy map when series map is fetched */
   useEffect(() => {
-    if (chainLoaded === chainId && Array.from(userState.seriesMap?.values()!).length) {
+    if (chainLoaded === chain?.id && Array.from(userState.seriesMap?.values()!).length) {
       /*  when series has finished loading,...load/reload strategy data */
       strategyRootMap.size && updateStrategies(Array.from(strategyRootMap.values()));
     }
-  }, [strategyRootMap, userState.seriesMap, chainLoaded, chainId, updateStrategies]);
+  }, [strategyRootMap, userState.seriesMap, chainLoaded, chain, updateStrategies]);
 
   // /* If the url references a series/vault...set that one as active */
   // useEffect(() => {

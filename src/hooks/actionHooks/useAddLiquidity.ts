@@ -25,9 +25,9 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import { useAddRemoveEth } from './useAddRemoveEth';
 import { ETH_BASED_ASSETS, USDT, WETH } from '../../config/assets';
 import useTimeTillMaturity from '../useTimeTillMaturity';
-import { Address, useAccount, useBalance } from 'wagmi';
+import { Address, useAccount, useBalance, useNetwork } from 'wagmi';
 import useContracts from '../useContracts';
-import useChainId from '../useChainId';
+
 import { ContractNames } from '../../config/contracts';
 import useAllowAction from '../useAllowAction';
 import { toast } from 'react-toastify';
@@ -42,7 +42,7 @@ export const useAddLiquidity = () => {
   const { updateVaults, updateSeries, updateAssets, updateStrategies } = userActions;
 
   const { address: account } = useAccount();
-  const chainId = useChainId();
+  const {chain}= useNetwork();
   const contracts = useContracts();
 
   const { sign, transact } = useChain();
@@ -204,7 +204,7 @@ export const useAddLiquidity = () => {
         {
           target: _base,
           spender: 'LADLE',
-          amount: _base.id === USDT && chainId !== 42161 ? MAX_256 : _input, // USDT allowance when non-zero needs to be set to 0 explicitly before settting to a non-zero amount; instead of having multiple approvals, we approve max from the outset on mainnet
+          amount: _base.id === USDT && chain?.id !== 42161 ? MAX_256 : _input, // USDT allowance when non-zero needs to be set to 0 explicitly before settting to a non-zero amount; instead of having multiple approvals, we approve max from the outset on mainnet
           ignoreIf: alreadyApproved === true,
         },
       ],
