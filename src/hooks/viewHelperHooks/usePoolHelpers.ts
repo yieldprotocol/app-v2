@@ -234,7 +234,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           if (_extraFyTokenValue.gt(ZERO_BN)) {
             /* CASE > extra fyToken TRADE IS POSSIBLE : USE REMOVE OPTION 2.1 */
             diagnostics && console.log('USE REMOVE OPTION 2.1');
-            setPartialRemoveRequired(false);
+            setPartialRemoveRequired(strategySeries.seriesIsMature ? false:false);
 
             // shares received (converted to base), plus extra fyToken to shares (converted to base), plus accrued art redeemed 1:1 for shares (converted to base)
             const _val = strategySeries
@@ -248,7 +248,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           } else {
             /* CASE > extra fyToken TRADE NOT POSSIBLE (limited by protocol): USE REMOVE OPTION 2.2 */
             diagnostics && console.log('USE REMOVE OPTION 2.2');
-            setPartialRemoveRequired(true);
+            setPartialRemoveRequired(strategySeries.seriesIsMature ? false : true);
             const _fyTokenVal = fyTokenReceivedFromBurn;
             const _baseVal = strategySeries.getBase(sharesReceivedFromBurn);
             setRemoveBaseReceived(_baseVal);
@@ -263,7 +263,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
               'FyTokens received will be less than debt: close from ladle, no extra trading is required : USE REMOVE OPTION 1'
             );
 
-          setPartialRemoveRequired(false);
+          setPartialRemoveRequired(strategySeries.seriesIsMature ? false:false);
 
           // add the base received from the burn to the matching vault's debt (redeemable for base 1:1) to get total base value
           const _val = strategySeries.getBase(sharesReceivedFromBurn).add(fyTokenReceivedFromBurn);
@@ -309,7 +309,7 @@ export const usePoolHelpers = (input: string | undefined, removeLiquidityView: b
           setRemoveFyTokenReceived_('0');
         } else {
           diagnostics && console.log('NO VAULT : trade not possible : USE REMOVE OPTION 4.2');
-          setPartialRemoveRequired(true);
+          setPartialRemoveRequired(strategySeries.seriesIsMature ? false: true);
           setRemoveBaseReceived(strategySeries.getBase(sharesReceivedFromBurn));
           setRemoveBaseReceived_(ethers.utils.formatUnits(sharesReceivedFromBurn, strategySeries.decimals));
           setRemoveFyTokenReceived(fyTokenReceivedFromBurn);

@@ -270,13 +270,7 @@ const PoolPosition = () => {
                     />
                     <InfoBite
                       label="Strategy Token Balance"
-                      value={`${cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)} tokens${
-                        removeBaseReceivedMax_
-                          ? ` (${cleanValue(removeBaseReceivedMax_, selectedBase?.digitFormat!)} ${
-                              selectedBase?.symbol
-                            })`
-                          : ``
-                      }
+                      value={`${cleanValue(_selectedStrategy?.accountBalance_, selectedBase?.digitFormat!)} tokens
                     `}
                       icon={<YieldMark height="1em" colors={[selectedSeries?.startColor!]} />}
                       loading={seriesLoading}
@@ -406,7 +400,7 @@ const PoolPosition = () => {
                             showingMax={!!removeInput && removeInput === maxRemove}
                           />
                         </InputWrap>
-
+{/* 
                         {removeInput && !partialRemoveRequired && !removeError && removeBaseReceived_ && (
                           <InputInfoWrap>
                             <Text color="text-weak" alignSelf="end" size="small">
@@ -414,7 +408,7 @@ const PoolPosition = () => {
                               {selectedBase?.displaySymbol}
                             </Text>
                           </InputInfoWrap>
-                        )}
+                        )} */}
 
                         {removeInput && partialRemoveRequired && !removeError && (
                           <InputInfoWrap>

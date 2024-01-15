@@ -449,7 +449,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             totalSupply: totalSupply || ZERO_BN,
             totalSupply_: totalSupply ? ethers.utils.formatUnits(totalSupply, series.decimals) : '0',
             apr: `${Number(apr).toFixed(2)}`,
-            seriesIsMature: isMature(series.maturity),
+            seriesIsMature: true, // isMature(series.maturity),
             c,
             mu,
             poolAPY,
