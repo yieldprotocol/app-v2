@@ -31,7 +31,7 @@ const FooterInfo = () => {
     <>
       <Box gap="small" align="end" width="20%" style={{ position: 'absolute', bottom: '3em', right: '3em' }}>
         <Box alignSelf="end" width="225px">
-          <PublicNotificationSunset />
+          {/* <PublicNotificationSunset /> */}
           <PublicNotification  />
         </Box>
         <Box alignSelf="end">

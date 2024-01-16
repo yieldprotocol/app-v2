@@ -40,6 +40,7 @@ import { WETH } from '../../config/assets';
 import { StrategyType } from '../../config/strategies';
 import { toast } from 'react-toastify';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import PublicNotificationSunset from '../PublicNotificationSunset';
 
 function Pool() {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -202,6 +203,10 @@ function Pool() {
               </Box>
             </Box>
           )}
+
+          <Box pad="large" gap="small">
+            <PublicNotificationSunset />
+          </Box>
 
           {stepPosition === 1 && (
             <>

@@ -48,6 +48,7 @@ import { WETH } from '../../config/assets';
 import useAccountPlus from '../../hooks/useAccountPlus';
 import useAffectedJuneLenders from '../../hooks/useAffectedJuneLenders';
 import useChainId from '../../hooks/useChainId';
+import PublicNotificationSunset from '../PublicNotificationSunset';
 
 const Lend = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -76,8 +77,6 @@ const Lend = () => {
 
   /* input validation hooks */
   const { inputError: lendError } = useInputValidation(lendInput, ActionCodes.LEND, selectedSeries, [0, maxLend_]);
-
-
 
   /* LOCAL FNS */
   const handleLend = () => {
@@ -221,6 +220,11 @@ const Lend = () => {
               </Box>
             </>
           )}
+
+          <Box pad="large" gap="small">
+            <PublicNotificationSunset />
+          </Box>
+
           {stepPosition === 1 && (
             <>
               <Box

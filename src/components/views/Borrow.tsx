@@ -52,6 +52,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import { WETH } from '../../config/assets';
 import useContracts from '../../hooks/useContracts';
 import useAccountPlus from '../../hooks/useAccountPlus';
+import PublicNotificationSunset from '../PublicNotificationSunset';
 
 const Borrow = () => {
   const mobile: boolean = useContext<any>(ResponsiveContext) === 'small';
@@ -545,6 +546,10 @@ const Borrow = () => {
           </Box>
 
           <Box id="midsection">
+
+          <Box pad="large" gap="small">
+            <PublicNotificationSunset />
+          </Box>
             {stepPosition === 2 &&
               borrowProcess?.stage === ProcessStage.PROCESS_COMPLETE &&
               borrowProcess?.tx.status === TxState.SUCCESSFUL && (
