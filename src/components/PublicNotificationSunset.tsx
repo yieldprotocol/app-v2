@@ -37,16 +37,15 @@ const PublicNotificationSunset = ({ children }: PublicNotificationProps) => {
                 </Text>
               </Box>
               <Box>
-                <Text size="medium" weight={'normal'}>
-                  Yield Protocol Shutting Down
+                <Text size="medium" weight={'normal'} textAlign="center">
+                  Yield Protocol has been permanently shut down.
                 </Text>
               </Box>
             </Box>
             <Text size="xsmall" textAlign="center" weight={'normal'}>
-              As of 31st of December 2023, the Yield Protocol will be officially discontinued.
-            {/* </Text> */}
-            {/* <Text size="xsmall" textAlign="center" weight={'normal'}> */}
-            {' '}Contact us on our{' '}
+              The Yield Protocol was officially discontinued on the 31st of December 2023, and support was discontinued on the 31st of January 2024.
+              {/*               
+              {' '}Contact us on our{' '}
               <a
                 target="_blank"
                 href="https://discord.gg/JAFfDj5"
@@ -54,7 +53,7 @@ const PublicNotificationSunset = ({ children }: PublicNotificationProps) => {
               >
                 discord channel
               </a>{' '}
-              with any support issues until 31 January 2024.
+              with any support issues until 31 January 2024. */}
             </Text>
           </Box>
         </Box>
