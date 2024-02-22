@@ -12,7 +12,6 @@ import {
   floorDecimal,
   mulDecimal,
   sellFYToken,
-  calcAccruedDebt,
   toBn,
 } from '@yield-protocol/ui-math';
 
@@ -429,16 +428,16 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
           let initInvariant: BigNumber | undefined;
           let poolStartBlock: Block | undefined;
 
-          // try {
-          //   // get pool init block
-          //   const gmFilter = series.poolContract.filters.gm();
-          //   const gm = await series.poolContract.queryFilter(gmFilter, 'earliest');
-          //   poolStartBlock = await gm[0].getBlock();
-          //   currentInvariant = await series.poolContract.invariant();
-          //   initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
-          // } catch (e) {
-          //   diagnostics && console.log('Could not get current and init invariant for series', series.id);
-          // }
+          try {
+            // get pool init block
+            const gmFilter = series.poolContract.filters.gm();
+            const gm = await series.poolContract.queryFilter(gmFilter, 'earliest');
+            poolStartBlock = await gm[0].getBlock();
+            currentInvariant = await series.poolContract.invariant();
+            initInvariant = await series.poolContract.invariant({ blockTag: poolStartBlock.number });
+          } catch (e) {
+            diagnostics && console.log('Could not get current and init invariant for series', series.id);
+          }
 
           return {
             ...series,
@@ -525,37 +524,45 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       // let _publicData: IStrategy[] = [];
       const _publicData = await Promise.all(
         strategyList.map(async (_strategy): Promise<IStrategy> => {
-          const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
-          // we always use the v2.1 strategy contract to fetch data and interact with, regardless of strategy type
-          const strategyContractToUse =
-            strategyList.find(
-              (strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase()
-            )?.strategyContract || _strategy.strategyContract;
-          const strategyAddressToUse = strategyContractToUse.address;
-          let currentPoolAddr = undefined;
-          let fyToken: any = undefined;
 
-          if ((_strategy.type === StrategyType.V1 || _strategy.type === StrategyType.V2_1) && _strategy.baseId !== FRAX) {
-            [fyToken, currentPoolAddr] = (await multicall({
-              contracts: [
-                {
-                  address: strategyAddressToUse as `0x${string}`,
-                  abi: _strategy.strategyContract.interface as any,
-                  functionName: 'fyToken',
-                  args: [],
-                },
-                {
-                  address: strategyAddressToUse as `0x${string}`,
-                  abi: _strategy.strategyContract.interface as any,
-                  functionName: 'pool',
-                  args: [],
-                },
-              ],
-            })) as unknown as BigNumber[];
-          } else if (_strategy.type === StrategyType.V2 || _strategy.baseId === FRAX) {
-            currentPoolAddr = await strategyContractToUse?.pool();
-            fyToken = _strategy.associatedSeries;
-          }
+          const strategyTotalSupply = await _strategy.strategyContract.totalSupply();
+          
+          // we always use the v2.1 strategy contract to fetch data and interact with, regardless of strategy type
+          // const strategyContractToUse =
+          //   strategyList.find(
+          //     (strat) => strat.address.toLowerCase() === _strategy.associatedStrategy?.V2_1?.toLowerCase()
+          //   )?.strategyContract || _strategy.strategyContract;
+          // console.log( 'strategyContractToUse: ', strategyContractToUse.address)
+          
+          // const strategyAddressToUse = strategyContractToUse.address;
+          let currentPoolAddr = undefined;
+          const fyToken: any = _strategy.associatedSeries;
+
+          // if ((_strategy.type === StrategyType.V1 || _strategy.type === StrategyType.V2_1) && _strategy.baseId !== FRAX) {
+          //   [fyToken, currentPoolAddr] = (await multicall({
+          //     contracts: [
+          //       {
+          //         address: strategyAddressToUse as `0x${string}`,
+          //         abi: _strategy.strategyContract.interface as any,
+          //         functionName: 'fyToken',
+          //         args: [],
+          //       },
+          //       {
+          //         address: strategyAddressToUse as `0x${string}`,
+          //         abi: _strategy.strategyContract.interface as any,
+          //         functionName: 'pool',
+          //         args: [],
+          //       },
+          //     ],
+          //   })) as unknown as BigNumber[];
+
+          // // fyToken = await (new Contract(strategyAddressToUse, _strategy.strategyContract.interface, provider)).fyToken();
+          // // currentPoolAddr = await (new Contract(strategyAddressToUse, _strategy.strategyContract.interface, provider)).pool();
+
+          // } else if (_strategy.type === StrategyType.V2 || _strategy.baseId === FRAX) {
+          //   // currentPoolAddr = await strategyContractToUse?.pool();
+          //   fyToken = _strategy.associatedSeries;
+          // }
 
           /* We check if the strategy has been supersecced by a newer version */
           const hasAnUpdatedVersion = _strategy.type === StrategyType.V2 || _strategy.type === StrategyType.V1;
@@ -636,10 +643,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
               rewardsRate,
               rewardsPeriod,
               rewardsTokenAddress:
-                rewardsTokenAddress === '0x0000000000000000000000000000000000000000' ? undefined : rewardsTokenAddress,
+              rewardsTokenAddress === '0x0000000000000000000000000000000000000000' ? undefined : rewardsTokenAddress,
             };
           }
-
           /* Else return an 'EMPTY' strategy */
           return {
             ..._strategy,
@@ -652,23 +658,26 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const _accountData = account
         ? await Promise.all(
             _publicData.map(async (_strategy: IStrategy): Promise<IStrategy> => {
-              const [accountBalance, accountPoolBalance] = (await multicall({
-                contracts: [
-                  {
-                    address: _strategy.strategyContract.address as `0x${string}`,
-                    abi: _strategy.strategyContract.interface as any,
-                    functionName: 'balanceOf',
-                    args: [account],
-                  },
-                  {
-                    address: _strategy.currentSeries?.poolContract.address as `0x${string}`,
-                    abi: _strategy.currentSeries?.poolContract.interface as any,
-                    functionName: 'balanceOf',
-                    args: [account],
-                  },
-                ],
-              })) as unknown as BigNumber[];
+              // const [accountBalance, accountPoolBalance] = (await multicall({
+              //   contracts: [
+              //     {
+              //       address: _strategy.strategyContract.address as `0x${string}`,
+              //       abi: _strategy.strategyContract.interface as any,
+              //       functionName: 'balanceOf',
+              //       args: [account],
+              //     },
+              //     {
+              //       address: _strategy.currentSeries?.poolContract.address as `0x${string}`,
+              //       abi: _strategy.currentSeries?.poolContract.interface as any,
+              //       functionName: 'balanceOf',
+              //       args: [account],
+              //     },
+              //   ],
+              // })) as unknown as BigNumber[];
 
+              const accountBalance = await _strategy.strategyContract.balanceOf(account);
+              // const accountPoolBalance = await _strategy.currentSeries?.poolContract.balanceOf(account)
+              
               // const stratConnected = _strategy.strategyContract.connect(signer!);
               // const accountRewards =
               // _strategy.rewardsRate?.gt(ZERO_BN) && signer ? await stratConnected.callStatic.claim(account) : ZERO_BN;
@@ -682,7 +691,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 ..._strategy,
                 accountBalance: accountBalance || ZERO_BN,
                 accountBalance_: ethers.utils.formatUnits(accountBalance || ZERO_BN, _strategy.decimals),
-                accountPoolBalance: accountPoolBalance || ZERO_BN,
+                accountPoolBalance: ZERO_BN,
                 accountStrategyPercent,
                 accountRewards: accountRewards,
                 accountRewards_: formatUnits(accountRewards, _strategy.decimals),

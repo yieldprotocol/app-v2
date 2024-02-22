@@ -4,7 +4,7 @@ import { DAI, FRAX, USDC, WETH, USDT } from './assets';
 
 export enum StrategyType {
   V1 = 'V1',
-  V2 = 'V2',
+  V2 = 'V2', // needs to be upgraded to V2_1
   V2_1 = 'V2_1',
 }
 
@@ -321,7 +321,7 @@ STRATEGIES.set(1, [
     associatedSeries: '0xc8110b03629211b946c2783637ABC9402b50EcDf',
   },
   {
-    id: '',
+    id: '', // UNDIVESTED
     address: '0x3AE72b6F5Fb854eaa2B2b862359B6fCA7e4bC2fc',
     associatedStrategy: {
       V1: '0xcf30A5A994f9aCe5832e30C138C9697cda5E1247',
@@ -380,6 +380,7 @@ STRATEGIES.set(1, [
     version: '1',
     associatedSeries: '0xc7f12Ea237bE7BE6028285052CF3727EaF0e597B',
   },
+
   {
     id: '',
     address: '0xeDa2fEc6953b90aA163C2737AEf9a731B44CE17b',
@@ -441,6 +442,7 @@ STRATEGIES.set(42161, [
     name: 'Yield Strategy DAI 6M Mar Sep',
     decimals: 18,
     version: '1',
+    associatedSeries: '0xEE508c827a8990c04798B242fa801C5351012B23',
   },
   {
     id: 'YSUSDC6MMS',
@@ -455,6 +457,7 @@ STRATEGIES.set(42161, [
     name: 'Yield Strategy USDC 6M Mar Sep',
     decimals: 6,
     version: '1',
+    associatedSeries: '0x5Bb78E530D9365aeF75664c5093e40B0001F7CCd',
   },
   {
     id: 'YSETH6MMS',
@@ -469,6 +472,7 @@ STRATEGIES.set(42161, [
     name: 'Yield Strategy ETH 6M Mar Sep',
     decimals: 18,
     version: '1',
+    associatedSeries: '0xd947360575E6F01Ce7A210C12F2EE37F5ab12d11',
   },
   {
     id: 'YSDAI6MJD',
@@ -483,6 +487,7 @@ STRATEGIES.set(42161, [
     name: 'Yield Strategy DAI 6M Jun Dec',
     decimals: 18,
     version: '1',
+    associatedSeries: '0x60a6A7fabe11ff36cbE917a17666848f0FF3A60a',
   },
   {
     id: 'YSUSDC6MJD',
@@ -497,6 +502,7 @@ STRATEGIES.set(42161, [
     name: 'Yield Strategy USDC 6M Jun Dec',
     decimals: 6,
     version: '1',
+    associatedSeries: '0xCbB7Eba13F9E1d97B2138F588f5CA2F5167F06cc',
   },
   {
     id: 'YSETH6MJD',
@@ -511,6 +517,7 @@ STRATEGIES.set(42161, [
     name: 'Yield Strategy ETH 6M Jun Dec',
     decimals: 18,
     version: '1',
+    associatedSeries: '0x523803c57a497c3AD0E850766c8276D4864edEA5',
   },
 
   //V2 Strategies
@@ -637,6 +644,7 @@ STRATEGIES.set(42161, [
       V2: '0x5aeB4EFaAA0d27bd606D618BD74Fe883062eAfd0',
       V1: '0xE779cd75E6c574d83D3FD6C92F3CBE31DD32B1E1',
     },
+    associatedSeries: '0xEE508c827a8990c04798B242fa801C5351012B23',
   },
   {
     id: '0x10A0FF000001',
@@ -651,6 +659,7 @@ STRATEGIES.set(42161, [
       V2: '0xfe2aba5ba890af0ee8b6f2d488b1f85c9e7c5643',
       V1: '', // no v1
     },
+    associatedSeries: '0x9B19889794A30056A1E5Be118ee0a6647B184c5f',
   },
   {
     id: '0x1032FF000000',
@@ -665,6 +674,7 @@ STRATEGIES.set(42161, [
       V2: '0x33e6B154efC7021dD55464c4e11a6AfE1f3D0635',
       V1: '0x54F08092e3256131954dD57C04647De8b2E7A9a9',
     },
+    associatedSeries: '0x3B560caa508CA8E58f07263f58Ee2353044C0d5c',
   },
   {
     id: '0x10A0FF000000',
@@ -679,6 +689,7 @@ STRATEGIES.set(42161, [
       V2: '0x861509a3fa7d87faa0154aae2cb6c1f92639339a',
       V1: '', // no v1
     },
+    associatedSeries: '0x9Ca40B35c3A8A717D4d54faC0905BBf889dDb281',
   },
   {
     id: '0x1032FF000001',
@@ -693,6 +704,7 @@ STRATEGIES.set(42161, [
       V2: '0x3b4FFD93CE5fCf97e61AA8275Ec241C76cC01a47',
       V1: '0x92A5B31310a3ED4546e0541197a32101fCfBD5c8',
     },
+    associatedSeries: '0x5Bb78E530D9365aeF75664c5093e40B0001F7CCd',
   },
   {
     id: '0x1030FF000001',
@@ -707,6 +719,7 @@ STRATEGIES.set(42161, [
       V2: '0x5582b8398FB586F1b79edd1a6e83f1c5aa558955',
       V1: '0xD5B43b2550751d372025d048553352ac60f27151',
     },
+    associatedSeries: '0xd947360575E6F01Ce7A210C12F2EE37F5ab12d11',
   },
   {
     id: '0x1030FF000000',
@@ -721,6 +734,7 @@ STRATEGIES.set(42161, [
       V2: '0xad1983745D6c739537fEaB5bed45795f47A940b3',
       V1: '0x3353E1E2976DBbc191a739871faA8E6E9D2622c7',
     },
+    associatedSeries: '0x8c41fc42e8Ebf66eA5F3190346c2d5b94A80480F',
   },
   {
     id: '0x1031FF000000',
@@ -735,6 +749,7 @@ STRATEGIES.set(42161, [
       V2: '0x4276BEaA49DE905eED06FCDc0aD438a19D3861DD',
       V1: '0xa3cAF61FD23d374ce13c742E4E9fA9FAc23Ddae6',
     },
+    associatedSeries: '0xCA9d3B5dE1550c79155b1311Ef54EBc73954D470',
   },
 ]);
 

@@ -198,7 +198,6 @@ export interface IStrategyRoot extends ISignable {
   baseId: string;
   decimals: number;
   strategyContract: Strategy;
-  startBlock: Block;
   type: 'V1' | 'V2' | 'V2_1';
   associatedStrategy?: AssociatedStrategy;
   disabled?: boolean;

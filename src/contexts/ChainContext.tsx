@@ -245,16 +245,17 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
 
   const _getSeries = useCallback(
     async (chain: number) => {
+      
       /* Handle caching of series */
-      const cacheKey = `series_${chain}`;
-      const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
+      // const cacheKey = `series_${chain}`;
+      // const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
 
-      if (cachedValues !== null && cachedValues.length) {
-        console.log('::: CACHE ::: Yield Protocol SERIES data retrieved ');
-        return cachedValues.forEach((s: ISeriesStatic) => {
-          updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, chain) });
-        });
-      }
+      // if (cachedValues !== null && cachedValues.length) {
+      //   console.log('::: CACHE ::: Yield Protocol SERIES data retrieved ');
+      //   return cachedValues.forEach((s: ISeriesStatic) => {
+      //     updateState({ type: ChainState.ADD_SERIES, payload: _chargeSeries(s, chain) });
+      //   });
+      // }
 
       const seriesMap = SERIES.get(chain);
       let seriesList = Array.from(seriesMap!.values());
@@ -281,7 +282,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       ).catch(() => console.log('Problems getting Series data. Check addresses in series config.'));
 
       /* cache results */
-      newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
+      // newSeriesList.length && localStorage.setItem(cacheKey, JSON.stringify(newSeriesList));
       newSeriesList.length && console.log('Yield Protocol Series data retrieved successfully.');
     },
     [_chargeSeries, provider]
@@ -315,17 +316,18 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
   /* Iterate through the strategies list and update accordingly */
   const _getStrategies = useCallback(
     async (chain: number) => {
+      
       /**
        * IF: the CACHE is empty then, get fetch asset data for chainId and cache it:
        * */
-      const cacheKey = `strategies_${chain}`;
-      const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
-      if (cachedValues !== null && cachedValues.length) {
-        console.log('::: CACHE ::: Yield Protocol STRATEGY data retrieved ');
-        return cachedValues.forEach((st: IStrategyRoot) => {
-          updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
-        });
-      }
+      // const cacheKey = `strategies_${chain}`;
+      // const cachedValues = JSON.parse(localStorage.getItem(cacheKey)!);
+      // if (cachedValues !== null && cachedValues.length) {
+      //   console.log('::: CACHE ::: Yield Protocol STRATEGY data retrieved ');
+      //   return cachedValues.forEach((st: IStrategyRoot) => {
+      //     updateState({ type: ChainState.ADD_STRATEGY, payload: _chargeStrategy(st) });
+      //   });
+      // }
 
       const strategyMap = STRATEGIES.get(chain);
       let strategyList = Array.from(strategyMap!.values());
@@ -339,21 +341,19 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
             // /* if the strategy is NOT already in the cache : */
             // console.log('::: LOADING ::: Strategy Contract ', address);
 
-            const Strategy = contractTypes.Strategy__factory.connect(address, provider);
-
+            // const Strategy = contractTypes.Strategy__factory.connect(address, provider);
             // get Strategy created block using first StartPool event as Proxy
-            let stategyStartBlock: Block | undefined;
-            const filter = Strategy.filters.PoolStarted();
-            try {
-              stategyStartBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
-            } catch (error) {
-              console.log('Could not get start block for strategy', strategy.symbol);
-            }
+            // let stategyStartBlock: Block | undefined;
+            // const filter = Strategy.filters.PoolStarted();
+            // try {
+            //   stategyStartBlock = await (await Strategy.queryFilter(filter))[0].getBlock();
+            // } catch (error) {
+            //   console.log('Could not get start block for strategy', strategy.symbol);
+            // }
 
             const newStrategy: IStrategyRoot = _chargeStrategy({
               ...strategy,
               id: address,
-              startBlock: stategyStartBlock,
             });
 
             // update state
@@ -366,7 +366,7 @@ const ChainProvider = ({ children }: { children: ReactNode }) => {
       }
 
       /* cache results */
-      newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
+      // newStrategyList.length && localStorage.setItem(cacheKey, JSON.stringify(newStrategyList));
       newStrategyList.length && console.log('Yield Protocol Strategy data retrieved successfully.');
     },
     [_chargeStrategy, provider]

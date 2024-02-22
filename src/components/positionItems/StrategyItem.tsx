@@ -16,7 +16,7 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
   const { logAnalyticsEvent } = useAnalytics();
 
   const {
-    userState: { assetMap, seriesMap, strategiesLoading, selectedStrategy },
+    userState: { assetMap, strategiesLoading, selectedStrategy },
     userActions,
   } = useContext(UserContext);
 
@@ -30,6 +30,8 @@ function StrategyItem({ strategy, index, condensed }: { strategy: IStrategy; ind
     userActions.setSelectedSeries(series);
     userActions.setSelectedStrategy(strategy);
     router.push(`/poolposition/${strategy.address}`);
+
+    console.log( base, series, strategy);
     logAnalyticsEvent(GA_Event.position_opened, {
       id: strategy?.name,
     } as GA_Properties.position_opened);

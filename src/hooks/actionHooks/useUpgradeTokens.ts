@@ -13,6 +13,7 @@ import { TREES, TreeData, TreeDataAsync, TreeMapAsync } from '../../config/trees
 import useFork from '../useFork';
 import useContracts from '../useContracts';
 import { UserContext } from '../../contexts/UserContext';
+import useChainId from '../useChainId';
 
 /*
   This hook is used to upgrade tokens that were impacted in the Euler hack. Here is the process: 
@@ -42,7 +43,6 @@ import { UserContext } from '../../contexts/UserContext';
      if it fails. Or maybe to open a support ticket.
 */
 
-const USER_TESTER = '0x1Bd3Abb6ef058408734EA01cA81D325039cd7bcA'; // an account with a v1 and v2 strategy token balance (same strategy)
 const UPGRADE_CONTRACT_ADDRESS = '0x9Ca89fC21fdbdE431Df9080426F7B630012FE551';
 const TOS_HASH = '0x9f6699a0964b1bd6fe6c9fb8bebea236c08311ddd25781bbf5d372d00d32936b';
 
@@ -51,6 +51,8 @@ export const useUpgradeTokens = () => {
   const { provider, useForkedEnv } = useFork();
   const { sign, transact } = useChain();
   const contracts = useContracts();
+
+  const chainId = useChainId();
 
   const toastRef = useRef<any>(null);
   const toasty = () => {
@@ -136,7 +138,7 @@ export const useUpgradeTokens = () => {
   // get tree data for this specific user on mount
   useEffect(() => {
     (async () => {
-      await getAccountTreeData();
+      chainId === 1 && await getAccountTreeData();
     })();
   }, [getAccountTreeData]);
 

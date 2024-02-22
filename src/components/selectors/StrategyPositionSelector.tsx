@@ -8,7 +8,6 @@ import { IStrategy } from '../../types';
 import { ZERO_BN } from '../../utils/constants';
 import StrategyItem from '../positionItems/StrategyItem';
 import ListWrap from '../wraps/ListWrap';
-import { useAccount } from 'wagmi';
 import useAccountPlus from '../../hooks/useAccountPlus';
 
 function StrategyPositionSelector() {
@@ -46,7 +45,7 @@ function StrategyPositionSelector() {
   }, [allPositions]);
 
   return (
-    <Box justify="end" fill>
+    <Box justify="end" fill >
       {activeAccount && allPositions.length !== 0 && (
         <Box gap="small">
           <Box

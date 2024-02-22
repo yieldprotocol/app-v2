@@ -190,7 +190,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
 
   return (
     <Box>
-      {!selectedBase && <Skeleton width={180} />}
+      {/* {!selectedBase && <Skeleton width={180} />}
       {strategiesLoading && (
         <>
           <CardSkeleton />
@@ -216,7 +216,7 @@ const StrategySelector = ({ inputValue }: IStrategySelectorProps) => {
             );
           })}
         </Box>
-      )}
+      )} */}
     </Box>
   );
 };

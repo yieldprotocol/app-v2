@@ -27,7 +27,7 @@ const PublicNotification = ({ children }: PublicNotificationProps) => {
 
   return (
     <>
-      {chainId === 1 && hasUpgradeable ? (
+      {hasUpgradeable ? (
         <Box direction="row" align="center" justify="between">
           <Box direction="column" border={{ size: 'small' }} pad="small" gap="small" align="center" round="xsmall">
             <Box gap="small" align="center">
