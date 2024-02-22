@@ -265,24 +265,24 @@ const useStrategyReturns = (
   };
 
   /* TODO  fix this*/
-  const totalAPYBackward = (strategy: IStrategy, digits: number = 2) => {
-    const series = strategy.currentSeries;
-    if (!series || !strategy_) return;
+  // const totalAPYBackward = (strategy: IStrategy, digits: number = 2) => {
+  //   const series = strategy.currentSeries;
+  //   if (!series || !strategy_) return;
 
-    const strategyLpBalance = +strategy_?.strategyPoolBalance!;
-    const strategyTotalSupply = +strategy_?.strategyTotalSupply!;
-    const poolTotalSupply = +series.totalSupply;
+  //   const strategyLpBalance = +strategy_?.strategyPoolBalance!;
+  //   const strategyTotalSupply = +strategy_?.strategyTotalSupply!;
+  //   const poolTotalSupply = +series.totalSupply;
 
-    const poolBaseValue_ = getPoolBaseValue(series, '1');
-    if (!poolBaseValue_) return;
+  //   const poolBaseValue_ = getPoolBaseValue(series, '1');
+  //   if (!poolBaseValue_) return;
 
-    const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
+  //   const strategyLpBalSupplyRatio = strategyLpBalance / strategyTotalSupply;
 
-    const value = strategyLpBalSupplyRatio * (poolBaseValue_ / poolTotalSupply);
-    const apy = calculateAPR('1', value.toString(), NOW, strategy_.startBlock?.timestamp);
+  //   const value = strategyLpBalSupplyRatio * (poolBaseValue_ / poolTotalSupply);
+  //   const apy = calculateAPR('1', value.toString(), NOW, strategy_.startBlock?.timestamp);
 
-    return cleanValue(apy, digits);
-  };
+  //   return cleanValue(apy, digits);
+  // };
 
   const calcStrategyReturns = (strategy: IStrategy | null, input: string) => {
 
